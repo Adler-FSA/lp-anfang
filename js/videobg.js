@@ -19,15 +19,13 @@
     bg.loop = true;
     bg.muted = true;
     bg.playsInline = true;
-
-    bg.style.position = 'absolute';
+    bg.style.position = 'fixed';
     bg.style.top = '0';
     bg.style.left = '0';
     bg.style.width = '100%';
     bg.style.height = '100%';
     bg.style.objectFit = 'cover';
-    bg.style.zIndex = '-1';
-
+    bg.style.zIndex = '-3';
     document.body.prepend(bg);
   }
 })();
