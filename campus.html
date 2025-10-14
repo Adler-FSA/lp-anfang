@@ -1,143 +1,84 @@
-<!doctype html>
-<html lang="de">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Campus – FSA</title>
-<style>
-  :root{
-    --glow:0 0 26px rgba(212,175,55,.45),0 10px 28px rgba(0,0,0,.55);
-  }
-
-  html,body{
-    margin:0;
-    padding:0;
-    height:100%;
-    background:#000;
-    color:#fff;
-    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,sans-serif;
-    overflow:hidden;
-  }
-
-  /* === Hintergrund Slideshow === */
-  #slideshow{
-    position:fixed;
-    inset:0;
-    z-index:-1;
-    overflow:hidden;
-  }
-  .slide{
-    position:absolute;
-    inset:0;
-    background:#000 center/cover no-repeat;
-    opacity:0;
-    transition:opacity 1.2s ease-in-out;
-  }
-  .slide.active{
-    opacity:1;
-  }
-
-  /* === Inhalt === */
-  .content{
-    position:relative;
-    z-index:1;
-    text-align:center;
-    top:40%;
-    transform:translateY(-50%);
-    padding:0 20px;
-  }
-  h1{
-    font-size:2.4rem;
-    margin-bottom:10px;
-  }
-  p{
-    font-size:1rem;
-    opacity:.85;
-  }
-
-  /* === Musik-Button === */
-  .fixed-right{
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    z-index:5;
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:10px 14px;
-    border-radius:999px;
-    border:1px solid rgba(212,175,55,.25);
-    background:rgba(0,0,0,.55);
-    color:#fff;
-    font-weight:800;
-    box-shadow:var(--glow);
-    backdrop-filter:blur(6px);
-    cursor:pointer;
-  }
-</style>
-</head>
-<body>
-
-<!-- ===== Slideshow ===== -->
-<div id="slideshow"></div>
-
-<!-- ===== Inhalt ===== -->
-<div class="content">
-  <h1>📍 Campus</h1>
-  <p>Hier läuft die Slideshow aus dem Pool.</p>
-  <p>Musik kann über den Button unten rechts gestartet werden.</p>
-</div>
-
-<!-- ===== Musik ===== -->
-<button id="musicBtn" class="fixed-right">🎵 Musik starten</button>
+<!-- Slideshow + Musik -->
+<div id="slideshow" style="position:fixed;inset:0;z-index:-1;overflow:hidden"></div>
 <audio id="bgMusic" loop src="library/music/pool/track-01.mp3"></audio>
+<button id="musicBtn" style="position:fixed;bottom:20px;right:20px;z-index:10;padding:10px 16px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;border:1px solid rgba(212,175,55,.25);box-shadow:0 0 26px rgba(212,175,55,.45),0 10px 28px rgba(0,0,0,.55);backdrop-filter:blur(6px)">🎵 Musik starten</button>
 
 <script>
-  // ===== Slideshow =====
-  const slideEl = document.getElementById('slideshow');
-  const nodes = [];
-  const MAX = 48; // Anzahl Bilder im Pool
-  for (let i = 1; i <= MAX; i++) {
-    const n = String(i).padStart(2,'0');
-    const d = document.createElement('div');
-    d.className = 'slide';
-    d.style.backgroundImage = `url('library/images/pool-live/slide-${n}.jpg')`;
-    slideEl.appendChild(d);
-    nodes.push(d);
-  }
-  let si = 0;
-  function stepSlides(){
-    nodes.forEach(n=>n.classList.remove('active'));
-    nodes[si].classList.add('active');
-    si = (si + 1) % nodes.length;
-  }
-  stepSlides();
-  setInterval(stepSlides, 6000);
+// ========== Slideshow aus pool-live ==========
+(function(){
+  const path = 'library/images/pool-live/';
+  const count = 48;            // Anzahl deiner Bilder
+  const interval = 8000;       // Zeit zwischen den Wechseln
+  const fadeTime = 2000;       // Übergangszeit
 
-  // ===== Musik =====
-  const music = document.getElementById('bgMusic');
-  const musicBtn = document.getElementById('musicBtn');
-  let musicOn = false;
-  async function startMusic(){
-    try{
-      await music.play();
-      musicOn = true;
-      musicBtn.textContent = "⏸ Musik stoppen";
-    }catch(e){}
+  const container = document.getElementById('slideshow');
+  const layers = [];
+  let active = 0;
+  let index = 0;
+
+  for (let i = 0; i < 2; i++) {
+    const layer = document.createElement('div');
+    Object.assign(layer.style, {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      transition: `opacity ${fadeTime}ms ease-in-out`,
+      opacity: i === 0 ? '1' : '0'
+    });
+    container.appendChild(layer);
+    layers.push(layer);
   }
-  musicBtn.addEventListener('click', async ()=>{
-    if(!musicOn){
-      await startMusic();
-    }else{
-      music.pause();
-      musicOn = false;
-      musicBtn.textContent = "🎵 Musik starten";
-    }
-  });
-  window.addEventListener('pointerdown', function once(){
-    if(!musicOn){ startMusic(); }
-    window.removeEventListener('pointerdown', once);
-  }, {once:true});
+
+  function imgName(n){
+    return `${path}slide-${String(n).padStart(2,'0')}.jpg`;
+  }
+
+  // Bilder vorladen
+  for (let i = 1; i <= count; i++){
+    const img = new Image();
+    img.src = imgName(i);
+  }
+
+  function next(){
+    index = (index + 1) % count;
+    const nextLayer = 1 - active;
+    layers[nextLayer].style.backgroundImage = `url(${imgName(index+1)})`;
+    layers[nextLayer].style.opacity = '1';
+    layers[active].style.opacity = '0';
+    active = nextLayer;
+  }
+
+  layers[0].style.backgroundImage = `url(${imgName(1)})`;
+  setInterval(next, interval);
+})();
+
+// ========== Musik-Button ==========
+const music = document.getElementById('bgMusic');
+const musicBtn = document.getElementById('musicBtn');
+let playing = false;
+
+async function startMusic(){
+  try{
+    await music.play();
+    playing = true;
+    musicBtn.textContent = "⏸ Musik stoppen";
+  }catch(e){
+    // iOS-Schutz
+  }
+}
+
+musicBtn.addEventListener('click', async ()=>{
+  if(!playing){ await startMusic(); }
+  else{ music.pause(); playing=false; musicBtn.textContent="🎵 Musik starten"; }
+});
+
+// einmaliges Auto-Start-Event bei erstem Tap
+window.addEventListener('pointerdown', function once(){
+  if(!playing) startMusic();
+  window.removeEventListener('pointerdown', once);
+},{once:true});
 </script>
-</body>
-</html>
