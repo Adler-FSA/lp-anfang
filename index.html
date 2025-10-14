@@ -133,8 +133,8 @@
   .fixed-left{left:20px}
   .fixed-right{right:20px}
 
-  /* Mehr Luft über Video */
-  #hero{padding-top:36px}
+  /* Mehr Luft über Video (Änderung #1) */
+  #hero{padding-top:110px}
 </style>
 </head>
 <body>
@@ -218,19 +218,6 @@
     </div>
   </section>
 
-  <!-- ===== Kino ===== -->
-  <section id="kino">
-    <div class="wrap">
-      <div class="card floating" style="text-align:center">
-        <h2 style="margin-bottom:10px;">🎬 Kino – Adlerflug</h2>
-        <p style="margin-bottom:14px;">
-          Live-Hintergrund läuft. Sollte YouTube blockieren, wird automatisch die Slideshow gestartet.
-        </p>
-        <button onclick="location.reload()" class="btn">🔁 Neu starten</button>
-      </div>
-    </div>
-  </section>
-
   <!-- ===== Reise (Accordion) ===== -->
   <section id="reise">
     <div class="wrap">
@@ -290,6 +277,30 @@
     </div>
   </section>
 
+  <!-- ===== Kino (Änderung #2: unten, transparenter Rahmen mit Glow, 16:9) ===== -->
+  <section id="kino">
+    <div class="wrap" style="max-width:960px">
+      <div class="floating"
+        style="
+          position:relative;
+          border:2px solid var(--gold);
+          border-radius:16px;
+          aspect-ratio:16/9;
+          box-shadow:var(--glow);
+          overflow:hidden;
+          background:transparent;
+          backdrop-filter:none;">
+        <iframe
+          src="https://www.youtube.com/embed/miWBKSszEIw?autoplay=0&mute=0&loop=1&controls=1&modestbranding=1&playsinline=1"
+          title="Kino – Adlerflug"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowfullscreen
+          style="width:100%;height:100%;border:0;background:transparent;">
+        </iframe>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== Footer ===== -->
   <footer class="wrap" style="text-align:center;color:#cbd2e1;padding:50px 0 90px">
     <div style="font-size:1.2rem;font-weight:800;color:var(--gold);margin-bottom:6px">Finanzbildung für die neue Welt</div>
@@ -298,21 +309,21 @@
   </footer>
 </main>
 
-<!-- ===== Fixed Buttons ===== -->
+<!-- ===== Fixed Buttons & Musik ===== -->
 <a class="fixed-left" href="admin.html" title="Technikraum (nur für Admins)">🔧 Technikraum</a>
 <button id="musicBtn" class="fixed-right" title="Hintergrundmusik">🎵 Musik starten</button>
 <audio id="bgMusic" loop src="library/music/pool/track-01.mp3"></audio>
 
 <script>
-  // Jahr
+  /* ========= Jahr ========= */
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // Accordion
+  /* ========= Accordion-Chevron ========= */
   document.querySelectorAll('.acc-head').forEach(h=>{
     h.addEventListener('click',()=>h.parentElement.classList.toggle('open'));
   });
 
-  // Laufband – Texte + 4 cm Lücken (nur mqA)
+  /* ========= Laufband – einzeilig, ~4 cm Gap ========= */
   const bandTexts = [
     "🔑 Zugang zur Welt der Krypto-Assets",
     "🧠 KI unterstützt dich – die Kontrolle bleibt bei dir",
@@ -328,13 +339,8 @@
     line.style.display='flex';
     line.style.alignItems='center';
     line.style.gap = getComputedStyle(document.documentElement).getPropertyValue('--marquee-gap') || '4cm';
-    bandTexts.forEach(t=>{
-      const span=document.createElement('span');
-      span.textContent=t;
-      line.appendChild(span);
-    });
-    // zweite Runde für kontinuierlichen Fluss
-    bandTexts.forEach(t=>{
+    // doppelt einfügen → nahtloser Flow
+    [...bandTexts, ...bandTexts].forEach(t=>{
       const span=document.createElement('span');
       span.textContent=t;
       line.appendChild(span);
@@ -343,7 +349,7 @@
   }
   document.getElementById('mqA').innerHTML = buildMarqueeLine();
 
-  // Musik-Schalter (mit robustem Play-Fallback)
+  /* ========= Musik-Schalter (mit iOS-Fallback) ========= */
   const music = document.getElementById('bgMusic');
   const musicBtn = document.getElementById('musicBtn');
   let musicOn=false;
@@ -351,23 +357,26 @@
     try{
       await music.play();
       musicOn=true; musicBtn.textContent="⏸ Musik stoppen";
-    }catch(e){ /* iOS blockt ohne Nutzer-Geste */ }
+    }catch(e){ /* iOS blockt ohne Geste */ }
   }
   musicBtn.addEventListener('click', async ()=>{
     if(!musicOn){ await startMusic(); }
     else{ music.pause(); musicOn=false; musicBtn.textContent="🎵 Musik starten"; }
   });
-  // falls Nutzer irgendwo zuerst tippt → als 'Geste' nutzen
-  window.addEventListener('pointerdown', function once(){ if(!musicOn){startMusic();} window.removeEventListener('pointerdown', once); }, {once:true});
+  // erste Nutzer-Geste überall benutzen
+  window.addEventListener('pointerdown', function once(){
+    if(!musicOn){ startMusic(); }
+    window.removeEventListener('pointerdown', once);
+  }, {once:true});
 
-  // Hintergrund-Video + Fallback-Slideshow
+  /* ========= Hintergrund-Video + Fallback-Slideshow ========= */
   const ytId = "miWBKSszEIw";
   const iframe = document.getElementById('bgVideo');
   iframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&playsinline=1`;
 
   // Slideshow aus pool-live
   const slidesEl = document.getElementById('slides');
-  const MAX = 48; // vorhandene Pool-Live-Bilder
+  const MAX = 48; // vorhandene Bilder
   const nodes=[];
   for(let i=1;i<=MAX;i++){
     const n=String(i).padStart(2,'0');
@@ -389,7 +398,6 @@
   iframe.addEventListener('load',()=>{ ytLoaded=true; });
   iframe.addEventListener('error',()=>{ ytLoaded=false; startSlides(); });
   setTimeout(()=>{ if(!ytLoaded) startSlides(); }, 2500); // Safety
-
 </script>
 </body>
 </html>
