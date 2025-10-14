@@ -1,23 +1,122 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>FSA Landingpage</title>
-  <style>
-    html,body{margin:0;padding:0;height:100%;background:#000;color:#fff;font-family:system-ui,Segoe UI,Roboto,sans-serif}
-    #slideshow{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-2;}
-    .content{position:relative;z-index:1;padding:2rem;text-align:center;}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campus – FSA</title>
+<style>
+  :root{
+    --gold:#d4af37;
+    --glow:0 0 26px rgba(212,175,55,.45), 0 10px 28px rgba(0,0,0,.55);
+  }
+
+  html,body{
+    margin:0;padding:0;height:100%;
+    background:#000;color:#fff;
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    overflow-x:hidden;
+  }
+
+  /* ===== Hintergrund: NUR Slideshow ===== */
+  .bg{position:fixed;inset:0;z-index:-2;background:#000;overflow:hidden;pointer-events:none}
+  .bg .slides{position:absolute;inset:0;z-index:-3}
+  .slide{
+    position:absolute;inset:0;background:#000 center/cover no-repeat;
+    opacity:0;transition:opacity 1.2s ease-in-out;filter:brightness(.86)
+  }
+  .slide.active{opacity:1}
+
+  main{
+    position:relative;z-index:1;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    min-height:100vh;
+    text-align:center;
+    padding:20px;
+  }
+
+  /* ===== Musik-Button ===== */
+  .fixed-right{
+    position:fixed;bottom:20px;right:20px;z-index:4;
+    display:inline-flex;align-items:center;gap:8px;
+    padding:10px 14px;border-radius:999px;
+    border:1px solid rgba(212,175,55,.25);
+    background:rgba(0,0,0,.55);color:#fff;
+    text-decoration:none;font-weight:800;
+    box-shadow:var(--glow);backdrop-filter: blur(6px);
+    cursor:pointer;
+  }
+</style>
 </head>
 <body>
-  <div id="slideshow"></div>
-  <div class="content">
-    <h1>FSA Landingpage</h1>
-    <p>Video / Slideshow / Musik aktivierbar über config.json</p>
-  </div>
-  <script src="js/videobg.js" defer></script>
-  <script src="js/slideshow.js" defer></script>
-  <script src="js/music.js" defer></script>
+
+<!-- ===== Hintergrund Slideshow ===== -->
+<div class="bg" aria-hidden="true">
+  <div class="slides" id="slides"></div>
+</div>
+
+<!-- ===== Inhalt ===== -->
+<main>
+  <h1>📍 Campus</h1>
+  <p>Hier läuft die Slideshow aus dem Pool.</p>
+  <p>Musik kann über den Button unten rechts gestartet werden.</p>
+</main>
+
+<!-- ===== Musiksteuerung ===== -->
+<button id="musicBtn" class="fixed-right">🎵 Musik starten</button>
+<audio id="bgMusic" loop src="library/music/pool/track-01.mp3"></audio>
+
+<script>
+  /* ========= Slideshow ========= */
+  const slidesEl = document.getElementById('slides');
+  const MAX = 48; // Anzahl der Bilder im Pool
+  const nodes = [];
+
+  for (let i = 1; i <= MAX; i++) {
+    const n = String(i).padStart(2,'0');
+    const d = document.createElement('div');
+    d.className = 'slide';
+    d.style.backgroundImage = `url('library/images/pool-live/slide-${n}.jpg')`;
+    slidesEl.appendChild(d);
+    nodes.push(d);
+  }
+
+  let si = 0, slideTimer = null;
+  function stepSlides(){
+    nodes.forEach(n=>n.classList.remove('active'));
+    nodes[si].classList.add('active');
+    si=(si+1)%nodes.length;
+  }
+  function startSlides(){
+    if(slideTimer) return;
+    stepSlides();
+    slideTimer = setInterval(stepSlides, 6000);
+  }
+  startSlides();
+
+  /* ========= Musik-Schalter ========= */
+  const music = document.getElementById('bgMusic');
+  const musicBtn = document.getElementById('musicBtn');
+  let musicOn = false;
+
+  async function startMusic(){
+    try{
+      await music.play();
+      musicOn = true;
+      musicBtn.textContent = "⏸ Musik stoppen";
+    }catch(e){}
+  }
+
+  musicBtn.addEventListener('click', async ()=>{
+    if(!musicOn){ await startMusic(); }
+    else{ music.pause(); musicOn=false; musicBtn.textContent="🎵 Musik starten"; }
+  });
+
+  // erste Nutzer-Geste überall benutzen
+  window.addEventListener('pointerdown', function once(){
+    if(!musicOn){ startMusic(); }
+    window.removeEventListener('pointerdown', once);
+  }, {once:true});
+</script>
 </body>
 </html>
