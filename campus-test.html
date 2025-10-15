@@ -3,14 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Campus Test</title>
+<title>Campus Test – 4 Türen</title>
 <style>
   :root{
     --gold: #d4af37;
-    --turq: #1cc2a0;
     --door-width: 5cm;
     --door-height: 7cm;
-    --glow: 0 0 25px rgba(212,175,55,.7), 0 0 60px rgba(212,175,55,.3);
   }
 
   html,body{
@@ -18,7 +16,7 @@
     font-family:Inter,system-ui,sans-serif;
   }
 
-  /* ===== Hintergrund Slideshow ===== */
+  /* ===== Slideshow ===== */
   .bg{position:fixed;inset:0;z-index:-2;overflow:hidden}
   .slide{
     position:absolute;inset:0;background:#000 center/cover no-repeat;
@@ -33,8 +31,10 @@
     justify-content:center;
     align-items:center;
     height:100vh;
+    gap:2.5rem;
     position:relative;
     z-index:1;
+    flex-wrap:wrap;
   }
 
   /* ===== Tür Container ===== */
@@ -44,7 +44,6 @@
     height:var(--door-height);
     perspective:1000px;
     transform-style:preserve-3d;
-    animation:doorFlyIn 4s ease forwards;
     opacity:0;
   }
 
@@ -53,22 +52,39 @@
     width:100%;
     height:100%;
     border:2px solid var(--gold);
-    background:linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.15));
-    box-shadow:var(--glow);
+    background:rgba(255,255,255,0.05);
+    box-shadow:0 0 25px rgba(212,175,55,.6), 0 0 60px rgba(212,175,55,.3);
     border-radius:10px;
-    backdrop-filter: blur(4px);
-    transform:rotateY(-25deg);
+    backdrop-filter: blur(6px);
     animation:glowPulse 6s ease-in-out infinite;
-  }
-
-  @keyframes doorFlyIn {
-    0% {transform:translateY(-200px) scale(0.8) rotateY(-45deg); opacity:0;}
-    100% {transform:translateY(0) scale(1) rotateY(0deg); opacity:1;}
   }
 
   @keyframes glowPulse {
     0%,100% {box-shadow:0 0 20px rgba(212,175,55,.3), 0 0 60px rgba(212,175,55,.2);}
     50% {box-shadow:0 0 30px rgba(212,175,55,.7), 0 0 80px rgba(212,175,55,.4);}
+  }
+
+  /* Einflugrichtungen */
+  .from-top-left   {animation:doorInTL 3.5s ease forwards;}
+  .from-top-right  {animation:doorInTR 3.5s ease forwards;}
+  .from-bottom-left{animation:doorInBL 3.5s ease forwards;}
+  .from-bottom-right{animation:doorInBR 3.5s ease forwards;}
+
+  @keyframes doorInTL {
+    0% {transform:translate(-300px,-300px) rotateY(-40deg) scale(.8);opacity:0;}
+    100% {transform:translate(0,0) rotateY(0deg) scale(1);opacity:1;}
+  }
+  @keyframes doorInTR {
+    0% {transform:translate(300px,-300px) rotateY(40deg) scale(.8);opacity:0;}
+    100% {transform:translate(0,0) rotateY(0deg) scale(1);opacity:1;}
+  }
+  @keyframes doorInBL {
+    0% {transform:translate(-300px,300px) rotateY(-40deg) scale(.8);opacity:0;}
+    100% {transform:translate(0,0) rotateY(0deg) scale(1);opacity:1;}
+  }
+  @keyframes doorInBR {
+    0% {transform:translate(300px,300px) rotateY(40deg) scale(.8);opacity:0;}
+    100% {transform:translate(0,0) rotateY(0deg) scale(1);opacity:1;}
   }
 
   /* ===== Nebel ===== */
@@ -108,34 +124,56 @@
 <div class="bg" id="slideshow"></div>
 
 <main>
-  <div class="door-container">
+  <div class="door-container from-top-left">
     <div class="door" onclick="alert('Social Media Bereich')"></div>
     <div class="fog"></div>
     <div class="label">Social Media</div>
+  </div>
+
+  <div class="door-container from-top-right">
+    <div class="door" onclick="alert('Grundkurs')"></div>
+    <div class="fog"></div>
+    <div class="label">Grundkurs</div>
+  </div>
+
+  <div class="door-container from-bottom-left">
+    <div class="door" onclick="alert('Souveränität')"></div>
+    <div class="fog"></div>
+    <div class="label">Souveränität</div>
+  </div>
+
+  <div class="door-container from-bottom-right">
+    <div class="door" onclick="alert('Onboarding')"></div>
+    <div class="fog"></div>
+    <div class="label">Onboarding</div>
   </div>
 </main>
 
 <script>
   // Slideshow aus pool-live
   const bg = document.getElementById('slideshow');
+  const path = 'library/images/pool-live/';
   const max = 48;
   const slides = [];
-  for(let i=1;i<=max;i++){
-    const n=String(i).padStart(2,'0');
-    const d=document.createElement('div');
-    d.className='slide';
-    d.style.backgroundImage=`url('library/images/pool-live/slide-${n}.jpg')`;
+
+  for (let i = 1; i <= max; i++) {
+    const n = String(i).padStart(2, '0');
+    const d = document.createElement('div');
+    d.className = 'slide';
+    d.style.backgroundImage = `url('${path}slide-${n}.jpg')`;
     bg.appendChild(d);
     slides.push(d);
   }
-  let idx=0;
-  function next(){
-    slides.forEach(s=>s.classList.remove('active'));
-    slides[idx].classList.add('active');
-    idx=(idx+1)%slides.length;
+
+  let idx = 0;
+  if (slides.length > 0) {
+    slides[0].classList.add('active');
+    setInterval(() => {
+      slides[idx].classList.remove('active');
+      idx = (idx + 1) % slides.length;
+      slides[idx].classList.add('active');
+    }, 6000);
   }
-  next();
-  setInterval(next,6000);
 </script>
 
 </body>
