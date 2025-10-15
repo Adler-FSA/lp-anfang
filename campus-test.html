@@ -23,22 +23,22 @@
     overflow-x: hidden;
   }
 
-  /* === Slideshow Hintergrund === */
+  /* === Slideshow === */
   #slideshow {
     position: fixed;
     inset: 0;
     z-index: -1;
+    overflow: hidden;
   }
-  #slideshow img {
+  #slideshow div {
     position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    opacity: 0;
-    transition: opacity 1.5s ease-in-out;
-  }
-  #slideshow img.active {
-    opacity: 1;
+    background-size: cover;
+    background-position: center;
+    transition: opacity 2s ease-in-out;
   }
 
   /* === Begrüßung === */
@@ -57,7 +57,7 @@
     color: var(--gold);
   }
 
-  /* === Türen === */
+  /* === Türen Container === */
   .doors-container {
     display: flex;
     justify-content: center;
@@ -65,6 +65,7 @@
     gap: 50px;
     padding-bottom: 80px;
   }
+
   .door {
     width: 5cm;
     height: 7cm;
@@ -79,7 +80,7 @@
     animation: flyIn 1s ease forwards;
   }
 
-  /* Halbkreis-Effekt */
+  /* Halbkreis Position + Einflugzeit */
   .door:nth-child(1) {
     animation-delay: 0.3s;
     transform: translate(-150px, 50px) rotate(-8deg);
@@ -104,6 +105,7 @@
     }
   }
 
+  /* Emoji & Text */
   .door span.emoji {
     display: block;
     font-size: 2.2rem;
@@ -120,33 +122,31 @@
   .door:nth-child(3) .emoji, .door:nth-child(3) p { color: var(--green); }
   .door:nth-child(4) .emoji, .door:nth-child(4) p { color: var(--amber); }
 
-  /* === Musikbutton === */
-  #music-btn {
+  /* Musikbutton */
+  #musicBtn {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    padding: 10px 14px;
-    background: rgba(0,0,0,0.65);
-    color: var(--text);
-    border: 1px solid var(--gold);
-    border-radius: 20px;
+    z-index: 10;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: rgba(0,0,0,.55);
+    color: #fff;
+    border: 1px solid rgba(212,175,55,.25);
+    box-shadow: 0 0 26px rgba(212,175,55,.45),0 10px 28px rgba(0,0,0,.55);
+    backdrop-filter: blur(6px);
     cursor: pointer;
-    font-size: 0.9rem;
-    box-shadow: var(--glow);
   }
 </style>
 </head>
 <body>
 
-<!-- === Slideshow === -->
-<div id="slideshow">
-  <img src="library/images/pool-live/slide-01.jpg" class="active" alt="">
-  <img src="library/images/pool-live/slide-02.jpg" alt="">
-  <img src="library/images/pool-live/slide-03.jpg" alt="">
-  <img src="library/images/pool-live/slide-04.jpg" alt="">
-</div>
+<!-- === Slideshow + Musik === -->
+<div id="slideshow"></div>
+<audio id="bgMusic" loop src="library/music/pool/track-01.mp3"></audio>
+<button id="musicBtn">🎵 Musik starten</button>
 
-<!-- === Begrüßungstext === -->
+<!-- === Begrüßung === -->
 <div class="welcome-box">
   <h1>Willkommen im Campus</h1>
   <p>Schön, dass du hier bist. Dies ist dein Tor in eine neue Welt: selbstbestimmt, frei, souverän.</p>
@@ -163,36 +163,75 @@
   <div class="door"><span class="emoji">🌕</span><p>Souveränität</p></div>
 </div>
 
-<!-- === Musikbutton === -->
-<button id="music-btn">🎵 Musik starten</button>
-<audio id="bg-music" loop>
-  <source src="library/music/terra.mp3" type="audio/mpeg">
-</audio>
-
 <script>
-  // Slideshow Logic
-  const slides = document.querySelectorAll('#slideshow img');
-  let current = 0;
-  setInterval(() => {
-    slides[current].classList.remove('active');
-    current = (current + 1) % slides.length;
-    slides[current].classList.add('active');
-  }, 6000);
+// ========== Slideshow aus pool-live ==========
+(function(){
+  const path = 'library/images/pool-live/';
+  const count = 48;            // Anzahl deiner Bilder
+  const interval = 8000;       // Zeit zwischen den Wechseln
+  const fadeTime = 2000;       // Übergangszeit
 
-  // Musiksteuerung
-  const musicBtn = document.getElementById('music-btn');
-  const bgMusic = document.getElementById('bg-music');
-  let playing = false;
-  musicBtn.addEventListener('click', () => {
-    if (!playing) {
-      bgMusic.play();
-      musicBtn.textContent = '⏸ Musik stoppen';
-    } else {
-      bgMusic.pause();
-      musicBtn.textContent = '🎵 Musik starten';
-    }
-    playing = !playing;
-  });
+  const container = document.getElementById('slideshow');
+  const layers = [];
+  let active = 0;
+  let index = 0;
+
+  for (let i = 0; i < 2; i++) {
+    const layer = document.createElement('div');
+    Object.assign(layer.style, {
+      opacity: i === 0 ? '1' : '0'
+    });
+    container.appendChild(layer);
+    layers.push(layer);
+  }
+
+  function imgName(n){
+    return `${path}slide-${String(n).padStart(2,'0')}.jpg`;
+  }
+
+  // Bilder vorladen
+  for (let i = 1; i <= count; i++){
+    const img = new Image();
+    img.src = imgName(i);
+  }
+
+  function next(){
+    index = (index + 1) % count;
+    const nextLayer = 1 - active;
+    layers[nextLayer].style.backgroundImage = `url(${imgName(index+1)})`;
+    layers[nextLayer].style.opacity = '1';
+    layers[active].style.opacity = '0';
+    active = nextLayer;
+  }
+
+  layers[0].style.backgroundImage = `url(${imgName(1)})`;
+  setInterval(next, interval);
+})();
+
+// ========== Musik-Button ==========
+const music = document.getElementById('bgMusic');
+const musicBtn = document.getElementById('musicBtn');
+let playing = false;
+
+async function startMusic(){
+  try{
+    await music.play();
+    playing = true;
+    musicBtn.textContent = "⏸ Musik stoppen";
+  }catch(e){
+    // iOS-Schutz
+  }
+}
+
+musicBtn.addEventListener('click', async ()=>{
+  if(!playing){ await startMusic(); }
+  else{ music.pause(); playing=false; musicBtn.textContent="🎵 Musik starten"; }
+});
+
+window.addEventListener('pointerdown', function once(){
+  if(!playing) startMusic();
+  window.removeEventListener('pointerdown', once);
+},{once:true});
 </script>
 
 </body>
