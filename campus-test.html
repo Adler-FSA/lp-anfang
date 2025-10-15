@@ -1,174 +1,194 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Campus Test – FSA</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FSA Campus – Empfang</title>
 <style>
-  :root{
-    --gold:#d4af37;
-    --bg:#000;
-    --text:#eaeaea;
-    --card:rgba(20,20,28,.78);
-    --glow:0 0 26px rgba(212,175,55,.45), 0 10px 28px rgba(0,0,0,.55);
-    --door-w:5cm;           /* feste Anforderung */
-    --door-h:7cm;           /* feste Anforderung */
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: system-ui, sans-serif;
+    background: #000;
+    overflow-x: hidden;
   }
-  html,body{height:100%}
-  body{margin:0;background:var(--bg);color:var(--text);
-       font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,sans-serif;overflow-x:hidden}
 
-  /* ===== Slideshow (Ebene 1) ===== */
-  #slideshow{position:fixed;inset:0;z-index:-1;overflow:hidden}
-  /* Ebenen werden per JS eingefügt */
+  /* ===== Slideshow ===== */
+  #slideshow {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    overflow: hidden;
+  }
+  #slideshow div {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: opacity 2s ease-in-out;
+  }
 
-  /* ===== Begrüßung (schwebend) ===== */
-  .welcome{
-    max-width:980px;margin:56px auto 34px;padding:28px 28px 30px;
-    background:var(--card);border:1px solid rgba(212,175,55,.25);
-    border-radius:16px;box-shadow:var(--glow);text-align:center;
+  /* ===== Wolkenebene ===== */
+  #clouds {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: url('library/images/clouds.png') repeat-x center;
+    background-size: cover;
+    opacity: 0.35;
+    animation: moveClouds 120s linear infinite;
+  }
+  @keyframes moveClouds {
+    0% { background-position: 0 0; }
+    100% { background-position: -2000px 0; }
+  }
+
+  /* ===== Bühne ===== */
+  .content {
+    min-height: 200vh; /* für Scrollfreiheit */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 80px;
+    perspective: 1200px;
+  }
+
+  /* ===== Glow Animation ===== */
+  @keyframes softGlow {
+    0%, 100% { box-shadow: 0 0 25px rgba(212,175,55,0.6); }
+    50% { box-shadow: 0 0 45px rgba(212,175,55,0.9); }
+  }
+
+  /* ===== Begrüßungstext ===== */
+  .welcome-box {
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    max-width: 800px;
+    padding: 28px;
+    text-align: center;
+    border: 1px solid rgba(212,175,55,.5);
+    border-radius: 12px;
+    margin-bottom: 60px;
+    animation: softGlow 4s ease-in-out infinite;
+  }
+  .welcome-box h1 {
+    color: #d4af37;
+    margin-top: 0;
+    font-size: 2rem;
+  }
+
+  /* ===== Türen ===== */
+  .doors {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    transform-style: preserve-3d;
+  }
+  .door {
+    width: 5cm;
+    height: 7cm;
+    background: rgba(0,0,0,0.65);
+    border: 2px solid #d4af37;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #fff;
+    animation: softGlow 4s ease-in-out infinite;
+    transform: rotateY(0deg);
+    opacity: 0;
+    transition: transform 1.5s ease, opacity 1.5s ease;
+  }
+  .door span {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .door:nth-child(1) { transform: translateX(-200px) translateY(-100px) rotateY(30deg); }
+  .door:nth-child(2) { transform: translateX(-80px) translateY(-40px) rotateY(15deg); }
+  .door:nth-child(3) { transform: translateX(80px) translateY(-40px) rotateY(-15deg); }
+  .door:nth-child(4) { transform: translateX(200px) translateY(-100px) rotateY(-30deg); }
+
+  /* Farben pro Tür */
+  .door:nth-child(1) { color: #ffd700; }
+  .door:nth-child(2) { color: #4dabff; }
+  .door:nth-child(3) { color: #4ef59c; }
+  .door:nth-child(4) { color: #ffe27a; }
+
+  /* Aktivierungseffekt beim Laden */
+  .door.visible {
+    opacity: 1;
+  }
+
+  /* ===== Musik Button ===== */
+  #musicBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: rgba(0,0,0,.55);
+    color: #fff;
+    border: 1px solid rgba(212,175,55,.25);
+    box-shadow: 0 0 26px rgba(212,175,55,.45),0 10px 28px rgba(0,0,0,.55);
     backdrop-filter: blur(6px);
-  }
-  .welcome h1{margin:0 0 12px;font-size:2rem;color:var(--gold)}
-  .welcome p{margin:10px 0;line-height:1.6}
-  .welcome .strong{font-weight:800;color:#ffd978}
-
-  /* ===== Türen-Deck (Ebene 2) ===== */
-  .stage{display:flex;justify-content:center;gap:40px;flex-wrap:nowrap;
-         align-items:flex-end;margin:24px auto 90px;max-width:1200px;padding:0 24px}
-
-  .door{
-    width:var(--door-w);height:var(--door-h);
-    border-radius:14px;border:2px solid rgba(212,175,55,.65);
-    background:rgba(10,10,14,.22); /* innen durchsichtig */
-    box-shadow:0 0 55px rgba(212,175,55,.35), 0 18px 45px rgba(0,0,0,.65);
-    position:relative; backdrop-filter: blur(2px);
-    display:flex;flex-direction:column;justify-content:flex-end;align-items:center;
-    padding:16px 14px 18px; text-decoration:none; color:#fff;
-    isolation:isolate; /* für Glow */
-    animation:glowPulse 6s ease-in-out infinite;
-  }
-  .door .emoji{
-    position:absolute;top:22px;left:50%;transform:translateX(-50%);
-    font-size:38px;filter:drop-shadow(0 0 12px rgba(212,175,55,.55));
-    opacity:.95;
-  }
-  .door .label{margin-top:auto;font-weight:800;letter-spacing:.2px;text-align:center}
-
-  @keyframes glowPulse{
-    0%,100%{box-shadow:0 0 48px rgba(212,175,55,.32), 0 16px 44px rgba(0,0,0,.65)}
-    50%{box-shadow:0 0 72px rgba(212,175,55,.55), 0 22px 52px rgba(0,0,0,.72)}
-  }
-
-  /* Halbkreis–Endpositionen */
-  .d1{transform:rotate(-7deg) translateY(18px);}  /* leicht tiefer, nach innen gedreht */
-  .d2{transform:translateY(-12px);}               /* höher */
-  .d3{transform:translateY(-12px);}               /* höher */
-  .d4{transform:rotate(7deg)  translateY(18px);}  /* leicht tiefer, nach innen gedreht */
-
-  /* Einflug-Animationen (von verschiedenen Richtungen) */
-  .door{opacity:0}
-  .d1{animation:fly1 .9s ease-out .10s forwards, glowPulse 6s ease-in-out infinite}
-  .d2{animation:fly2 1.05s ease-out .28s forwards, glowPulse 6s ease-in-out infinite}
-  .d3{animation:fly3 1.05s ease-out .46s forwards, glowPulse 6s ease-in-out infinite}
-  .d4{animation:fly4 .9s ease-out .64s forwards, glowPulse 6s ease-in-out infinite}
-
-  @keyframes fly1{from{transform:translate(-120px,-140px) scale(.88) rotate(-16deg);opacity:0}
-                  to  {transform:rotate(-7deg) translateY(18px);opacity:1}}
-  @keyframes fly2{from{transform:translate(-140px,120px)  scale(.9);opacity:0}
-                  to  {transform:translateY(-12px);opacity:1}}
-  @keyframes fly3{from{transform:translate(140px,120px)   scale(.9);opacity:0}
-                  to  {transform:translateY(-12px);opacity:1}}
-  @keyframes fly4{from{transform:translate(120px,-140px)  scale(.88) rotate(16deg);opacity:0}
-                  to  {transform:rotate(7deg) translateY(18px);opacity:1}}
-
-  /* farbige Labels */
-  .t-social{color:#f6c44f}
-  .t-comm{color:#7fb3ff}
-  .t-mentor{color:#61e6a9}
-  .t-souv{color:#ffd978}
-
-  /* Musikbutton */
-  #musicBtn{
-    position:fixed;right:20px;bottom:20px;z-index:5;padding:10px 16px;border-radius:999px;
-    border:1px solid rgba(212,175,55,.25);background:rgba(0,0,0,.55);color:#fff;
-    box-shadow:var(--glow);backdrop-filter: blur(6px)
   }
 </style>
 </head>
 <body>
 
-<!-- ===== Ebene 1: Slideshow ===== -->
+<!-- Hintergrund -->
 <div id="slideshow"></div>
+<div id="clouds"></div>
 
-<main>
-  <!-- ===== Begrüßung ===== -->
-  <section class="welcome">
+<!-- Inhalt -->
+<div class="content">
+  <div class="welcome-box">
     <h1>Willkommen im Campus</h1>
-    <p>Schön, dass du hier bist. Dies ist dein Tor in eine neue Welt: selbstbestimmt, frei, souverän.</p>
-    <p>Hier findest du Werkzeuge, Ideen und Perspektiven, die dich sofort handlungsfähig machen.</p>
-    <p>Vier Türen. Vier Wege. Hinter jeder wartet ein Raum voller Wissen, Verbündeter und Impulse für deinen nächsten Schritt.</p>
-    <p class="strong">Dies ist kein Ort des Zufalls – sondern dein Moment der Entscheidung.</p>
-  </section>
+    <p>Schön, dass du hier bist. Dies ist dein Tor in eine neue Welt: selbstbestimmt, frei, souverän.<br>
+    Hier findest du Werkzeuge, Ideen und Perspektiven, die dich sofort handlungsfähig machen.<br>
+    Vier Türen. Vier Wege. Hinter jeder wartet ein Raum voller Wissen, Verbündeter und Impulse für deinen nächsten Schritt.<br>
+    <strong>Dies ist kein Ort des Zufalls – sondern dein Moment der Entscheidung.</strong></p>
+  </div>
 
-  <!-- ===== Ebene 2: Türen im Halbkreis ===== -->
-  <section class="stage">
-    <a class="door d1" href="#social" aria-label="Social Media">
-      <div class="emoji">📣</div>
-      <div class="label t-social">Social Media</div>
-    </a>
+  <div class="doors">
+    <div class="door"><span>📣</span>Social Media</div>
+    <div class="door"><span>👥</span>Community</div>
+    <div class="door"><span>🧭</span>Mentorenzone</div>
+    <div class="door"><span>🌕</span>Souveränität</div>
+  </div>
+</div>
 
-    <a class="door d2" href="#community" aria-label="Community">
-      <div class="emoji">👥</div>
-      <div class="label t-comm">Community</div>
-    </a>
-
-    <a class="door d3" href="#mentor" aria-label="Mentorenzone">
-      <div class="emoji">🧭</div>
-      <div class="label t-mentor">Mentorenzone</div>
-    </a>
-
-    <a class="door d4" href="#sovereign" aria-label="Souveränität">
-      <div class="emoji">🪙</div>
-      <div class="label t-souv">Souveränität</div>
-    </a>
-  </section>
-</main>
-
-<!-- ===== Musik ===== -->
+<!-- Musik -->
 <audio id="bgMusic" loop src="library/music/pool/track-01.mp3"></audio>
 <button id="musicBtn">🎵 Musik starten</button>
 
 <script>
-/* ===================== Slideshow aus pool-live ===================== */
+/* ===== Slideshow ===== */
 (function(){
   const path = 'library/images/pool-live/';
-  const count = 48;          // Anzahl Bilder im Ordner
-  const interval = 8000;     // Wechsel
-  const fadeTime = 2000;     // Crossfade
-
+  const count = 48;
+  const interval = 8000;
+  const fadeTime = 2000;
   const container = document.getElementById('slideshow');
-  if(!container) return;
-
   const layers = [];
-  let active = 0, index = 0;
+  let active = 0;
+  let index = 0;
 
-  // zwei Ebenen zum Crossfaden
-  for (let i = 0; i < 2; i++){
+  for (let i = 0; i < 2; i++) {
     const layer = document.createElement('div');
-    Object.assign(layer.style,{
-      position:'absolute',inset:'0',backgroundSize:'cover',backgroundPosition:'center',
-      transition:`opacity ${fadeTime}ms ease-in-out`,opacity: i===0 ? '1':'0'
-    });
+    layer.style.opacity = i === 0 ? '1' : '0';
     container.appendChild(layer);
     layers.push(layer);
   }
-
   function imgName(n){ return `${path}slide-${String(n).padStart(2,'0')}.jpg`; }
-
-  // Vorladen (still)
-  for (let i=1;i<=count;i++){ const im=new Image(); im.src = imgName(i); }
-
+  for (let i = 1; i <= count; i++){ const img = new Image(); img.src = imgName(i); }
   function next(){
     index = (index + 1) % count;
     const nextLayer = 1 - active;
@@ -177,29 +197,26 @@
     layers[active].style.opacity = '0';
     active = nextLayer;
   }
-
-  // Start
   layers[0].style.backgroundImage = `url(${imgName(1)})`;
   setInterval(next, interval);
 })();
 
-/* ===================== Musik-Button ===================== */
+/* ===== Musiksteuerung ===== */
 const music = document.getElementById('bgMusic');
 const musicBtn = document.getElementById('musicBtn');
 let playing = false;
-
-async function startMusic(){
-  try{
-    await music.play(); playing = true; musicBtn.textContent = "⏸ Musik stoppen";
-  }catch(e){/* iOS blockt ohne Geste */}
-}
+async function startMusic(){ try{ await music.play(); playing = true; musicBtn.textContent = "⏸ Musik stoppen"; }catch(e){} }
 musicBtn.addEventListener('click', async ()=>{
   if(!playing){ await startMusic(); }
   else{ music.pause(); playing=false; musicBtn.textContent="🎵 Musik starten"; }
 });
-window.addEventListener('pointerdown', function once(){
-  if(!playing) startMusic(); window.removeEventListener('pointerdown', once);
-},{once:true});
+window.addEventListener('pointerdown', function once(){ if(!playing) startMusic(); window.removeEventListener('pointerdown', once); },{once:true});
+
+/* ===== Türen zeitverzögert einfliegen ===== */
+const doors = document.querySelectorAll('.door');
+doors.forEach((door,i)=>{
+  setTimeout(()=> door.classList.add('visible'), i*600);
+});
 </script>
 </body>
 </html>
