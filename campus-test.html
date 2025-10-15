@@ -244,6 +244,99 @@ window.addEventListener('load', ()=>{
     setTimeout(()=> d.classList.add('show'), 200 + i*180);
   });
 });
+</script><!-- === Patch: UI-Ebene ein/aus + Auto-Hide bei Scroll === -->
+<style>
+  /* Weiches Ausblenden der UI-Ebene */
+  .ui-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 450ms ease;
+  }
+
+  /* Toggle-Button (platzieren wir links unten, gegenüber vom Musik-Button) */
+  #uiToggle {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 9999;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: rgba(0,0,0,.55);
+    color: #fff;
+    border: 1px solid rgba(212,175,55,.25);
+    box-shadow: 0 0 26px rgba(212,175,55,.45), 0 10px 28px rgba(0,0,0,.55);
+    backdrop-filter: blur(6px);
+    font: 500 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    cursor: pointer;
+  }
+  #uiToggle:hover { filter: brightness(1.08); }
+</style>
+
+<button id="uiToggle" aria-pressed="false" title="UI ausblenden (Taste F)">🖼️ Freie Sicht</button>
+
+<script>
+(function () {
+  // Elemente, die NICHT zur UI-Ebene zählen:
+  const EXCLUDE_IDS = new Set(['slideshow', 'bgMusic', 'musicBtn', 'uiToggle']);
+
+  // Alle direkten Body-Kinder, die wir als UI-Layer behandeln
+  const layer2 = Array.from(document.body.children)
+    .filter(el => !EXCLUDE_IDS.has(el.id));
+
+  const btn = document.getElementById('uiToggle');
+
+  function setHidden(hidden) {
+    layer2.forEach(el => el.classList.toggle('ui-hidden', hidden));
+    btn.setAttribute('aria-pressed', String(hidden));
+    btn.textContent = hidden ? '🖼️ UI anzeigen' : '🖼️ Freie Sicht';
+    // Merken (pro Seite)
+    try { localStorage.setItem('campus_ui_hidden', hidden ? '1' : '0'); } catch(e){}
+  }
+
+  // Zustand aus Storage laden
+  try {
+    const saved = localStorage.getItem('campus_ui_hidden');
+    if (saved === '1') setHidden(true);
+  } catch (e) {}
+
+  // Button klick
+  btn.addEventListener('click', () => {
+    const hidden = btn.getAttribute('aria-pressed') !== 'true' ;
+    setHidden(hidden);
+  });
+
+  // Tastatur: F = frei/zeigen
+  window.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() === 'f') {
+      const hidden = btn.getAttribute('aria-pressed') !== 'true';
+      setHidden(hidden);
+    }
+  });
+
+  // Auto-Hide bei Scroll nach unten, Auto-Show bei Scroll nach oben
+  let lastY = window.scrollY;
+  let ticking = false;
+
+  function onScroll() {
+    const y = window.scrollY;
+    const goingDown = y > lastY + 10;
+    const goingUp   = y < lastY - 10;
+
+    if (goingDown) setHidden(true);
+    else if (goingUp) setHidden(false);
+
+    lastY = y;
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(onScroll);
+      ticking = true;
+    }
+  }, { passive: true });
+})();
 </script>
+<!-- === /Patch === -->
 </body>
 </html>
