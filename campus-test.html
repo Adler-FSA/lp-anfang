@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campus Test – Empfangshalle</title>
+<style>
+  :root{
+    --gold:#d4af37;
+    --turq:#1cc2a0;
+    --glow:0 0 26px rgba(212,175,55,.55),0 10px 28px rgba(0,0,0,.65);
+    --door-w:3cm;
+    --door-h:5cm;
+  }
+
+  html,body{
+    height:100%;margin:0;background:#000;color:#fff;
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,sans-serif;
+    overflow:hidden;
+  }
+
+  /* ===== Slideshow Hintergrund ===== */
+  .bg{position:fixed;inset:0;z-index:-2;background:#000;overflow:hidden}
+  .slide{
+    position:absolute;inset:0;background:center/cover no-repeat;
+    opacity:0;transition:opacity 1.8s ease-in-out;filter:brightness(.85)
+  }
+  .slide.active{opacity:1}
+
+  /* ===== Türen ===== */
+  .doors{
+    position:absolute;top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    display:flex;justify-content:center;align-items:flex-end;
+    gap:3rem;perspective:1000px;
+  }
+  .door{
+    width:var(--door-w);height:var(--door-h);
+    background:rgba(0,0,0,.55);
+    border:2px solid var(--gold);
+    border-radius:8px;
+    box-shadow:var(--glow);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:1.1rem;text-align:center;
+    color:#fff;text-decoration:none;
+    transform-origin:bottom center;
+    opacity:0;
+    animation:doorIn 2.8s ease forwards;
+  }
+  .door:nth-child(1){animation-delay:0.4s;transform:rotateY(-25deg);}
+  .door:nth-child(2){animation-delay:0.8s;transform:rotateY(-10deg);}
+  .door:nth-child(3){animation-delay:1.2s;transform:rotateY(10deg);}
+  .door:nth-child(4){animation-delay:1.6s;transform:rotateY(25deg);}
+  .door:hover{transform:translateY(-6px) scale(1.03) rotateY(0deg);}
+
+  @keyframes doorIn{
+    0%{transform:translateY(50px) scale(0.8) rotateY(0deg);opacity:0}
+    100%{transform:translateY(0) scale(1) rotateY(var(--angle,0deg));opacity:1}
+  }
+
+  /* ===== Fixed Buttons ===== */
+  .fixed-left,.fixed-right{
+    position:fixed;bottom:20px;z-index:4;display:inline-flex;align-items:center;gap:8px;
+    padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.25);
+    background:rgba(0,0,0,.55);color:#fff;text-decoration:none;font-weight:800;
+    box-shadow:var(--glow);backdrop-filter:blur(6px)
+  }
+  .fixed-left{left:20px}
+  .fixed-right{right:20px}
+</style>
+</head>
+<body>
+
+<!-- ===== Slideshow ===== -->
+<div class="bg" id="slideshow"></div>
+
+<!-- ===== Türen ===== -->
+<div class="doors">
+  <a href="social.html" class="door">📢 Social Media</a>
+  <a href="grundkurs.html" class="door">📘 Grundkurs</a>
+  <a href="souveraenitaet.html" class="door">🛡 Souveränität</a>
+  <a href="onboarding.html" class="door">🚀 Onboarding</a>
+</div>
+
+<!-- ===== Fixed Buttons ===== -->
+<a class="fixed-left" href="admin.html">🔧 Technikraum</a>
+<button id="musicBtn" class="fixed-right">🎵 Musik starten</button>
+<audio id="bgMusic" loop src="library/music/pool/track-01.mp3"></audio>
+
+<script>
+  // ===== Slideshow Pool-Life =====
+  const folder = 'library/images/pool-live/';
+  const maxSlides = 48;
+  const container = document.getElementById('slideshow');
+  const slides=[];
+  for(let i=1;i<=maxSlides;i++){
+    const n=String(i).padStart(2,'0');
+    const d=document.createElement('div');
+    d.className='slide';
+    d.style.backgroundImage=`url(${folder}slide-${n}.jpg)`;
+    container.appendChild(d);
+    slides.push(d);
+  }
+  let si=0;
+  function stepSlides(){
+    slides.forEach(s=>s.classList.remove('active'));
+    slides[si].classList.add('active');
+    si=(si+1)%slides.length;
+  }
+  stepSlides();
+  setInterval(stepSlides,6000);
+
+  // ===== Musik-Schalter =====
+  const music = document.getElementById('bgMusic');
+  const musicBtn = document.getElementById('musicBtn');
+  let musicOn=false;
+  async function startMusic(){
+    try{ await music.play(); musicOn=true; musicBtn.textContent="⏸ Musik stoppen"; }
+    catch(e){}
+  }
+  musicBtn.addEventListener('click',async()=>{
+    if(!musicOn){ await startMusic(); }
+    else{ music.pause(); musicOn=false; musicBtn.textContent="🎵 Musik starten"; }
+  });
+  window.addEventListener('pointerdown', function once(){
+    if(!musicOn) startMusic();
+    window.removeEventListener('pointerdown', once);
+  }, {once:true});
+</script>
+</body>
+</html>
