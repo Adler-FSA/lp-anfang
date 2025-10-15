@@ -1,202 +1,166 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Campus – Halbkreis Final</title>
-<style>
-  :root{
-    --gold: #d4af37;
-    --door-width: 5cm;
-    --door-height: 7cm;
-    --icon-size: 2.2rem;
-    --fly-time: 5s;
-  }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Campus – Halbkreis Final</title>
+  <style>
+    :root{
+      --glow: 0 0 20px rgba(212,175,55,.55), 0 0 40px rgba(212,175,55,.25);
+      --door-w: 5cm;
+      --door-h: 7cm;
+    }
+    html,body{
+      height:100%;
+      margin:0;
+      background:#000;
+      font-family:Inter,system-ui,sans-serif;
+      color:#fff;
+      overflow:hidden;
+    }
 
-  html,body{
-    height:100%;margin:0;background:#000;overflow:hidden;
-    font-family:Inter,system-ui,sans-serif;
-  }
+    /* === Slideshow Hintergrund === */
+    #slideshow{
+      position:fixed;
+      inset:0;
+      z-index:-1;
+      overflow:hidden;
+    }
+    .layer{
+      position:absolute;
+      inset:0;
+      background-size:cover;
+      background-position:center;
+      opacity:0;
+      transition:opacity 2s ease-in-out;
+      filter:brightness(.85);
+      transform: scale(1);
+      animation: zoomBg 20s linear infinite alternate;
+    }
+    @keyframes zoomBg{
+      from{transform:scale(1);}
+      to{transform:scale(1.1);}
+    }
 
-  /* ===== Slideshow Hintergrund ===== */
-  #slideshow{
-    position:fixed;
-    inset:0;
-    z-index:-5;
-    overflow:hidden;
-  }
-  .layer{
-    position:absolute;inset:0;
-    background-size:cover;
-    background-position:center;
-    opacity:0;
-    transition:opacity 2s ease-in-out;
-    filter:brightness(.85);
-  }
-  .layer.active{opacity:1}
+    /* === Türen Container === */
+    main{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:3rem;
+      height:100vh;
+      position:relative;
+      z-index:1;
+    }
+    .door{
+      width:var(--door-w);
+      height:var(--door-h);
+      background:rgba(0,0,0,.55);
+      border:1px solid rgba(212,175,55,.6);
+      box-shadow:var(--glow);
+      backdrop-filter:blur(6px);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      cursor:pointer;
+      opacity:0;
+      transform:scale(.8);
+      transition:transform 1.5s ease,opacity 1.5s ease;
+    }
+    .door i{
+      font-size:2rem;
+      margin-bottom:.5rem;
+    }
+    .door span{
+      font-size:1rem;
+      font-weight:600;
+    }
 
-  /* ===== Bühne zentrieren ===== */
-  main{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    gap:3rem;
-    position:relative;
-    z-index:1;
-    flex-wrap:nowrap;
-  }
+    /* Einflugrichtungen */
+    .door:nth-child(1){
+      animation: doorInTL 1.8s ease forwards;
+    }
+    .door:nth-child(2){
+      animation: doorInBL 2s ease forwards;
+    }
+    .door:nth-child(3){
+      animation: doorInBR 2.2s ease forwards;
+    }
+    .door:nth-child(4){
+      animation: doorInTR 2.4s ease forwards;
+    }
 
-  /* ===== Tür Container ===== */
-  .door-container{
-    position:relative;
-    width:var(--door-width);
-    height:var(--door-height);
-    perspective:1000px;
-    transform-style:preserve-3d;
-    opacity:0;
-  }
+    /* Halbkreis-Drehung */
+    .door.left-tilt  { transform: translateY(30px) rotateY(-25deg) scale(1); }
+    .door.right-tilt { transform: translateY(30px) rotateY(25deg) scale(1); }
 
-  /* ===== Tür Styling ===== */
-  .door{
-    width:100%;
-    height:100%;
-    border:2px solid var(--gold);
-    background:rgba(255,255,255,0.05);
-    box-shadow:0 0 25px rgba(212,175,55,.6), 0 0 60px rgba(212,175,55,.3);
-    border-radius:10px;
-    backdrop-filter: blur(6px);
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    animation:glowPulse 6s ease-in-out infinite;
-    cursor:pointer;
-  }
+    @keyframes doorInTL {
+      0% {transform:translate(-300px,-300px) rotateY(-40deg) scale(.8);opacity:0;}
+      100% {transform:translateY(30px) rotateY(-25deg) scale(1);opacity:1;}
+    }
+    @keyframes doorInTR {
+      0% {transform:translate(300px,-300px) rotateY(40deg) scale(.8);opacity:0;}
+      100% {transform:translateY(30px) rotateY(25deg) scale(1);opacity:1;}
+    }
+    @keyframes doorInBL {
+      0% {transform:translate(-300px,300px) rotateY(-20deg) scale(.8);opacity:0;}
+      100% {transform:translateY(0) rotateY(0deg) scale(1);opacity:1;}
+    }
+    @keyframes doorInBR {
+      0% {transform:translate(300px,300px) rotateY(20deg) scale(.8);opacity:0;}
+      100% {transform:translateY(0) rotateY(0deg) scale(1);opacity:1;}
+    }
 
-  @keyframes glowPulse {
-    0%,100% {box-shadow:0 0 20px rgba(212,175,55,.3), 0 0 60px rgba(212,175,55,.2);}
-    50% {box-shadow:0 0 30px rgba(212,175,55,.7), 0 0 80px rgba(212,175,55,.4);}
-  }
-
-  /* ===== Einflugrichtungen (langsamer) ===== */
-  .from-top-left   {animation:doorInTL var(--fly-time) ease forwards;}
-  .from-top-right  {animation:doorInTR var(--fly-time) ease forwards;}
-  .from-bottom-left{animation:doorInBL var(--fly-time) ease forwards;}
-  .from-bottom-right{animation:doorInBR var(--fly-time) ease forwards;}
-
-  @keyframes doorInTL {
-    0% {transform:translate(-300px,-300px) rotateY(-40deg) scale(.8);opacity:0;}
-    100% {transform:translate(0,0) rotateY(-20deg) scale(1);opacity:1;}
-  }
-  @keyframes doorInTR {
-    0% {transform:translate(300px,-300px) rotateY(40deg) scale(.8);opacity:0;}
-    100% {transform:translate(0,0) rotateY(20deg) scale(1);opacity:1;}
-  }
-  @keyframes doorInBL {
-    0% {transform:translate(-300px,300px) rotateY(-20deg) scale(.8);opacity:0;}
-    100% {transform:translate(0,0) rotateY(0deg) scale(1);opacity:1;}
-  }
-  @keyframes doorInBR {
-    0% {transform:translate(300px,300px) rotateY(20deg) scale(.8);opacity:0;}
-    100% {transform:translate(0,0) rotateY(0deg) scale(1);opacity:1;}
-  }
-
-  /* ===== Icon ===== */
-  .door i{
-    font-size:var(--icon-size);
-    color:var(--gold);
-    text-shadow:0 0 15px rgba(212,175,55,.7);
-    margin-bottom:1rem;
-  }
-
-  /* ===== Label ===== */
-  .door span{
-    font-size:1.2rem;
-    font-weight:700;
-    color:#fff;
-    text-shadow:0 0 10px black;
-  }
-
-  /* ===== Nebel ===== */
-  .fog{
-    position:absolute;
-    bottom:-20px;left:50%;
-    transform:translateX(-50%);
-    width:200%;
-    height:100px;
-    background:url('library/images/fog.png') center/cover repeat-x;
-    opacity:.5;
-    filter:blur(4px);
-    animation:fogMove 40s linear infinite;
-    pointer-events:none;
-  }
-  @keyframes fogMove {
-    from {background-position:0 0;}
-    to {background-position:-1000px 0;}
-  }
-
-  /* ===== Musikbutton ===== */
-  #musicBtn{
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    z-index:10;
-    padding:10px 16px;
-    border-radius:999px;
-    background:rgba(0,0,0,.55);
-    color:#fff;
-    border:1px solid rgba(212,175,55,.25);
-    box-shadow:0 0 26px rgba(212,175,55,.45),0 10px 28px rgba(0,0,0,.55);
-    backdrop-filter:blur(6px);
-  }
-</style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    /* Musikbutton */
+    #musicBtn{
+      position:fixed;
+      bottom:20px;
+      right:20px;
+      z-index:10;
+      padding:10px 16px;
+      border-radius:999px;
+      background:rgba(0,0,0,.55);
+      color:#fff;
+      border:1px solid rgba(212,175,55,.25);
+      box-shadow:0 0 26px rgba(212,175,55,.45),0 10px 28px rgba(0,0,0,.55);
+      backdrop-filter:blur(6px);
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-<!-- Slideshow + Musik -->
+<!-- Slideshow -->
 <div id="slideshow"></div>
-<audio id="bgMusic" loop src="library/music/pool/track-01.mp3"></audio>
-<button id="musicBtn">🎵 Musik starten</button>
 
-<!-- Türen im Halbkreis -->
+<!-- Türen -->
 <main>
-  <div class="door-container from-top-left">
-    <div class="door" onclick="alert('Social Media Bereich')">
-      <i class="fa-solid fa-bullhorn"></i>
-      <span>Social Media</span>
-    </div>
-    <div class="fog"></div>
+  <div class="door left-tilt">
+    <i class="fa-solid fa-bullhorn"></i>
+    <span>Social Media</span>
   </div>
-
-  <div class="door-container from-bottom-left">
-    <div class="door" onclick="alert('Community')">
-      <i class="fa-solid fa-people-group"></i>
-      <span>Community</span>
-    </div>
-    <div class="fog"></div>
+  <div class="door">
+    <i class="fa-solid fa-people-group"></i>
+    <span>Community</span>
   </div>
-
-  <div class="door-container from-bottom-right">
-    <div class="door" onclick="alert('Mentorenzone')">
-      <i class="fa-solid fa-compass"></i>
-      <span>Mentorenzone</span>
-    </div>
-    <div class="fog"></div>
+  <div class="door">
+    <i class="fa-solid fa-compass"></i>
+    <span>Mentorenzone</span>
   </div>
-
-  <div class="door-container from-top-right">
-    <div class="door" onclick="alert('Souveränität')">
-      <i class="fa-solid fa-coins"></i>
-      <span>Souveränität</span>
-    </div>
-    <div class="fog"></div>
+  <div class="door right-tilt">
+    <i class="fa-solid fa-coins"></i>
+    <span>Souveränität</span>
   </div>
 </main>
 
+<!-- Musik -->
+<audio id="bgMusic" loop src="library/music/pool/track-01.mp3"></audio>
+<button id="musicBtn">🎵 Musik starten</button>
+
 <script>
-// ======== Slideshow ========
+/* === Slideshow === */
 (function(){
   const path = 'library/images/pool-live/';
   const count = 48;
@@ -210,15 +174,21 @@
 
   for (let i = 0; i < 2; i++) {
     const layer = document.createElement('div');
-    layer.className = 'layer';
+    layer.classList.add('layer');
     layer.style.opacity = i === 0 ? '1' : '0';
     container.appendChild(layer);
     layers.push(layer);
   }
 
-  function imgName(n){ return `${path}slide-${String(n).padStart(2,'0')}.jpg`; }
+  function imgName(n){
+    return `${path}slide-${String(n).padStart(2,'0')}.jpg`;
+  }
 
-  for (let i = 1; i <= count; i++){ const img = new Image(); img.src = imgName(i); }
+  // Bilder vorladen
+  for (let i = 1; i <= count; i++){
+    const img = new Image();
+    img.src = imgName(i);
+  }
 
   function next(){
     index = (index + 1) % count;
@@ -233,7 +203,7 @@
   setInterval(next, interval);
 })();
 
-// ======== Musiksteuerung ========
+/* === Musik === */
 const music = document.getElementById('bgMusic');
 const musicBtn = document.getElementById('musicBtn');
 let playing = false;
@@ -256,6 +226,5 @@ window.addEventListener('pointerdown', function once(){
   window.removeEventListener('pointerdown', once);
 },{once:true});
 </script>
-
 </body>
 </html>
