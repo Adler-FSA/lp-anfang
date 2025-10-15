@@ -1,342 +1,257 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FSA Campus – Test</title>
 <style>
   :root{
-    --gold: #d4af37;
-    --glow: 0 0 22px rgba(212,175,55,.55), 0 10px 28px rgba(0,0,0,.55);
-    --panel-bg: rgba(0,0,0,.66);
-    --txt: #e9e9e9;
-  }
-  html,body{
-    height:100%; margin:0; color:var(--txt);
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-    background:#000;
+    --gold:#d4af37;
+    --glow: 0 0 28px rgba(212,175,55,.45), 0 12px 30px rgba(0,0,0,.55);
+    --card-w: 14.5rem;          /* Türbreite */
+    --card-h: 21rem;            /* Türhöhe  ~ 5x7 cm auf Tablet */
+    --space: clamp(1.25rem, 2vw, 2rem);
   }
 
-  /* ====== Hintergrund: Slideshow Ebene ====== */
+  html,body{height:100%;margin:0;background:#000;color:#fff;font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;}
+
+  /* ---------- Slideshow (Ebene 1) ---------- */
   #slideshow{
-    position:fixed; inset:0; z-index:0; overflow:hidden;
+    position:fixed; inset:0; z-index:-1; overflow:hidden;
+    filter:brightness(.9) saturate(1.05);
   }
-  /* ====== Vordergrund-Content ====== */
-  .content{
-    position:relative; z-index:10; min-height:100svh;
-    display:flex; flex-direction:column; align-items:center;
-    gap: clamp(28px, 4.5vw, 44px);
-    padding: clamp(20px, 4vw, 42px) clamp(16px, 5vw, 60px) 120px;
-    /* sanfte Trennung vom BG */
-    backdrop-filter: blur(0px);
+  .slide{
+    position:absolute; inset:0; background:center/cover no-repeat;
+    opacity:0; transition:opacity 2s ease-in-out;
+    transform:scale(1.025);
   }
+  .slide.active{opacity:1;}
 
-  /* Begrüßungsblock */
-  .hero{
-    width:min(1000px, 92vw);
-    background: var(--panel-bg);
-    border:1px solid rgba(212,175,55,.28);
-    border-radius:18px;
-    padding: clamp(16px, 3.2vw, 28px) clamp(18px, 3.6vw, 32px);
+  /* ---------- Ebene 2: gesamter UI-Layer ---------- */
+  #uiLayer{
+    position:relative; z-index:2;
+    min-height: 260vh;   /* genug Länge: Begrüßung, Türen, Kino, + freie Sicht Bereich */
+    padding: clamp(1rem, 2vw, 2rem);
+  }
+  /* wenn versteckt (Button) */
+  #uiLayer.hidden{display:none;}
+
+  /* ---------- Begrüßung ---------- */
+  .welcome{
+    width:min(1000px, 92%);
+    margin: 2.5rem auto 3.25rem;
+    padding: clamp(1rem, 2.2vw, 1.5rem) clamp(1.2rem, 3vw, 2rem);
+    background: rgba(0,0,0,.55);
+    border: 1px solid rgba(212,175,55,.25);
+    border-radius: 18px;
     box-shadow: var(--glow);
+    backdrop-filter: blur(8px);
     text-align:center;
   }
-  .hero h1{
-    margin:0 0 .6em 0;
-    font-weight:800;
-    color: var(--gold);
-    letter-spacing:.3px;
-    font-size: clamp(26px, 3.4vw, 38px);
+  .welcome h1{
+    margin:.25rem 0 1rem; color:var(--gold); font-weight:800; letter-spacing:.3px;
+    text-shadow: 0 0 18px rgba(212,175,55,.35);
   }
-  .hero p{
-    margin:.4em 0; line-height:1.5;
-  }
-  .hero p.strong{ margin-top:.8em; font-weight:800; }
 
-  /* Türen-Grid */
+  /* ---------- Türen-Gitter ---------- */
   .doors{
-    display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start;
-    gap: clamp(24px, 4vw, 40px);
-    width:min(1200px, 95vw);
+    width:min(1200px, 94%);
+    margin: 0 auto 4rem;
+    display:grid;
+    grid-template-columns: repeat(4, minmax(var(--card-w), 1fr));
+    justify-content:center;
+    gap: clamp(1rem, 3vw, 2.25rem);
   }
   .door{
-    width: 5cm; height: 7cm;  /* explizite Größe wie gewünscht */
-    background: rgba(0,0,0,.70);
-    border:1px solid rgba(212,175,55,.40);
+    width:var(--card-w); height:var(--card-h);
+    margin-inline:auto;
+    background:rgba(0,0,0,.6);
+    border:1px solid rgba(212,175,55,.28);
     border-radius:14px;
     box-shadow: var(--glow);
+    backdrop-filter: blur(6px);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     text-align:center;
-    transition: transform .35s ease, box-shadow .35s ease, background .35s ease;
     position:relative;
+    overflow:hidden;
+    animation: float 7.5s ease-in-out infinite;
   }
-  .door::after{
-    content:"";
-    position:absolute; inset:-12px;
+  .door:nth-child(2){ animation-delay:.6s }
+  .door:nth-child(3){ animation-delay:1.2s }
+  .door:nth-child(4){ animation-delay:1.8s }
+
+  @keyframes float{
+    0%{ transform: translateY(0) }
+    50%{ transform: translateY(-6px) }
+    100%{ transform: translateY(0) }
+  }
+
+  .door .emoji{ font-size:2rem; filter: drop-shadow(0 0 12px rgba(212,175,55,.45));}
+  .door h3{ margin:.6rem 0 .35rem; font-size:1.05rem; letter-spacing:.2px}
+  .door p{ margin:0; opacity:.9; font-size:.9rem; line-height:1.25rem }
+
+  /* farbige Titel wie besprochen */
+  .door--social h3{ color:#f0c041 }
+  .door--comm   h3{ color:#5eb0ff }
+  .door--mentor h3{ color:#5de0a3 }
+  .door--souv   h3{ color:#ffd24d }
+
+  /* ---------- Kino (YouTube 16:9 Placeholder) ---------- */
+  .cinema-wrap{
+    width:min(1200px, 94%);
+    margin: 2rem auto 0;
+    padding: .85rem;
+    border:1px solid rgba(212,175,55,.28);
     border-radius:18px;
-    box-shadow: 0 0 60px rgba(212,175,55,.22);
-    opacity:.8; pointer-events:none;
-    animation: pulse 4.5s ease-in-out infinite;
-  }
-  @keyframes pulse{
-    0%,100%{ box-shadow: 0 0 54px rgba(212,175,55,.18); }
-    50%{    box-shadow: 0 0 76px rgba(212,175,55,.34); }
-  }
-  .door:hover{
-    transform: translateY(-6px);
-    background: rgba(0,0,0,.78);
-  }
-  .door .emoji{
-    font-size: clamp(28px, 3.6vw, 34px);
-    filter: drop-shadow(0 0 10px rgba(212,175,55,.55));
-    margin-bottom: 10px;
-  }
-  .door h3{
-    margin:.15em 0 .35em; font-size: clamp(16px, 2vw, 18px);
-    font-weight:800;
-  }
-  .door p{
-    margin:0; opacity:.92; line-height:1.35; font-size: clamp(12px,1.6vw,14px);
-  }
-
-  /* Farbakzente pro Tür */
-  .door.sm h3{ color:#f0c14b; }        .door.sm p{ color:#9fb3ff; }
-  .door.co h3{ color:#7fb6ff; }        .door.co p{ color:#b4c7ff; }
-  .door.me h3{ color:#2fe48d; }        .door.me p{ color:#b9ffd7; }
-  .door.so h3{ color:#ffd25e; }        .door.so p{ color:#ffdca0; }
-
-  /* Kino-Box */
-  .cinema{
-    width:min(1200px, 92vw);
-    aspect-ratio: 16 / 9;
-    margin-top: clamp(28px, 5vw, 56px);
-    background: rgba(0,0,0,.65);
-    border:1px solid rgba(212,175,55,.35);
-    border-radius:16px;
     box-shadow: var(--glow);
-    position:relative; overflow:hidden;
+    background: rgba(0,0,0,.35);
+    backdrop-filter: blur(4px);
   }
-  .cinema .label{
-    position:absolute; left:14px; top:10px;
-    font-size:12px; opacity:.8; letter-spacing:.4px;
-  }
-
-  /* Musikbutton (bleibt sichtbar) */
-  #musicBtn{
-    position:fixed; bottom:20px; right:20px; z-index:50;
-    padding:10px 16px; border-radius:999px;
-    background:rgba(0,0,0,.55); color:#fff;
-    border:1px solid rgba(212,175,55,.25);
-    box-shadow: var(--glow); backdrop-filter: blur(6px);
-    cursor:pointer;
+  .cinema{
+    position:relative;
+    aspect-ratio:16/9;
+    width:100%;
+    border-radius:12px;
+    overflow:hidden;
+    background: rgba(0,0,0,.35);
+    border:1px solid rgba(212,175,55,.22);
   }
 
-  /* kleine Einflug-Animation (dezent) */
-  .door{ opacity:0; transform: translateY(14px) scale(.98); }
-  .door.show{ opacity:1; transform: translateY(0) scale(1); transition: transform .6s ease, opacity .6s ease; }
+  /* ---------- Freie Sicht – Scrollbereich ---------- */
+  .freie-sicht{
+    height: 120vh;             /* wirkliche freie Sicht beim Scrollen */
+    pointer-events:none;       /* klicks gehen an Musikbutton etc. durch */
+  }
+
+  /* ---------- Buttons ---------- */
+  #musicBtn, #freeBtn{
+    position:fixed; right:20px; z-index:10;
+    padding:10px 16px; border-radius:999px; border:1px solid rgba(212,175,55,.25);
+    color:#fff; background:rgba(0,0,0,.55); box-shadow: var(--glow); backdrop-filter: blur(6px);
+  }
+  #musicBtn{ bottom:20px; }
+  #freeBtn { bottom:70px; left:20px; right:auto; }
+
+  /* Responsiv */
+  @media (max-width: 960px){
+    .doors{ grid-template-columns: repeat(2, minmax(var(--card-w), 1fr)); gap: var(--space) }
+  }
 </style>
 </head>
 <body>
 
-<!-- ===== Hintergrund: Slideshow + Musik (Pool-Live) ===== -->
+<!-- Ebene 1: Slideshow -->
 <div id="slideshow"></div>
-<audio id="bgMusic" loop src="library/music/pool/track-01.mp3"></audio>
-<button id="musicBtn">🎵 Musik starten</button>
 
-<div class="content">
-  <!-- Begrüßung -->
-  <section class="hero" aria-label="Begrüßung">
+<!-- Ebene 2: UI -->
+<div id="uiLayer">
+  <section class="welcome">
     <h1>Willkommen im Campus</h1>
     <p>Schön, dass du hier bist. Dies ist dein Tor in eine neue Welt: selbstbestimmt, frei, souverän.</p>
     <p>Hier findest du Werkzeuge, Ideen und Perspektiven, die dich sofort handlungsfähig machen.</p>
     <p>Vier Türen. Vier Wege. Hinter jeder wartet ein Raum voller Wissen, Verbündeter und Impulse für deinen nächsten Schritt.</p>
-    <p class="strong">Dies ist kein Ort des Zufalls – sondern dein Moment der Entscheidung.</p>
+    <p><strong>Dies ist kein Ort des Zufalls – sondern dein Moment der Entscheidung.</strong></p>
   </section>
 
-  <!-- Türen -->
   <section class="doors" aria-label="Themen-Türen">
-    <a class="door sm" href="pages/social.html">
+    <a class="door door--social" href="/lp-anfang/pages/social.html">
       <div class="emoji">📣</div>
       <h3>Social Media</h3>
       <p>Vorlagen, Posts, Mail- und Share-Snippets</p>
     </a>
-
-    <a class="door co" href="pages/community.html">
+    <a class="door door--comm" href="/lp-anfang/pages/community.html">
       <div class="emoji">👥</div>
       <h3>Community</h3>
       <p>Stammtisch, Austausch, Events</p>
     </a>
-
-    <a class="door me" href="pages/mentoren.html">
+    <a class="door door--mentor" href="/lp-anfang/pages/mentoren.html">
       <div class="emoji">🧭</div>
       <h3>Mentorenzone</h3>
       <p>Begleitung, Leitfäden, Klarheit</p>
     </a>
-
-    <a class="door so" href="pages/souveraenitaet.html">
-      <div class="emoji">🪙</div>
+    <a class="door door--souv" href="/lp-anfang/pages/souveraenitaet.html">
+      <div class="emoji">🌕</div>
       <h3>Souveränität</h3>
       <p>Was sie ist. Wie man sie stärkt.</p>
     </a>
   </section>
 
-  <!-- Kino-Frame (Platzhalter) -->
-  <section class="cinema" aria-label="Kino">
-    <div class="label">Kino (16:9) – später per Admin befüllt</div>
+  <!-- Kino-Container -->
+  <section class="cinema-wrap" id="kino">
+    <div class="cinema" title="Kino (16:9) – später per Admin befüllt"></div>
   </section>
+
+  <!-- Freie Sicht per Scrollen -->
+  <section class="freie-sicht" id="vista"></section>
 </div>
 
+<!-- Audio + Buttons -->
+<audio id="bgMusic" loop src="/lp-anfang/library/music/pool/track-01.mp3"></audio>
+<button id="freeBtn">🟨 Freie Sicht</button>
+<button id="musicBtn">🎵 Musik starten</button>
+
 <script>
-/* ---------- Slideshow (Pool-Live) – robust auflösen ---------- */
-function makePath(prefix=""){ const b = prefix ? prefix.replace(/\/+$/,'')+'/' : ''; return b + 'library/images/pool-live/'; }
-async function urlExists(u){ try{ const r=await fetch(u,{method:'HEAD',cache:'no-store'}); return r.ok; }catch{ return false; } }
-
-(async function initSlideshow(){
-  const rel = makePath('');                                // "library/images/pool-live/"
-  const proj = (location.pathname.split('/')[1] || 'lp-anfang');
-  const abs = makePath('/' + proj);                        // "/lp-anfang/library/images/pool-live/"
-  const path = (await urlExists(rel+'slide-01.jpg')) ? rel
-              : (await urlExists(abs+'slide-01.jpg')) ? abs
-              : rel;
-
+/* ===== Slideshow (pool-live) – robust mit /lp-anfang/ ===== */
+(function(){
+  const base = location.pathname.includes('/lp-anfang/') ? '/lp-anfang/' : '/';
+  const path = base + 'library/images/pool-live/';
   const count = 48, interval = 8000, fadeTime = 2000;
-  const container = document.getElementById('slideshow');
-  const layers = []; let active = 0, index = 0;
 
-  for (let i=0;i<2;i++){
-    const d = document.createElement('div');
-    Object.assign(d.style,{
-      position:'absolute',top:0,left:0,width:'100%',height:'100%',
-      backgroundSize:'cover',backgroundPosition:'center',
-      transition:`opacity ${fadeTime}ms ease-in-out`,
-      opacity: i===0?'1':'0'
-    });
-    container.appendChild(d); layers.push(d);
+  const host = document.getElementById('slideshow');
+  const a = document.createElement('div'), b = document.createElement('div');
+  [a,b].forEach(el=>{
+    el.className='slide'; host.appendChild(el);
+  });
+  let active = a, next = b, idx = 1;
+
+  function name(n){ return path + 'slide-' + String(n).padStart(2,'0') + '.jpg'; }
+  function preload(){
+    for(let i=1;i<=count;i++){ const im = new Image(); im.src = name(i); }
   }
-  const img = n => `${path}slide-${String(n).padStart(2,'0')}.jpg`;
-
-  // Vorladen
-  for (let i=1;i<=count;i++){ const im=new Image(); im.src=img(i); }
-
-  function next(){
-    index = (index+1) % count;
-    const nextLayer = 1 - active;
-    layers[nextLayer].style.backgroundImage = `url(${img(index+1)})`;
-    layers[nextLayer].style.opacity = '1';
-    layers[active].style.opacity = '0';
-    active = nextLayer;
+  function swap(){
+    idx = (idx % count) + 1;
+    next.style.backgroundImage = `url(${name(idx)})`;
+    next.classList.add('active');
+    active.classList.remove('active');
+    [active,next] = [next,active];
   }
-  layers[0].style.backgroundImage = `url(${img(1)})`;
-  setInterval(next, interval);
+  active.style.backgroundImage = `url(${name(1)})`;
+  active.classList.add('active');
+  preload();
+  setInterval(swap, interval);
 })();
 
-/* ---------- Musik Button ---------- */
-const music = document.getElementById('bgMusic');
-const musicBtn = document.getElementById('musicBtn');
-let playing = false;
-async function startMusic(){ try{ await music.play(); playing=true; musicBtn.textContent="⏸ Musik stoppen"; }catch{} }
-musicBtn.addEventListener('click', async ()=>{ if(!playing){ await startMusic(); } else { music.pause(); playing=false; musicBtn.textContent="🎵 Musik starten"; }});
-window.addEventListener('pointerdown', function once(){ if(!playing) startMusic(); window.removeEventListener('pointerdown', once); }, {once:true});
-
-/* ---------- Türen weich einblenden ---------- */
-window.addEventListener('load', ()=>{
-  document.querySelectorAll('.door').forEach((d,i)=>{
-    setTimeout(()=> d.classList.add('show'), 200 + i*180);
+/* ===== Musikbutton ===== */
+(function(){
+  const music   = document.getElementById('bgMusic');
+  const musicBtn= document.getElementById('musicBtn');
+  let playing = false;
+  async function start(){ try{ await music.play(); playing=true; musicBtn.textContent='⏸ Musik stoppen'; }catch{} }
+  musicBtn.addEventListener('click', async ()=>{
+    if(!playing){ await start(); } else { music.pause(); playing=false; musicBtn.textContent='🎵 Musik starten'; }
   });
-});
-</script><!-- === Patch: UI-Ebene ein/aus + Auto-Hide bei Scroll === -->
-<style>
-  /* Weiches Ausblenden der UI-Ebene */
-  .ui-hidden {
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 450ms ease;
-  }
+  window.addEventListener('pointerdown', function once(){ if(!playing) start(); window.removeEventListener('pointerdown', once); }, {once:true});
+})();
 
-  /* Toggle-Button (platzieren wir links unten, gegenüber vom Musik-Button) */
-  #uiToggle {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    z-index: 9999;
-    padding: 10px 16px;
-    border-radius: 999px;
-    background: rgba(0,0,0,.55);
-    color: #fff;
-    border: 1px solid rgba(212,175,55,.25);
-    box-shadow: 0 0 26px rgba(212,175,55,.45), 0 10px 28px rgba(0,0,0,.55);
-    backdrop-filter: blur(6px);
-    font: 500 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    cursor: pointer;
-  }
-  #uiToggle:hover { filter: brightness(1.08); }
-</style>
-
-<button id="uiToggle" aria-pressed="false" title="UI ausblenden (Taste F)">🖼️ Freie Sicht</button>
-
-<script>
-(function () {
-  // Elemente, die NICHT zur UI-Ebene zählen:
-  const EXCLUDE_IDS = new Set(['slideshow', 'bgMusic', 'musicBtn', 'uiToggle']);
-
-  // Alle direkten Body-Kinder, die wir als UI-Layer behandeln
-  const layer2 = Array.from(document.body.children)
-    .filter(el => !EXCLUDE_IDS.has(el.id));
-
-  const btn = document.getElementById('uiToggle');
-
-  function setHidden(hidden) {
-    layer2.forEach(el => el.classList.toggle('ui-hidden', hidden));
-    btn.setAttribute('aria-pressed', String(hidden));
-    btn.textContent = hidden ? '🖼️ UI anzeigen' : '🖼️ Freie Sicht';
-    // Merken (pro Seite)
-    try { localStorage.setItem('campus_ui_hidden', hidden ? '1' : '0'); } catch(e){}
-  }
-
-  // Zustand aus Storage laden
-  try {
-    const saved = localStorage.getItem('campus_ui_hidden');
-    if (saved === '1') setHidden(true);
-  } catch (e) {}
-
-  // Button klick
-  btn.addEventListener('click', () => {
-    const hidden = btn.getAttribute('aria-pressed') !== 'true' ;
-    setHidden(hidden);
-  });
-
-  // Tastatur: F = frei/zeigen
-  window.addEventListener('keydown', (e) => {
-    if (e.key.toLowerCase() === 'f') {
-      const hidden = btn.getAttribute('aria-pressed') !== 'true';
-      setHidden(hidden);
+/* ===== Freie Sicht Button: Layer aus + zum Vista scrollen ===== */
+(function(){
+  const ui = document.getElementById('uiLayer');
+  const btn = document.getElementById('freeBtn');
+  const vista = document.getElementById('vista');
+  let hidden = false;
+  btn.addEventListener('click', ()=>{
+    hidden = !hidden;
+    if(hidden){
+      ui.classList.add('hidden');
+      vista.scrollIntoView({behavior:'smooth'});
+      btn.textContent = '⬅️ Zur Ansicht';
+    }else{
+      ui.classList.remove('hidden');
+      window.scrollTo({top:0, behavior:'smooth'});
+      btn.textContent = '🟨 Freie Sicht';
     }
   });
-
-  // Auto-Hide bei Scroll nach unten, Auto-Show bei Scroll nach oben
-  let lastY = window.scrollY;
-  let ticking = false;
-
-  function onScroll() {
-    const y = window.scrollY;
-    const goingDown = y > lastY + 10;
-    const goingUp   = y < lastY - 10;
-
-    if (goingDown) setHidden(true);
-    else if (goingUp) setHidden(false);
-
-    lastY = y;
-    ticking = false;
-  }
-
-  window.addEventListener('scroll', () => {
-    if (!ticking) {
-      window.requestAnimationFrame(onScroll);
-      ticking = true;
-    }
-  }, { passive: true });
 })();
 </script>
-<!-- === /Patch === -->
 </body>
 </html>
