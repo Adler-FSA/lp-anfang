@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FSA Campus – Halbkreis + Kino</title>
+<title>FSA Campus – Halbkreis Final</title>
 <style>
   :root{
     --gold:#d4af37;
@@ -20,11 +20,6 @@
 
   /* ===== Hintergrund: Slideshow ===== */
   #slideshow{position:fixed;inset:0;z-index:-3;overflow:hidden}
-  #slideshow .layer{
-    position:absolute;inset:0;background-position:center;background-size:cover;opacity:0;
-    transition:opacity 2s ease-in-out;filter:brightness(.85)
-  }
-  #slideshow .layer.active{opacity:1}
 
   /* ===== Wolken ===== */
   #clouds{
@@ -35,7 +30,6 @@
   }
   @keyframes clouds{0%{background-position:0 0}100%{background-position:-2000px 0}}
 
-  /* ===== Bühne ===== */
   .stage{
     min-height:230vh;
     display:flex;flex-direction:column;align-items:center;gap:100px;
@@ -47,19 +41,17 @@
     50%{box-shadow:0 0 42px rgba(212,175,55,.75), 0 12px 32px rgba(0,0,0,.6)}
   }
   @keyframes float{
-    0%{transform:translateY(0)} 50%{transform:translateY(-8px)} 100%{transform:translateY(0)}
+    0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}
   }
 
-  /* ===== Begrüßung ===== */
   .welcome{
     max-width:980px;background:var(--card);border:1px solid rgba(212,175,55,.28);border-radius:var(--radius);
-    padding:28px 28px 24px;text-align:center;backdrop-filter:blur(4px);
+    padding:28px;text-align:center;backdrop-filter:blur(4px);
     animation:softGlow 8s ease-in-out infinite, float 12s ease-in-out infinite
   }
   .welcome h1{margin:0 0 10px;color:var(--gold);font-family:Montserrat,sans-serif;font-size:2rem}
   .welcome p{margin:0;color:var(--text);line-height:1.65}
 
-  /* ===== Türen ===== */
   .doors{
     display:flex;justify-content:center;align-items:center;gap:120px;
     perspective:1600px;transform-style:preserve-3d;flex-wrap:wrap;
@@ -81,11 +73,11 @@
   .d3 .title{color:#5af5ae}
   .d4 .title{color:#ffe999}
 
-  /* Endpositionen für echten Halbkreis */
-  .d1.end{transform:translateX(-300px) translateY(50px) translateZ(-100px) rotateY(30deg)}
-  .d2.end{transform:translateX(-120px) translateY(-60px) translateZ(80px) rotateY(10deg)}
-  .d3.end{transform:translateX(120px)  translateY(-60px) translateZ(80px) rotateY(-10deg)}
-  .d4.end{transform:translateX(300px)  translateY(50px) translateZ(-100px) rotateY(-30deg)}
+  /* Endpositionen Halbkreis */
+  .d1.end{transform:translateX(-420px) translateY(60px) translateZ(-220px) rotateY(35deg)}
+  .d2.end{transform:translateX(-180px) translateY(-80px) translateZ(200px) rotateY(10deg)}
+  .d3.end{transform:translateX( 180px) translateY(-80px) translateZ(200px) rotateY(-10deg)}
+  .d4.end{transform:translateX( 420px) translateY(60px) translateZ(-220px) rotateY(-35deg)}
 
   /* Startpositionen */
   .d1.start{transform:translate(-60vw,-40vh) rotateY(30deg)}
@@ -94,7 +86,6 @@
   .d4.start{transform:translate( 60vw,-40vh) rotateY(-30deg)}
   .door.visible{opacity:1}
 
-  /* ===== Kino-Fenster ===== */
   .kino-wrapper{
     width:80%;max-width:960px;aspect-ratio:16/9;
     background:rgba(0,0,0,.55);
@@ -118,14 +109,10 @@
 </head>
 <body>
 
-<!-- Hintergrund -->
-<div id="slideshow">
-  <div class="layer active" id="layerA"></div>
-  <div class="layer" id="layerB"></div>
-</div>
+<!-- Slideshow -->
+<div id="slideshow"></div>
 <div id="clouds" aria-hidden="true"></div>
 
-<!-- Bühne -->
 <div class="stage">
   <div class="welcome">
     <h1>Willkommen im Campus</h1>
@@ -141,45 +128,88 @@
     <a class="door d4 start" href="#"><span class="emoji">🌕</span><p class="title">Souveränität</p><p class="sub">Was sie ist. Wie man sie stärkt.</p></a>
   </div>
 
-  <!-- Kino Fenster -->
-  <div class="kino-wrapper" id="kino">
-    <!-- später per Admin gefüllt -->
-  </div>
+  <div class="kino-wrapper" id="kino"></div>
 </div>
 
-<!-- Musik -->
 <audio id="bgMusic" loop src="library/music/pool/track-01.mp3"></audio>
 <button id="musicBtn">🎵 Musik starten</button>
 
 <script>
-/* ===== Slideshow ===== */
+// ========== Slideshow aus pool-live ==========
 (function(){
-  const path='library/images/pool-live/';
-  const count=48, interval=8000;
-  const A=document.getElementById('layerA'), B=document.getElementById('layerB');
-  let active=A, inactive=B, idx=1;
-  function img(n){return path+'slide-'+String(n).padStart(2,'0')+'.jpg';}
-  for(let i=1;i<=count;i++){new Image().src=img(i);}
-  function swap(){
-    idx=(idx%count)+1;
-    inactive.style.backgroundImage="url('"+img(idx)+"')";
-    inactive.classList.add('active');
-    active.classList.remove('active');
-    let t=active; active=inactive; inactive=t;
+  const path = 'library/images/pool-live/';
+  const count = 48;
+  const interval = 8000;
+  const fadeTime = 2000;
+
+  const container = document.getElementById('slideshow');
+  const layers = [];
+  let active = 0;
+  let index = 0;
+
+  for (let i = 0; i < 2; i++) {
+    const layer = document.createElement('div');
+    Object.assign(layer.style, {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      transition: `opacity ${fadeTime}ms ease-in-out`,
+      opacity: i === 0 ? '1' : '0'
+    });
+    container.appendChild(layer);
+    layers.push(layer);
   }
-  A.style.backgroundImage="url('"+img(1)+"')";
-  setInterval(swap,interval);
+
+  function imgName(n){
+    return `${path}slide-${String(n).padStart(2,'0')}.jpg`;
+  }
+
+  for (let i = 1; i <= count; i++){
+    const img = new Image();
+    img.src = imgName(i);
+  }
+
+  function next(){
+    index = (index + 1) % count;
+    const nextLayer = 1 - active;
+    layers[nextLayer].style.backgroundImage = `url(${imgName(index+1)})`;
+    layers[nextLayer].style.opacity = '1';
+    layers[active].style.opacity = '0';
+    active = nextLayer;
+  }
+
+  layers[0].style.backgroundImage = `url(${imgName(1)})`;
+  setInterval(next, interval);
 })();
 
-/* ===== Musik ===== */
-const music=document.getElementById('bgMusic');
-const musicBtn=document.getElementById('musicBtn');
-let playing=false;
-async function startMusic(){try{await music.play();playing=true;musicBtn.textContent='⏸ Musik stoppen';}catch(e){}}
-musicBtn.addEventListener('click',async()=>{if(!playing){await startMusic();}else{music.pause();playing=false;musicBtn.textContent='🎵 Musik starten';}});
-window.addEventListener('pointerdown',function once(){if(!playing)startMusic();window.removeEventListener('pointerdown',once);},{once:true});
+// ========== Musik ==========
+const music = document.getElementById('bgMusic');
+const musicBtn = document.getElementById('musicBtn');
+let playing = false;
 
-/* ===== Türen Einflug ===== */
+async function startMusic(){
+  try{
+    await music.play();
+    playing = true;
+    musicBtn.textContent = "⏸ Musik stoppen";
+  }catch(e){}
+}
+
+musicBtn.addEventListener('click', async ()=>{
+  if(!playing){ await startMusic(); }
+  else{ music.pause(); playing=false; musicBtn.textContent="🎵 Musik starten"; }
+});
+
+window.addEventListener('pointerdown', function once(){
+  if(!playing) startMusic();
+  window.removeEventListener('pointerdown', once);
+},{once:true});
+
+// ========== Türen Einflug ==========
 (function(){
   const order=[
     {sel:'.d1',delay:0},
