@@ -3,220 +3,206 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>FSA Grundkurs – Tor & 6 Säulen</title>
+<title>FSA Grundkurs – Akademie</title>
 <style>
-  :root {
-    --bg: #0b0f14;
-    --gold: #e8d27c;
-    --panel: #111621;
-    --shadow: 0 0 25px rgba(255,215,0,0.25);
-  }
-  body {
-    margin: 0;
-    font-family: "Segoe UI", system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--gold);
-    overflow: hidden;
-  }
+:root {
+  --gold: #d4af37;
+  --bg: #0b0f14;
+  --panel: #111826;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+}
+html,body {
+  margin:0; padding:0; height:100%; background:var(--bg); color:var(--text);
+  font-family: "Segoe UI", system-ui, sans-serif; overflow:hidden;
+}
 
-  /* === TOR === */
-  .tor-container {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: radial-gradient(circle at center, #141820 0%, #000 100%);
-    box-shadow: inset 0 0 80px rgba(0,0,0,0.7);
-  }
+/* TOR-EBENE ------------------------------------------------------*/
+#gate {
+  position:fixed; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  background:radial-gradient(circle at center,#000 60%,#1a1a1a 100%);
+  z-index:10; transition:opacity 1.5s ease;
+}
+.gate-panels {
+  display:flex; justify-content:center; gap:100px; margin-bottom:40px;
+}
+.panel {
+  width:280px; height:160px; border:1px solid var(--gold);
+  border-radius:12px; background:rgba(255,255,255,0.02);
+  box-shadow:0 0 25px rgba(212,175,55,0.25); text-align:center;
+  padding:16px; backdrop-filter:blur(4px);
+}
+.panel h3 {
+  color:var(--gold); margin:0 0 6px 0; font-size:1.2rem;
+}
+.panel p {
+  font-size:.95rem; line-height:1.4; color:var(--muted);
+}
+.lock {
+  width:60px; height:60px; border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,#ffd97b,#b8860b);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 0 25px rgba(212,175,55,0.6); margin-bottom:20px;
+}
+.lock::before {
+  content:"🔒"; font-size:1.5rem;
+}
+#nameForm {
+  display:flex; gap:10px;
+}
+#username {
+  background:transparent; border:1px solid var(--gold); color:var(--gold);
+  padding:8px 14px; border-radius:6px; min-width:180px;
+}
+#enterBtn {
+  background:var(--gold); color:#000; border:none; border-radius:6px;
+  padding:8px 14px; font-weight:600; cursor:pointer;
+  box-shadow:0 0 20px rgba(212,175,55,0.4);
+}
+.fade-out {
+  opacity:0; pointer-events:none;
+}
 
-  .door {
-    position: absolute;
-    width: 50%;
-    height: 100%;
-    top: 0;
-    background: linear-gradient(145deg, #10141d, #0b0f14);
-    border: 1px solid rgba(255,215,0,0.15);
-    box-shadow: inset 0 0 50px rgba(255,215,0,0.1);
-    transition: transform 1.8s ease-in-out;
-    z-index: 3;
-  }
-
-  .door.left { left: 0; transform-origin: left center; }
-  .door.right { right: 0; transform-origin: right center; }
-
-  .door.open.left { transform: perspective(800px) rotateY(-100deg); }
-  .door.open.right { transform: perspective(800px) rotateY(100deg); }
-
-  /* Schloss */
-  .lock {
-    position: absolute;
-    bottom: 15%;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 5;
-    text-align: center;
-  }
-  .lock button {
-    background: radial-gradient(circle at center, #f9d45c, #b68d2b);
-    border: none;
-    color: #111;
-    padding: 14px 26px;
-    font-weight: 600;
-    border-radius: 6px;
-    cursor: pointer;
-    box-shadow: 0 0 15px rgba(255,215,0,0.5);
-  }
-  .lock input {
-    background: transparent;
-    border: 1px solid #b68d2b;
-    color: var(--gold);
-    padding: 10px 14px;
-    border-radius: 6px;
-    margin-right: 10px;
-    outline: none;
-  }
-
-  /* === 6 SÄULEN === */
-  .saeulen {
-    position: absolute;
-    width: 100%;
-    top: 22%;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 40px;
-    z-index: 4;
-  }
-
-  .saeule {
-    width: 260px;
-    height: 150px;
-    background: rgba(20,20,25,0.65);
-    border: 1px solid rgba(255,215,0,0.1);
-    border-radius: 12px;
-    box-shadow: inset 0 0 20px rgba(255,215,0,0.15);
-    padding: 20px;
-    text-align: center;
-    color: var(--gold);
-    opacity: 0;
-    transform: translateY(30px);
-    animation: fadeInUp 1s forwards;
-  }
-
-  .saeule h3 {
-    margin: 0 0 10px;
-    font-size: 1.1rem;
-    letter-spacing: 0.5px;
-  }
-
-  .saeule p {
-    font-size: 0.9rem;
-    color: #ddd;
-    line-height: 1.4;
-  }
-
-  @keyframes fadeInUp {
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .fadeOut {
-    opacity: 0;
-    transition: opacity 1.4s ease-in-out;
-  }
-
-  /* === KURSTÜREN HINTER DEM TOR === */
-  .kurse {
-    display: none;
-    position: absolute;
-    top: 10%;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 40px;
-  }
-
-  .kurs {
-    width: 5cm;
-    height: 7cm;
-    background: #0f172a;
-    border-radius: 10px;
-    border: 1px solid rgba(255,215,0,0.25);
-    box-shadow: 0 0 30px rgba(255,215,0,0.2);
-    color: #f4d160;
-    text-align: center;
-    padding: 20px;
-  }
-
-  .kurs img {
-    width: 40px;
-    margin-bottom: 10px;
-  }
-
-  .kurs a {
-    color: #9ae6b4;
-    text-decoration: none;
-    font-size: 0.9rem;
-  }
+/* KURSTÜREN ------------------------------------------------------*/
+#courses {
+  display:none; position:relative; z-index:1;
+  height:100%; width:100%; overflow:auto; text-align:center;
+  background:radial-gradient(circle at center, #000 50%, #0b0f14 100%);
+  padding:80px 20px;
+}
+h1 {
+  font-size:2rem; color:var(--gold); margin-bottom:10px;
+}
+h2 {
+  color:var(--muted); font-weight:400; margin-bottom:50px;
+}
+.doors {
+  display:flex; justify-content:center; flex-wrap:wrap; gap:28px;
+}
+.door {
+  width:5cm; height:7cm; border:1px solid var(--gold);
+  border-radius:14px; background:rgba(17,24,38,0.9);
+  box-shadow:0 0 22px rgba(212,175,55,0.35);
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  transition:transform .3s ease, box-shadow .3s ease;
+  text-decoration:none; color:var(--text);
+}
+.door:hover {
+  transform:translateY(-4px); box-shadow:0 0 35px rgba(212,175,55,0.6);
+}
+.door img {
+  width:44px; height:auto; margin-bottom:14px;
+}
+.door strong {
+  color:var(--gold); display:block; margin-bottom:6px;
+}
+.door small {
+  color:var(--muted);
+}
+.door a {color:#38bdf8; text-decoration:none;}
 </style>
 </head>
 <body>
 
-<div class="tor-container">
-  <!-- 6 SÄULEN -->
-  <div class="saeulen" id="saeulen">
-    <div class="saeule" style="animation-delay:0.1s;"><h3>📘 Klarheit</h3><p>Verstehe deine Finanzen, deine Möglichkeiten<br>und die Mechanismen echter Freiheit.</p></div>
-    <div class="saeule" style="animation-delay:0.2s;"><h3>🌍 Freiheit</h3><p>Gestalte dein Leben unabhängig und nachhaltig<br>– frei von Abhängigkeiten.</p></div>
-    <div class="saeule" style="animation-delay:0.3s;"><h3>🤝 Gemeinschaft</h3><p>Wachse gemeinsam mit Menschen,<br>die deine Werte teilen und dich inspirieren.</p></div>
-    <div class="saeule" style="animation-delay:0.4s;"><h3>🛡️ Gegen Bevormundung</h3><p>Übernimm die Kontrolle über deine Entscheidungen<br>– ohne äußere Einschränkungen.</p></div>
-    <div class="saeule" style="animation-delay:0.5s;"><h3>⚖️ Schutz vor Pfändung</h3><p>Sichere deine Werte durch dezentrale Systeme<br>– frei von staatlichen Eingriffen.</p></div>
-    <div class="saeule" style="animation-delay:0.6s;"><h3>🏦 Eigenes IBAN-Konto</h3><p>Nutze dein persönliches Konto mit IBAN<br>und verknüpfe es flexibel – transparent und sicher.</p></div>
+<!-- TOR -->
+<div id="gate">
+  <div class="gate-panels">
+    <div>
+      <div class="panel">
+        <h3>📘 Klarheit</h3>
+        <p>Verstehe deine Finanzen,<br>deine Möglichkeiten und die Mechanismen echter Freiheit.</p>
+      </div>
+      <div class="panel">
+        <h3>🤝 Gemeinschaft</h3>
+        <p>Wachse gemeinsam mit Menschen,<br>die deine Werte teilen und dich inspirieren.</p>
+      </div>
+      <div class="panel">
+        <h3>⚖️ Schutz vor Pfändung</h3>
+        <p>Sichere deine Werte durch dezentrale Systeme – frei von staatlichen Eingriffen.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <h3>🌍 Freiheit</h3>
+        <p>Gestalte dein Leben unabhängig und nachhaltig – frei von Abhängigkeiten.</p>
+      </div>
+      <div class="panel">
+        <h3>🛡️ Gegen Bevormundung</h3>
+        <p>Übernimm die Kontrolle über deine Entscheidungen – ohne äußere Einschränkungen.</p>
+      </div>
+      <div class="panel">
+        <h3>🏦 Eigenes IBAN-Konto</h3>
+        <p>Nutze dein persönliches Konto mit IBAN und verknüpfe es flexibel mit deinen Finanzstrukturen – transparent und sicher.</p>
+      </div>
+    </div>
   </div>
 
-  <!-- Türen -->
-  <div class="door left" id="doorLeft"></div>
-  <div class="door right" id="doorRight"></div>
+  <div class="lock"></div>
 
-  <!-- Schloss -->
-  <div class="lock">
-    <input type="text" placeholder="Dein Name..." id="userName"/>
-    <button id="enterBtn">Treten Sie ein</button>
-  </div>
-
-  <!-- KURSTÜREN -->
-  <div class="kurse" id="kurse">
-    <div class="kurs"><img src="library/images/icons/book.png"/><h4>Grundkurs – Basis</h4><p>Geld, Krypto, Systeme verstehen.</p><a href="grundkurs-basis.html">Start hier</a></div>
-    <div class="kurs"><img src="library/images/icons/shield.png"/><h4>Grundkurs – Sicherheit</h4><p>Seeds, Passphrase, Angriffsmuster.</p><a href="grundkurs-sicherheit.html">Schutz vor Fehlern</a></div>
-    <div class="kurs"><img src="library/images/icons/light.png"/><h4>Grundkurs – Einkommen</h4><p>Strategien, Risiken, Cashflow.</p><a href="grundkurs-einkommen.html">Realistisch & klar</a></div>
-    <div class="kurs"><img src="library/images/icons/globe.png"/><h4>Grundkurs – Network</h4><p>On/Off-Ramp, DEX/CEX, Praxis.</p><a href="grundkurs-network.html">Werkzeuge</a></div>
-    <div class="kurs"><img src="library/images/icons/cap.png"/><h4>Prüfungsvorbereitung</h4><p>Checks, Wissenstests, Mentor.</p><a href="grundkurs-pruefung.html">Weg zum Zertifikat</a></div>
-  </div>
+  <form id="nameForm" onsubmit="enterCourse(event)">
+    <input id="username" type="text" placeholder="Dein Name..."/>
+    <button id="enterBtn" type="submit">Treten Sie ein</button>
+  </form>
 </div>
 
-<audio id="bgMusic" src="library/music/pool/track-02.mp3" loop></audio>
+<!-- KURSE -->
+<section id="courses">
+  <h1 id="welcome"></h1>
+  <h2>Erhebe dich: über Zweifel, über Angst.</h2>
+  <div class="doors">
+    <a href="steps/krypto-step1.html" class="door">
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23d4af37' viewBox='0 0 24 24'><path d='M6 2h12v20H6z'/></svg>" alt="Buch">
+      <strong>Grundkurs – Basis</strong>
+      <small>Geld, Krypto, Systeme verstehen.</small><br>
+      <a href="steps/krypto-step1.html">Start hier</a>
+    </a>
+
+    <a href="steps/krypto-step2.html" class="door">
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23d4af37' viewBox='0 0 24 24'><path d='M12 2l8 4v4c0 6-8 12-8 12S4 16 4 10V6z'/></svg>" alt="Schild">
+      <strong>Grundkurs – Sicherheit</strong>
+      <small>Seeds, Passphrase, Angriffsmuster.</small><br>
+      <a href="#">Schutz vor Fehlern</a>
+    </a>
+
+    <a href="steps/krypto-step3.html" class="door">
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23d4af37' viewBox='0 0 24 24'><circle cx='12' cy='12' r='3'/><path d='M12 2v4m0 12v4m10-10h-4M6 12H2m15.5-6.5l-2.8 2.8M8.5 15.5l-2.8 2.8m0-14.2l2.8 2.8M18.3 15.5l2.8 2.8'/></svg>" alt="Glühbirne">
+      <strong>Grundkurs – Einkommen</strong>
+      <small>Strategien, Risiken, Cashflow.</small><br>
+      <a href="#">Realistisch & klar</a>
+    </a>
+
+    <a href="#" class="door">
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23d4af37' viewBox='0 0 24 24'><circle cx='12' cy='12' r='8'/><path d='M2 12h20'/></svg>" alt="Globus">
+      <strong>Grundkurs – Network</strong>
+      <small>On/Off-Ramp, DEX/CEX, Praxis.</small><br>
+      <a href="#">Werkzeuge</a>
+    </a>
+
+    <a href="#" class="door">
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23d4af37' viewBox='0 0 24 24'><path d='M4 20v-2l4-2 4 2 4-2 4 2v2l-4-2-4 2-4-2zM8 4l4-2 4 2-4 2z'/></svg>" alt="Zertifikat">
+      <strong>Prüfungsvorbereitung</strong>
+      <small>Checks, Wissenstests, Mentor.</small><br>
+      <a href="#">Weg zum Zertifikat</a>
+    </a>
+  </div>
+</section>
+
+<audio id="bgMusic" src="library/music/pool/track-02.mp3" preload="auto" loop></audio>
 
 <script>
-  const left = document.getElementById("doorLeft");
-  const right = document.getElementById("doorRight");
-  const enterBtn = document.getElementById("enterBtn");
-  const saeulen = document.getElementById("saeulen");
-  const kurse = document.getElementById("kurse");
-  const bgMusic = document.getElementById("bgMusic");
-
-  enterBtn.addEventListener("click", () => {
-    saeulen.classList.add("fadeOut");
-    left.classList.add("open");
-    right.classList.add("open");
-    bgMusic.volume = 0.4;
-    bgMusic.play();
-
-    setTimeout(() => {
-      saeulen.style.display = "none";
-      kurse.style.display = "flex";
-    }, 2200);
-  });
+function enterCourse(e){
+  e.preventDefault();
+  const name = document.getElementById('username').value.trim() || 'Teilnehmer';
+  document.getElementById('welcome').textContent = `Willkommen im Grundkurs, ${name}`;
+  document.getElementById('gate').classList.add('fade-out');
+  setTimeout(()=>{
+    document.getElementById('gate').style.display='none';
+    document.getElementById('courses').style.display='block';
+    document.getElementById('bgMusic').play();
+  },1200);
+}
 </script>
-
 </body>
 </html>
