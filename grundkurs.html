@@ -1,208 +1,275 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>FSA Grundkurs – Akademie</title>
+
 <style>
 :root {
   --gold: #d4af37;
   --bg: #0b0f14;
   --panel: #111826;
   --text: #f1f5f9;
-  --muted: #94a3b8;
+  --muted: #9ca3af;
+  --shadow: 0 0 25px rgba(212,175,55,0.4);
+  --radius: 14px;
+  --door-w: 240px;
+  --door-h: 336px;
+  --fade: all 1.2s ease;
 }
 html,body {
-  margin:0; padding:0; height:100%; background:var(--bg); color:var(--text);
-  font-family: "Segoe UI", system-ui, sans-serif; overflow:hidden;
+  margin:0;
+  padding:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:"Segoe UI",system-ui,sans-serif;
+  height:100%;
+  overflow:hidden;
 }
 
-/* TOR-EBENE ------------------------------------------------------*/
+/* =====================
+   TOR-BEREICH (bestehend)
+===================== */
 #gate {
-  position:fixed; inset:0; display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  background:radial-gradient(circle at center,#000 60%,#1a1a1a 100%);
-  z-index:10; transition:opacity 1.5s ease;
+  position:fixed;
+  top:0;left:0;
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  background:radial-gradient(circle at center,#000 60%,#141414 100%);
+  z-index:10;
+  transition:var(--fade);
 }
-.gate-panels {
-  display:flex; justify-content:center; gap:100px; margin-bottom:40px;
+#gate.fade-out {opacity:0;visibility:hidden;}
+
+/* Schloss */
+#lock {
+  width:60px;
+  height:60px;
+  background:var(--gold);
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 0 20px rgba(212,175,55,0.8);
+  cursor:pointer;
+  transition:var(--fade);
 }
-.panel {
-  width:280px; height:160px; border:1px solid var(--gold);
-  border-radius:12px; background:rgba(255,255,255,0.02);
-  box-shadow:0 0 25px rgba(212,175,55,0.25); text-align:center;
-  padding:16px; backdrop-filter:blur(4px);
+#lock:hover {transform:scale(1.05);}
+
+/* Nameingabe */
+#name-input {
+  margin-top:20px;
+  display:flex;
+  gap:10px;
 }
-.panel h3 {
-  color:var(--gold); margin:0 0 6px 0; font-size:1.2rem;
+#name-input input {
+  padding:10px 14px;
+  background:transparent;
+  border:1px solid var(--gold);
+  color:var(--text);
+  border-radius:6px;
+  width:180px;
 }
-.panel p {
-  font-size:.95rem; line-height:1.4; color:var(--muted);
+#name-input button {
+  padding:10px 18px;
+  background:var(--gold);
+  border:none;
+  border-radius:6px;
+  font-weight:600;
+  cursor:pointer;
+  color:#000;
 }
-.lock {
-  width:60px; height:60px; border-radius:50%;
-  background:radial-gradient(circle at 30% 30%,#ffd97b,#b8860b);
-  display:flex; align-items:center; justify-content:center;
-  box-shadow:0 0 25px rgba(212,175,55,0.6); margin-bottom:20px;
+#name-input button:hover {filter:brightness(1.15);}
+
+/* =====================
+   NACH-TOR-BEREICH
+===================== */
+#academy {
+  opacity:0;
+  visibility:hidden;
+  position:relative;
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  background:var(--bg);
+  transition:var(--fade);
+  overflow-y:auto;
+  padding:80px 0;
 }
-.lock::before {
-  content:"🔒"; font-size:1.5rem;
+#academy.active {opacity:1;visibility:visible;overflow-y:auto;}
+
+.welcome {
+  text-align:center;
+  margin-bottom:60px;
 }
-#nameForm {
-  display:flex; gap:10px;
+.welcome h1 {
+  color:var(--gold);
+  font-size:2rem;
+  margin:0 0 8px;
 }
-#username {
-  background:transparent; border:1px solid var(--gold); color:var(--gold);
-  padding:8px 14px; border-radius:6px; min-width:180px;
-}
-#enterBtn {
-  background:var(--gold); color:#000; border:none; border-radius:6px;
-  padding:8px 14px; font-weight:600; cursor:pointer;
-  box-shadow:0 0 20px rgba(212,175,55,0.4);
-}
-.fade-out {
-  opacity:0; pointer-events:none;
+.welcome p {
+  color:var(--muted);
+  font-size:1.2rem;
+  margin:0;
 }
 
-/* KURSTÜREN ------------------------------------------------------*/
-#courses {
-  display:none; position:relative; z-index:1;
-  height:100%; width:100%; overflow:auto; text-align:center;
-  background:radial-gradient(circle at center, #000 50%, #0b0f14 100%);
-  padding:80px 20px;
-}
-h1 {
-  font-size:2rem; color:var(--gold); margin-bottom:10px;
-}
-h2 {
-  color:var(--muted); font-weight:400; margin-bottom:50px;
-}
+/* Türen */
 .doors {
-  display:flex; justify-content:center; flex-wrap:wrap; gap:28px;
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:40px;
+  max-width:1200px;
 }
 .door {
-  width:5cm; height:7cm; border:1px solid var(--gold);
-  border-radius:14px; background:rgba(17,24,38,0.9);
-  box-shadow:0 0 22px rgba(212,175,55,0.35);
-  display:flex; flex-direction:column; justify-content:center; align-items:center;
-  transition:transform .3s ease, box-shadow .3s ease;
-  text-decoration:none; color:var(--text);
+  width:var(--door-w);
+  height:var(--door-h);
+  background:var(--panel);
+  border:1px solid rgba(212,175,55,0.6);
+  border-radius:var(--radius);
+  box-shadow:0 0 20px rgba(212,175,55,0.2);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  transition:var(--fade);
+  text-align:center;
+  padding:20px;
 }
 .door:hover {
-  transform:translateY(-4px); box-shadow:0 0 35px rgba(212,175,55,0.6);
+  box-shadow:0 0 35px rgba(212,175,55,0.8);
+  transform:translateY(-5px);
 }
-.door img {
-  width:44px; height:auto; margin-bottom:14px;
+
+/* Icons inline */
+.door .icon {
+  font-size:2.4rem;
+  margin-bottom:10px;
 }
-.door strong {
-  color:var(--gold); display:block; margin-bottom:6px;
+.door h3 {
+  color:var(--gold);
+  font-size:1.2rem;
+  margin:6px 0;
 }
-.door small {
-  color:var(--muted);
+.door p {
+  color:var(--text);
+  font-size:0.95rem;
+  line-height:1.4;
+  margin:0;
 }
-.door a {color:#38bdf8; text-decoration:none;}
+.door a {
+  color:#38bdf8;
+  text-decoration:none;
+  font-size:0.9rem;
+  margin-top:8px;
+  display:inline-block;
+}
+
+/* Musik bleibt */
+audio {display:none;}
 </style>
 </head>
+
 <body>
 
-<!-- TOR -->
-<div id="gate">
-  <div class="gate-panels">
-    <div>
-      <div class="panel">
-        <h3>📘 Klarheit</h3>
-        <p>Verstehe deine Finanzen,<br>deine Möglichkeiten und die Mechanismen echter Freiheit.</p>
-      </div>
-      <div class="panel">
-        <h3>🤝 Gemeinschaft</h3>
-        <p>Wachse gemeinsam mit Menschen,<br>die deine Werte teilen und dich inspirieren.</p>
-      </div>
-      <div class="panel">
-        <h3>⚖️ Schutz vor Pfändung</h3>
-        <p>Sichere deine Werte durch dezentrale Systeme – frei von staatlichen Eingriffen.</p>
-      </div>
+<!-- =====================
+     TOR (bleibt unverändert)
+===================== -->
+<section id="gate">
+  <div class="panel-row">
+    <div class="panel">
+      <div style="color:var(--gold);font-style:italic;">„Wissen ist der erste Schritt zur Freiheit.“</div>
     </div>
-
-    <div>
-      <div class="panel">
-        <h3>🌍 Freiheit</h3>
-        <p>Gestalte dein Leben unabhängig und nachhaltig – frei von Abhängigkeiten.</p>
-      </div>
-      <div class="panel">
-        <h3>🛡️ Gegen Bevormundung</h3>
-        <p>Übernimm die Kontrolle über deine Entscheidungen – ohne äußere Einschränkungen.</p>
-      </div>
-      <div class="panel">
-        <h3>🏦 Eigenes IBAN-Konto</h3>
-        <p>Nutze dein persönliches Konto mit IBAN und verknüpfe es flexibel mit deinen Finanzstrukturen – transparent und sicher.</p>
-      </div>
+    <div class="panel">
+      <div style="color:var(--gold);font-style:italic;">„Souverän ist, wer versteht, bevor er handelt.“</div>
     </div>
   </div>
 
-  <div class="lock"></div>
+  <div id="lock">🔒</div>
+  <div id="name-input">
+    <input id="userName" type="text" placeholder="Dein Name..." />
+    <button id="enterBtn">Treten Sie ein</button>
+  </div>
 
-  <form id="nameForm" onsubmit="enterCourse(event)">
-    <input id="username" type="text" placeholder="Dein Name..."/>
-    <button id="enterBtn" type="submit">Treten Sie ein</button>
-  </form>
-</div>
+  <audio id="bgMusic" src="library/music/pool/track-02.mp3" autoplay loop></audio>
+</section>
 
-<!-- KURSE -->
-<section id="courses">
-  <h1 id="welcome"></h1>
-  <h2>Erhebe dich: über Zweifel, über Angst.</h2>
+<!-- =====================
+     NACH-TOR-BEREICH
+===================== -->
+<section id="academy">
+  <div class="welcome">
+    <h1 id="welcomeTitle">Willkommen im Grundkurs</h1>
+    <p id="quote">Erhebe dich: über Zweifel, über Angst.</p>
+  </div>
+
   <div class="doors">
-    <a href="steps/krypto-step1.html" class="door">
-      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23d4af37' viewBox='0 0 24 24'><path d='M6 2h12v20H6z'/></svg>" alt="Buch">
-      <strong>Grundkurs – Basis</strong>
-      <small>Geld, Krypto, Systeme verstehen.</small><br>
-      <a href="steps/krypto-step1.html">Start hier</a>
-    </a>
+    <div class="door" onclick="location.href='grundkurs-basis.html'">
+      <div class="icon">📘</div>
+      <h3>Grundkurs – Basis</h3>
+      <p>Geld, Krypto, Systeme verstehen.</p>
+      <a href="grundkurs-basis.html">Start hier</a>
+    </div>
 
-    <a href="steps/krypto-step2.html" class="door">
-      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23d4af37' viewBox='0 0 24 24'><path d='M12 2l8 4v4c0 6-8 12-8 12S4 16 4 10V6z'/></svg>" alt="Schild">
-      <strong>Grundkurs – Sicherheit</strong>
-      <small>Seeds, Passphrase, Angriffsmuster.</small><br>
-      <a href="#">Schutz vor Fehlern</a>
-    </a>
+    <div class="door" onclick="location.href='grundkurs-sicherheit.html'">
+      <div class="icon">🛡️</div>
+      <h3>Grundkurs – Sicherheit</h3>
+      <p>Seeds, Passphrase, Angriffsmuster.</p>
+      <a href="grundkurs-sicherheit.html">Schutz vor Fehlern</a>
+    </div>
 
-    <a href="steps/krypto-step3.html" class="door">
-      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23d4af37' viewBox='0 0 24 24'><circle cx='12' cy='12' r='3'/><path d='M12 2v4m0 12v4m10-10h-4M6 12H2m15.5-6.5l-2.8 2.8M8.5 15.5l-2.8 2.8m0-14.2l2.8 2.8M18.3 15.5l2.8 2.8'/></svg>" alt="Glühbirne">
-      <strong>Grundkurs – Einkommen</strong>
-      <small>Strategien, Risiken, Cashflow.</small><br>
-      <a href="#">Realistisch & klar</a>
-    </a>
+    <div class="door" onclick="location.href='grundkurs-einkommen.html'">
+      <div class="icon">💡</div>
+      <h3>Grundkurs – Einkommen</h3>
+      <p>Strategien, Risiken, Cashflow.</p>
+      <a href="grundkurs-einkommen.html">Realistisch & klar</a>
+    </div>
 
-    <a href="#" class="door">
-      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23d4af37' viewBox='0 0 24 24'><circle cx='12' cy='12' r='8'/><path d='M2 12h20'/></svg>" alt="Globus">
-      <strong>Grundkurs – Network</strong>
-      <small>On/Off-Ramp, DEX/CEX, Praxis.</small><br>
-      <a href="#">Werkzeuge</a>
-    </a>
+    <div class="door" onclick="location.href='grundkurs-network.html'">
+      <div class="icon">🌐</div>
+      <h3>Grundkurs – Network</h3>
+      <p>On-/Off-Ramp, DEX/CEX, Praxis.</p>
+      <a href="grundkurs-network.html">Werkzeuge</a>
+    </div>
 
-    <a href="#" class="door">
-      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%23d4af37' viewBox='0 0 24 24'><path d='M4 20v-2l4-2 4 2 4-2 4 2v2l-4-2-4 2-4-2zM8 4l4-2 4 2-4 2z'/></svg>" alt="Zertifikat">
-      <strong>Prüfungsvorbereitung</strong>
-      <small>Checks, Wissenstests, Mentor.</small><br>
-      <a href="#">Weg zum Zertifikat</a>
-    </a>
+    <div class="door" onclick="location.href='grundkurs-pruefung.html'">
+      <div class="icon">🎓</div>
+      <h3>Prüfungsvorbereitung</h3>
+      <p>Checks, Wissenstests, Mentor.</p>
+      <a href="grundkurs-pruefung.html">Weg zum Zertifikat</a>
+    </div>
   </div>
 </section>
 
-<audio id="bgMusic" src="library/music/pool/track-02.mp3" preload="auto" loop></audio>
-
 <script>
-function enterCourse(e){
-  e.preventDefault();
-  const name = document.getElementById('username').value.trim() || 'Teilnehmer';
-  document.getElementById('welcome').textContent = `Willkommen im Grundkurs, ${name}`;
-  document.getElementById('gate').classList.add('fade-out');
-  setTimeout(()=>{
-    document.getElementById('gate').style.display='none';
-    document.getElementById('courses').style.display='block';
-    document.getElementById('bgMusic').play();
-  },1200);
-}
+// Tor öffnen
+document.getElementById("enterBtn").addEventListener("click", () => {
+  const name = document.getElementById("userName").value.trim() || "Teilnehmer";
+  document.getElementById("welcomeTitle").innerText = `Willkommen im Grundkurs, ${name}`;
+  document.getElementById("gate").classList.add("fade-out");
+  setTimeout(() => {
+    document.getElementById("academy").classList.add("active");
+  }, 1200);
+});
+
+// Rotierende Sprüche
+const quotes = [
+  "Erhebe dich: über Zweifel, über Angst.",
+  "Verstehen ist der Schlüssel zur Freiheit.",
+  "Wissen entfesselt Mut und Richtung.",
+  "Finanzielle Souveränität beginnt im Kopf.",
+  "Vertraue dem Prozess, nicht dem Zufall."
+];
+document.getElementById("quote").innerText = quotes[Math.floor(Math.random()*quotes.length)];
 </script>
+
 </body>
 </html>
