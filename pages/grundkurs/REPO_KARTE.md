@@ -45,6 +45,13 @@
     │       └── slide-29.jpg
     ├── library/
     │   ├── images/
+    │   │   ├── icons/
+    │   │   │   ├── bank.png
+    │   │   │   ├── book.png
+    │   │   │   ├── globe.png
+    │   │   │   ├── handshake.png
+    │   │   │   ├── shield.png
+    │   │   │   └── stop.png
     │   │   ├── pool-live/
     │   │   │   ├── slide-01.jpg
     │   │   │   ├── slide-02.jpg
@@ -346,4 +353,4 @@
     ├── master.css
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 17.10.2025, 12:22)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 17.10.2025, 13:42)_
