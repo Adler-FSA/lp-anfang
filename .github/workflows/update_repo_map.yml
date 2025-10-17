@@ -5,6 +5,10 @@ on:
     branches:
       - main
   workflow_dispatch:
+  workflow_run:
+    workflows: ["pages-build-deployment"]
+    types:
+      - completed
 
 jobs:
   update-map:
@@ -13,24 +17,29 @@ jobs:
       - name: 🔽 Repository auschecken
         uses: actions/checkout@v4
 
-      - name: 🧰 Node.js installieren
+      - name: 🧩 Tool 'tree' installieren
+        run: sudo apt-get update && sudo apt-get install -y tree
+
+      - name: 🧰 Node.js vorbereiten
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: 🧩 Strukturkarte erzeugen
+      - name: 🦅 Strukturkarte erzeugen
         run: |
           echo "📦 Generiere REPO_KARTE.md ..."
           mkdir -p pages/grundkurs
-          echo "# 🦅 Projektkarte – Adler-FSA (automatisch erstellt)" > pages/grundkurs/REPO_KARTE.md
-          echo "" >> pages/grundkurs/REPO_KARTE.md
-          echo "**Stand:** $(date '+%d.%m.%Y %H:%M Uhr')" >> pages/grundkurs/REPO_KARTE.md
-          echo "" >> pages/grundkurs/REPO_KARTE.md
-          echo '```' >> pages/grundkurs/REPO_KARTE.md
-          tree -a -I ".git|node_modules|.github" >> pages/grundkurs/REPO_KARTE.md
-          echo '```' >> pages/grundkurs/REPO_KARTE.md
-          echo "" >> pages/grundkurs/REPO_KARTE.md
-          echo "_Automatisch aktualisiert bei jedem Commit auf main._" >> pages/grundkurs/REPO_KARTE.md
+          {
+            echo "# 🦅 Projektkarte – Adler-FSA (automatisch erstellt)"
+            echo ""
+            echo "**Stand:** $(date '+%d.%m.%Y %H:%M Uhr')"
+            echo ""
+            echo '```'
+            tree -a -I ".git|node_modules|.github" || echo "(tree command not found)"
+            echo '```'
+            echo ""
+            echo "_Automatisch aktualisiert bei jedem Commit oder Pages-Deploy._"
+          } > pages/grundkurs/REPO_KARTE.md
 
       - name: 💾 Änderungen committen
         run: |
