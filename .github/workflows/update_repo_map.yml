@@ -1,4 +1,4 @@
-name: 🗺️ Repo-Karte automatisch aktualisieren
+name: Repo-Karte automatisch aktualisieren
 
 on:
   push:
@@ -9,26 +9,34 @@ on:
 jobs:
   update-map:
     runs-on: ubuntu-latest
+
     permissions:
       contents: write
+
     steps:
-      - name: 🧩 Repository auschecken
+      - name: Repository auschecken
         uses: actions/checkout@v4
 
-      - name: 📦 Tool 'tree' installieren
+      - name: Tool 'tree' installieren
         run: sudo apt-get install -y tree
 
-      - name: 🪄 Strukturkarte erzeugen
+      - name: Strukturkarte erzeugen
         run: |
-          mkdir -p pages/grundkurs
-          echo "# 📁 Repository-Struktur – Automatisch generiert" > pages/grundkurs/REPO_KARTE.md
+          echo "📁 **Projektübersicht – Adler-FSA / lp-anfang**" > pages/grundkurs/REPO_KARTE.md
           echo "" >> pages/grundkurs/REPO_KARTE.md
-          tree -I ".git|node_modules|.github" -L 4 >> pages/grundkurs/REPO_KARTE.md
+          tree -L 4 -F --dirsfirst --noreport | sed \
+            -e 's/^/    /' \
+            -e 's/|/│/g' \
+            -e 's/`/└/g' \
+            -e 's/--/>/g' \
+            >> pages/grundkurs/REPO_KARTE.md
+          echo "" >> pages/grundkurs/REPO_KARTE.md
+          echo "_(Automatisch aktualisiert über GitHub Actions – letzter Build: $(date +"%d.%m.%Y, %H:%M"))_" >> pages/grundkurs/REPO_KARTE.md
 
-      - name: 💾 Änderungen committen
+      - name: Änderungen committen
         run: |
           git config user.name "Adler-FSA AutoMap"
           git config user.email "actions@github.com"
           git add pages/grundkurs/REPO_KARTE.md
-          git commit -m "🗺️ Repo-Karte automatisch aktualisiert" || echo "Keine Änderungen"
+          git commit -m "🔁 Repo-Karte aktualisiert" || echo "Keine Änderungen"
           git push
