@@ -320,6 +320,7 @@
     │   ├── grundkurs/
     │   │   ├── REPO_KARTE.md
     │   │   ├── ROLE_TECHNISCHER_UMSETZER.md
+    │   │   ├── grundkurs1-prototyp.html
     │   │   └── page.json
     │   ├── index/
     │   │   └── page.json
@@ -353,4 +354,4 @@
     ├── master.css
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 18.10.2025, 07:26)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 18.10.2025, 08:40)_
