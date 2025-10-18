@@ -1424,5 +1424,131 @@
 })();
 </script>
 <!-- ░░ /PATCH 5 Ende ░░ -->
+<!-- ░░ PATCH 6 – Begrüßung + Einführungstext nebeneinander (mehrsprachig) ░░ -->
+<script>
+(function(){
+  const intro = document.querySelector('#introText');
+  if(!intro) return;
+
+  // Struktur ersetzen
+  intro.innerHTML = `
+    <div style="display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start;margin-top:10px;">
+      <form id="nameForm" style="flex:1 1 320px;display:flex;flex-direction:column;gap:12px;max-width:420px;">
+        <p style="color:var(--ink);font-size:1.05rem;font-weight:600;margin:0;">
+          <span data-i18n="welcome1">Herzlich willkommen zu deinem ersten Grundkurs.</span><br/>
+          <span data-i18n="welcome2">Bitte trage hier deinen <strong>Vor- und Nachnamen</strong> ein.</span><br/>
+          <span data-i18n="welcome3">Er wird später für dein Zertifikat verwendet.</span>
+        </p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <input type="text" id="firstName" placeholder="Vorname" required
+            style="flex:1 1 45%;padding:10px 12px;border-radius:8px;border:1px solid #223043;background:#0f1620;color:#e5e7eb;font-size:1rem;">
+          <input type="text" id="lastName" placeholder="Nachname" required
+            style="flex:1 1 45%;padding:10px 12px;border-radius:8px;border:1px solid #223043;background:#0f1620;color:#e5e7eb;font-size:1rem;">
+        </div>
+        <button type="submit"
+          style="align-self:flex-start;padding:10px 20px;border-radius:10px;border:0;font-weight:700;background:linear-gradient(180deg,#60a5fa,#2f80ed);color:#0a1020;cursor:pointer;">
+          <span data-i18n="startBtn">Jetzt starten</span>
+        </button>
+      </form>
+
+      <div id="introInfo" style="flex:1 1 320px;color:var(--muted);line-height:1.55;font-size:1rem;">
+        <p data-i18n="introText">
+          Starte deinen ersten Grundkurs und lerne jetzt deine Basis kennen.<br/>
+          Diese vier Kurse bilden dein Fundament für den Rest deines Lebens<br/>
+          und geben dir die Chance, endlich finanziell souverän zu leben.
+        </p>
+      </div>
+    </div>
+  `;
+
+  // Sprachübersetzungen
+  const TXT = {
+    de:{
+      welcome1:"Herzlich willkommen zu deinem ersten Grundkurs.",
+      welcome2:"Bitte trage hier deinen <strong>Vor- und Nachnamen</strong> ein.",
+      welcome3:"Er wird später für dein Zertifikat verwendet.",
+      startBtn:"Jetzt starten",
+      introText:`Starte deinen ersten Grundkurs und lerne jetzt deine Basis kennen.<br/>
+      Diese vier Kurse bilden dein Fundament für den Rest deines Lebens<br/>
+      und geben dir die Chance, endlich finanziell souverän zu leben.`
+    },
+    en:{
+      welcome1:"Welcome to your first foundation course.",
+      welcome2:"Please enter your <strong>first and last name</strong> below.",
+      welcome3:"It will later appear on your certificate.",
+      startBtn:"Start now",
+      introText:`Begin your first course and learn your foundation.<br/>
+      These four courses build the base for the rest of your life<br/>
+      and give you the chance to live financially sovereign.`
+    },
+    fr:{
+      welcome1:"Bienvenue à ton premier cours fondamental.",
+      welcome2:"Saisis ton <strong>prénom et nom</strong> ci-dessous.",
+      welcome3:"Ils seront utilisés sur ton certificat.",
+      startBtn:"Commencer",
+      introText:`Commence ton premier cours et découvre les bases.<br/>
+      Ces quatre cours forment ton socle pour la vie<br/>
+      et t’offrent la chance de vivre financièrement souverain.`
+    },
+    it:{
+      welcome1:"Benvenuto al tuo primo corso base.",
+      welcome2:"Inserisci qui il tuo <strong>nome e cognome</strong>.",
+      welcome3:"Serviranno in seguito per il certificato.",
+      startBtn:"Inizia ora",
+      introText:`Inizia il tuo primo corso e scopri le basi.<br/>
+      Questi quattro corsi sono il fondamento per il resto della tua vita<br/>
+      e ti danno la possibilità di vivere da sovrano finanziario.`
+    },
+    es:{
+      welcome1:"Bienvenido a tu primer curso básico.",
+      welcome2:"Introduce tu <strong>nombre y apellido</strong> a continuación.",
+      welcome3:"Se usará más adelante en tu certificado.",
+      startBtn:"Comenzar",
+      introText:`Empieza tu primer curso y aprende tus bases.<br/>
+      Estos cuatro cursos forman el fundamento para el resto de tu vida<br/>
+      y te dan la oportunidad de vivir con soberanía financiera.`
+    },
+    ru:{
+      welcome1:"Добро пожаловать на твой первый базовый курс.",
+      welcome2:"Введи своё <strong>имя и фамилию</strong> ниже.",
+      welcome3:"Они будут использованы в сертификате.",
+      startBtn:"Начать",
+      introText:`Начни первый курс и узнай основы.<br/>
+      Эти четыре курса — фундамент на всю жизнь<br/>
+      и шанс жить финансово самостоятельно.`
+    }
+  };
+
+  const langSel = document.getElementById('langSel');
+  const form = document.getElementById('nameForm');
+
+  // Sprache anwenden
+  function setLang(){
+    const lang = (langSel && langSel.value) || 'de';
+    const t = TXT[lang] || TXT.de;
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const key = el.getAttribute('data-i18n');
+      if(t[key]) el.innerHTML = t[key];
+    });
+  }
+  if(langSel) langSel.addEventListener('change', setLang);
+  document.addEventListener('DOMContentLoaded', setLang);
+
+  // Name speichern
+  form.addEventListener('submit', e=>{
+    e.preventDefault();
+    const f=document.getElementById('firstName').value.trim();
+    const l=document.getElementById('lastName').value.trim();
+    if(!f||!l) return;
+    const full=f+' '+l;
+    try{
+      localStorage.setItem('fsa_name',full);
+      localStorage.setItem('fsaUserName',full);
+    }catch(e){}
+    form.style.display='none';
+  });
+})();
+</script>
+<!-- ░░ /PATCH 6 Ende ░░ -->
 </body>
 </html>
