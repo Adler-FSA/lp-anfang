@@ -1137,5 +1137,43 @@
 })();
 </script>
 <!-- ░░ /PATCH 3 Ende ░░ -->
+<script>
+(function () {
+  // 1) Name einsammeln (mehrere mögliche Quellen)
+  var nameFromStorage =
+      localStorage.getItem('fsa_name') ||
+      localStorage.getItem('fsaName') ||
+      sessionStorage.getItem('fsa_name') ||
+      sessionStorage.getItem('fsaName') ||
+      new URLSearchParams(location.search).get('name') || '';
+
+  // Trim, aber den originalen Input sonst unangetastet lassen
+  var userName = (nameFromStorage || '').trim();
+
+  // Falls noch nicht gespeichert: in beiden Stores vormerken für spätere Seiten
+  if (userName) {
+    try { localStorage.setItem('fsa_name', userName); } catch(e){}
+    try { sessionStorage.setItem('fsa_name', userName); } catch(e){}
+  }
+
+  // 2) Wenn kein Name vorhanden => nichts ändern
+  if (!userName) return;
+
+  // 3) „Michael“ überall im sichtbaren Text ersetzen (DE/EN/FR/RU Varianten nutzen bei dir alle denselben Platzhalter)
+  //    Wir gehen konservativ vor: nur reine Textknoten, keine Attribute/Links kaputt machen.
+  var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+  var nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+
+  var re = /\bMichael\b/g; // exakt das Platzhalter-Wort aus deinem Markup
+
+  nodes.forEach(function(node){
+    var t = node.nodeValue;
+    if (re.test(t)) {
+      node.nodeValue = t.replace(re, userName);
+    }
+  });
+})();
+</script>
 </body>
 </html>
