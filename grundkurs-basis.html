@@ -1175,5 +1175,58 @@
   });
 })();
 </script>
+<!-- ░░ PATCH 3 – AutoClean + Name Fix (Final) ░░ -->
+<script>
+(function(){
+  /* ========== 0. Alte Patches automatisch entfernen ========== */
+  const scripts = document.querySelectorAll('script');
+  scripts.forEach(s=>{
+    const t = s.textContent || '';
+    if(t.includes('PATCH 3') && s!==document.currentScript){
+      try{ s.remove(); }catch(e){}
+    }
+  });
+
+  /* ========== 1. Name aus allen möglichen Quellen ermitteln ========== */
+  const qsName = new URLSearchParams(location.search).get('name') || '';
+  const ls = localStorage, ss = sessionStorage;
+  const candidate = qsName
+    || ls.getItem('fsa_name')
+    || ls.getItem('fsaUserName')
+    || ls.getItem('fsaName')
+    || ss.getItem('fsa_name')
+    || ss.getItem('fsaUserName')
+    || ss.getItem('fsaName')
+    || '';
+  const userName = (candidate || '').trim();
+
+  /* ========== 2. Speicherung vereinheitlichen ========== */
+  if(userName){
+    try{ ls.setItem('fsa_name', userName); }catch(e){}
+    try{ ls.setItem('fsaUserName', userName); }catch(e){}
+    try{ ss.setItem('fsa_name', userName); }catch(e){}
+    try{ ss.setItem('fsaUserName', userName); }catch(e){}
+  }
+
+  /* ========== 3. Sichtbare Begrüßung füllen ========== */
+  const helloName = document.getElementById('helloName');
+  if(helloName){
+    helloName.textContent = userName ? (", " + userName + "!") : "!";
+  }
+
+  /* ========== 4. Weitere Name-Platzhalter (optional) ========== */
+  document.querySelectorAll('[data-username]').forEach(el=>{
+    el.textContent = userName || el.getAttribute('data-username') || '';
+  });
+
+  /* ========== 5. Sicherheitshalber Doppel-Anzeige „0 richtig“ löschen ========== */
+  const scoreInfo = document.getElementById('scoreInfo');
+  if(scoreInfo) scoreInfo.remove();
+
+  /* ========== 6. Markierung: aktive Patch-Version für Deploy-Check ========== */
+  console.log("✅ Patch 3 (AutoClean) aktiv – Version 1.0 | Name:", userName || "(kein Name)");
+})();
+</script>
+<!-- ░░ /PATCH 3 Ende ░░ -->
 </body>
 </html>
