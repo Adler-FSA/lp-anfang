@@ -2026,5 +2026,152 @@
 })();
 </script>
 <!-- ░░ /PATCH Ende ░░ -->
+<!-- ░░ PATCH V2: Bronze–Silber–Gold + Vertiefung alle Sprachen (robust) ░░ -->
+<script>
+(function(){
+  function detectScore() {
+    const text = document.body.innerText;
+    const match = text.match(/Richtig:\s*(\d+)\s*\/\s*(\d+)/i);
+    if (!match) return null;
+    return {score: parseInt(match[1]), max: parseInt(match[2])};
+  }
+
+  function applyBadge(score, max){
+    const badge = document.querySelector('.badge, #sumBadge, .b-badge');
+    const hintEl = document.querySelector('#sumHint, .sum-hint');
+    const icons = {
+      gold:  '<svg viewBox="0 0 24 24" width="16" height="16" style="vertical-align:middle;margin-right:6px;"><circle cx="12" cy="12" r="10" fill="#d4af37"/><path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="2" fill="none"/></svg>',
+      silver:'<svg viewBox="0 0 24 24" width="16" height="16" style="vertical-align:middle;margin-right:6px;"><circle cx="12" cy="12" r="10" fill="#c0c0c0"/><path d="M8 12h8" stroke="#fff" stroke-width="2" fill="none"/></svg>',
+      bronze:'<svg viewBox="0 0 24 24" width="16" height="16" style="vertical-align:middle;margin-right:6px;"><circle cx="12" cy="12" r="10" fill="#cd7f32"/><path d="M12 8v8" stroke="#fff" stroke-width="2" fill="none"/></svg>'
+    };
+    if(!badge) return;
+
+    let level='bronze', text='', hint='';
+    if(score===max){
+      level='gold';
+      text='Gold – Exzellent';
+      hint='Perfekt! Du hast alle Fragen richtig beantwortet – ausgezeichnetes Verständnis.';
+    } else if(score>=9){
+      level='gold';
+      text='Gold – Exzellent';
+      hint='Fast perfekt – nur minimale Abweichung. Hervorragendes Verständnis.';
+    } else if(score>=7){
+      level='silver';
+      text='Silber – Fortgeschritten';
+      hint='Sehr gut! Du hast ein solides Fundament und tiefes Verständnis aufgebaut.';
+    } else {
+      level='bronze';
+      text='Bronze – Qualifiziert';
+      hint='Grundlagen gemeistert – weiter so, um dein Wissen zu vertiefen.';
+    }
+    badge.innerHTML = icons[level] + text;
+    badge.className = 'badge b-' + level;
+    if(hintEl) hintEl.textContent = hint;
+  }
+
+  function applyDeepening() {
+    const deepenMap = {
+      de:[
+        "Sieh dir den Abschnitt über Geldflüsse und Verantwortung an.",
+        "Vertiefe dein Wissen zur Selbstverwahrung und zu Wallet-Typen.",
+        "Lerne mehr über Backup-Strategien und sichere Aufbewahrung deiner Seeds.",
+        "Reflektiere, wie Eigenverantwortung im Alltag greift.",
+        "Verstehe die Funktionsweise zentraler und dezentraler Brücken.",
+        "Erfahre, wie Dezentralität Vertrauen ersetzt.",
+        "Übe Selbstverwahrung: Tools, Geräte, Passwörter.",
+        "Trainiere Geduld und Planung im Finanz-Alltag.",
+        "Analysiere, wie Risiko-Management Freiheit schafft.",
+        "Definiere, was Souveränität für dich konkret bedeutet."
+      ],
+      en:[
+        "Review the section on money flows and responsibility.",
+        "Deepen your understanding of wallet types and self-custody.",
+        "Learn about backup strategies and seed protection.",
+        "Reflect on how responsibility shows up in daily choices.",
+        "Understand centralized vs decentralized bridges.",
+        "Explore how decentralization replaces trust.",
+        "Practice custody: tools, hardware, passwords.",
+        "Strengthen patience and long-term planning.",
+        "Study how risk management creates freedom.",
+        "Define what sovereignty means to you personally."
+      ],
+      fr:[
+        "Consulte la section sur les flux monétaires et la responsabilité.",
+        "Approfondis ta compréhension des portefeuilles et de la garde personnelle.",
+        "Découvre les stratégies de sauvegarde et la protection des seeds.",
+        "Réfléchis à la responsabilité dans tes choix quotidiens.",
+        "Comprends la différence entre passerelles centralisées et décentralisées.",
+        "Découvre comment la décentralisation remplace la confiance.",
+        "Pratique la garde autonome : outils, matériel, mots de passe.",
+        "Renforce ta patience et ta planification financière.",
+        "Étudie comment la gestion du risque crée la liberté.",
+        "Définis ce que signifie la souveraineté pour toi."
+      ],
+      it:[
+        "Consulta la sezione sui flussi di denaro e la responsabilità.",
+        "Approfondisci la conoscenza dei tipi di wallet e dell’auto-custodia.",
+        "Scopri strategie di backup e protezione delle seed phrase.",
+        "Rifletti su come la responsabilità si manifesta nelle scelte quotidiane.",
+        "Comprendi la differenza tra ponti centralizzati e decentralizzati.",
+        "Scopri come la decentralizzazione sostituisce la fiducia.",
+        "Esercitati nella custodia autonoma: strumenti, hardware, password.",
+        "Rafforza pazienza e pianificazione finanziaria.",
+        "Analizza come la gestione del rischio genera libertà.",
+        "Definisci cosa significa per te la sovranità."
+      ],
+      es:[
+        "Revisa la sección sobre flujos de dinero y responsabilidad.",
+        "Profundiza tu comprensión sobre tipos de monedero y autocustodia.",
+        "Aprende estrategias de respaldo y protección de tus semillas.",
+        "Reflexiona sobre cómo la responsabilidad aparece en tus decisiones diarias.",
+        "Comprende los puentes centralizados y descentralizados.",
+        "Explora cómo la descentralización reemplaza la confianza.",
+        "Practica la custodia propia: herramientas, hardware, contraseñas.",
+        "Fortalece la paciencia y la planificación financiera.",
+        "Estudia cómo la gestión del riesgo genera libertad.",
+        "Define qué significa soberanía para ti."
+      ],
+      ru:[
+        "Изучи раздел о денежных потоках и ответственности.",
+        "Углуби знания о типах кошельков и самостоятельном хранении.",
+        "Узнай о стратегиях резервного копирования и защите сид-фраз.",
+        "Подумай, как ответственность проявляется в повседневных решениях.",
+        "Разбери различия между централизованными и децентрализованными мостами.",
+        "Пойми, как децентрализация заменяет доверие.",
+        "Практикуй самостоятельное хранение: инструменты, устройства, пароли.",
+        "Развивай терпение и финансовое планирование.",
+        "Изучи, как управление рисками создаёт свободу.",
+        "Определи, что для тебя значит финансовая независимость."
+      ]
+    };
+    const lang = (localStorage.getItem('fsa_lang') || document.documentElement.lang || 'de').toLowerCase();
+    const tips = deepenMap[lang] || deepenMap.de;
+    const revItems = document.querySelectorAll('.rev-item');
+    revItems.forEach((el,i)=>{
+      const deep = el.querySelector('.rev-tip .muted');
+      if(deep && tips[i]) deep.textContent = tips[i];
+    });
+  }
+
+  function injectStyles(){
+    const style = document.createElement('style');
+    style.textContent = `
+      .b-gold{background:#2a2316;color:#fff8e1;border:1px solid #d4af37;box-shadow:0 0 8px rgba(212,175,55,.4) inset;}
+      .b-silver{background:#1e1e24;color:#f3f4f6;border:1px solid #c0c0c0;box-shadow:0 0 8px rgba(192,192,192,.3) inset;}
+      .b-bronze{background:#2c1f14;color:#f8e5d0;border:1px solid #cd7f32;box-shadow:0 0 8px rgba(205,127,50,.3) inset;}
+      .badge svg{vertical-align:middle;}
+    `;
+    document.head.appendChild(style);
+  }
+
+  window.addEventListener('load', ()=>{
+    injectStyles();
+    const result = detectScore();
+    if(result) applyBadge(result.score, result.max);
+    applyDeepening();
+  });
+})();
+</script>
+<!-- ░░ /PATCH Ende ░░ -->
 </body>
 </html>
