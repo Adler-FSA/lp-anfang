@@ -2339,5 +2339,51 @@
 })();
 </script>
 <!-- ░░ /PATCH Ende ░░ -->
-</body>
+<!-- ░░ PATCH FIX: Bronze–Silber–Gold funktioniert jetzt zuverlässig ░░ -->
+<script id="fsa-badge-logic-final">
+(function(){
+  if(window.__fsaBadgeFinal) return; window.__fsaBadgeFinal=true;
+
+  const icons = {
+    gold:'<svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="10" fill="#d4af37"/><path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="2" fill="none"/></svg>',
+    silver:'<svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="10" fill="#c0c0c0"/><path d="M8 12h8" stroke="#fff" stroke-width="2" fill="none"/></svg>',
+    bronze:'<svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="10" fill="#cd7f32"/><path d="M12 8v8" stroke="#fff" stroke-width="2" fill="none"/></svg>'
+  };
+
+  const labels = {
+    de:{gold:['Gold – Exzellent','Perfekt! Du hast alle Fragen richtig beantwortet – ausgezeichnetes Verständnis.','Fast perfekt – nur minimale Abweichung. Hervorragendes Verständnis.'],
+        silver:['Silber – Fortgeschritten','Sehr gut! Du hast ein solides Fundament und tiefes Verständnis aufgebaut.'],
+        bronze:['Bronze – Qualifiziert','Grundlagen gemeistert – weiter so, um dein Wissen zu vertiefen.']}
+  };
+
+  function parseScore(){
+    const el=document.getElementById('sumLine');
+    if(!el||!el.textContent.includes('/')) return null;
+    const m=el.textContent.match(/(\d+)\s*\/\s*(\d+)/);
+    return m?{score:+m[1],max:+m[2]}:null;
+  }
+
+  function applyBadge(){
+    const badge=document.getElementById('sumBadge');
+    const hint=document.getElementById('sumHint');
+    const res=parseScore(); if(!res||!badge) return;
+    const {score,max}=res;
+    const L=labels.de; let level='bronze',title=L.bronze[0],text=L.bronze[1];
+    if(score>=9 && score<max){level='silver';title=L.silver[0];text=L.silver[1];}
+    if(score===max){level='gold';title=L.gold[0];text=L.gold[1];}
+    badge.className='badge b-'+level;
+    badge.innerHTML=icons[level]+title;
+    if(hint) hint.textContent=text;
+  }
+
+  function waitForScore(){
+    const ok=parseScore();
+    if(ok){applyBadge();return;}
+    setTimeout(waitForScore,300);
+  }
+
+  window.addEventListener('load',waitForScore);
+})();
+</script>
+<!-- ░░ /PATCH Ende ░░ --></body>
 </html>
