@@ -2746,5 +2746,123 @@
   });
 })();
 </script>
-<!-- ░░ /PATCH FINAL – Mehrsprachige Vertiefung + Mentorlogik (Ende) ░░ --></body>
+<!-- ░░ /PATCH FINAL – Mehrsprachige Vertiefung + Mentorlogik (Ende) ░░ --><!-- ░░ FSA VERTIEFUNG FINAL – automatisch bereinigt, mehrsprachig ░░ -->
+<script id="fsa-vertiefung-final">
+(function(){
+  if (window.__fsaVertiefungFinal) return;
+  window.__fsaVertiefungFinal = true;
+
+  /* === 0. Alte Vertiefungs-Patches entfernen, Badge bleibt unberührt === */
+  try {
+    document.querySelectorAll('script').forEach(s=>{
+      const t = s.textContent || '';
+      const looksOld = /Vertiefung\s+dynamisch|PATCH V2: Bronze–Silber–Gold \+ Vertiefung|PATCH: Badge .* Vertiefung/i.test(t);
+      const isFinal = s.id === 'fsa-vertiefung-final';
+      if (looksOld && !isFinal) s.remove();
+    });
+  }catch(e){}
+
+  /* === 1. Sprache erkennen === */
+  const langRaw = (localStorage.getItem('fsa_lang') || document.documentElement.lang || 'de').toLowerCase();
+  const LANG = langRaw.split('-')[0];
+
+  /* === 2. Vertiefungs-Sätze (bei falschen Antworten) === */
+  const TIPS = {
+    de:[
+      "Sieh dir den Abschnitt über Geldflüsse und Verantwortung an.",
+      "Vertiefe dein Wissen zur Selbstverwahrung und zu Wallet-Typen.",
+      "Lerne mehr über Backup-Strategien und sichere Aufbewahrung deiner Seeds.",
+      "Reflektiere, wie Eigenverantwortung im Alltag greift.",
+      "Verstehe die Funktionsweise zentraler und dezentraler Brücken.",
+      "Erfahre, wie Dezentralität Vertrauen ersetzt.",
+      "Übe Selbstverwahrung: Tools, Geräte, Passwörter.",
+      "Trainiere Geduld und Planung im Finanz-Alltag.",
+      "Analysiere, wie Risiko-Management Freiheit schafft.",
+      "Definiere, was Souveränität für dich konkret bedeutet."
+    ],
+    en:[
+      "Review the section on money flows and responsibility.",
+      "Deepen your understanding of wallet types and self-custody.",
+      "Learn about backup strategies and seed protection.",
+      "Reflect on how responsibility shows up in daily choices.",
+      "Understand centralized vs decentralized bridges.",
+      "Explore how decentralization replaces trust.",
+      "Practice custody: tools, hardware, passwords.",
+      "Strengthen patience and long-term planning.",
+      "Study how risk management creates freedom.",
+      "Define what sovereignty means to you personally."
+    ],
+    fr:[
+      "Consulte la section sur les flux monétaires et la responsabilité.",
+      "Approfondis ta compréhension des portefeuilles et de la garde personnelle.",
+      "Découvre les stratégies de sauvegarde et la protection des seeds.",
+      "Réfléchis à la responsabilité dans tes choix quotidiens.",
+      "Comprends la différence entre passerelles centralisées et décentralisées.",
+      "Découvre comment la décentralisation remplace la confiance.",
+      "Pratique la garde autonome : outils, matériel, mots de passe.",
+      "Renforce ta patience et ta planification financière.",
+      "Étudie comment la gestion du risque crée la liberté.",
+      "Définis ce que signifie la souveraineté pour toi."
+    ],
+    it:[
+      "Consulta la sezione sui flussi di denaro e la responsabilità.",
+      "Approfondisci la conoscenza dei tipi di wallet e dell’auto-custodia.",
+      "Scopri strategie di backup e protezione delle seed phrase.",
+      "Rifletti su come la responsabilità si manifesta nelle scelte quotidiane.",
+      "Comprendi la differenza tra ponti centralizzati e decentralizzati.",
+      "Scopri come la decentralizzazione sostituisce la fiducia.",
+      "Esercitati nella custodia autonoma: strumenti, hardware, password.",
+      "Rafforza pazienza e pianificazione finanziaria.",
+      "Analizza come la gestione del rischio genera libertà.",
+      "Definisci cosa significa per te la sovranità."
+    ],
+    es:[
+      "Revisa la sección sobre flujos de dinero y responsabilidad.",
+      "Profundiza tu comprensión sobre tipos de monedero y autocustodia.",
+      "Aprende estrategias de respaldo y protección de tus semillas.",
+      "Reflexiona sobre cómo la responsabilidad aparece en tus decisiones diarias.",
+      "Comprende los puentes centralizados y descentralizados.",
+      "Explora cómo la descentralización reemplaza la confianza.",
+      "Practica la custodia propia: herramientas, hardware, contraseñas.",
+      "Fortalece la paciencia y la planificación financiera.",
+      "Estudia cómo la gestión del riesgo genera libertad.",
+      "Define qué significa soberanía para ti."
+    ],
+    ru:[
+      "Изучи раздел о денежных потоках и ответственности.",
+      "Углуби знания о типах кошельков и самостоятельном хранении.",
+      "Узнай о стратегиях резервного копирования и защите сид-фраз.",
+      "Подумай, как ответственность проявляется в повседневных решениях.",
+      "Разбери различия между централизованными и децентрализованными мостами.",
+      "Пойми, как децентрализация заменяет доверие.",
+      "Практикуй самостоятельное хранение: инструменты, устройства, пароли.",
+      "Развивай терпение и финансовое планирование.",
+      "Изучи, как управление рисками создаёт свободу.",
+      "Определи, что для тебя значит финансовая независимость."
+    ]
+  };
+
+  /* === 3. Vertiefung nur bei falschen Antworten anzeigen === */
+  function applyDeepening(){
+    const tips = TIPS[LANG] || TIPS.de;
+    document.querySelectorAll('.rev-item').forEach((el,i)=>{
+      const tip = el.querySelector('.rev-tip .muted');
+      if(!tip) return;
+      const correct = el.querySelector('.text-green') && !el.querySelector('.text-red');
+      if(correct) return; // nichts ändern bei richtig
+      tip.textContent = tips[i % tips.length] || tips[0];
+    });
+  }
+
+  /* === 4. Verzögert starten, falls DOM später rendert === */
+  function runWhenReady(){
+    const ready = document.querySelector('.rev-item');
+    if(ready){ applyDeepening(); return; }
+    setTimeout(runWhenReady, 150);
+  }
+  window.addEventListener('load', runWhenReady);
+})();
+</script>
+<!-- ░░ /FSA VERTIEFUNG FINAL Ende ░░ -->
+</body>
 </html>
