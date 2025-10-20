@@ -106,7 +106,8 @@
     │   │   ├── campus-menu.js
     │   │   ├── grundkurs-menu.js
     │   │   ├── krypto-menu.js
-    │   │   └── menu.js
+    │   │   ├── menu.js
+    │   │   └── office-menu.js
     │   ├── music/
     │   │   ├── pool/
     │   │   │   ├── README.txt
@@ -360,4 +361,4 @@
     ├── master.css
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.10.2025, 09:39)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.10.2025, 10:43)_
