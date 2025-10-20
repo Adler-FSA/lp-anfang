@@ -13,22 +13,22 @@ else if (path.includes("pruefung")) courseKey = "exam";
 // Kurskennung global verfügbar machen
 window.fsaCourseKey = courseKey;
 
-// Reihenfolge der Bausteine (absolute Pfade für GitHub Pages)
+// Reihenfolge der Bausteine (relative Pfade für GitHub Pages)
 const courseBlocks = [
-  "/lp-anfang/library/js/text/block-01-intro.js",
-  "/lp-anfang/library/js/grundkurs-menu.js",
-  "/lp-anfang/library/js/text/block-02-userdata.js",
-  "/lp-anfang/library/js/text/block-03-course.js",
-  "/lp-anfang/library/js/text/block-04-engine-slideshow.js",
-  "/lp-anfang/library/js/text/block-05-summary.js"
+  "library/js/text/block-01-intro.js",
+  "library/js/grundkurs-menu.js",
+  "library/js/text/block-02-userdata.js",
+  "library/js/text/block-03-course.js",
+  "library/js/text/block-04-engine-slideshow.js",
+  "library/js/text/block-05-summary.js"
 ];
 
 // Funktionsleiste und Menü (bleiben global)
 const globalBlocks = [
-  "/lp-anfang/library/js/menu.js",
-  "/lp-anfang/library/js/lang-switcher.js",
-  "/lp-anfang/library/js/music-button.js",
-  "/lp-anfang/library/js/back-to-home.js"
+  "library/js/menu.js",
+  "library/js/lang-switcher.js",
+  "library/js/music-button.js",
+  "library/js/back-to-home.js"
 ];
 
 // === Dynamischer Ladevorgang ===
