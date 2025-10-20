@@ -30,11 +30,12 @@ const globalBlocks = [
   base + "back-to-home.js"
 ];
 
+// === Dynamischer Ladevorgang ===
 function loadScriptSequentially(scripts, callback) {
   if (scripts.length === 0) return callback && callback();
   const src = scripts.shift();
   const s = document.createElement("script");
-  s.src = src + "?nocache=" + Date.now();
+  s.src = src + "?nocache=" + Date.now(); // Cache-Bypass
   s.onload = () => loadScriptSequentially(scripts, callback);
   s.onerror = () => {
     console.warn("⚠️ Fehler beim Laden von:", src);
@@ -43,10 +44,15 @@ function loadScriptSequentially(scripts, callback) {
   document.body.appendChild(s);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+// === Startpunkt (nach vollständigem Laden der Seite) ===
+window.addEventListener("load", () => {
   console.log("📘 FSA Template geladen – Kurs:", courseKey);
+
+  // 1. Globale Scripts zuerst laden (Menü, Musik, Sprache)
   loadScriptSequentially([...globalBlocks], () => {
     console.log("✅ Globale Blöcke geladen.");
+
+    // 2. Danach Kurs-spezifische Bausteine laden
     loadScriptSequentially([...courseBlocks], () => {
       console.log("✅ Kurs-Bausteine vollständig geladen.");
     });
