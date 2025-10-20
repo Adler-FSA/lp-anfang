@@ -121,7 +121,8 @@
     │   │   ├── lang-switcher.js
     │   │   ├── menu.js
     │   │   ├── music-button.js
-    │   │   └── office-menu.js
+    │   │   ├── office-menu.js
+    │   │   └── template.js
     │   ├── music/
     │   │   ├── pool/
     │   │   │   ├── README.txt
@@ -375,4 +376,4 @@
     ├── master.css
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.10.2025, 17:33)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.10.2025, 18:53)_
