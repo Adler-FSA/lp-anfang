@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", function() {
   const kryptoMenu = [
-    { icon: "🌍", name: "Schritt 1", link: "/lp-anfang/steps/krypto-step1.html" },
-    { icon: "⚖️", name: "Schritt 2", link: "/lp-anfang/steps/krypto-step2.html" },
-    { icon: "🛡️", name: "Schritt 3", link: "/lp-anfang/steps/krypto-step3.html" }
+    { icon: "🌍", name: "Einstieg & On/Off-Ramp", link: "/lp-anfang/steps/krypto-step1.html" },
+    { icon: "⚖️", name: "Zentral oder Dezentral", link: "/lp-anfang/steps/krypto-step2.html" },
+    { icon: "🛡️", name: "Sicherheit & Selbstverwahrung", link: "/lp-anfang/steps/krypto-step3.html" }
   ];
 
   const menuContainer = document.createElement("div");
@@ -31,9 +31,9 @@ document.addEventListener("DOMContentLoaded", function() {
     .krypto-menu .door {
       color: #d4af37;
       font-family: system-ui, sans-serif;
-      font-size: 1rem;
+      font-size: 1.05rem;
       text-decoration: none;
-      padding: 0.8rem 1.6rem;
+      padding: 0.9rem 1.8rem;
       border: 1px solid rgba(212,175,55,0.4);
       border-radius: 6px;
       transition: all 0.3s ease;
