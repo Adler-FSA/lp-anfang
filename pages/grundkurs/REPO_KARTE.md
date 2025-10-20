@@ -103,10 +103,21 @@
     │   │   ├── README.txt
     │   │   └── index.json
     │   ├── js/
+    │   │   ├── text/
+    │   │   │   ├── block-01-intro.js
+    │   │   │   ├── block-02-intro.js
+    │   │   │   ├── block-02-userdata.js
+    │   │   │   ├── block-03-course.js
+    │   │   │   ├── block-03-intro.js
+    │   │   │   ├── block-04-intro.js
+    │   │   │   └── block-05-intro.js
+    │   │   ├── back-to-home.js
     │   │   ├── campus-menu.js
     │   │   ├── grundkurs-menu.js
     │   │   ├── krypto-menu.js
+    │   │   ├── lang-switcher.js
     │   │   ├── menu.js
+    │   │   ├── music-button.js
     │   │   └── office-menu.js
     │   ├── music/
     │   │   ├── pool/
@@ -361,4 +372,4 @@
     ├── master.css
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.10.2025, 11:28)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.10.2025, 13:38)_
