@@ -13,22 +13,22 @@ else if (path.includes("pruefung")) courseKey = "exam";
 // Kurskennung global verfügbar machen
 window.fsaCourseKey = courseKey;
 
-// Reihenfolge der Bausteine (HTML-Struktur ergibt sich daraus)
+// Reihenfolge der Bausteine (absolute Pfade für GitHub Pages)
 const courseBlocks = [
-  "library/js/text/block-01-intro.js",
-  "library/js/grundkurs-menu.js",
-  "library/js/text/block-02-userdata.js",
-  "library/js/text/block-03-course.js",
-  "library/js/text/block-04-engine-slideshow.js",
-  "library/js/text/block-05-summary.js"
+  "/lp-anfang/library/js/text/block-01-intro.js",
+  "/lp-anfang/library/js/grundkurs-menu.js",
+  "/lp-anfang/library/js/text/block-02-userdata.js",
+  "/lp-anfang/library/js/text/block-03-course.js",
+  "/lp-anfang/library/js/text/block-04-engine-slideshow.js",
+  "/lp-anfang/library/js/text/block-05-summary.js"
 ];
 
 // Funktionsleiste und Menü (bleiben global)
 const globalBlocks = [
-  "library/js/menu.js",
-  "library/js/lang-switcher.js",
-  "library/js/music-button.js",
-  "library/js/back-to-home.js"
+  "/lp-anfang/library/js/menu.js",
+  "/lp-anfang/library/js/lang-switcher.js",
+  "/lp-anfang/library/js/music-button.js",
+  "/lp-anfang/library/js/back-to-home.js"
 ];
 
 // === Dynamischer Ladevorgang ===
@@ -36,10 +36,10 @@ function loadScriptSequentially(scripts, callback) {
   if (scripts.length === 0) return callback && callback();
   const src = scripts.shift();
   const s = document.createElement("script");
-  s.src = src + "?v=" + Date.now(); // Cache-Bypass
+  s.src = src + "?nocache=" + Date.now(); // Cache-Bypass
   s.onload = () => loadScriptSequentially(scripts, callback);
   s.onerror = () => {
-    console.warn("Fehler beim Laden von:", src);
+    console.warn("⚠️ Fehler beim Laden von:", src);
     loadScriptSequentially(scripts, callback);
   };
   document.body.appendChild(s);
@@ -49,13 +49,13 @@ function loadScriptSequentially(scripts, callback) {
 document.addEventListener("DOMContentLoaded", () => {
   console.log("FSA Template geladen – Kurs:", courseKey);
 
-  // Globale Scripts zuerst laden (Menü, Musik, Sprache)
+  // 1. Globale Scripts zuerst laden (Menü, Musik, Sprache)
   loadScriptSequentially([...globalBlocks], () => {
-    console.log("Globale Blöcke geladen.");
+    console.log("✅ Globale Blöcke geladen.");
 
-    // Danach Kurs-spezifische Bausteine laden
+    // 2. Danach Kurs-spezifische Bausteine laden
     loadScriptSequentially([...courseBlocks], () => {
-      console.log("Kurs-Bausteine vollständig geladen.");
+      console.log("✅ Kurs-Bausteine vollständig geladen.");
     });
   });
 });
