@@ -102,6 +102,9 @@
     │   │   │   └── slide-48.jpg
     │   │   ├── README.txt
     │   │   └── index.json
+    │   ├── js/
+    │   │   ├── grundkurs-menu.js
+    │   │   └── menu.js
     │   ├── music/
     │   │   ├── pool/
     │   │   │   ├── README.txt
@@ -355,4 +358,4 @@
     ├── master.css
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.10.2025, 07:33)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.10.2025, 08:47)_
