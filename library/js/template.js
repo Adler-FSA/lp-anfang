@@ -13,22 +13,25 @@ else if (path.includes("pruefung")) courseKey = "exam";
 // Kurskennung global verfügbar machen
 window.fsaCourseKey = courseKey;
 
-// Reihenfolge der Bausteine (relative Pfade für GitHub Pages)
+// === relative Pfade von /lp-anfang/ zur library/ ===
+const basePath = "../library/js/";
+
+// Reihenfolge der Kursbausteine
 const courseBlocks = [
-  "library/js/text/block-01-intro.js",
-  "library/js/grundkurs-menu.js",
-  "library/js/text/block-02-userdata.js",
-  "library/js/text/block-03-course.js",
-  "library/js/text/block-04-engine-slideshow.js",
-  "library/js/text/block-05-summary.js"
+  basePath + "text/block-01-intro.js",
+  basePath + "grundkurs-menu.js",
+  basePath + "text/block-02-userdata.js",
+  basePath + "text/block-03-course.js",
+  basePath + "text/block-04-engine-slideshow.js",
+  basePath + "text/block-05-summary.js"
 ];
 
-// Funktionsleiste und Menü (bleiben global)
+// Globale Module (Menü, Sprache, Musik, Zurück-Button)
 const globalBlocks = [
-  "library/js/menu.js",
-  "library/js/lang-switcher.js",
-  "library/js/music-button.js",
-  "library/js/back-to-home.js"
+  basePath + "menu.js",
+  basePath + "lang-switcher.js",
+  basePath + "music-button.js",
+  basePath + "back-to-home.js"
 ];
 
 // === Dynamischer Ladevorgang ===
@@ -47,13 +50,13 @@ function loadScriptSequentially(scripts, callback) {
 
 // === Startpunkt ===
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("FSA Template geladen – Kurs:", courseKey);
+  console.log("📘 FSA Template geladen – Kurs:", courseKey);
 
-  // 1. Globale Scripts zuerst laden (Menü, Musik, Sprache)
+  // 1. Globale Blöcke zuerst laden
   loadScriptSequentially([...globalBlocks], () => {
     console.log("✅ Globale Blöcke geladen.");
 
-    // 2. Danach Kurs-spezifische Bausteine laden
+    // 2. Danach die kurs-spezifischen Bausteine
     loadScriptSequentially([...courseBlocks], () => {
       console.log("✅ Kurs-Bausteine vollständig geladen.");
     });
