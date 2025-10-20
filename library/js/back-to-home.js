@@ -8,21 +8,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const style = document.createElement("style");
   style.textContent = `
     #backHome {
-      display: inline-block;
-      position: relative;
+      position: fixed;
       bottom: 40px;
       left: 50%;
       transform: translateX(-50%);
       text-decoration: none;
       color: #d4af37;
       border: 1px solid rgba(212,175,55,0.5);
-      background: rgba(0,0,0,0.65);
+      background: rgba(0,0,0,0.7);
       padding: 0.8rem 1.6rem;
       border-radius: 6px;
       font-family: system-ui, sans-serif;
       font-size: 1rem;
       transition: all 0.3s ease;
       box-shadow: 0 0 8px rgba(212,175,55,0.3);
+      z-index: 999;
     }
     #backHome:hover {
       color: #fff;
