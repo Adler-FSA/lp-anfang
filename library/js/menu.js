@@ -1,4 +1,4 @@
-// ===== Einheitliches Menü (Startseite vorn, alle Pfade korrekt) =====
+// ===== Einheitliches Menü (Startseite vorn, alle Pfade korrekt, jetzt mit Rahmen) =====
 document.addEventListener("DOMContentLoaded", () => {
   const menuHTML = `
     <div class="topbar">
@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .doors {
         display: flex;
         justify-content: center;
-        gap: 1.5rem;
+        gap: 1.2rem;
         padding: 0.8rem 0;
       }
       .door {
@@ -33,11 +33,17 @@ document.addEventListener("DOMContentLoaded", () => {
         font-family: system-ui, sans-serif;
         font-size: 1rem;
         text-decoration: none;
-        transition: color 0.3s, text-shadow 0.3s;
+        padding: 0.5rem 1rem;
+        border: 1px solid rgba(212,175,55,0.4);
+        border-radius: 6px;
+        background: rgba(255,255,255,0.05);
+        transition: all 0.3s ease;
       }
       .door:hover {
         color: #fff;
-        text-shadow: 0 0 10px rgba(212,175,55,0.8);
+        border-color: rgba(212,175,55,0.8);
+        text-shadow: 0 0 8px rgba(212,175,55,0.8);
+        background: rgba(212,175,55,0.08);
       }
     </style>
   `;
