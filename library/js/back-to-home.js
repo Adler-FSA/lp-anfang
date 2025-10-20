@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("load", () => {
   const btn = document.createElement("a");
   btn.id = "backHome";
   btn.href = "/lp-anfang/index.html";
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
       font-size: 1rem;
       transition: all 0.3s ease;
       box-shadow: 0 0 8px rgba(212,175,55,0.3);
-      z-index: 999;
+      z-index: 9999;
     }
     #backHome:hover {
       color: #fff;
