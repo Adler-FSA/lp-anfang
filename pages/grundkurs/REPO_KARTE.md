@@ -109,8 +109,11 @@
     │   │   │   ├── block-02-userdata.js
     │   │   │   ├── block-03-course.js
     │   │   │   ├── block-03-intro.js
+    │   │   │   ├── block-04-engine-slideshow.js
+    │   │   │   ├── block-04-engine.js
     │   │   │   ├── block-04-intro.js
-    │   │   │   └── block-05-intro.js
+    │   │   │   ├── block-05-intro.js
+    │   │   │   └── block-05-summary.js
     │   │   ├── back-to-home.js
     │   │   ├── campus-menu.js
     │   │   ├── grundkurs-menu.js
@@ -372,4 +375,4 @@
     ├── master.css
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.10.2025, 13:38)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.10.2025, 14:40)_
