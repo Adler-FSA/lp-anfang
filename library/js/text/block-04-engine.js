@@ -1,4 +1,4 @@
-// === Ergebnis anzeigen (edles Panel mit Mentor-Kommentar & Namen) ===
+// === Ergebnis anzeigen (edles Panel mit Mentor-Kommentar, Namen & Kursfortschritt) ===
 function showResult() {
   const score = correctCount;
   const firstName = localStorage.getItem("fsa_firstName") || "";
@@ -34,9 +34,27 @@ function showResult() {
   const currentBest = parseInt(localStorage.getItem(bestKey) || "0");
   if (score > currentBest) localStorage.setItem(bestKey, score);
 
+  // === Fortschrittsspeicher (Kursabschluss) ===
+  function saveCourseProgress(courseKey, score, status) {
+    localStorage.setItem(`fsa_${courseKey}_score`, score);
+    localStorage.setItem(`fsa_${courseKey}_status`, status);
+
+    const allDone = ["course1", "course2", "course3", "course4"].every(
+      key => localStorage.getItem(`fsa_${key}_status`)
+    );
+
+    if (allDone) {
+      localStorage.setItem("fsa_allCoursesDone", "true");
+      console.log("✅ Alle vier Kurse abgeschlossen – Urkundenfreigabe aktiv.");
+    } else {
+      localStorage.removeItem("fsa_allCoursesDone");
+    }
+  }
+
   // Ergebnis & Status speichern
   localStorage.setItem("fsa_lastScore", score);
   localStorage.setItem("fsa_lastStatus", status);
+  saveCourseProgress("course1", score, status);
 
   // Prozent für Balken
   const percent = Math.round((score / totalQuestions) * 100);
@@ -44,6 +62,14 @@ function showResult() {
   // Farben je Status
   const color =
     score <= 5 ? "#ef4444" : score <= 7 ? "#cd7f32" : score <= 9 ? "#93c5fd" : "#d4af37";
+
+  // Prüfen, ob Urkundenfreigabe aktiv
+  const allDone = localStorage.getItem("fsa_allCoursesDone") === "true";
+  const certificateNotice = allDone
+    ? `<p style="color:#d4af37; font-weight:600; margin-top:1rem;">
+         🎓 ${lang === "de" ? "Alle Grundkurse abgeschlossen – Urkunde bereit." : "All basic courses completed – Certificate available."}
+       </p>`
+    : "";
 
   // Edles Panel
   container.innerHTML = `
@@ -89,6 +115,8 @@ function showResult() {
       ">
         “${mentorText}”
       </blockquote>
+
+      ${certificateNotice}
 
       <p style="margin-top:1rem; font-size:0.95rem; color:#94a3b8;">
         ${t.repeatsTotal}: <strong>${repeatCount}</strong>
