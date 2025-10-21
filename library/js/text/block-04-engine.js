@@ -1,5 +1,5 @@
-// ░░ Baustein 04 – Engine / Kursauswertung & Fortschrittsspeicher (v2.3.7) ░░
-// Neu: Button-Aktion wechselt dynamisch nach Status (Retry / Bronze / Silber / Gold)
+// ░░ Baustein 04 – Engine / Kursauswertung & Fortschrittsspeicher ░░
+// Neu: Button-Aktion reagiert klar auf Status (Wiederholen / Bronze / Silber / Gold)
 // Fix: Wiederholungszähler nur bei echtem Abschluss (Button / manuelles Auslösen)
 // Fix: Kein Zähl-Trigger bei Reload, Seitenstart oder Fremdaufrufen
 
@@ -44,11 +44,12 @@ function showResult(triggeredByUser) {
     if (score <= 0 && !status) return;
     localStorage.setItem(`fsa_${courseKey}_score`, score);
     localStorage.setItem(`fsa_${courseKey}_status`, status);
+
     const repeatKey = `fsa_${courseKey}_repeats`;
     let repeats = parseInt(localStorage.getItem(repeatKey) || "0");
     localStorage.setItem(repeatKey, repeats + 1);
 
-    const allDone = ["course1","course2","course3","course4"].every(
+    const allDone = ["course1", "course2", "course3", "course4"].every(
       key => localStorage.getItem(`fsa_${key}_status`)
     );
     allDone
@@ -61,19 +62,19 @@ function showResult(triggeredByUser) {
   localStorage.setItem("fsa_lastStatus", status);
   saveCourseProgress("course1", score, status);
 
-  // ░░ Balken ░░
+  // ░░ Balkenfarbe ░░
   const percent = Math.round((score / totalQuestions) * 100);
   const color =
     score <= 5 ? "#ef4444" : score <= 7 ? "#cd7f32" : score <= 9 ? "#93c5fd" : "#d4af37";
 
-  // ░░ Button-Text und Ziel je nach Status ░░
+  // ░░ Kursabschluss-Button ░░
   let buttonLabel = "";
   let buttonAction = null;
+  const normalizedStatus = status.toLowerCase().replace(/[^a-z]/g, "");
 
-  if (status.includes("Gold")) {
+  if (normalizedStatus.includes("gold")) {
     buttonLabel = lang === "de" ? "Weiter zu Grundkurs 2 →" : "Continue to Course 2 →";
     buttonAction = () => {
-      // Fortschritt übertragen + weiterleiten
       console.log("🎯 Kurs 1 abgeschlossen – Weiterleitung zu Kurs 2");
       window.location.href = "grundkurs-2.html?nocache=" + Date.now();
     };
@@ -111,7 +112,7 @@ function showResult(triggeredByUser) {
         cursor:pointer;transition:all 0.3s ease;">${buttonLabel}</button>
     </div>`;
 
-  // ░░ Button-Verhalten ░░
+  // ░░ Button-Aktion aktivieren ░░
   document.getElementById("courseActionBtn")
     ?.addEventListener("click", buttonAction);
 }
@@ -119,5 +120,5 @@ function showResult(triggeredByUser) {
 // ░░ Schutz ░░
 window.addEventListener("DOMContentLoaded", () => {
   window.showResult = showResult;
-  console.log("✅ Engine v2.3.7 aktiv – dynamischer Kurs-Button eingebaut.");
+  console.log("✅ Engine aktiv – Kursabschluss-Button reagiert dynamisch auf Status.");
 });
