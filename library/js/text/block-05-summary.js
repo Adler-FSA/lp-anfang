@@ -1,11 +1,25 @@
-// ░░ Baustein 05 – Gesamtauswertung / Qualification Summary (FSA v2.3.1, zweisprachig + Kursfortschritt + Reset) ░░
+// ░░ Baustein 05 – Gesamtauswertung / Qualification Summary (FSA v2.3.2, zweisprachig + Kursfortschritt + Reset + Namensübergabe) ░░
 // Lädt Punktestände, Wiederholungen & Mentor-Feedback aus localStorage (DSGVO-konform)
 
 document.addEventListener("DOMContentLoaded", () => {
   const lang = localStorage.getItem("fsa_lang") || "de";
-  const firstName = localStorage.getItem("fsa_firstName") || "";
-  const lastName = localStorage.getItem("fsa_lastName") || "";
-  const fullName = `${firstName} ${lastName}`.trim() || (lang === "de" ? "Teilnehmer" : "Participant");
+
+  // ░░ Name sicher laden oder übernehmen ░░
+  let firstName = localStorage.getItem("fsa_firstName");
+  let lastName = localStorage.getItem("fsa_lastName");
+
+  // Falls leer: prüfe, ob Eingabefelder im DOM sind (z. B. direkt nach Reset)
+  const inputFirst = document.querySelector("#firstName");
+  const inputLast = document.querySelector("#lastName");
+
+  if ((!firstName || !lastName) && inputFirst && inputLast) {
+    firstName = inputFirst.value.trim();
+    lastName = inputLast.value.trim();
+    if (firstName) localStorage.setItem("fsa_firstName", firstName);
+    if (lastName) localStorage.setItem("fsa_lastName", lastName);
+  }
+
+  const fullName = `${firstName || ""} ${lastName || ""}`.trim() || (lang === "de" ? "Teilnehmer" : "Participant");
 
   // ░░ Sprachpaket ░░
   const text = {
@@ -176,8 +190,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ░░ Weiterleitungslogik ░░
   const nextBtn = document.getElementById("nextBtn");
-
-  // Finde nächsten unvollständigen Kurs
   let nextCourseIndex = courses.findIndex(c =>
     parseInt(localStorage.getItem(`fsa_${c.key}_score`) || "0") < 10
   );
