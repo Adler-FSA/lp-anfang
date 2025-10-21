@@ -1,4 +1,4 @@
-// ░░ Baustein 05 – Gesamtauswertung / Qualification Summary (FSA v2.1, zweisprachig) ░░
+// ░░ Baustein 05 – Gesamtauswertung / Qualification Summary (FSA v2.2, zweisprachig + Kursfortschritt) ░░
 // Lädt Punktestände, Wiederholungen & Mentor-Feedback aus localStorage (DSGVO-konform)
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -14,7 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
       totalScore: "Gesamtpunkte:",
       status: "Qualifikationsstatus:",
       repeats: "Wiederholungen",
-      next: "Zur Prüfung weiter ➜",
+      nextExam: "Zur Prüfung weiter ➜",
+      nextCourse: n => `Weiter zu Grundkurs ${n} ➜`,
       feedbackTitle: "💡 Mentor-Feedback zu falschen Antworten:",
       yourAnswer: "Deine Antwort:",
       correctAnswer: "Richtige Antwort:",
@@ -30,7 +31,8 @@ document.addEventListener("DOMContentLoaded", () => {
       totalScore: "Total Score:",
       status: "Qualification Status:",
       repeats: "Repeats",
-      next: "Continue to Exam ➜",
+      nextExam: "Continue to Exam ➜",
+      nextCourse: n => `Continue to Course ${n} ➜`,
       feedbackTitle: "💡 Mentor feedback on incorrect answers:",
       yourAnswer: "Your answer:",
       correctAnswer: "Correct answer:",
@@ -111,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <p><strong>${text.status}</strong> ${finalStatus}</p>
     <p class="mentor-tone">🧭 ${mentorTone}</p>
     ${mentorFeedback}
-    <button id="nextBtn">${text.next}</button>
+    <button id="nextBtn">${text.nextExam}</button>
   `;
   document.body.appendChild(container);
 
@@ -130,12 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
       font-family: system-ui, sans-serif;
       text-align: center;
     }
-    .summary-container h1 {
-      color: #d4af37;
-      margin-bottom: 0.5rem;
-      font-size: 1.6rem;
-      letter-spacing: 0.05em;
-    }
+    .summary-container h1 { color:#d4af37;margin-bottom:.5rem;font-size:1.6rem;letter-spacing:.05em; }
     .summary-container h2 { color:#fff;margin-bottom:.8rem;font-size:1.3rem; }
     .username { color:#9ca3af;margin-bottom:1rem; }
     .progress-bar {
@@ -162,10 +159,22 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
   document.head.appendChild(style);
 
-  // ░░ Weiterleitung ░░
-  document.getElementById("nextBtn").addEventListener("click", () => {
-    window.location.href = "pruefung.html";
-  });
+  // ░░ Weiterleitungslogik ░░
+  const nextBtn = document.getElementById("nextBtn");
+
+  // Finde nächsten unvollständigen Kurs
+  let nextCourseIndex = courses.findIndex(c =>
+    parseInt(localStorage.getItem(`fsa_${c.key}_score`) || "0") < 10
+  );
+
+  if (nextCourseIndex === -1) {
+    nextBtn.textContent = text.nextExam;
+    nextBtn.addEventListener("click", () => window.location.href = "pruefung.html");
+  } else {
+    const nextNumber = nextCourseIndex + 1;
+    nextBtn.textContent = text.nextCourse(nextNumber);
+    nextBtn.addEventListener("click", () => window.location.href = `grundkurs-${nextNumber}.html`);
+  }
 
   // ░░ Speicherung für Urkunde ░░
   localStorage.setItem("fsa_finalStatus", finalStatus);
