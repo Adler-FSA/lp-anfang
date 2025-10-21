@@ -59,27 +59,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const q = shuffled[index];
     updateProgress();
 
-    card.classList.add("fade-out");
+    // Karte und Navigation vollständig leeren (verhindert Klickreste)
+    card.replaceChildren();
+    nav.replaceChildren();
+
     setTimeout(() => {
       card.innerHTML = `
         <h3>${lang === "de" ? "Frage" : "Question"} ${index + 1} ${lang === "de" ? "von" : "of"} ${total}</h3>
         <h2>${q.q}</h2>
         <div class="answers">
-          ${q.a.map((a,i)=>`
+          ${q.a.map((a, i) => `
             <button class="answer-btn" data-correct="${a.correct}" data-text="${a.text}">
-              ${String.fromCharCode(65+i)}. ${a.text}
+              ${String.fromCharCode(65 + i)}. ${a.text}
             </button>
           `).join("")}
         </div>`;
-      nav.innerHTML = `<button id="skipBtn">${lang==="de"?"Überspringen":"Skip"}</button>`;
-      card.classList.remove("fade-out");
-      card.classList.add("fade-in");
+      nav.innerHTML = `<button id="skipBtn">${lang === "de" ? "Überspringen" : "Skip"}</button>`;
 
-      document.querySelectorAll(".answer-btn").forEach(btn =>
+      // Neue Buttons holen und Events frisch binden
+      const buttons = card.querySelectorAll(".answer-btn");
+      buttons.forEach(btn => {
         btn.addEventListener("click", e => {
+          // Klickschutz: doppelte Aktionen verhindern
+          buttons.forEach(b => (b.disabled = true));
+
           const chosen = e.target.dataset.text;
           const isCorrect = e.target.dataset.correct === "true";
           const right = q.a.find(a => a.correct)?.text || "";
+
           results.push({
             question: q.q,
             chosenAnswer: chosen,
@@ -87,11 +94,14 @@ document.addEventListener("DOMContentLoaded", () => {
             mentorTip: q.mentor || "",
             isCorrect
           });
+
           if (isCorrect) correct++; else wrong++;
           nextQuestion();
-        })
-      );
+        });
+      });
+
       document.getElementById("skipBtn").onclick = () => {
+        buttons.forEach(b => (b.disabled = true));
         results.push({
           question: q.q,
           chosenAnswer: "— (Übersprungen)",
@@ -102,17 +112,16 @@ document.addEventListener("DOMContentLoaded", () => {
         wrong++;
         nextQuestion();
       };
-    }, 250);
+    }, 150);
   }
 
   function nextQuestion() {
-    card.classList.remove("fade-in");
-    card.classList.add("fade-out");
-    setTimeout(() => {
-      index++;
-      if (index < total) showQuestion();
-      else showResult();
-    }, 200);
+    // Karte vollständig löschen, um Event-Geister zu vermeiden
+    card.replaceChildren();
+    nav.replaceChildren();
+    index++;
+    if (index < total) showQuestion();
+    else showResult();
   }
 
   // === Ergebnisanzeige ===
@@ -125,45 +134,46 @@ document.addEventListener("DOMContentLoaded", () => {
     let mentorText = "";
 
     if (correct <= 5) {
-      status = lang==="de"?"Wiederholen ❌":"Repeat ❌";
-      mentorText = lang==="de"
+      status = lang === "de" ? "Wiederholen ❌" : "Repeat ❌";
+      mentorText = lang === "de"
         ? "Lass dich nicht entmutigen – jeder Adler braucht Anlauf, um abzuheben. Versuch es erneut, du bist näher als du glaubst."
         : "Don’t be discouraged — every eagle needs a run-up before taking flight. Try again; you’re closer than you think.";
-    } else if (correct <=7) {
+    } else if (correct <= 7) {
       status = "Bronze 🥉";
-      mentorText = lang==="de"
+      mentorText = lang === "de"
         ? "Ein solides Fundament. Du hast verstanden, worum es geht. Bleib dran – der nächste Flug trägt dich höher."
         : "A solid foundation. You’ve grasped the idea; stay consistent – your next flight will take you higher.";
-    } else if (correct <=9) {
+    } else if (correct <= 9) {
       status = "Silber 🥈";
-      mentorText = lang==="de"
+      mentorText = lang === "de"
         ? "Starke Leistung. Mit etwas mehr Feinschliff erreichst du die volle Souveränität."
         : "Strong performance. With a little more refinement, you’ll reach full sovereignty.";
     } else {
       status = "Gold 🥇";
-      mentorText = lang==="de"
+      mentorText = lang === "de"
         ? "Großartig! Du hast die Prinzipien wirklich verinnerlicht – das ist wahre Stärke."
         : "Outstanding! You’ve internalized the core principles – that’s real strength.";
     }
 
     const percent = Math.round((correct / total) * 100);
-    const color = correct <=5 ? "#ef4444" : correct <=7 ? "#cd7f32" : correct <=9 ? "#93c5fd" : "#d4af37";
+    const color =
+      correct <= 5 ? "#ef4444" :
+      correct <= 7 ? "#cd7f32" :
+      correct <= 9 ? "#93c5fd" :
+      "#d4af37";
 
     card.innerHTML = `
       <div class="result-panel" style="border-color:${color}">
         <h2 style="color:${color}">🏁 FSA Akademie – Grundkurs Basis</h2>
-        ${fullName ? `<p class="user-name">${lang==="de"?"Auswertung für":"Evaluation for"} <strong>${fullName}</strong></p>` : ""}
-        <p>${lang==="de"?"Wiederholungen:":"Repeats:"} <strong>${repeatCount}</strong></p>
-        <div class="progress-bar">
-          <div style="width:${percent}%; background:${color};"></div>
-        </div>
-        <p>${lang==="de"
+        ${fullName ? `<p class="user-name">${lang === "de" ? "Auswertung für" : "Evaluation for"} <strong>${fullName}</strong></p>` : ""}
+        <p>${lang === "de" ? "Wiederholungen:" : "Repeats:"} <strong>${repeatCount}</strong></p>
+        <div class="progress-bar"><div style="width:${percent}%; background:${color};"></div></div>
+        <p>${lang === "de"
           ? `Du hast <strong>${correct}</strong> von <strong>${total}</strong> Fragen richtig beantwortet.`
-          : `You answered <strong>${correct}</strong> out of <strong>${total}</strong> questions correctly.`}
-        </p>
-        <p>${lang==="de"?"Status:":"Status:"} <strong style="color:${color}">${status}</strong></p>
+          : `You answered <strong>${correct}</strong> out of <strong>${total}</strong> questions correctly.`}</p>
+        <p>${lang === "de" ? "Status:" : "Status:"} <strong style="color:${color}">${status}</strong></p>
         <blockquote>“${mentorText}”</blockquote>
-        <button id="restartBtn">${lang==="de"?"Kurs wiederholen":"Restart Course"}</button>
+        <button id="restartBtn">${lang === "de" ? "Kurs wiederholen" : "Restart Course"}</button>
       </div>
     `;
     nav.innerHTML = "";
@@ -179,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const style = document.createElement("style");
   style.textContent = `
     .quiz-slideshow {
-      max-width: 860px;                /* breiter für gleiche Flucht */
+      max-width: 860px;
       margin: 2cm auto;
       color: #e5e7eb;
       font-family: system-ui;
@@ -205,7 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
       padding: 2rem;
       box-shadow: 0 0 25px rgba(212,175,55,.15);
       transition: opacity .3s ease;
-      font-size: 1.1rem;               /* Schrift größer */
+      font-size: 1.1rem;
       line-height: 1.7;
     }
     .quiz-card h2 {
@@ -213,12 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
       color: #d4af37;
       margin-bottom: 1rem;
     }
-    .answers {
-      display: flex;
-      flex-direction: column;
-      gap: .7rem;
-      margin-top: 1.2rem;
-    }
+    .answers { display: flex; flex-direction: column; gap: .7rem; margin-top: 1.2rem; }
     .answer-btn {
       background: rgba(59,130,246,.1);
       border: 1px solid rgba(59,130,246,.3);
@@ -231,11 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
       transition: background .2s ease;
     }
     .answer-btn:hover { background: rgba(59,130,246,.3); }
-    .quiz-nav {
-      margin-top: 1rem;
-      display: flex;
-      justify-content: flex-end;
-    }
+    .quiz-nav { margin-top: 1rem; display: flex; justify-content: flex-end; }
     #skipBtn,#restartBtn {
       background: #3b82f6;
       color: white;
