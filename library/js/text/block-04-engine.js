@@ -1,9 +1,9 @@
-// ░░ Baustein 04 – Engine / Kursauswertung & Fortschrittsspeicher (v2.3.4) ░░
-// Fix: Wiederholungszähler wird nur erhöht, wenn der Kurs aktiv beendet wurde
-// Fix: Kein Auto-Aufruf bei Seitenreload oder leerem Ergebnis
+// ░░ Baustein 04 – Engine / Kursauswertung & Fortschrittsspeicher (v2.3.5) ░░
+// Fix: Wiederholungszähler nur bei manuellem Abschluss, kein Auto-Trigger durch Reload
+// Fix: Fortschritt, Name & Mentor-Kommentar stabil über mehrere Sitzungen hinweg
 
-function showResult(triggeredByUser = true) {
-  // Nur auswerten, wenn durch User-Aktion ausgelöst
+function showResult(triggeredByUser = false) {
+  // Nur reagieren, wenn vom Benutzer ausgelöst (z. B. Button „Auswerten“)
   if (!triggeredByUser) return;
 
   const score = typeof correctCount === "number" ? correctCount : 0;
@@ -11,7 +11,7 @@ function showResult(triggeredByUser = true) {
   const lastName  = localStorage.getItem("fsa_lastName")  || "";
   const fullName  = `${firstName} ${lastName}`.trim();
 
-  // Status bestimmen
+  // ░░ Status bestimmen ░░
   let status = "", mentorText = "";
   if (score <= 5) {
     status = t.statuses.retry;
@@ -35,35 +35,32 @@ function showResult(triggeredByUser = true) {
       : "Outstanding! You’ve internalized the core principles. This clarity is the true strength of financial freedom.";
   }
 
-  // === Fortschrittsspeicher (Kursabschluss) ===
+  // ░░ Fortschritt speichern (nur wenn wirklich abgeschlossen) ░░
   function saveCourseProgress(courseKey, score, status) {
-    if (score <= 0 && !status) return; // nichts speichern ohne Ergebnis
+    if (score <= 0 && !status) return; // keine Speicherung bei leerem Ergebnis
 
     localStorage.setItem(`fsa_${courseKey}_score`, score);
     localStorage.setItem(`fsa_${courseKey}_status`, status);
 
-    // Wiederholungszähler erhöhen
+    // Wiederholungen nur bei aktivem Abschluss
     const repeatKey = `fsa_${courseKey}_repeats`;
     let repeats = parseInt(localStorage.getItem(repeatKey) || "0");
     localStorage.setItem(repeatKey, repeats + 1);
 
-    // prüfen, ob alle 4 Grundkurse abgeschlossen
+    // Alle vier Kurse abgeschlossen?
     const allDone = ["course1", "course2", "course3", "course4"].every(
       key => localStorage.getItem(`fsa_${key}_status`)
     );
-    allDone
-      ? localStorage.setItem("fsa_allCoursesDone", "true")
-      : localStorage.removeItem("fsa_allCoursesDone");
+    if (allDone) localStorage.setItem("fsa_allCoursesDone", "true");
+    else localStorage.removeItem("fsa_allCoursesDone");
   }
 
-  // Ergebnis & Status speichern (nur bei manuellem Trigger)
-  if (triggeredByUser) {
-    localStorage.setItem("fsa_lastScore", score);
-    localStorage.setItem("fsa_lastStatus", status);
-    saveCourseProgress("course1", score, status);
-  }
+  // ░░ Ergebnis & Status sichern ░░
+  localStorage.setItem("fsa_lastScore", score);
+  localStorage.setItem("fsa_lastStatus", status);
+  saveCourseProgress("course1", score, status);
 
-  // Prozent für Balken
+  // ░░ Fortschrittsanzeige ░░
   const percent = Math.round((score / totalQuestions) * 100);
   const color =
     score <= 5 ? "#ef4444" : score <= 7 ? "#cd7f32" : score <= 9 ? "#93c5fd" : "#d4af37";
@@ -74,15 +71,15 @@ function showResult(triggeredByUser = true) {
          🎓 ${lang==="de"?"Alle Grundkurse abgeschlossen – Urkunde bereit.":"All basic courses completed – Certificate available."}
        </p>` : "";
 
-  // Panel
+  // ░░ Edles Auswertungspanel ░░
   container.innerHTML = `
     <div style="background:rgba(17,24,39,0.8);border:1px solid ${color};
       border-radius:12px;padding:2rem;text-align:center;
       box-shadow:0 0 25px rgba(212,175,55,0.15);margin-top:1cm;">
       <h2 style="color:${color};font-size:1.6rem;margin-bottom:0.4rem;">${courseName}</h2>
-      ${fullName?`<p style="font-size:1.05rem;color:#94a3b8;margin-bottom:1.2rem;">
+      ${fullName ? `<p style="font-size:1.05rem;color:#94a3b8;margin-bottom:1.2rem;">
         ${lang==="de"?"Auswertung für":"Evaluation for"} <strong>${fullName}</strong>
-      </p>`:""}
+      </p>` : ""}
       ${renderStats()}
       <div style="margin:1rem auto 1.4rem auto;width:80%;background:#1e293b;border-radius:8px;height:16px;overflow:hidden;">
         <div style="width:${percent}%;height:100%;background:${color};transition:width 1s ease;"></div>
@@ -103,6 +100,13 @@ function showResult(triggeredByUser = true) {
         cursor:pointer;transition:all 0.3s ease;">${t.restart}</button>
     </div>`;
 
+  // ░░ Neustart nur manuell ░░
   document.getElementById("restartBtn")
     ?.addEventListener("click", () => location.reload());
 }
+
+// ░░ Sicherheitsnetz: showResult NIE automatisch aufrufen ░░
+window.addEventListener("DOMContentLoaded", () => {
+  // kein automatischer Start!
+  console.log("✅ Engine v2.3.5 geladen – kein Auto-Trigger aktiv.");
+});
