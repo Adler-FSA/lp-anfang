@@ -1,9 +1,11 @@
-// ░░ Baustein 05 – Gesamtauswertung / Qualifikations-Summary (Finale FSA-Version) ░░
-// Optisch veredelt + Mentor-Feedback + Fortschrittsbalken + "Zur Prüfung"-Button
+// ░░ Baustein 05 – Gesamtauswertung / Qualifikations-Summary (Finale FSA-Version v2) ░░
+// Ergänzt um Wiederholungszähler + Namensanzeige aus localStorage (Vorname/Nachname)
 
 document.addEventListener("DOMContentLoaded", () => {
   const lang = localStorage.getItem("fsa_lang") || "de";
-  const userName = localStorage.getItem("fsa_userName") || "Teilnehmer";
+  const firstName = localStorage.getItem("fsa_firstName") || "";
+  const lastName = localStorage.getItem("fsa_lastName") || "";
+  const fullName = `${firstName} ${lastName}`.trim() || "Teilnehmer";
 
   const courses = [
     { key: "course1", title: "Grundkurs 1" },
@@ -19,9 +21,15 @@ document.addEventListener("DOMContentLoaded", () => {
   courses.forEach(c => {
     const score = parseInt(localStorage.getItem(`fsa_${c.key}_score`) || 0);
     const status = localStorage.getItem(`fsa_${c.key}_status`) || "—";
+    const repeats = parseInt(localStorage.getItem(`fsa_${c.key}_repeats`) || 0);
     totalScore += score;
     totalQuestions += 10;
-    summaryList += `<li>${c.title}: <strong>${score}/10</strong> – ${status}</li>`;
+
+    summaryList += `
+      <li>
+        ${c.title}: <strong>${score}/10</strong> – ${status}
+        <span class="repeats">(${lang === "de" ? "Wiederholungen" : "Repeats"}: ${repeats})</span>
+      </li>`;
   });
 
   const percentage = Math.round((totalScore / totalQuestions) * 100);
@@ -30,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (percentage < 60) {
     finalStatus = "Wiederholen ❌";
-    mentorTone = "Bleib dran. Jeder, der Durchhält, meistert die Prüfung am Ende.";
+    mentorTone = "Bleib dran. Jeder, der durchhält, meistert die Prüfung am Ende.";
   } else if (percentage < 75) {
     finalStatus = "Bronze 🥉";
     mentorTone = "Ein solider Anfang! Du bist auf dem richtigen Weg – dranbleiben lohnt sich.";
@@ -71,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
   container.innerHTML = `
     <h1>FSA Akademie</h1>
     <h2>${lang === "de" ? "🏁 Gesamtauswertung" : "🏁 Final Summary"}</h2>
-    <p class="username">${userName}</p>
+    <p class="username">${fullName}</p>
     <div class="progress-bar">
       <div class="progress" style="width:${percentage}%;"></div>
     </div>
@@ -138,6 +146,11 @@ document.addEventListener("DOMContentLoaded", () => {
       margin: 0.4rem 0;
       color: #d1d5db;
     }
+    ul li .repeats {
+      color: #9ca3af;
+      font-size: 0.9rem;
+      margin-left: 0.3rem;
+    }
     .mentor-tone {
       margin-top: 1rem;
       color: #d4af37;
@@ -172,6 +185,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = "pruefung.html";
   });
 
-  // Speichern für Urkunde
+  // Speicherung für Urkunde
   localStorage.setItem("fsa_finalStatus", finalStatus);
 });
