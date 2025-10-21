@@ -1,12 +1,18 @@
-// ░░ Baustein 05 – Gesamtauswertung / Qualification Summary (FSA v2.3.2) ░░
-// Fix: Weiter-Button geht auf den NÄCHSTEN Kurs der aktuellen Seite
-// Fix: Reset setzt auch alle Wiederholungszähler (repeats) auf 0
+/*!
+ * FSA Akademie – block-05-summary.js (v3.0.0)
+ * ------------------------------------------
+ * Gesamtauswertung & Qualifikationsübersicht
+ * - Bronze/Silber/Gold-Logik (0–5 / 6 / 7–8 / 9–10)
+ * - Fortschritt + Wiederholungen + Gesamtstatus
+ * - Prüfungspasswort "Souverän" ab 36 Punkten
+ * - Kompatibel mit block-04-engine v3.0.0
+ */
 
 document.addEventListener("DOMContentLoaded", () => {
   const lang = localStorage.getItem("fsa_lang") || "de";
   const firstName = localStorage.getItem("fsa_firstName") || "";
   const lastName  = localStorage.getItem("fsa_lastName")  || "";
-  const fullName  = `${firstName} ${lastName}`.trim() || (lang==="de" ? "Teilnehmer" : "Participant");
+  const fullName  = `${firstName} ${lastName}`.trim() || (lang === "de" ? "Teilnehmer" : "Participant");
 
   const text = {
     de: {
@@ -17,16 +23,15 @@ document.addEventListener("DOMContentLoaded", () => {
       nextExam: "Zur Prüfung weiter ➜",
       nextCourse: n => `Weiter zu Grundkurs ${n} ➜`,
       reset: "🔄 Neustart",
-      feedbackTitle: "💡 Mentor-Feedback zu falschen Antworten:",
-      yourAnswer: "Deine Antwort:",
-      correctAnswer: "Richtige Antwort:",
       resetConfirm: "Alle Fortschritte und Namen wirklich löschen? Dies startet den Kurs komplett neu.",
       final: {
-        repeat: ["Wiederholen ❌","Bleib dran. Jeder, der durchhält, meistert die Prüfung am Ende."],
-        bronze: ["Bronze 🥉","Ein solider Anfang! Du bist auf dem richtigen Weg – dranbleiben lohnt sich."],
-        silver: ["Silber 🥈","Sehr gut! Dein Wissen wird stabil – du bist fast am Ziel."],
-        gold:   ["Gold 🥇","Exzellent! Du hast bewiesen, dass du das Prinzip wirklich verstanden hast."]
-      }
+        repeat: ["Wiederholen ❌", "Bleib dran. Jeder, der durchhält, meistert die Prüfung am Ende."],
+        bronze: ["Bronze 🥉", "Ein solider Anfang! Du bist auf dem richtigen Weg – dranbleiben lohnt sich."],
+        silver: ["Silber 🥈", "Sehr gut! Dein Wissen wird stabil – du bist fast am Ziel."],
+        gold:   ["Gold 🥇", "Exzellent! Du hast bewiesen, dass du das Prinzip wirklich verstanden hast."]
+      },
+      passwordLabel: "Prüfungspasswort:",
+      passwordValue: "Souverän"
     },
     en: {
       title: "🏁 Final Summary",
@@ -36,143 +41,134 @@ document.addEventListener("DOMContentLoaded", () => {
       nextExam: "Continue to Exam ➜",
       nextCourse: n => `Continue to Course ${n} ➜`,
       reset: "🔄 Reset",
-      feedbackTitle: "💡 Mentor feedback on incorrect answers:",
-      yourAnswer: "Your answer:",
-      correctAnswer: "Correct answer:",
       resetConfirm: "Really delete all progress and names? This will fully restart the course.",
       final: {
-        repeat: ["Repeat ❌","Keep going. Everyone who perseveres will master the exam in the end."],
-        bronze: ["Bronze 🥉","A solid start! You’re on the right path – stay consistent."],
-        silver: ["Silver 🥈","Very good! Your knowledge is becoming solid – you’re almost there."],
-        gold:   ["Gold 🥇","Excellent! You’ve shown you truly understand the principles."]
-      }
+        repeat: ["Repeat ❌", "Keep going. Everyone who perseveres will master the exam in the end."],
+        bronze: ["Bronze 🥉", "A solid start! You’re on the right path – stay consistent."],
+        silver: ["Silver 🥈", "Very good! Your knowledge is becoming solid – you’re almost there."],
+        gold:   ["Gold 🥇", "Excellent! You’ve shown you truly understand the principles."]
+      },
+      passwordLabel: "Exam password:",
+      passwordValue: "Sovereign"
     }
   }[lang];
 
+  // ───────────────────────────────────────────────
+  // Kurs-Infos & Punkte laden
+  // ───────────────────────────────────────────────
   const courses = [
-    { key:"course1", title: lang==="de"?"Grundkurs 1":"Basic Course 1" },
-    { key:"course2", title: lang==="de"?"Grundkurs 2":"Basic Course 2" },
-    { key:"course3", title: lang==="de"?"Grundkurs 3":"Basic Course 3" },
-    { key:"course4", title: lang==="de"?"Grundkurs 4":"Basic Course 4" }
+    { key: "course1", title: lang === "de" ? "Grundkurs 1 – Basis" : "Course 1 – Foundation" },
+    { key: "course2", title: lang === "de" ? "Grundkurs 2 – Sicherheit" : "Course 2 – Security" },
+    { key: "course3", title: lang === "de" ? "Grundkurs 3 – Einkommen" : "Course 3 – Income" },
+    { key: "course4", title: lang === "de" ? "Grundkurs 4 – Netzwerk" : "Course 4 – Network" }
   ];
 
-  // Punkte + Wiederholungen laden
   let totalScore = 0, totalQuestions = 0;
-  let summaryList = "";
+  let listHTML = "";
+
   courses.forEach(c => {
-    const score   = parseInt(localStorage.getItem(`fsa_${c.key}_score`)   || "0");
+    const score   = parseInt(localStorage.getItem(`fsa_${c.key}_score`)   || "0", 10);
     const status  = localStorage.getItem(`fsa_${c.key}_status`)           || "—";
-    const repeats = parseInt(localStorage.getItem(`fsa_${c.key}_repeats`) || "0");
-    totalScore += score; totalQuestions += 10;
-    summaryList += `<li>${c.title}: <strong>${score}/10</strong> – ${status} <span class="repeats">(${text.repeats}: ${repeats})</span></li>`;
+    const repeats = parseInt(localStorage.getItem(`fsa_${c.key}_repeats`) || "0", 10);
+    totalScore += score;
+    totalQuestions += 10;
+    listHTML += `<li>${c.title}: <strong>${score}/10</strong> – ${status} <span class="rep">(${text.repeats}: ${repeats})</span></li>`;
   });
 
-  // Gesamtstatus
-  const percentage = totalQuestions ? Math.round((totalScore/totalQuestions)*100) : 0;
-  let finalStatus, mentorTone;
-  if (percentage < 60) [finalStatus, mentorTone] = text.final.repeat;
-  else if (percentage < 75) [finalStatus, mentorTone] = text.final.bronze;
-  else if (percentage < 90) [finalStatus, mentorTone] = text.final.silver;
-  else [finalStatus, mentorTone] = text.final.gold;
+  // ───────────────────────────────────────────────
+  // Gesamtstatus + Mentor-Ton
+  // ───────────────────────────────────────────────
+  const percent = totalQuestions ? Math.round((totalScore / totalQuestions) * 100) : 0;
+  let finalStatus, mentorText;
+  if (percent < 60) [finalStatus, mentorText] = text.final.repeat;
+  else if (percent < 75) [finalStatus, mentorText] = text.final.bronze;
+  else if (percent < 90) [finalStatus, mentorText] = text.final.silver;
+  else [finalStatus, mentorText] = text.final.gold;
 
-  // falsche Antworten (nur Course1 aktuell)
-  const storedResults = JSON.parse(localStorage.getItem("fsa_course1_results") || "[]");
-  let mentorFeedback = "";
-  if (storedResults.length) {
-    const wrong = storedResults.filter(r => !r.isCorrect);
-    if (wrong.length) {
-      mentorFeedback += `<div class="mentor-feedback"><h3>${text.feedbackTitle}</h3>`;
-      wrong.forEach((r,i) => {
-        mentorFeedback += `
-          <div class="mentor-item">
-            <p><strong>${lang==="de"?"Frage":"Question"} ${i+1}:</strong> ${r.question}</p>
-            <p><span class="wrong">${text.yourAnswer}</span> ${r.chosenAnswer}</p>
-            <p><span class="right">${text.correctAnswer}</span> ${r.correctAnswer}</p>
-            <p class="mentor-tip">🧭 ${r.mentorTip}</p>
-          </div><hr>`;
-      });
-      mentorFeedback += `</div>`;
-    }
-  }
+  const showPassword = totalScore >= 36;
 
-  // DOM
-  const container = document.createElement("div");
-  container.className = "summary-container";
-  container.innerHTML = `
+  // ───────────────────────────────────────────────
+  // DOM Aufbau
+  // ───────────────────────────────────────────────
+  const wrap = document.createElement("main");
+  wrap.className = "fsa-summary";
+  wrap.innerHTML = `
     <h1>FSA Akademie</h1>
     <h2>${text.title}</h2>
     <p class="username">${fullName}</p>
-    <div class="progress-bar"><div class="progress" style="width:${percentage}%;"></div></div>
-    <ul>${summaryList}</ul>
+    <div class="bar"><div class="fill" style="width:${percent}%;"></div></div>
+    <ul>${listHTML}</ul>
     <p><strong>${text.totalScore}</strong> ${totalScore} / ${totalQuestions}</p>
     <p><strong>${text.status}</strong> ${finalStatus}</p>
-    <p class="mentor-tone">🧭 ${mentorTone}</p>
-    ${mentorFeedback}
-    <div class="button-row">
-      <button id="nextBtn">${text.nextExam}</button>
-      <button id="resetBtn">${text.reset}</button>
+    <blockquote>🧭 ${mentorText}</blockquote>
+    ${showPassword ? `<div class="password-block"><p><strong>${text.passwordLabel}</strong> <span class="pw">${text.passwordValue}</span></p></div>` : ""}
+    <div class="actions">
+      <button id="next">${text.nextExam}</button>
+      <button id="reset">${text.reset}</button>
     </div>
   `;
-  document.body.appendChild(container);
+  document.body.appendChild(wrap);
 
-  // Stil
-  const style = document.createElement("style");
-  style.textContent = `
-    .summary-container{margin:2cm auto;max-width:900px;padding:2rem;background:rgba(15,20,30,.85);
-      border:1px solid rgba(212,175,55,.4);border-radius:16px;box-shadow:0 0 25px rgba(212,175,55,.15);
+  // ───────────────────────────────────────────────
+  // Stil (mobil + desktop)
+  // ───────────────────────────────────────────────
+  const css = document.createElement("style");
+  css.textContent = `
+    .fsa-summary{max-width:900px;margin:2cm auto;padding:2rem;
+      background:rgba(15,20,30,0.85);border:1px solid rgba(212,175,55,0.4);
+      border-radius:16px;box-shadow:0 0 25px rgba(212,175,55,0.15);
       color:#e5e7eb;font-family:system-ui,sans-serif;text-align:center}
-    .summary-container h1{color:#d4af37;margin-bottom:.5rem;font-size:1.6rem;letter-spacing:.05em}
-    .summary-container h2{color:#fff;margin-bottom:.8rem;font-size:1.3rem}
+    .fsa-summary h1{color:#d4af37;margin-bottom:.3rem;font-size:1.6rem;letter-spacing:.05em}
+    .fsa-summary h2{color:#fff;margin-bottom:.8rem;font-size:1.3rem}
     .username{color:#9ca3af;margin-bottom:1rem}
-    .progress-bar{height:8px;background:rgba(255,255,255,.1);border-radius:4px;margin:1rem auto 1.5rem;overflow:hidden;max-width:400px}
-    .progress{height:100%;background:linear-gradient(90deg,#3b82f6,#d4af37);transition:width .5s ease}
+    .bar{height:10px;background:rgba(255,255,255,.1);border-radius:6px;margin:1rem auto 1.5rem;overflow:hidden;max-width:400px}
+    .fill{height:100%;background:linear-gradient(90deg,#3b82f6,#d4af37);transition:width .5s ease}
     ul{text-align:left;display:inline-block;margin:0 auto 1rem;padding:0;list-style:none}
-    ul li{margin:.4rem 0;color:#d1d5db}
-    ul li .repeats{color:#9ca3af;font-size:.9rem;margin-left:.3rem}
-    .mentor-tone{margin-top:1rem;color:#d4af37;font-style:italic}
-    .mentor-feedback{margin-top:1.5rem;text-align:left}
-    .mentor-item{margin-bottom:1rem}.wrong{color:#ef4444;font-weight:600}.right{color:#10b981;font-weight:500}
-    .mentor-tip{color:#d4af37;margin-top:.3rem}hr{border:none;border-top:1px solid rgba(212,175,55,.2);margin:.8rem 0}
-    .button-row{display:flex;justify-content:center;gap:1rem;margin-top:2rem}
-    #nextBtn{background:linear-gradient(90deg,#3b82f6,#d4af37);color:white;border:none;border-radius:6px;padding:.8rem 1.6rem;font-weight:600;cursor:pointer;transition:opacity .3s ease}
-    #nextBtn:hover{opacity:.85}
-    #resetBtn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#e5e7eb;border-radius:6px;padding:.8rem 1.6rem;font-weight:500;cursor:pointer;transition:background .3s ease}
-    #resetBtn:hover{background:rgba(255,255,255,.2)}
-  `;
-  document.head.appendChild(style);
-
-  // ► Weiterleitungslogik
-  function getCurrentCourseIndex() {
-    const path = (location.pathname || "").toLowerCase();
-    if (path.includes("grundkurs-basis")) return 1;
-    const m = path.match(/grundkurs-(\d+)/);
-    return m ? Math.max(1, Math.min(4, parseInt(m[1],10))) : 1;
-  }
-  const current = getCurrentCourseIndex();
-  const nextBtn = document.getElementById("nextBtn");
-
-  if (current < 4) {
-    const nextNumber = current + 1;
-    nextBtn.textContent = text.nextCourse(nextNumber);
-    nextBtn.addEventListener("click", () => window.location.href = `grundkurs-${nextNumber}.html`);
-  } else {
-    nextBtn.textContent = text.nextExam;
-    nextBtn.addEventListener("click", () => window.location.href = "pruefung.html");
-  }
-
-  // ► Reset
-  document.getElementById("resetBtn")?.addEventListener("click", () => {
-    if (!confirm(text.resetConfirm)) return;
-    ["firstName","lastName"].forEach(n => localStorage.removeItem(`fsa_${n}`));
-    for (let i=1;i<=4;i++){
-      localStorage.removeItem(`fsa_course${i}_score`);
-      localStorage.removeItem(`fsa_course${i}_status`);
-      localStorage.removeItem(`fsa_course${i}_results`);
-      localStorage.removeItem(`fsa_course${i}_repeats`);
+    li{margin:.4rem 0;color:#d1d5db}
+    .rep{color:#9ca3af;font-size:.9rem;margin-left:.3rem}
+    blockquote{margin-top:1rem;color:#d4af37;font-style:italic;background:rgba(255,255,255,0.05);
+      padding:.9rem 1.2rem;border-left:4px solid rgba(212,175,55,0.5);border-radius:6px}
+    .password-block{margin-top:1.2rem;background:rgba(255,255,255,0.05);
+      padding:.8rem 1rem;border-radius:8px;display:inline-block}
+    .password-block .pw{color:#d4af37;font-weight:700;margin-left:.4rem}
+    .actions{display:flex;justify-content:center;gap:1rem;margin-top:2rem;flex-wrap:wrap}
+    #next{background:linear-gradient(90deg,#3b82f6,#d4af37);color:white;border:none;
+      border-radius:6px;padding:.8rem 1.6rem;font-weight:600;cursor:pointer;transition:opacity .3s ease}
+    #next:hover{opacity:.85}
+    #reset{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);
+      color:#e5e7eb;border-radius:6px;padding:.8rem 1.6rem;font-weight:500;cursor:pointer;
+      transition:background .3s ease}
+    #reset:hover{background:rgba(255,255,255,.2)}
+    @media(max-width:640px){
+      .fsa-summary{padding:1.2rem;margin:1cm .4cm}
+      .actions{flex-direction:column}
+      #next,#reset{width:100%}
     }
-    localStorage.removeItem("fsa_finalStatus");
-    window.location.href = "grundkurs-basis.html";
+  `;
+  document.head.appendChild(css);
+
+  // ───────────────────────────────────────────────
+  // Weiterleitung & Reset
+  // ───────────────────────────────────────────────
+  const next = document.getElementById("next");
+  const reset = document.getElementById("reset");
+
+  next.addEventListener("click", () => {
+    if (totalScore >= 36) location.href = "pruefung.html?nocache=" + Date.now();
+    else location.href = "grundkurs-basis.html?nocache=" + Date.now();
   });
 
-  localStorage.setItem("fsa_finalStatus", finalStatus);
+  reset.addEventListener("click", () => {
+    if (!confirm(text.resetConfirm)) return;
+    ["firstName","lastName"].forEach(n => localStorage.removeItem(`fsa_${n}`));
+    for (let i = 1; i <= 4; i++) {
+      ["score","status","results","repeats","passed"].forEach(k =>
+        localStorage.removeItem(`fsa_course${i}_${k}`)
+      );
+    }
+    localStorage.removeItem("fsa_allCoursesDone");
+    location.href = "grundkurs-basis.html?nocache=" + Date.now();
+  });
+
+  console.log("✅ block-05-summary.js geladen – FSA Summary v3.0.0 aktiv.");
 });
