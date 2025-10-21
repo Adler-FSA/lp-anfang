@@ -31,10 +31,8 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => {
       if (lang.code === localStorage.getItem("fsa_lang")) return;
       localStorage.setItem("fsa_lang", lang.code);
-      // UI-Highlight sofort updaten
       document.querySelectorAll(".lang-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      // Seite neu laden, damit alle Bausteine neu in der Sprache rendern
       location.reload();
     });
 
@@ -48,10 +46,11 @@ document.addEventListener("DOMContentLoaded", () => {
   style.textContent = `
     #langSwitcher {
       position: fixed;
-      top: 58px;         /* gleiche Höhe wie Musik-Button */
+      top: 20px;            /* exakt gleiche Linie wie Musik-Button */
       left: 20px;
       display: flex;
       gap: 8px;
+      align-items: center;  /* vertikal ausbalanciert */
       z-index: 9999;
     }
     .lang-btn {
