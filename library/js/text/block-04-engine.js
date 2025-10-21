@@ -1,16 +1,18 @@
-// ░░ Baustein 04 – Engine / Kursauswertung & Fortschrittsspeicher (v2.3.3) ░░
-// Fix: Wiederholungszähler wird nur nach Abschluss erhöht, nicht bei Reload
-// Fix: Fortschritt & Mentor-Kommentar stabil bei mehrfacher Ansicht
+// ░░ Baustein 04 – Engine / Kursauswertung & Fortschrittsspeicher (v2.3.4) ░░
+// Fix: Wiederholungszähler wird nur erhöht, wenn der Kurs aktiv beendet wurde
+// Fix: Kein Auto-Aufruf bei Seitenreload oder leerem Ergebnis
 
-function showResult() {
-  const score = correctCount;
+function showResult(triggeredByUser = true) {
+  // Nur auswerten, wenn durch User-Aktion ausgelöst
+  if (!triggeredByUser) return;
+
+  const score = typeof correctCount === "number" ? correctCount : 0;
   const firstName = localStorage.getItem("fsa_firstName") || "";
-  const lastName = localStorage.getItem("fsa_lastName") || "";
-  const fullName = `${firstName} ${lastName}`.trim();
+  const lastName  = localStorage.getItem("fsa_lastName")  || "";
+  const fullName  = `${firstName} ${lastName}`.trim();
 
   // Status bestimmen
-  let status = "";
-  let mentorText = "";
+  let status = "", mentorText = "";
   if (score <= 5) {
     status = t.statuses.retry;
     mentorText = lang === "de"
@@ -33,118 +35,74 @@ function showResult() {
       : "Outstanding! You’ve internalized the core principles. This clarity is the true strength of financial freedom.";
   }
 
-  // Beste Punktzahl speichern
-  const currentBest = parseInt(localStorage.getItem(bestKey) || "0");
-  if (score > currentBest) localStorage.setItem(bestKey, score);
-
   // === Fortschrittsspeicher (Kursabschluss) ===
   function saveCourseProgress(courseKey, score, status) {
+    if (score <= 0 && !status) return; // nichts speichern ohne Ergebnis
+
     localStorage.setItem(`fsa_${courseKey}_score`, score);
     localStorage.setItem(`fsa_${courseKey}_status`, status);
 
-    // Wiederholungszähler nur erhöhen, wenn Kurs wirklich abgeschlossen wurde
-    if (score > 0 || status) {
-      const repeatKey = `fsa_${courseKey}_repeats`;
-      let repeats = parseInt(localStorage.getItem(repeatKey) || "0");
-      localStorage.setItem(repeatKey, repeats + 1);
-    }
+    // Wiederholungszähler erhöhen
+    const repeatKey = `fsa_${courseKey}_repeats`;
+    let repeats = parseInt(localStorage.getItem(repeatKey) || "0");
+    localStorage.setItem(repeatKey, repeats + 1);
 
-    // Prüfen, ob alle 4 Grundkurse fertig sind
+    // prüfen, ob alle 4 Grundkurse abgeschlossen
     const allDone = ["course1", "course2", "course3", "course4"].every(
       key => localStorage.getItem(`fsa_${key}_status`)
     );
-
-    if (allDone) {
-      localStorage.setItem("fsa_allCoursesDone", "true");
-      console.log("✅ Alle vier Kurse abgeschlossen – Urkundenfreigabe aktiv.");
-    } else {
-      localStorage.removeItem("fsa_allCoursesDone");
-    }
+    allDone
+      ? localStorage.setItem("fsa_allCoursesDone", "true")
+      : localStorage.removeItem("fsa_allCoursesDone");
   }
 
-  // Ergebnis & Status speichern
-  localStorage.setItem("fsa_lastScore", score);
-  localStorage.setItem("fsa_lastStatus", status);
-  saveCourseProgress("course1", score, status);
+  // Ergebnis & Status speichern (nur bei manuellem Trigger)
+  if (triggeredByUser) {
+    localStorage.setItem("fsa_lastScore", score);
+    localStorage.setItem("fsa_lastStatus", status);
+    saveCourseProgress("course1", score, status);
+  }
 
   // Prozent für Balken
   const percent = Math.round((score / totalQuestions) * 100);
-
-  // Farben je Status
   const color =
     score <= 5 ? "#ef4444" : score <= 7 ? "#cd7f32" : score <= 9 ? "#93c5fd" : "#d4af37";
 
-  // Prüfen, ob Urkundenfreigabe aktiv
   const allDone = localStorage.getItem("fsa_allCoursesDone") === "true";
   const certificateNotice = allDone
-    ? `<p style="color:#d4af37; font-weight:600; margin-top:1rem;">
-         🎓 ${lang === "de" ? "Alle Grundkurse abgeschlossen – Urkunde bereit." : "All basic courses completed – Certificate available."}
-       </p>`
-    : "";
+    ? `<p style="color:#d4af37;font-weight:600;margin-top:1rem;">
+         🎓 ${lang==="de"?"Alle Grundkurse abgeschlossen – Urkunde bereit.":"All basic courses completed – Certificate available."}
+       </p>` : "";
 
-  // Edles Panel
+  // Panel
   container.innerHTML = `
-    <div style="
-      background:rgba(17,24,39,0.8);
-      border:1px solid ${color};
-      border-radius:12px;
-      padding:2rem;
-      text-align:center;
-      box-shadow:0 0 25px rgba(212,175,55,0.15);
-      margin-top:1cm;
-    ">
-      <h2 style="color:${color}; font-size:1.6rem; margin-bottom:0.4rem;">
-        ${courseName}
-      </h2>
-      ${fullName ? `<p style="font-size:1.05rem; color:#94a3b8; margin-bottom:1.2rem;">
-        ${lang === "de" ? "Auswertung für" : "Evaluation for"} <strong>${fullName}</strong>
-      </p>` : ""}
-      
+    <div style="background:rgba(17,24,39,0.8);border:1px solid ${color};
+      border-radius:12px;padding:2rem;text-align:center;
+      box-shadow:0 0 25px rgba(212,175,55,0.15);margin-top:1cm;">
+      <h2 style="color:${color};font-size:1.6rem;margin-bottom:0.4rem;">${courseName}</h2>
+      ${fullName?`<p style="font-size:1.05rem;color:#94a3b8;margin-bottom:1.2rem;">
+        ${lang==="de"?"Auswertung für":"Evaluation for"} <strong>${fullName}</strong>
+      </p>`:""}
       ${renderStats()}
-
-      <div style="margin:1rem auto 1.4rem auto; width:80%; background:#1e293b; border-radius:8px; height:16px; overflow:hidden;">
-        <div style="width:${percent}%; height:100%; background:${color}; transition:width 1s ease;"></div>
+      <div style="margin:1rem auto 1.4rem auto;width:80%;background:#1e293b;border-radius:8px;height:16px;overflow:hidden;">
+        <div style="width:${percent}%;height:100%;background:${color};transition:width 1s ease;"></div>
       </div>
       <p style="margin-bottom:0.8rem;">
-        ${lang === "de"
-          ? `Du hast <strong>${score}</strong> von <strong>${totalQuestions}</strong> Fragen richtig beantwortet.`
-          : `You answered <strong>${score}</strong> out of <strong>${totalQuestions}</strong> questions correctly.`}
+        ${lang==="de"
+          ?`Du hast <strong>${score}</strong> von <strong>${totalQuestions}</strong> Fragen richtig beantwortet.`
+          :`You answered <strong>${score}</strong> out of <strong>${totalQuestions}</strong> questions correctly.`}
       </p>
-      <p style="margin-bottom:1rem;">
-        ${t.status}: <strong style="color:${color};">${status}</strong>
-      </p>
-
-      <blockquote style="
-        font-style:italic;
-        color:#e5e7eb;
-        background:rgba(255,255,255,0.05);
-        border-left:4px solid ${color};
-        padding:1rem 1.5rem;
-        border-radius:6px;
-        margin:1.2rem auto;
-        max-width:700px;
-      ">
-        “${mentorText}”
-      </blockquote>
-
+      <p style="margin-bottom:1rem;">${t.status}: <strong style="color:${color};">${status}</strong></p>
+      <blockquote style="font-style:italic;color:#e5e7eb;background:rgba(255,255,255,0.05);
+        border-left:4px solid ${color};padding:1rem 1.5rem;border-radius:6px;
+        margin:1.2rem auto;max-width:700px;">“${mentorText}”</blockquote>
       ${certificateNotice}
+      <button id="restartBtn" style="display:block;margin:2rem auto 0 auto;
+        background:rgba(0,0,0,0.7);border:1px solid rgba(212,175,55,0.6);
+        color:#d4af37;padding:0.8rem 1.6rem;border-radius:6px;
+        cursor:pointer;transition:all 0.3s ease;">${t.restart}</button>
+    </div>`;
 
-      <p style="margin-top:1rem; font-size:0.95rem; color:#94a3b8;">
-        ${t.repeatsTotal}: <strong>${repeatCount}</strong>
-      </p>
-      <button id="restartBtn" style="
-        display:block;
-        margin:2rem auto 0 auto;
-        background:rgba(0,0,0,0.7);
-        border:1px solid rgba(212,175,55,0.6);
-        color:#d4af37;
-        padding:0.8rem 1.6rem;
-        border-radius:6px;
-        cursor:pointer;
-        transition:all 0.3s ease;
-      ">${t.restart}</button>
-    </div>
-  `;
-
-  document.getElementById("restartBtn").addEventListener("click", () => location.reload());
+  document.getElementById("restartBtn")
+    ?.addEventListener("click", () => location.reload());
 }
