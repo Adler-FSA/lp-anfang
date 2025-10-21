@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
   style.textContent = `
     #musicToggle {
       position: fixed;
-      top: 58px;       /* unter Hauptmenü */
+      top: 105px;       /* tiefer unter Hauptmenü gesetzt */
       right: 20px;
       background: rgba(0,0,0,0.7);
       color: #d4af37;
