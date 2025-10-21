@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
   style.textContent = `
     #langSwitcher {
       position: fixed;
-      top: 58px;         /* gleiche Höhe wie Musik-Button */
+      top: 105px;         /* tiefer gesetzt, gleiche Höhe wie Musik-Button */
       left: 20px;
       display: flex;
       gap: 8px;
@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
       font-size: 1.1rem;
       border: 1px solid rgba(212,175,55,0.5);
       border-radius: 6px;
-      background: rgba(255,255,255,0.15); /* heller für 🇩🇪 */
+      background: rgba(255,255,255,0.15);
       color: #fff;
       cursor: pointer;
       padding: 0.4rem 0.6rem;
