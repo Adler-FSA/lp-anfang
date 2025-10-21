@@ -1,11 +1,20 @@
+// library/js/lang-switcher.js
 document.addEventListener("DOMContentLoaded", () => {
   const langs = [
     { code: "de", flag: "🇩🇪", label: "Deutsch" },
     { code: "en", flag: "🇬🇧", label: "English" }
   ];
 
-  // aktueller Wert aus localStorage
-  let currentLang = localStorage.getItem("fsaLang") || "de";
+  // ----- Migration: fsaLang -> fsa_lang -----
+  const oldKey = localStorage.getItem("fsaLang");
+  const newKey = localStorage.getItem("fsa_lang");
+  if (!newKey && oldKey) {
+    localStorage.setItem("fsa_lang", oldKey);
+    localStorage.removeItem("fsaLang");
+  }
+
+  // aktueller Wert (Standard: de)
+  let currentLang = localStorage.getItem("fsa_lang") || "de";
 
   // Container
   const langBox = document.createElement("div");
@@ -16,13 +25,17 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.className = "lang-btn";
     btn.innerHTML = `${lang.flag}`;
     btn.title = lang.label;
+
     if (lang.code === currentLang) btn.classList.add("active");
 
     btn.addEventListener("click", () => {
-      localStorage.setItem("fsaLang", lang.code);
+      if (lang.code === localStorage.getItem("fsa_lang")) return;
+      localStorage.setItem("fsa_lang", lang.code);
+      // UI-Highlight sofort updaten
       document.querySelectorAll(".lang-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      location.reload(); // Seite neu laden, später Übersetzung
+      // Seite neu laden, damit alle Bausteine neu in der Sprache rendern
+      location.reload();
     });
 
     langBox.appendChild(btn);
@@ -35,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
   style.textContent = `
     #langSwitcher {
       position: fixed;
-      top: 105px;         /* tiefer gesetzt, gleiche Höhe wie Musik-Button */
+      top: 58px;         /* gleiche Höhe wie Musik-Button */
       left: 20px;
       display: flex;
       gap: 8px;
