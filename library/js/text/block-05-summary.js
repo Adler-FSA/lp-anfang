@@ -1,4 +1,4 @@
-// ░░ Baustein 05 – Gesamtauswertung / Qualification Summary (FSA v2.2, zweisprachig + Kursfortschritt) ░░
+// ░░ Baustein 05 – Gesamtauswertung / Qualification Summary (FSA v2.3.1, zweisprachig + Kursfortschritt + Reset) ░░
 // Lädt Punktestände, Wiederholungen & Mentor-Feedback aus localStorage (DSGVO-konform)
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -16,9 +16,11 @@ document.addEventListener("DOMContentLoaded", () => {
       repeats: "Wiederholungen",
       nextExam: "Zur Prüfung weiter ➜",
       nextCourse: n => `Weiter zu Grundkurs ${n} ➜`,
+      reset: "🔄 Neustart",
       feedbackTitle: "💡 Mentor-Feedback zu falschen Antworten:",
       yourAnswer: "Deine Antwort:",
       correctAnswer: "Richtige Antwort:",
+      resetConfirm: "Alle Fortschritte und Namen wirklich löschen? Dies startet den Kurs komplett neu.",
       final: {
         repeat: ["Wiederholen ❌", "Bleib dran. Jeder, der durchhält, meistert die Prüfung am Ende."],
         bronze: ["Bronze 🥉", "Ein solider Anfang! Du bist auf dem richtigen Weg – dranbleiben lohnt sich."],
@@ -33,9 +35,11 @@ document.addEventListener("DOMContentLoaded", () => {
       repeats: "Repeats",
       nextExam: "Continue to Exam ➜",
       nextCourse: n => `Continue to Course ${n} ➜`,
+      reset: "🔄 Reset",
       feedbackTitle: "💡 Mentor feedback on incorrect answers:",
       yourAnswer: "Your answer:",
       correctAnswer: "Correct answer:",
+      resetConfirm: "Really delete all progress and names? This will fully restart the course.",
       final: {
         repeat: ["Repeat ❌", "Keep going. Everyone who perseveres will master the exam in the end."],
         bronze: ["Bronze 🥉", "A solid start! You’re on the right path – stay consistent."],
@@ -113,7 +117,10 @@ document.addEventListener("DOMContentLoaded", () => {
     <p><strong>${text.status}</strong> ${finalStatus}</p>
     <p class="mentor-tone">🧭 ${mentorTone}</p>
     ${mentorFeedback}
-    <button id="nextBtn">${text.nextExam}</button>
+    <div class="button-row">
+      <button id="nextBtn">${text.nextExam}</button>
+      <button id="resetBtn">${text.reset}</button>
+    </div>
   `;
   document.body.appendChild(container);
 
@@ -150,12 +157,20 @@ document.addEventListener("DOMContentLoaded", () => {
     .right{color:#10b981;font-weight:500;}
     .mentor-tip{color:#d4af37;margin-top:.3rem;}
     hr{border:none;border-top:1px solid rgba(212,175,55,0.2);margin:.8rem 0;}
+    .button-row{display:flex;justify-content:center;gap:1rem;margin-top:2rem;}
     #nextBtn{
-      margin-top:2rem;background:linear-gradient(90deg,#3b82f6,#d4af37);
+      background:linear-gradient(90deg,#3b82f6,#d4af37);
       color:white;border:none;border-radius:6px;padding:.8rem 1.6rem;
       font-weight:600;cursor:pointer;transition:opacity .3s ease;
     }
     #nextBtn:hover{opacity:.85;}
+    #resetBtn{
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.2);
+      color:#e5e7eb;border-radius:6px;padding:.8rem 1.6rem;
+      font-weight:500;cursor:pointer;transition:background .3s ease;
+    }
+    #resetBtn:hover{background:rgba(255,255,255,0.2);}
   `;
   document.head.appendChild(style);
 
@@ -174,6 +189,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const nextNumber = nextCourseIndex + 1;
     nextBtn.textContent = text.nextCourse(nextNumber);
     nextBtn.addEventListener("click", () => window.location.href = `grundkurs-${nextNumber}.html`);
+  }
+
+  // ░░ Reset-Funktion ░░
+  const resetBtn = document.getElementById("resetBtn");
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      const confirmReset = confirm(text.resetConfirm);
+      if (confirmReset) {
+        localStorage.clear();
+        window.location.href = "grundkurs-basis.html";
+      }
+    });
   }
 
   // ░░ Speicherung für Urkunde ░░
