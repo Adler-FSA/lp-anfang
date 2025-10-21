@@ -1,27 +1,13 @@
-// ░░ Baustein 05 – Gesamtauswertung / Qualification Summary (FSA v2.3.2, zweisprachig + Kursfortschritt + Reset + Namensübergabe) ░░
-// Lädt Punktestände, Wiederholungen & Mentor-Feedback aus localStorage (DSGVO-konform)
+// ░░ Baustein 05 – Gesamtauswertung / Qualification Summary (FSA v2.3.2) ░░
+// Fix: Weiter-Button geht auf den NÄCHSTEN Kurs der aktuellen Seite
+// Fix: Reset setzt auch alle Wiederholungszähler (repeats) auf 0
 
 document.addEventListener("DOMContentLoaded", () => {
   const lang = localStorage.getItem("fsa_lang") || "de";
+  const firstName = localStorage.getItem("fsa_firstName") || "";
+  const lastName  = localStorage.getItem("fsa_lastName")  || "";
+  const fullName  = `${firstName} ${lastName}`.trim() || (lang==="de" ? "Teilnehmer" : "Participant");
 
-  // ░░ Name sicher laden oder übernehmen ░░
-  let firstName = localStorage.getItem("fsa_firstName");
-  let lastName = localStorage.getItem("fsa_lastName");
-
-  // Falls leer: prüfe, ob Eingabefelder im DOM sind (z. B. direkt nach Reset)
-  const inputFirst = document.querySelector("#firstName");
-  const inputLast = document.querySelector("#lastName");
-
-  if ((!firstName || !lastName) && inputFirst && inputLast) {
-    firstName = inputFirst.value.trim();
-    lastName = inputLast.value.trim();
-    if (firstName) localStorage.setItem("fsa_firstName", firstName);
-    if (lastName) localStorage.setItem("fsa_lastName", lastName);
-  }
-
-  const fullName = `${firstName || ""} ${lastName || ""}`.trim() || (lang === "de" ? "Teilnehmer" : "Participant");
-
-  // ░░ Sprachpaket ░░
   const text = {
     de: {
       title: "🏁 Gesamtauswertung",
@@ -36,10 +22,10 @@ document.addEventListener("DOMContentLoaded", () => {
       correctAnswer: "Richtige Antwort:",
       resetConfirm: "Alle Fortschritte und Namen wirklich löschen? Dies startet den Kurs komplett neu.",
       final: {
-        repeat: ["Wiederholen ❌", "Bleib dran. Jeder, der durchhält, meistert die Prüfung am Ende."],
-        bronze: ["Bronze 🥉", "Ein solider Anfang! Du bist auf dem richtigen Weg – dranbleiben lohnt sich."],
-        silver: ["Silber 🥈", "Sehr gut! Dein Wissen wird stabil – du bist fast am Ziel."],
-        gold: ["Gold 🥇", "Exzellent! Du hast bewiesen, dass du das Prinzip wirklich verstanden hast."]
+        repeat: ["Wiederholen ❌","Bleib dran. Jeder, der durchhält, meistert die Prüfung am Ende."],
+        bronze: ["Bronze 🥉","Ein solider Anfang! Du bist auf dem richtigen Weg – dranbleiben lohnt sich."],
+        silver: ["Silber 🥈","Sehr gut! Dein Wissen wird stabil – du bist fast am Ziel."],
+        gold:   ["Gold 🥇","Exzellent! Du hast bewiesen, dass du das Prinzip wirklich verstanden hast."]
       }
     },
     en: {
@@ -55,60 +41,51 @@ document.addEventListener("DOMContentLoaded", () => {
       correctAnswer: "Correct answer:",
       resetConfirm: "Really delete all progress and names? This will fully restart the course.",
       final: {
-        repeat: ["Repeat ❌", "Keep going. Everyone who perseveres will master the exam in the end."],
-        bronze: ["Bronze 🥉", "A solid start! You’re on the right path – stay consistent."],
-        silver: ["Silver 🥈", "Very good! Your knowledge is becoming solid – you’re almost there."],
-        gold: ["Gold 🥇", "Excellent! You’ve shown you truly understand the principles."]
+        repeat: ["Repeat ❌","Keep going. Everyone who perseveres will master the exam in the end."],
+        bronze: ["Bronze 🥉","A solid start! You’re on the right path – stay consistent."],
+        silver: ["Silver 🥈","Very good! Your knowledge is becoming solid – you’re almost there."],
+        gold:   ["Gold 🥇","Excellent! You’ve shown you truly understand the principles."]
       }
     }
   }[lang];
 
-  // ░░ Kursdaten laden ░░
   const courses = [
-    { key: "course1", title: lang === "de" ? "Grundkurs 1" : "Basic Course 1" },
-    { key: "course2", title: lang === "de" ? "Grundkurs 2" : "Basic Course 2" },
-    { key: "course3", title: lang === "de" ? "Grundkurs 3" : "Basic Course 3" },
-    { key: "course4", title: lang === "de" ? "Grundkurs 4" : "Basic Course 4" }
+    { key:"course1", title: lang==="de"?"Grundkurs 1":"Basic Course 1" },
+    { key:"course2", title: lang==="de"?"Grundkurs 2":"Basic Course 2" },
+    { key:"course3", title: lang==="de"?"Grundkurs 3":"Basic Course 3" },
+    { key:"course4", title: lang==="de"?"Grundkurs 4":"Basic Course 4" }
   ];
 
-  let totalScore = 0;
-  let totalQuestions = 0;
+  // Punkte + Wiederholungen laden
+  let totalScore = 0, totalQuestions = 0;
   let summaryList = "";
-
   courses.forEach(c => {
-    const score = parseInt(localStorage.getItem(`fsa_${c.key}_score`) || "0");
-    const status = localStorage.getItem(`fsa_${c.key}_status`) || "—";
+    const score   = parseInt(localStorage.getItem(`fsa_${c.key}_score`)   || "0");
+    const status  = localStorage.getItem(`fsa_${c.key}_status`)           || "—";
     const repeats = parseInt(localStorage.getItem(`fsa_${c.key}_repeats`) || "0");
-    totalScore += score;
-    totalQuestions += 10;
-    summaryList += `
-      <li>
-        ${c.title}: <strong>${score}/10</strong> – ${status}
-        <span class="repeats">(${text.repeats}: ${repeats})</span>
-      </li>`;
+    totalScore += score; totalQuestions += 10;
+    summaryList += `<li>${c.title}: <strong>${score}/10</strong> – ${status} <span class="repeats">(${text.repeats}: ${repeats})</span></li>`;
   });
 
-  // ░░ Gesamtstatus berechnen ░░
-  const percentage = totalQuestions > 0 ? Math.round((totalScore / totalQuestions) * 100) : 0;
+  // Gesamtstatus
+  const percentage = totalQuestions ? Math.round((totalScore/totalQuestions)*100) : 0;
   let finalStatus, mentorTone;
-
   if (percentage < 60) [finalStatus, mentorTone] = text.final.repeat;
   else if (percentage < 75) [finalStatus, mentorTone] = text.final.bronze;
   else if (percentage < 90) [finalStatus, mentorTone] = text.final.silver;
   else [finalStatus, mentorTone] = text.final.gold;
 
-  // ░░ Mentor-Feedback ░░
+  // falsche Antworten (nur Course1 aktuell)
   const storedResults = JSON.parse(localStorage.getItem("fsa_course1_results") || "[]");
   let mentorFeedback = "";
-
-  if (storedResults.length > 0) {
+  if (storedResults.length) {
     const wrong = storedResults.filter(r => !r.isCorrect);
-    if (wrong.length > 0) {
+    if (wrong.length) {
       mentorFeedback += `<div class="mentor-feedback"><h3>${text.feedbackTitle}</h3>`;
-      wrong.forEach((r, i) => {
+      wrong.forEach((r,i) => {
         mentorFeedback += `
           <div class="mentor-item">
-            <p><strong>${lang === "de" ? "Frage" : "Question"} ${i + 1}:</strong> ${r.question}</p>
+            <p><strong>${lang==="de"?"Frage":"Question"} ${i+1}:</strong> ${r.question}</p>
             <p><span class="wrong">${text.yourAnswer}</span> ${r.chosenAnswer}</p>
             <p><span class="right">${text.correctAnswer}</span> ${r.correctAnswer}</p>
             <p class="mentor-tip">🧭 ${r.mentorTip}</p>
@@ -118,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ░░ DOM erzeugen ░░
+  // DOM
   const container = document.createElement("div");
   container.className = "summary-container";
   container.innerHTML = `
@@ -138,83 +115,64 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
   document.body.appendChild(container);
 
-  // ░░ Stil ░░
+  // Stil
   const style = document.createElement("style");
   style.textContent = `
-    .summary-container {
-      margin: 2cm auto;
-      max-width: 900px;
-      padding: 2rem;
-      background: rgba(15,20,30,0.85);
-      border: 1px solid rgba(212,175,55,0.4);
-      border-radius: 16px;
-      box-shadow: 0 0 25px rgba(212,175,55,0.15);
-      color: #e5e7eb;
-      font-family: system-ui, sans-serif;
-      text-align: center;
-    }
-    .summary-container h1 { color:#d4af37;margin-bottom:.5rem;font-size:1.6rem;letter-spacing:.05em; }
-    .summary-container h2 { color:#fff;margin-bottom:.8rem;font-size:1.3rem; }
-    .username { color:#9ca3af;margin-bottom:1rem; }
-    .progress-bar {
-      height:8px;background:rgba(255,255,255,0.1);border-radius:4px;
-      margin:1rem auto 1.5rem;overflow:hidden;max-width:400px;
-    }
-    .progress {height:100%;background:linear-gradient(90deg,#3b82f6,#d4af37);transition:width .5s ease;}
-    ul{text-align:left;display:inline-block;margin:0 auto 1rem;padding:0;list-style:none;}
-    ul li{margin:.4rem 0;color:#d1d5db;}
-    ul li .repeats{color:#9ca3af;font-size:.9rem;margin-left:.3rem;}
-    .mentor-tone{margin-top:1rem;color:#d4af37;font-style:italic;}
-    .mentor-feedback{margin-top:1.5rem;text-align:left;}
-    .mentor-item{margin-bottom:1rem;}
-    .wrong{color:#ef4444;font-weight:600;}
-    .right{color:#10b981;font-weight:500;}
-    .mentor-tip{color:#d4af37;margin-top:.3rem;}
-    hr{border:none;border-top:1px solid rgba(212,175,55,0.2);margin:.8rem 0;}
-    .button-row{display:flex;justify-content:center;gap:1rem;margin-top:2rem;}
-    #nextBtn{
-      background:linear-gradient(90deg,#3b82f6,#d4af37);
-      color:white;border:none;border-radius:6px;padding:.8rem 1.6rem;
-      font-weight:600;cursor:pointer;transition:opacity .3s ease;
-    }
-    #nextBtn:hover{opacity:.85;}
-    #resetBtn{
-      background:rgba(255,255,255,0.08);
-      border:1px solid rgba(255,255,255,0.2);
-      color:#e5e7eb;border-radius:6px;padding:.8rem 1.6rem;
-      font-weight:500;cursor:pointer;transition:background .3s ease;
-    }
-    #resetBtn:hover{background:rgba(255,255,255,0.2);}
+    .summary-container{margin:2cm auto;max-width:900px;padding:2rem;background:rgba(15,20,30,.85);
+      border:1px solid rgba(212,175,55,.4);border-radius:16px;box-shadow:0 0 25px rgba(212,175,55,.15);
+      color:#e5e7eb;font-family:system-ui,sans-serif;text-align:center}
+    .summary-container h1{color:#d4af37;margin-bottom:.5rem;font-size:1.6rem;letter-spacing:.05em}
+    .summary-container h2{color:#fff;margin-bottom:.8rem;font-size:1.3rem}
+    .username{color:#9ca3af;margin-bottom:1rem}
+    .progress-bar{height:8px;background:rgba(255,255,255,.1);border-radius:4px;margin:1rem auto 1.5rem;overflow:hidden;max-width:400px}
+    .progress{height:100%;background:linear-gradient(90deg,#3b82f6,#d4af37);transition:width .5s ease}
+    ul{text-align:left;display:inline-block;margin:0 auto 1rem;padding:0;list-style:none}
+    ul li{margin:.4rem 0;color:#d1d5db}
+    ul li .repeats{color:#9ca3af;font-size:.9rem;margin-left:.3rem}
+    .mentor-tone{margin-top:1rem;color:#d4af37;font-style:italic}
+    .mentor-feedback{margin-top:1.5rem;text-align:left}
+    .mentor-item{margin-bottom:1rem}.wrong{color:#ef4444;font-weight:600}.right{color:#10b981;font-weight:500}
+    .mentor-tip{color:#d4af37;margin-top:.3rem}hr{border:none;border-top:1px solid rgba(212,175,55,.2);margin:.8rem 0}
+    .button-row{display:flex;justify-content:center;gap:1rem;margin-top:2rem}
+    #nextBtn{background:linear-gradient(90deg,#3b82f6,#d4af37);color:white;border:none;border-radius:6px;padding:.8rem 1.6rem;font-weight:600;cursor:pointer;transition:opacity .3s ease}
+    #nextBtn:hover{opacity:.85}
+    #resetBtn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#e5e7eb;border-radius:6px;padding:.8rem 1.6rem;font-weight:500;cursor:pointer;transition:background .3s ease}
+    #resetBtn:hover{background:rgba(255,255,255,.2)}
   `;
   document.head.appendChild(style);
 
-  // ░░ Weiterleitungslogik ░░
+  // ► Weiterleitungslogik
+  function getCurrentCourseIndex() {
+    const path = (location.pathname || "").toLowerCase();
+    if (path.includes("grundkurs-basis")) return 1;
+    const m = path.match(/grundkurs-(\d+)/);
+    return m ? Math.max(1, Math.min(4, parseInt(m[1],10))) : 1;
+  }
+  const current = getCurrentCourseIndex();
   const nextBtn = document.getElementById("nextBtn");
-  let nextCourseIndex = courses.findIndex(c =>
-    parseInt(localStorage.getItem(`fsa_${c.key}_score`) || "0") < 10
-  );
 
-  if (nextCourseIndex === -1) {
-    nextBtn.textContent = text.nextExam;
-    nextBtn.addEventListener("click", () => window.location.href = "pruefung.html");
-  } else {
-    const nextNumber = nextCourseIndex + 1;
+  if (current < 4) {
+    const nextNumber = current + 1;
     nextBtn.textContent = text.nextCourse(nextNumber);
     nextBtn.addEventListener("click", () => window.location.href = `grundkurs-${nextNumber}.html`);
+  } else {
+    nextBtn.textContent = text.nextExam;
+    nextBtn.addEventListener("click", () => window.location.href = "pruefung.html");
   }
 
-  // ░░ Reset-Funktion ░░
-  const resetBtn = document.getElementById("resetBtn");
-  if (resetBtn) {
-    resetBtn.addEventListener("click", () => {
-      const confirmReset = confirm(text.resetConfirm);
-      if (confirmReset) {
-        localStorage.clear();
-        window.location.href = "grundkurs-basis.html";
-      }
-    });
-  }
+  // ► Reset
+  document.getElementById("resetBtn")?.addEventListener("click", () => {
+    if (!confirm(text.resetConfirm)) return;
+    ["firstName","lastName"].forEach(n => localStorage.removeItem(`fsa_${n}`));
+    for (let i=1;i<=4;i++){
+      localStorage.removeItem(`fsa_course${i}_score`);
+      localStorage.removeItem(`fsa_course${i}_status`);
+      localStorage.removeItem(`fsa_course${i}_results`);
+      localStorage.removeItem(`fsa_course${i}_repeats`);
+    }
+    localStorage.removeItem("fsa_finalStatus");
+    window.location.href = "grundkurs-basis.html";
+  });
 
-  // ░░ Speicherung für Urkunde ░░
   localStorage.setItem("fsa_finalStatus", finalStatus);
 });
