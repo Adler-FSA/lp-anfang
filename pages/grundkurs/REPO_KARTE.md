@@ -371,6 +371,7 @@
     ├── campus.html
     ├── config.json
     ├── grundkurs-basis.html
+    ├── grundkurs-pruefung-vorbereitung.html
     ├── grundkurs.html
     ├── index.html
     ├── krypto-test.html
@@ -378,4 +379,4 @@
     ├── master.css
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.10.2025, 22:31)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.10.2025, 23:30)_
