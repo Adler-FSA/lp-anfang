@@ -1,37 +1,48 @@
 // Baustein 02 – Nameingabe & lokale Speicherung (DE/EN)
-// DSGVO-konform: speichert nur lokal im Browser, keine Serverübertragung
+// DSGVO-konform: nur LocalStorage, keine Serverübertragung
 
 const block02_userdata = {
   de: {
-    labelFirst: "Vorname",
-    labelLast: "Nachname",
-    buttonStart: "Kurs starten",
-    placeholder: "Bitte trage deinen Namen ein, damit dein Mentor dich persönlich ansprechen kann."
+    firstPH: "Vorname",
+    lastPH:  "Nachname",
+    button:  "Kurs starten",
+    help:    "Bitte trage deinen Namen ein, damit dein Mentor dich persönlich ansprechen kann."
   },
   en: {
-    labelFirst: "First name",
-    labelLast: "Last name",
-    buttonStart: "Start course",
-    placeholder: "Please enter your name so your mentor can address you personally."
+    firstPH: "First name",
+    lastPH:  "Last name",
+    button:  "Start course",
+    help:    "Please enter your name so your mentor can address you personally."
   }
 };
 
-// Logik für lokale Speicherung und Wiederherstellung
 document.addEventListener("DOMContentLoaded", () => {
+  const lang = localStorage.getItem("fsa_lang") || "de";
+  const t = block02_userdata[lang] || block02_userdata.de;
+
   const first = document.getElementById("firstName");
-  const last = document.getElementById("lastName");
-  const form = document.getElementById("nameForm");
+  const last  = document.getElementById("lastName");
+  const form  = document.getElementById("nameForm");
+  const btn   = form?.querySelector("button");
+  // Hilfetext: Absatz direkt NACH dem Formular in derselben Section
+  const helpP = form?.parentElement?.querySelector("#nameForm ~ p");
 
-  // Vorhandene Daten laden (falls schon gespeichert)
+  // UI-Texte anwenden
+  if (first) first.placeholder = t.firstPH;
+  if (last)  last.placeholder  = t.lastPH;
+  if (btn)   btn.textContent   = t.button;
+  if (helpP) helpP.textContent = t.help;
+
+  // vorhandene Werte wiederherstellen
   const savedFirst = localStorage.getItem("fsa_firstName");
-  const savedLast = localStorage.getItem("fsa_lastName");
+  const savedLast  = localStorage.getItem("fsa_lastName");
   if (savedFirst) first.value = savedFirst;
-  if (savedLast) last.value = savedLast;
+  if (savedLast)  last.value  = savedLast;
 
-  // Beim Absenden speichern
-  form.addEventListener("submit", (e) => {
+  // beim Absenden speichern
+  form?.addEventListener("submit", (e) => {
     e.preventDefault();
-    localStorage.setItem("fsa_firstName", first.value.trim());
-    localStorage.setItem("fsa_lastName", last.value.trim());
+    localStorage.setItem("fsa_firstName", (first.value || "").trim());
+    localStorage.setItem("fsa_lastName",  (last.value  || "").trim());
   });
 });
