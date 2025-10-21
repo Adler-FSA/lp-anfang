@@ -123,6 +123,7 @@
     │   │   ├── menu.js
     │   │   ├── music-button.js
     │   │   ├── office-menu.js
+    │   │   ├── template-loader.js
     │   │   └── template.js
     │   ├── music/
     │   │   ├── pool/
@@ -377,4 +378,4 @@
     ├── master.css
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.10.2025, 21:29)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.10.2025, 22:31)_
