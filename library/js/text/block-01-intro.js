@@ -24,8 +24,8 @@ function renderIntro(lang = "de") {
   if (!section) return;
 
   section.className = "card intro-block";
-  section.style.marginTop = "3cm";     // Abstand nach oben
-  section.style.marginBottom = "1.5cm"; // Abstand nach unten
+  section.style.marginTop = "4.2cm";     // Abstand unter Menü + Buttons
+  section.style.marginBottom = "1.5cm";  // Abstand zum nächsten Block
 
   section.innerHTML = `
     <h1 style="
