@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // === Musikdateien definieren ===
   const tracks = [
     "/lp-anfang/library/music/pool/track-01.mp3",
     "/lp-anfang/library/music/pool/track-02.mp3",
@@ -9,26 +8,22 @@ document.addEventListener("DOMContentLoaded", () => {
     "/lp-anfang/library/music/pool/track-06.mp3"
   ];
 
-  // === Audio-Objekt vorbereiten ===
   let audio = new Audio();
   audio.volume = 0.5;
   let isPlaying = false;
 
-  // === Zufalls-Track wählen ===
   function playRandomTrack() {
     const random = Math.floor(Math.random() * tracks.length);
     audio.src = tracks[random];
     audio.play();
   }
 
-  // === Button erzeugen ===
   const btn = document.createElement("button");
   btn.id = "musicToggle";
   btn.innerHTML = "🎵 Musik an";
   btn.title = "Musik an/aus";
   document.body.appendChild(btn);
 
-  // === Klick-Logik ===
   btn.addEventListener("click", () => {
     if (!isPlaying) {
       playRandomTrack();
@@ -43,30 +38,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // === Automatisch nächster Track nach Ende ===
   audio.addEventListener("ended", () => {
     if (isPlaying) playRandomTrack();
   });
 
-  // === Stil ===
   const style = document.createElement("style");
   style.textContent = `
     #musicToggle {
       position: fixed;
-      top: 105px;       /* tiefer unter Hauptmenü gesetzt */
+      top: 20px;          /* exakt gleiche Höhe wie Sprachumschalter */
       right: 20px;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.65);
       color: #d4af37;
       border: 1px solid rgba(212,175,55,0.5);
       border-radius: 6px;
-      padding: 0.6rem 1.2rem;
-      font-size: 0.95rem;
+      padding: 0.45rem 1rem;
+      font-size: 0.9rem;
       cursor: pointer;
       transition: all 0.3s ease;
       z-index: 9999;
     }
     #musicToggle:hover {
-      background: rgba(212,175,55,0.1);
+      background: rgba(212,175,55,0.15);
       text-shadow: 0 0 6px rgba(212,175,55,0.8);
     }
     #musicToggle.active {
