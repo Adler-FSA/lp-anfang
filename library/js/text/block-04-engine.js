@@ -1,17 +1,15 @@
-// ░░ Baustein 04 – Engine / Kursauswertung & Fortschrittsspeicher (v2.3.7) ░░
-// Fix: Wiederholungszähler erhöht sich nur bei manuellem Abschluss (Klick)
-// Fix: Kein Zählen bei Reload, automatischem Laden oder leerem Ergebnis
-// Fix: Fortschritt & Mentor-Kommentar stabil bei Mehrfachansicht
+// ░░ Baustein 04 – Engine / Kursauswertung & Fortschrittsspeicher (v2.3.6) ░░
+// Fix: Wiederholungszähler nur bei echtem Abschluss (Button / manuelles Auslösen)
+// Fix: Kein Zähl-Trigger bei Reload, Seitenstart oder Fremdaufrufen
 
-let fsa_manualFinish = false; // globale Schutzvariable (nur true bei aktivem Abschluss)
-
-function showResult(triggeredByUser = false) {
-  // Nur reagieren, wenn durch Benutzer-Aktion UND aktiv gesetztes Flag
-  if (!triggeredByUser || !fsa_manualFinish) {
-    console.log("🛑 showResult blockiert – kein manueller Abschluss erkannt.");
+function showResult(triggeredByUser) {
+  // Nur weiter, wenn ausdrücklich true übergeben wurde
+  if (triggeredByUser !== true) {
+    console.log("🧩 showResult() abgebrochen – kein Benutzertrigger erkannt.");
     return;
   }
 
+  // ░░ Grunddaten ░░
   const score = typeof correctCount === "number" ? correctCount : 0;
   const firstName = localStorage.getItem("fsa_firstName") || "";
   const lastName  = localStorage.getItem("fsa_lastName")  || "";
@@ -41,45 +39,46 @@ function showResult(triggeredByUser = false) {
       : "Outstanding! You’ve internalized the core principles. This clarity is the true strength of financial freedom.";
   }
 
-  // ░░ Fortschritt speichern (nur bei aktivem Abschluss) ░░
+  // ░░ Fortschritt speichern (nur bei manuellem Abschluss) ░░
   function saveCourseProgress(courseKey, score, status) {
-    if (score <= 0 && !status) return; // nichts speichern ohne echtes Ergebnis
+    if (score <= 0 && !status) return; // Nichts speichern ohne Ergebnis
 
     localStorage.setItem(`fsa_${courseKey}_score`, score);
     localStorage.setItem(`fsa_${courseKey}_status`, status);
 
-    // Wiederholungszähler nur bei manuellem Abschluss erhöhen
+    // Wiederholungszähler +1 nur bei echtem Abschluss
     const repeatKey = `fsa_${courseKey}_repeats`;
     let repeats = parseInt(localStorage.getItem(repeatKey) || "0");
     localStorage.setItem(repeatKey, repeats + 1);
 
-    // Abschluss aller vier Grundkurse prüfen
-    const allDone = ["course1","course2","course3","course4"].every(
+    // prüfen, ob alle 4 Kurse abgeschlossen
+    const allDone = ["course1", "course2", "course3", "course4"].every(
       key => localStorage.getItem(`fsa_${key}_status`)
     );
-    if (allDone) localStorage.setItem("fsa_allCoursesDone","true");
-    else localStorage.removeItem("fsa_allCoursesDone");
+    allDone
+      ? localStorage.setItem("fsa_allCoursesDone", "true")
+      : localStorage.removeItem("fsa_allCoursesDone");
   }
 
-  // ░░ Ergebnis sichern ░░
+  // ░░ Ergebnis & Status sichern ░░
   localStorage.setItem("fsa_lastScore", score);
   localStorage.setItem("fsa_lastStatus", status);
   saveCourseProgress("course1", score, status);
 
-  // ░░ Fortschrittsanzeige ░░
+  // ░░ Balkenberechnung ░░
   const percent = Math.round((score / totalQuestions) * 100);
   const color =
-    score <= 5 ? "#ef4444" :
-    score <= 7 ? "#cd7f32" :
-    score <= 9 ? "#93c5fd" : "#d4af37";
+    score <= 5 ? "#ef4444" : score <= 7 ? "#cd7f32" : score <= 9 ? "#93c5fd" : "#d4af37";
 
   const allDone = localStorage.getItem("fsa_allCoursesDone") === "true";
   const certificateNotice = allDone
     ? `<p style="color:#d4af37;font-weight:600;margin-top:1rem;">
-         🎓 ${lang==="de" ? "Alle Grundkurse abgeschlossen – Urkunde bereit." : "All basic courses completed – Certificate available."}
+         🎓 ${lang==="de"
+            ?"Alle Grundkurse abgeschlossen – Urkunde bereit."
+            :"All basic courses completed – Certificate available."}
        </p>` : "";
 
-  // ░░ Ausgabe-Panel ░░
+  // ░░ Anzeige ░░
   container.innerHTML = `
     <div style="background:rgba(17,24,39,0.8);border:1px solid ${color};
       border-radius:12px;padding:2rem;text-align:center;
@@ -89,13 +88,13 @@ function showResult(triggeredByUser = false) {
         ${lang==="de"?"Auswertung für":"Evaluation for"} <strong>${fullName}</strong>
       </p>` : ""}
       ${renderStats()}
-      <div style="margin:1rem auto 1.4rem;width:80%;background:#1e293b;border-radius:8px;height:16px;overflow:hidden;">
+      <div style="margin:1rem auto 1.4rem auto;width:80%;background:#1e293b;border-radius:8px;height:16px;overflow:hidden;">
         <div style="width:${percent}%;height:100%;background:${color};transition:width 1s ease;"></div>
       </div>
       <p style="margin-bottom:0.8rem;">
         ${lang==="de"
-          ? `Du hast <strong>${score}</strong> von <strong>${totalQuestions}</strong> Fragen richtig beantwortet.`
-          : `You answered <strong>${score}</strong> out of <strong>${totalQuestions}</strong> questions correctly.`}
+          ?`Du hast <strong>${score}</strong> von <strong>${totalQuestions}</strong> Fragen richtig beantwortet.`
+          :`You answered <strong>${score}</strong> out of <strong>${totalQuestions}</strong> questions correctly.`}
       </p>
       <p style="margin-bottom:1rem;">${t.status}: <strong style="color:${color};">${status}</strong></p>
       <blockquote style="font-style:italic;color:#e5e7eb;background:rgba(255,255,255,0.05);
@@ -108,21 +107,13 @@ function showResult(triggeredByUser = false) {
         cursor:pointer;transition:all 0.3s ease;">${t.restart}</button>
     </div>`;
 
+  // ░░ Neustart (manuell) ░░
   document.getElementById("restartBtn")
     ?.addEventListener("click", () => location.reload());
 }
 
-// ░░ Schutzlogik: Flag nur bei echten Klicks setzen ░░
+// ░░ Schutz vor Fremd-Triggern ░░
 window.addEventListener("DOMContentLoaded", () => {
-  const submitBtn = document.querySelector("#submitQuiz");
-  const nextBtn = document.querySelector("#nextQuestion");
-
-  [submitBtn, nextBtn].forEach(btn => {
-    btn?.addEventListener("click", () => {
-      fsa_manualFinish = true; // manuell aktiviert
-      console.log("🟢 manueller Abschluss erkannt");
-    });
-  });
-
-  console.log("✅ Engine v2.3.7 geladen – Reload-Zähler gestoppt.");
+  window.showResult = showResult; // globale Referenz, aber ohne Autostart
+  console.log("✅ Engine v2.3.6 aktiv – reagiert nur auf showResult(true).");
 });
