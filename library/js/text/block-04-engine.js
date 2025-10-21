@@ -1,7 +1,7 @@
 // ░░ Baustein 04 – Engine / Kursauswertung & Fortschrittsspeicher ░░
-// Neu: Button-Aktion reagiert klar auf Status (Wiederholen / Bronze / Silber / Gold)
+// Neu: Button reagiert dynamisch (Wiederholen / Bronze / Silber / Gold)
+// Neu: Gold überträgt "bestanden" ins Board (Qualifikationsstatus = true)
 // Fix: Wiederholungszähler nur bei echtem Abschluss (Button / manuelles Auslösen)
-// Fix: Kein Zähl-Trigger bei Reload, Seitenstart oder Fremdaufrufen
 
 function showResult(triggeredByUser) {
   if (triggeredByUser !== true) {
@@ -45,22 +45,29 @@ function showResult(triggeredByUser) {
     localStorage.setItem(`fsa_${courseKey}_score`, score);
     localStorage.setItem(`fsa_${courseKey}_status`, status);
 
+    // Wiederholungszähler nur bei tatsächlichem Durchlauf
     const repeatKey = `fsa_${courseKey}_repeats`;
     let repeats = parseInt(localStorage.getItem(repeatKey) || "0");
     localStorage.setItem(repeatKey, repeats + 1);
 
+    // globaler Kursabschluss prüfen
     const allDone = ["course1", "course2", "course3", "course4"].every(
       key => localStorage.getItem(`fsa_${key}_status`)
     );
-    allDone
-      ? localStorage.setItem("fsa_allCoursesDone", "true")
-      : localStorage.removeItem("fsa_allCoursesDone");
+    if (allDone) localStorage.setItem("fsa_allCoursesDone", "true");
+    else localStorage.removeItem("fsa_allCoursesDone");
   }
 
   // ░░ Ergebnis sichern ░░
   localStorage.setItem("fsa_lastScore", score);
   localStorage.setItem("fsa_lastStatus", status);
   saveCourseProgress("course1", score, status);
+
+  // Wenn Gold → Qualifikationsstatus auf „bestanden“
+  if (status.includes("Gold")) {
+    localStorage.setItem("fsa_course1_passed", "true");
+    localStorage.setItem("fsa_qualificationStatus", "bestanden");
+  }
 
   // ░░ Balkenfarbe ░░
   const percent = Math.round((score / totalQuestions) * 100);
@@ -73,9 +80,11 @@ function showResult(triggeredByUser) {
   const normalizedStatus = status.toLowerCase().replace(/[^a-z]/g, "");
 
   if (normalizedStatus.includes("gold")) {
-    buttonLabel = lang === "de" ? "Weiter zu Grundkurs 2 →" : "Continue to Course 2 →";
+    buttonLabel = lang === "de" ? "Kurs abschließen →" : "Complete course →";
     buttonAction = () => {
-      console.log("🎯 Kurs 1 abgeschlossen – Weiterleitung zu Kurs 2");
+      console.log("🎯 Kurs 1 abgeschlossen – Status übertragen & Weiterleitung");
+      // Fortschritt übernehmen
+      localStorage.setItem("fsa_course1_completed", "true");
       window.location.href = "grundkurs-2.html?nocache=" + Date.now();
     };
   } else {
@@ -113,12 +122,11 @@ function showResult(triggeredByUser) {
     </div>`;
 
   // ░░ Button-Aktion aktivieren ░░
-  document.getElementById("courseActionBtn")
-    ?.addEventListener("click", buttonAction);
+  document.getElementById("courseActionBtn")?.addEventListener("click", buttonAction);
 }
 
 // ░░ Schutz ░░
 window.addEventListener("DOMContentLoaded", () => {
   window.showResult = showResult;
-  console.log("✅ Engine aktiv – Kursabschluss-Button reagiert dynamisch auf Status.");
+  console.log("✅ Engine aktiv – Gold setzt Abschluss & Weiterleitungsbutton.");
 });
