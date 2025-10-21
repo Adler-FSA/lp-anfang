@@ -1,11 +1,11 @@
-// library/js/lang-switcher.js
+// ░░ Sprachumschalter – FSA Style (responsive, Menülinie, Gold-Glow) ░░
 document.addEventListener("DOMContentLoaded", () => {
   const langs = [
     { code: "de", flag: "🇩🇪", label: "Deutsch" },
     { code: "en", flag: "🇬🇧", label: "English" }
   ];
 
-  // ----- Migration: fsaLang -> fsa_lang -----
+  // Migration alter Keys
   const oldKey = localStorage.getItem("fsaLang");
   const newKey = localStorage.getItem("fsa_lang");
   if (!newKey && oldKey) {
@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.removeItem("fsaLang");
   }
 
-  // aktueller Wert (Standard: de)
+  // Aktuelle Sprache (Default: de)
   let currentLang = localStorage.getItem("fsa_lang") || "de";
 
   // Container
@@ -23,9 +23,8 @@ document.addEventListener("DOMContentLoaded", () => {
   langs.forEach(lang => {
     const btn = document.createElement("button");
     btn.className = "lang-btn";
-    btn.innerHTML = `${lang.flag}`;
+    btn.innerHTML = lang.flag;
     btn.title = lang.label;
-
     if (lang.code === currentLang) btn.classList.add("active");
 
     btn.addEventListener("click", () => {
@@ -46,33 +45,52 @@ document.addEventListener("DOMContentLoaded", () => {
   style.textContent = `
     #langSwitcher {
       position: fixed;
-      top: 20px;            /* exakt gleiche Linie wie Musik-Button */
-      left: 20px;
+      top: 10px;
+      left: 10px;
       display: flex;
       gap: 8px;
-      align-items: center;  /* vertikal ausbalanciert */
-      z-index: 9999;
+      z-index: 1100;
+      background: rgba(0,0,0,0.35);
+      padding: 0.3rem 0.4rem;
+      border-radius: 8px;
+      border: 1px solid rgba(212,175,55,0.35);
+      backdrop-filter: blur(5px);
     }
+
     .lang-btn {
       font-size: 1.1rem;
-      border: 1px solid rgba(212,175,55,0.5);
+      border: 1px solid rgba(212,175,55,0.35);
       border-radius: 6px;
-      background: rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.08);
       color: #fff;
       cursor: pointer;
-      padding: 0.4rem 0.6rem;
+      padding: 0.35rem 0.55rem;
       transition: all 0.3s ease;
-      box-shadow: 0 0 4px rgba(212,175,55,0.4);
     }
+
     .lang-btn:hover {
-      background: rgba(212,175,55,0.25);
-      border-color: rgba(212,175,55,0.8);
+      background: rgba(212,175,55,0.2);
+      border-color: rgba(212,175,55,0.6);
       text-shadow: 0 0 6px rgba(212,175,55,0.6);
     }
+
     .lang-btn.active {
-      background: rgba(212,175,55,0.4);
-      border-color: rgba(212,175,55,0.9);
-      box-shadow: 0 0 8px rgba(212,175,55,0.8);
+      background: rgba(212,175,55,0.35);
+      border-color: rgba(212,175,55,0.8);
+      box-shadow: 0 0 6px rgba(212,175,55,0.7);
+    }
+
+    /* 🔸 Responsiv: verschiebt sich bei kleinen Geräten */
+    @media (max-width: 720px) {
+      #langSwitcher {
+        top: auto;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        justify-content: center;
+        padding: 0.4rem 0.6rem;
+        border-radius: 10px;
+      }
     }
   `;
   document.head.appendChild(style);
