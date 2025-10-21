@@ -8,10 +8,9 @@ window.addEventListener("load", () => {
   const style = document.createElement("style");
   style.textContent = `
     #backHome {
-      position: fixed;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%);
+      display: block;
+      width: fit-content;
+      margin: 2rem auto;
       text-decoration: none;
       color: #d4af37;
       border: 1px solid rgba(212,175,55,0.5);
@@ -22,7 +21,6 @@ window.addEventListener("load", () => {
       font-size: 1rem;
       transition: all 0.3s ease;
       box-shadow: 0 0 8px rgba(212,175,55,0.3);
-      z-index: 9999;
     }
     #backHome:hover {
       color: #fff;
