@@ -1,4 +1,7 @@
-// === Ergebnis anzeigen (edles Panel mit Mentor-Kommentar, Namen & Kursfortschritt) ===
+// ░░ Baustein 04 – Engine / Kursauswertung & Fortschrittsspeicher (v2.3.3) ░░
+// Fix: Wiederholungszähler wird nur nach Abschluss erhöht, nicht bei Reload
+// Fix: Fortschritt & Mentor-Kommentar stabil bei mehrfacher Ansicht
+
 function showResult() {
   const score = correctCount;
   const firstName = localStorage.getItem("fsa_firstName") || "";
@@ -39,6 +42,14 @@ function showResult() {
     localStorage.setItem(`fsa_${courseKey}_score`, score);
     localStorage.setItem(`fsa_${courseKey}_status`, status);
 
+    // Wiederholungszähler nur erhöhen, wenn Kurs wirklich abgeschlossen wurde
+    if (score > 0 || status) {
+      const repeatKey = `fsa_${courseKey}_repeats`;
+      let repeats = parseInt(localStorage.getItem(repeatKey) || "0");
+      localStorage.setItem(repeatKey, repeats + 1);
+    }
+
+    // Prüfen, ob alle 4 Grundkurse fertig sind
     const allDone = ["course1", "course2", "course3", "course4"].every(
       key => localStorage.getItem(`fsa_${key}_status`)
     );
