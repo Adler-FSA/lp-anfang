@@ -1,4 +1,4 @@
-// Baustein 02 – Nameingabe & lokale Speicherung (DE/EN)
+// ░░ Baustein 02 – Nameingabe & lokale Speicherung (DE/EN + Erfolgshinweis) ░░
 // DSGVO-konform: nur LocalStorage, keine Serverübertragung
 
 const block02_userdata = {
@@ -6,13 +6,15 @@ const block02_userdata = {
     firstPH: "Vorname",
     lastPH:  "Nachname",
     button:  "Kurs starten",
-    help:    "Bitte trage deinen Namen ein, damit dein Mentor dich persönlich ansprechen kann."
+    help:    "Bitte trage deinen Namen ein, damit dein Mentor dich persönlich ansprechen kann.",
+    saved:   "✅ Name wurde gespeichert."
   },
   en: {
     firstPH: "First name",
     lastPH:  "Last name",
     button:  "Start course",
-    help:    "Please enter your name so your mentor can address you personally."
+    help:    "Please enter your name so your mentor can address you personally.",
+    saved:   "✅ Name saved."
   }
 };
 
@@ -24,7 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const last  = document.getElementById("lastName");
   const form  = document.getElementById("nameForm");
   const btn   = form?.querySelector("button");
-  // Hilfetext: Absatz direkt NACH dem Formular in derselben Section
   const helpP = form?.parentElement?.querySelector("#nameForm ~ p");
 
   // UI-Texte anwenden
@@ -39,10 +40,35 @@ document.addEventListener("DOMContentLoaded", () => {
   if (savedFirst) first.value = savedFirst;
   if (savedLast)  last.value  = savedLast;
 
-  // beim Absenden speichern
+  // beim Absenden speichern + Erfolgshinweis
   form?.addEventListener("submit", (e) => {
     e.preventDefault();
-    localStorage.setItem("fsa_firstName", (first.value || "").trim());
-    localStorage.setItem("fsa_lastName",  (last.value  || "").trim());
+    const f = (first.value || "").trim();
+    const l = (last.value || "").trim();
+
+    if (!f || !l) return; // nichts speichern, wenn leer
+
+    localStorage.setItem("fsa_firstName", f);
+    localStorage.setItem("fsa_lastName",  l);
+
+    // visueller Hinweis unterhalb des Formulars
+    const hint = document.createElement("div");
+    hint.textContent = `${t.saved}`;
+    hint.className = "save-hint";
+    form.appendChild(hint);
+    setTimeout(() => hint.remove(), 3000);
   });
+
+  // Stil für Erfolgshinweis
+  const style = document.createElement("style");
+  style.textContent = `
+    .save-hint {
+      margin-top: .6rem;
+      color: #10b981;
+      font-size: .95rem;
+      font-weight: 500;
+      transition: opacity .3s ease;
+    }
+  `;
+  document.head.appendChild(style);
 });
