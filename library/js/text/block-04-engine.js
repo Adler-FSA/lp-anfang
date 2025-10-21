@@ -1,11 +1,15 @@
-// ░░ Baustein 04 – Engine / Kursauswertung & Fortschrittsspeicher (v2.3.5) ░░
-// Fix: Wiederholungszähler nur bei manuellem Abschluss, kein Auto-Trigger durch Reload
-// Fix: Fortschritt, Name & Mentor-Kommentar stabil über mehrere Sitzungen hinweg
+// ░░ Baustein 04 – Engine / Kursauswertung & Fortschrittsspeicher (v2.3.6) ░░
+// Fix: Wiederholungszähler nur bei echtem Abschluss (Button / manuelles Auslösen)
+// Fix: Kein Zähl-Trigger bei Reload, Seitenstart oder Fremdaufrufen
 
-function showResult(triggeredByUser = false) {
-  // Nur reagieren, wenn vom Benutzer ausgelöst (z. B. Button „Auswerten“)
-  if (!triggeredByUser) return;
+function showResult(triggeredByUser) {
+  // Nur weiter, wenn ausdrücklich true übergeben wurde
+  if (triggeredByUser !== true) {
+    console.log("🧩 showResult() abgebrochen – kein Benutzertrigger erkannt.");
+    return;
+  }
 
+  // ░░ Grunddaten ░░
   const score = typeof correctCount === "number" ? correctCount : 0;
   const firstName = localStorage.getItem("fsa_firstName") || "";
   const lastName  = localStorage.getItem("fsa_lastName")  || "";
@@ -35,24 +39,25 @@ function showResult(triggeredByUser = false) {
       : "Outstanding! You’ve internalized the core principles. This clarity is the true strength of financial freedom.";
   }
 
-  // ░░ Fortschritt speichern (nur wenn wirklich abgeschlossen) ░░
+  // ░░ Fortschritt speichern (nur bei manuellem Abschluss) ░░
   function saveCourseProgress(courseKey, score, status) {
-    if (score <= 0 && !status) return; // keine Speicherung bei leerem Ergebnis
+    if (score <= 0 && !status) return; // Nichts speichern ohne Ergebnis
 
     localStorage.setItem(`fsa_${courseKey}_score`, score);
     localStorage.setItem(`fsa_${courseKey}_status`, status);
 
-    // Wiederholungen nur bei aktivem Abschluss
+    // Wiederholungszähler +1 nur bei echtem Abschluss
     const repeatKey = `fsa_${courseKey}_repeats`;
     let repeats = parseInt(localStorage.getItem(repeatKey) || "0");
     localStorage.setItem(repeatKey, repeats + 1);
 
-    // Alle vier Kurse abgeschlossen?
+    // prüfen, ob alle 4 Kurse abgeschlossen
     const allDone = ["course1", "course2", "course3", "course4"].every(
       key => localStorage.getItem(`fsa_${key}_status`)
     );
-    if (allDone) localStorage.setItem("fsa_allCoursesDone", "true");
-    else localStorage.removeItem("fsa_allCoursesDone");
+    allDone
+      ? localStorage.setItem("fsa_allCoursesDone", "true")
+      : localStorage.removeItem("fsa_allCoursesDone");
   }
 
   // ░░ Ergebnis & Status sichern ░░
@@ -60,7 +65,7 @@ function showResult(triggeredByUser = false) {
   localStorage.setItem("fsa_lastStatus", status);
   saveCourseProgress("course1", score, status);
 
-  // ░░ Fortschrittsanzeige ░░
+  // ░░ Balkenberechnung ░░
   const percent = Math.round((score / totalQuestions) * 100);
   const color =
     score <= 5 ? "#ef4444" : score <= 7 ? "#cd7f32" : score <= 9 ? "#93c5fd" : "#d4af37";
@@ -68,10 +73,12 @@ function showResult(triggeredByUser = false) {
   const allDone = localStorage.getItem("fsa_allCoursesDone") === "true";
   const certificateNotice = allDone
     ? `<p style="color:#d4af37;font-weight:600;margin-top:1rem;">
-         🎓 ${lang==="de"?"Alle Grundkurse abgeschlossen – Urkunde bereit.":"All basic courses completed – Certificate available."}
+         🎓 ${lang==="de"
+            ?"Alle Grundkurse abgeschlossen – Urkunde bereit."
+            :"All basic courses completed – Certificate available."}
        </p>` : "";
 
-  // ░░ Edles Auswertungspanel ░░
+  // ░░ Anzeige ░░
   container.innerHTML = `
     <div style="background:rgba(17,24,39,0.8);border:1px solid ${color};
       border-radius:12px;padding:2rem;text-align:center;
@@ -100,13 +107,13 @@ function showResult(triggeredByUser = false) {
         cursor:pointer;transition:all 0.3s ease;">${t.restart}</button>
     </div>`;
 
-  // ░░ Neustart nur manuell ░░
+  // ░░ Neustart (manuell) ░░
   document.getElementById("restartBtn")
     ?.addEventListener("click", () => location.reload());
 }
 
-// ░░ Sicherheitsnetz: showResult NIE automatisch aufrufen ░░
+// ░░ Schutz vor Fremd-Triggern ░░
 window.addEventListener("DOMContentLoaded", () => {
-  // kein automatischer Start!
-  console.log("✅ Engine v2.3.5 geladen – kein Auto-Trigger aktiv.");
+  window.showResult = showResult; // globale Referenz, aber ohne Autostart
+  console.log("✅ Engine v2.3.6 aktiv – reagiert nur auf showResult(true).");
 });
