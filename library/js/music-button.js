@@ -1,4 +1,4 @@
-// ░░ Musik-Button – FSA Style (responsive, Gold-Glow, Auto-Position) ░░
+// ░░ Musik-Button – FSA Style (integriert ins Menü, Gold-Glow, responsive) ░░
 document.addEventListener("DOMContentLoaded", () => {
   const tracks = [
     "/lp-anfang/library/music/pool/track-01.mp3",
@@ -19,12 +19,19 @@ document.addEventListener("DOMContentLoaded", () => {
     audio.play();
   }
 
+  // Button erzeugen
   const btn = document.createElement("button");
   btn.id = "musicToggle";
   btn.innerHTML = "🎵 Musik an";
   btn.title = "Musik an/aus";
-  document.body.appendChild(btn);
 
+  // 👉 gezielt im Menü einfügen (wenn Container vorhanden)
+  (document.getElementById("musicControl") ||
+   document.querySelector("#menu-helpers #musicControl") ||
+   document.getElementById("menu-helpers") ||
+   document.body).appendChild(btn);
+
+  // Interaktion
   btn.addEventListener("click", () => {
     if (!isPlaying) {
       playRandomTrack();
@@ -43,13 +50,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isPlaying) playRandomTrack();
   });
 
-  // Stil (passend zu Menü & Sprachumschalter)
+  // Stil (angepasst an Menü & Sprachumschalter)
   const style = document.createElement("style");
   style.textContent = `
     #musicToggle {
-      position: fixed;
-      top: 10px;
-      right: 10px;
       background: rgba(0,0,0,0.45);
       color: #d4af37;
       border: 1px solid rgba(212,175,55,0.35);
@@ -59,7 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
       font-family: system-ui, sans-serif;
       cursor: pointer;
       transition: all 0.3s ease;
-      z-index: 1100;
       backdrop-filter: blur(4px);
     }
 
@@ -77,15 +80,11 @@ document.addEventListener("DOMContentLoaded", () => {
       box-shadow: 0 0 6px rgba(212,175,55,0.5);
     }
 
-    /* 🔸 Responsiv: bei kleinen Displays nach unten zentrieren */
-    @media (max-width: 720px) {
+    /* 🔸 Mobil: Buttons stapeln sich automatisch nebeneinander */
+    @media (max-width: 420px) {
       #musicToggle {
-        top: auto;
-        bottom: 20px;
-        right: 50%;
-        transform: translateX(50%);
         font-size: 0.9rem;
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 0.9rem;
       }
     }
   `;
