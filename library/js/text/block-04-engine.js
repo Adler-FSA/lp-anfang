@@ -1,6 +1,6 @@
-// ░░ Baustein 04 – Engine / Kursauswertung & Fortschrittsspeicher ░░
-// - speichert je Kurs unter fsa_course{X}_score/status/repeats
-// - erhöht repeats nur bei echtem Abschluss (kein Reload)
+// ░░ Baustein 04 – Engine / Kursauswertung & Fortschrittsspeicher (bereinigt ohne Wiederholungen) ░░
+// - speichert je Kurs unter fsa_course{X}_score/status
+// - keine repeat-Zähler mehr
 // - Button: bei Gold -> Weiter zu nächstem Grundkurs, sonst Wiederholen
 
 (function(){
@@ -59,15 +59,11 @@
         : "Outstanding! You’ve internalized the core principles.";
     }
 
-    // Fortschritt speichern (nur bei echtem Abschluss)
+    // Fortschritt speichern (bereinigt)
     (function saveCourseProgress(courseKey, score, status){
       if (score <= 0 && !status) return;
       localStorage.setItem(`fsa_${courseKey}_score`, String(score));
       localStorage.setItem(`fsa_${courseKey}_status`, status);
-
-      const rKey = `fsa_${courseKey}_repeats`;
-      const repeats = parseInt(localStorage.getItem(rKey) || "0", 10);
-      localStorage.setItem(rKey, String(repeats + 1));
 
       if (status.toLowerCase().includes("gold")) {
         localStorage.setItem(`fsa_${courseKey}_passed`, "true");
@@ -133,5 +129,5 @@
     document.getElementById("courseActionBtn")?.addEventListener("click", buttonAction);
   };
 
-  console.log("✅ Engine aktiv – speichert pro Kurs & steuert Weiter/Wiederholen dynamisch.");
+  console.log("✅ Engine aktiv – bereinigt, ohne Wiederholungszähler, speichert nur Score & Status.");
 })();
