@@ -107,6 +107,9 @@
     │   │   │   ├── block-01-intro.js
     │   │   │   ├── block-02-intro.js
     │   │   │   ├── block-02-userdata.js
+    │   │   │   ├── block-03-course-2.js
+    │   │   │   ├── block-03-course-3.js
+    │   │   │   ├── block-03-course-4.js
     │   │   │   ├── block-03-course.js
     │   │   │   ├── block-03-engine.js
     │   │   │   ├── block-03-intro.js
@@ -117,6 +120,8 @@
     │   │   │   └── block-05-summary.js
     │   │   ├── back-to-home.js
     │   │   ├── campus-menu.js
+    │   │   ├── exam-engine.js
+    │   │   ├── exam-questions.js
     │   │   ├── grundkurs-menu.js
     │   │   ├── krypto-menu.js
     │   │   ├── lang-switcher.js
@@ -371,7 +376,11 @@
     ├── campus.html
     ├── config.json
     ├── grundkurs-basis.html
+    ├── grundkurs-einkommen.html
+    ├── grundkurs-network.html
     ├── grundkurs-pruefung-vorbereitung.html
+    ├── grundkurs-pruefung.html
+    ├── grundkurs-sicherheit.html
     ├── grundkurs.html
     ├── index.html
     ├── krypto-test.html
@@ -379,4 +388,4 @@
     ├── master.css
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.10.2025, 05:39)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.10.2025, 06:54)_
