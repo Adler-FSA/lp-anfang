@@ -1,110 +1,151 @@
-// ░░ Baustein – block-05-summary.js ░░
-// Kursauswertung + Status + Navigation zur Prüfung oder Neustart
-// Version 1.2 – 2025-10-22 – Fix: lokaler Neustart & korrekter Prüfungslink
+// ░░ Baustein – block-05-summary.js (DE/EN) ░░
+// Gesamtauswertung + Mentor-Feedback + Navigation
+// - Keine Repeat-Zähler mehr
+// - Lokaler Neustart (nur Kursdaten)
+// - Korrekte Weiterleitung zur Prüfungs-Vorbereitung
+// Version 1.3
 
 document.addEventListener("DOMContentLoaded", () => {
   const lang = localStorage.getItem("fsa_lang") || "de";
+
+  const T = {
+    de: {
+      title: "🏁 Gesamtauswertung",
+      you: "Teilnehmer",
+      totalLabel: "Gesamtpunkte:",
+      qualLabel: "Qualifikationsstatus:",
+      c1: "Grundkurs 1 – Basis",
+      c2: "Grundkurs 2 – Sicherheit",
+      c3: "Grundkurs 3 – Einkommen",
+      c4: "Grundkurs 4 – Netzwerk",
+      toExam: "Zur Prüfung weiter →",
+      restart: "Neustart",
+      restartConfirm: "Willst du diesen Kurs wirklich neu starten? Dein Fortschritt wird gelöscht.",
+      statuses: {
+        repeat: "Wiederholen ❌",
+        bronze: "Bronze 🥉",
+        silver: "Silber 🥈",
+        gold:   "Gold 🥇"
+      },
+      mentorMsg(points){
+        if(points < 25) return "Bleib dran. Jeder, der durchhält, meistert die Prüfung am Ende.";
+        if(points < 35) return "Bronze ist nicht Silber – wiederhole gezielt und hol dir dein Silber!";
+        if(points < 40) return "Silber ist nicht Gold – du bist fast da, geh den letzten Schritt!";
+        return "Exzellent! Du hast 100 % Wissen aufgebaut – Mentor-Niveau erreicht 🦅";
+      }
+    },
+    en: {
+      title: "🏁 Final Summary",
+      you: "Participant",
+      totalLabel: "Total points:",
+      qualLabel: "Qualification status:",
+      c1: "Course 1 – Foundation",
+      c2: "Course 2 – Security",
+      c3: "Course 3 – Income",
+      c4: "Course 4 – Network",
+      toExam: "Continue to exam →",
+      restart: "Restart",
+      restartConfirm: "Do you really want to restart this course? Your progress will be deleted.",
+      statuses: {
+        repeat: "Repeat ❌",
+        bronze: "Bronze 🥉",
+        silver: "Silver 🥈",
+        gold:   "Gold 🥇"
+      },
+      mentorMsg(points){
+        if(points < 25) return "Keep going. Everyone who persists will master the exam in the end.";
+        if(points < 35) return "Bronze isn’t Silver — repeat with focus and earn your Silver!";
+        if(points < 40) return "Silver isn’t Gold — you’re almost there, take the final step!";
+        return "Excellent! You’ve reached 100% knowledge — mentor level 🦅";
+      }
+    }
+  }[lang];
+
   const first = localStorage.getItem("fsa_firstName") || "";
   const last  = localStorage.getItem("fsa_lastName") || "";
-  const fullName = (first + " " + last).trim() || (lang === "de" ? "Teilnehmer" : "Participant");
+  const fullName = (first + " " + last).trim() || T.you;
 
-  const results = {
+  // Kurs-Scores laden (0–10 je Kurs)
+  const scores = {
     c1: parseInt(localStorage.getItem("fsa_course1_score") || "0", 10),
     c2: parseInt(localStorage.getItem("fsa_course2_score") || "0", 10),
     c3: parseInt(localStorage.getItem("fsa_course3_score") || "0", 10),
     c4: parseInt(localStorage.getItem("fsa_course4_score") || "0", 10),
   };
+  const total = scores.c1 + scores.c2 + scores.c3 + scores.c4; // /40
 
-  const total = results.c1 + results.c2 + results.c3 + results.c4;
-  const status =
-    total < 25
-      ? lang === "de"
-        ? "Wiederholen ❌"
-        : "Repeat ❌"
-      : total < 35
-      ? lang === "de"
-        ? "Bronze 🥉"
-        : "Bronze 🥉"
-      : total < 40
-      ? lang === "de"
-        ? "Silber 🥈"
-        : "Silver 🥈"
-      : lang === "de"
-      ? "Gold 🥇"
-      : "Gold 🥇";
+  // Status aus Gesamtpunkten ableiten
+  let status;
+  if (total < 25) status = T.statuses.repeat;
+  else if (total < 35) status = T.statuses.bronze;
+  else if (total < 40) status = T.statuses.silver;
+  else status = T.statuses.gold;
 
-  // Mentor-Spruch
-  const mentorMsg =
-    total < 25
-      ? (lang === "de"
-          ? "Bleib dran. Jeder, der durchhält, meistert die Prüfung am Ende."
-          : "Keep going. Everyone who persists, masters the exam in the end.")
-      : total < 35
-      ? (lang === "de"
-          ? "Bronze ist nicht Silber – wiederhole gezielt und hol dir dein Silber!"
-          : "Bronze isn’t Silver – repeat focused and earn your Silver!")
-      : total < 40
-      ? (lang === "de"
-          ? "Silber ist nicht Gold – du bist fast da, geh den letzten Schritt!"
-          : "Silver isn’t Gold – you’re almost there, take the final step!")
-      : (lang === "de"
-          ? "Exzellent! Du hast 100 % Wissen aufgebaut – Mentor-Niveau erreicht 🦅"
-          : "Excellent! You’ve reached 100 % knowledge – mentor level 🦅");
+  const percent = Math.round((total/40)*100);
+  const barColor = total<25 ? "#ef4444" : total<35 ? "#cd7f32" : total<40 ? "#93c5fd" : "#d4af37";
 
-  // Container erzeugen
-  const root = document.getElementById("quiz-root");
-  if (!root) return;
-  root.innerHTML = `
-    <section class="card" style="margin-top:2cm;">
-      <h1>🏁 FSA Akademie – Gesamtauswertung</h1>
-      <p><strong>${fullName}</strong></p>
-      <div style="height:6px;background:#1e293b;border-radius:4px;overflow:hidden;margin:.8rem 0 1rem;">
-        <div style="width:${(total / 40) * 100}%;background:linear-gradient(90deg,#3b82f6,#d4af37);height:100%;"></div>
-      </div>
-      <p>${lang === "de" ? "Gesamtpunkte:" : "Total points:"} <strong>${total}/40</strong></p>
-      <p>${lang === "de" ? "Qualifikationsstatus:" : "Qualification status:"}
-        <strong>${status}</strong></p>
+  // Zielcontainer (fällt auf <main> zurück, wenn #quiz-root fehlt)
+  const mount = document.querySelector("#quiz-root") || document.querySelector("main") || document.body;
 
-      <ul style="text-align:left;margin:1rem 0 1.5rem 1.2rem;">
-        <li>Grundkurs 1 – Basis: ${results.c1}/10</li>
-        <li>Grundkurs 2 – Sicherheit: ${results.c2}/10</li>
-        <li>Grundkurs 3 – Einkommen: ${results.c3}/10</li>
-        <li>Grundkurs 4 – Netzwerk: ${results.c4}/10</li>
-      </ul>
+  // Render
+  const wrap = document.createElement("section");
+  wrap.className = "card";
+  wrap.style.marginTop = "2cm";
+  wrap.innerHTML = `
+    <h1 style="color:#d4af37;margin:0 0 .6rem 0;">FSA Akademie – ${T.title}</h1>
+    <p style="color:#9ca3af;margin:.2rem 0 1rem 0;">${fullName}</p>
 
-      <blockquote style="margin:1.4rem 0;padding:1rem 1.2rem;
-        background:rgba(255,255,255,.05);border-left:4px solid #d4af37;border-radius:6px;">
-        ${mentorMsg}
-      </blockquote>
+    <div style="height:10px;background:rgba(255,255,255,.12);border-radius:6px;overflow:hidden;margin:.6rem 0 1rem;">
+      <div style="height:100%;width:${percent}%;background:${barColor};transition:width .6s ease;"></div>
+    </div>
 
-      <div class="btn-row">
-        <button class="btn primary" id="toExamBtn">
-          ${lang === "de" ? "Zur Prüfung weiter →" : "Continue to exam →"}
-        </button>
-        <button class="btn" id="restartBtn">
-          🔄 ${lang === "de" ? "Neustart" : "Restart"}
-        </button>
-      </div>
-    </section>
+    <ul style="list-style:none;padding:0;margin:.6rem 0 1rem;color:#d1d5db;text-align:left">
+      <li>${T.c1}: <strong>${scores.c1}/10</strong></li>
+      <li>${T.c2}: <strong>${scores.c2}/10</strong></li>
+      <li>${T.c3}: <strong>${scores.c3}/10</strong></li>
+      <li>${T.c4}: <strong>${scores.c4}/10</strong></li>
+    </ul>
+
+    <p><strong>${T.totalLabel}</strong> ${total} / 40</p>
+    <p><strong>${T.qualLabel}</strong> <span style="color:${barColor};font-weight:700">${status}</span></p>
+
+    <blockquote style="margin:1.2rem 0;padding:1rem 1.2rem;background:rgba(255,255,255,.05);
+      border-left:4px solid #d4af37;border-radius:6px;color:#e5e7eb;">
+      🧭 ${T.mentorMsg(total)}
+    </blockquote>
+
+    <div class="btn-row" style="display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.2rem">
+      <button id="toExamBtn" class="btn primary"
+        style="background:linear-gradient(90deg,#3b82f6,#d4af37);color:#fff;border:none;border-radius:8px;padding:.7rem 1.4rem;font-weight:700;cursor:pointer;">
+        ${T.toExam}
+      </button>
+      <button id="restartBtn" class="btn"
+        style="background:rgba(0,0,0,.6);color:#d4af37;border:1px solid rgba(212,175,55,.35);
+        border-radius:8px;padding:.7rem 1.4rem;font-weight:600;cursor:pointer;">
+        🔄 ${T.restart}
+      </button>
+    </div>
   `;
+  mount.appendChild(wrap);
 
-  // ► Button-Aktionen
+  // Aktionen
   document.getElementById("toExamBtn")?.addEventListener("click", () => {
+    // immer zur Prüfungs-Vorbereitungsseite
     window.location.href = "grundkurs-pruefung-vorbereitung.html?nocache=" + Date.now();
   });
 
   document.getElementById("restartBtn")?.addEventListener("click", () => {
-    if (
-      confirm(
-        lang === "de"
-          ? "Willst du diesen Kurs wirklich neu starten? Dein Fortschritt wird gelöscht."
-          : "Do you really want to restart this course? Your progress will be deleted."
-      )
-    ) {
-      Object.keys(localStorage)
-        .filter((k) => k.startsWith("fsa_course_"))
-        .forEach((k) => localStorage.removeItem(k));
-      location.reload();
+    if (!confirm(T.restartConfirm)) return;
+
+    // Nur Kursdaten löschen (keine Namen, keine Sprache)
+    const keys = [
+      "score","status","results","passed"
+    ];
+    for (let i=1;i<=4;i++){
+      keys.forEach(k => localStorage.removeItem(`fsa_course${i}_${k}`));
     }
+
+    // Fortschritts-Balken & Liste sofort visuell zurücksetzen
+    location.reload();
   });
 });
