@@ -388,4 +388,4 @@
     ├── master.css
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.10.2025, 07:32)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.10.2025, 08:53)_
