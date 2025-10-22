@@ -1,11 +1,11 @@
 /*!
- * FSA Akademie – block-05-summary.js (v3.0.0)
+ * FSA Akademie – block-05-summary.js (v3.1.0)
  * ------------------------------------------
- * Gesamtauswertung & Qualifikationsübersicht
- * - Bronze/Silber/Gold-Logik (0–5 / 6 / 7–8 / 9–10)
- * - Fortschritt + Wiederholungen + Gesamtstatus
+ * Gesamtauswertung & Qualifikationsübersicht (bereinigt)
+ * - Bronze/Silber/Gold-Logik (0–5 / 6–7 / 8–9 / 10)
+ * - Fortschritt + Gesamtstatus
  * - Prüfungspasswort "Souverän" ab 36 Punkten
- * - Kompatibel mit block-04-engine v3.0.0
+ * - Keine Wiederholungszähler mehr
  */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -19,7 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
       title: "🏁 Gesamtauswertung",
       totalScore: "Gesamtpunkte:",
       status: "Qualifikationsstatus:",
-      repeats: "Wiederholungen",
       nextExam: "Zur Prüfung weiter ➜",
       nextCourse: n => `Weiter zu Grundkurs ${n} ➜`,
       reset: "🔄 Neustart",
@@ -37,7 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
       title: "🏁 Final Summary",
       totalScore: "Total Score:",
       status: "Qualification Status:",
-      repeats: "Repeats",
       nextExam: "Continue to Exam ➜",
       nextCourse: n => `Continue to Course ${n} ➜`,
       reset: "🔄 Reset",
@@ -67,12 +65,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let listHTML = "";
 
   courses.forEach(c => {
-    const score   = parseInt(localStorage.getItem(`fsa_${c.key}_score`)   || "0", 10);
-    const status  = localStorage.getItem(`fsa_${c.key}_status`)           || "—";
-    const repeats = parseInt(localStorage.getItem(`fsa_${c.key}_repeats`) || "0", 10);
+    const score   = parseInt(localStorage.getItem(`fsa_${c.key}_score`) || "0", 10);
+    const status  = localStorage.getItem(`fsa_${c.key}_status`) || "—";
     totalScore += score;
     totalQuestions += 10;
-    listHTML += `<li>${c.title}: <strong>${score}/10</strong> – ${status} <span class="rep">(${text.repeats}: ${repeats})</span></li>`;
+    listHTML += `<li>${c.title}: <strong>${score}/10</strong> – ${status}</li>`;
   });
 
   // ───────────────────────────────────────────────
@@ -125,7 +122,6 @@ document.addEventListener("DOMContentLoaded", () => {
     .fill{height:100%;background:linear-gradient(90deg,#3b82f6,#d4af37);transition:width .5s ease}
     ul{text-align:left;display:inline-block;margin:0 auto 1rem;padding:0;list-style:none}
     li{margin:.4rem 0;color:#d1d5db}
-    .rep{color:#9ca3af;font-size:.9rem;margin-left:.3rem}
     blockquote{margin-top:1rem;color:#d4af37;font-style:italic;background:rgba(255,255,255,0.05);
       padding:.9rem 1.2rem;border-left:4px solid rgba(212,175,55,0.5);border-radius:6px}
     .password-block{margin-top:1.2rem;background:rgba(255,255,255,0.05);
@@ -162,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!confirm(text.resetConfirm)) return;
     ["firstName","lastName"].forEach(n => localStorage.removeItem(`fsa_${n}`));
     for (let i = 1; i <= 4; i++) {
-      ["score","status","results","repeats","passed"].forEach(k =>
+      ["score","status","results","passed"].forEach(k =>
         localStorage.removeItem(`fsa_course${i}_${k}`)
       );
     }
@@ -170,5 +166,5 @@ document.addEventListener("DOMContentLoaded", () => {
     location.href = "grundkurs-basis.html?nocache=" + Date.now();
   });
 
-  console.log("✅ block-05-summary.js geladen – FSA Summary v3.0.0 aktiv.");
+  console.log("✅ block-05-summary.js v3.1.0 aktiv – bereinigt, ohne Wiederholungslogik.");
 });
