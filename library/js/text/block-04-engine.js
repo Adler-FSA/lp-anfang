@@ -1,133 +1,119 @@
-// ░░ Baustein 04 – Engine / Kursauswertung & Fortschrittsspeicher (bereinigt ohne Wiederholungen) ░░
-// - speichert je Kurs unter fsa_course{X}_score/status
-// - keine repeat-Zähler mehr
-// - Button: bei Gold -> Weiter zu nächstem Grundkurs, sonst Wiederholen
+// ░░ Baustein 04 – Kursauswertung & Fortschrittsspeicher (v2.0) ░░
+// • Kein „Wiederholen“-Status mehr
+// • Status: Bronze (6–7), Silber (8–9), Gold (10)
+// • Button: Gold -> nächster Kurs, sonst „Kurs wiederholen“ (setzt nur diesen Kurs zurück)
 
-(function(){
-  // Kurs-Schlüssel aus URL ableiten
+(function () {
+  // Kurs-Kontext bestimmen
   function detectCourseKey() {
     const p = (location.pathname || "").toLowerCase();
-    if (p.includes("grundkurs-basis")) return {key:"course1", idx:1, next:"grundkurs-sicherheit.html"};
-    if (p.includes("grundkurs-sicherheit")) return {key:"course2", idx:2, next:"grundkurs-einkommen.html"};
-    if (p.includes("grundkurs-einkommen")) return {key:"course3", idx:3, next:"grundkurs-network.html"};
-    if (p.includes("grundkurs-network")) return {key:"course4", idx:4, next:"grundkurs-pruefung-vorbereitung.html"};
-    return {key:"course1", idx:1, next:"grundkurs-sicherheit.html"};
+    if (p.includes("grundkurs-basis")) return { key: "course1", idx: 1, next: "grundkurs-sicherheit.html" };
+    if (p.includes("grundkurs-sicherheit")) return { key: "course2", idx: 2, next: "grundkurs-einkommen.html" };
+    if (p.includes("grundkurs-einkommen")) return { key: "course3", idx: 3, next: "grundkurs-network.html" };
+    if (p.includes("grundkurs-network")) return { key: "course4", idx: 4, next: "grundkurs-pruefung-vorbereitung.html" };
+    return { key: "course1", idx: 1, next: "grundkurs-sicherheit.html" };
   }
 
   const ctx = detectCourseKey();
 
-  window.showResult = function showResult(triggeredByUser){
+  window.showResult = function showResult(triggeredByUser) {
     if (triggeredByUser !== true) return;
 
-    // Erwartet: correctCount, totalQuestions, container, courseName, lang, t, renderStats
-    const score = typeof window.correctCount === "number" ? window.correctCount : 0;
-    const total = typeof window.totalQuestions === "number" ? window.totalQuestions : 10;
-    const firstName = localStorage.getItem("fsa_firstName") || "";
-    const lastName  = localStorage.getItem("fsa_lastName")  || "";
-    const fullName  = `${firstName} ${lastName}`.trim();
+    const score = window.correctCount || 0;
+    const total = window.totalQuestions || 10;
     const lang = localStorage.getItem("fsa_lang") || "de";
+    const first = localStorage.getItem("fsa_firstName") || "";
+    const last = localStorage.getItem("fsa_lastName") || "";
+    const fullName = `${first} ${last}`.trim();
 
-    // Status-Texte (fallback)
-    const defaultT = {
-      statuses: { retry:"Wiederholen ❌", bronze:"Bronze 🥉", silver:"Silber 🥈", gold:"Gold 🥇" },
-      status: lang==="de" ? "Status" : "Status",
-      restart: lang==="de" ? "Kurs wiederholen" : "Repeat course"
-    };
-    const TT = (window.t && window.t.statuses) ? window.t : defaultT;
-
-    // Status bestimmen
+    // Statuslogik
     let status = "", mentorText = "";
     if (score <= 5) {
-      status = TT.statuses.retry;
-      mentorText = lang==="de"
-        ? "Lass dich nicht entmutigen. Versuch es noch einmal – du bist näher am Ziel, als du denkst."
-        : "Don’t be discouraged. Try again — you’re closer than you think.";
+      status = "—";
+      mentorText = lang === "de"
+        ? "Mach weiter – jede Wiederholung stärkt dein Fundament."
+        : "Keep going — every round strengthens your foundation.";
     } else if (score <= 7) {
-      status = TT.statuses.bronze;
-      mentorText = lang==="de"
-        ? "Gutes Fundament. Bleib konsequent – dein nächster Flug trägt dich höher."
-        : "Solid base. Stay consistent — your next flight will take you higher.";
+      status = "Bronze 🥉";
+      mentorText = lang === "de"
+        ? "Guter Start! Du hast das Fundament verstanden."
+        : "Good start! You’ve understood the basics.";
     } else if (score <= 9) {
-      status = TT.statuses.silver;
-      mentorText = lang==="de"
-        ? "Stark! Mit etwas Feinschliff erreichst du volle Souveränität."
-        : "Strong! With a bit more refinement, you’ll reach sovereignty.";
+      status = "Silber 🥈";
+      mentorText = lang === "de"
+        ? "Stark! Du bist auf einem sehr guten Weg."
+        : "Strong! You’re well on your way.";
     } else {
-      status = TT.statuses.gold;
-      mentorText = lang==="de"
-        ? "Großartig! Du hast die Prinzipien wirklich verinnerlicht."
-        : "Outstanding! You’ve internalized the core principles.";
+      status = "Gold 🥇";
+      mentorText = lang === "de"
+        ? "Ausgezeichnet! Du hast das Thema vollständig gemeistert."
+        : "Excellent! You’ve mastered this topic.";
     }
 
-    // Fortschritt speichern (bereinigt)
-    (function saveCourseProgress(courseKey, score, status){
-      if (score <= 0 && !status) return;
-      localStorage.setItem(`fsa_${courseKey}_score`, String(score));
-      localStorage.setItem(`fsa_${courseKey}_status`, status);
+    // Fortschritt speichern
+    localStorage.setItem(`fsa_${ctx.key}_score`, String(score));
+    localStorage.setItem(`fsa_${ctx.key}_status`, status);
+    if (status.includes("Gold")) localStorage.setItem(`fsa_${ctx.key}_passed`, "true");
 
-      if (status.toLowerCase().includes("gold")) {
-        localStorage.setItem(`fsa_${courseKey}_passed`, "true");
-      }
+    // Prüfungsvorbereitung: globaler Marker
+    const all = ["course1", "course2", "course3", "course4"];
+    const done = all.every(k => localStorage.getItem(`fsa_${k}_status`));
+    localStorage.setItem("fsa_allCoursesDone", done ? "true" : "false");
 
-      const allDone = ["course1","course2","course3","course4"].every(k => localStorage.getItem(`fsa_${k}_status`));
-      if (allDone) localStorage.setItem("fsa_allCoursesDone", "true");
-      else localStorage.removeItem("fsa_allCoursesDone");
-    })(ctx.key, score, status);
-
-    localStorage.setItem("fsa_lastScore", String(score));
-    localStorage.setItem("fsa_lastStatus", status);
-
-    // UI Farben/Balken
+    // UI
+    const color =
+      score <= 5 ? "#ef4444" :
+      score <= 7 ? "#cd7f32" :
+      score <= 9 ? "#93c5fd" : "#d4af37";
     const percent = Math.round((score / total) * 100);
-    const color = score <= 5 ? "#ef4444" : score <=7 ? "#cd7f32" : score <=9 ? "#93c5fd" : "#d4af37";
 
-    // Button-Logik
-    const isGold = status.toLowerCase().includes("gold");
-    const buttonLabel = isGold
-      ? (lang==="de" ? (ctx.idx<4 ? "Weiter zum nächsten Kurs →" : "Zur Prüfungsvorbereitung →")
-                     : (ctx.idx<4 ? "Continue to next course →" : "Go to exam prep →"))
-      : (lang==="de" ? "Kurs wiederholen" : "Repeat course");
+    const isGold = status.includes("Gold");
+    const label = isGold
+      ? (lang === "de"
+          ? (ctx.idx < 4 ? "Weiter zum nächsten Kurs →" : "Zur Prüfungsvorbereitung →")
+          : (ctx.idx < 4 ? "Continue to next course →" : "Go to exam prep →"))
+      : (lang === "de" ? "Kurs wiederholen" : "Repeat course");
 
-    const buttonAction = isGold
-      ? () => { window.location.href = ctx.next + "?nocache=" + Date.now(); }
-      : () => { location.reload(); };
+    const action = isGold
+      ? () => (window.location.href = ctx.next + "?nocache=" + Date.now())
+      : () => {
+          // nur diesen Kurs zurücksetzen
+          localStorage.removeItem(`fsa_${ctx.key}_score`);
+          localStorage.removeItem(`fsa_${ctx.key}_status`);
+          localStorage.removeItem(`fsa_${ctx.key}_passed`);
+          location.reload();
+        };
 
-    // Render
-    const container = window.container || document.querySelector("#quiz-root") || document.body;
-    const courseName = window.courseName || (lang==="de" ? "Grundkurs" : "Course");
-
+    const container = document.querySelector("#quiz-root") || document.body;
     container.innerHTML = `
-      <div style="background:rgba(17,24,39,0.8);border:1px solid ${color};
-        border-radius:12px;padding:2rem;text-align:center;
-        box-shadow:0 0 25px rgba(212,175,55,0.15);margin-top:1cm;">
-        <h2 style="color:${color};font-size:1.6rem;margin-bottom:0.4rem;">${courseName}</h2>
-        ${fullName ? `<p style="font-size:1.05rem;color:#94a3b8;margin-bottom:1.2rem;">
-          ${lang==="de"?"Auswertung für":"Evaluation for"} <strong>${fullName}</strong>
-        </p>` : ""}
-        ${typeof window.renderStats==="function" ? window.renderStats() : ""}
-        <div style="margin:1rem auto 1.4rem auto;width:80%;background:#1e293b;border-radius:8px;height:16px;overflow:hidden;">
+      <div style="background:rgba(17,24,39,0.85);border:1px solid ${color};
+        border-radius:12px;padding:2rem;text-align:center;max-width:900px;margin:1cm auto;
+        box-shadow:0 0 25px rgba(212,175,55,0.15);">
+        <h2 style="color:${color};font-size:1.6rem;margin-bottom:.4rem;">${
+          lang === "de" ? "Ergebnis" : "Result"
+        }</h2>
+        <p style="color:#94a3b8;margin:.6rem 0 1.2rem;">${
+          lang === "de" ? "Auswertung für" : "Evaluation for"
+        } <strong>${fullName}</strong></p>
+        <div style="margin:1rem auto 1.4rem;width:80%;background:#1e293b;border-radius:8px;height:16px;overflow:hidden;">
           <div style="width:${percent}%;height:100%;background:${color};transition:width 1s ease;"></div>
         </div>
-        <p style="margin-bottom:0.8rem;">
-          ${lang==="de"
-            ? `Du hast <strong>${score}</strong> von <strong>${total}</strong> Fragen richtig.`
-            : `You answered <strong>${score}</strong> out of <strong>${total}</strong> correctly.`}
-        </p>
-        <p style="margin-bottom:1rem;">
-          ${lang==="de"?"Status":"Status"}: <strong style="color:${color};">${status}</strong>
-        </p>
+        <p>${lang === "de"
+          ? `Du hast <strong>${score}</strong> von <strong>${total}</strong> Fragen richtig.`
+          : `You answered <strong>${score}</strong> of <strong>${total}</strong> correctly.`}</p>
+        <p>${lang === "de" ? "Status" : "Status"}:
+          <strong style="color:${color};">${status}</strong></p>
         <blockquote style="font-style:italic;color:#e5e7eb;background:rgba(255,255,255,0.05);
           border-left:4px solid ${color};padding:1rem 1.5rem;border-radius:6px;
           margin:1.2rem auto;max-width:700px;">“${mentorText}”</blockquote>
-        <button id="courseActionBtn" style="display:block;margin:2rem auto 0 auto;
+        <button id="courseActionBtn" style="margin-top:1.6rem;
           background:rgba(0,0,0,0.7);border:1px solid rgba(212,175,55,0.6);
-          color:#d4af37;padding:0.8rem 1.6rem;border-radius:6px;cursor:pointer;transition:all .3s ease;">
-          ${buttonLabel}
+          color:#d4af37;padding:.8rem 1.6rem;border-radius:6px;cursor:pointer;transition:all .3s ease;">
+          ${label}
         </button>
       </div>`;
-
-    document.getElementById("courseActionBtn")?.addEventListener("click", buttonAction);
+    document.getElementById("courseActionBtn")?.addEventListener("click", action);
   };
 
-  console.log("✅ Engine aktiv – bereinigt, ohne Wiederholungszähler, speichert nur Score & Status.");
+  console.log("✅ block-04-engine.js aktiv (v2.0) – Bronze/Silber/Gold, kein Wiederholen-Status.");
 })();
