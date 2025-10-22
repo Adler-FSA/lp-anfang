@@ -9,6 +9,12 @@ document.addEventListener("DOMContentLoaded", () => {
         <a class="door" href="/lp-anfang/grundkurs.html">📘 Grundkurs</a>
         <a class="door" href="/lp-anfang/krypto.html">💰 Krypto</a>
       </nav>
+
+      <!-- Zusatzbereich für Sprach- & Musikbuttons -->
+      <div id="menu-helpers">
+        <div id="langSwitcher"></div>
+        <div id="musicControl"></div>
+      </div>
     </div>
 
     <style>
@@ -25,10 +31,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       .doors {
         display: flex;
-        flex-wrap: wrap;          /* bricht automatisch um */
+        flex-wrap: wrap;
         justify-content: center;
         gap: 0.8rem;
-        padding: 0.8rem 1rem;
+        padding: 0.8rem 1rem 0.6rem 1rem;
         box-sizing: border-box;
       }
 
@@ -52,19 +58,30 @@ document.addEventListener("DOMContentLoaded", () => {
         background: rgba(212,175,55,0.08);
       }
 
+      /* 🔸 Sprach- & Musik-Button-Zone */
+      #menu-helpers {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        padding: 0.5rem 0 0.8rem;
+        border-top: 1px solid rgba(212,175,55,0.25);
+      }
+
+      #menu-helpers > div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
       /* 🔸 Responsive Regeln */
       @media (max-width: 720px) {
-        .door {
-          flex: 1 1 45%;
-          text-align: center;
-        }
+        .door { flex: 1 1 45%; text-align: center; }
       }
 
       @media (max-width: 420px) {
-        .door {
-          flex: 1 1 100%;
-          font-size: 0.95rem;
-        }
+        .door { flex: 1 1 100%; font-size: 0.95rem; }
+        #menu-helpers { flex-direction: column; gap: 6px; }
       }
     </style>
   `;
