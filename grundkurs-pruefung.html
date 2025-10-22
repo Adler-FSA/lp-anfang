@@ -14,7 +14,7 @@
       font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
     main{max-width:1040px;margin:0 auto;padding:0 16px 120px}
     .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
-      padding:1.2rem;box-shadow:0 0 22px rgba(212,175,55,0.08)}
+      padding:1.2rem;box-shadow:0 0 22px rgba(212,175,55,.08)}
     h1,h2,h3{color:var(--gold);margin:0 0 .6rem 0}
     p{color:var(--muted);line-height:1.6;margin:.4rem 0}
     .sp-top{margin-top:3cm}
@@ -59,6 +59,7 @@
 
 <body>
   <main>
+    <!-- Intro -->
     <section class="card sp-top" id="intro">
       <h1>Hauptprüfung – 50 Fragen</h1>
       <p id="introTextDe">
@@ -78,7 +79,10 @@
       <p class="muted" id="nameInfo"></p>
     </section>
 
+    <!-- Exam UI -->
     <section id="exam-root"></section>
+
+    <!-- Result -->
     <section id="result-root"></section>
   </main>
 
@@ -88,38 +92,37 @@
   <script src="library/js/music-button.js" defer></script>
   <script src="library/js/back-to-home.js" defer></script>
 
-  <!-- Prüfungs-Module -->
+  <!-- Prüfungs-Module (Reihenfolge wichtig!) -->
+  <script src="library/js/exam-extra.js" defer></script>
   <script src="library/js/exam-questions.js" defer></script>
   <script src="library/js/exam-engine.js" defer></script>
 
   <script>
-  // kleine Initialinfo beim Laden
-  window.addEventListener("DOMContentLoaded",()=>{
-    const lang = localStorage.getItem("fsa_lang") || "de";
+  // Nur Intro-Infos & sichtbare Sprache syncen – Start macht exam-engine.js
+  document.addEventListener("DOMContentLoaded", () => {
+    const getLang = () => localStorage.getItem("fsa_lang") || "de";
+    const setLang = (l) => localStorage.setItem("fsa_lang", l);
+
+    // Name-Hinweis
     const first = localStorage.getItem("fsa_firstName") || "";
     const last  = localStorage.getItem("fsa_lastName")  || "";
     const full  = (first + " " + last).trim();
+    document.getElementById("nameInfo").textContent =
+      full
+        ? (getLang()==="de" ? `Angemeldet als: ${full}` : `Logged in as: ${full}`)
+        : (getLang()==="de" ? "Kein Name hinterlegt (optional)." : "No name saved (optional).");
 
-    const info = document.getElementById("nameInfo");
-    if(full){
-      info.textContent = lang==="de"
-        ? `Angemeldet als: ${full}`
-        : `Logged in as: ${full}`;
-    } else {
-      info.textContent = lang==="de"
-        ? "Kein Name hinterlegt (optional)."
-        : "No name saved (optional).";
+    // Intro-Text an aktuelle Sprache anpassen (ohne den Start zu übernehmen)
+    function syncIntro(){
+      const isDe = getLang()==="de";
+      document.getElementById("introTextDe").style.display = isDe ? "block" : "none";
+      document.getElementById("introTextEn").style.display = isDe ? "none"  : "block";
     }
+    syncIntro();
 
-    // Sprachumschaltung Intro
-    document.getElementById("startExam").onclick = ()=>{
-      localStorage.setItem("fsa_lang","de");
-      if(typeof startExam==="function") startExam("de");
-    };
-    document.getElementById("startExamEn").onclick = ()=>{
-      localStorage.setItem("fsa_lang","en");
-      if(typeof startExam==="function") startExam("en");
-    };
+    // Buttons setzen nur die Sprache; die Engine hat eigene Click-Handler zum Start
+    document.getElementById("startExam").addEventListener("click", () => { setLang("de"); });
+    document.getElementById("startExamEn").addEventListener("click", () => { setLang("en"); });
   });
   </script>
 </body>
