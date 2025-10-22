@@ -1,4 +1,4 @@
-// ░░ Sprachumschalter – FSA Style (responsive, Menülinie, Gold-Glow) ░░
+// ░░ Sprachumschalter – FSA Style (integriert ins Menü, Gold-Glow, responsive) ░░
 document.addEventListener("DOMContentLoaded", () => {
   const langs = [
     { code: "de", flag: "🇩🇪", label: "Deutsch" },
@@ -38,23 +38,20 @@ document.addEventListener("DOMContentLoaded", () => {
     langBox.appendChild(btn);
   });
 
-  document.body.appendChild(langBox);
+  // 👉 gezielt in Menü einfügen, falls vorhanden
+  (document.getElementById("langSwitcher") || 
+   document.querySelector("#menu-helpers #langSwitcher") ||
+   document.getElementById("menu-helpers") ||
+   document.body).appendChild(langBox);
 
   // Stil
   const style = document.createElement("style");
   style.textContent = `
     #langSwitcher {
-      position: fixed;
-      top: 10px;
-      left: 10px;
       display: flex;
+      justify-content: center;
+      align-items: center;
       gap: 8px;
-      z-index: 1100;
-      background: rgba(0,0,0,0.35);
-      padding: 0.3rem 0.4rem;
-      border-radius: 8px;
-      border: 1px solid rgba(212,175,55,0.35);
-      backdrop-filter: blur(5px);
     }
 
     .lang-btn {
@@ -80,16 +77,11 @@ document.addEventListener("DOMContentLoaded", () => {
       box-shadow: 0 0 6px rgba(212,175,55,0.7);
     }
 
-    /* 🔸 Responsiv: verschiebt sich bei kleinen Geräten */
-    @media (max-width: 720px) {
+    /* 🔸 Mobiloptimierung */
+    @media (max-width: 420px) {
       #langSwitcher {
-        top: auto;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        justify-content: center;
-        padding: 0.4rem 0.6rem;
-        border-radius: 10px;
+        flex-direction: row;
+        gap: 6px;
       }
     }
   `;
