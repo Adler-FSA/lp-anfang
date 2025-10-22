@@ -1,9 +1,10 @@
 // ░░ Baustein – block-05-summary.js (DE/EN) ░░
 // Gesamtauswertung + Mentor-Feedback + Navigation
 // - Keine Repeat-Zähler mehr
-// - Lokaler Neustart (nur Kursdaten)
+// - Lokaler Neustart (nur Kursdaten, nicht alle!)
 // - Korrekte Weiterleitung zur Prüfungs-Vorbereitung
-// Version 1.3
+// - Zweisprachige Oberfläche (DE/EN)
+// Version 1.4 – 22.10.2025
 
 document.addEventListener("DOMContentLoaded", () => {
   const lang = localStorage.getItem("fsa_lang") || "de";
@@ -56,11 +57,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if(points < 25) return "Keep going. Everyone who persists will master the exam in the end.";
         if(points < 35) return "Bronze isn’t Silver — repeat with focus and earn your Silver!";
         if(points < 40) return "Silver isn’t Gold — you’re almost there, take the final step!";
-        return "Excellent! You’ve reached 100% knowledge — mentor level 🦅";
+        return "Excellent! You’ve reached 100 % knowledge — mentor level 🦅";
       }
     }
   }[lang];
 
+  // Teilnehmername
   const first = localStorage.getItem("fsa_firstName") || "";
   const last  = localStorage.getItem("fsa_lastName") || "";
   const fullName = (first + " " + last).trim() || T.you;
@@ -72,9 +74,9 @@ document.addEventListener("DOMContentLoaded", () => {
     c3: parseInt(localStorage.getItem("fsa_course3_score") || "0", 10),
     c4: parseInt(localStorage.getItem("fsa_course4_score") || "0", 10),
   };
-  const total = scores.c1 + scores.c2 + scores.c3 + scores.c4; // /40
+  const total = scores.c1 + scores.c2 + scores.c3 + scores.c4;
 
-  // Status aus Gesamtpunkten ableiten
+  // Status bestimmen
   let status;
   if (total < 25) status = T.statuses.repeat;
   else if (total < 35) status = T.statuses.bronze;
@@ -84,10 +86,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const percent = Math.round((total/40)*100);
   const barColor = total<25 ? "#ef4444" : total<35 ? "#cd7f32" : total<40 ? "#93c5fd" : "#d4af37";
 
-  // Zielcontainer (fällt auf <main> zurück, wenn #quiz-root fehlt)
+  // Container wählen
   const mount = document.querySelector("#quiz-root") || document.querySelector("main") || document.body;
 
-  // Render
+  // Renderbereich erzeugen
   const wrap = document.createElement("section");
   wrap.className = "card";
   wrap.style.marginTop = "2cm";
@@ -116,7 +118,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     <div class="btn-row" style="display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.2rem">
       <button id="toExamBtn" class="btn primary"
-        style="background:linear-gradient(90deg,#3b82f6,#d4af37);color:#fff;border:none;border-radius:8px;padding:.7rem 1.4rem;font-weight:700;cursor:pointer;">
+        style="background:linear-gradient(90deg,#3b82f6,#d4af37);color:#fff;border:none;border-radius:8px;
+        padding:.7rem 1.4rem;font-weight:700;cursor:pointer;">
         ${T.toExam}
       </button>
       <button id="restartBtn" class="btn"
@@ -128,24 +131,29 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
   mount.appendChild(wrap);
 
-  // Aktionen
+  // ░░ Aktionen ░░
+  // Prüfung
   document.getElementById("toExamBtn")?.addEventListener("click", () => {
-    // immer zur Prüfungs-Vorbereitungsseite
     window.location.href = "grundkurs-pruefung-vorbereitung.html?nocache=" + Date.now();
   });
 
+  // Neustart – nur aktueller Kurs
   document.getElementById("restartBtn")?.addEventListener("click", () => {
     if (!confirm(T.restartConfirm)) return;
 
-    // Nur Kursdaten löschen (keine Namen, keine Sprache)
-    const keys = [
-      "score","status","results","passed"
-    ];
-    for (let i=1;i<=4;i++){
-      keys.forEach(k => localStorage.removeItem(`fsa_course${i}_${k}`));
+    // Aktuellen Kurs aus Dateinamen oder URL bestimmen
+    const courseMatch = window.location.pathname.match(/grundkurs-(basis|sicherheit|einkommen|network)/i);
+    let courseNum = "1";
+    if (courseMatch) {
+      const name = courseMatch[1].toLowerCase();
+      if (name.includes("sicherheit")) courseNum = "2";
+      else if (name.includes("einkommen")) courseNum = "3";
+      else if (name.includes("network")) courseNum = "4";
     }
 
-    // Fortschritts-Balken & Liste sofort visuell zurücksetzen
+    const keys = ["score","status","results","passed"];
+    keys.forEach(k => localStorage.removeItem(`fsa_course${courseNum}_${k}`));
+
     location.reload();
   });
 });
