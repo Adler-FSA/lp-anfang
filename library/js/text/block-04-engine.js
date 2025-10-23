@@ -192,15 +192,23 @@
       </section>
     `;
 
-    // Aktionen
     on($("#restartBtn"), "click", () => {
-      // Nur Kursdaten des aktuellen Kurses löschen
-      ["score", "status", "passed"].forEach(k => localStorage.removeItem(`fsa_${ctx.key}_${k}`));
-      // Nutzer-Antworten der Runde löschen
-      try { window.__answers = []; } catch(_) {}
-      // Frischer Start: Seite neu laden (keine Zähler, keine Wiederholen-Texte)
-      location.reload();
-    });
+  // Nur Daten des AKTUELLEN Kurses löschen (hier: course1/Basis)
+  const prefix = `fsa_${ctx.key}_`; // ctx.key == "course1" auf /grundkurs-basis.html
+  Object.keys(localStorage).forEach(k => {
+    if (k.startsWith(prefix)) localStorage.removeItem(k);
+    // Altlasten vorsichtshalber mit entsorgen:
+    if (k.includes("repeat") && k.includes(ctx.key)) localStorage.removeItem(k);
+  });
+
+  // Antwortenpuffer der Runde verwerfen
+  try { window.__answers = []; } catch (_) {}
+
+  // Frischer Reload ohne Cache (verhindert alten Zustand)
+  const url = new URL(location.href);
+  url.searchParams.set("nocache", Date.now().toString());
+  location.replace(url.toString());
+});
 
     if (/Gold/i.test(status)) {
       on($("#nextCourseBtn"), "click", () => {
