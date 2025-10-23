@@ -1,15 +1,13 @@
-// ░░ Baustein 04 – Kursauswertung & Fortschritt (Fix: Kein Scroll-Springen) ░░
-// - Vollständige, lauffähige Version
-// - Kein Auto-Scroll mehr beim Wechsel der Fragen
-// - Kein visueller Effekt, nur stabiler Halt im Sichtfeld
-// - Kompatibel mit allen vier Grundkursseiten
+// ░░ Baustein 04 – Kursauswertung & Fortschritt (Fix: Pixelgenau kein Springen) ░░
+// - Kein Scroll-Springen mehr beim Wechsel der Fragen
+// - Behält exakt dieselbe Bildschirmposition bei jedem Render
+// - Vollständig kompatibel mit allen Grundkurs-Seiten
 
 (function () {
-  // ---------- 0) kleine Utilities ----------
   const $ = (sel, root = document) => root.querySelector(sel);
   const on = (el, ev, fn) => el && el.addEventListener(ev, fn, { passive: true });
 
-  // ---------- 1) Kurs-Kontext aus URL ----------
+  // ---------- 1) Kurs-Kontext ----------
   function detectCourseCtx() {
     const p = (location.pathname || "").toLowerCase();
     if (p.includes("grundkurs-basis"))      return { key: "course1", idx: 1, next: "grundkurs-sicherheit.html" };
@@ -20,7 +18,7 @@
   }
   const ctx = detectCourseCtx();
 
-  // ---------- 2) i18n ----------
+  // ---------- 2) Sprache ----------
   const lang = localStorage.getItem("fsa_lang") || "de";
   const T = (lang === "en") ? {
     you: "Participant",
@@ -46,7 +44,7 @@
     goldHint: "Jeder Kurs ist erst vollständig, wenn du <strong>Gold</strong> geschafft hast. Bei vier Kursen ergeben viermal Gold deine Qualifikation von <strong>36 Punkten</strong>. Nur dann schaltest du deine Abschlussprüfung frei.",
   };
 
-  // ---------- 3) Status aus Score ----------
+  // ---------- 3) Status-Funktion ----------
   function statusFrom(score) {
     if (score <= 5) return T.statuses.retry;
     if (score <= 7) return T.statuses.bronze;
@@ -54,7 +52,7 @@
     return T.statuses.gold;
   }
 
-  // ---------- 4) Mentor-Fehlerliste ----------
+  // ---------- 4) Mentor-Hinweise ----------
   function buildMistakeList() {
     try {
       const data = (window.block03_course && (window.block03_course[lang] || window.block03_course.de)) || null;
@@ -67,7 +65,6 @@
         const choice = answers[i];
         if (!q || choice == null) continue;
         const opt = q.a?.[choice];
-        const correct = q.a?.findIndex(o => o.correct) ?? -1;
         if (!opt?.correct) {
           const text = q.mentor?.wrong || q.mentor || "";
           items.push(`<li style="margin:.35rem 0;"><strong>Q${i + 1}.</strong> ${text}</li>`);
@@ -75,27 +72,25 @@
       }
       if (!items.length) return `<p style="color:#9ca3af">${T.noMistakes}</p>`;
       return `<ul style="text-align:left;color:#e5e7eb;line-height:1.6;margin:.6rem 0 0 1.1rem;">${items.join("")}</ul>`;
-    } catch (_) {
-      return "";
-    }
+    } catch (_) { return ""; }
   }
 
-  // ---------- 5) Sichtfeld-Stabilisierung (Fix gegen Springen) ----------
+  // ---------- 5) Fix: exakte Sichtfeld-Position ----------
   const quizRoot = document.getElementById("quiz-root") || document.body;
-  const observer = new MutationObserver(() => {
-    // aktuelle Position des Containers merken
-    const top = quizRoot.getBoundingClientRect().top;
-    // wenn Container verschoben, justiere sanft zurück
-    if (top < 60 || top > 120) {
-      window.scrollTo({
-        top: window.scrollY + top - 100,
-        behavior: "instant"
-      });
+  let fixedTop = null;
+
+  const keepExactView = () => {
+    if (fixedTop === null) fixedTop = quizRoot.getBoundingClientRect().top + window.scrollY;
+    const currentTop = quizRoot.getBoundingClientRect().top + window.scrollY;
+    if (Math.abs(currentTop - fixedTop) > 3) {
+      window.scrollTo({ top: fixedTop, behavior: "instant" });
     }
-  });
+  };
+
+  const observer = new MutationObserver(keepExactView);
   observer.observe(quizRoot, { childList: true, subtree: true });
 
-  // ---------- 6) Hauptfunktion ----------
+  // ---------- 6) Ergebnisanzeige ----------
   window.showResult = function showResult(triggeredByUser) {
     if (triggeredByUser !== true) return;
 
@@ -163,7 +158,9 @@
         window.location.href = `${ctx.next}?nocache=${Date.now()}`;
       });
     }
+
+    keepExactView();
   };
 
-  console.log("✅ block-04-engine.js geladen: stabilisierte Kursauswertung ohne Scroll-Springen.");
+  console.log("✅ block-04-engine.js geladen: pixelgenauer Sichtfeld-Fix aktiv.");
 })();
