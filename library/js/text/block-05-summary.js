@@ -1,102 +1,101 @@
-<script>
-// ░░ Baustein 05 – Gesamtauswertung & Prüfungsfreischaltung (v2.1) ░░
-// • Anzeige aller 4 Kurs-Scores + Status (ohne Repeat-Zähler)
-// • Prüfung NUR wenn: fourGold == true UND totalScore >= 36
-// • Klarer DE/EN-Text (4×Gold ⇒ 36 Punkte ⇒ Prüfung)
+// ░░ Baustein 05 – Abschlussübersicht (Final Exam Unlock) – FSA Style ░░
+// Voraussetzung: Alle vier Kurse (Basis, Sicherheit, Einkommen, Network) = Gold
+// Speicherstruktur: localStorage.fsa_course1_status ... fsa_course4_status
+// Keine externen JSON, reine Local-Prüfung.
 
-(function(){
-  document.addEventListener("DOMContentLoaded", () => {
-    const lang = localStorage.getItem("fsa_lang") || "de";
-    const T = {
-      de: {
-        title: "Dein Fortschritt in der Akademie",
-        c1: "Grundkurs 1 – Basis",
-        c2: "Grundkurs 2 – Sicherheit",
-        c3: "Grundkurs 3 – Einkommen",
-        c4: "Grundkurs 4 – Network",
-        total: (n)=>`Gesamtpunkte: <strong>${n}/40</strong>`,
-        locked: "⏳ Noch nicht bereit – trainiere weiter, bis alle vier Kurse Gold erreicht haben.",
-        unlocked: "✅ Du hast viermal Gold und 36 Punkte – die Hauptprüfung ist freigeschaltet.",
-        rule: "Jeder Kurs ist erst vollständig, wenn du <strong>Gold</strong> erreicht hast. Bei 4 Kursen entstehen so bei viermal Gold deine Qualifikation mit <strong>36 Punkten</strong>. Nur dann erhältst du Zugang zu deiner Abschlussprüfung.",
-        toExam: "Zur Hauptprüfung →",
-        toFirstCourse: "Zur Kursübersicht →",
-        missingGold: "Es fehlt noch mindestens ein Kurs mit Gold."
-      },
-      en: {
-        title: "Your Progress in the Academy",
-        c1: "Course 1 – Foundation",
-        c2: "Course 2 – Security",
-        c3: "Course 3 – Income",
-        c4: "Course 4 – Network",
-        total: (n)=>`Total points: <strong>${n}/40</strong>`,
-        locked: "⏳ Not ready yet — keep training until all four courses are Gold.",
-        unlocked: "✅ You have four times Gold and 36 points — the final exam is unlocked.",
-        rule: "Each course is complete only with <strong>Gold</strong>. Across four courses, four times Gold equals your qualification with <strong>36 points</strong>. Only then do you unlock your final exam.",
-        toExam: "Go to final exam →",
-        toFirstCourse: "Go to course overview →",
-        missingGold: "At least one course is not Gold yet."
-      }
-    }[lang];
+document.addEventListener("DOMContentLoaded", () => {
+  const lang = localStorage.getItem("fsa_lang") || "de";
 
-    const courses = [
-      {key:"course1", name:T.c1},
-      {key:"course2", name:T.c2},
-      {key:"course3", name:T.c3},
-      {key:"course4", name:T.c4},
-    ];
+  const texts = {
+    de: {
+      title: "🎓 Abschlussprüfung – Dein Weg zum Zertifikat",
+      locked: "Du hast noch nicht alle vier Kurse mit 🥇 Gold abgeschlossen.<br>Erreiche 4 × Gold (36 Punkte), um die Prüfung freizuschalten.",
+      unlocked: "Herzlichen Glückwunsch! Du hast alle vier Kurse mit 🥇 Gold abgeschlossen.<br>Du kannst jetzt deine Abschlussprüfung starten.",
+      button: "Zur Abschlussprüfung",
+    },
+    en: {
+      title: "🎓 Final Exam – Your Path to the Certificate",
+      locked: "You haven’t completed all four courses with 🥇 Gold yet.<br>Earn 4 × Gold (36 points) to unlock the exam.",
+      unlocked: "Congratulations! You’ve completed all four courses with 🥇 Gold.<br>You can now start your final exam.",
+      button: "Go to Final Exam",
+    }
+  }[lang];
 
-    let totalScore = 0;
-    let fourGold = true;
-    const listHTML = courses.map(c => {
-      const score  = Number(localStorage.getItem(`fsa_${c.key}_score`) || 0);
-      const status = localStorage.getItem(`fsa_${c.key}_status`) || "—";
-      totalScore += score;
-      if (!/gold/i.test(status)) fourGold = false;
-      return `<li><strong>${c.name}:</strong> ${score}/10 – <span>${status}</span></li>`;
-    }).join("");
+  // Kurs-Status abrufen
+  const statusKeys = ["fsa_course1_status", "fsa_course2_status", "fsa_course3_status", "fsa_course4_status"];
+  const goldCount = statusKeys.filter(k => (localStorage.getItem(k) || "").toLowerCase() === "gold").length;
+  const allGold = goldCount === statusKeys.length;
 
-    const eligible = fourGold && totalScore >= 36;
-    const color = eligible ? "#d4af37" : "#94a3b8";
+  // Container aufbauen
+  const wrap = document.createElement("div");
+  wrap.className = "final-summary";
 
-    const mount = document.getElementById("quiz-root") || document.body;
-    const panel = document.createElement("section");
-    panel.className = "card";
-    panel.style.marginTop = "1.2cm";
-    panel.innerHTML = `
-      <div style="max-width:860px;margin:0 auto;text-align:center">
-        <h2 style="color:${color};margin:0 0 .8rem 0;">${T.title}</h2>
-        <ul style="text-align:left;display:inline-block;color:#e5e7eb;line-height:1.8;margin:.4rem 0 1rem">
-          ${listHTML}
-        </ul>
-        <p>${T.total(totalScore)}</p>
-        <p style="margin:.25rem 0 1rem;color:${eligible ? '#e5e7eb' : '#d1d5db'}">
-          ${eligible ? T.unlocked : T.locked}
-        </p>
-        <blockquote style="margin:0 0 1.2rem 0;padding:1rem 1.2rem;background:rgba(255,255,255,.05);
-          border-left:4px solid ${color};border-radius:6px;color:#e5e7eb;">
-          🧭 ${T.rule}
-        </blockquote>
-        <div class="btn-row" style="display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap">
-          <button id="primaryBtn" class="btn"
-            style="background:${eligible?'linear-gradient(90deg,#3b82f6,#d4af37)':'rgba(0,0,0,.7)'};color:${eligible?'#fff':'#d4af37'};
-                   border:${eligible?'none':'1px solid rgba(212,175,55,.6)'};border-radius:8px;padding:.7rem 1.2rem;
-                   font-weight:700;cursor:pointer;">
-            ${eligible ? T.toExam : T.toFirstCourse}
-          </button>
-        </div>
-        ${!eligible ? `<p style="margin-top:.6rem;color:#9ca3af">${T.missingGold}</p>` : ""}
-      </div>
-    `;
-    mount.appendChild(panel);
+  const h2 = document.createElement("h2");
+  h2.innerHTML = texts.title;
+  wrap.appendChild(h2);
 
-    document.getElementById("primaryBtn")?.addEventListener("click", () => {
-      if (eligible) {
-        window.location.href = "grundkurs-pruefung.html?nocache=" + Date.now();
-      } else {
-        // zurück zu Kursübersicht – du hattest Basis als Start gewählt
-        window.location.href = "grundkurs-basis.html?nocache=" + Date.now();
-      }
-    });
-  });
-})();
-</script>
+  const info = document.createElement("p");
+  info.className = allGold ? "unlocked" : "locked";
+  info.innerHTML = allGold ? texts.unlocked : texts.locked;
+  wrap.appendChild(info);
+
+  const btn = document.createElement("a");
+  btn.className = "exam-btn";
+  btn.textContent = texts.button;
+  btn.href = allGold ? "/lp-anfang/grundkurs-pruefung.html" : "#";
+  btn.style.pointerEvents = allGold ? "auto" : "none";
+  btn.style.opacity = allGold ? "1" : "0.4";
+  wrap.appendChild(btn);
+
+  document.body.appendChild(wrap);
+
+  // Stil
+  const style = document.createElement("style");
+  style.textContent = `
+    .final-summary {
+      text-align: center;
+      padding: 2.5rem 1rem 3rem;
+      background: rgba(0,0,0,0.55);
+      border-top: 1px solid rgba(212,175,55,0.3);
+      border-bottom: 1px solid rgba(212,175,55,0.3);
+      color: #e5e7eb;
+      font-family: system-ui, sans-serif;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 0 10px rgba(212,175,55,0.15);
+    }
+    .final-summary h2 {
+      color: #d4af37;
+      margin-bottom: 1rem;
+      font-size: 1.4rem;
+    }
+    .final-summary p {
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .final-summary .exam-btn {
+      display: inline-block;
+      padding: 0.8rem 1.6rem;
+      background: rgba(212,175,55,0.25);
+      color: #fff;
+      border: 1px solid rgba(212,175,55,0.6);
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    .final-summary .exam-btn:hover {
+      background: rgba(212,175,55,0.35);
+      border-color: rgba(212,175,55,0.9);
+      box-shadow: 0 0 10px rgba(212,175,55,0.6);
+      transform: translateY(-2px);
+    }
+    .final-summary p.locked { color: #aaa; }
+    .final-summary p.unlocked { color: #d4af37; }
+
+    @media (max-width: 480px) {
+      .final-summary h2 { font-size: 1.2rem; }
+      .final-summary .exam-btn { font-size: 0.95rem; padding: 0.7rem 1.4rem; }
+    }
+  `;
+  document.head.appendChild(style);
+});
