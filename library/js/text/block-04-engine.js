@@ -1,4 +1,4 @@
-<!-- Datei: /library/js/text/block-04-engine.js -->
+<!-- Datei: /lp-anfang/library/js/text/block-04-engine.js -->
 <script>
 // ░░ Baustein 04 – Kursauswertung & Fortschritt (final, DE/EN) ░░
 // - Kein Auto-Trigger beim Laden
@@ -8,11 +8,9 @@
 // - Keine erzwungene Scrollbewegung (Anti-Sprung-Patch bleibt extern zuständig)
 
 (function () {
-  // ---------- Utilities ----------
   const $ = (sel, root = document) => root.querySelector(sel);
   const on = (el, ev, fn) => el && el.addEventListener(ev, fn, { passive: true });
 
-  // ---------- Kurs-Kontext aus URL ----------
   function detectCourseCtx() {
     const p = (location.pathname || "").toLowerCase();
     if (p.includes("grundkurs-basis"))      return { key: "course1", idx: 1, next: "grundkurs-sicherheit.html", name_de:"Grundkurs 1 – Basis", name_en:"Course 1 – Foundation" };
@@ -23,7 +21,6 @@
   }
   const ctx = detectCourseCtx();
 
-  // ---------- i18n Texte (ausformuliert nach Vorgabe) ----------
   function i18n(lang) {
     const de = {
       you: "Teilnehmer",
@@ -42,7 +39,6 @@
       btn_restart: "Kurs neu starten",
       courseName: ctx.name_de,
     };
-
     const en = {
       you: "Participant",
       title: "Course Evaluation – Your Current Progress",
@@ -60,11 +56,9 @@
       btn_restart: "Start course again",
       courseName: ctx.name_en,
     };
-
     return lang === "en" ? en : de;
   }
 
-  // ---------- Status aus Score ----------
   function statusFrom(score, T) {
     if (score <= 5) return T.statuses.train;
     if (score <= 7) return T.statuses.bronze;
@@ -72,7 +66,6 @@
     return T.statuses.gold;
   }
 
-  // ---------- Mentor-Fehlerliste aus Kursdaten ----------
   function buildMistakeList(lang) {
     try {
       const data = (window.block03_course && (window.block03_course[lang] || window.block03_course.de)) || null;
@@ -88,11 +81,7 @@
         const isCorrect = !!opt?.correct;
         if (!isCorrect) {
           const wrongText = (q.mentor && (q.mentor.wrong || q.mentor)) || "";
-          items.push(
-            `<li style="margin:.35rem 0;">
-              <strong>Q${i + 1}.</strong> ${wrongText}
-            </li>`
-          );
+          items.push(`<li style="margin:.35rem 0;"><strong>Q${i + 1}.</strong> ${wrongText}</li>`);
         }
       }
 
@@ -103,17 +92,15 @@
     }
   }
 
-  // ---------- Öffentliche Abschluss-Funktion ----------
   window.showResult = function showResult(triggeredByUser) {
     if (triggeredByUser !== true) return;
 
     const lang = localStorage.getItem("fsa_lang") || "de";
     const T = i18n(lang);
 
-    // const first = localStorage.getItem("fsa_firstName") || "";      // ★ unverändert belassen
-    // const last  = localStorage.getItem("fsa_lastName")  || "";
-    // const full  = (first + " " + last).trim() || T.you;
-    const full = T.you; // ★ geändert: Name nicht mehr anzeigen
+    const first = localStorage.getItem("fsa_firstName") || "";
+    const last  = localStorage.getItem("fsa_lastName")  || "";
+    const full  = (first + " " + last).trim() || T.you;
 
     const score = Number(window.correctCount || 0);
     const total = Number(window.totalQuestions || 10);
@@ -121,25 +108,15 @@
     const color  = score <= 5 ? "#ef4444" : score <= 7 ? "#cd7f32" : score <= 9 ? "#93c5fd" : "#d4af37";
     const status = statusFrom(score, T);
 
-    // Fortschritt speichern (nur Score/Status/Passed-Flag)
+    // Nur aktueller Kurs
     localStorage.setItem(`fsa_${ctx.key}_score`, String(score));
     localStorage.setItem(`fsa_${ctx.key}_status`, status);
-    if (/Gold/i.test(status)) {
-      localStorage.setItem(`fsa_${ctx.key}_passed`, "true");
-    } else {
-      localStorage.removeItem(`fsa_${ctx.key}_passed`);
-    }
+    if (/Gold/i.test(status)) localStorage.setItem(`fsa_${ctx.key}_passed`, "true");
+    else                      localStorage.removeItem(`fsa_${ctx.key}_passed`);
 
     const mistakesHTML = buildMistakeList(lang);
     const hasMistakes = (mistakesHTML !== "NO_MISTAKES" && mistakesHTML !== "");
 
-    // Status-spezifischer Mentor-Kommentar
-    let statusMsg = "";
-    if (/Gold/i.test(status))      statusMsg = T.msg_gold;
-    else if (/Silber|Silver/i.test(status)) statusMsg = T.msg_silver;
-    else if (/Bronze/i.test(status))         statusMsg = T.msg_bronze;
-
-    // Render in #quiz-root (ersetzt Fragen-UI)
     const mount = document.getElementById("quiz-root") || document.body;
     mount.innerHTML = `
       <section class="card" style="margin:1.2cm auto 0;max-width:920px;border:1px solid ${color};border-radius:12px;background:rgba(17,24,39,0.78);">
@@ -164,20 +141,13 @@
           ${T.goldHint}
         </div>
 
-        ${statusMsg ? `<blockquote style="font-style:italic;color:#e5e7eb;background:rgba(255,255,255,0.04);
-            border-left:4px solid ${color};padding:1rem 1.2rem;border-radius:8px;margin:1rem 0;">
-            ${statusMsg}
-          </blockquote>` : ""}
-
         <div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.2rem">
-          ${
-            /Gold/i.test(status)
-              ? `<button id="nextCourseBtn" class="btn"
-                    style="background:linear-gradient(90deg,#3b82f6,#d4af37);color:#fff;border:0;border-radius:8px;padding:.7rem 1.2rem;font-weight:700;cursor:pointer;">
-                   ${T.btn_next(ctx.idx)}
-                 </button>`
-              : ""
-          }
+          ${/Gold/i.test(status)
+            ? `<button id="nextCourseBtn" class="btn"
+                style="background:linear-gradient(90deg,#3b82f6,#d4af37);color:#fff;border:0;border-radius:8px;padding:.7rem 1.2rem;font-weight:700;cursor:pointer;">
+                ${T.btn_next(ctx.idx)}
+              </button>`
+            : ""}
           <button id="restartBtn" class="btn"
             style="background:rgba(0,0,0,.6);color:#d4af37;border:1px solid rgba(212,175,55,.45);border-radius:8px;padding:.7rem 1.2rem;font-weight:600;cursor:pointer;">
             🔄 ${T.btn_restart}
@@ -186,34 +156,10 @@
       </section>
     `;
 
-    // Aktionen
     on($("#restartBtn"), "click", () => {
-      // ★ geändert: ALLE Keys des aktuellen Kurses entfernen (inkl. Alt-/Legacy-Namen),
-      // aber ausschließlich für den aktuellen Kurs. Andere Kurse bleiben unberührt.
-      const prefixes = [
-        `fsa_${ctx.key}_`,                               // regulär: score/status/passed
-      ];
-      const legacySuffixes = ["repeats", "repeat", "tries", "retry", "attempts"]; // Altkeys
-      // Normale Kurs-Keys gezielt löschen
-      ["score","status","passed"].forEach(s => localStorage.removeItem(`fsa_${ctx.key}_${s}`));
-      // Legacy-Varianten
-      legacySuffixes.forEach(s => localStorage.removeItem(`fsa_${ctx.key}_${s}`));
-      // Falls irgendwo fälschlich weitere fsa_courseX_* angelegt wurden:
-      const toDelete = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (!k) continue;
-        if (prefixes.some(p => k.startsWith(p))) toDelete.push(k);
-      }
-      toDelete.forEach(k => localStorage.removeItem(k));
-
-      // Nutzer-Antworten der Runde löschen
+      ["score", "status", "passed"].forEach(k => localStorage.removeItem(`fsa_${ctx.key}_${k}`));
       try { window.__answers = []; } catch(_) {}
-
-      // ★ geändert: Frischer Start ohne Cache der Seite (gleicher Kurs, nocache-Param)
-      const base = location.pathname + location.search.replace(/(\?|&)nocache=\d+/,'').replace(/^\?$/,'');
-      const sep  = base.includes('?') ? '&' : '?';
-      location.replace(`${base}${sep}nocache=${Date.now()}`);
+      location.reload(); // frischer Start, kein Zähler, keine Altwerte
     });
 
     if (/Gold/i.test(status)) {
@@ -221,8 +167,6 @@
         window.location.href = `${ctx.next}?nocache=${Date.now()}`;
       });
     }
-
-    // Keine Scroll-Erzwingung hier, damit der Anti-Sprung-Patch die Kontrolle behält.
   };
 
   console.log("✅ block-04-engine.js aktiv: finale Auswertung ohne Wiederholungszähler & ohne 'Wiederholen'-Wort.");
