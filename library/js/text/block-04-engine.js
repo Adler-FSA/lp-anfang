@@ -1,103 +1,136 @@
-// ░░ Baustein 04 – Kurslogik / Engine-Steuerung (v2.3.7) ░░
-// Identisch mit block-03-engine.js v2.3.7
-// Fix: Kein Springen beim Fragenwechsel, saubere Punktelogik, keine Wiederholungszähler
+/*!
+ * FSA – block-04-engine.js (v1.4)
+ * Kursauswertung + Fortschritt speichern (ohne Repeat-Zähler)
+ * - Sanfter Fade beim Ergebnis
+ * - Button-Logik: Gold → nächster Kurs, sonst „Kurs wiederholen“
+ * - DE/EN Texte
+ */
 
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("🧭 Course Engine v2.3.7 aktiv – Scrollfix (Kurs 2–4) integriert.");
-
-  const lang = localStorage.getItem("fsa_lang") || "de";
-  const data = (block03_course && block03_course[lang]) || block03_course.de;
-  const questions = data.questions || [];
-  const courseName = data.title || "Grundkurs";
-
-  const quizContainer = document.querySelector("#quiz");
-  const nextBtn = document.querySelector("#nextQuestion");
-  const submitBtn = document.querySelector("#submitQuiz");
-
-  if (!questions.length || !quizContainer) {
-    console.warn("⚠️ Keine Fragen gefunden oder Container fehlt – showResult() wird NICHT ausgelöst.");
-    return;
+(function(){
+  // Kurs-Schlüssel / Nächste Seite aus URL ableiten
+  function detectCourseKey() {
+    const p = (location.pathname || "").toLowerCase();
+    if (p.includes("grundkurs-basis"))      return {key:"course1", idx:1, next:"grundkurs-sicherheit.html"};
+    if (p.includes("grundkurs-sicherheit")) return {key:"course2", idx:2, next:"grundkurs-einkommen.html"};
+    if (p.includes("grundkurs-einkommen"))  return {key:"course3", idx:3, next:"grundkurs-network.html"};
+    if (p.includes("grundkurs-network"))    return {key:"course4", idx:4, next:"grundkurs-pruefung-vorbereitung.html"};
+    return {key:"course1", idx:1, next:"grundkurs-sicherheit.html"};
   }
+  const ctx = detectCourseKey();
 
-  let currentQuestion = 0;
-  let correctCount = 0;
+  // Ergebnis-Renderer
+  window.showResult = function showResult(triggeredByUser){
+    if (triggeredByUser !== true) return;
 
-  // Scroll ruhig halten
-  function freezeScrollPosition(fn) {
-    const y = window.scrollY;
-    const h = document.body.scrollHeight;
-    fn();
-    const newH = document.body.scrollHeight;
-    const diff = newH - h;
-    if (diff < 0) window.scrollTo({ top: y + diff, behavior: "instant" });
-    else window.scrollTo({ top: y, behavior: "instant" });
-  }
+    const lang = localStorage.getItem("fsa_lang") || "de";
+    const score = typeof window.correctCount === "number" ? window.correctCount : 0;
+    const total = typeof window.totalQuestions === "number" ? window.totalQuestions : 10;
 
-  // Frage anzeigen
-  function renderQuestion() {
-    const q = questions[currentQuestion];
-    if (!q) return;
+    const firstName = localStorage.getItem("fsa_firstName") || "";
+    const lastName  = localStorage.getItem("fsa_lastName")  || "";
+    const fullName  = `${firstName} ${lastName}`.trim();
 
-    freezeScrollPosition(() => {
-      quizContainer.innerHTML = `
-        <h3 style="margin-bottom:1rem;">${q.q}</h3>
-        <ul class="answers" style="list-style:none;padding:0;margin:0;">
-          ${q.a.map((opt, i) => `
-            <li style="margin:.4rem 0;">
-              <label style="cursor:pointer;display:flex;align-items:flex-start;gap:.5rem;">
-                <input type="radio" name="answer" value="${i}" style="margin-top:.25rem;">
-                <span>${opt.text}</span>
-              </label>
-            </li>`).join("")}
-        </ul>
-        <p class="mentor-tip" style="
-          margin-top:1.2rem;
-          padding:.8rem 1rem;
-          background:rgba(255,255,255,0.05);
-          border-left:4px solid var(--gold);
-          border-radius:6px;
-          color:#e5e7eb;
-          font-style:italic;
-        ">🧭 ${lang === "de"
-          ? "Wähle eine Antwort aus und klicke auf Weiter."
-          : "Select an answer and click Next."}</p>
-      `;
-    });
-  }
-
-  // Antwort prüfen
-  function checkAnswer() {
-    const selected = quizContainer.querySelector("input[name='answer']:checked");
-    if (!selected) return;
-    const chosen = parseInt(selected.value, 10);
-    if (questions[currentQuestion].a[chosen].correct) {
-      correctCount++;
-      window.correctCount = correctCount;
-    }
-  }
-
-  // Weiter-Button
-  nextBtn?.addEventListener("click", () => {
-    checkAnswer();
-    currentQuestion++;
-    if (currentQuestion < questions.length) renderQuestion();
-    else finishCourse();
-  });
-
-  // Submit-Button
-  submitBtn?.addEventListener("click", () => finishCourse());
-
-  // Abschluss
-  function finishCourse() {
-    console.log("✅ Kurs abgeschlossen – showResult() ausgelöst.");
-    if (typeof showResult === "function") {
-      showResult(true);
-      document.querySelector("#quiz-root")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Status
+    let status = "", mentorText = "";
+    if (score <= 5) {
+      status = lang==="de" ? "Wiederholen ❌" : "Repeat ❌";
+      mentorText = lang==="de"
+        ? "Lass dich nicht entmutigen. Versuch es noch einmal – du bist näher am Ziel, als du denkst."
+        : "Don’t be discouraged. Try again — you’re closer than you think.";
+    } else if (score <= 7) {
+      status = lang==="de" ? "Bronze 🥉" : "Bronze 🥉";
+      mentorText = lang==="de"
+        ? "Gutes Fundament. Bleib konsequent – dein nächster Flug trägt dich höher."
+        : "Solid base. Stay consistent — your next flight will take you higher.";
+    } else if (score <= 9) {
+      status = lang==="de" ? "Silber 🥈" : "Silver 🥈";
+      mentorText = lang==="de"
+        ? "Stark! Mit etwas Feinschliff erreichst du volle Souveränität."
+        : "Strong! With a bit more refinement, you’ll reach sovereignty.";
     } else {
-      console.warn("⚠️ showResult() nicht gefunden – keine Auswertung möglich.");
+      status = lang==="de" ? "Gold 🥇" : "Gold 🥇";
+      mentorText = lang==="de"
+        ? "Großartig! Du hast die Prinzipien wirklich verinnerlicht."
+        : "Outstanding! You’ve internalized the core principles.";
     }
-  }
 
-  // Start
-  renderQuestion();
-});
+    // Speichern (bereinigt)
+    localStorage.setItem(`fsa_${ctx.key}_score`, String(score));
+    localStorage.setItem(`fsa_${ctx.key}_status`, status);
+    if (status.toLowerCase().includes("gold")) {
+      localStorage.setItem(`fsa_${ctx.key}_passed`, "true");
+    }
+
+    const percent = Math.round((score / total) * 100);
+    const color = score <= 5 ? "#ef4444" : score <=7 ? "#cd7f32" : score <=9 ? "#93c5fd" : "#d4af37";
+
+    const isGold = status.toLowerCase().includes("gold");
+    const buttonLabel = isGold
+      ? (lang==="de" ? (ctx.idx<4 ? "Weiter zum nächsten Kurs →" : "Zur Prüfungsvorbereitung →")
+                     : (ctx.idx<4 ? "Continue to next course →" : "Go to exam prep →"))
+      : (lang==="de" ? "Kurs wiederholen" : "Repeat course");
+
+    const buttonAction = isGold
+      ? () => { window.location.href = ctx.next + "?nocache=" + Date.now(); }
+      : () => { location.reload(); };
+
+    // Zielcontainer
+    const container = window.container || document.querySelector("#quiz-root") || document.body;
+
+    // Fade-Stil einmalig
+    const styleId = "fsa-result-fade-style";
+    if (!document.getElementById(styleId)) {
+      const st = document.createElement("style");
+      st.id = styleId;
+      st.textContent = `.fsa-result{opacity:0;transition:opacity .2s ease}.fsa-result.show{opacity:1}`;
+      document.head.appendChild(st);
+    }
+
+    // Render
+    const wrap = document.createElement("div");
+    wrap.className = "fsa-result";
+    wrap.innerHTML = `
+      <div style="background:rgba(17,24,39,0.8);border:1px solid ${color};
+        border-radius:12px;padding:2rem;text-align:center;
+        box-shadow:0 0 25px rgba(212,175,55,0.15);margin-top:1cm;">
+        <h2 style="color:${color};font-size:1.6rem;margin-bottom:0.4rem;">${window.courseName || (lang==="de"?"Grundkurs":"Course")}</h2>
+        ${fullName ? `<p style="font-size:1.05rem;color:#94a3b8;margin-bottom:1.2rem;">
+          ${lang==="de"?"Auswertung für":"Evaluation for"} <strong>${fullName}</strong>
+        </p>` : ""}
+        ${typeof window.renderStats==="function" ? window.renderStats() : ""}
+        <div style="margin:1rem auto 1.4rem auto;width:80%;background:#1e293b;border-radius:8px;height:16px;overflow:hidden;">
+          <div style="width:${percent}%;height:100%;background:${color};transition:width 1s ease;"></div>
+        </div>
+        <p style="margin-bottom:0.8rem;">
+          ${lang==="de"
+            ? `Du hast <strong>${score}</strong> von <strong>${total}</strong> Fragen richtig.`
+            : `You answered <strong>${score}</strong> out of <strong>${total}</strong> correctly.`}
+        </p>
+        <p style="margin-bottom:1rem;">
+          ${lang==="de"?"Status":"Status"}: <strong style="color:${color};">${status}</strong>
+        </p>
+        <blockquote style="font-style:italic;color:#e5e7eb;background:rgba(255,255,255,0.05);
+          border-left:4px solid ${color};padding:1rem 1.5rem;border-radius:6px;
+          margin:1.2rem auto;max-width:700px;">“${mentorText}”</blockquote>
+        <div class="btn-row" style="display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1rem;justify-content:center">
+          <button id="courseActionBtn" class="btn ${isGold ? 'primary':''}" style="${isGold?'background:linear-gradient(90deg,#3b82f6,#d4af37);color:#fff;border:none':''}">
+            ${buttonLabel}
+          </button>
+        </div>
+      </div>
+    `;
+
+    // Altes UI ersetzen, ohne die Scrollposition zu verlieren
+    const prevY = window.scrollY;
+    container.innerHTML = "";
+    container.appendChild(wrap);
+    // Fade rein
+    setTimeout(() => wrap.classList.add("show"), 10);
+    // Scrollposition beibehalten
+    window.scrollTo({ top: prevY });
+
+    document.getElementById("courseActionBtn")?.addEventListener("click", buttonAction);
+  };
+
+  console.log("✅ Auswertung aktiv – v1.4 (Fade, Gold→Next, kein Repeat-Zähler).");
+})();
