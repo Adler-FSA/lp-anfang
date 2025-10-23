@@ -1,129 +1,102 @@
+<script>
 // ░░ Baustein 05 – Gesamtauswertung & Prüfungsfreischaltung (v2.1) ░░
-// - Zeigt Ergebnisse aller 4 Grundkurse (Basis–Network)
-// - Kein Sprungverhalten (Scrollfix integriert)
-// - Bronze/Silber/Gold-Mentorlogik + Hauptprüfung ab 36 Punkten
-// - Keine Wiederholungszähler, keine automatischen Resets
+// • Anzeige aller 4 Kurs-Scores + Status (ohne Repeat-Zähler)
+// • Prüfung NUR wenn: fourGold == true UND totalScore >= 36
+// • Klarer DE/EN-Text (4×Gold ⇒ 36 Punkte ⇒ Prüfung)
 
 (function(){
   document.addEventListener("DOMContentLoaded", () => {
     const lang = localStorage.getItem("fsa_lang") || "de";
-    const container = document.getElementById("quiz-root") || document.body;
-
-    // Scroll stabil halten
-    function freezeScrollPosition(fn) {
-      const y = window.scrollY;
-      const h = document.body.scrollHeight;
-      fn();
-      const newH = document.body.scrollHeight;
-      const diff = newH - h;
-      if (diff < 0) window.scrollTo({ top: y + diff, behavior: "instant" });
-      else window.scrollTo({ top: y, behavior: "instant" });
-    }
+    const T = {
+      de: {
+        title: "Dein Fortschritt in der Akademie",
+        c1: "Grundkurs 1 – Basis",
+        c2: "Grundkurs 2 – Sicherheit",
+        c3: "Grundkurs 3 – Einkommen",
+        c4: "Grundkurs 4 – Network",
+        total: (n)=>`Gesamtpunkte: <strong>${n}/40</strong>`,
+        locked: "⏳ Noch nicht bereit – trainiere weiter, bis alle vier Kurse Gold erreicht haben.",
+        unlocked: "✅ Du hast viermal Gold und 36 Punkte – die Hauptprüfung ist freigeschaltet.",
+        rule: "Jeder Kurs ist erst vollständig, wenn du <strong>Gold</strong> erreicht hast. Bei 4 Kursen entstehen so bei viermal Gold deine Qualifikation mit <strong>36 Punkten</strong>. Nur dann erhältst du Zugang zu deiner Abschlussprüfung.",
+        toExam: "Zur Hauptprüfung →",
+        toFirstCourse: "Zur Kursübersicht →",
+        missingGold: "Es fehlt noch mindestens ein Kurs mit Gold."
+      },
+      en: {
+        title: "Your Progress in the Academy",
+        c1: "Course 1 – Foundation",
+        c2: "Course 2 – Security",
+        c3: "Course 3 – Income",
+        c4: "Course 4 – Network",
+        total: (n)=>`Total points: <strong>${n}/40</strong>`,
+        locked: "⏳ Not ready yet — keep training until all four courses are Gold.",
+        unlocked: "✅ You have four times Gold and 36 points — the final exam is unlocked.",
+        rule: "Each course is complete only with <strong>Gold</strong>. Across four courses, four times Gold equals your qualification with <strong>36 points</strong>. Only then do you unlock your final exam.",
+        toExam: "Go to final exam →",
+        toFirstCourse: "Go to course overview →",
+        missingGold: "At least one course is not Gold yet."
+      }
+    }[lang];
 
     const courses = [
-      {key:"course1", name_de:"Grundkurs 1 – Basis",      name_en:"Course 1 – Foundation", next:"grundkurs-sicherheit.html"},
-      {key:"course2", name_de:"Grundkurs 2 – Sicherheit", name_en:"Course 2 – Security",   next:"grundkurs-einkommen.html"},
-      {key:"course3", name_de:"Grundkurs 3 – Einkommen",  name_en:"Course 3 – Income",     next:"grundkurs-network.html"},
-      {key:"course4", name_de:"Grundkurs 4 – Network",    name_en:"Course 4 – Network",    next:"grundkurs-pruefung-vorbereitung.html"}
+      {key:"course1", name:T.c1},
+      {key:"course2", name:T.c2},
+      {key:"course3", name:T.c3},
+      {key:"course4", name:T.c4},
     ];
 
     let totalScore = 0;
-    let lowestStatus = "gold";
-    const statusRank = {repeat:0, bronze:1, silver:2, gold:3};
-
-    const list = courses.map(c => {
+    let fourGold = true;
+    const listHTML = courses.map(c => {
       const score  = Number(localStorage.getItem(`fsa_${c.key}_score`) || 0);
-      const status = (localStorage.getItem(`fsa_${c.key}_status`) || "—").trim();
+      const status = localStorage.getItem(`fsa_${c.key}_status`) || "—";
       totalScore += score;
-
-      const sNorm = status.toLowerCase();
-      if (statusRank[sNorm] !== undefined && statusRank[sNorm] < statusRank[lowestStatus]) {
-        lowestStatus = sNorm;
-      }
-
-      return `<li><strong>${lang==="de"?c.name_de:c.name_en}:</strong> ${score}/10 – <span>${status}</span></li>`;
+      if (!/gold/i.test(status)) fourGold = false;
+      return `<li><strong>${c.name}:</strong> ${score}/10 – <span>${status}</span></li>`;
     }).join("");
 
-    const allPassed = courses.every(c => {
-      const s = (localStorage.getItem(`fsa_${c.key}_status`) || "").toLowerCase();
-      return /(bronze|silber|silver|gold)/.test(s);
-    });
+    const eligible = fourGold && totalScore >= 36;
+    const color = eligible ? "#d4af37" : "#94a3b8";
 
-    const eligible = allPassed && totalScore >= 36 && lowestStatus !== "repeat";
-
-    const color = eligible ? "#d4af37" :
-      lowestStatus==="silver" ? "#93c5fd" :
-      lowestStatus==="bronze" ? "#cd7f32" : "#94a3b8";
-
-    // Mentortext
-    const mentor = lang==="de" ? {
-      gold:   "Exzellente Leistung – du bist bereit für die Hauptprüfung!",
-      silver: "Stark – du bist fast Gold – ein letzter Feinschliff!",
-      bronze: "Solides Fundament – arbeite dich jetzt zu Silber oder Gold hoch!",
-      repeat: "Nicht entmutigen lassen – Übung bringt Souveränität."
-    } : {
-      gold:   "Excellent – you are ready for the final exam!",
-      silver: "Strong – you’re almost gold – just refine a bit more!",
-      bronze: "Solid base – now aim for silver or gold!",
-      repeat: "Don’t be discouraged – practice brings sovereignty."
-    };
-
-    const btnLabel = eligible
-      ? (lang==="de" ? "Zur Hauptprüfung →" : "Go to final exam →")
-      : (lang==="de" ? "Weiter trainieren"   : "Keep training");
-
-    const btnAction = eligible
-      ? () => { window.location.href = "grundkurs-pruefung.html?nocache=" + Date.now(); }
-      : () => {
-          // bei Nicht-Bestehen → nächsten Kurs öffnen, sonst Basis
-          const next = courses.find(c => {
-            const s = (localStorage.getItem(`fsa_${c.key}_status`) || "").toLowerCase();
-            return s==="bronze" || s==="silver" || s==="repeat";
-          })?.next || "grundkurs-basis.html";
-          window.location.href = next + "?nocache=" + Date.now();
-        };
-
-    // Ruhiges Rendering
-    freezeScrollPosition(() => {
-      container.innerHTML = `
-        <div style="max-width:860px;margin:1.5cm auto;padding:2rem;
-          border:1px solid ${color};border-radius:12px;
-          background:rgba(17,24,39,0.75);text-align:center;">
-          <h2 style="color:${color};margin-bottom:1rem;">
-            ${lang==="de" ? "Dein Fortschritt in der Akademie" : "Your Progress in the Academy"}
-          </h2>
-          <ul style="text-align:left;display:inline-block;color:#e5e7eb;line-height:1.8;">
-            ${list}
-          </ul>
-          <p style="margin-top:1rem;">
-            ${lang==="de"
-              ? `Gesamtpunkte: <strong>${totalScore}/40</strong>`
-              : `Total points: <strong>${totalScore}/40</strong>`}
-          </p>
-          <blockquote style="
-            margin:1rem auto 1.4rem auto;
-            max-width:680px;
-            background:rgba(255,255,255,0.05);
-            border-left:4px solid ${color};
-            border-radius:6px;
-            padding:1rem 1.2rem;
-            font-style:italic;
-            color:#e5e7eb;">
-            🧭 ${mentor[lowestStatus] || mentor.repeat}
-          </blockquote>
-          <button id="examBtn" style="
-            background:rgba(0,0,0,0.7);
-            border:1px solid ${color};
-            color:${color};
-            padding:.8rem 1.6rem;
-            border-radius:6px;
-            cursor:pointer;
-            transition:all .3s ease;">
-            ${btnLabel}
+    const mount = document.getElementById("quiz-root") || document.body;
+    const panel = document.createElement("section");
+    panel.className = "card";
+    panel.style.marginTop = "1.2cm";
+    panel.innerHTML = `
+      <div style="max-width:860px;margin:0 auto;text-align:center">
+        <h2 style="color:${color};margin:0 0 .8rem 0;">${T.title}</h2>
+        <ul style="text-align:left;display:inline-block;color:#e5e7eb;line-height:1.8;margin:.4rem 0 1rem">
+          ${listHTML}
+        </ul>
+        <p>${T.total(totalScore)}</p>
+        <p style="margin:.25rem 0 1rem;color:${eligible ? '#e5e7eb' : '#d1d5db'}">
+          ${eligible ? T.unlocked : T.locked}
+        </p>
+        <blockquote style="margin:0 0 1.2rem 0;padding:1rem 1.2rem;background:rgba(255,255,255,.05);
+          border-left:4px solid ${color};border-radius:6px;color:#e5e7eb;">
+          🧭 ${T.rule}
+        </blockquote>
+        <div class="btn-row" style="display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap">
+          <button id="primaryBtn" class="btn"
+            style="background:${eligible?'linear-gradient(90deg,#3b82f6,#d4af37)':'rgba(0,0,0,.7)'};color:${eligible?'#fff':'#d4af37'};
+                   border:${eligible?'none':'1px solid rgba(212,175,55,.6)'};border-radius:8px;padding:.7rem 1.2rem;
+                   font-weight:700;cursor:pointer;">
+            ${eligible ? T.toExam : T.toFirstCourse}
           </button>
-        </div>`;
-    });
+        </div>
+        ${!eligible ? `<p style="margin-top:.6rem;color:#9ca3af">${T.missingGold}</p>` : ""}
+      </div>
+    `;
+    mount.appendChild(panel);
 
-    document.getElementById("examBtn")?.addEventListener("click", btnAction);
+    document.getElementById("primaryBtn")?.addEventListener("click", () => {
+      if (eligible) {
+        window.location.href = "grundkurs-pruefung.html?nocache=" + Date.now();
+      } else {
+        // zurück zu Kursübersicht – du hattest Basis als Start gewählt
+        window.location.href = "grundkurs-basis.html?nocache=" + Date.now();
+      }
+    });
   });
 })();
+</script>
