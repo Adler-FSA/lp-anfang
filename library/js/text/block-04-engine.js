@@ -34,15 +34,12 @@
       statuses: { train: "Weiter trainieren", bronze: "Bronze 🥉", silver: "Silber 🥈", gold: "Gold 🥇" },
       mentorHead: "Mentor-Hinweise zu deinen Fehlern:",
       noMistakes: "Perfekte Runde – keine Fehler.",
-      // Status-Hinweise
       msg_bronze: "Du hast ein gutes Fundament gelegt, aber dir fehlt noch Klarheit in wichtigen Punkten. Sieh dir die Mentor-Hinweise genau an – sie zeigen dir, wo dein Denken noch von alten Mustern geprägt ist. Vertiefe diese Bereiche, bevor du weitergehst.",
       msg_silver: "Du bist auf dem richtigen Weg. Einige Themen hast du verstanden, doch dein Wissen ist noch nicht vollständig verankert. Wiederhole gezielt die Fragen, die du falsch beantwortet hast, und lies die Mentor-Texte dazu aufmerksam. Aus Wissen entsteht Sicherheit – und Sicherheit führt zu Souveränität.",
       msg_gold:   "Stark – du hast alle Fragen richtig beantwortet und den Kurs vollständig gemeistert. Damit hast du dir einen von vier Gold-Statuspunkten gesichert. Wenn du in allen vier Kursen Gold erreichst, entsteht daraus deine Qualifikation mit 36 Punkten. Erst dann schaltest du deine Abschlussprüfung frei. Bleib dran – das ist der Weg zur echten finanziellen Souveränität.",
       goldHint: 'Jeder Kurs ist erst vollständig, wenn du <strong>Gold</strong> geschafft hast. Bei vier Kursen ergeben viermal Gold deine Qualifikation von <strong>36 Punkten</strong>. Nur dann schaltest du deine Abschlussprüfung frei.',
-      // Buttons
       btn_next: (idx) => idx < 4 ? "Weiter zum nächsten Kurs →" : "Zur Prüfungsvorbereitung →",
       btn_restart: "Kurs neu starten",
-      // Kursnamen
       courseName: ctx.name_de,
     };
 
@@ -55,12 +52,10 @@
       statuses: { train: "Keep training", bronze: "Bronze 🥉", silver: "Silver 🥈", gold: "Gold 🥇" },
       mentorHead: "Mentor feedback on your mistakes:",
       noMistakes: "Perfect round — no mistakes.",
-      // Status notes
       msg_bronze: "You’ve built a foundation, but key concepts still need clarity. Read the mentor’s notes carefully — they reveal where old patterns still influence your thinking. Strengthen these points before moving on.",
       msg_silver: "You’re on the right track. You’ve grasped several ideas, but your understanding isn’t fully anchored yet. Review the questions you missed and take time with the mentor’s feedback. Knowledge creates confidence — and confidence builds sovereignty.",
       msg_gold:   "Excellent — you’ve answered all questions correctly and fully mastered this course. You’ve earned one of four Gold achievements. Earning Gold in all four courses equals 36 points, unlocking your final exam. Keep going — this is your path to real financial sovereignty.",
       goldHint: 'A course is only complete when you’ve reached <strong>Gold</strong>. Four times Gold equals <strong>36 points</strong> — your qualification for the final exam.',
-      // Buttons
       btn_next: (idx) => idx < 4 ? "Continue to next course →" : "Go to exam prep →",
       btn_restart: "Start course again",
       courseName: ctx.name_en,
@@ -71,7 +66,7 @@
 
   // ---------- Status aus Score ----------
   function statusFrom(score, T) {
-    if (score <= 5) return T.statuses.train;   // keine "Wiederholen"-Wortwahl
+    if (score <= 5) return T.statuses.train;
     if (score <= 7) return T.statuses.bronze;
     if (score <= 9) return T.statuses.silver;
     return T.statuses.gold;
@@ -92,7 +87,6 @@
         const opt = q.a?.[choice];
         const isCorrect = !!opt?.correct;
         if (!isCorrect) {
-          // Mentor-Text für falsche Antwort
           const wrongText = (q.mentor && (q.mentor.wrong || q.mentor)) || "";
           items.push(
             `<li style="margin:.35rem 0;">
@@ -105,7 +99,7 @@
       if (!items.length) return "NO_MISTAKES";
       return `<ul style="text-align:left;color:#e5e7eb;line-height:1.6;margin:.6rem 0 0 1.1rem;">${items.join("")}</ul>`;
     } catch (_) {
-      return ""; // Fallback
+      return "";
     }
   }
 
@@ -116,9 +110,10 @@
     const lang = localStorage.getItem("fsa_lang") || "de";
     const T = i18n(lang);
 
-    const first = localStorage.getItem("fsa_firstName") || "";
-    const last  = localStorage.getItem("fsa_lastName")  || "";
-    const full  = (first + " " + last).trim() || T.you;
+    // const first = localStorage.getItem("fsa_firstName") || "";      // ★ unverändert belassen
+    // const last  = localStorage.getItem("fsa_lastName")  || "";
+    // const full  = (first + " " + last).trim() || T.you;
+    const full = T.you; // ★ geändert: Name nicht mehr anzeigen
 
     const score = Number(window.correctCount || 0);
     const total = Number(window.totalQuestions || 10);
@@ -143,7 +138,6 @@
     if (/Gold/i.test(status))      statusMsg = T.msg_gold;
     else if (/Silber|Silver/i.test(status)) statusMsg = T.msg_silver;
     else if (/Bronze/i.test(status))         statusMsg = T.msg_bronze;
-    else statusMsg = ""; // Trainingsstatus: keine extra Wall-of-Text
 
     // Render in #quiz-root (ersetzt Fragen-UI)
     const mount = document.getElementById("quiz-root") || document.body;
@@ -192,23 +186,35 @@
       </section>
     `;
 
+    // Aktionen
     on($("#restartBtn"), "click", () => {
-  // Nur Daten des AKTUELLEN Kurses löschen (hier: course1/Basis)
-  const prefix = `fsa_${ctx.key}_`; // ctx.key == "course1" auf /grundkurs-basis.html
-  Object.keys(localStorage).forEach(k => {
-    if (k.startsWith(prefix)) localStorage.removeItem(k);
-    // Altlasten vorsichtshalber mit entsorgen:
-    if (k.includes("repeat") && k.includes(ctx.key)) localStorage.removeItem(k);
-  });
+      // ★ geändert: ALLE Keys des aktuellen Kurses entfernen (inkl. Alt-/Legacy-Namen),
+      // aber ausschließlich für den aktuellen Kurs. Andere Kurse bleiben unberührt.
+      const prefixes = [
+        `fsa_${ctx.key}_`,                               // regulär: score/status/passed
+      ];
+      const legacySuffixes = ["repeats", "repeat", "tries", "retry", "attempts"]; // Altkeys
+      // Normale Kurs-Keys gezielt löschen
+      ["score","status","passed"].forEach(s => localStorage.removeItem(`fsa_${ctx.key}_${s}`));
+      // Legacy-Varianten
+      legacySuffixes.forEach(s => localStorage.removeItem(`fsa_${ctx.key}_${s}`));
+      // Falls irgendwo fälschlich weitere fsa_courseX_* angelegt wurden:
+      const toDelete = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (!k) continue;
+        if (prefixes.some(p => k.startsWith(p))) toDelete.push(k);
+      }
+      toDelete.forEach(k => localStorage.removeItem(k));
 
-  // Antwortenpuffer der Runde verwerfen
-  try { window.__answers = []; } catch (_) {}
+      // Nutzer-Antworten der Runde löschen
+      try { window.__answers = []; } catch(_) {}
 
-  // Frischer Reload ohne Cache (verhindert alten Zustand)
-  const url = new URL(location.href);
-  url.searchParams.set("nocache", Date.now().toString());
-  location.replace(url.toString());
-});
+      // ★ geändert: Frischer Start ohne Cache der Seite (gleicher Kurs, nocache-Param)
+      const base = location.pathname + location.search.replace(/(\?|&)nocache=\d+/,'').replace(/^\?$/,'');
+      const sep  = base.includes('?') ? '&' : '?';
+      location.replace(`${base}${sep}nocache=${Date.now()}`);
+    });
 
     if (/Gold/i.test(status)) {
       on($("#nextCourseBtn"), "click", () => {
