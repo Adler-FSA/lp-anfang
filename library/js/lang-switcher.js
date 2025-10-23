@@ -1,4 +1,4 @@
-// ░░ Sprachumschalter – FSA Style (ohne Reload, kein Springen) ░░
+// ░░ Sprachumschalter – FSA Style (ohne Reload, mobil-optimiert) ░░
 document.addEventListener("DOMContentLoaded", () => {
   const langs = [
     { code: "de", flag: "🇩🇪", label: "Deutsch" },
@@ -13,10 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.removeItem("fsaLang");
   }
 
-  // Aktuelle Sprache (Default: de)
   let currentLang = localStorage.getItem("fsa_lang") || "de";
 
-  // Container ermitteln (wie bisher), aber doppelte #langSwitcher vermeiden
+  // Container bestimmen
   const host =
     document.getElementById("langSwitcher") ||
     document.querySelector("#menu-helpers #langSwitcher") ||
@@ -29,10 +28,10 @@ document.addEventListener("DOMContentLoaded", () => {
     langBox.id = "langSwitcher";
     host.appendChild(langBox);
   } else {
-    langBox.innerHTML = ""; // sauber neu aufbauen
+    langBox.innerHTML = "";
   }
 
-  // Buttons rendern
+  // Buttons
   langs.forEach(lang => {
     const btn = document.createElement("button");
     btn.className = "lang-btn";
@@ -42,37 +41,33 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.innerHTML = lang.flag;
     if (lang.code === currentLang) btn.classList.add("active");
 
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      const code = lang.code;
+    const handleLangChange = (code) => {
       if (code === localStorage.getItem("fsa_lang")) return;
-
-      // Sprache setzen – KEIN Reload
       localStorage.setItem("fsa_lang", code);
       currentLang = code;
-
-      // Aktive Klasse umschalten
       langBox.querySelectorAll(".lang-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
 
-      // Events feuern, damit andere Blöcke live reagieren
-      try {
-        window.dispatchEvent(new StorageEvent("storage", { key: "fsa_lang", newValue: code }));
-      } catch (_) {
-        // Fallback für Browser ohne konstruierten StorageEvent
-      }
+      // Fallback für mobile Browser (kein StorageEvent)
       document.dispatchEvent(new CustomEvent("fsa:lang-change", { detail: code }));
 
-      // Optional: bekannte Renderer direkt anstupsen (falls vorhanden)
+      // Optionale Renderer anstoßen
       if (typeof window.renderIntro === "function") window.renderIntro(code);
       if (typeof window.renderUserData === "function") window.renderUserData(code);
-      // Fragen-/Auswertungs-UI hängt an Engine; die holt sich Texte bei Render.
+    };
+
+    // Klick- und Touchsteuerung
+    ["click", "touchstart"].forEach(evt => {
+      btn.addEventListener(evt, (e) => {
+        e.preventDefault();
+        handleLangChange(lang.code);
+      }, { passive: true });
     });
 
     langBox.appendChild(btn);
   });
 
-  // Stil (wie bisher)
+  // Stil
   const style = document.createElement("style");
   style.textContent = `
     #langSwitcher {
@@ -103,6 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     @media (max-width: 420px) {
       #langSwitcher { flex-direction: row; gap: 6px; }
+      .lang-btn { font-size: 1rem; padding: 0.3rem 0.45rem; }
     }
   `;
   document.head.appendChild(style);
