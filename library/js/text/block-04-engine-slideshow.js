@@ -1,5 +1,7 @@
+<!-- Datei: /library/js/text/block-04-engine-slideshow.js -->
+<script>
 // ░░ Baustein 04 – Slideshow-Engine (Grundkurs-Reihe FSA Akademie) ░░
-// Version 2.5.1 – Optik zurück auf klassischen FSA-Fragenstil
+// Version 2.5.2 – Klassische FSA-Optik + Übergabe an zentrale Engine-Logik
 // © FSA Akademie
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -15,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const quizRoot = document.getElementById("quiz-root");
   if (!quizRoot) return console.warn("⚠️ Kein Ziel-Container (#quiz-root) gefunden.");
 
+  // === Grundstruktur ===
   const quiz = document.createElement("section");
   quiz.className = "quiz-slideshow";
   quizRoot.appendChild(quiz);
@@ -41,13 +44,13 @@ document.addEventListener("DOMContentLoaded", () => {
     bar.style.width = ((index + 1) / total) * 100 + "%";
   };
 
+  // === Anzeige einer Frage ===
   const showQuestion = () => {
     const q = questions[index];
     updateProgress();
     card.replaceChildren();
     nav.replaceChildren();
 
-    // --- Klassische FSA-Kartenoptik ---
     card.innerHTML = `
       <div class="quiz-card-inner">
         <h3 class="quiz-question-count">${lang === "de" ? "Frage" : "Question"} ${index + 1} ${lang === "de" ? "von" : "of"} ${total}</h3>
@@ -84,7 +87,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         index++;
         if (index < total) setTimeout(showQuestion, 250);
-        else setTimeout(showResult, 400);
+        else {
+          // 🔁 Übergabe an zentrale Engine statt eigene showResult()
+          if (typeof window.finishCourse === "function") {
+            setTimeout(() => window.finishCourse(), 400);
+          } else {
+            console.warn("⚠️ Keine finishCourse() gefunden – fallback auf lokale Anzeige");
+            setTimeout(localShowResult, 400);
+          }
+        }
       })
     );
 
@@ -99,23 +110,13 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       index++;
       if (index < total) showQuestion();
-      else showResult();
+      else if (typeof window.finishCourse === "function") window.finishCourse();
+      else localShowResult();
     };
   };
 
-  const courseOrder = [
-    "grundkurs-basis.html",
-    "grundkurs-sicherheit.html",
-    "grundkurs-einkommen.html",
-    "grundkurs-network.html",
-    "grundkurs-pruefung-vorbereitung.html"
-  ];
-
-  const currentFile = window.location.pathname.split("/").pop();
-  const nextIndex = courseOrder.indexOf(currentFile) + 1;
-  const nextCourse = nextIndex < courseOrder.length ? courseOrder[nextIndex] : null;
-
-  const showResult = () => {
+  // === Fallback-Ergebnis (nur wenn Engine fehlt) ===
+  const localShowResult = () => {
     card.replaceChildren();
     nav.replaceChildren();
 
@@ -125,53 +126,25 @@ document.addEventListener("DOMContentLoaded", () => {
       score < 85 ? "Silber 🥈" :
       "Gold 🥇";
 
-    localStorage.setItem("fsa_course_score", String(score));
-    localStorage.setItem("fsa_course_status", status);
-    if (/Gold/i.test(status))
-      localStorage.setItem("fsa_course_passed", "true");
-    else
-      localStorage.removeItem("fsa_course_passed");
-
     const color =
       /Gold/i.test(status) ? "#d4af37" :
       /Silber|Silver/i.test(status) ? "#93c5fd" :
       "#cd7f32";
 
-    const mentorTip = results.find(r => !r.ok)?.mentor || "";
-
     card.innerHTML = `
       <div class="result-panel" style="border-color:${color}">
-        <h2 style="color:${color}">🏁 FSA Akademie – ${lang === "de" ? "Grundkurs" : "Course"}</h2>
+        <h2 style="color:${color}">🏁 ${lang === "de" ? "Ergebnis" : "Result"}</h2>
         <p>${lang === "de"
-          ? `Du hast <strong>${correct}</strong> von <strong>${total}</strong> Fragen richtig beantwortet.`
-          : `You answered <strong>${correct}</strong> out of <strong>${total}</strong> correctly.`}</p>
-        <div class="progress-bar"><div style="width:${score}%; background:${color};"></div></div>
-        <p>${lang === "de" ? "Status:" : "Status:"} <strong style="color:${color}">${status}</strong></p>
-        ${mentorTip ? `<blockquote>“${mentorTip}”</blockquote>` : ""}
-        <div class="result-buttons">
-          ${/Gold/i.test(status) && nextCourse
-            ? `<button id="nextCourseBtn">${lang === "de" ? "Weiter zum nächsten Kurs" : "Next Course"}</button>`
-            : ""}
-          <button id="restartBtn">${lang === "de" ? "Neu starten" : "Restart"}</button>
-        </div>
+          ? `Du hast <strong>${correct}</strong> von <strong>${total}</strong> richtig beantwortet.`
+          : `You answered <strong>${correct}</strong> of <strong>${total}</strong> correctly.`}</p>
+        <p><strong style="color:${color}">${status}</strong></p>
+        <button id="restartBtn">${lang === "de" ? "Neu starten" : "Restart"}</button>
       </div>
     `;
-
-    document.getElementById("restartBtn").onclick = () => {
-      ["score", "status", "passed"].forEach(k =>
-        localStorage.removeItem(`fsa_course_${k}`)
-      );
-      location.reload();
-    };
-
-    if (/Gold/i.test(status) && nextCourse) {
-      const nextBtn = document.getElementById("nextCourseBtn");
-      nextBtn.onclick = () =>
-        (window.location.href = `https://adler-fsa.github.io/lp-anfang/${nextCourse}?nocache=${Date.now()}`);
-    }
+    document.getElementById("restartBtn").onclick = () => location.reload();
   };
 
-  // === Stil: zurück auf alte FSA-Fragenoptik ===
+  // === Stil: klassische FSA-Optik ===
   const style = document.createElement("style");
   style.textContent = `
     .quiz-slideshow{max-width:860px;margin:2cm auto;padding:0 1rem;color:#e5e7eb;font-family:system-ui;text-align:center}
@@ -197,3 +170,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
   showQuestion();
 });
+</script>
