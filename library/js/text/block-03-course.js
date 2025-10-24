@@ -1,5 +1,6 @@
 // ░░ Baustein 03 – Kursinhalt (DE/EN) – Grundkurs 1: Finanzielle Souveränität (Basis) ░░
 // Verknüpft mit Engine für Score, Bronze/Silber/Gold und personalisierte Auswertung.
+// © FSA Akademie
 
 (function () {
   const courseDE = {
