@@ -1,200 +1,186 @@
-// ░░ Baustein 03 – Kursinhalt (DE/EN) – Grundkurs 1: Finanzielle Souveränität (Basis) ░░
-// Verknüpft mit Engine für Score, Bronze/Silber/Gold und personalisierte Auswertung.
-// © FSA Akademie
+<!-- ░░ Baustein 03 – Quiz-Layout mit Fortschrittsbalken + A/B/C Labels ░░ -->
+<section id="quiz-block">
+  <div id="quiz-header">
+    <div id="quiz-progress">
+      <div id="quiz-progress-bar"></div>
+    </div>
+    <div id="quiz-question-info">
+      <span id="quiz-question-number"></span>
+      <span id="quiz-question-total"></span>
+    </div>
+    <h2 id="quiz-question-text"></h2>
+  </div>
 
-(function () {
-  const courseDE = {
-    title: "🧭 Grundkurs 1 – Finanzielle Souveränität (Basis)",
-    questions: [
-      {
-        q: "Warum ist der erste Schritt zur finanziellen Souveränität das eigene Verständnis über Geldflüsse?",
-        a: [
-          { text: "Weil nur wer versteht, wie Geld entsteht und zirkuliert, bewusste Entscheidungen treffen kann.", correct: true },
-          { text: "Weil Geld immer durch Banken kontrolliert wird und man sich dem nicht entziehen kann.", correct: false },
-          { text: "Weil finanzielle Souveränität nur von staatlicher Regulierung abhängt.", correct: false }
-        ],
-        mentor: "Verstehen, wie Geld fließt, ist die Grundlage für jede echte Entscheidung."
-      },
-      {
-        q: "Was unterscheidet ein klassisches Bankkonto von einer Krypto-Wallet?",
-        a: [
-          { text: "Beide speichern nur die Transaktionen, nicht das Geld selbst.", correct: false },
-          { text: "Ein Bankkonto gehört einer Bank, eine Wallet gehört ausschließlich dir selbst.", correct: true },
-          { text: "Beide Systeme werden von denselben Institutionen überwacht.", correct: false }
-        ],
-        mentor: "Deine Wallet bedeutet: kein Mittelsmann, kein Dazwischen. Nur du und dein Schlüssel."
-      },
-      {
-        q: "Warum ist die Seed Phrase der wichtigste Teil einer Wallet?",
-        a: [
-          { text: "Sie ersetzt die PIN deiner Bankkarte.", correct: false },
-          { text: "Sie ist der Nachweis, dass du Kunde einer Börse bist.", correct: false },
-          { text: "Sie ist der einzige Zugang zu deinem Vermögen – ohne Seed kein Zugriff.", correct: true }
-        ],
-        mentor: "Dein Seed ist dein Eigentumsnachweis. Verlierst du ihn, verlierst du die Kontrolle."
-      },
-      {
-        q: "Was bedeutet „finanzielle Eigenverantwortung“ im Krypto-Kontext wirklich?",
-        a: [
-          { text: "Dass man bereit ist, für seine Entscheidungen und Fehler selbst einzustehen.", correct: true },
-          { text: "Dass man anderen Vertrauenspersonen die Verwahrung überlässt.", correct: false },
-          { text: "Dass man möglichst viele Konten bei verschiedenen Börsen eröffnet.", correct: false }
-        ],
-        mentor: "Souveränität beginnt, wenn du Verantwortung übernimmst – auch für Fehler."
-      },
-      {
-        q: "Warum sollte man Plattformen wie Trustyfy verstehen, bevor man Geld einzahlt?",
-        a: [
-          { text: "Weil sie das beste Zinsmodell bieten.", correct: false },
-          { text: "Weil Verständnis über Funktion und Risiko vor Verlust schützt.", correct: true },
-          { text: "Weil sonst Transaktionen automatisch abgelehnt werden.", correct: false }
-        ],
-        mentor: "Verstehen schützt. Unwissenheit kostet."
-      },
-      {
-        q: "Welche Aussage beschreibt „Dezentralität“ am besten?",
-        a: [
-          { text: "Ein System, das von einer zentralen Behörde gesteuert wird.", correct: false },
-          { text: "Ein System, bei dem jeder Teilnehmer gleiche Rechte und Zugriffe hat.", correct: true },
-          { text: "Ein System, das keine Technologie, sondern eine Bankstruktur nutzt.", correct: false }
-        ],
-        mentor: "Dezentralität ist Teilhabe – nicht Kontrolle von oben."
-      },
-      {
-        q: "Warum ist „Nicht deine Schlüssel – nicht deine Coins“ mehr als nur ein Spruch?",
-        a: [
-          { text: "Weil du ohne eigene Schlüssel nicht wirklich der Besitzer deiner Krypto-Werte bist.", correct: true },
-          { text: "Weil die Schlüssel automatisch bei der Börse gespeichert werden.", correct: false },
-          { text: "Weil Coins immer durch staatliche Versicherung geschützt sind.", correct: false }
-        ],
-        mentor: "Besitz ohne Schlüssel ist nur Vertrauen, kein Eigentum."
-      },
-      {
-        q: "Welche Haltung führt am ehesten zu langfristigem finanziellen Erfolg?",
-        a: [
-          { text: "Schnelles Handeln, ohne sich vorher zu informieren.", correct: false },
-          { text: "Geduld, Disziplin und die Bereitschaft, ständig weiter zu lernen.", correct: true },
-          { text: "Blindes Vertrauen in die Erfahrungen anderer.", correct: false }
-        ],
-        mentor: "Langfristige Ruhe schlägt kurzfristige Euphorie."
-      },
-      {
-        q: "Warum braucht finanzielle Souveränität ein Verständnis für Risiko?",
-        a: [
-          { text: "Weil Risiko nur bei Banken existiert.", correct: false },
-          { text: "Weil du ohne Risikobewusstsein nicht frei, sondern abhängig entscheidest.", correct: true },
-          { text: "Weil Risiken sich automatisch ausgleichen, wenn man Geduld hat.", correct: false }
-        ],
-        mentor: "Risiko zu verstehen heißt, seine Grenzen zu kennen – nicht sie zu vermeiden."
-      },
-      {
-        q: "Was zeigt, dass jemand finanziell souverän geworden ist?",
-        a: [
-          { text: "Er kann sich schnell Geld leihen, wenn er es braucht.", correct: false },
-          { text: "Er nutzt sein Wissen bewusst, um unabhängig von Systemen zu handeln.", correct: true },
-          { text: "Er vertraut darauf, dass andere für ihn die richtige Entscheidung treffen.", correct: false }
-        ],
-        mentor: "Souverän ist, wer unabhängig entscheiden kann – und es tut."
+  <div id="quiz-answers"></div>
+
+  <div id="quiz-footer">
+    <button id="quiz-next-btn" disabled data-i18n="nextQuestion">Nächste Frage</button>
+  </div>
+</section>
+
+<style>
+  #quiz-block {
+    max-width: 700px;
+    margin: 50px auto;
+    background: #0f172a;
+    padding: 2rem;
+    border-radius: 10px;
+    color: #e5e7eb;
+    font-family: system-ui, sans-serif;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.25);
+  }
+  #quiz-progress {
+    background: #1e293b;
+    height: 6px;
+    width: 100%;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+  #quiz-progress-bar {
+    background: #d4af37;
+    width: 0%;
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+  #quiz-question-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #d4af37;
+    margin-bottom: 0.5rem;
+  }
+  #quiz-question-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  .quiz-answer {
+    display: flex;
+    align-items: center;
+    background: #1e293b;
+    border: 1px solid transparent;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 0.75rem;
+    transition: all 0.2s ease;
+  }
+  .quiz-answer:hover {
+    border-color: #d4af37;
+  }
+  .quiz-label {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background: #d4af37;
+    color: #0f172a;
+    font-weight: 700;
+    text-align: center;
+    line-height: 24px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+  .quiz-answer.selected {
+    border-color: #d4af37;
+    background: #0b0f14;
+  }
+  #quiz-footer {
+    text-align: right;
+    margin-top: 1rem;
+  }
+  #quiz-next-btn {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  #quiz-next-btn:hover:enabled {
+    background: #1d4ed8;
+  }
+  #quiz-next-btn:disabled {
+    background: #475569;
+    cursor: not-allowed;
+  }
+</style>
+
+<script>
+  (function () {
+    const lang = document.documentElement.lang === 'en' ? 'en' : 'de';
+    const quizData = window.block03_course[lang].questions;
+    const totalQuestions = quizData.length;
+
+    let currentIndex = 0;
+    let selectedAnswer = null;
+
+    const questionNumber = document.getElementById('quiz-question-number');
+    const questionTotal = document.getElementById('quiz-question-total');
+    const questionText = document.getElementById('quiz-question-text');
+    const answersContainer = document.getElementById('quiz-answers');
+    const nextButton = document.getElementById('quiz-next-btn');
+    const progressBar = document.getElementById('quiz-progress-bar');
+
+    questionTotal.textContent = ` / ${totalQuestions}`;
+
+    function loadQuestion(index) {
+      const current = quizData[index];
+      questionNumber.textContent = `Frage ${index + 1}`;
+      questionText.textContent = current.q;
+
+      answersContainer.innerHTML = '';
+      const labels = ['A', 'B', 'C'];
+
+      current.a.forEach((answer, i) => {
+        const answerEl = document.createElement('div');
+        answerEl.classList.add('quiz-answer');
+        answerEl.dataset.correct = answer.correct;
+
+        const labelEl = document.createElement('span');
+        labelEl.classList.add('quiz-label');
+        labelEl.textContent = labels[i];
+
+        const textEl = document.createElement('span');
+        textEl.textContent = answer.text;
+
+        answerEl.appendChild(labelEl);
+        answerEl.appendChild(textEl);
+        answersContainer.appendChild(answerEl);
+
+        answerEl.addEventListener('click', () => {
+          document.querySelectorAll('.quiz-answer').forEach(a => a.classList.remove('selected'));
+          answerEl.classList.add('selected');
+          selectedAnswer = answerEl;
+          nextButton.disabled = false;
+        });
+      });
+
+      updateProgress(index);
+      nextButton.disabled = true;
+      selectedAnswer = null;
+    }
+
+    function updateProgress(index) {
+      const percent = ((index) / totalQuestions) * 100;
+      progressBar.style.width = `${percent}%`;
+    }
+
+    nextButton.addEventListener('click', () => {
+      if (!selectedAnswer) return;
+      currentIndex++;
+      if (currentIndex < totalQuestions) {
+        loadQuestion(currentIndex);
+      } else {
+        progressBar.style.width = '100%';
+        questionText.textContent = '✅ Quiz abgeschlossen';
+        answersContainer.innerHTML = '';
+        nextButton.style.display = 'none';
       }
-    ]
-  };
+    });
 
-  const courseEN = {
-    title: "🧭 Course 1 – Financial Sovereignty (Basics)",
-    questions: [
-      {
-        q: "Why is understanding money flows the first step to financial sovereignty?",
-        a: [
-          { text: "Because only those who understand how money is created and circulates can make conscious decisions.", correct: true },
-          { text: "Because money is always controlled by banks and cannot be avoided.", correct: false },
-          { text: "Because financial sovereignty depends solely on government regulation.", correct: false }
-        ],
-        mentor: "Understanding how money moves is the foundation of every real decision."
-      },
-      {
-        q: "What distinguishes a traditional bank account from a crypto wallet?",
-        a: [
-          { text: "Both store only transactions, not the money itself.", correct: false },
-          { text: "A bank account belongs to a bank; a wallet belongs only to you.", correct: true },
-          { text: "Both systems are monitored by the same institutions.", correct: false }
-        ],
-        mentor: "Your wallet means no middlemen. No permission needed—only your key."
-      },
-      {
-        q: "Why is the seed phrase the most important part of a wallet?",
-        a: [
-          { text: "It replaces your card PIN.", correct: false },
-          { text: "It proves you’re a customer of an exchange.", correct: false },
-          { text: "It’s the only access to your assets – no seed, no access.", correct: true }
-        ],
-        mentor: "Your seed is your proof of ownership. Lose it, lose control."
-      },
-      {
-        q: "What does financial self-responsibility really mean in the crypto context?",
-        a: [
-          { text: "Being willing to take responsibility for your own actions and mistakes.", correct: true },
-          { text: "Letting trusted third parties hold your assets.", correct: false },
-          { text: "Opening as many accounts on different exchanges as possible.", correct: false }
-        ],
-        mentor: "Sovereignty starts when you take responsibility—even for mistakes."
-      },
-      {
-        q: "Why should you understand platforms like Trustyfy before depositing money?",
-        a: [
-          { text: "Because they offer the best interest rates.", correct: false },
-          { text: "Because understanding function and risk protects against loss.", correct: true },
-          { text: "Because transactions are otherwise rejected automatically.", correct: false }
-        ],
-        mentor: "Understanding protects. Ignorance costs."
-      },
-      {
-        q: "Which statement best describes decentralization?",
-        a: [
-          { text: "A system controlled by a central authority.", correct: false },
-          { text: "A system where every participant has equal rights and access.", correct: true },
-          { text: "A system based on traditional banking structure.", correct: false }
-        ],
-        mentor: "Decentralization means participation—not hierarchy."
-      },
-      {
-        q: "Why is 'Not your keys, not your coins' more than a slogan?",
-        a: [
-          { text: "Because without your own keys, you don’t truly own your crypto assets.", correct: true },
-          { text: "Because keys are automatically stored by the exchange.", correct: false },
-          { text: "Because coins are insured by the government.", correct: false }
-        ],
-        mentor: "Ownership without keys is just trust, not control."
-      },
-      {
-        q: "Which mindset leads to long-term financial success?",
-        a: [
-          { text: "Acting fast without learning first.", correct: false },
-          { text: "Patience, discipline, and continuous learning.", correct: true },
-          { text: "Blindly trusting others’ experiences.", correct: false }
-        ],
-        mentor: "Calm consistency beats quick excitement."
-      },
-      {
-        q: "Why does financial sovereignty require an understanding of risk?",
-        a: [
-          { text: "Because risk exists only in banks.", correct: false },
-          { text: "Because without awareness of risk you don’t decide freely but dependently.", correct: true },
-          { text: "Because risks balance themselves out automatically with time.", correct: false }
-        ],
-        mentor: "To understand risk is to know your limits—not to avoid them."
-      },
-      {
-        q: "What shows that someone has achieved financial sovereignty?",
-        a: [
-          { text: "They can quickly borrow money when needed.", correct: false },
-          { text: "They use their knowledge consciously to act independently of systems.", correct: true },
-          { text: "They trust others to make the right decisions for them.", correct: false }
-        ],
-        mentor: "Sovereign is the one who decides independently—and does so consciously."
-      }
-    ]
-  };
-
-  window.block03_course = { de: courseDE, en: courseEN };
-  console.log("📚 block-03-course.js geladen – Grundkurs Basis (DE/EN)");
-})();
+    loadQuestion(currentIndex);
+  })();
+</script>
