@@ -1,20 +1,29 @@
-<!-- Datei: library/js/template-loader.js -->
+<!-- Datei: /library/js/template-loader.js -->
 <script>
-/* ░░ FSA Template-Loader – Grundkurs-Basis ░░
-   Lädt alle Module & Text-Bausteine sequentiell,
-   prüft Fehler, kompatibel mit iPad/iPhone/Desktop. */
+/* ░░ FSA Template-Loader – Grundkurs-Basis (Version 2.5.2) ░░
+   Lädt Module & Text-Bausteine sequentiell, mit Slideshow-Übergabe.
+   Engine-Reihenfolge: 03 Engine → 04 Engine → 04 Slideshow */
 
 (function() {
   const files = [
+    // UI / Basis
     "library/js/menu.js",
     "library/js/lang-switcher.js",
     "library/js/music-button.js",
+
+    // Kursinhalt
     "library/js/text/block-01-intro.js",
     "library/js/grundkurs-menu.js",
     "library/js/text/block-03-course.js",
+
+    // Engine-Logik (muss vor Slideshow geladen werden)
     "library/js/text/block-03-engine.js",
     "library/js/text/block-04-engine.js",
+
+    // Fragen-Darstellung (Slideshow)
     "library/js/text/block-04-engine-slideshow.js",
+
+    // Abschluss & Rücksprung
     "library/js/text/block-05-summary.js",
     "library/js/back-to-home.js"
   ];
@@ -48,7 +57,6 @@
     document.head.appendChild(s);
   }
 
-  // Start mit kleinem Delay, um DOM zu sichern
   window.addEventListener("DOMContentLoaded", () => {
     setTimeout(loadNext, 300);
   });
