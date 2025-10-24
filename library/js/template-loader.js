@@ -1,5 +1,3 @@
-<!-- Datei: /library/js/template-loader.js -->
-<script>
 /* ░░ FSA Template-Loader – Grundkurs-Basis (Version 2.5.2) ░░
    Lädt Module & Text-Bausteine sequentiell, mit Slideshow-Übergabe.
    Engine-Reihenfolge: 03 Engine → 04 Engine → 04 Slideshow */
@@ -61,4 +59,3 @@
     setTimeout(loadNext, 300);
   });
 })();
-</script>
