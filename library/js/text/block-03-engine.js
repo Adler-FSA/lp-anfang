@@ -1,97 +1,141 @@
-<script>
-/* block-03-engine.js — Fragen-Engine (ohne Wiederholungen, ohne Sprünge) */
-(function () {
+// ░░ Baustein 03 – Engine (v2.3.6, bereinigt, ohne Namensbezug) ░░
+// - Speichert jede Nutzerwahl in window.__answers[frageIndex]
+// - Zählt korrekt, ruft showResult(true) nur beim bewussten Abschluss
+// - Keine Repeat-Zähler, keine erzwungene Scrollbewegung
+// - Voll kompatibel mit block-03-course.js, block-04-engine.js und Slideshow
+
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("🧭 Course Engine v2.3.6 geladen – bereinigt, ohne Namenseingabe.");
+
+  // --- Sprach- & Kursdaten abrufen ---
   const lang = localStorage.getItem("fsa_lang") || "de";
-  const data = (window.block03_course && (window.block03_course[lang] || window.block03_course.de)) || window.block03_course?.de || {questions:[]};
-  const questions = Array.isArray(data.questions) ? data.questions : [];
-  const root = document.getElementById("quiz-root");
-  if (!root || !questions.length) return;
+  const data =
+    (window.block03_course &&
+      (window.block03_course[lang] || window.block03_course.de)) ||
+    window.block03_course?.de ||
+    null;
 
-  // Sichtfeld-Anker: beim ersten Render messen, danach festhalten
-  let anchorTop = null;
-  function lockToAnchor() {
-    if (anchorTop == null) {
-      const r = root.getBoundingClientRect();
-      anchorTop = window.scrollY + r.top - 48; // 48px Puffer unter Header
-    }
-    window.scrollTo({ top: anchorTop, behavior: "instant" in window ? "instant" : "auto" });
+  const questions = data?.questions || [];
+  const courseName = data?.title || (lang === "de" ? "Grundkurs" : "Course");
+
+  // --- DOM-Referenzen ---
+  const quizContainer =
+    document.querySelector("#quiz") || document.querySelector("#quiz-root");
+  const nextBtn = document.querySelector("#nextQuestion");  // optional im Layout
+  const submitBtn = document.querySelector("#submitQuiz");  // optional im Layout
+
+  // --- Abbruch, falls keine Fragen vorhanden ---
+  if (!quizContainer || !questions.length) {
+    console.warn("⚠️ Keine Fragen oder kein Ziel-Container gefunden – showResult() wird NICHT ausgelöst.");
+    return;
   }
 
-  // global für Summary/Engine-04
+  // --- State ---
+  let currentQuestion = 0;
+  let correctCount = 0;
+
+  // global bereitstellen (für Auswertung)
+  window.__answers = Array.isArray(window.__answers) ? window.__answers : [];
   window.totalQuestions = questions.length;
-  window.correctCount = 0;
-  window.__answers = [];
 
-  let idx = 0;
-
-  function renderProgress() {
-    const pct = Math.max(0, Math.min(100, Math.round(((idx) / questions.length) * 100)));
-    return `<div style="height:8px;background:#111827;border-radius:6px;overflow:hidden;margin:0 0 .9rem 0;">
-      <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#60a5fa,#d4af37)"></div>
-    </div>`;
-  }
-
+  // --- Frage rendern ---
   function renderQuestion() {
-    const q = questions[idx];
-    root.innerHTML = `
-      ${renderProgress()}
-      <section class="card" style="max-width:900px;margin:0 auto;">
-        <h3 style="color:var(--gold);margin:.2rem 0 .6rem 0;">${lang==="de"?"Frage":"Question"} ${idx+1} ${lang==="de"?"von":"of"} ${questions.length}</h3>
-        <p style="font-weight:700;color:#e5e7eb;margin:.2rem 0 1rem 0">${q.q}</p>
-        <div class="answers" style="display:flex;flex-direction:column;gap:.6rem;">
-          ${q.a.map((opt,i)=>`
-            <button class="opt" data-i="${i}" style="text-align:left;background:#172033;border:1px solid rgba(212,175,55,.20);border-radius:10px;padding:.85rem 1rem;color:#e5e7eb;cursor:pointer;">
-              ${String.fromCharCode(65+i)}. ${opt.text}
-            </button>`).join("")}
+    const q = questions[currentQuestion];
+    if (!q) return;
+
+    // bereits gewählte Antwort für diese Frage (falls Nutzer zurückkäme)
+    const savedChoice = window.__answers[currentQuestion];
+
+    quizContainer.innerHTML = `
+      <div class="card" style="padding:1rem; margin-top:.4rem;">
+        <h3 style="margin:.2rem 0 1rem 0;">${q.q}</h3>
+        <ul class="answers" style="list-style:none; padding:0; margin:0; display:grid; gap:.5rem;">
+          ${q.a.map((opt, i) => `
+            <li>
+              <label style="display:flex; gap:.6rem; align-items:flex-start; cursor:pointer;">
+                <input type="radio" name="answer" value="${i}" ${savedChoice === i ? "checked" : ""} />
+                <span>${opt.text}</span>
+              </label>
+            </li>
+          `).join("")}
+        </ul>
+
+        <div style="display:flex; gap:.6rem; margin-top:1rem; flex-wrap:wrap;">
+          ${
+            currentQuestion < questions.length - 1
+              ? `<button id="btn-next" class="btn-next" type="button"
+                    style="background:#2563eb;border:0;color:#fff;padding:.6rem 1rem;border-radius:8px;cursor:pointer;">
+                   ${lang === "de" ? "Nächste Frage" : "Next question"}
+                 </button>`
+              : `<button id="btn-finish" class="btn-finish" type="button"
+                    style="background:#16a34a;border:0;color:#fff;padding:.6rem 1rem;border-radius:8px;cursor:pointer;">
+                   ${lang === "de" ? "Kurs beenden" : "Finish course"}
+                 </button>`
+          }
         </div>
-        <div style="margin-top:1rem;display:flex;justify-content:flex-end">
-          <button id="skip" style="background:rgba(0,0,0,.55);border:1px solid rgba(212,175,55,.35);color:#e5e7eb;border-radius:8px;padding:.55rem 1rem;cursor:pointer;">
-            ${lang==="de"?"Überspringen":"Skip"}
-          </button>
-        </div>
-      </section>
-      <div style="height:22px"></div>
-      <div style="text-align:center;margin-top:1rem;">
-        <a href="index.html" style="display:inline-block;padding:.8rem 1.2rem;border-radius:10px;border:1px solid var(--line);color:#e5e7eb;background:rgba(255,255,255,.03);text-decoration:none;">
-          ${lang==="de"?"Zurück zur Startseite":"Back to home"}
-        </a>
       </div>
     `;
-    lockToAnchor();
-    wire();
+
+    // lokale Buttons (damit alte Referenzen nicht nötig sind)
+    const localNext = quizContainer.querySelector("#btn-next");
+    const localFinish = quizContainer.querySelector("#btn-finish");
+
+    localNext?.addEventListener("click", handleNext);
+    localFinish?.addEventListener("click", finishCourse);
   }
 
-  function next() {
-    idx++;
-    if (idx < questions.length) {
+  // --- Antwort prüfen & speichern ---
+  function checkAndStoreAnswer() {
+    const selected = quizContainer.querySelector("input[name='answer']:checked");
+    if (!selected) return false;
+
+    const chosenIndex = parseInt(selected.value, 10);
+
+    // 1) Nutzerwahl persistent speichern für die Auswertung
+    window.__answers[currentQuestion] = chosenIndex;
+
+    // 2) Korrekt zählen
+    const isCorrect = !!questions[currentQuestion].a[chosenIndex]?.correct;
+    if (isCorrect) correctCount++;
+
+    // global für showResult bereitstellen
+    window.correctCount = correctCount;
+    return true;
+  }
+
+  // --- Weiter-Button ---
+  function handleNext() {
+    const hasAnswer = checkAndStoreAnswer();
+    if (!hasAnswer) return;
+
+    currentQuestion++;
+    if (currentQuestion < questions.length) {
       renderQuestion();
     } else {
-      // Abschluss: keine Wiederholungen, nur Ergebnis
-      if (typeof window.showResult === "function") {
-        window.showResult(true);
-      }
+      finishCourse();
     }
   }
 
-  function wire() {
-    root.querySelectorAll(".opt").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        const choice = Number(btn.getAttribute("data-i"));
-        const q = questions[idx];
-        const isCorrect = !!q.a[choice]?.correct;
-        window.__answers[idx] = choice;
-        if (isCorrect) window.correctCount++;
-        // kein Scrollen, nur nächste Frage
-        next();
-      }, {passive:true});
-    });
-    root.querySelector("#skip")?.addEventListener("click", ()=>{
-      window.__answers[idx] = null;
-      next();
-    }, {passive:true});
+  // --- Submit-Button (falls du separate #submitQuiz im Layout hast) ---
+  submitBtn?.addEventListener("click", () => finishCourse());
+
+  // --- Abschlusslogik ---
+  function finishCourse() {
+    // letzte Antwort sichern (falls Nutzer direkt beendet)
+    checkAndStoreAnswer();
+
+    // globale Zähler sicher setzen
+    window.totalQuestions = questions.length;
+    window.correctCount = typeof window.correctCount === "number" ? window.correctCount : correctCount;
+
+    console.log("✅ Kurs manuell abgeschlossen – showResult(true) wird aufgerufen.");
+    if (typeof window.showResult === "function") {
+      window.showResult(true); // manueller Trigger
+    } else {
+      console.warn("⚠️ showResult() nicht gefunden – keine Auswertung möglich.");
+    }
   }
 
-  // Start
+  // --- Startanzeige ---
   renderQuestion();
-})();
-</script>
+});
