@@ -1,6 +1,5 @@
 // ░░ Baustein 04 – Slideshow-Engine (Grundkurs-Reihe FSA Akademie) ░░
-// Version 2.5 – automatische Kursverkettung + Gold→Weiterleitung + mobile Optimierung
-// Kompatibel mit block-03-course.js und block-03-engine.js
+// Version 2.5.1 – Optik zurück auf klassischen FSA-Fragenstil
 // © FSA Akademie
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -8,13 +7,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const course = typeof block03_course !== "undefined" ? block03_course[lang] : null;
   if (!course) return console.warn("⚠️ Kein Kursinhalt gefunden (block03_course).");
 
-  // === Grundvariablen ===
   let index = 0;
   let correct = 0;
   const total = course.questions.length;
   const results = [];
 
-  // === Container erzeugen ===
   const quizRoot = document.getElementById("quiz-root");
   if (!quizRoot) return console.warn("⚠️ Kein Ziel-Container (#quiz-root) gefunden.");
 
@@ -22,10 +19,10 @@ document.addEventListener("DOMContentLoaded", () => {
   quiz.className = "quiz-slideshow";
   quizRoot.appendChild(quiz);
 
-  const barWrap = document.createElement("div");
-  barWrap.className = "quiz-progress";
-  barWrap.innerHTML = `<div class="quiz-bar"></div>`;
-  quiz.appendChild(barWrap);
+  const progressWrap = document.createElement("div");
+  progressWrap.className = "quiz-progress";
+  progressWrap.innerHTML = `<div class="quiz-bar"></div>`;
+  quiz.appendChild(progressWrap);
 
   const card = document.createElement("div");
   card.className = "quiz-card";
@@ -35,9 +32,8 @@ document.addEventListener("DOMContentLoaded", () => {
   nav.className = "quiz-nav";
   quiz.appendChild(nav);
 
-  const bar = barWrap.querySelector(".quiz-bar");
+  const bar = progressWrap.querySelector(".quiz-bar");
 
-  // === Hilfsfunktionen ===
   const shuffle = arr => arr.sort(() => Math.random() - 0.5);
   const questions = shuffle([...course.questions]);
 
@@ -45,41 +41,45 @@ document.addEventListener("DOMContentLoaded", () => {
     bar.style.width = ((index + 1) / total) * 100 + "%";
   };
 
-  // === Fragenanzeige ===
   const showQuestion = () => {
     const q = questions[index];
     updateProgress();
     card.replaceChildren();
     nav.replaceChildren();
 
+    // --- Klassische FSA-Kartenoptik ---
     card.innerHTML = `
-      <h3>${lang === "de" ? "Frage" : "Question"} ${index + 1} ${lang === "de" ? "von" : "of"} ${total}</h3>
-      <h2>${q.q}</h2>
-      <div class="answers">
-        ${shuffle([...q.a])
-          .map(
-            (a, i) => `
+      <div class="quiz-card-inner">
+        <h3 class="quiz-question-count">${lang === "de" ? "Frage" : "Question"} ${index + 1} ${lang === "de" ? "von" : "of"} ${total}</h3>
+        <h2 class="quiz-question">${q.q}</h2>
+        <div class="answers">
+          ${shuffle([...q.a])
+            .map(
+              (a, i) => `
               <button class="answer-btn" data-correct="${a.correct}">
-                ${String.fromCharCode(65 + i)}. ${a.text}
+                <span class="letter">${String.fromCharCode(65 + i)}.</span> ${a.text}
               </button>`
-          )
-          .join("")}
+            )
+            .join("")}
+        </div>
       </div>
     `;
+
+    nav.innerHTML = `<button id="skipBtn">${lang === "de" ? "Überspringen" : "Skip"}</button>`;
 
     const buttons = card.querySelectorAll(".answer-btn");
     buttons.forEach(btn =>
       btn.addEventListener("click", e => {
         buttons.forEach(b => (b.disabled = true));
-        const correctBtn = e.target.dataset.correct === "true";
-        if (correctBtn) correct++;
+        const isCorrect = e.target.dataset.correct === "true";
+        if (isCorrect) correct++;
 
         results.push({
           question: q.q,
           chosen: e.target.textContent.trim(),
           correct: q.a.find(a => a.correct)?.text || "",
           mentor: q.mentor || "",
-          ok: correctBtn
+          ok: isCorrect
         });
 
         index++;
@@ -87,9 +87,22 @@ document.addEventListener("DOMContentLoaded", () => {
         else setTimeout(showResult, 400);
       })
     );
+
+    document.getElementById("skipBtn").onclick = () => {
+      buttons.forEach(b => (b.disabled = true));
+      results.push({
+        question: q.q,
+        chosen: "— (Übersprungen)",
+        correct: q.a.find(a => a.correct)?.text || "",
+        mentor: q.mentor || "",
+        ok: false
+      });
+      index++;
+      if (index < total) showQuestion();
+      else showResult();
+    };
   };
 
-  // === Reihenfolge der Kurse ===
   const courseOrder = [
     "grundkurs-basis.html",
     "grundkurs-sicherheit.html",
@@ -102,7 +115,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const nextIndex = courseOrder.indexOf(currentFile) + 1;
   const nextCourse = nextIndex < courseOrder.length ? courseOrder[nextIndex] : null;
 
-  // === Ergebnisanzeige ===
   const showResult = () => {
     card.replaceChildren();
     nav.replaceChildren();
@@ -145,7 +157,6 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
-    // --- Restart ---
     document.getElementById("restartBtn").onclick = () => {
       ["score", "status", "passed"].forEach(k =>
         localStorage.removeItem(`fsa_course_${k}`)
@@ -153,7 +164,6 @@ document.addEventListener("DOMContentLoaded", () => {
       location.reload();
     };
 
-    // --- Weiterleitung ---
     if (/Gold/i.test(status) && nextCourse) {
       const nextBtn = document.getElementById("nextCourseBtn");
       nextBtn.onclick = () =>
@@ -161,33 +171,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // === Stildefinition (responsive & mobiloptimiert) ===
+  // === Stil: zurück auf alte FSA-Fragenoptik ===
   const style = document.createElement("style");
   style.textContent = `
-    .quiz-slideshow{max-width:860px;margin:2cm auto;padding:0 1rem;color:#e5e7eb;font-family:system-ui;text-align:left}
+    .quiz-slideshow{max-width:860px;margin:2cm auto;padding:0 1rem;color:#e5e7eb;font-family:system-ui;text-align:center}
     .quiz-progress{height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;margin-bottom:1rem}
     .quiz-bar{height:100%;width:0%;background:linear-gradient(90deg,#3b82f6,#d4af37);transition:width .4s ease}
-    .quiz-card{background:rgba(17,24,39,.8);border:1px solid rgba(212,175,55,.4);border-radius:14px;padding:clamp(1rem,3vw,2rem);
-      box-shadow:0 0 25px rgba(212,175,55,.15);font-size:clamp(1rem,2vw,1.1rem);line-height:1.6}
-    .quiz-card h2{font-size:clamp(1.1rem,2.5vw,1.3rem);color:#d4af37;margin-bottom:1rem}
-    .answers{display:flex;flex-direction:column;gap:.7rem;margin-top:1.2rem}
-    .answer-btn{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);color:#e5e7eb;border-radius:6px;
-      padding:1rem;cursor:pointer;font-size:1rem;transition:background .2s ease;touch-action:manipulation}
-    .answer-btn:hover,.answer-btn:active{background:rgba(59,130,246,.3)}
-    .quiz-nav{margin-top:1rem;display:flex;justify-content:flex-end}
-    #restartBtn,#nextCourseBtn{background:#3b82f6;color:white;border:none;border-radius:6px;
-      padding:.7rem 1.1rem;cursor:pointer;font-weight:500;margin:.3rem}
-    #restartBtn:hover,#nextCourseBtn:hover{background:#2563eb}
-    .result-panel{background:rgba(17,24,39,.8);border:1px solid rgba(212,175,55,.4);
-      border-radius:12px;padding:2rem;text-align:center;box-shadow:0 0 25px rgba(212,175,55,.15);margin-top:1.2cm}
-    .result-panel blockquote{font-style:italic;color:#e5e7eb;background:rgba(255,255,255,.05);
-      border-left:4px solid rgba(212,175,55,.6);padding:1rem 1.5rem;border-radius:6px;margin:1.2rem auto;max-width:650px}
-    .progress-bar{width:80%;height:16px;background:#1e293b;border-radius:8px;margin:1rem auto;overflow:hidden}
-    .progress-bar div{height:100%;transition:width 1s ease}
-    @media(max-width:640px){.quiz-slideshow{margin:1.5cm auto;padding:0 .6rem}.answer-btn{font-size:1rem;padding:.8rem}}
+    .quiz-card-inner{background:rgba(17,24,39,.8);border:1px solid rgba(212,175,55,.5);border-radius:14px;
+      padding:clamp(1rem,3vw,2rem);box-shadow:0 0 25px rgba(212,175,55,.25);font-size:1.05rem;line-height:1.6;
+      text-align:left;margin:0 auto;max-width:720px;}
+    .quiz-question{color:#facc15;margin-bottom:1rem;font-weight:600;}
+    .quiz-question-count{color:#a1a1aa;margin-bottom:.3rem;text-align:center;}
+    .answers{display:flex;flex-direction:column;gap:.8rem;margin-top:1.2rem;}
+    .answer-btn{background:rgba(30,41,59,.9);border:1px solid rgba(212,175,55,.3);color:#e5e7eb;border-radius:8px;
+      padding:1rem;cursor:pointer;font-size:1rem;transition:all .2s ease;box-shadow:0 0 8px rgba(0,0,0,.3);}
+    .answer-btn:hover{background:rgba(212,175,55,.2);transform:scale(1.02);}
+    .letter{color:#d4af37;margin-right:.4rem;font-weight:600;}
+    .quiz-nav{margin-top:1rem;display:flex;justify-content:center;}
+    #skipBtn{background:#2563eb;color:#fff;border:none;border-radius:8px;padding:.7rem 1.2rem;cursor:pointer;
+      font-weight:500;transition:background .3s ease;}
+    #skipBtn:hover{background:#1d4ed8;}
+    @media(max-width:640px){.quiz-card-inner{padding:1rem}.answer-btn{font-size:1rem;padding:.8rem}}
   `;
   document.head.appendChild(style);
 
-  // === Start ===
   showQuestion();
 });
