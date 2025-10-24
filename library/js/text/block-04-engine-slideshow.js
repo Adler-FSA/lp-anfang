@@ -1,20 +1,26 @@
-<!-- Datei: library/js/text/block-04-engine-slideshow.js -->
-<script>
+// ░░ Baustein 04 – Slideshow-Engine (Grundkurs-Reihe FSA Akademie) ░░
+// Version 2.5 – automatische Kursverkettung + Gold→Weiterleitung + mobile Optimierung
+// Kompatibel mit block-03-course.js und block-03-engine.js
+// © FSA Akademie
+
 document.addEventListener("DOMContentLoaded", () => {
   const lang = localStorage.getItem("fsa_lang") || "de";
   const course = typeof block03_course !== "undefined" ? block03_course[lang] : null;
   if (!course) return console.warn("⚠️ Kein Kursinhalt gefunden (block03_course).");
 
-  // === Variablen ===
+  // === Grundvariablen ===
   let index = 0;
   let correct = 0;
   const total = course.questions.length;
   const results = [];
 
   // === Container erzeugen ===
+  const quizRoot = document.getElementById("quiz-root");
+  if (!quizRoot) return console.warn("⚠️ Kein Ziel-Container (#quiz-root) gefunden.");
+
   const quiz = document.createElement("section");
   quiz.className = "quiz-slideshow";
-  document.getElementById("quiz-root")?.appendChild(quiz);
+  quizRoot.appendChild(quiz);
 
   const barWrap = document.createElement("div");
   barWrap.className = "quiz-progress";
@@ -53,9 +59,9 @@ document.addEventListener("DOMContentLoaded", () => {
         ${shuffle([...q.a])
           .map(
             (a, i) => `
-            <button class="answer-btn" data-correct="${a.correct}">
-              ${String.fromCharCode(65 + i)}. ${a.text}
-            </button>`
+              <button class="answer-btn" data-correct="${a.correct}">
+                ${String.fromCharCode(65 + i)}. ${a.text}
+              </button>`
           )
           .join("")}
       </div>
@@ -83,6 +89,19 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   };
 
+  // === Reihenfolge der Kurse ===
+  const courseOrder = [
+    "grundkurs-basis.html",
+    "grundkurs-sicherheit.html",
+    "grundkurs-einkommen.html",
+    "grundkurs-network.html",
+    "grundkurs-pruefung-vorbereitung.html"
+  ];
+
+  const currentFile = window.location.pathname.split("/").pop();
+  const nextIndex = courseOrder.indexOf(currentFile) + 1;
+  const nextCourse = nextIndex < courseOrder.length ? courseOrder[nextIndex] : null;
+
   // === Ergebnisanzeige ===
   const showResult = () => {
     card.replaceChildren();
@@ -94,12 +113,12 @@ document.addEventListener("DOMContentLoaded", () => {
       score < 85 ? "Silber 🥈" :
       "Gold 🥇";
 
-    localStorage.setItem("fsa_course1_score", String(score));
-    localStorage.setItem("fsa_course1_status", status);
+    localStorage.setItem("fsa_course_score", String(score));
+    localStorage.setItem("fsa_course_status", status);
     if (/Gold/i.test(status))
-      localStorage.setItem("fsa_course1_passed", "true");
+      localStorage.setItem("fsa_course_passed", "true");
     else
-      localStorage.removeItem("fsa_course1_passed");
+      localStorage.removeItem("fsa_course_passed");
 
     const color =
       /Gold/i.test(status) ? "#d4af37" :
@@ -110,36 +129,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
     card.innerHTML = `
       <div class="result-panel" style="border-color:${color}">
-        <h2 style="color:${color}">🏁 FSA Akademie – ${lang === "de" ? "Grundkurs Basis" : "Basic Course"}</h2>
+        <h2 style="color:${color}">🏁 FSA Akademie – ${lang === "de" ? "Grundkurs" : "Course"}</h2>
         <p>${lang === "de"
           ? `Du hast <strong>${correct}</strong> von <strong>${total}</strong> Fragen richtig beantwortet.`
           : `You answered <strong>${correct}</strong> out of <strong>${total}</strong> correctly.`}</p>
         <div class="progress-bar"><div style="width:${score}%; background:${color};"></div></div>
         <p>${lang === "de" ? "Status:" : "Status:"} <strong style="color:${color}">${status}</strong></p>
-        ${mentorTip
-          ? `<blockquote>“${mentorTip}”</blockquote>`
-          : ""}
+        ${mentorTip ? `<blockquote>“${mentorTip}”</blockquote>` : ""}
         <div class="result-buttons">
-          ${/Gold/i.test(status)
-            ? `<button id="nextCourseBtn">${lang === "de" ? "Weiter" : "Next"}</button>`
+          ${/Gold/i.test(status) && nextCourse
+            ? `<button id="nextCourseBtn">${lang === "de" ? "Weiter zum nächsten Kurs" : "Next Course"}</button>`
             : ""}
           <button id="restartBtn">${lang === "de" ? "Neu starten" : "Restart"}</button>
         </div>
       </div>
     `;
 
+    // --- Restart ---
     document.getElementById("restartBtn").onclick = () => {
       ["score", "status", "passed"].forEach(k =>
-        localStorage.removeItem(`fsa_course1_${k}`)
+        localStorage.removeItem(`fsa_course_${k}`)
       );
       location.reload();
     };
 
-    const ctxNext = "grundkurs-sicherheit.html"; // Standard-Nachfolger
-    const nextBtn = document.getElementById("nextCourseBtn");
-    if (nextBtn)
+    // --- Weiterleitung ---
+    if (/Gold/i.test(status) && nextCourse) {
+      const nextBtn = document.getElementById("nextCourseBtn");
       nextBtn.onclick = () =>
-        (window.location.href = `${ctxNext}?nocache=${Date.now()}`);
+        (window.location.href = `https://adler-fsa.github.io/lp-anfang/${nextCourse}?nocache=${Date.now()}`);
+    }
   };
 
   // === Stildefinition (responsive & mobiloptimiert) ===
@@ -172,4 +191,3 @@ document.addEventListener("DOMContentLoaded", () => {
   // === Start ===
   showQuestion();
 });
-</script>
