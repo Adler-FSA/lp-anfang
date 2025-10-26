@@ -13,16 +13,7 @@
     "library/js/text/block-01-intro.js",
     "library/js/grundkurs-menu.js",
     "library/js/text/block-03-course.js",
-
-    // Engine-Logik (muss vor Slideshow geladen werden)
-    "library/js/text/block-03-engine.js",
-    "library/js/text/block-04-engine.js",
-
-    // Fragen-Darstellung (Slideshow)
-    "library/js/text/block-04-engine-slideshow.js",
-
-    // Abschluss & Rücksprung
-    "library/js/text/block-05-summary.js",
+    //Rücksprung
     "library/js/back-to-home.js"
   ];
 
