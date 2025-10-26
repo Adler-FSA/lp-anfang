@@ -7,10 +7,9 @@
     "library/js/menu.js",
     "library/js/lang-switcher.js",
     "library/js/music-button.js",
-
+    "library/js/grundkurs-menu.js",
     // Kursinhalt
     "library/js/text/block-01-intro.js",
-    "library/js/grundkurs-menu.js",
     "library/js/text/block-03-course.js",
     //Rücksprung
     "library/js/back-to-home.js"
