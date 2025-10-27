@@ -110,6 +110,7 @@
     │   │   │   ├── block-03-course-2.js
     │   │   │   ├── block-03-course-3.js
     │   │   │   ├── block-03-course-4.js
+    │   │   │   ├── block-03-course-5.js
     │   │   │   ├── block-03-course.js
     │   │   │   ├── block-03-engine.js
     │   │   │   ├── block-03-intro.js
@@ -389,4 +390,4 @@
     ├── master.css
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.10.2025, 15:33)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.10.2025, 16:49)_
