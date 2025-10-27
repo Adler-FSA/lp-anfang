@@ -1,7 +1,6 @@
-<!-- library/js/grundkurs-menu.js -->
-<script>
+// ░░ Grundkurs-Menü – Autonomes Laden (FSA Original mit Autostart & Cache-Bypass) ░░
 (function () {
-  document.addEventListener("DOMContentLoaded", function () {
+  function initGrundkursMenu() {
     // --- Menüdefinition (wie im Repo) ---
     const items = [
       { icon: "📘", name: "Basis",       link: "/lp-anfang/grundkurs-basis.html",       key: "grundkurs-basis" },
@@ -11,15 +10,10 @@
       { icon: "🎓", name: "Prüfung",     link: "/lp-anfang/grundkurs-pruefung-vorbereitung.html", key: "grundkurs-pruefung-vorbereitung" }
     ];
 
-    // --- Aktive Seite bestimmen ---
     const path = (location.pathname || "").toLowerCase();
+    const host = document.getElementById("kursmenu-anchor") || document.body;
 
-    // --- Container wählen: bevorzugt der Anker, sonst body ---
-    const host =
-      document.getElementById("kursmenu-anchor") ||
-      document.body;
-
-    // Bestehendes Menü entfernen, um Doppel-Einträge zu vermeiden
+    // Doppelmenüs vermeiden
     host.querySelectorAll(".grundkurs-menu").forEach(el => el.remove());
 
     // Menü aufbauen
@@ -32,37 +26,31 @@
       a.textContent = `${it.icon} ${it.name}`;
       if (path.includes(it.key)) a.classList.add("active");
 
-      // Sanfter Übergang: Fade-Out vor Navigation (ohne hässlichen Reload-Blitz)
       a.addEventListener("click", (ev) => {
-        // Normale Cmd/Ctrl-Klicks nicht abfangen
         if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || a.target === "_blank") return;
         ev.preventDefault();
-
-        // minimale Fade-Transition
         document.documentElement.classList.add("page-leave");
-        // Navigation nach kurzer Verzögerung (Timing passend zur CSS-Transition)
         setTimeout(() => { window.location.href = a.href; }, 120);
       });
 
       menu.appendChild(a);
 
-      // Prefetch der Zielseite (schnelleres Laden, weniger Flackern)
+      // Prefetch
       const pf = document.createElement("link");
       pf.rel = "prefetch";
-      pf.href = it.link;
+      pf.href = it.link + "?nocache=" + Date.now();
       document.head.appendChild(pf);
     });
 
     host.appendChild(menu);
 
-    // --- Einmaliger Fade-In beim Laden (wirkt dem „Schwarz-Blitz“ entgegen) ---
+    // sanftes Fade-In
     document.documentElement.classList.add("page-enter");
     setTimeout(() => document.documentElement.classList.remove("page-enter"), 220);
 
-    // --- Styles (FSA-Optik, wie im Original) + Page-Transition ---
+    // Style beibehalten
     const style = document.createElement("style");
     style.textContent = `
-      /* Page-Transition (sanftes Ein-/Ausblenden) */
       :root { --fade-ms: 160ms; }
       html.page-enter body { opacity: 0; }
       html:not(.page-enter) body { transition: opacity var(--fade-ms) ease; }
@@ -121,5 +109,13 @@
         }
       }
     `;
-     document.head.appendChild(style);
-     })();
+    document.head.appendChild(style);
+  }
+
+  // 🔹 Sofortiger Autostart, unabhängig vom Ladezeitpunkt
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initGrundkursMenu);
+  } else {
+    initGrundkursMenu();
+  }
+})();
