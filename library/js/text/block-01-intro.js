@@ -52,6 +52,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const lang = localStorage.getItem("fsa_lang") || "de";
   renderIntro(lang);
 
+  // 1) Sofort-Umschalten im selben Tab
+  document.addEventListener("fsa:lang-change", (e) => {
+    const code = (e && e.detail) || localStorage.getItem("fsa_lang") || "de";
+    renderIntro(code);
+  });
+
+  // 2) Fallback: Umschalten zwischen Tabs/Fenstern
   window.addEventListener("storage", (e) => {
     if (e.key === "fsa_lang") renderIntro(e.newValue || "de");
   });
