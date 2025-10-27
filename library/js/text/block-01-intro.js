@@ -1,23 +1,24 @@
-// ░░ Baustein 01 – Begrüßungsblock (DE/EN, responsive, auto-render) ░░
+// ░░ Baustein 01 – Kursintro (DE/EN, autoload) ░░
+// Grundkurs 1 – Finanzielle Souveränität (Basis)
 
 const block01_intro = {
   de: {
-    title: "FSA Akademie – Grundkurs Basis",
+    title: "🧭 Grundkurs 1 – Finanzielle Souveränität (Basis)",
     line1:
-      "Willkommen zu deinem ersten Schritt in die Finanzielle Souveränität Akademie. Dieser Kurs legt das Fundament für dein Verständnis über Geld, Verantwortung und Freiheit.",
+      "Willkommen zu deinem ersten Schritt in der Finanziellen Souveränität Akademie. Hier beginnst du, Geld und Verantwortung wirklich zu verstehen.",
     line2:
-      "Der Grundkurs Basis ist Teil von vier aufeinander aufbauenden Kursen. Dieser Abschnitt hilft dir, dein Wissen zu festigen und dein Denken zu schärfen.",
+      "Du lernst, wie Geld entsteht, warum Kontrolle darüber Freiheit bedeutet, und weshalb Wissen über Geldflüsse der Schlüssel zu echter Unabhängigkeit ist.",
     line3:
-      "Nach jedem Kurs folgt eine Auswertung: deine Antworten, der Mentor-Kommentar bei Fehlern und Lob bei richtigen Antworten."
+      "Dieser Kurs bildet das Fundament – Verständnis, Achtsamkeit und Eigenverantwortung im Umgang mit Geld."
   },
   en: {
-    title: "FSA Academy – Basic Course Foundation",
+    title: "🧭 Basic Course 1 – Financial Sovereignty (Foundation)",
     line1:
-      "Welcome to your first step inside the Financial Sovereignty Academy. This course lays the foundation for your understanding of money, responsibility, and freedom.",
+      "Welcome to your first step in the Financial Sovereignty Academy. This is where you start to truly understand money and responsibility.",
     line2:
-      "The Basic Course Foundation is part of four consecutive modules. This section helps you strengthen your knowledge and sharpen your thinking.",
+      "You’ll learn how money is created, why control means freedom, and how understanding financial flows unlocks real independence.",
     line3:
-      "After each course, you’ll receive feedback: your answers, mentor comments for mistakes, and praise for correct ones."
+      "This course lays the foundation – awareness, understanding, and personal responsibility in dealing with money."
   }
 };
 
@@ -47,18 +48,15 @@ function renderIntro(lang = "de") {
   `;
 }
 
-// 🔁 Init + Live-Umschalten (DE/EN)
+// 🔁 Auto-render + Live-Umschalten
 document.addEventListener("DOMContentLoaded", () => {
   const lang = localStorage.getItem("fsa_lang") || "de";
   renderIntro(lang);
 
-  // 1) Sofort-Umschalten im selben Tab
   document.addEventListener("fsa:lang-change", (e) => {
-    const code = (e && e.detail) || localStorage.getItem("fsa_lang") || "de";
-    renderIntro(code);
+    renderIntro((e && e.detail) || localStorage.getItem("fsa_lang") || "de");
   });
 
-  // 2) Fallback: Umschalten zwischen Tabs/Fenstern
   window.addEventListener("storage", (e) => {
     if (e.key === "fsa_lang") renderIntro(e.newValue || "de");
   });
