@@ -131,7 +131,8 @@
     │   │   ├── music-button.js
     │   │   ├── office-menu.js
     │   │   ├── template-loader.js
-    │   │   └── template.js
+    │   │   ├── template.js
+    │   │   └── topbar-patch.js
     │   ├── music/
     │   │   ├── pool/
     │   │   │   ├── README.txt
@@ -390,4 +391,4 @@
     ├── master.css
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.10.2025, 19:25)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.10.2025, 20:33)_
