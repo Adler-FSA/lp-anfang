@@ -19,7 +19,7 @@
       { icon: "🛡️", name: "Sicherheit", link: "/lp-anfang/grundkurs-sicherheit.html",  key: "grundkurs-sicherheit" },
       { icon: "💡", name: "Einkommen",   link: "/lp-anfang/grundkurs-einkommen.html",   key: "grundkurs-einkommen" },
       { icon: "🌐", name: "Network",     link: "/lp-anfang/grundkurs-network.html",     key: "grundkurs-network" },
-      { icon: "🎓", name: "Prüfung",     link: "/lp-anfang/grundkurs-pruefung-vorbereitung.html", key: "grundkurs-pruefung-vorbereitung" }
+      { icon: "🎓", name: "Prüfung",     link: "/lp-anfang/grundkurs-pruefung.html", key: "grundkurs-pruefung" }
     ];
 
     const path = (location.pathname || "").toLowerCase();
