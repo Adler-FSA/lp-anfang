@@ -50,14 +50,8 @@
       margin: .4rem 0;
     }
 
-    /* Kurs-Layout */
-    #quiz-root {
-      margin-top: 2rem;
-    }
-
-    #kursmenu-anchor {
-      margin-top: 2cm;
-    }
+    #quiz-root { margin-top: 2rem; }
+    #kursmenu-anchor { margin-top: 2cm; }
 
     /* Mobile Drehhinweis */
     #rotateHint {
@@ -70,9 +64,7 @@
     }
 
     @media (orientation: portrait) and (max-width: 900px) {
-      #rotateHint {
-        display: block;
-      }
+      #rotateHint { display: block; }
     }
   </style>
 </head>
@@ -104,19 +96,32 @@
   </main>
 
   <!-- ░░ FSA Basis-Module ░░ -->
-  <script src="library/js/menu.js" defer></script>
-  <script src="library/js/lang-switcher.js" defer></script>
-  <script src="library/js/music-button.js" defer></script>
+  <script src="library/js/menu.js"></script>
+  <script src="library/js/lang-switcher.js"></script>
+  <script src="library/js/music-button.js"></script>
 
   <!-- ░░ Kurs-Bausteine ░░ -->
-  <script src="library/js/text/block-01-intro.js" defer></script>
-  <script src="library/js/grundkurs-menu.js" defer></script>
-  <script src="library/js/text/block-03-course.js" defer></script>
-  <script src="library/js/back-to-home.js" defer></script>
+  <script src="library/js/text/block-01-intro.js"></script>
+  <script src="library/js/grundkurs-menu.js"></script>
+  <script src="library/js/text/block-03-course.js"></script>
+  <script src="library/js/back-to-home.js"></script>
 
-  <!-- ░░ Automatischer Start ░░ -->
+  <!-- ░░ Direkter Menü-Start (immer sichtbar, ohne Delay) ░░ -->
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("DOMContentLoaded", () => {
+      // prüft, ob das Menü bereits gerendert wurde, sonst manuell starten
+      const existingMenu = document.querySelector(".grundkurs-menu");
+      const anchor = document.getElementById("kursmenu-anchor");
+      if (!existingMenu && anchor) {
+        console.log("🟢 Grundkurs-Menü sofort gestartet.");
+        const script = document.createElement("script");
+        script.src = "library/js/grundkurs-menu.js?direct=" + Date.now();
+        document.body.appendChild(script);
+      }
+    });
+
+    // automatischer Kursstart
+    window.addEventListener("DOMContentLoaded", () => {
       const tryStart = () => {
         if (typeof window.startCourse === "function") {
           console.log("🚀 Auto-Start: Grundkurs Basis beginnt.");
@@ -128,23 +133,5 @@
       tryStart();
     });
   </script>
-<!-- ░░ PATCH: Menü-Fallback (sichtbar erzwingen, falls JS-Timing zu früh) ░░ -->
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const checkMenu = () => {
-    // prüfen, ob Menüelement bereits existiert
-    const existing = document.querySelector(".grundkurs-menu");
-    const anchor = document.getElementById("kursmenu-anchor");
-    // falls nicht da, das Originalskript manuell triggern
-    if (!existing && typeof window._menuRetry === "undefined") {
-      window._menuRetry = true;
-      console.warn("🟡 Menü-Fallback aktiviert (erneuter Aufruf des Grundkurs-Menüs).");
-      const s = document.createElement("script");
-      s.src = "library/js/grundkurs-menu.js?retry=" + Date.now();
-      document.body.appendChild(s);
-    }
-  };
-  setTimeout(checkMenu, 700); // etwas Puffer nach dem initialen Render
-});
-</script></body>
+</body>
 </html>
