@@ -359,7 +359,11 @@
     │   │   └── page.json
     │   ├── office/
     │   │   └── page.json
-    │   └── admin-config.json
+    │   ├── admin-config.json
+    │   ├── community.html
+    │   ├── mentoren.html
+    │   ├── social.html
+    │   └── souveraenitaet.html
     ├── shows/
     │   ├── bastai.json
     │   ├── blockhaeuser.json
@@ -391,4 +395,4 @@
     ├── master.css
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.10.2025, 19:26)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.10.2025, 20:40)_
