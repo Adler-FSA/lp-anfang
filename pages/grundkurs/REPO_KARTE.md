@@ -119,6 +119,23 @@
     │   │   │   ├── block-04-intro.js
     │   │   │   ├── block-05-intro.js
     │   │   │   └── block-05-summary.js
+    │   │   ├── text-campus/
+    │   │   │   ├── campus-community-01.js
+    │   │   │   ├── campus-community-02.js
+    │   │   │   ├── campus-community-03.js
+    │   │   │   ├── campus-community-04.js
+    │   │   │   ├── campus-mentor-01.js
+    │   │   │   ├── campus-mentor-02.js
+    │   │   │   ├── campus-mentor-03.js
+    │   │   │   ├── campus-mentor-04.js
+    │   │   │   ├── campus-social-01.js
+    │   │   │   ├── campus-social-02.js
+    │   │   │   ├── campus-social-03.js
+    │   │   │   ├── campus-social-04.js
+    │   │   │   ├── campus-sovereign-01.js
+    │   │   │   ├── campus-sovereign-02.js
+    │   │   │   ├── campus-sovereign-03.js
+    │   │   │   └── campus-sovereign-04.js
     │   │   ├── back-to-home.js
     │   │   ├── campus-menu.js
     │   │   ├── exam-engine.js
@@ -395,4 +412,4 @@
     ├── master.css
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.10.2025, 20:40)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.10.2025, 21:31)_
