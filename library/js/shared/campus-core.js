@@ -1,11 +1,10 @@
 /* ==========================================================================
-   FSA Campus – Globaler Core-Loader (v1.0)
+   FSA Campus – Globaler Core-Loader (v1.1)
    Pfad: /library/js/shared/campus-core.js
    Aufgabe:
    • Erkennt automatisch, welche Campus-Seite aktiv ist (Social, Community, Mentor, Souveränität)
    • Lädt automatisch die vier zugehörigen Text-Container
    • Fügt das Campus-Menü (campus-menu.js) zwischen Container 2 und 3 ein
-   • Arbeitet mit globalen Modulen (menu.js, lang-switcher.js, music-button.js)
    • Nutzt ?nocache=<timestamp> für jede JS-Datei
    ========================================================================== */
 
@@ -32,34 +31,34 @@
 
   if(/\/pages\/social\.html$/.test(path)){
     modules = [
-      { key:"social-01", src:"/lp-anfang/library/js/campus/social/social-01-intro.js" },
-      { key:"social-02", src:"/lp-anfang/library/js/campus/social/social-02-practice.js" },
-      { key:"social-03", src:"/lp-anfang/library/js/campus/social/social-03-mentor.js" },
-      { key:"social-04", src:"/lp-anfang/library/js/campus/social/social-04-growth.js" },
+      { key:"campus-social-01", src:"/lp-anfang/library/js/text-campus/campus-social-01.js" },
+      { key:"campus-social-02", src:"/lp-anfang/library/js/text-campus/campus-social-02.js" },
+      { key:"campus-social-03", src:"/lp-anfang/library/js/text-campus/campus-social-03.js" },
+      { key:"campus-social-04", src:"/lp-anfang/library/js/text-campus/campus-social-04.js" },
     ];
   }
   else if(/\/pages\/community\.html$/.test(path)){
     modules = [
-      { key:"community-01", src:"/lp-anfang/library/js/campus/community/community-01-intro.js" },
-      { key:"community-02", src:"/lp-anfang/library/js/campus/community/community-02-zoom.js" },
-      { key:"community-03", src:"/lp-anfang/library/js/campus/community/community-03-stammtisch.js" },
-      { key:"community-04", src:"/lp-anfang/library/js/campus/community/community-04-growth.js" },
+      { key:"campus-community-01", src:"/lp-anfang/library/js/text-campus/campus-community-01.js" },
+      { key:"campus-community-02", src:"/lp-anfang/library/js/text-campus/campus-community-02.js" },
+      { key:"campus-community-03", src:"/lp-anfang/library/js/text-campus/campus-community-03.js" },
+      { key:"campus-community-04", src:"/lp-anfang/library/js/text-campus/campus-community-04.js" },
     ];
   }
   else if(/\/pages\/mentoren\.html$/.test(path)){
     modules = [
-      { key:"mentor-01", src:"/lp-anfang/library/js/campus/mentor/mentor-01-intro.js" },
-      { key:"mentor-02", src:"/lp-anfang/library/js/campus/mentor/mentor-02-method.js" },
-      { key:"mentor-03", src:"/lp-anfang/library/js/campus/mentor/mentor-03-lead.js" },
-      { key:"mentor-04", src:"/lp-anfang/library/js/campus/mentor/mentor-04-growth.js" },
+      { key:"campus-mentor-01", src:"/lp-anfang/library/js/text-campus/campus-mentor-01.js" },
+      { key:"campus-mentor-02", src:"/lp-anfang/library/js/text-campus/campus-mentor-02.js" },
+      { key:"campus-mentor-03", src:"/lp-anfang/library/js/text-campus/campus-mentor-03.js" },
+      { key:"campus-mentor-04", src:"/lp-anfang/library/js/text-campus/campus-mentor-04.js" },
     ];
   }
   else if(/\/pages\/souveraeni?taet\.html$/.test(path)){
     modules = [
-      { key:"sovereign-01", src:"/lp-anfang/library/js/campus/sovereign/sovereign-01-intro.js" },
-      { key:"sovereign-02", src:"/lp-anfang/library/js/campus/sovereign/sovereign-02-principles.js" },
-      { key:"sovereign-03", src:"/lp-anfang/library/js/campus/sovereign/sovereign-03-practice.js" },
-      { key:"sovereign-04", src:"/lp-anfang/library/js/campus/sovereign/sovereign-04-future.js" },
+      { key:"campus-sovereign-01", src:"/lp-anfang/library/js/text-campus/campus-sovereign-01.js" },
+      { key:"campus-sovereign-02", src:"/lp-anfang/library/js/text-campus/campus-sovereign-02.js" },
+      { key:"campus-sovereign-03", src:"/lp-anfang/library/js/text-campus/campus-sovereign-03.js" },
+      { key:"campus-sovereign-04", src:"/lp-anfang/library/js/text-campus/campus-sovereign-04.js" },
     ];
   }
 
