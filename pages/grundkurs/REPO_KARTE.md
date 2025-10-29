@@ -103,6 +103,9 @@
     │   │   ├── README.txt
     │   │   └── index.json
     │   ├── js/
+    │   │   ├── shared/
+    │   │   │   ├── campus-core.js
+    │   │   │   └── utils.js
     │   │   ├── text/
     │   │   │   ├── block-01-intro.js
     │   │   │   ├── block-02-intro.js
@@ -412,4 +415,4 @@
     ├── master.css
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.10.2025, 23:30)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.10.2025, 03:38)_
