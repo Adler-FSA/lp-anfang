@@ -2,13 +2,16 @@
    FSA Campus – Text-Container
    Modul: Souveränität / Container 1 – "Denken in Besitzverhältnissen"
    Pfad: /library/js/text-campus/campus-sovereign-01.js
-   Struktur: Lädt über campus-core.js (kein Autostart)
+   Eigenschaften:
+   • Autoload (fügt sich selbst ein)
+   • Fade-In (goldener Glow, Darkmode)
+   • Keyboard (←/→), Touch-Swipe, ARIA
+   • Fortschritts-Punkte + Zähler
+   • DE/EN anhand window.FSA_LANG oder <html lang="">
+   • Slot-Logik: nutzt #campus-container-1, fällt zurück auf <body>
    ========================================================================== */
-
-window.FSA_CAMPUS = window.FSA_CAMPUS || {};
-window.FSA_CAMPUS["campus-sovereign-01"] = function initSovereign01() {
-
-  // ----- Sprache bestimmen -----
+(function CampusSovereign01(){
+  // ----- Sprache bestimmen (DE als Standard) -----
   const currentLang = (window.FSA_LANG || document.documentElement.lang || "de").toLowerCase();
   const LANG = currentLang.startsWith("de") ? "de" : "en";
 
@@ -125,48 +128,49 @@ window.FSA_CAMPUS["campus-sovereign-01"] = function initSovereign01() {
   const DATA = (LANG === "de") ? SLIDES_DE : SLIDES_EN;
   const TOTAL = DATA.length;
 
-  // ----- Ziel-Slot -----
+  // ----- Styles (scoped im Modul) -----
+  const CSS = `
+  .fsa-so1 { width:min(980px,92vw); margin:56px auto; background:#0f172a;
+    border:1px solid rgba(212,175,55,.35); border-radius:16px;
+    box-shadow:0 0 28px rgba(212,175,55,.25); color:#e5e7eb;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    padding:clamp(22px,3vw,36px) clamp(20px,3vw,40px); line-height:1.55;
+    opacity:0; transform:translateY(8px); animation:fsa-fade .45s ease forwards; }
+  @keyframes fsa-fade { to { opacity:1; transform:none; } }
+  .fsa-so1 h2 { color:#d4af37; text-align:center; margin:0 0 18px;
+    font-size:clamp(22px,2.4vw,28px); text-shadow:0 0 8px rgba(212,175,55,.35); }
+  .fsa-so1 .stage { position:relative; min-height:300px; outline:none; }
+  .fsa-so1 .card { position:absolute; inset:0; display:none; opacity:0; transform:translateY(10px);
+    transition:opacity .45s ease, transform .45s ease; }
+  .fsa-so1 .card.active { display:block; opacity:1; transform:none; }
+  .fsa-so1 .card h3 { color:#e5e7eb; font-size:clamp(18px,2.1vw,22px); margin:0 0 10px; position:relative; }
+  .fsa-so1 .card h3::after { content:""; position:absolute; left:0; bottom:-6px; width:60px; height:2px;
+    background:linear-gradient(90deg,#d4af37 0%,transparent 100%); }
+  .fsa-so1 .card p { margin:.45em 0; font-size:1.02rem; max-width:70ch; }
+  .fsa-so1 .nav { display:flex; justify-content:space-between; align-items:center; margin-top:26px; gap:14px; }
+  .fsa-so1 .btn { background:transparent; color:#e5e7eb; border:1px solid rgba(212,175,55,.4);
+    border-radius:10px; padding:10px 16px; cursor:pointer; font-weight:600;
+    box-shadow:0 0 22px rgba(212,175,55,.25); transition:background .2s ease, transform .15s ease; }
+  .fsa-so1 .btn:hover { background:rgba(212,175,55,.08); }
+  .fsa-so1 .btn:active { transform:translateY(1px); }
+  .fsa-so1 .stat { color:#94a3b8; font-size:.95rem; }
+  .fsa-so1 .progress { display:flex; justify-content:center; gap:10px; margin-top:18px; }
+  .fsa-so1 .dot { width:10px; height:10px; border-radius:50%; background:rgba(212,175,55,.25);
+    box-shadow:0 0 8px rgba(212,175,55,.25); transition:all .3s ease; }
+  .fsa-so1 .dot.active { background:#d4af37; box-shadow:0 0 12px rgba(212,175,55,.6); transform:scale(1.2); }
+  @media (max-width:820px){ .fsa-so1{ margin:36px auto; padding:22px } .fsa-so1 .stage{ min-height:360px } }
+  `;
+
+  // ----- Ziel-Slot holen: #campus-container-1 → sonst <body> -----
   const host = document.getElementById("campus-container-1") || document.body;
 
   // ----- Container erzeugen -----
   const box = document.createElement("section");
   box.className = "fsa-so1";
-  box.id = "campus-sovereign-01";
-  box.setAttribute("aria-live", "polite");
-
-  // Style + Grundstruktur
+  box.setAttribute("id","campus-sovereign-01");
+  box.setAttribute("aria-live","polite");
   box.innerHTML = `
-    <style>
-      .fsa-so1 { width:min(980px,92vw); margin:56px auto; background:#0f172a;
-        border:1px solid rgba(212,175,55,.35); border-radius:16px;
-        box-shadow:0 0 28px rgba(212,175,55,.25); color:#e5e7eb;
-        font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-        padding:clamp(22px,3vw,36px) clamp(20px,3vw,40px); line-height:1.55;
-        opacity:0; transform:translateY(8px); animation:fsa-fade .45s ease forwards; }
-      @keyframes fsa-fade { to { opacity:1; transform:none; } }
-      .fsa-so1 h2 { color:#d4af37; text-align:center; margin:0 0 18px;
-        font-size:clamp(22px,2.4vw,28px); text-shadow:0 0 8px rgba(212,175,55,.35); }
-      .fsa-so1 .stage { position:relative; min-height:300px; outline:none; }
-      .fsa-so1 .card { position:absolute; inset:0; display:none; opacity:0; transform:translateY(10px);
-        transition:opacity .45s ease, transform .45s ease; }
-      .fsa-so1 .card.active { display:block; opacity:1; transform:none; }
-      .fsa-so1 .card h3 { color:#e5e7eb; font-size:clamp(18px,2.1vw,22px); margin:0 0 10px; position:relative; }
-      .fsa-so1 .card h3::after { content:""; position:absolute; left:0; bottom:-6px; width:60px; height:2px;
-        background:linear-gradient(90deg,#d4af37 0%,transparent 100%); }
-      .fsa-so1 .card p { margin:.45em 0; font-size:1.02rem; max-width:70ch; }
-      .fsa-so1 .nav { display:flex; justify-content:space-between; align-items:center; margin-top:26px; gap:14px; }
-      .fsa-so1 .btn { background:transparent; color:#e5e7eb; border:1px solid rgba(212,175,55,.4);
-        border-radius:10px; padding:10px 16px; cursor:pointer; font-weight:600;
-        box-shadow:0 0 22px rgba(212,175,55,.25); transition:background .2s ease, transform .15s ease; }
-      .fsa-so1 .btn:hover { background:rgba(212,175,55,.08); }
-      .fsa-so1 .btn:active { transform:translateY(1px); }
-      .fsa-so1 .stat { color:#94a3b8; font-size:.95rem; }
-      .fsa-so1 .progress { display:flex; justify-content:center; gap:10px; margin-top:18px; }
-      .fsa-so1 .dot { width:10px; height:10px; border-radius:50%; background:rgba(212,175,55,.25);
-        box-shadow:0 0 8px rgba(212,175,55,.25); transition:all .3s ease; }
-      .fsa-so1 .dot.active { background:#d4af37; box-shadow:0 0 12px rgba(212,175,55,.6); transform:scale(1.2); }
-      @media (max-width:820px){ .fsa-so1{ margin:36px auto; padding:22px } .fsa-so1 .stage{ min-height:360px } }
-    </style>
+    <style>${CSS}</style>
     <h2>${LANG==="de" ? "🪙 Denken in Besitzverhältnissen" : "🪙 Thinking in Terms of Ownership"}</h2>
     <div class="stage" tabindex="0"></div>
     <div class="nav">
@@ -176,16 +180,19 @@ window.FSA_CAMPUS["campus-sovereign-01"] = function initSovereign01() {
     </div>
     <div class="progress" aria-label="${LANG==="de" ? "Fortschritt" : "Progress"}"></div>
   `;
+
   host.appendChild(box);
 
-  // ----- DOM Refs + Logik -----
+  // ----- DOM-Refs -----
   const stage = box.querySelector(".stage");
   const stat  = box.querySelector(".stat");
   const prev  = box.querySelector('[data-act="prev"]');
   const next  = box.querySelector('[data-act="next"]');
   const progress = box.querySelector(".progress");
+  const SRC = (LANG === "de") ? SLIDES_DE : SLIDES_EN;
 
-  DATA.forEach((s, i) => {
+  // ----- Slides rendern -----
+  SRC.forEach((s, i) => {
     const card = document.createElement("article");
     card.className = "card" + (i===0 ? " active" : "");
     const paras = s.p.map(line => `<p>${escapeHtml(line)}</p>`).join("");
@@ -210,14 +217,17 @@ window.FSA_CAMPUS["campus-sovereign-01"] = function initSovereign01() {
     next.disabled = (n===TOTAL-1);
   }
 
+  // ----- Navigation -----
   prev.addEventListener("click", ()=>{ if(idx>0){ idx--; show(idx); } });
   next.addEventListener("click", ()=>{ if(idx<TOTAL-1){ idx++; show(idx); } });
 
+  // Keyboard
   stage.addEventListener("keydown", e => {
     if(e.key==="ArrowRight" && idx<TOTAL-1){ idx++; show(idx); }
     if(e.key==="ArrowLeft"  && idx>0){ idx--; show(idx); }
   });
 
+  // Touch
   let startX = null;
   stage.addEventListener("touchstart", e => startX = e.touches[0].clientX, {passive:true});
   stage.addEventListener("touchend", e => {
@@ -233,10 +243,11 @@ window.FSA_CAMPUS["campus-sovereign-01"] = function initSovereign01() {
   stage.focus();
   show(idx);
 
+  // ----- Utils -----
   function escapeHtml(str){
     return String(str)
       .replace(/&/g,"&amp;").replace(/</g,"&lt;")
       .replace(/>/g,"&gt;").replace(/"/g,"&quot;")
       .replace(/'/g,"&#39;");
   }
-};
+})();
