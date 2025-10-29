@@ -1,6 +1,5 @@
 /* ==========================================================================
-   FSA Akademie – Utils.js (Orientation Lock + iPad Safe)
-   Globale Hilfsfunktionen + Pflicht-Hinweis für Hochformat
+   FSA Akademie – Utils.js (Stabiler Orientation Lock + Fix-Layout)
    ========================================================================== */
 
 (function(window){
@@ -19,26 +18,17 @@
       return new Promise((resolve, reject) => {
         const s = document.createElement("script");
         s.src = Utils.addCacheBypass(src);
-        s.async = true;
+        s.defer = true;
         s.onload = () => resolve(src);
         s.onerror = () => reject(new Error("Fehler beim Laden: " + src));
         document.head.appendChild(s);
       });
     },
-    log(msg, type="info"){
-      const prefix = "[FSA Utils]";
-      switch(type){
-        case "warn": console.warn(prefix, msg); break;
-        case "error": console.error(prefix, msg); break;
-        default: console.log(prefix, msg);
-      }
-    }
+    log(msg){ console.log("[FSA Utils]", msg); }
   };
+
   window.FSA_Utils = Utils;
 
-  /* ========================================================================
-     Pflicht-Hinweis + fester Campus-Container + iPad-Stage-Schutz
-     ======================================================================== */
   Utils.ready(() => {
     const style = document.createElement("style");
     style.textContent = `
@@ -55,8 +45,8 @@
         margin-left: auto;
         margin-right: auto;
         box-sizing: border-box;
-        transition: none !important;
         position: relative;
+        transition: none !important;
       }
 
       #rotate-lock {
@@ -64,7 +54,7 @@
         inset: 0;
         background: rgba(11,15,20,0.96);
         color: #e5e7eb;
-        display: flex;
+        display: none;
         flex-direction: column;
         align-items: center;
         justify-content: center;
@@ -76,16 +66,17 @@
       }
       #rotate-lock h2 {
         color: #d4af37;
-        font-size: 1.2rem;
-        margin-bottom: 0.8rem;
+        font-size: 1.3rem;
+        margin-bottom: 0.6rem;
+        animation: glow 2s ease-in-out infinite alternate;
       }
       #rotate-lock span {
         opacity: 0.8;
         font-size: 0.9rem;
       }
-
-      @media (orientation: landscape) and (max-width: 1024px) {
-        #rotate-lock { display: none; }
+      @keyframes glow {
+        from { text-shadow: 0 0 4px #d4af37; }
+        to { text-shadow: 0 0 16px #d4af37; }
       }
     `;
     document.head.appendChild(style);
@@ -102,23 +93,33 @@
       const width = window.innerWidth;
       const height = window.innerHeight;
       const landscape = width > height;
+      const minLandscapeWidth = 800; // iPad-Split-Erkennung
 
-      // iPad Stage Manager oder Split View → erzwingen Querformat-Check über Breite
-      const minLandscapeWidth = 800;
+      const shouldShow = !landscape || width < minLandscapeWidth;
 
-      if (landscape && width >= minLandscapeWidth) {
-        overlay.style.display = "none";
-      } else {
+      if (shouldShow) {
         overlay.style.display = "flex";
+        document.body.style.overflow = "hidden";
+      } else {
+        overlay.style.display = "none";
+        document.body.style.overflow = "auto";
       }
     }
 
-    // Initial & dynamisch prüfen
     checkOrientation();
-    window.addEventListener("orientationchange", () => setTimeout(checkOrientation, 400));
-    window.addEventListener("resize", () => setTimeout(checkOrientation, 400));
 
-    FSA_Utils.log("Orientation-Lock aktiv (inkl. iPad Stage-Fix).");
+    let resizeTimeout;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(checkOrientation, 350);
+    });
+
+    window.addEventListener("orientationchange", () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(checkOrientation, 350);
+    });
+
+    FSA_Utils.log("Orientation-Lock stabil aktiv.");
   });
 
 })(window);
