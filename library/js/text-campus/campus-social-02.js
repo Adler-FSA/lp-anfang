@@ -587,3 +587,4 @@
     }
   });
 })();
+window.FSA_SOCIAL_02 = SOCIAL_CONTENT;
