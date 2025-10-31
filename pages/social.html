@@ -14,6 +14,8 @@
       --gold: #d4af37;
       --border: rgba(212,175,55,.35);
       --red: #ef4444;
+      --set-bg: rgba(11,15,20,.65);
+      --set-panel: rgba(15,23,42,.35);
     }
     * { box-sizing: border-box; }
     body {
@@ -43,6 +45,7 @@
       margin: 0 auto 3rem;
       line-height: 1.6;
     }
+
     /* GRID */
     .social-grid {
       display: grid;
@@ -102,11 +105,11 @@
       background: rgba(236,204,111,.35);
     }
 
-    /* Dyn. Ausgabe */
+    /* Dyn. Ausgabe – NICHT Layout ändern, nur hübscher machen */
     #social-body {
       width: min(100%, 920px);
       margin: 3.2rem auto 0;
-      background: rgba(13,18,25,.3);
+      background: var(--set-bg);
       border: 1px solid rgba(148,163,184,.12);
       border-radius: 16px;
       padding: 1.6rem 1.4rem 1.4rem;
@@ -118,6 +121,68 @@
     #social-body.show {
       display: block;
       opacity: 1;
+    }
+    .set-hint {
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: rgba(255,218,106,.85);
+      margin-bottom: 1rem;
+    }
+    .set-title {
+      font-size: 1.35rem;
+      margin-bottom: .25rem;
+      color: #fff;
+    }
+    .set-subtitle {
+      color: rgba(226,232,240,.7);
+      margin-bottom: 1.2rem;
+      line-height: 1.55;
+    }
+    .set-section {
+      margin-bottom: 1.45rem;
+    }
+    .set-section-title {
+      font-size: 1rem;
+      margin-bottom: .6rem;
+      border-left: 4px solid rgba(212,175,55,.65);
+      padding-left: .6rem;
+      color: #e5e7eb;
+    }
+    .set-item {
+      background: var(--set-panel);
+      border: 1px solid rgba(148,163,184,.15);
+      border-radius: 10px;
+      padding: .7rem .75rem .55rem;
+      margin-bottom: .6rem;
+    }
+    .set-item-title {
+      margin: 0 0 .35rem;
+      font-size: .9rem;
+      color: #fff;
+    }
+    .set-item-text {
+      margin: 0 0 .35rem;
+      font-size: .83rem;
+      line-height: 1.55;
+      color: #e2e8f0;
+    }
+    .set-close {
+      text-align: center;
+      margin-top: 1rem;
+    }
+    .set-close-btn {
+      background: rgba(212,175,55,0.15);
+      border: 1px solid rgba(212,175,55,0.6);
+      color: #fff;
+      padding: .45rem 1.25rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: .15s ease;
+    }
+    .set-close-btn:hover {
+      background: rgba(212,175,55,.35);
+      box-shadow: 0 0 14px rgba(212,175,55,.35);
     }
 
     /* Community */
@@ -148,15 +213,18 @@
 
     #campus-menu-anchor { height: 5rem; }
 
+    /* Mobil */
     @media (max-width: 1000px) {
       .social-grid {
         grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
       }
       main { padding-top: 6rem; }
     }
-    @media (max-width: 560px) {
-      h1 { font-size: 2.05rem; }
-      #social-body { padding: 1.1rem .85rem 1.2rem; }
+    @media (max-width: 650px) {
+      #social-body { padding: 1.2rem .65rem 1.25rem; }
+      .set-item { padding: .55rem .55rem .45rem; }
+      .set-item-text { font-size: .78rem; }
+      .set-title { font-size: 1.2rem; }
     }
   </style>
 </head>
@@ -214,7 +282,22 @@
     <div id="campus-menu-anchor"></div>
   </main>
 
- 
+  <!-- Campus-Menü -->
+  <script src="/lp-anfang/library/js/campus-menu.js"></script>
+
+  <!-- 4 Social-Dateien (müssen VOR der Steuerung geladen werden) -->
+  <script src="/lp-anfang/library/js/text-campus/campus-social-01.js"></script>
+  <script src="/lp-anfang/library/js/text-campus/campus-social-02.js"></script>
+  <script src="/lp-anfang/library/js/text-campus/campus-social-03.js"></script>
+  <script src="/lp-anfang/library/js/text-campus/campus-social-04.js"></script>
+
+  <!-- Steuerung -->
+  <script>
+  (function () {
+    // 0. Sprache sicherstellen
+    if (!localStorage.getItem("fsa_lang")) {
+      localStorage.setItem("fsa_lang", "de");
+    }
 
     // 1. UI-Texte
     const UI = {
@@ -267,7 +350,7 @@
       });
     }
 
-    // 2. Check: sind die 4 JS-Dateien da?
+    // 2. Check: sind die 4 Social-Dateien wirklich da?
     function socialsReady() {
       return (
         typeof window.FSA_SOCIAL_01 !== "undefined" &&
@@ -296,42 +379,37 @@
       }
 
       const data = raw[lang] || raw.de;
-
       let html = "";
-      html += "<div class='hint' style='margin-bottom:1rem;'>" + dict["set-hint"] + "</div>";
+
+      html += "<div class='set-hint'>" + dict["set-hint"] + "</div>";
       if (data.title) {
-        html += "<h2 style='margin-top:0;'>" + data.title + "</h2>";
+        html += "<h2 class='set-title'>" + data.title + "</h2>";
       }
       if (data.subtitle) {
-        html += "<p style='color:rgba(226,232,240,.7);margin-bottom:1.2rem;'>" + data.subtitle + "</p>";
+        html += "<p class='set-subtitle'>" + data.subtitle + "</p>";
       }
 
       (data.blocks || []).forEach((block, idx) => {
-        html += "<article style='margin-bottom:1.4rem;'>";
-        html += "<h3 style='margin-bottom:.4rem;font-size:1rem;'>" + (block.heading || ((lang === "de" ? "Abschnitt " : "Section ") + (idx + 1))) + "</h3>";
-
+        html += "<article class='set-section'>";
+        html += "<h3 class='set-section-title'>" + (block.heading || ((lang === "de" ? "Abschnitt " : "Section ") + (idx + 1))) + "</h3>";
         (block.items || []).forEach((item) => {
-          html += "<div style='background:rgba(15,23,42,.35);border:1px solid rgba(148,163,184,.15);border-radius:10px;padding:.6rem .7rem .4rem;margin-bottom:.6rem;'>";
+          html += "<div class='set-item'>";
           if (item.title) {
-            html += "<h4 style='margin:0 0 .35rem;font-size:.9rem;'>" + item.title + "</h4>";
+            html += "<h4 class='set-item-title'>" + item.title + "</h4>";
           }
           (item.body || []).forEach((line) => {
-            html += "<p style='margin:0 0 .35rem;font-size:.83rem;line-height:1.55;'>" + line + "</p>";
+            html += "<p class='set-item-text'>" + line + "</p>";
           });
           html += "</div>";
         });
-
         html += "</article>";
       });
 
-      html += "<div style='text-align:center;margin-top:1rem;'>" +
-        "<button id='closeSocialSet' style='background:rgba(212,175,55,0.15);border:1px solid rgba(212,175,55,0.6);color:#fff;padding:.45rem 1.25rem;border-radius:999px;cursor:pointer;'>" +
-        dict["close"] + "</button></div>";
+      html += "<div class='set-close'><button type='button' id='closeSocialSet' class='set-close-btn'>" + dict["close"] + "</button></div>";
 
       host.innerHTML = html;
       host.classList.add("show");
 
-      // Close-Button
       const closeBtn = document.getElementById("closeSocialSet");
       if (closeBtn) {
         closeBtn.addEventListener("click", () => {
@@ -348,7 +426,6 @@
       applyLang(startLang);
 
       const cards = document.querySelectorAll(".card-target");
-
       cards.forEach((card) => {
         card.addEventListener("click", () => {
           cards.forEach((c) => c.classList.remove("active"));
@@ -358,7 +435,7 @@
         });
       });
 
-      // ERST NACHDEM ALLES DA IST → automatisch Set 1 anzeigen
+      // direkt Set 1 zeigen
       const firstCard = document.querySelector('.card-target[data-target="1"]');
       if (firstCard) {
         firstCard.classList.add("active");
@@ -366,7 +443,7 @@
       }
     }
 
-    // 5. Sprachwechsel vom globalen Umschalter
+    // 5. Globaler Sprachwechsel
     document.addEventListener("fsa:lang-change", (ev) => {
       const lang = ev.detail || "de";
       localStorage.setItem("fsa_lang", lang);
@@ -378,30 +455,16 @@
       }
     });
 
-    // 6. Warten bis Social-Dateien da sind
+    // 6. Warten bis die Social-Dateien da sind
     (function waitForSocials() {
       if (!socialsReady()) {
         setTimeout(waitForSocials, 200);
         return;
       }
-      // kleines Delay, damit oben Menü / Switcher fertig ist
-      setTimeout(init, 250);
+      // wenn sie da sind → init
+      setTimeout(init, 200);
     })();
   })();
   </script>
- <!-- Campus-Menü -->
-<script src="/lp-anfang/library/js/campus-menu.js" defer></script>
-
-<!-- 4 Social-Dateien (mit window.FSA_SOCIAL_xx) -->
-<script src="/lp-anfang/library/js/text-campus/campus-social-01.js" defer></script>
-<script src="/lp-anfang/library/js/text-campus/campus-social-02.js" defer></script>
-<script src="/lp-anfang/library/js/text-campus/campus-social-03.js" defer></script>
-<script src="/lp-anfang/library/js/text-campus/campus-social-04.js" defer></script>
-  <!-- Steuerung -->
-  <script>
-  (function () {
-    // 0. Sprach-Start (falls noch nix gesetzt)
-    if (!localStorage.getItem("fsa_lang")) {
-      localStorage.setItem("fsa_lang", "de");
-    }</body>
+</body>
 </html>
