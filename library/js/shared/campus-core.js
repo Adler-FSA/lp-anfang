@@ -1,107 +1,76 @@
-// ░░ FSA Campus Social Core – steuert Social.html ░░
-// Version: FINAL – nur eine Zielgruppe gleichzeitig offen
+// ░░ FSA Social Core – steuert die 4 Zielgruppen auf pages/social.html ░░
 document.addEventListener("DOMContentLoaded", () => {
   const cards = document.querySelectorAll(".card-target[data-target]");
-  const outputArea = document.getElementById("social-body");
   const overlay = document.getElementById("social-overlay");
-  const closeBtn = document.getElementById("closeOverlayBtn");
+  const body = document.getElementById("social-body");
 
-  // Sprachsteuerung
+  // Mobile Hinweis
+  const rotateHint = document.getElementById("rotate-hint");
+  if (window.innerWidth < 760 && rotateHint) {
+    rotateHint.style.display = "flex";
+    setTimeout(() => (rotateHint.style.display = "none"), 5200);
+  }
+
+  // Sprache holen
   const getLang = () => localStorage.getItem("fsa_lang") || "de";
 
-  // Aktuell offene Zielgruppe merken
-  let openId = null;
-
-  // Smooth anzeigen / ausblenden
-  const showContent = (html) => {
-    outputArea.innerHTML = html;
-    outputArea.style.display = "block";
-    outputArea.style.opacity = "0";
-    setTimeout(() => (outputArea.style.opacity = "1"), 30);
-  };
-  const hideContent = () => {
-    outputArea.style.opacity = "0";
-    setTimeout(() => {
-      outputArea.innerHTML = "";
-      outputArea.style.display = "none";
-    }, 250);
-  };
-
-  // Renderer
+  // Zielgruppen Renderer
   const renderTarget = (id) => {
     const lang = getLang();
     const packs = {
       "1": window.FSA_SOCIAL_01,
       "2": window.FSA_SOCIAL_02,
       "3": window.FSA_SOCIAL_03,
-      "4": window.FSA_SOCIAL_04
+      "4": window.FSA_SOCIAL_04,
     };
     const data = packs[id];
     if (!data) return;
     const pack = data[lang] || data["de"];
-
-    // Render-Helper aufrufen
-    const html = window.FSA_renderSocialPack
-      ? window.FSA_renderSocialPack(pack)
-      : `<p style="color:#fbbf24;">⚠️ Renderer fehlt.</p>`;
-
-    // Ausgabe anzeigen
-    showContent(html);
-    openId = id;
+    body.innerHTML = window.FSA_renderSocialPack(pack);
+    body.style.display = "block";
+    requestAnimationFrame(() => (body.style.opacity = 1));
+    body.setAttribute("data-open-id", id);
   };
 
-  // Klick auf Karten
+  // Karten + Buttons klicken
   cards.forEach((card) => {
-    card.addEventListener("click", () => {
+    card.addEventListener("click", (ev) => {
+      // Nur reagieren, wenn auf Karte oder Button
       const id = card.getAttribute("data-target");
-      if (openId === id) {
-        hideContent();
-        openId = null;
-      } else {
-        hideContent();
-        setTimeout(() => renderTarget(id), 280);
+      if (!id) return;
+      const target = ev.target;
+      if (target.classList.contains("open-btn") || target.closest(".card-target")) {
+        // wenn dasselbe nochmal geklickt wird → schließen
+        const openId = body.getAttribute("data-open-id");
+        if (openId === id && body.style.display === "block") {
+          body.style.opacity = 0;
+          setTimeout(() => {
+            body.innerHTML = "";
+            body.style.display = "none";
+          }, 250);
+        } else {
+          renderTarget(id);
+        }
       }
     });
   });
 
-  // Sprache wechseln → neu rendern
+  // Sprachwechsel
   document.addEventListener("fsa:lang-change", (ev) => {
-    const lang = ev.detail || "de";
-    if (openId) {
+    const openId = body.getAttribute("data-open-id");
+    if (openId && body.style.display === "block") {
+      const lang = ev.detail || "de";
       const packs = {
         "1": window.FSA_SOCIAL_01,
         "2": window.FSA_SOCIAL_02,
         "3": window.FSA_SOCIAL_03,
-        "4": window.FSA_SOCIAL_04
+        "4": window.FSA_SOCIAL_04,
       };
       const data = packs[openId];
       if (data) {
         const pack = data[lang] || data["de"];
-        const html = window.FSA_renderSocialPack
-          ? window.FSA_renderSocialPack(pack)
-          : `<p style="color:#fbbf24;">⚠️ Renderer fehlt.</p>`;
-        showContent(html);
+        body.innerHTML = window.FSA_renderSocialPack(pack);
       }
     }
   });
-
-  // Close-Button
-  if (closeBtn) {
-    closeBtn.addEventListener("click", () => {
-      hideContent();
-      openId = null;
-    });
-  }
-
-  // Grund-Style (sanftes Ein-/Ausblenden)
-  const style = document.createElement("style");
-  style.textContent = `
-    #social-body {
-      transition: opacity .25s ease;
-      opacity: 0;
-      display: none;
-      margin-top: 2.2rem;
-    }
-  `;
-  document.head.appendChild(style);
 });
