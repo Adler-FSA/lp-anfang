@@ -1,24 +1,33 @@
-// ░░ FSA Social Core – steuert die 4 Zielgruppen auf pages/social.html ░░
+// ░░ FSA Campus Social Core – steuert Social.html ░░
+// Version: FINAL – nur eine Zielgruppe gleichzeitig offen
 document.addEventListener("DOMContentLoaded", () => {
   const cards = document.querySelectorAll(".card-target[data-target]");
+  const outputArea = document.getElementById("social-body");
   const overlay = document.getElementById("social-overlay");
-  const body = document.getElementById("social-body");
   const closeBtn = document.getElementById("closeOverlayBtn");
-  const rotateHint = document.getElementById("rotate-hint");
 
-  // Sicherheit: Abbruch wenn DOM-Elemente fehlen
-  if (!cards.length || !overlay || !body || !closeBtn) return;
-
-  // mobiler Hinweis kurz anzeigen
-  if (rotateHint && window.innerWidth < 760) {
-    rotateHint.style.display = "flex";
-    setTimeout(() => (rotateHint.style.display = "none"), 5200);
-  }
-
-  // aktuelle Sprache holen
+  // Sprachsteuerung
   const getLang = () => localStorage.getItem("fsa_lang") || "de";
 
-  // Datensatz rendern
+  // Aktuell offene Zielgruppe merken
+  let openId = null;
+
+  // Smooth anzeigen / ausblenden
+  const showContent = (html) => {
+    outputArea.innerHTML = html;
+    outputArea.style.display = "block";
+    outputArea.style.opacity = "0";
+    setTimeout(() => (outputArea.style.opacity = "1"), 30);
+  };
+  const hideContent = () => {
+    outputArea.style.opacity = "0";
+    setTimeout(() => {
+      outputArea.innerHTML = "";
+      outputArea.style.display = "none";
+    }, 250);
+  };
+
+  // Renderer
   const renderTarget = (id) => {
     const lang = getLang();
     const packs = {
@@ -29,40 +38,36 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     const data = packs[id];
     if (!data) return;
-
     const pack = data[lang] || data["de"];
-    if (typeof window.FSA_renderSocialPack === "function") {
-      body.innerHTML = window.FSA_renderSocialPack(pack);
-    } else {
-      body.innerHTML = "<p style='color:#f87171'>Fehlende render-Funktion (utils.js prüfen)</p>";
-    }
 
-    overlay.style.display = "flex";
-    overlay.setAttribute("aria-hidden", "false");
-    body.setAttribute("data-open-id", id);
+    // Render-Helper aufrufen
+    const html = window.FSA_renderSocialPack
+      ? window.FSA_renderSocialPack(pack)
+      : `<p style="color:#fbbf24;">⚠️ Renderer fehlt.</p>`;
+
+    // Ausgabe anzeigen
+    showContent(html);
+    openId = id;
   };
 
-  // Klicks auf Zielgruppen-Karten
+  // Klick auf Karten
   cards.forEach((card) => {
     card.addEventListener("click", () => {
       const id = card.getAttribute("data-target");
-      renderTarget(id);
+      if (openId === id) {
+        hideContent();
+        openId = null;
+      } else {
+        hideContent();
+        setTimeout(() => renderTarget(id), 280);
+      }
     });
   });
 
-  // Overlay schließen
-  closeBtn.addEventListener("click", () => {
-    overlay.style.display = "none";
-    overlay.setAttribute("aria-hidden", "true");
-    body.innerHTML = "";
-  });
-
-  // Sprache live wechseln
+  // Sprache wechseln → neu rendern
   document.addEventListener("fsa:lang-change", (ev) => {
-    if (overlay.style.display === "flex") {
-      const openId = body.getAttribute("data-open-id");
-      if (!openId) return;
-      const lang = ev.detail || "de";
+    const lang = ev.detail || "de";
+    if (openId) {
       const packs = {
         "1": window.FSA_SOCIAL_01,
         "2": window.FSA_SOCIAL_02,
@@ -72,9 +77,31 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = packs[openId];
       if (data) {
         const pack = data[lang] || data["de"];
-        body.innerHTML = window.FSA_renderSocialPack(pack);
-        body.setAttribute("data-open-id", openId);
+        const html = window.FSA_renderSocialPack
+          ? window.FSA_renderSocialPack(pack)
+          : `<p style="color:#fbbf24;">⚠️ Renderer fehlt.</p>`;
+        showContent(html);
       }
     }
   });
+
+  // Close-Button
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      hideContent();
+      openId = null;
+    });
+  }
+
+  // Grund-Style (sanftes Ein-/Ausblenden)
+  const style = document.createElement("style");
+  style.textContent = `
+    #social-body {
+      transition: opacity .25s ease;
+      opacity: 0;
+      display: none;
+      margin-top: 2.2rem;
+    }
+  `;
+  document.head.appendChild(style);
 });
