@@ -452,9 +452,5 @@ const campusSocial03 = {
     ]
   }
 };
+window.FSA_SOCIAL_03 = SOCIAL_CONTENT;
 
-// global registration hook (optional – if campus-core.js expects it)
-if (typeof window !== "undefined") {
-  window.campusSocial03 = campusSocial03;
-}
-export default campusSocial03;
