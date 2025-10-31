@@ -102,7 +102,7 @@
       background: rgba(236,204,111,.35);
     }
 
-    /* Dynamische Ausgabe */
+    /* Dyn. Ausgabe */
     #social-body {
       width: min(100%, 920px);
       margin: 3.2rem auto 0;
@@ -120,7 +120,7 @@
       opacity: 1;
     }
 
-    /* Community-Abschnitt */
+    /* Community */
     .community-section {
       width: min(100%, 820px);
       margin: 3.5rem auto 0;
@@ -146,7 +146,6 @@
       box-shadow: 0 12px 25px rgba(0,0,0,.35);
     }
 
-    /* Platz fürs Campus-Menü unten */
     #campus-menu-anchor { height: 5rem; }
 
     @media (max-width: 1000px) {
@@ -176,7 +175,7 @@
       </p>
     </header>
 
-    <!-- 4 Zielgruppen – FINAL -->
+    <!-- 4 Zielgruppen -->
     <section class="social-grid" aria-label="Zielgruppen">
       <div class="card-target active" data-target="1">
         <h2 data-i18n="card1-title">📊 Firmen &amp; Geschäftsführer</h2>
@@ -198,7 +197,6 @@
         <p data-i18n="card4-text">Stabilität, Würde und Perspektive in jeder Lebenslage.</p>
         <button class="open-btn" type="button" data-i18n="btn-open">Komplettes Set anzeigen</button>
       </div>
-      <div class="row-2" aria-hidden="true"></div>
     </section>
 
     <!-- Ausgabe -->
@@ -216,7 +214,7 @@
     <div id="campus-menu-anchor"></div>
   </main>
 
-  <!-- Campus-Menü unten -->
+  <!-- Campus-Menü -->
   <script src="/lp-anfang/library/js/campus-menu.js"></script>
 
   <!-- deine 4 Social-Dateien -->
@@ -228,7 +226,12 @@
   <!-- Steuerung -->
   <script>
   (function() {
-    // 1. UI-Texte DE/EN
+    // 0. Immer Deutsch als Start, wenn nichts gesetzt
+    if (!localStorage.getItem("fsa_lang")) {
+      localStorage.setItem("fsa_lang", "de");
+    }
+
+    // 1. Alle UI-Texte komplett
     const UI = {
       de: {
         title: "Willkommen im Social-Hub der FSA-Akademie",
@@ -243,7 +246,9 @@
         "card4-text": "Stabilität, Würde und Perspektive in jeder Lebenslage.",
         "btn-open": "Komplettes Set anzeigen",
         "community-text": "In unserer <strong>FSA-Community</strong> vertiefst du die Themen aus den Vorlagen praktisch: Kommunikation, Mentoring, Auftritt, Wirkung, Lernen. Erlebe, wie du Wissen teilst und Vertrauen aufbaust – Schritt für Schritt.",
-        "community-btn": "Zur Community-Seite →"
+        "community-btn": "Zur Community-Seite →",
+        "set-hint": "Vollständiges Set für diese Zielgruppe",
+        "close": "Schließen"
       },
       en: {
         title: "Welcome to the FSA Social Hub",
@@ -258,7 +263,9 @@
         "card4-text": "Stability, dignity and perspective in any situation.",
         "btn-open": "Show full set",
         "community-text": "In our <strong>FSA Community</strong> you go deeper: communication, mentoring, presence, impact, learning. Experience how to share knowledge and build trust – step by step.",
-        "community-btn": "Go to community page →"
+        "community-btn": "Go to community page →",
+        "set-hint": "Full set for this target group",
+        "close": "Close"
       }
     };
 
@@ -285,103 +292,110 @@
       );
     }
 
-    // 3. einheitlicher Renderer
-    function renderSet(id) {
+    // 3. Renderer
+    function renderSet(id, lang) {
       const host = document.getElementById("social-body");
-      const lang = localStorage.getItem("fsa_lang") || "de";
-
-      const sourceMap = {
+      const packs = {
         "1": window.FSA_SOCIAL_01,
         "2": window.FSA_SOCIAL_02,
         "3": window.FSA_SOCIAL_03,
         "4": window.FSA_SOCIAL_04
       };
-      const raw = sourceMap[id];
-      const data = raw ? (raw[lang] || raw.de) : null;
+      const raw = packs[id];
+      const dict = UI[lang] || UI.de;
 
-      if (!data) {
+      if (!raw) {
         host.innerHTML = "<div style='color:#f87171;text-align:center;padding:1rem;'>Kein Inhalt verfügbar.</div>";
         host.classList.add("show");
         return;
       }
 
-      let html = "";
-      html += "<div class='hint' style='margin-bottom:1rem;'>" + (lang === "de"
-        ? "Vollständiges Set für diese Zielgruppe"
-        : "Full set for this target group") + "</div>";
+      // deine Social-Dateien sind nach Muster {de:{...}, en:{...}}
+      const data = raw[lang] || raw.de;
 
-      if (data.title) html += "<h2 style='margin-top:0;'>" + data.title + "</h2>";
-      if (data.subtitle) html += "<p style='color:rgba(226,232,240,.7);margin-bottom:1.2rem;'>" + data.subtitle + "</p>";
+      let html = "";
+      html += "<div class='hint' style='margin-bottom:1rem;'>" + dict["set-hint"] + "</div>";
+      if (data.title) {
+        html += "<h2 style='margin-top:0;'>" + data.title + "</h2>";
+      }
+      if (data.subtitle) {
+        html += "<p style='color:rgba(226,232,240,.7);margin-bottom:1.2rem;'>" + data.subtitle + "</p>";
+      }
 
       (data.blocks || []).forEach((block, bIndex) => {
         html += "<article style='margin-bottom:1.4rem;'>";
-        html += "<h3 style='margin-bottom:.4rem;font-size:1rem;'>" + (block.heading || (lang === "de" ? "Abschnitt " : "Section ") + (bIndex+1)) + "</h3>";
-
+        html += "<h3 style='margin-bottom:.4rem;font-size:1rem;'>" + (block.heading || ((lang === "de" ? "Abschnitt " : "Section ") + (bIndex+1))) + "</h3>";
         (block.items || []).forEach(item => {
           html += "<div style='background:rgba(15,23,42,.35);border:1px solid rgba(148,163,184,.15);border-radius:10px;padding:.6rem .7rem .4rem;margin-bottom:.6rem;'>";
-          if (item.title) html += "<h4 style='margin:0 0 .35rem;font-size:.9rem;'>" + item.title + "</h4>";
+          if (item.title) {
+            html += "<h4 style='margin:0 0 .35rem;font-size:.9rem;'>" + item.title + "</h4>";
+          }
           (item.body || []).forEach(line => {
             html += "<p style='margin:0 0 .35rem;font-size:.83rem;line-height:1.55;'>" + line + "</p>";
           });
           html += "</div>";
         });
-
         html += "</article>";
       });
 
-      // Close
       html += "<div style='text-align:center;margin-top:1rem;'>" +
         "<button id='closeSocialSet' style='background:rgba(212,175,55,0.15);border:1px solid rgba(212,175,55,0.6);color:#fff;padding:.45rem 1.25rem;border-radius:999px;cursor:pointer;'>" +
-        (lang === "de" ? "Schließen" : "Close") +
-        "</button></div>";
+        dict["close"] + "</button></div>";
 
       host.innerHTML = html;
       host.classList.add("show");
 
-      document.getElementById("closeSocialSet").onclick = () => {
-        host.innerHTML = "";
-        host.classList.remove("show");
-        document.querySelectorAll(".card-target").forEach(c => c.classList.remove("active"));
-      };
+      // Close -> Container leeren + aktive Karte weg
+      const closeBtn = document.getElementById("closeSocialSet");
+      if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+          host.innerHTML = "";
+          host.classList.remove("show");
+          document.querySelectorAll(".card-target").forEach(c => c.classList.remove("active"));
+        });
+      }
     }
 
-    // 4. Init
+    // 4. Start
     function init() {
-      const cards = document.querySelectorAll(".card-target");
-      const lang = localStorage.getItem("fsa_lang") || "de";
-      applyLang(lang);
+      const startLang = localStorage.getItem("fsa_lang") || "de";
+      applyLang(startLang);
 
+      const cards = document.querySelectorAll(".card-target");
       cards.forEach(card => {
         card.addEventListener("click", () => {
           cards.forEach(c => c.classList.remove("active"));
           card.classList.add("active");
-          renderSet(card.getAttribute("data-target"));
+          const activeLang = localStorage.getItem("fsa_lang") || "de";
+          renderSet(card.getAttribute("data-target"), activeLang);
         });
       });
 
-      // Start: Zielgruppe 1
-      renderSet("1");
+      // beim Start direkt Zielgruppe 1 anzeigen
+      renderSet("1", startLang);
     }
 
-    // 5. auf Sprachwechsel hören
+    // 5. Sprache vom globalen Umschalter
     document.addEventListener("fsa:lang-change", (ev) => {
       const lang = ev.detail || "de";
+      localStorage.setItem("fsa_lang", lang);
       applyLang(lang);
-
       const active = document.querySelector(".card-target.active");
       if (active) {
-        renderSet(active.getAttribute("data-target"));
+        renderSet(active.getAttribute("data-target"), lang);
       }
     });
 
-    // 6. warten bis Socials geladen
-    (function waitIt() {
+    // 6. Warten bis Social-Dateien da sind
+    (function waitForSocials() {
       if (!socialsReady()) {
-        setTimeout(waitIt, 160);
+        setTimeout(waitForSocials, 180);
         return;
       }
-      init();
+      // kleines Delay, damit dein Menü auch durch ist
+      setTimeout(init, 200);
     })();
+
   })();
   </script>
 </body>
