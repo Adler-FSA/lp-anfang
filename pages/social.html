@@ -217,12 +217,12 @@
   <!-- Campus-Menü -->
   <script src="/lp-anfang/library/js/campus-menu.js"></script>
 
-  <!-- deine 4 Social-Dateien -->
-  <!-- deine 4 Social-Dateien -->
-<script src="../library/js/text-campus/campus-social-01.js"></script>
-<script src="../library/js/text-campus/campus-social-02.js"></script>
-<script src="../library/js/text-campus/campus-social-03.js"></script>
-<script src="../library/js/text-campus/campus-social-04.js"></script>
+  <!-- deine 4 Social-Dateien (richtiger Pfad) -->
+  <script src="/lp-anfang/library/js/text-campus/campus-social-01.js"></script>
+  <script src="/lp-anfang/library/js/text-campus/campus-social-02.js"></script>
+  <script src="/lp-anfang/library/js/text-campus/campus-social-03.js"></script>
+  <script src="/lp-anfang/library/js/text-campus/campus-social-04.js"></script>
+
   <!-- Steuerung -->
   <script>
   (function() {
@@ -282,7 +282,7 @@
       });
     }
 
-    // 2. warten bis deine 4 Dateien da sind
+    // 2. prüfen ob Social-Dateien da sind
     function socialsReady() {
       return (
         typeof window.FSA_SOCIAL_01 !== "undefined" &&
@@ -310,7 +310,6 @@
         return;
       }
 
-      // deine Social-Dateien sind {de:{...}, en:{...}}
       const data = raw[lang] || raw.de;
 
       let html = "";
@@ -347,7 +346,6 @@
       host.innerHTML = html;
       host.classList.add("show");
 
-      // Close: alles zu + Karten aus
       const closeBtn = document.getElementById("closeSocialSet");
       if (closeBtn) {
         closeBtn.addEventListener("click", () => {
@@ -366,47 +364,50 @@
       const cards = document.querySelectorAll(".card-target");
       cards.forEach(card => {
         card.addEventListener("click", () => {
-          // immer erst alle aus
           cards.forEach(c => c.classList.remove("active"));
-          // dann die aktuelle an
           card.classList.add("active");
           const lang = localStorage.getItem("fsa_lang") || "de";
           renderSet(card.getAttribute("data-target"), lang);
+          // optional: Event für die Social-Dateien
+          document.dispatchEvent(new CustomEvent("social:open-01"));
         });
       });
 
-      // beim Start: Karte 1 aktiv + Set 1 anzeigen (nach kurzem Delay)
-setTimeout(() => {
-  const firstCard = document.querySelector('.card-target[data-target="1"]');
-  if (firstCard) {
-    firstCard.classList.add("active");
-    renderSet("1", startLang);
-  }
-}, 600);
+      // beim Start Karte 1 aktiv machen
+      setTimeout(() => {
+        const firstCard = document.querySelector('.card-target[data-target="1"]');
+        if (firstCard) {
+          firstCard.classList.add("active");
+          renderSet("1", startLang);
+        }
+      }, 200);
+    }
+
     // 5. Sprache vom globalen Umschalter
     document.addEventListener("fsa:lang-change", (ev) => {
       const lang = ev.detail || "de";
       localStorage.setItem("fsa_lang", lang);
       applyLang(lang);
 
-      // offenes Set neu in neuer Sprache
       const activeCard = document.querySelector(".card-target.active");
       if (activeCard) {
         renderSet(activeCard.getAttribute("data-target"), lang);
       }
     });
 
-    // 6. warten bis Social-Dateien da sind
-   (function waitForSocials() {
-  if (!socialsReady()) {
-    setTimeout(waitForSocials, 300);
-    return;
-  }
-  // zusätzlich kurze Sicherheitsverzögerung
-  setTimeout(() => {
-    init();
-  }, 800);
-})();
+    // 6. warten bis Social-Dateien da sind -> dann init
+    (function waitForSocials() {
+      if (!socialsReady()) {
+        setTimeout(waitForSocials, 250);
+        return;
+      }
+      // kleine Sicherheit
+      setTimeout(() => {
+        init();
+      }, 300);
+    })();
+
+  })();
   </script>
 </body>
 </html>
