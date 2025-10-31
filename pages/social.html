@@ -351,88 +351,59 @@
       renderSet("1");
     })();
   </script>
-<!-- ░░ Patch: FSA Social Inhalt-Renderer ░░ -->
+<!-- ░░ FSA Social Patch – sicheres Laden aller Zielgruppen (finale Version) ░░ -->
 <script>
-(function() {
-  const host = document.getElementById("social-body");
-  const cards = document.querySelectorAll(".card-target");
+document.addEventListener("DOMContentLoaded", () => {
 
-  // alle bekannten Quellen
-  const SOURCES = {
-    "1": window.FSA_SOCIAL_01,
-    "2": window.FSA_SOCIAL_02,
-    "3": window.FSA_SOCIAL_03,
-    "4": window.FSA_SOCIAL_04
-  };
+  // Prüfen, ob alle vier Zielgruppen verfügbar sind
+  function allReady() {
+    return (
+      typeof window.FSA_SOCIAL_01 !== "undefined" &&
+      typeof window.FSA_SOCIAL_02 !== "undefined" &&
+      typeof window.FSA_SOCIAL_03 !== "undefined" &&
+      typeof window.FSA_SOCIAL_04 !== "undefined"
+    );
+  }
 
-  function renderContent(source) {
-    if (!source) {
-      host.innerHTML = "<p style='color:#f87171;'>Kein Inhalt verfügbar.</p>";
-      host.classList.add("show");
+  // Renderer
+  function renderSet(id) {
+    const body = document.getElementById("social-body");
+    const packs = {
+      "1": window.FSA_SOCIAL_01,
+      "2": window.FSA_SOCIAL_02,
+      "3": window.FSA_SOCIAL_03,
+      "4": window.FSA_SOCIAL_04
+    };
+    const data = packs[id];
+    if (!data) {
+      body.innerHTML = "<div style='color:#f87171;text-align:center;padding:1rem;'>Kein Inhalt verfügbar.</div>";
+      return;
+    }
+    const lang = localStorage.getItem("fsa_lang") || "de";
+    const pack = data[lang] || data["de"];
+    body.innerHTML = window.FSA_renderSocialPack(pack);
+    body.style.display = "block";
+    body.scrollIntoView({ behavior: "smooth" });
+  }
+
+  // Warten bis alle Zielgruppen geladen
+  function initWhenReady() {
+    if (!allReady()) {
+      setTimeout(initWhenReady, 200);
       return;
     }
 
-    let html = "";
-    // Wenn mehrsprachig
-    if (source.de || source.en) {
-      const lang = localStorage.getItem("fsa_lang") || "de";
-      source = source[lang] || source["de"];
-    }
-
-    // Hauptstrukturen prüfen
-    if (Array.isArray(source)) {
-      source.forEach((item, i) => {
-        html += renderBlock(item, i);
+    // Buttons aktivieren
+    document.querySelectorAll(".card-target button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.parentElement.getAttribute("data-target");
+        renderSet(id);
       });
-    } else if (source.blocks) {
-      source.blocks.forEach((item, i) => {
-        html += renderBlock(item, i);
-      });
-    } else {
-      html += renderBlock(source, 0);
-    }
-
-    host.innerHTML = html;
-    host.classList.add("show");
-    window.scrollTo({ top: host.offsetTop - 80, behavior: "smooth" });
-  }
-
-  function renderBlock(item, i) {
-    if (!item) return "";
-    let out = "<article style='margin-bottom:1.4rem;'>";
-    if (item.heading) out += `<h2 style="font-size:1.05rem;margin-bottom:.4rem;">${item.heading}</h2>`;
-    if (item.label) out += `<p style="font-size:.85rem;color:#9ca3af;margin-bottom:.4rem;">${item.label}</p>`;
-    if (item.body) {
-      if (Array.isArray(item.body)) {
-        out += "<ul style='margin-left:1.2rem;line-height:1.55;'>";
-        item.body.forEach(line => out += `<li>${line}</li>`);
-        out += "</ul>";
-      } else {
-        out += `<p style="line-height:1.55;">${item.body}</p>`;
-      }
-    }
-    if (item.blocks) {
-      item.blocks.forEach(b => {
-        out += renderBlock(b);
-      });
-    }
-    out += "</article>";
-    return out;
-  }
-
-  function activateCard(card) {
-    cards.forEach(c => c.classList.remove("active"));
-    card.classList.add("active");
-  }
-
-  cards.forEach(card => {
-    card.addEventListener("click", () => {
-      const id = card.getAttribute("data-target");
-      activateCard(card);
-      renderContent(SOURCES[id]);
     });
-  });
-})();
+  }
+
+  initWhenReady();
+});
 </script>
 <!-- ░░ Ende Patch ░░ --></body>
 </html>
