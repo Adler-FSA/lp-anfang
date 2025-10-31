@@ -571,6 +571,6 @@
     const lang = localStorage.getItem("fsa_lang") || "de";
     renderSocial01(lang);
   });
-
+window.FSA_SOCIAL_01 = SOCIAL_CONTENT;       
 })();
-window.FSA_SOCIAL_01 = SOCIAL_CONTENT;
+
