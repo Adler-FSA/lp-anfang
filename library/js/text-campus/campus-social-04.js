@@ -359,3 +359,4 @@ const campusSocial04 = {
     ]
   }
 };
+window.FSA_SOCIAL_04 = SOCIAL_CONTENT;
