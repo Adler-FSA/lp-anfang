@@ -1,82 +1,51 @@
-// ░░ FSA Social Core – steuert die 4 Zielgruppen auf pages/social.html ░░
-document.addEventListener("DOMContentLoaded", () => {
-  const cards = document.querySelectorAll(".card-target[data-target]");
-  const overlay = document.getElementById("social-overlay");
-  const body = document.getElementById("social-body");
-  const closeBtn = document.getElementById("closeOverlayBtn");
+// ░░ FSA Utils – generische Hilfsfunktionen für Social & Campus ░░
 
-  // mobile hint nur kurz zeigen
-  const rotateHint = document.getElementById("rotate-hint");
-  if (window.innerWidth < 760) {
-    rotateHint.style.display = "flex";
-    setTimeout(() => rotateHint.style.display = "none", 5200);
-  }
+// Universal Renderer für Social Packs
+window.FSA_renderSocialPack = function (pack) {
+  if (!pack || !pack.blocks) return "<p>Kein Inhalt geladen.</p>";
 
-  // aktuelle Sprache holen
-  const getLang = () => localStorage.getItem("fsa_lang") || "de";
+  let html = `
+    <div class="social-pack">
+      <h1>${pack.title || ""}</h1>
+      <p class="subtitle">${pack.subtitle || ""}</p>
+  `;
 
-  const renderTarget = (id) => {
-    const lang = getLang();
-    let data = null;
-    switch (id) {
-      case "1":
-        data = window.FSA_SOCIAL_01;
-        break;
-      case "2":
-        data = window.FSA_SOCIAL_02;
-        break;
-      case "3":
-        data = window.FSA_SOCIAL_03;
-        break;
-      case "4":
-        data = window.FSA_SOCIAL_04;
-        break;
-    }
-    if (!data) return;
-    const pack = data[lang] || data["de"];
-    body.innerHTML = window.FSA_renderSocialPack(pack);
-    overlay.style.display = "flex";
-    overlay.setAttribute("aria-hidden", "false");
-  };
+  pack.blocks.forEach((section) => {
+    html += `<section class="social-section">
+      <h2>${section.heading || ""}</h2>
+    `;
 
-  cards.forEach(card => {
-    card.addEventListener("click", () => {
-      const id = card.getAttribute("data-target");
-      renderTarget(id);
+    (section.items || section.blocks || []).forEach((item) => {
+      html += `<article class="social-card">
+        <h3>${item.title || item.heading || ""}</h3>
+      `;
+      (item.body || []).forEach((line) => {
+        html += `<p>${line}</p>`;
+      });
+      html += `</article>`;
     });
+
+    html += `</section>`;
   });
 
-  closeBtn.addEventListener("click", () => {
-    overlay.style.display = "none";
-    overlay.setAttribute("aria-hidden", "true");
-    body.innerHTML = "";
-  });
+  html += `
+    <button type="button" class="social-close-btn" onclick="document.getElementById('closeOverlayBtn').click()">
+      ${localStorage.getItem("fsa_lang") === "en" ? "Close" : "Schließen"}
+    </button>
+  </div>`;
 
-  // Sprache live wechseln
-  document.addEventListener("fsa:lang-change", (ev) => {
-    // wenn overlay offen ist: neu rendern
-    if (overlay.style.display === "flex") {
-      const openId = body.getAttribute("data-open-id");
-      if (openId) {
-        const lang = ev.detail || "de";
-        const packs = {
-          "1": window.FSA_SOCIAL_01,
-          "2": window.FSA_SOCIAL_02,
-          "3": window.FSA_SOCIAL_03,
-          "4": window.FSA_SOCIAL_04
-        };
-        const data = packs[openId];
-        if (data) {
-          const pack = data[lang] || data["de"];
-          body.innerHTML = window.FSA_renderSocialPack(pack);
-          body.setAttribute("data-open-id", openId);
-        }
-      }
-    }
-  });
+  return html;
+};
 
-  // wenn wir anzeigen, id mitschreiben
-  body.addEventListener("set-id", (e) => {
-    body.setAttribute("data-open-id", e.detail);
-  });
-});
+// Minimale Stylesicherung (falls CSS fehlt)
+const style = document.createElement("style");
+style.textContent = `
+  .social-pack { color:#e5e7eb; line-height:1.55; font-family:system-ui,sans-serif; }
+  .social-section { margin:1.5rem 0; }
+  .social-card { background:rgba(15,23,42,0.35); border:1px solid rgba(148,163,184,0.18);
+                 border-radius:12px; padding:0.9rem 1rem; margin-bottom:0.7rem; }
+  .social-close-btn { margin-top:1rem; background:rgba(212,175,55,0.15); border:1px solid rgba(212,175,55,0.4);
+                      color:#fff; padding:0.5rem 1.3rem; border-radius:999px; cursor:pointer; }
+  .social-close-btn:hover { background:rgba(212,175,55,0.3); }
+`;
+document.head.appendChild(style);
