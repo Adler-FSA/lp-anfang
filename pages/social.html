@@ -351,5 +351,88 @@
       renderSet("1");
     })();
   </script>
-</body>
+<!-- ░░ Patch: FSA Social Inhalt-Renderer ░░ -->
+<script>
+(function() {
+  const host = document.getElementById("social-body");
+  const cards = document.querySelectorAll(".card-target");
+
+  // alle bekannten Quellen
+  const SOURCES = {
+    "1": window.FSA_SOCIAL_01,
+    "2": window.FSA_SOCIAL_02,
+    "3": window.FSA_SOCIAL_03,
+    "4": window.FSA_SOCIAL_04
+  };
+
+  function renderContent(source) {
+    if (!source) {
+      host.innerHTML = "<p style='color:#f87171;'>Kein Inhalt verfügbar.</p>";
+      host.classList.add("show");
+      return;
+    }
+
+    let html = "";
+    // Wenn mehrsprachig
+    if (source.de || source.en) {
+      const lang = localStorage.getItem("fsa_lang") || "de";
+      source = source[lang] || source["de"];
+    }
+
+    // Hauptstrukturen prüfen
+    if (Array.isArray(source)) {
+      source.forEach((item, i) => {
+        html += renderBlock(item, i);
+      });
+    } else if (source.blocks) {
+      source.blocks.forEach((item, i) => {
+        html += renderBlock(item, i);
+      });
+    } else {
+      html += renderBlock(source, 0);
+    }
+
+    host.innerHTML = html;
+    host.classList.add("show");
+    window.scrollTo({ top: host.offsetTop - 80, behavior: "smooth" });
+  }
+
+  function renderBlock(item, i) {
+    if (!item) return "";
+    let out = "<article style='margin-bottom:1.4rem;'>";
+    if (item.heading) out += `<h2 style="font-size:1.05rem;margin-bottom:.4rem;">${item.heading}</h2>`;
+    if (item.label) out += `<p style="font-size:.85rem;color:#9ca3af;margin-bottom:.4rem;">${item.label}</p>`;
+    if (item.body) {
+      if (Array.isArray(item.body)) {
+        out += "<ul style='margin-left:1.2rem;line-height:1.55;'>";
+        item.body.forEach(line => out += `<li>${line}</li>`);
+        out += "</ul>";
+      } else {
+        out += `<p style="line-height:1.55;">${item.body}</p>`;
+      }
+    }
+    if (item.blocks) {
+      item.blocks.forEach(b => {
+        out += renderBlock(b);
+      });
+    }
+    out += "</article>";
+    return out;
+  }
+
+  function activateCard(card) {
+    cards.forEach(c => c.classList.remove("active"));
+    card.classList.add("active");
+  }
+
+  cards.forEach(card => {
+    card.addEventListener("click", () => {
+      const id = card.getAttribute("data-target");
+      activateCard(card);
+      renderContent(SOURCES[id]);
+    });
+  });
+})();
+</script>
+<!-- ░░ Ende Patch ░░ --></body>
 </html>
