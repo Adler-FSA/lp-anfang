@@ -359,4 +359,25 @@ const campusSocial04 = {
     ]
   }
 };
+// ===============================================================
+// GLOBAL HOOK
+window.renderSocialZielgruppe4 = function (lang) {
+  renderSocialZielgruppe4(lang || localStorage.getItem("fsa_lang") || "de");
+};
+
+// Sprache live umschalten
+document.addEventListener("fsa:lang-change", (ev) => {
+  const current = document.getElementById("socialContent");
+  if (current && current.innerHTML.trim() !== "") {
+    renderSocialZielgruppe4(ev.detail || "de");
+  }
+});
+
+// Optional: wenn die Seite direkt geladen wurde
+document.addEventListener("DOMContentLoaded", () => {
+  const lang = localStorage.getItem("fsa_lang") || "de";
+  renderSocialZielgruppe4(lang);
+});
+
 window.FSA_SOCIAL_04 = SOCIAL_CONTENT;
+})();
