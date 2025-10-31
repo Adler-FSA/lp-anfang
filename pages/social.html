@@ -177,7 +177,7 @@
 
     <!-- 4 Zielgruppen -->
     <section class="social-grid" aria-label="Zielgruppen">
-      <div class="card-target active" data-target="1">
+      <div class="card-target" data-target="1">
         <h2 data-i18n="card1-title">📊 Firmen &amp; Geschäftsführer</h2>
         <p data-i18n="card1-text">Dezentralität, Effizienz &amp; Vertrauen im Unternehmensalltag.</p>
         <button class="open-btn" type="button" data-i18n="btn-open">Komplettes Set anzeigen</button>
@@ -226,12 +226,12 @@
   <!-- Steuerung -->
   <script>
   (function() {
-    // 0. Immer Deutsch als Start, wenn nichts gesetzt
+    // 0. Start immer deutsch
     if (!localStorage.getItem("fsa_lang")) {
       localStorage.setItem("fsa_lang", "de");
     }
 
-    // 1. Alle UI-Texte komplett
+    // 1. UI-Texte vollständig
     const UI = {
       de: {
         title: "Willkommen im Social-Hub der FSA-Akademie",
@@ -282,7 +282,7 @@
       });
     }
 
-    // 2. Prüfen ob alle Social-Dateien da sind
+    // 2. warten bis deine 4 Dateien da sind
     function socialsReady() {
       return (
         typeof window.FSA_SOCIAL_01 !== "undefined" &&
@@ -292,9 +292,10 @@
       );
     }
 
-    // 3. Renderer
+    // 3. Set rendern
     function renderSet(id, lang) {
       const host = document.getElementById("social-body");
+      const dict = UI[lang] || UI.de;
       const packs = {
         "1": window.FSA_SOCIAL_01,
         "2": window.FSA_SOCIAL_02,
@@ -302,7 +303,6 @@
         "4": window.FSA_SOCIAL_04
       };
       const raw = packs[id];
-      const dict = UI[lang] || UI.de;
 
       if (!raw) {
         host.innerHTML = "<div style='color:#f87171;text-align:center;padding:1rem;'>Kein Inhalt verfügbar.</div>";
@@ -310,7 +310,7 @@
         return;
       }
 
-      // deine Social-Dateien sind nach Muster {de:{...}, en:{...}}
+      // deine Social-Dateien sind {de:{...}, en:{...}}
       const data = raw[lang] || raw.de;
 
       let html = "";
@@ -322,9 +322,10 @@
         html += "<p style='color:rgba(226,232,240,.7);margin-bottom:1.2rem;'>" + data.subtitle + "</p>";
       }
 
-      (data.blocks || []).forEach((block, bIndex) => {
+      (data.blocks || []).forEach((block, idx) => {
         html += "<article style='margin-bottom:1.4rem;'>";
-        html += "<h3 style='margin-bottom:.4rem;font-size:1rem;'>" + (block.heading || ((lang === "de" ? "Abschnitt " : "Section ") + (bIndex+1))) + "</h3>";
+        html += "<h3 style='margin-bottom:.4rem;font-size:1rem;'>" + (block.heading || ((lang === "de" ? "Abschnitt " : "Section ") + (idx + 1))) + "</h3>";
+
         (block.items || []).forEach(item => {
           html += "<div style='background:rgba(15,23,42,.35);border:1px solid rgba(148,163,184,.15);border-radius:10px;padding:.6rem .7rem .4rem;margin-bottom:.6rem;'>";
           if (item.title) {
@@ -335,6 +336,7 @@
           });
           html += "</div>";
         });
+
         html += "</article>";
       });
 
@@ -345,7 +347,7 @@
       host.innerHTML = html;
       host.classList.add("show");
 
-      // Close -> Container leeren + aktive Karte weg
+      // Close: alles zu + Karten aus
       const closeBtn = document.getElementById("closeSocialSet");
       if (closeBtn) {
         closeBtn.addEventListener("click", () => {
@@ -356,7 +358,7 @@
       }
     }
 
-    // 4. Start
+    // 4. Seite initialisieren
     function init() {
       const startLang = localStorage.getItem("fsa_lang") || "de";
       applyLang(startLang);
@@ -364,15 +366,21 @@
       const cards = document.querySelectorAll(".card-target");
       cards.forEach(card => {
         card.addEventListener("click", () => {
+          // immer erst alle aus
           cards.forEach(c => c.classList.remove("active"));
+          // dann die aktuelle an
           card.classList.add("active");
-          const activeLang = localStorage.getItem("fsa_lang") || "de";
-          renderSet(card.getAttribute("data-target"), activeLang);
+          const lang = localStorage.getItem("fsa_lang") || "de";
+          renderSet(card.getAttribute("data-target"), lang);
         });
       });
 
-      // beim Start direkt Zielgruppe 1 anzeigen
-      renderSet("1", startLang);
+      // beim Start: Karte 1 aktiv + Set 1 anzeigen
+      const firstCard = document.querySelector('.card-target[data-target="1"]');
+      if (firstCard) {
+        firstCard.classList.add("active");
+        renderSet("1", startLang);
+      }
     }
 
     // 5. Sprache vom globalen Umschalter
@@ -380,19 +388,21 @@
       const lang = ev.detail || "de";
       localStorage.setItem("fsa_lang", lang);
       applyLang(lang);
-      const active = document.querySelector(".card-target.active");
-      if (active) {
-        renderSet(active.getAttribute("data-target"), lang);
+
+      // offenes Set neu in neuer Sprache
+      const activeCard = document.querySelector(".card-target.active");
+      if (activeCard) {
+        renderSet(activeCard.getAttribute("data-target"), lang);
       }
     });
 
-    // 6. Warten bis Social-Dateien da sind
+    // 6. warten bis Social-Dateien da sind
     (function waitForSocials() {
       if (!socialsReady()) {
         setTimeout(waitForSocials, 180);
         return;
       }
-      // kleines Delay, damit dein Menü auch durch ist
+      // kurzes Delay, damit Menü oben fertig ist
       setTimeout(init, 200);
     })();
 
