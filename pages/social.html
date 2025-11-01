@@ -121,9 +121,7 @@
     }
 
     /* Set-Inhalte – im selben Look */
-    .set-header {
-      margin-bottom: 1rem;
-    }
+    .set-header { margin-bottom: 1rem; }
     .set-title {
       margin: 0;
       font-size: 1.4rem;
@@ -281,7 +279,7 @@
   <!-- Campus-Menü unten -->
   <script src="/lp-anfang/library/js/campus-menu.js"></script>
 
-  <!-- 4 Social-Dateien (müssen VOR der Steuerung kommen) -->
+  <!-- 4 Social-Dateien (so wie bei dir im Repo) -->
   <script src="/lp-anfang/library/js/text-campus/campus-social-01.js"></script>
   <script src="/lp-anfang/library/js/text-campus/campus-social-02.js"></script>
   <script src="/lp-anfang/library/js/text-campus/campus-social-03.js"></script>
@@ -295,7 +293,7 @@
       localStorage.setItem("fsa_lang", "de");
     }
 
-    // 1. UI-Texte
+    // 1. Vollständige UI-Texte (DE/EN) – exakt wie vorher
     const UI = {
       de: {
         title: "Willkommen im Social-Hub der FSA-Akademie",
@@ -333,6 +331,7 @@
       }
     };
 
+    // Sprache auf Seite anwenden
     function applyLang(lang) {
       const dict = UI[lang] || UI.de;
       document.querySelectorAll("[data-i18n]").forEach((el) => {
@@ -346,36 +345,40 @@
       });
     }
 
-    // 2. Prüfen, ob alle 4 Social-Dateien da sind
-    function socialsReady() {
-      return (
-        typeof window.FSA_SOCIAL_01 !== "undefined" &&
-        typeof window.FSA_SOCIAL_02 !== "undefined" &&
-        typeof window.FSA_SOCIAL_03 !== "undefined" &&
-        typeof window.FSA_SOCIAL_04 !== "undefined"
-      );
+    // 2. Daten holen – tolerant, auch wenn 03/04 bei dir anders heißen
+    function getSetData(id, lang) {
+      let source = null;
+      if (id === "1") {
+        source = window.FSA_SOCIAL_01;
+      } else if (id === "2") {
+        source = window.FSA_SOCIAL_02;
+      } else if (id === "3") {
+        // deine 03 war im Chat nicht sauber mit window.FSA_SOCIAL_03 verdrahtet
+        source = window.FSA_SOCIAL_03;
+        if (!source && window.campusSocial03) {
+          source = { de: window.campusSocial03.de, en: window.campusSocial03.en };
+        }
+      } else if (id === "4") {
+        source = window.FSA_SOCIAL_04;
+        if (!source && window.campusSocial04) {
+          source = { de: window.campusSocial04.de, en: window.campusSocial04.en };
+        }
+      }
+      if (!source) return null;
+      return source[lang] || source.de || null;
     }
 
-    // 3. Set rendern
+    // 3. Set rendern (kann blocks ODER sections sein)
     function renderSet(id, lang) {
       const host = document.getElementById("social-body");
       const dict = UI[lang] || UI.de;
+      const data = getSetData(id, lang);
 
-      const packs = {
-        "1": window.FSA_SOCIAL_01,
-        "2": window.FSA_SOCIAL_02,
-        "3": window.FSA_SOCIAL_03,
-        "4": window.FSA_SOCIAL_04
-      };
-      const raw = packs[id];
-
-      if (!raw) {
+      if (!data) {
         host.innerHTML = "<div style='color:#f87171;text-align:center;padding:1rem;'>Kein Inhalt verfügbar.</div>";
         host.classList.add("show");
         return;
       }
-
-      const data = raw[lang] || raw.de;
 
       let html = "";
       html += "<div class='set-header'>";
@@ -383,28 +386,47 @@
       if (data.title) {
         html += "<h2 class='set-title'>" + data.title + "</h2>";
       }
-      if (data.subtitle) {
-        html += "<p class='set-subtitle'>" + data.subtitle + "</p>";
+      if (data.subtitle || data.intro) {
+        html += "<p class='set-subtitle'>" + (data.subtitle || data.intro) + "</p>";
       }
       html += "</div>";
 
-      (data.blocks || []).forEach((block, idx) => {
-        html += "<article class='set-section'>";
-        html += "<h3 class='set-section-title'>" + (block.heading || ((lang === "de" ? "Abschnitt " : "Section ") + (idx + 1))) + "</h3>";
-
-        (block.items || []).forEach((item) => {
-          html += "<div class='set-item'>";
-          if (item.title) {
-            html += "<h4 class='set-item-title'>" + item.title + "</h4>";
-          }
-          (item.body || []).forEach((line) => {
-            html += "<p class='set-item-text'>" + line + "</p>";
+      // Variante 1: data.blocks (wie 01/02)
+      if (Array.isArray(data.blocks)) {
+        data.blocks.forEach((block, idx) => {
+          html += "<article class='set-section'>";
+          html += "<h3 class='set-section-title'>" + (block.heading || ((lang === "de" ? "Abschnitt " : "Section ") + (idx + 1))) + "</h3>";
+          (block.items || []).forEach((item) => {
+            html += "<div class='set-item'>";
+            if (item.title) {
+              html += "<h4 class='set-item-title'>" + item.title + "</h4>";
+            }
+            (item.body || []).forEach((line) => {
+              html += "<p class='set-item-text'>" + line + "</p>";
+            });
+            html += "</div>";
           });
-          html += "</div>";
+          html += "</article>";
         });
-
-        html += "</article>";
-      });
+      }
+      // Variante 2: data.sections (wie dein campusSocial03 / 04)
+      else if (Array.isArray(data.sections)) {
+        data.sections.forEach((section, idx) => {
+          html += "<article class='set-section'>";
+          html += "<h3 class='set-section-title'>" + (section.label || section.heading || ((lang === "de" ? "Bereich " : "Section ") + (idx + 1))) + "</h3>";
+          (section.blocks || []).forEach((blk) => {
+            html += "<div class='set-item'>";
+            if (blk.heading) {
+              html += "<h4 class='set-item-title'>" + blk.heading + "</h4>";
+            }
+            (blk.body || []).forEach((line) => {
+              html += "<p class='set-item-text'>" + line + "</p>";
+            });
+            html += "</div>";
+          });
+          html += "</article>";
+        });
+      }
 
       html += "<div class='set-close'><button id='closeSocialSet'>" + dict["close"] + "</button></div>";
 
@@ -421,7 +443,7 @@
       }
     }
 
-    // 4. Init
+    // 4. Init – lädt immer Set 1, EGAL ob 2/3/4 fertig sind
     function init() {
       const startLang = localStorage.getItem("fsa_lang") || "de";
       applyLang(startLang);
@@ -436,15 +458,15 @@
         });
       });
 
-      // Beim Start direkt Set 1
+      // direkt Set 1 anzeigen
       const firstCard = document.querySelector('.card-target[data-target="1"]');
       if (firstCard) {
         firstCard.classList.add("active");
-        renderSet("1", startLang);
       }
+      renderSet("1", startLang);
     }
 
-    // 5. Sprachwechsel vom globalen Umschalter
+    // 5. Sprachwechsel
     document.addEventListener("fsa:lang-change", (ev) => {
       const lang = ev.detail || "de";
       localStorage.setItem("fsa_lang", lang);
@@ -456,15 +478,8 @@
       }
     });
 
-    // 6. Start nur, wenn Social-Dateien wirklich da sind
-    (function waitForSocials() {
-      if (!socialsReady()) {
-        setTimeout(waitForSocials, 160);
-        return;
-      }
-      init();
-    })();
-
+    // 6. Start: wir warten NICHT mehr auf alle 4 Dateien
+    window.addEventListener("load", init);
   })();
   </script>
 </body>
