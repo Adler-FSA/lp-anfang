@@ -157,7 +157,7 @@
                 "Mit Trustyfy kann man sein Geld und seine Werte selbst verwalten – dezentral, sicher, ohne Mittelsmänner.",
                 "Und die FSA-Akademie zeigt, wie das System hinter Geld und Macht wirklich funktioniert.",
                 "➡️ Ich zeig dir das gern – vielleicht ändert es deinen Blick auf Zukunft und Freiheit.“"
-              ]
+            ]
             },
             {
               heading: "💌 2. E-Mail",
@@ -371,20 +371,22 @@
   };
 
   // --------------------------------------------------------------------
-  // 2) RENDERER – baut HTML in #socialContent (wie 02)
+  // 2) RENDERER – baut HTML in #socialContent (wie 02), aber nur wenn vorhanden
   // --------------------------------------------------------------------
   function renderSocialZielgruppe4(lang) {
     const currentLang = lang || localStorage.getItem("fsa_lang") || "de";
     const data =
-      (CAMPUS_SOCIAL_04[currentLang] || CAMPUS_SOCIAL_04.de);
+      CAMPUS_SOCIAL_04[currentLang] || CAMPUS_SOCIAL_04.de;
 
-    // Host holen / anlegen
+    // 🟡 WICHTIGER FIX:
+    // Wenn die Seite (social.html) kein #socialContent vorgibt,
+    // dann NICHT selber eins anlegen -> sonst doppelt.
     let host = document.getElementById("socialContent");
     if (!host) {
-      host = document.createElement("div");
-      host.id = "socialContent";
-      document.body.appendChild(host);
+      return; // nix anzeigen, sauber raus
     }
+
+    // vorher leeren, damit nichts drunter klebt
     host.innerHTML = "";
 
     // Wrapper
@@ -452,7 +454,7 @@
   }
 
   // --------------------------------------------------------------------
-  // 3) STYLE – gleicher Look wie 02/03, nur leicht angepasst
+  // 3) STYLE – gleicher Look wie 02/03
   // --------------------------------------------------------------------
   const style = document.createElement("style");
   style.textContent = `
