@@ -578,4 +578,4 @@
 // ===============================================================
 // EXPORT – stellt den Datensatz für social.html bereit
 window.FSA_SOCIAL_02 = TEXT_SOCIAL_02;
-
+})();
