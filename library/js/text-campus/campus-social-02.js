@@ -13,6 +13,9 @@
   // 1) DATENBASIS
   // -------------------------------------------------------------------
   const TEXT_SOCIAL_02 = {
+    // -----------------------------------------------------------------
+    // DEUTSCH
+    // -----------------------------------------------------------------
     de: {
       meta: {
         id: "social-zg2",
@@ -267,8 +270,8 @@
             "5. schedule 15 min call"
           ],
           script: [
-            "“Hello [Name], I’m calling because many people tell me they work more than ever but still feel vulnerable.",
-            "Prices go up, laws change, and more and more is decided by systems we don’t control.”",
+            "“Hello [Name], I’m calling because many people tell me they work more than ever but still feel vulnerable.”",
+            "“Prices go up, laws change, and more and more is decided by systems we don’t control.”",
             "“That’s why I work with the FSA Academy and Trustyfy – together they give you back control over income and assets.”",
             "“I can show you in 15 minutes. When is better – today evening or tomorrow morning?”"
           ]
@@ -321,7 +324,7 @@
     const h3 = document.createElement("h3");
     h3.textContent = title;
     sec.appendChild(h3);
-    paragraphs.forEach(p => {
+    paragraphs.forEach((p) => {
       const para = document.createElement("p");
       para.textContent = p;
       sec.appendChild(para);
@@ -330,14 +333,10 @@
   }
 
   function renderSocialZielgruppe2(lang) {
-    const currentLang =
-      lang ||
-      localStorage.getItem("fsa_lang") ||
-      "de";
-
+    const currentLang = lang || localStorage.getItem("fsa_lang") || "de";
     const data = TEXT_SOCIAL_02[currentLang] || TEXT_SOCIAL_02.de;
 
-    // Host ermitteln
+    // Host ermitteln / anlegen
     let host = document.getElementById("socialContent");
     if (!host) {
       host = document.createElement("div");
@@ -346,108 +345,124 @@
     }
     host.innerHTML = "";
 
+    // Wrapper
     const wrap = document.createElement("div");
     wrap.className = "social-wrapper";
 
+    // Titel
     const h1 = document.createElement("h1");
     h1.textContent = data.meta.title;
     wrap.appendChild(h1);
 
-    const h2 = document.createElement("p");
-    h2.className = "subtitle";
-    h2.textContent = data.meta.subtitle;
-    wrap.appendChild(h2);
+    const subtitle = document.createElement("p");
+    subtitle.className = "subtitle";
+    subtitle.textContent = data.meta.subtitle;
+    wrap.appendChild(subtitle);
 
     const hint = document.createElement("p");
     hint.className = "hint";
     hint.textContent = data.meta.hint;
     wrap.appendChild(hint);
 
-    // WhatsApp
+    // 1. WhatsApp
     const waTitle = document.createElement("h2");
-    waTitle.textContent = currentLang === "de"
-      ? "1. WhatsApp / Facebook / Telegram – Textvorlagen"
-      : "1. WhatsApp / Facebook / Telegram – templates";
+    waTitle.textContent =
+      currentLang === "de"
+        ? "1. WhatsApp / Facebook / Telegram – Textvorlagen"
+        : "1. WhatsApp / Facebook / Telegram – templates";
     wrap.appendChild(waTitle);
-
-    data.whatsapp.forEach(item => {
-      wrap.appendChild(createSection(item.title, item.body));
+    (data.whatsapp || []).forEach((item) => {
+      wrap.appendChild(createSection(item.title, item.body || []));
     });
 
-    // Emails
+    // 2. E-Mails
     const mailTitle = document.createElement("h2");
-    mailTitle.textContent = currentLang === "de"
-      ? "2. E-Mail-Vorlagen (Kontaktaufnahme)"
-      : "2. Email templates (outreach)";
+    mailTitle.textContent =
+      currentLang === "de"
+        ? "2. E-Mail-Vorlagen (Kontaktaufnahme)"
+        : "2. Email templates (outreach)";
     wrap.appendChild(mailTitle);
-
-    data.emails.forEach(mail => {
+    (data.emails || []).forEach((mail) => {
       const sec = document.createElement("section");
       sec.className = "social-block";
       const h = document.createElement("h3");
       h.textContent = mail.title;
       sec.appendChild(h);
+
       const subj = document.createElement("p");
-      subj.innerHTML = "<strong>" + (currentLang === "de" ? "Betreff: " : "Subject: ") + "</strong>" + mail.subject;
+      subj.innerHTML =
+        "<strong>" +
+        (currentLang === "de" ? "Betreff: " : "Subject: ") +
+        "</strong>" +
+        mail.subject;
       sec.appendChild(subj);
-      mail.body.forEach(line => {
+
+      (mail.body || []).forEach((line) => {
         const p = document.createElement("p");
         p.textContent = line;
         sec.appendChild(p);
       });
+
       wrap.appendChild(sec);
     });
 
-    // Calls
+    // 3. Calls
     const callTitle = document.createElement("h2");
-    callTitle.textContent = currentLang === "de"
-      ? "3. Telefon-Leitfäden (mit interner Anleitung)"
-      : "3. Call scripts (with internal guidance)";
+    callTitle.textContent =
+      currentLang === "de"
+        ? "3. Telefon-Leitfäden (mit interner Anleitung)"
+        : "3. Call scripts (with internal guidance)";
     wrap.appendChild(callTitle);
 
-    data.calls.forEach(call => {
+    (data.calls || []).forEach((call) => {
       const sec = document.createElement("section");
       sec.className = "social-block";
+
       const h = document.createElement("h3");
       h.textContent = call.title;
       sec.appendChild(h);
 
-      const internalH = document.createElement("p");
-      internalH.className = "internal-label";
-      internalH.textContent = currentLang === "de" ? "Interne Anleitung:" : "Internal guidance:";
-      sec.appendChild(internalH);
+      if (call.internal && call.internal.length) {
+        const internalLabel = document.createElement("p");
+        internalLabel.className = "internal-label";
+        internalLabel.textContent =
+          currentLang === "de" ? "Interne Anleitung:" : "Internal guidance:";
+        sec.appendChild(internalLabel);
 
-      call.internal.forEach(line => {
-        const p = document.createElement("p");
-        p.className = "internal-line";
-        p.textContent = line;
-        sec.appendChild(p);
-      });
+        call.internal.forEach((line) => {
+          const p = document.createElement("p");
+          p.className = "internal-line";
+          p.textContent = line;
+          sec.appendChild(p);
+        });
+      }
 
-      const scriptH = document.createElement("p");
-      scriptH.className = "script-label";
-      scriptH.textContent = currentLang === "de" ? "Vorlese-Skript:" : "Reading script:";
-      sec.appendChild(scriptH);
+      if (call.script && call.script.length) {
+        const scriptLabel = document.createElement("p");
+        scriptLabel.className = "script-label";
+        scriptLabel.textContent =
+          currentLang === "de" ? "Vorlese-Skript:" : "Reading script:";
+        sec.appendChild(scriptLabel);
 
-      call.script.forEach(line => {
-        const p = document.createElement("p");
-        p.textContent = line;
-        sec.appendChild(p);
-      });
+        call.script.forEach((line) => {
+          const p = document.createElement("p");
+          p.textContent = line;
+          sec.appendChild(p);
+        });
+      }
 
       wrap.appendChild(sec);
     });
 
-    // Snippets
+    // 4. Snippets
     const snTitle = document.createElement("h2");
-    snTitle.textContent = currentLang === "de"
-      ? "4. Share-Snippets"
-      : "4. Share snippets";
+    snTitle.textContent =
+      currentLang === "de" ? "4. Share-Snippets" : "4. Share snippets";
     wrap.appendChild(snTitle);
 
     const snList = document.createElement("ul");
     snList.className = "snippet-list";
-    data.snippets.forEach(sn => {
+    (data.snippets || []).forEach((sn) => {
       const li = document.createElement("li");
       li.textContent = sn;
       snList.appendChild(li);
@@ -461,7 +476,10 @@
     closeBtn.textContent = currentLang === "de" ? "Schließen" : "Close";
     closeBtn.addEventListener("click", () => {
       host.innerHTML = "";
-      document.dispatchEvent(new CustomEvent("social:closed", { detail: data.meta.id }));
+      // Info nach außen
+      document.dispatchEvent(
+        new CustomEvent("social:closed", { detail: data.meta.id })
+      );
     });
     wrap.appendChild(closeBtn);
 
@@ -502,14 +520,6 @@
       font-size: .8rem;
       color: rgba(229,231,235,.6);
       margin-bottom: 1.5rem;
-    }
-    .social-wrapper h2 {
-      font-size: 1.1rem;
-      margin-top: 1.5rem;
-      margin-bottom: .6rem;
-      color: #fff;
-      border-bottom: 1px solid rgba(212,175,55,0.15);
-      padding-bottom: .4rem;
     }
     .social-block {
       background: rgba(15,23,42,0.35);
@@ -553,9 +563,10 @@
       padding: .45rem .9rem;
       border-radius: 6px;
       cursor: pointer;
+      transition: 0.2s ease;
     }
     .close-social:hover {
-      background: rgba(212,175,55,0.3);
+      background: rgba(212,175,55,0.35);
     }
     @media (max-width: 720px) {
       .social-wrapper {
@@ -572,25 +583,27 @@
       }
     }
   `;
-   // 4. Styles einfügen
   document.head.appendChild(style);
 
-  // 6. Optional: wenn die Seite gleich beim Klick ruft
+  // -------------------------------------------------------------------
+  // 4) EVENTS + EXPORTS (wie bei 01 / 03)
+  // -------------------------------------------------------------------
+
+  // Globaler Renderer für social.html
+  window.renderSocialZielgruppe2 = function (lang) {
+    renderSocialZielgruppe2(lang || localStorage.getItem("fsa_lang") || "de");
+  };
+
+  // Datensatz exportieren (falls Seite ihn direkt braucht)
+  window.FSA_SOCIAL_02 = TEXT_SOCIAL_02;
+
+  // Seite ruft es direkt
   document.addEventListener("social:open-02", () => {
     const lang = localStorage.getItem("fsa_lang") || "de";
     renderSocialZielgruppe2(lang);
   });
 
-  // ===============================================================
-  // GLOBAL HOOK – stellt Renderer für social.html bereit
-  window.renderSocialZielgruppe2 = renderSocialZielgruppe2;
-
-  // ===============================================================
-  // EXPORT – stellt den Datensatz für social.html bereit
-  window.FSA_SOCIAL_02 = TEXT_SOCIAL_02;
-
-  // ===============================================================
-  // AUTO-TRIGGER falls URL-Parameter ?open=02 gesetzt ist
+  // Auto-Trigger über ?open=02
   const params = new URLSearchParams(window.location.search);
   if (params.get("open") === "02") {
     const lang = localStorage.getItem("fsa_lang") || "de";
