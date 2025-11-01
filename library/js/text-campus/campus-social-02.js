@@ -580,12 +580,20 @@
   window.renderSocialZielgruppe2 = renderSocialZielgruppe2;
 
   // Sprache live umschalten
-  document.addEventListener("fsa:lang-change", (ev) => {
-    const current = document.getElementById("socialContent");
-    if (current && current.children.length) {
-      renderSocialZielgruppe2(ev.detail);
-    }
-  });
-window.FSA_SOCIAL_02 = SOCIAL_CONTENT;
+ // ============================================================
+// 🔧 Finaler Export für FSA Social – Zielgruppe 2
+// ============================================================
+
+document.addEventListener("fsa:lang-change", (ev) => {
+  const lang = ev.detail || "de";
+  const current = document.getElementById("socialContent");
+  if (current && current.children && current.children.length) {
+    renderSocialZielgruppe2(lang);
+  }
+});
+
+// globale Variable für social.html verfügbar machen
+window.FSA_SOCIAL_02 = TEXT_SOCIAL_02;
+
 })();
 
