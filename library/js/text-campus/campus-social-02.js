@@ -574,7 +574,10 @@
   `;
   document.head.appendChild(style);
 
-  // -------------------------------------------------------------------
+// ===============================================================
+// GLOBAL HOOK – stellt Renderer für social.html bereit
+window.renderSocialZielgruppe2 = renderSocialZielgruppe2;
+
 // ===============================================================
 // EXPORT – stellt den Datensatz für social.html bereit
 window.FSA_SOCIAL_02 = TEXT_SOCIAL_02;
