@@ -572,7 +572,14 @@
       }
     }
   `;
-  document.head.appendChild(style);
+  // 4. Styles einfügen
+document.head.appendChild(style);
+
+// 6. Optional: wenn die Seite gleich beim Klick ruft
+document.addEventListener("social:open-02", () => {
+  const lang = localStorage.getItem("fsa_lang") || "de";
+  renderSocialZielgruppe2(lang);
+});
 
 // ===============================================================
 // GLOBAL HOOK – stellt Renderer für social.html bereit
@@ -581,4 +588,4 @@ window.renderSocialZielgruppe2 = renderSocialZielgruppe2;
 // ===============================================================
 // EXPORT – stellt den Datensatz für social.html bereit
 window.FSA_SOCIAL_02 = TEXT_SOCIAL_02;
-})();
+})();         
