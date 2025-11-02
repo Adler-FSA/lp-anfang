@@ -1,250 +1,278 @@
-/* ==========================================================================
-   FSA Campus – Text-Container
-   Modul: Souveränität / Container 2 – "Handeln mit Struktur"
-   Pfad: /library/js/text-campus/campus-sovereign-02.js
-   Eigenschaften:
-   • Autoload (fügt sich selbst ein)
-   • Fade-In (goldener Glow, Darkmode)
-   • Keyboard (←/→), Touch-Swipe, ARIA
-   • Fortschritts-Punkte + Zähler
-   • DE/EN anhand window.FSA_LANG oder <html lang="">
-   • Slot-Logik: nutzt #campus-container-2, fällt zurück auf <body>
-   ========================================================================== */
-(function CampusSovereign02(){
-  // ----- Sprache bestimmen (DE als Standard) -----
-  const currentLang = (window.FSA_LANG || document.documentElement.lang || "de").toLowerCase();
-  const LANG = currentLang.startsWith("de") ? "de" : "en";
+// library/js/text-campus/campus-sovereign-02.js
+// Aspekt 2 – Finanzielle Souveränität: Kontrolle über Wert und Zugriff
+// Verdrahtung: fsa:lang-change / souveränität.html
+// Anzeige: einspaltig, mobil tauglich, DE/EN getrennt
 
-  // ----- Inhalte (10 Slides) -----
-  const SLIDES_DE = [
-    { t: "Klarheit in Bewegung", p: [
-      "Wenn draußen alles lauter wird, gewinnt nicht, wer am meisten rennt, sondern wer am klarsten sieht.",
-      "Struktur heißt hier nicht Regelheft, sondern innere Linie: Was zählt für dich? Wofür bist du bereit einzustehen, auch wenn es unpraktisch wird?",
-      "Spontane Entscheidungen sind teuer, wenn sie aus Angst kommen. Klare Entscheidungen sind leise – und wirken länger."
-    ]},
-    { t: "Werte vor Währung", p: [
-      "Geld schwankt. Prinzipien nicht.",
-      "Wenn du in Werten denkst – Ehrlichkeit, Verantwortung, Fairness – sortiert sich vieles von selbst: mit wem du arbeitest, was du kaufst, welche Risiken du bewusst nimmst.",
-      "Wer nur auf Rendite schaut, verliert oft die Richtung, wenn der Kurs dreht. Wer auf Werte schaut, findet auch im Sturm seinen Kompass."
-    ]},
-    { t: "Beziehungen als Sicherheitsnetz", p: [
-      "Systeme versprechen Sicherheit; Menschen geben sie.",
-      "Wenn das Konto stockt, hilft dir kein Algorithmus, aber ein echter Kontakt tut es oft.",
-      "Familie, Freunde, Partner, lokale Kreise – sie sind tragfähige Brücken, wenn die Infrastruktur klemmt. Souveränes Handeln sieht Menschen zuerst, Strukturen erst danach."
-    ]},
-    { t: "Wissen als Besitz, der bleibt", p: [
-      "Was du verstehst, kann dir niemand sperren.",
-      "Ob Energie, Verträge oder digitale Werkzeuge – wer die Grundlogik kennt, verliert weniger Zeit und weniger Geld.",
-      "Wissen ist Vermögen, das nicht einfriert, wenn Konten es tun. Ein klarer Satz pro Thema reicht oft: „So funktioniert das – und hier greife ich ein, wenn’s kippt.“"
-    ]},
-    { t: "Dezentral denken: Zugang in eigener Hand", p: [
-      "Abhängigkeiten werden zur Falle, wenn der Zugang anderen gehört.",
-      "Eigenes Wallet, eigene Backups, eigene Schlüssel – nicht aus Misstrauen, sondern aus Respekt vor der Realität.",
-      "Es geht nicht um Autarkie, sondern um Handlungsfähigkeit: teilnehmen, ohne ausgeliefert zu sein. Verantwortung teilen, Kontrolle zurückholen."
-    ]},
-    { t: "Handeln in unsicheren Zeiten", p: [
-      "Wenn Preise springen und Regeln sich ändern, zahlt sich ruhiges Tempo aus.",
-      "Kleine, nachvollziehbare Schritte sind stärker als große, die du nicht halten kannst.",
-      "Alltag: Anbieter wechseln statt Ärger; barrierefreie Kontaktwege statt Plattform-Monokultur; ein zweiter Zugang statt Heldengeschichte. Souveränität ist unspektakulär – und stabil."
-    ]},
-    { t: "Mut zur Pause", p: [
-      "Reaktion ist laut, Reflexion ist machtvoll.",
-      "Eine kurze Pause vor einer Entscheidung verändert oft alles: Du hörst dich wieder.",
-      "Wer Pausen zulässt, handelt seltener gegen sich. Souveränes Handeln liebt nicht die Eile, sondern die Klarheit nach dem Einatmen."
-    ]},
-    { t: "Vertrauen in Prozesse, nicht in Versprechen", p: [
-      "Versprechen sind billig, Prozesse sind teuer – und deshalb wertvoll.",
-      "Ein Prozess trägt dich, wenn die Laune fehlt: einfache Abläufe, die du kennst und denen du traust.",
-      "Langsam ist häufig stabiler: Wer zu schnell baut, baut oft für den Abbruch. Souveränität ist weniger „großer Sprung“ als „ruhige Spur“."
-    ]},
-    { t: "Kooperation ohne Zwang (Trustyfy im Blick)", p: [
-      "Unabhängigkeit entsteht, wenn Menschen Verantwortung teilen, ohne sie abzugeben.",
-      "Trustyfy kann ein Werkzeug dafür sein: Transparenz, Teilhabe, Beteiligung – nachvollziehbar statt nebulös.",
-      "Nicht als Dogma, sondern als Option, die Reibung senkt: weniger Zwischenhändler, mehr Einsicht in das, was man gemeinsam bewegt. Souveräne Kooperation fühlt sich nach Raum an, nicht nach Kette."
-    ]},
-    { t: "Souveränität als Lebenshaltung", p: [
-      "Am Ende geht es nicht um Systeme, sondern um dein Leben.",
-      "Souveränes Handeln gibt dir Zeit zurück: für Liebe, Familie, Kinder, Freundschaften, Hobbys, Träume.",
-      "Du wirst nicht „perfekt frei“. Du wirst spürbar freier. Das ist genug – und es trägt."
-    ]}
-  ];
+(function(){
+  const SOVEREIGN_CONTENT = {
+    de: {
+      title: "💰 Aspekt 2 – Finanzielle Souveränität",
+      subtitle: "Kontrolle über Wert und Zugriff",
+      blocks: [
+        {
+          heading: "Einleitung",
+          items: [
+            {
+              body: [
+                "Finanzielle Bildung ist in der Akademie kein Rechenfach, sondern Selbstschutz.",
+                "Denn jedes Konto, jede Plattform, jede digitale Zahlung ist Teil einer Struktur, die Macht verteilt.",
+                "Wer nicht versteht, wie Wert entsteht, übergibt Kontrolle an andere – oft unbewusst.",
+                "Finanzielle Souveränität bedeutet, Geld wieder als Werkzeug der Freiheit zu begreifen, nicht als Instrument der Abhängigkeit."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "1. Das unsichtbare Netz",
+          items: [
+            {
+              body: [
+                "Banken, Steuern, Versicherungen – viele glauben, diese Systeme dienen ihnen.",
+                "In Wahrheit dienen sie sich selbst. Das heißt nicht, sie sind böse; sie sind nur nicht neutral.",
+                "Ein souveräner Mensch fragt: Was passiert, wenn der Strom ausfällt, der Server hängt, der Zugang gesperrt wird?",
+                "Die Akademie zeigt: Unabhängigkeit beginnt mit Wissen, nicht mit Misstrauen."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "2. Wert verstehen, nicht nur verdienen",
+          items: [
+            {
+              body: [
+                "Geld ist gespeicherte Energie. Wenn du sie nicht lenkst, wird sie für dich gelenkt.",
+                "Budgetieren, investieren, diversifizieren – alles gut, aber ohne Bewusstheit bleiben es Tools.",
+                "Die Akademie lehrt den Unterschied zwischen Besitz und Zugriff. Besitz ist juristisch; Zugriff ist real.",
+                "Viele merken das erst, wenn ein Konto gesperrt wird oder eine Wallet leer ist.",
+                "Trustyfy löst das anders: dezentrale Beteiligung, nachvollziehbare Buchung, kein blinder Mittelsmann.",
+                "So wird Ökonomie wieder Bildung – kein Glücksspiel."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "3. Gegen den Reflex der Angst",
+          items: [
+            {
+              body: [
+                "Wenn Märkte fallen, sucht das Ego nach Kontrolle. Aber Souveränität zeigt sich in Ruhe, nicht im Aktionismus.",
+                "Wer Prinzipien hat – Liquidität aufgeteilt, Schuldenplan, klaren Fokus – bleibt handlungsfähig.",
+                "Die Akademie nennt das Antifragiles Denken: Systeme so bauen, dass sie von Stress lernen.",
+                "Trustyfy demonstriert es täglich – Transparenz ersetzt Panik."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "4. Gesetze als Werkzeugkasten",
+          items: [
+            {
+              body: [
+                "AEMR Art. 17, BGB § 823, DSGVO Art. 6 – das sind nicht Paragraphen, das sind Schutzschilde.",
+                "Du darfst sie anwenden. Du darfst Daten anfordern, Entscheidungen anfechten, Fairness einfordern.",
+                "Finanzielle Souveränität ist das praktische Anwenden dieser Rechte."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "Schlussgedanke",
+          items: [
+            {
+              body: [
+                "„Frei ist, wer versteht, was sein Konto wirklich speichert: Verantwortung.“"
+              ]
+            }
+          ]
+        }
+      ]
+    },
 
-  const SLIDES_EN = [
-    { t: "Clarity in motion", p: [
-      "When the world gets loud, the winner isn’t the fastest but the clearest.",
-      "Structure isn’t a rulebook here, but an inner line: What matters to you? What will you stand for even when it’s inconvenient?",
-      "Fear-driven decisions are expensive; clear ones are quiet and last longer."
-    ]},
-    { t: "Values before currency", p: [
-      "Money fluctuates. Principles don’t.",
-      "Thinking in values—honesty, responsibility, fairness—sorts a lot on its own: partners, purchases, risks you accept on purpose.",
-      "Chasing returns loses direction when markets swing; values keep your compass in the storm."
-    ]},
-    { t: "Relationships as a safety net", p: [
-      "Systems promise safety; people provide it.",
-      "When accounts stall, an algorithm won’t help—but a person often will.",
-      "Family, friends, partners, local circles—they’re bridges when infrastructure jams. Sovereign action sees people first, structures second."
-    ]},
-    { t: "Knowledge as enduring ownership", p: [
-      "What you understand can’t be frozen.",
-      "Energy, contracts, digital tools—knowing the basics saves time and money.",
-      "Knowledge is wealth that doesn’t lock when accounts do. One clear sentence per topic often suffices: “This is how it works—and here I intervene if it fails.”"
-    ]},
-    { t: "Think decentralised: access in your own hand", p: [
-      "Dependencies become traps when access belongs to others.",
-      "Your own wallet, backups, keys—not from distrust but from realism.",
-      "It’s not off-grid isolation—it’s agency: participate without being captive. Share responsibility, reclaim control."
-    ]},
-    { t: "Acting in uncertain times", p: [
-      "When prices jump and rules shift, calm pacing pays.",
-      "Small, traceable steps beat big ones you can’t sustain.",
-      "Everyday: switch providers instead of stewing; alternative contact paths instead of platform monoculture; a second access path over hero stories. Sovereignty looks unspectacular—and that’s why it’s stable."
-    ]},
-    { t: "Courage to pause", p: [
-      "Reaction is loud; reflection is powerful.",
-      "A short pause before deciding changes everything: you can hear yourself again.",
-      "Those who allow pauses act less against themselves. Sovereign action prefers clarity after the inhale."
-    ]},
-    { t: "Trust processes, not promises", p: [
-      "Promises are cheap; processes are costly—and therefore valuable.",
-      "A process carries you when mood doesn’t: simple steps you know and trust.",
-      "Slow is often sturdier: those who build too fast often build for demolition. Sovereignty is less a leap than a steady lane."
-    ]},
-    { t: "Cooperation without coercion (Trustyfy in view)", p: [
-      "Independence grows when people share responsibility without giving it away.",
-      "Trustyfy can be such a tool: transparency, participation, shared value—traceable instead of nebulous.",
-      "Not as dogma, but as an option that reduces friction: fewer middlemen, more insight into what you move together. Sovereign cooperation feels like space, not a chain."
-    ]},
-    { t: "Sovereignty as a way of life", p: [
-      "In the end it’s not about systems—it’s about your life.",
-      "Sovereign action gives you back time for love, family, children, friends, hobbies, dreams.",
-      "You won’t be perfectly free. You’ll be noticeably freer. That’s enough—and it holds."
-    ]}
-  ];
-
-  const DATA = (LANG === "de") ? SLIDES_DE : SLIDES_EN;
-  const TOTAL = DATA.length;
-
-  // ----- Styles (scoped im Modul) -----
-  const CSS = `
-  .fsa-so2 { width:min(980px,92vw); margin:56px auto; background:#0f172a;
-    border:1px solid rgba(212,175,55,.35); border-radius:16px;
-    box-shadow:0 0 28px rgba(212,175,55,.25); color:#e5e7eb;
-    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-    padding:clamp(22px,3vw,36px) clamp(20px,3vw,40px); line-height:1.55;
-    opacity:0; transform:translateY(8px); animation:fsa-fade .45s ease forwards; }
-  @keyframes fsa-fade { to { opacity:1; transform:none; } }
-  .fsa-so2 h2 { color:#d4af37; text-align:center; margin:0 0 18px;
-    font-size:clamp(22px,2.4vw,28px); text-shadow:0 0 8px rgba(212,175,55,.35); }
-  .fsa-so2 .stage { position:relative; min-height:300px; outline:none; }
-  .fsa-so2 .card { position:absolute; inset:0; display:none; opacity:0; transform:translateY(10px);
-    transition:opacity .45s ease, transform .45s ease; }
-  .fsa-so2 .card.active { display:block; opacity:1; transform:none; }
-  .fsa-so2 .card h3 { color:#e5e7eb; font-size:clamp(18px,2.1vw,22px); margin:0 0 10px; position:relative; }
-  .fsa-so2 .card h3::after { content:""; position:absolute; left:0; bottom:-6px; width:60px; height:2px;
-    background:linear-gradient(90deg,#d4af37 0%,transparent 100%); }
-  .fsa-so2 .card p { margin:.45em 0; font-size:1.02rem; max-width:70ch; }
-  .fsa-so2 .nav { display:flex; justify-content:space-between; align-items:center; margin-top:26px; gap:14px; }
-  .fsa-so2 .btn { background:transparent; color:#e5e7eb; border:1px solid rgba(212,175,55,.4);
-    border-radius:10px; padding:10px 16px; cursor:pointer; font-weight:600;
-    box-shadow:0 0 22px rgba(212,175,55,.25); transition:background .2s ease, transform .15s ease; }
-  .fsa-so2 .btn:hover { background:rgba(212,175,55,.08); }
-  .fsa-so2 .btn:active { transform:translateY(1px); }
-  .fsa-so2 .stat { color:#94a3b8; font-size:.95rem; }
-  .fsa-so2 .progress { display:flex; justify-content:center; gap:10px; margin-top:18px; }
-  .fsa-so2 .dot { width:10px; height:10px; border-radius:50%; background:rgba(212,175,55,.25);
-    box-shadow:0 0 8px rgba(212,175,55,.25); transition:all .3s ease; }
-  .fsa-so2 .dot.active { background:#d4af37; box-shadow:0 0 12px rgba(212,175,55,.6); transform:scale(1.2); }
-  @media (max-width:820px){ .fsa-so2{ margin:36px auto; padding:22px } .fsa-so2 .stage{ min-height:360px } }
-  `;
-
-  // ----- Ziel-Slot holen: #campus-container-2 → sonst <body> -----
-  const host = document.getElementById("campus-container-2") || document.body;
-
-  // ----- Container erzeugen -----
-  const box = document.createElement("section");
-  box.className = "fsa-so2";
-  box.setAttribute("id","campus-sovereign-02");
-  box.setAttribute("aria-live","polite");
-  box.innerHTML = `
-    <style>${CSS}</style>
-    <h2>${LANG==="de" ? "🧱 Handeln mit Struktur" : "🧱 Acting with Structure"}</h2>
-    <div class="stage" tabindex="0"></div>
-    <div class="nav">
-      <button class="btn" data-act="prev">${LANG==="de" ? "⬅ Zurück" : "⬅ Back"}</button>
-      <div class="stat">1 / ${TOTAL}</div>
-      <button class="btn" data-act="next">${LANG==="de" ? "Weiter ➡" : "Next ➡"}</button>
-    </div>
-    <div class="progress" aria-label="${LANG==="de" ? "Fortschritt" : "Progress"}"></div>
-  `;
-
-  host.appendChild(box);
-
-  // ----- DOM-Refs -----
-  const stage = box.querySelector(".stage");
-  const stat  = box.querySelector(".stat");
-  const prev  = box.querySelector('[data-act="prev"]');
-  const next  = box.querySelector('[data-act="next"]');
-  const progress = box.querySelector(".progress");
-  const SRC = (LANG === "de") ? SLIDES_DE : SLIDES_EN;
-
-  // ----- Slides rendern -----
-  SRC.forEach((s, i) => {
-    const card = document.createElement("article");
-    card.className = "card" + (i===0 ? " active" : "");
-    const paras = s.p.map(line => `<p>${escapeHtml(line)}</p>`).join("");
-    card.innerHTML = `<h3>${escapeHtml(s.t)}</h3>${paras}`;
-    stage.appendChild(card);
-
-    const dot = document.createElement("div");
-    dot.className = "dot" + (i===0 ? " active" : "");
-    progress.appendChild(dot);
-  });
-
-  let idx = 0;
-  function show(n){
-    const cards = stage.querySelectorAll(".card");
-    const dots  = progress.querySelectorAll(".dot");
-    cards.forEach(c => c.classList.remove("active"));
-    dots.forEach(d => d.classList.remove("active"));
-    cards[n].classList.add("active");
-    dots[n].classList.add("active");
-    stat.textContent = `${n+1} / ${TOTAL}`;
-    prev.disabled = (n===0);
-    next.disabled = (n===TOTAL-1);
-  }
-
-  // ----- Navigation -----
-  prev.addEventListener("click", ()=>{ if(idx>0){ idx--; show(idx); } });
-  next.addEventListener("click", ()=>{ if(idx<TOTAL-1){ idx++; show(idx); } });
-
-  // Keyboard
-  stage.addEventListener("keydown", e => {
-    if(e.key==="ArrowRight" && idx<TOTAL-1){ idx++; show(idx); }
-    if(e.key==="ArrowLeft"  && idx>0){ idx--; show(idx); }
-  });
-
-  // Touch
-  let startX = null;
-  stage.addEventListener("touchstart", e => startX = e.touches[0].clientX, {passive:true});
-  stage.addEventListener("touchend", e => {
-    if(startX===null) return;
-    const diff = e.changedTouches[0].clientX - startX;
-    if(Math.abs(diff)>40){
-      if(diff<0 && idx<TOTAL-1){ idx++; show(idx); }
-      if(diff>0 && idx>0){ idx--; show(idx); }
+    en: {
+      title: "💰 Aspect 2 – Financial Sovereignty",
+      subtitle: "Control over value and access",
+      blocks: [
+        {
+          heading: "Introduction",
+          items: [
+            {
+              body: [
+                "At the Academy, financial education isn’t about arithmetic – it’s self-protection.",
+                "Every account, every platform, every digital payment is part of a structure that distributes power.",
+                "Those who don’t understand how value is created hand over control to others – often unconsciously.",
+                "Financial sovereignty means seeing money again as a tool of freedom, not a mechanism of dependence."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "1. The invisible net",
+          items: [
+            {
+              body: [
+                "Banks, taxes, insurances – many think these systems serve them.",
+                "In truth, they serve themselves. That doesn’t make them evil; just not neutral.",
+                "A sovereign person asks: what happens if the power goes out, the server fails, the access is frozen?",
+                "The Academy teaches: independence starts with knowledge, not distrust."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "2. Understand value, don’t just earn it",
+          items: [
+            {
+              body: [
+                "Money is stored energy. If you don’t direct it, it will be directed for you.",
+                "Budgeting, investing, diversifying – all fine, but without awareness they stay tools.",
+                "The Academy teaches the difference between ownership and access. Ownership is legal; access is real.",
+                "Many realize that only when an account is frozen or a wallet emptied.",
+                "Trustyfy solves this differently: decentralized participation, transparent booking, no blind intermediary.",
+                "Economy becomes education again – not a gamble."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "3. Against the reflex of fear",
+          items: [
+            {
+              body: [
+                "When markets fall, the ego seeks control. But sovereignty shows in calm, not in reaction.",
+                "Those with principles – distributed liquidity, a debt plan, clear focus – remain capable of action.",
+                "The Academy calls this antifragile thinking: systems built to learn from stress.",
+                "Trustyfy demonstrates it daily – transparency replaces panic."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "4. Laws as a toolkit",
+          items: [
+            {
+              body: [
+                "UDHR Art.17, German Civil Code §823, GDPR Art.6 – these aren’t paragraphs, they’re shields.",
+                "You are allowed to use them: request data, challenge decisions, demand fairness.",
+                "Financial sovereignty is the practical application of those rights."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "Closing thought",
+          items: [
+            {
+              body: [
+                "“Free is the one who understands what their account truly stores: responsibility.”"
+              ]
+            }
+          ]
+        }
+      ]
     }
-    startX = null;
-  }, {passive:true});
+  };
 
-  stage.focus();
-  show(idx);
+  function renderSovereign02(lang){
+    const data=SOVEREIGN_CONTENT[lang]||SOVEREIGN_CONTENT.de;
+    const host=document.getElementById("sovereignContent")||createHost();
+    host.innerHTML="";
 
-  // ----- Utils -----
-  function escapeHtml(str){
-    return String(str)
-      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
-      .replace(/>/g,"&gt;").replace(/"/g,"&quot;")
-      .replace(/'/g,"&#39;");
+    const wrap=document.createElement("div");
+    wrap.className="sovereign-wrap";
+
+    const h1=document.createElement("h1");
+    h1.textContent=data.title;
+    wrap.appendChild(h1);
+
+    const p=document.createElement("p");
+    p.className="sovereign-subtitle";
+    p.textContent=data.subtitle;
+    wrap.appendChild(p);
+
+    (data.blocks||[]).forEach(block=>{
+      const section=document.createElement("section");
+      section.className="sovereign-section";
+
+      const h2=document.createElement("h2");
+      h2.textContent=block.heading;
+      section.appendChild(h2);
+
+      (block.items||[]).forEach(item=>{
+        const card=document.createElement("article");
+        card.className="sovereign-card";
+        (item.body||[]).forEach(line=>{
+          const pLine=document.createElement("p");
+          pLine.textContent=line;
+          card.appendChild(pLine);
+        });
+        section.appendChild(card);
+      });
+
+      wrap.appendChild(section);
+    });
+
+    const closeBtn=document.createElement("button");
+    closeBtn.type="button";
+    closeBtn.className="sovereign-close-btn";
+    closeBtn.textContent=lang==="de"?"Schließen":"Close";
+    closeBtn.addEventListener("click",()=>{
+      host.innerHTML="";
+      host.style.display="none";
+      document.dispatchEvent(new CustomEvent("sovereign:closed",{detail:"02"}));
+    });
+    wrap.appendChild(closeBtn);
+
+    host.appendChild(wrap);
+    host.style.display="block";
   }
+
+  function createHost(){
+    const host=document.createElement("div");
+    host.id="sovereignContent";
+    document.body.appendChild(host);
+    return host;
+  }
+
+  const style=document.createElement("style");
+  style.textContent=`
+    #sovereignContent{
+      position:relative;width:min(1100px,100%);
+      margin:0 auto;
+      padding:clamp(1.2rem,2.3vw,2.4rem);
+      background:rgba(7,11,17,0.95);
+      color:#e5e7eb;line-height:1.55;
+      border:1px solid rgba(212,175,55,0.25);
+      border-radius:16px;
+      backdrop-filter:blur(6px);
+      box-shadow:0 20px 40px rgba(0,0,0,0.35);
+      z-index:30;
+    }
+    #sovereignContent h1{font-size:clamp(1.35rem,3.2vw,1.8rem);margin-bottom:.25rem;color:#fff;}
+    .sovereign-subtitle{color:rgba(229,231,235,0.75);margin-bottom:1.4rem;}
+    .sovereign-section{margin-bottom:1.8rem;}
+    .sovereign-section h2{font-size:1.05rem;margin-bottom:.75rem;color:#f3f4f6;border-bottom:1px solid rgba(212,175,55,0.28);padding-bottom:.3rem;}
+    .sovereign-card{background:rgba(15,23,42,0.35);border:1px solid rgba(148,163,184,0.18);border-radius:12px;padding:.9rem 1rem .85rem;margin-bottom:.75rem;}
+    .sovereign-card p{margin:0 0 .45rem;font-size:.85rem;color:#e2e8f0;}
+    .sovereign-close-btn{margin-top:1rem;background:rgba(212,175,55,0.15);border:1px solid rgba(212,175,55,0.5);color:#fff;padding:.5rem 1.3rem;border-radius:999px;cursor:pointer;transition:.25s ease;}
+    .sovereign-close-btn:hover{background:rgba(212,175,55,0.35);box-shadow:0 0 14px rgba(212,175,55,0.4);}
+    @media(max-width:720px){#sovereignContent{padding:1rem .65rem 1.3rem;border-radius:0;width:100%;}.sovereign-card{border-radius:10px;}.sovereign-card p{font-size:.8rem;}}
+  `;
+  document.head.appendChild(style);
+
+  window.renderSovereign02=function(lang){
+    renderSovereign02(lang||(localStorage.getItem("fsa_lang")||"de"));
+  };
+
+  document.addEventListener("fsa:lang-change",ev=>{
+    const lang=ev.detail||"de";
+    const host=document.getElementById("sovereignContent");
+    if(host&&host.innerHTML.trim()!==""){renderSovereign02(lang);}
+  });
+
+  document.addEventListener("sovereign:open-02",()=>{
+    const lang=localStorage.getItem("fsa_lang")||"de";
+    renderSovereign02(lang);
+  });
+
+  window.FSA_SOVEREIGN_02=SOVEREIGN_CONTENT;
 })();
