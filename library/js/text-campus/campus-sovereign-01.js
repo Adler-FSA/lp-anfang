@@ -1,253 +1,329 @@
-/* ==========================================================================
-   FSA Campus – Text-Container
-   Modul: Souveränität / Container 1 – "Denken in Besitzverhältnissen"
-   Pfad: /library/js/text-campus/campus-sovereign-01.js
-   Eigenschaften:
-   • Autoload (fügt sich selbst ein)
-   • Fade-In (goldener Glow, Darkmode)
-   • Keyboard (←/→), Touch-Swipe, ARIA
-   • Fortschritts-Punkte + Zähler
-   • DE/EN anhand window.FSA_LANG oder <html lang="">
-   • Slot-Logik: nutzt #campus-container-1, fällt zurück auf <body>
-   ========================================================================== */
-(function CampusSovereign01(){
-  // ----- Sprache bestimmen (DE als Standard) -----
-  const currentLang = (window.FSA_LANG || document.documentElement.lang || "de").toLowerCase();
-  const LANG = currentLang.startsWith("de") ? "de" : "en";
+// library/js/text-campus/campus-sovereign-01.js
+// Aspekt 1 – Persönliche Souveränität: Bewusstsein als Fundament
+// Verdrahtung: fsa:lang-change / souveränität.html
+// Anzeige: einspaltig, mobil tauglich, DE/EN getrennt
 
-  // ----- Inhalte (10 Slides) -----
-  const SLIDES_DE = [
-    { t: "Souveränität beginnt im Kopf", p: [
-      "Souveränität entsteht nicht durch Besitz, sondern durch Bewusstsein.",
-      "Sie beginnt in dem Moment, in dem du dich fragst, wem dein Alltag wirklich gehört – dein Geld, deine Energie, deine Zeit, dein Zuhause.",
-      "In einer Welt, in der Strompreise, Hypotheken und Algorithmen täglich neu über dein Leben entscheiden, ist Unabhängigkeit kein Luxus, sondern Strategie.",
-      "Viele merken erst in Krisen, wie wenig sie wirklich führen. Der erste Schritt ist, das zu erkennen – und echte Kontrolle zu lernen."
-    ]},
-    { t: "Wem gehört, was ich nutze?", p: [
-      "Dein Konto gehört der Bank, dein Stromnetz dem Konzern, dein Handy dem Anbieter, deine Reichweite der Plattform.",
-      "Viele Länder erleben, wie leicht Systeme Menschen von ihrem Besitz trennen – per Knopfdruck: Sanktionen, Sperren, Abschaltungen.",
-      "Freiheit beginnt dort, wo du siehst, dass Nutzung keine Kontrolle bedeutet. Wer versteht, was ausgelagert ist, kann Alternativen schaffen – klein, lokal, selbstbestimmt."
-    ]},
-    { t: "Besitz ist nicht gleich Kontrolle", p: [
-      "Du kannst ein Haus besitzen und doch wenig entscheiden, wenn der Zins steigt oder das Gas ausbleibt.",
-      "Du kannst sparen, und doch verliert dein Geld täglich an Kaufkraft.",
-      "Souverän sein heißt, Strukturen zu erkennen – Kredit, Vertrag, Versicherung, Steuer – und Spielräume zu nutzen, bevor sie verschwinden."
-    ]},
-    { t: "Zeit gegen Geld oder Wert gegen Wirkung", p: [
-      "Viele arbeiten härter denn je – und fühlen sich trotzdem machtlos, weil das System auf Funktion statt Freiheit ausgelegt ist.",
-      "Wer Monat für Monat nur Verpflichtungen bedient, lebt nicht von seinem Wert, sondern von der Duldung anderer.",
-      "Ein souveräner Mensch baut Strukturen, die wirken, auch wenn er nicht anwesend ist – digital, menschlich, real."
-    ]},
-    { t: "Eine Übung zur Klarheit", p: [
-      "Schreib fünf Dinge auf, die dein tägliches Leben sichern: Einkommen, Strom, Internet, Konto, Wohnung.",
-      "Frag dich: Wer kontrolliert sie? Was passiert, wenn eines davon morgen ausfällt – durch Krise, Sanktion, Hackerangriff oder politische Entscheidung?",
-      "Das ist kein Angstmacher, sondern ein Spiegel: Wo bist du verwundbar – und wo beginnst du mit echtem Aufbau?"
-    ]},
-    { t: "Mentorenimpuls: Abhängigkeit ist kein Fehler", p: [
-      "In einer vernetzten Welt sind wir alle abhängig – voneinander, von Systemen, von Ressourcen.",
-      "Gefährlich wird es erst, wenn du Abhängigkeit nicht erkennst.",
-      "Wenn ganze Länder stocken, weil Lieferketten reißen oder Software gesperrt wird, zeigt sich: Kontrolle ist die neue Währung.",
-      "Souveränität wächst dort, wo Menschen sich befähigen – Wissen, Energie, Vertrauen teilen."
-    ]},
-    { t: "Bewusst handeln, nicht perfekt", p: [
-      "Du musst nicht autark leben, um frei zu sein.",
-      "Aber du musst verstehen, was du freiwillig abgibst – und warum.",
-      "Souveränität heißt, Entscheidungen zu treffen, bevor andere sie für dich treffen. Wer das heute übt, bleibt morgen handlungsfähig – egal, wie laut die Welt wird."
-    ]},
-    { t: "Fazit: Besitz verstehen heißt Macht verstehen", p: [
-      "Kontrolle ist selten sichtbar, aber überall spürbar.",
-      "Wer versteht, wie sie funktioniert, verliert die Angst vor ihr.",
-      "Souveränität heißt, sich selbst zu führen – Klarheit statt Wut, Teilnahme statt Ohnmacht."
-    ]},
-    { t: "Trustyfy: Werkzeuge für echte Unabhängigkeit", p: [
-      "Souveränität braucht Strukturen, nicht Parolen.",
-      "Trustyfy gibt dir Werkzeuge für Transparenz, Teilhabe und Beteiligung – dezentral, ohne Zwischenhändler.",
-      "So wird finanzielle Bildung zu Handlung: Werte gemeinsam aufbauen, Verantwortung verteilen, Kontrolle zurückholen."
-    ]},
-    { t: "Freiheit hat wieder Platz", p: [
-      "Wenn du diese Prinzipien lebst, verändert sich dein Alltag: Du nutzt Systeme, statt von ihnen benutzt zu werden.",
-      "Wohlstand wird wieder zu Zeit: Liebe, Familie, Kinder, Freundschaften, Hobbys, Träume.",
-      "Finanzielle Souveränität schenkt nicht nur Geld – sie gibt dir dein Leben zurück."
-    ]}
-  ];
+(function(){
+  const SOVEREIGN_CONTENT = {
+    de: {
+      title: "🧭 Aspekt 1 – Persönliche Souveränität",
+      subtitle: "Bewusstsein als Fundament",
+      blocks: [
+        {
+          heading: "Einleitung",
+          items: [
+            {
+              title: "",
+              body: [
+                "In der FSA-Akademie beginnt alles mit Bewusstwerdung.",
+                "Nicht mit Tabellen, nicht mit Coins, sondern mit der Frage: Wer entscheidet in meinem Kopf?",
+                "Die meisten Menschen glauben, sie wären frei, weil sie wählen dürfen.",
+                "Doch Wahl ohne Bewusstsein ist Routine – kein Selbstbesitz.",
+                "Persönliche Souveränität bedeutet, wieder Eigentümer der eigenen Wahrnehmung zu werden.",
+                "Es ist die Kunst, in einer lauten Welt die innere Frequenz zu halten."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "1. Vom Reiz zur Reflexion",
+          items: [
+            {
+              title: "",
+              body: [
+                "Wir leben in einem Dauer-Feed. Informationen, Meinungen, Katastrophen – alles konkurriert um Aufmerksamkeit.",
+                "Das System nährt sich aus deiner Reaktion. Die Akademie lehrt: Nicht jede Nachricht verdient Antwort.",
+                "Bewusstsein ist ein Filter, kein Zaun. Du entscheidest, was du hereinlässt. Das ist Selbstschutz auf neuronaler Ebene.",
+                "Artikel 2 GG und Artikel 3 AEMR sichern diese Freiheit – doch erst du machst sie lebendig, wenn du eine Pause machst, bevor du klickst."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "2. Innere Gesetze statt äußerer Kommandos",
+          items: [
+            {
+              title: "",
+              body: [
+                "Ein souveräner Mensch handelt nach eigenen Prinzipien. Nicht nach Stimmungen, sondern nach Werten.",
+                "Werte sind kein Schmuck, sie sind Betriebssystem. Die Akademie hilft, sie zu formulieren: Was ist für dich nicht verhandelbar?",
+                "Fairness? Transparenz? Zeit für Familie?",
+                "Trustyfy funktioniert genau so: jedes Handeln ist sichtbar, weil es auf definierten Prinzipien beruht.",
+                "Kein Zwang, keine versteckte Agenda. So wird Technik zum Spiegel deines Bewusstseins."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "3. Grenzen als Selbstschutz",
+          items: [
+            {
+              title: "",
+              body: [
+                "Moderne Unfreiheit ist unsichtbar. Sie kommt als Überforderung, nicht als Kette.",
+                "Persönliche Souveränität bedeutet, Grenzen zu erkennen und freundlich zu verteidigen.",
+                "„Heute nicht.“ ist kein Rückzug, sondern Gesetzgebung in eigener Sache.",
+                "Artikel 1 GG – Würde – beginnt genau dort.",
+                "Trustyfy nennt das Permission Layer: jeder Zugriff braucht Zustimmung. Gleiches gilt für dein Leben."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "4. Bewusstmachen durch Alltag",
+          items: [
+            {
+              title: "",
+              body: [
+                "– Wie oft sage ich Ja aus Angst, sonst nicht mehr gemocht zu werden?",
+                "– Welche Verpflichtungen habe ich übernommen, die mir Energie rauben?",
+                "– Welche Gewohnheit nährt mich wirklich – welche betäubt mich nur?",
+                "Wer diese Fragen ernst nimmt, trainiert das, was die Akademie „Selbstverantwortung 01“ nennt.",
+                "Denn erst, wenn du dich selbst führst, kannst du Systeme führen."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "Schlussgedanke",
+          items: [
+            {
+              title: "",
+              body: [
+                "„Souveränität beginnt, wenn du erkennst, dass du dein eigenes Grundgesetz bist.“"
+              ]
+            }
+          ]
+        }
+      ]
+    },
 
-  const SLIDES_EN = [
-    { t: "Sovereignty starts in your mind", p: [
-      "Sovereignty doesn’t come from owning things but from awareness.",
-      "It begins the moment you ask who truly owns your everyday – your money, energy, time, home.",
-      "In a world where prices, mortgages and algorithms decide your day, independence is not luxury but strategy.",
-      "Many only see this in crises. First step: recognise it – then learn real control."
-    ]},
-    { t: "Who owns what I use?", p: [
-      "Your account belongs to the bank, the grid to a utility, the phone to a provider, your reach to a platform.",
-      "Nations learn how easily systems detach people from assets – sanctions, freezes, shutdowns.",
-      "Freedom starts when you see that usage ≠ control. Understand what’s outsourced, then build small, local, self-determined alternatives."
-    ]},
-    { t: "Ownership ≠ Control", p: [
-      "You can own a house yet decide little when rates jump or gas stops.",
-      "You can save and still lose purchasing power daily.",
-      "Sovereignty means seeing structures – credit, contract, insurance, tax – and using your room to move before it’s gone."
-    ]},
-    { t: "Time for money or value for impact", p: [
-      "People work harder than ever yet feel powerless; systems reward function over freedom.",
-      "If each month only services obligations, you live on permission, not value.",
-      "Build structures that work when you’re not there – digital, human, real."
-    ]},
-    { t: "A clarity exercise", p: [
-      "List five things your life relies on: income, power, internet, account, housing.",
-      "Who controls each? What happens if one fails tomorrow – crisis, sanction, hack, policy?",
-      "Not fear – a mirror: see exposure and where to start building."
-    ]},
-    { t: "Mentor’s note: dependency isn’t a sin", p: [
-      "In a networked world, we’re all dependent. It’s dangerous only when unseen.",
-      "When countries stall because deliveries stop or software is blocked, you see: control is a new currency.",
-      "Sovereignty grows where people empower each other – share knowledge, energy, trust."
-    ]},
-    { t: "Act consciously, not perfectly", p: [
-      "You don’t need to be off-grid to be free.",
-      "Know what you give away – and why.",
-      "Decide before others decide for you. Practice today, stay capable tomorrow."
-    ]},
-    { t: "Bottom line: understand ownership to understand power", p: [
-      "Control is rarely visible but always present.",
-      "Understanding dissolves fear.",
-      "Sovereignty is self-leadership – clarity over anger, participation over helplessness."
-    ]},
-    { t: "Trustyfy: tools for real independence", p: [
-      "Sovereignty needs structures, not slogans.",
-      "Trustyfy provides tools for transparency, participation and shared value – decentralised, without middlemen.",
-      "Education becomes action: build value together, distribute responsibility, reclaim control."
-    ]},
-    { t: "Space for life again", p: [
-      "Live these principles and your everyday changes: you use systems instead of being used.",
-      "Wealth becomes time – for love, family, children, friends, hobbies, dreams.",
-      "Financial sovereignty gives not just money – it gives you back your life."
-    ]}
-  ];
-
-  const DATA = (LANG === "de") ? SLIDES_DE : SLIDES_EN;
-  const TOTAL = DATA.length;
-
-  // ----- Styles (scoped im Modul) -----
-  const CSS = `
-  .fsa-so1 { width:min(980px,92vw); margin:56px auto; background:#0f172a;
-    border:1px solid rgba(212,175,55,.35); border-radius:16px;
-    box-shadow:0 0 28px rgba(212,175,55,.25); color:#e5e7eb;
-    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-    padding:clamp(22px,3vw,36px) clamp(20px,3vw,40px); line-height:1.55;
-    opacity:0; transform:translateY(8px); animation:fsa-fade .45s ease forwards; }
-  @keyframes fsa-fade { to { opacity:1; transform:none; } }
-  .fsa-so1 h2 { color:#d4af37; text-align:center; margin:0 0 18px;
-    font-size:clamp(22px,2.4vw,28px); text-shadow:0 0 8px rgba(212,175,55,.35); }
-  .fsa-so1 .stage { position:relative; min-height:300px; outline:none; }
-  .fsa-so1 .card { position:absolute; inset:0; display:none; opacity:0; transform:translateY(10px);
-    transition:opacity .45s ease, transform .45s ease; }
-  .fsa-so1 .card.active { display:block; opacity:1; transform:none; }
-  .fsa-so1 .card h3 { color:#e5e7eb; font-size:clamp(18px,2.1vw,22px); margin:0 0 10px; position:relative; }
-  .fsa-so1 .card h3::after { content:""; position:absolute; left:0; bottom:-6px; width:60px; height:2px;
-    background:linear-gradient(90deg,#d4af37 0%,transparent 100%); }
-  .fsa-so1 .card p { margin:.45em 0; font-size:1.02rem; max-width:70ch; }
-  .fsa-so1 .nav { display:flex; justify-content:space-between; align-items:center; margin-top:26px; gap:14px; }
-  .fsa-so1 .btn { background:transparent; color:#e5e7eb; border:1px solid rgba(212,175,55,.4);
-    border-radius:10px; padding:10px 16px; cursor:pointer; font-weight:600;
-    box-shadow:0 0 22px rgba(212,175,55,.25); transition:background .2s ease, transform .15s ease; }
-  .fsa-so1 .btn:hover { background:rgba(212,175,55,.08); }
-  .fsa-so1 .btn:active { transform:translateY(1px); }
-  .fsa-so1 .stat { color:#94a3b8; font-size:.95rem; }
-  .fsa-so1 .progress { display:flex; justify-content:center; gap:10px; margin-top:18px; }
-  .fsa-so1 .dot { width:10px; height:10px; border-radius:50%; background:rgba(212,175,55,.25);
-    box-shadow:0 0 8px rgba(212,175,55,.25); transition:all .3s ease; }
-  .fsa-so1 .dot.active { background:#d4af37; box-shadow:0 0 12px rgba(212,175,55,.6); transform:scale(1.2); }
-  @media (max-width:820px){ .fsa-so1{ margin:36px auto; padding:22px } .fsa-so1 .stage{ min-height:360px } }
-  `;
-
-  // ----- Ziel-Slot holen: #campus-container-1 → sonst <body> -----
-  const host = document.getElementById("campus-container-1") || document.body;
-
-  // ----- Container erzeugen -----
-  const box = document.createElement("section");
-  box.className = "fsa-so1";
-  box.setAttribute("id","campus-sovereign-01");
-  box.setAttribute("aria-live","polite");
-  box.innerHTML = `
-    <style>${CSS}</style>
-    <h2>${LANG==="de" ? "🪙 Denken in Besitzverhältnissen" : "🪙 Thinking in Terms of Ownership"}</h2>
-    <div class="stage" tabindex="0"></div>
-    <div class="nav">
-      <button class="btn" data-act="prev">${LANG==="de" ? "⬅ Zurück" : "⬅ Back"}</button>
-      <div class="stat">1 / ${TOTAL}</div>
-      <button class="btn" data-act="next">${LANG==="de" ? "Weiter ➡" : "Next ➡"}</button>
-    </div>
-    <div class="progress" aria-label="${LANG==="de" ? "Fortschritt" : "Progress"}"></div>
-  `;
-
-  host.appendChild(box);
-
-  // ----- DOM-Refs -----
-  const stage = box.querySelector(".stage");
-  const stat  = box.querySelector(".stat");
-  const prev  = box.querySelector('[data-act="prev"]');
-  const next  = box.querySelector('[data-act="next"]');
-  const progress = box.querySelector(".progress");
-  const SRC = (LANG === "de") ? SLIDES_DE : SLIDES_EN;
-
-  // ----- Slides rendern -----
-  SRC.forEach((s, i) => {
-    const card = document.createElement("article");
-    card.className = "card" + (i===0 ? " active" : "");
-    const paras = s.p.map(line => `<p>${escapeHtml(line)}</p>`).join("");
-    card.innerHTML = `<h3>${escapeHtml(s.t)}</h3>${paras}`;
-    stage.appendChild(card);
-
-    const dot = document.createElement("div");
-    dot.className = "dot" + (i===0 ? " active" : "");
-    progress.appendChild(dot);
-  });
-
-  let idx = 0;
-  function show(n){
-    const cards = stage.querySelectorAll(".card");
-    const dots  = progress.querySelectorAll(".dot");
-    cards.forEach(c => c.classList.remove("active"));
-    dots.forEach(d => d.classList.remove("active"));
-    cards[n].classList.add("active");
-    dots[n].classList.add("active");
-    stat.textContent = `${n+1} / ${TOTAL}`;
-    prev.disabled = (n===0);
-    next.disabled = (n===TOTAL-1);
-  }
-
-  // ----- Navigation -----
-  prev.addEventListener("click", ()=>{ if(idx>0){ idx--; show(idx); } });
-  next.addEventListener("click", ()=>{ if(idx<TOTAL-1){ idx++; show(idx); } });
-
-  // Keyboard
-  stage.addEventListener("keydown", e => {
-    if(e.key==="ArrowRight" && idx<TOTAL-1){ idx++; show(idx); }
-    if(e.key==="ArrowLeft"  && idx>0){ idx--; show(idx); }
-  });
-
-  // Touch
-  let startX = null;
-  stage.addEventListener("touchstart", e => startX = e.touches[0].clientX, {passive:true});
-  stage.addEventListener("touchend", e => {
-    if(startX===null) return;
-    const diff = e.changedTouches[0].clientX - startX;
-    if(Math.abs(diff)>40){
-      if(diff<0 && idx<TOTAL-1){ idx++; show(idx); }
-      if(diff>0 && idx>0){ idx--; show(idx); }
+    en: {
+      title: "🧭 Aspect 1 – Personal Sovereignty",
+      subtitle: "Awareness as the foundation",
+      blocks: [
+        {
+          heading: "Introduction",
+          items: [
+            {
+              body: [
+                "At the FSA Academy, everything starts with awareness.",
+                "Not with charts or coins, but with the question: Who decides in my mind?",
+                "Most people believe they are free because they can choose.",
+                "But choice without awareness is habit – not self-ownership.",
+                "Personal sovereignty means becoming the owner of your own perception again.",
+                "It is the art of holding your inner frequency in a noisy world."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "1. From impulse to reflection",
+          items: [
+            {
+              body: [
+                "We live in a constant feed of information, opinions, disasters – all competing for attention.",
+                "The system feeds on your reaction. The Academy teaches: not every message deserves an answer.",
+                "Awareness is a filter, not a fence. You decide what enters. That’s neural self-protection.",
+                "Article 2 of the German Constitution and Article 3 of the Universal Declaration of Human Rights secure this freedom – but only you bring it to life when you pause before you click."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "2. Inner laws instead of outer commands",
+          items: [
+            {
+              body: [
+                "A sovereign person acts by principle, not by mood.",
+                "Values aren’t decoration – they are the operating system.",
+                "The Academy helps you define them: What for you is non-negotiable? Fairness? Transparency? Time for family?",
+                "Trustyfy works by the same logic: every action is visible because it’s based on clear principles.",
+                "No coercion, no hidden agenda. Technology becomes a mirror of awareness."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "3. Boundaries as self-protection",
+          items: [
+            {
+              body: [
+                "Modern lack of freedom is invisible. It comes as overload, not as chains.",
+                "Personal sovereignty means recognizing and kindly defending your limits.",
+                "“Not today.” isn’t withdrawal – it’s legislation in your own name.",
+                "Article 1 of the Constitution – dignity – begins there.",
+                "Trustyfy calls this the Permission Layer: every access requires consent. The same applies to your life."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "4. Everyday awareness",
+          items: [
+            {
+              body: [
+                "– How often do I say yes out of fear of not being liked?",
+                "– Which commitments drain rather than nourish me?",
+                "– Which habits truly strengthen me, and which just numb me?",
+                "Those who take these questions seriously train what the Academy calls “Self-Responsibility 01.”",
+                "Only when you lead yourself can you lead systems."
+              ]
+            }
+          ]
+        },
+        {
+          heading: "Closing thought",
+          items: [
+            {
+              body: [
+                "“Sovereignty begins when you realize you are your own constitution.”"
+              ]
+            }
+          ]
+        }
+      ]
     }
-    startX = null;
-  }, {passive:true});
+  };
 
-  stage.focus();
-  show(idx);
+  // --- Renderer (einspaltig, mobil) ---
+  function renderSovereign01(lang){
+    const data = SOVEREIGN_CONTENT[lang] || SOVEREIGN_CONTENT.de;
+    const host = document.getElementById("sovereignContent") || createHost();
+    host.innerHTML = "";
 
-  // ----- Utils -----
-  function escapeHtml(str){
-    return String(str)
-      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
-      .replace(/>/g,"&gt;").replace(/"/g,"&quot;")
-      .replace(/'/g,"&#39;");
+    const wrap = document.createElement("div");
+    wrap.className = "sovereign-wrap";
+
+    const h1 = document.createElement("h1");
+    h1.textContent = data.title;
+    wrap.appendChild(h1);
+
+    const p = document.createElement("p");
+    p.className = "sovereign-subtitle";
+    p.textContent = data.subtitle;
+    wrap.appendChild(p);
+
+    (data.blocks || []).forEach(block=>{
+      const section = document.createElement("section");
+      section.className = "sovereign-section";
+
+      const h2 = document.createElement("h2");
+      h2.textContent = block.heading;
+      section.appendChild(h2);
+
+      (block.items||[]).forEach(item=>{
+        const card = document.createElement("article");
+        card.className = "sovereign-card";
+        (item.body||[]).forEach(line=>{
+          const pLine = document.createElement("p");
+          pLine.textContent = line;
+          card.appendChild(pLine);
+        });
+        section.appendChild(card);
+      });
+
+      wrap.appendChild(section);
+    });
+
+    const closeBtn = document.createElement("button");
+    closeBtn.type="button";
+    closeBtn.className="sovereign-close-btn";
+    closeBtn.textContent = lang==="de"?"Schließen":"Close";
+    closeBtn.addEventListener("click",()=>{
+      host.innerHTML="";
+      host.style.display="none";
+      document.dispatchEvent(new CustomEvent("sovereign:closed",{detail:"01"}));
+    });
+    wrap.appendChild(closeBtn);
+
+    host.appendChild(wrap);
+    host.style.display="block";
   }
+
+  function createHost(){
+    const host=document.createElement("div");
+    host.id="sovereignContent";
+    document.body.appendChild(host);
+    return host;
+  }
+
+  // --- Styles inline ---
+  const style=document.createElement("style");
+  style.textContent=`
+    #sovereignContent{
+      position:relative;
+      width:min(1100px,100%);
+      margin:0 auto;
+      padding:clamp(1.2rem,2.3vw,2.4rem);
+      background:rgba(7,11,17,0.95);
+      color:#e5e7eb;
+      line-height:1.55;
+      border:1px solid rgba(212,175,55,0.25);
+      border-radius:16px;
+      backdrop-filter:blur(6px);
+      box-shadow:0 20px 40px rgba(0,0,0,0.35);
+      z-index:30;
+    }
+    #sovereignContent h1{
+      font-size:clamp(1.35rem,3.2vw,1.8rem);
+      margin-bottom:.25rem;
+      color:#fff;
+    }
+    .sovereign-subtitle{color:rgba(229,231,235,0.75);margin-bottom:1.4rem;}
+    .sovereign-section{margin-bottom:1.8rem;}
+    .sovereign-section h2{
+      font-size:1.05rem;
+      margin-bottom:.75rem;
+      color:#f3f4f6;
+      border-bottom:1px solid rgba(212,175,55,0.28);
+      padding-bottom:.3rem;
+    }
+    .sovereign-card{
+      background:rgba(15,23,42,0.35);
+      border:1px solid rgba(148,163,184,0.18);
+      border-radius:12px;
+      padding:.9rem 1rem .85rem;
+      margin-bottom:.75rem;
+    }
+    .sovereign-card p{margin:0 0 .45rem;font-size:.85rem;color:#e2e8f0;}
+    .sovereign-close-btn{
+      margin-top:1rem;
+      background:rgba(212,175,55,0.15);
+      border:1px solid rgba(212,175,55,0.5);
+      color:#fff;
+      padding:.5rem 1.3rem;
+      border-radius:999px;
+      cursor:pointer;
+      transition:.25s ease;
+    }
+    .sovereign-close-btn:hover{
+      background:rgba(212,175,55,0.35);
+      box-shadow:0 0 14px rgba(212,175,55,0.4);
+    }
+    @media(max-width:720px){
+      #sovereignContent{padding:1rem .65rem 1.3rem;border-radius:0;width:100%;}
+      .sovereign-card{border-radius:10px;}
+      .sovereign-card p{font-size:.8rem;}
+    }
+  `;
+  document.head.appendChild(style);
+
+  // --- Language handling ---
+  window.renderSovereign01=function(lang){
+    renderSovereign01(lang||(localStorage.getItem("fsa_lang")||"de"));
+  };
+
+  document.addEventListener("fsa:lang-change",ev=>{
+    const lang=ev.detail||"de";
+    const host=document.getElementById("sovereignContent");
+    if(host&&host.innerHTML.trim()!==""){renderSovereign01(lang);}
+  });
+
+  document.addEventListener("sovereign:open-01",()=>{
+    const lang=localStorage.getItem("fsa_lang")||"de";
+    renderSovereign01(lang);
+  });
+
+  window.FSA_SOVEREIGN_01=SOVEREIGN_CONTENT;
 })();
