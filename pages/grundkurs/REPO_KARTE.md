@@ -419,4 +419,4 @@
     ├── office-tools.html
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.11.2025, 17:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.11.2025, 18:21)_
