@@ -1,0 +1,103 @@
+<!-- ░░ TOOL 1 – Tagesmatrix · Mentale Selbstführung ░░ -->
+<section id="tool-tagesmatrix" style="max-width:860px;margin:40px auto;padding:2rem;border-radius:16px;background:#0b1220;color:#e5e7eb;font-family:system-ui,Arial,sans-serif;box-shadow:0 12px 28px rgba(0,0,0,.35);">
+  <h2 style="text-align:center;font-size:1.9rem;margin:0 0 1rem;">🧭 <span data-i18n="title">Tagesmatrix – Mentale Selbstführung</span></h2>
+  <p class="intro" data-i18n="intro" style="text-align:center;color:#94a3b8;margin-bottom:2rem;">
+    Die Tagesmatrix ist kein Test, sondern ein Spiegel. Du gibst dir selbst ehrliches Feedback zu vier Bereichen – Wissen, Routine, Fokus und Haltung. Das Tool hilft, Muster zu erkennen und Kurskorrekturen vorzunehmen, bevor sie groß werden.
+  </p>
+
+  <div class="matrix-inputs" style="display:grid;gap:1.2rem;">
+    <label>🧠 <span data-i18n="q1">Wissen / Verständnis</span> (0-10)
+      <input type="number" id="tm-wissen" min="0" max="10" style="width:80px;margin-left:.6rem;padding:.4rem .5rem;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#fff;">
+    </label>
+    <label>🔄 <span data-i18n="q2">Routine / Disziplin</span> (0-10)
+      <input type="number" id="tm-routine" min="0" max="10" style="width:80px;margin-left:.6rem;padding:.4rem .5rem;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#fff;">
+    </label>
+    <label>🎯 <span data-i18n="q3">Fokus / Umsetzung</span> (0-10)
+      <input type="number" id="tm-fokus" min="0" max="10" style="width:80px;margin-left:.6rem;padding:.4rem .5rem;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#fff;">
+    </label>
+    <label>🕊️ <span data-i18n="q4">Haltung / Mentale Ruhe</span> (0-10)
+      <input type="number" id="tm-haltung" min="0" max="10" style="width:80px;margin-left:.6rem;padding:.4rem .5rem;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#fff;">
+    </label>
+  </div>
+
+  <div style="text-align:center;margin-top:2rem;">
+    <button id="tm-berechnen" style="padding:.7rem 1.5rem;border:none;border-radius:10px;background:#38bdf8;color:#0b1220;font-weight:600;cursor:pointer;">
+      <span data-i18n="btn">Auswerten</span>
+    </button>
+  </div>
+
+  <div id="tm-result" style="text-align:center;margin-top:2rem;">
+    <h3 style="margin-bottom:.4rem;"><span data-i18n="result">Tagesdurchschnitt:</span> <span id="tm-avg">–</span></h3>
+    <p id="tm-feedback" style="font-weight:500;"></p>
+  </div>
+</section>
+
+<script>
+(function(){
+  const dict={
+    de:{
+      title:"Tagesmatrix – Mentale Selbstführung",
+      intro:"Die Tagesmatrix ist kein Test, sondern ein Spiegel. Du gibst dir selbst ehrliches Feedback zu vier Bereichen – Wissen, Routine, Fokus und Haltung. Das Tool hilft, Muster zu erkennen und Kurskorrekturen vorzunehmen, bevor sie groß werden.",
+      q1:"Wissen / Verständnis",
+      q2:"Routine / Disziplin",
+      q3:"Fokus / Umsetzung",
+      q4:"Haltung / Mentale Ruhe",
+      btn:"Auswerten",
+      result:"Tagesdurchschnitt:",
+      fbHigh:"Starker Tag – halte das Momentum, aber bleib wach. Souveränität wächst durch Konstanz.",
+      fbMid:"Gute Richtung – prüfe, wo du dich ablenken lässt. Wissen braucht Wiederholung, nicht Perfektion.",
+      fbLow:"Ehrlich gesehen war’s ein Trainingstag. Atme – morgen zählt dein nächster Schritt, nicht dein heutiger Makel."
+    },
+    en:{
+      title:"Daily Matrix – Mental Self-Leadership",
+      intro:"The Daily Matrix is no test but a mirror. You give yourself honest feedback in four areas – knowledge, discipline, focus and mindset. It helps you see patterns and adjust before they grow.",
+      q1:"Knowledge / Understanding",
+      q2:"Routine / Discipline",
+      q3:"Focus / Execution",
+      q4:"Mindset / Calm",
+      btn:"Evaluate",
+      result:"Daily average:",
+      fbHigh:"Strong day – keep the momentum, stay alert. Sovereignty grows through consistency.",
+      fbMid:"Good direction – notice where distraction creeps in. Learning needs repetition, not perfection.",
+      fbLow:"Be honest – today was a training day. Breathe; tomorrow counts more than today’s mistake."
+    }
+  };
+
+  function applyLang(lang){
+    const d=dict[lang]||dict.de;
+    document.querySelectorAll("#tool-tagesmatrix [data-i18n]").forEach(el=>{
+      const k=el.getAttribute("data-i18n");
+      if(d[k]) el.textContent=d[k];
+    });
+  }
+
+  const lang=localStorage.getItem("fsa_lang")||"de";
+  applyLang(lang);
+
+  document.addEventListener("fsa:lang-change",ev=>{
+    applyLang(ev.detail||"de");
+  });
+
+  document.getElementById("tm-berechnen").addEventListener("click",()=>{
+    const vals=[
+      parseFloat(document.getElementById("tm-wissen").value)||0,
+      parseFloat(document.getElementById("tm-routine").value)||0,
+      parseFloat(document.getElementById("tm-fokus").value)||0,
+      parseFloat(document.getElementById("tm-haltung").value)||0
+    ];
+    const filled=vals.filter(v=>v>0);
+    const avg=(filled.reduce((a,b)=>a+b,0)/ (filled.length||1)).toFixed(1);
+    document.getElementById("tm-avg").textContent=avg;
+
+    const f=document.getElementById("tm-feedback");
+    let msg="",color="";
+    const d=dict[lang]||dict.de;
+    if(avg>=8){msg=d.fbHigh;color="#10b981";}
+    else if(avg>=5){msg=d.fbMid;color="#eab308";}
+    else{msg=d.fbLow;color="#f87171";}
+    f.textContent=msg;
+    f.style.color=color;
+  });
+})();
+</script>
+<!-- ░░ /TOOL 1 – Tagesmatrix ░░ -->
