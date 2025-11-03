@@ -1,9 +1,9 @@
 // ░░ Office-Menü – FSA Style (Gold-Glow, Blur, Responsive, Active State) ░░
 document.addEventListener("DOMContentLoaded", function() {
   const officeMenu = [
-    { icon: "💼", name: "Mein Arbeitsbereich", link: "/lp-anfang/office.html" },
-    { icon: "🌐", name: "Network & Struktur", link: "/lp-anfang/office-network.html" },
-    { icon: "⚙️", name: "Tools & Generator", link: "/lp-anfang/office-tools.html" }
+    { icon: "💼", name: "Mein Arbeitsbereich", link: "/lp-anfang/pages/office.html" },
+    { icon: "🌐", name: "Network & Struktur", link: "/lp-anfang/pages/office-network.html" },
+    { icon: "⚙️", name: "Tools & Generator", link: "/lp-anfang/pages/office-tools.html" }
   ];
 
   const menuContainer = document.createElement("div");
