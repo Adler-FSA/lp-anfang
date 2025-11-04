@@ -1,472 +1,477 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>FSA Office – Tools & Generator</title>
-  <meta name="description" content="FSA Office Tools im Campus-Stil: Aktivitäts-Check und Verdienst-Planer – ehrlich auswerten, fokussiert handeln.">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FSA Office – Network & Struktur</title>
+
+  <!-- Grundstyles: identisch zu Campus/Office (Darkmode + Goldglow) -->
   <style>
     :root{
-      --bg:#0b0f14; --ink:#e5e7eb; --muted:#94a3b8; --gold:#d4af37;
-      --panel:rgba(11,15,20,.35); --edge:rgba(212,175,55,.35);
-      --ink-soft:rgba(229,231,235,.78)
+      --bg:#0b0f14;
+      --panel:#0f141b;
+      --panel-2:#111720;
+      --text:#d7dde5;
+      --muted:#97a0ad;
+      --gold:#d4af37;
+      --gold-2:#c8a43a;
+      --ring: rgba(212,175,55,.25);
+      --shadow: 0 12px 28px rgba(0,0,0,.55), 0 2px 6px rgba(0,0,0,.35);
+      --radius:14px;
+      --radius-sm:12px;
+      --gap:22px;
     }
-    *{box-sizing:border-box}
+    html,body{height:100%}
     body{
-      margin:0;
-      background:radial-gradient(circle at top,rgba(212,175,55,.12),#0b0f14 35%,#0b0f14 60%);
-      color:var(--ink);
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      min-height:100vh;
+      margin:0; color:var(--text); background: radial-gradient(1200px 500px at 50% -120px, rgba(212,175,55,.12), var(--bg) 35%, var(--bg) 60%), var(--bg);
+      font: 400 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      letter-spacing:.2px;
     }
-    main{max-width:1180px;margin:0 auto;padding:6.5rem 1.2rem 6rem}
-    h1{
-      font-size:clamp(2.1rem,3vw,2.6rem);
-      color:#ffda6a;
-      text-align:center;
-      margin:.25rem 0 .6rem;
-      letter-spacing:.01em;
+    .wrap{max-width:1100px; margin:0 auto; padding:28px 18px 90px;}
+    header{padding:48px 0 8px; text-align:center}
+    header h1{margin:0 0 10px; font-size:38px; line-height:1.2; letter-spacing:.3px; color:#fff; text-shadow:0 0 1px #000}
+    header p.lead{margin:0; color:var(--muted)}
+    .panel{
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border-radius: var(--radius);
+      border: 1px solid rgba(212,175,55,.18);
+      box-shadow: var(--shadow);
+      padding:24px 22px;
+      margin:28px 0;
     }
-    .intro{
-      text-align:center;max-width:860px;margin:0 auto 1.6rem;color:var(--muted);line-height:1.6;
+    .panel h2{margin:0 0 8px; font-size:26px}
+    .panel h3{margin:0 0 10px; font-size:20px}
+    .downloads{
+      display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:10px
     }
+    .btn{
+      display:inline-block; text-align:center; text-decoration:none; color:#111; font-weight:600;
+      background: linear-gradient(180deg, #f6e6a6, #d4af37);
+      padding:14px 16px; border-radius:999px; border:1px solid #caa93a; box-shadow:0 4px 18px rgba(212,175,55,.28);
+      transition:transform .12s ease, box-shadow .12s ease;
+    }
+    .btn:hover{transform:translateY(-1px); box-shadow:0 8px 26px rgba(212,175,55,.35)}
+    .btn.ghost{
+      background:transparent; color:var(--text); border:1px solid rgba(212,175,55,.38)
+    }
+    .note{color:var(--muted); font-size:.95rem}
+    /* Slides */
+    .slides .frame{margin-top:10px}
+    .slides .slide{display:none}
+    .slides .slide.active{display:block}
+    .slides .nav{
+      display:flex; justify-content:space-between; gap:12px; margin-top:16px
+    }
+    .slides .nav .btn{min-width:140px}
+    /* Lang switcher badges gleiches Pattern */
+    .lang-toggle{display:flex; gap:8px; justify-content:center; margin-top:8px}
+    .badge{display:inline-flex; align-items:center; gap:6px; border:1px solid rgba(212,175,55,.35); color:var(--muted);
+      padding:3px 10px; border-radius:999px; font-size:.9rem}
+    .hidden{display:none !important}
 
-    /* Intro-Akkordeon */
-    .acc{max-width:920px;margin:1.2rem auto;}
-    .acc-item{
-      background:rgba(13,18,25,.45);
-      border:1px solid rgba(212,175,55,.22);
-      border-radius:14px;overflow:hidden;margin-bottom:14px;
-      box-shadow:0 10px 25px rgba(0,0,0,.3);
-    }
-    .acc-btn{
-      width:100%;text-align:left;padding:.95rem 1.1rem;background:rgba(11,15,20,.6);
-      color:#fff;border:none;font-weight:700;display:flex;align-items:center;cursor:pointer;
-    }
-    .chev{margin-left:auto;transition:transform .2s ease}
-    .acc-btn.open .chev{transform:rotate(90deg)}
-    .acc-panel{
-      display:none;padding:1rem 1.1rem 1.15rem;color:var(--ink-soft);
-      border-top:1px solid rgba(212,175,55,.15);line-height:1.6;
-    }
+    /* Vorschau-Block + Metatipp */
+    .cta{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px}
+    .cta p{margin:0; color:var(--muted)}
+    .bigtext{font-size:1.05rem}
+    .metabox{border:1px solid rgba(212,175,55,.32); padding:22px; border-radius:var(--radius); background:linear-gradient(180deg,#101620,#0e141c)}
+    blockquote{margin:24px auto 0; text-align:center; color:#e8d590; font-weight:600}
 
-    /* Tool-Karten – vertikal untereinander, ca. 1 cm Abstand */
-    .tool{
-      max-width:920px;margin:22px auto; /* ~1cm optisch */
-      background:rgba(11,15,20,.45);
-      border:1px solid var(--edge);
-      border-radius:16px;padding:1.2rem 1rem 1.1rem;
-      box-shadow:0 14px 32px rgba(0,0,0,.32);backdrop-filter:blur(6px);
+    /* Responsive */
+    @media (max-width: 980px){
+      .downloads{grid-template-columns:repeat(2,1fr)}
     }
-    .tool h2{margin:.2rem 0 .35rem;font-size:1.25rem;color:#fff;}
-    .sub{color:var(--ink-soft);margin:0 0 .9rem;font-size:.95rem;line-height:1.55;}
-
-    /* Grid für Eingaben */
-    .row{display:grid;gap:.85rem;margin:.7rem 0;}
-    @media(max-width:860px){.row{grid-template-columns:1fr}}
-    @media(min-width:861px){.row{grid-template-columns:repeat(3,minmax(160px,1fr))}}
-    label{display:block;font-size:.86rem;margin-bottom:.28rem;color:#fff;}
-    input[type=number],select{
-      width:100%;padding:.6rem .65rem;border-radius:10px;
-      border:1px solid rgba(148,163,184,.28);background:rgba(15,23,42,.45);color:#fff;
+    @media (max-width: 640px){
+      header h1{font-size:30px}
+      .downloads{grid-template-columns:1fr}
+      .slides .nav{flex-direction:column}
     }
-    .hint{font-size:.8rem;color:var(--muted);margin-top:.25rem}
-
-    /* Buttons */
-    .cta{
-      margin-top:.95rem;background:rgba(236,204,111,.1);
-      border:1px solid rgba(236,204,111,.55);color:#fff;padding:.55rem 1.15rem;border-radius:999px;
-      cursor:pointer;font-weight:600;
-    }
-    .cta:hover{background:rgba(236,204,111,.22)}
-
-    /* Ergebnisse */
-    .result{
-      margin-top:.95rem;background:rgba(15,23,42,.35);
-      border:1px solid rgba(148,163,184,.18);border-radius:12px;padding:.8rem .95rem;
-    }
-    .result h3{margin:.2rem 0 .55rem;font-size:1rem;color:#fff;}
-    .meter{height:10px;background:rgba(148,163,184,.18);border-radius:999px;overflow:hidden;border:1px solid rgba(148,163,184,.22);}
-    .meter>i{display:block;height:100%;background:linear-gradient(90deg,#ef4444,#eab308,#10b981);width:0%}
-    .lines{line-height:1.55;color:var(--ink-soft);margin-top:.45rem}
-    .mentor{
-      margin-top:.7rem;font-size:.9rem;color:var(--ink-soft);
-      border-left:4px solid #eab308;background:rgba(234,179,8,.08);
-      padding:.65rem .75rem;border-radius:8px;line-height:1.6;
-    }
-
-    /* Info-Block */
-    .note{max-width:920px;margin:22px auto;color:#d1d5db;text-align:center;line-height:1.6;}
   </style>
 </head>
 <body>
-  <!-- Globale Bausteine (müssen im Repo liegen – NICHT hier inline!) -->
-  <script src="/lp-anfang/library/js/menu.js"></script>
-  <script src="/lp-anfang/library/js/lang-switcher.js"></script>
-  <script src="/lp-anfang/library/js/music-button.js"></script>
+  <div class="wrap">
 
-  <main>
-    <h1 data-t="title">FSA Office – Tools & Generator</h1>
-    <p class="intro" data-t="intro">Zwei Werkzeuge, die dir zeigen, wo du stehst – und wohin du willst.</p>
+    <!-- Hero -->
+    <header>
+      <h1 class="de">FSA Office – Network &amp; Struktur</h1>
+      <h1 class="en hidden">FSA Office – Network &amp; Structure</h1>
+      <p class="lead de">Verstehen, wie Beziehungen funktionieren.</p>
+      <p class="lead en hidden">Understand how relationships work.</p>
 
-    <!-- Intro-Akkordeon -->
-    <section class="acc">
-      <div class="acc-item">
-        <button class="acc-btn"><span data-t="acc1-btn">🔑 Worum es hier geht</span><span class="chev">▶</span></button>
-        <div class="acc-panel" data-t="acc1-panel">
-          Diese Seite ist dein ehrlicher Spiegel. Kein Login, keine Speicherung – nur Lernen durch Klarheit.
-          Tool 1 zeigt dir, warum Ergebnisse ausbleiben oder kommen (Telefonate → Gespräche → neue Partner).
-          Tool 2 rechnet dein Monatsziel herunter: Wie viele kleine und große Pakete brauchst du – und wie passt du den Plan an, wenn eine Woche schwächer war?
-        </div>
+      <!-- Sprachumschalter (nutzt globales lang-switcher.js, plus Fallback unten) -->
+      <div class="lang-toggle">
+        <span class="badge" id="btn-de">DE</span>
+        <span class="badge" id="btn-en">EN</span>
       </div>
-      <div class="acc-item">
-        <button class="acc-btn"><span data-t="acc2-btn">🎯 Prinzip: Haltung vor Hektik</span><span class="chev">▶</span></button>
-        <div class="acc-panel" data-t="acc2-panel">
-          Wir bewerten keine Menschen, sondern Muster. Wer lernt, regelmäßig kleine Schritte zu gehen, wird vorhersagbar gut.
-          Die Akademie liefert die Sprache und Logik, du lieferst die Schritte.
-        </div>
+    </header>
+
+    <!-- Downloads -->
+    <section class="panel">
+      <h2 class="de">🧾 Arbeitsvorlagen – Dein Fundament</h2>
+      <h2 class="en hidden">🧾 Worksheets – Your Foundation</h2>
+
+      <div class="downloads">
+        <a class="btn" href="/lp-anfang/library/pdf/FSA-Office-Privatkontakte.pdf" target="_blank" rel="noopener">
+          <span class="de">Meine privaten Kontakte</span>
+          <span class="en hidden">My Private Contacts</span>
+        </a>
+        <a class="btn" href="/lp-anfang/library/pdf/FSA-Office-Firmenkontakte.pdf" target="_blank" rel="noopener">
+          <span class="de">Meine Firmen &amp; Geschäftsführer</span>
+          <span class="en hidden">My Companies &amp; Managing Directors</span>
+        </a>
+        <a class="btn" href="/lp-anfang/library/pdf/FSA-Office-Ziele.pdf" target="_blank" rel="noopener">
+          <span class="de">Meine Ziele</span>
+          <span class="en hidden">My Goals</span>
+        </a>
+        <a class="btn" href="/lp-anfang/library/pdf/FSA-Office-Sicherung.pdf" target="_blank" rel="noopener">
+          <span class="de">Sicherung wichtiger Daten (Passwörter, Seeds, Private Keys)</span>
+          <span class="en hidden">Secure Important Data (Passwords, Seeds, Private Keys)</span>
+        </a>
       </div>
-      <div class="acc-item">
-        <button class="acc-btn"><span data-t="acc3-btn">🧭 Ehrlichkeit als Abkürzung</span><span class="chev">▶</span></button>
-        <div class="acc-panel" data-t="acc3-panel">
-          Du musst niemanden beeindrucken. Zahlen sind Wegweiser, keine Urteile.
-          Je ehrlicher du hier bist, desto weniger Zeit verlierst du draußen.
-          Ziel: Muster erkennen, Kurs anpassen, weitermachen – ohne Drama.
+    </section>
+
+    <!-- Slide-Container 1: Dezentrales Network Marketing -->
+    <section class="panel slides" id="slides-nw">
+      <h2 class="de">🌍 Dezentrales Network Marketing – Eine neue Ära des Netzwerk-Marketings</h2>
+      <h2 class="en hidden">🌍 Decentralized Network Marketing – A New Era of Network Marketing</h2>
+
+      <div class="frame">
+        <!-- Intro (Original-Absatz) -->
+        <div class="slide active">
+          <div class="de bigtext">
+            <p><em>Dezentrales Network Marketing: Eine neue Ära des Netzwerk-Marketings</em></p>
+            <p>Dezentrales Network Marketing ist ein Konzept, das die Prinzipien der Dezentralisierung und der Blockchain-Technologie auf das traditionelle Network Marketing anwendet. Hier sind einige wichtige Aspekte des dezentralen Network Marketings:</p>
+            <p><em>Was ist dezentrales Network Marketing?</em></p>
+            <p>Dezentrales Network Marketing ist ein Modell, bei dem die Kontrolle und die Entscheidungsfindung dezentralisiert sind, d.h. sie liegen nicht bei einer einzigen zentralen Instanz, sondern werden von den Teilnehmern des Netzwerks gemeinsam getroffen. Dies ermöglicht eine höhere Transparenz, Sicherheit und Fairness im Vergleich zu traditionellen Network Marketing-Modellen.</p>
+          </div>
+          <div class="en hidden bigtext">
+            <p><em>Decentralized Network Marketing: A New Era of Network Marketing</em></p>
+            <p>Decentralized network marketing applies the principles of decentralization and blockchain technology to traditional network marketing. Here are several key aspects of decentralized network marketing:</p>
+            <p><em>What is decentralized network marketing?</em></p>
+            <p>It is a model in which control and decision-making are decentralized, i.e. not held by a single central authority but made collectively by network participants. This enables higher transparency, security and fairness compared to traditional network-marketing models.</p>
+          </div>
+        </div>
+
+        <!-- Slide 1 -->
+        <div class="slide">
+          <div class="de">
+            <h3>Wie funktioniert dezentrales Network Marketing?</h3>
+            <p>Dezentrales Network Marketing funktioniert wie folgt:</p>
+            <ol>
+              <li><em>Blockchain-Technologie</em>: Dezentrales Network Marketing nutzt die Blockchain-Technologie, um eine transparente und sichere Plattform für die Interaktionen zwischen den Teilnehmern zu schaffen.</li>
+              <li><em>Dezentrale Entscheidungsfindung</em>: Die Teilnehmer des Netzwerks treffen gemeinsam Entscheidungen über die Richtung des Netzwerks und die Verteilung von Provisionen.</li>
+              <li><em>Token-basiertes System</em>: Dezentrales Network Marketing verwendet oft Token, um die Teilnehmer für ihre Beiträge zum Netzwerk zu belohnen.</li>
+            </ol>
+          </div>
+          <div class="en hidden">
+            <h3>How does decentralized network marketing work?</h3>
+            <p>It works as follows:</p>
+            <ol>
+              <li><em>Blockchain technology</em>: creates a transparent and secure platform for interactions between participants.</li>
+              <li><em>Decentralized decision-making</em>: participants jointly decide on the network’s direction and distribution of commissions.</li>
+              <li><em>Token-based system</em>: tokens are often used to reward participants for their contributions.</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+          <div class="de">
+            <h3>Vorteile von dezentralem Network Marketing</h3>
+            <ul>
+              <li><em>Höhere Transparenz</em>: Dezentrales Network Marketing bietet eine höhere Transparenz, da alle Transaktionen auf der Blockchain aufgezeichnet werden.</li>
+              <li><em>Sicherheit</em>: Dezentrales Network Marketing ist sicherer als traditionelle Network Marketing-Modelle, da die Blockchain-Technologie eine hohe Sicherheit bietet.</li>
+              <li><em>Fairness</em>: Dezentrales Network Marketing bietet eine höhere Fairness, da die Teilnehmer direkt an den Provisionen beteiligt werden.</li>
+            </ul>
+          </div>
+          <div class="en hidden">
+            <h3>Benefits of decentralized network marketing</h3>
+            <ul>
+              <li><em>Higher transparency</em>: all transactions are recorded on the blockchain.</li>
+              <li><em>Security</em>: greater security than traditional models thanks to blockchain.</li>
+              <li><em>Fairness</em>: participants are directly involved in commissions.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+          <div class="de">
+            <h3>Beispiele für dezentrales Network Marketing</h3>
+            <ul>
+              <li><em>Dezentrale Plattformen</em>: Plattformen wie Ethereum und Polkadot ermöglichen die Erstellung von dezentralen Anwendungen, die für Network Marketing-Zwecke genutzt werden können.</li>
+              <li><em>Token-basierte Netzwerke</em>: Netzwerke wie Binance Smart Chain und Tron bieten Token-basierte Lösungen für Network Marketing an.</li>
+            </ul>
+          </div>
+          <div class="en hidden">
+            <h3>Examples of decentralized network marketing</h3>
+            <ul>
+              <li><em>Decentralized platforms</em>: Ethereum and Polkadot enable dApps that can be used for network-marketing purposes.</li>
+              <li><em>Token-based networks</em>: Binance Smart Chain and Tron offer token-based solutions for network marketing.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide">
+          <div class="de">
+            <h3>Herausforderungen und Zukunftsaussichten</h3>
+            <ul>
+              <li><em>Regulierung</em>: Dezentrales Network Marketing steht noch vor regulatorischen Herausforderungen, da die rechtlichen Rahmenbedingungen für dezentrale Netzwerke noch nicht vollständig geklärt sind.</li>
+              <li><em>Skalierbarkeit</em>: Dezentrales Network Marketing muss noch Lösungen für die Skalierbarkeit finden, um eine große Anzahl von Teilnehmern zu unterstützen.</li>
+              <li><em>Adoption</em>: Dezentrales Network Marketing muss noch eine breitere Adoption finden, um sein volles Potenzial zu entfalten.</li>
+            </ul>
+          </div>
+          <div class="en hidden">
+            <h3>Challenges and outlook</h3>
+            <ul>
+              <li><em>Regulation</em>: legal frameworks for decentralized networks are still evolving.</li>
+              <li><em>Scalability</em>: solutions are needed to support large numbers of participants.</li>
+              <li><em>Adoption</em>: broader adoption is required to unlock full potential.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide">
+          <div class="de">
+            <p>Insgesamt bietet dezentrales Network Marketing eine neue Ära des Netzwerk-Marketings, die durch Transparenz, Sicherheit und Fairness geprägt ist. Es ist jedoch wichtig, die Herausforderungen und Risiken zu beachten und Lösungen zu finden, um diese zu überwinden.</p>
+            <p><em>Als reine Information zu diesem Thema</em></p>
+          </div>
+          <div class="en hidden">
+            <p>Overall, decentralized network marketing opens a new era shaped by transparency, security and fairness. It remains important to address challenges and risks and to develop solutions.</p>
+            <p><em>Provided purely for information on this topic.</em></p>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav">
+          <button class="btn ghost" data-prev="#slides-nw">⬅︎ <span class="de">Zurück</span><span class="en hidden">Back</span></button>
+          <button class="btn ghost" data-next="#slides-nw"><span class="de">Weiter</span><span class="en hidden">Next</span> ➝</button>
         </div>
       </div>
     </section>
 
-    <!-- TOOL 1: Aktivitäts-Check -->
-    <section class="tool" id="tool1">
-      <h2 data-t="t1-title">🛠️ Tool 1 – Aktivitäts-Check</h2>
-      <p class="sub" data-t="t1-sub">
-        Wie viele Telefonate, Gespräche und neue Partner hattest du diese Woche? Drei ehrliche Zahlen zeigen dir, warum Erfolg kam oder blieb.
-      </p>
+    <!-- Slide-Container 2: Trustyfy Auffrischung -->
+    <section class="panel slides" id="slides-trust">
+      <h2 class="de">💠 Trustyfy – Dein Einstieg in die dezentrale Welt</h2>
+      <h2 class="en hidden">💠 Trustyfy – Your Entry into the Decentralized World</h2>
 
-      <div class="row">
-        <div>
-          <label for="calls" data-t="t1-label-calls">Telefonate</label>
-          <input type="number" id="calls" min="0" inputmode="numeric">
-          <div class="hint" data-t="t1-hint-calls">4 Anrufe → 1 Gespräch</div>
-        </div>
-        <div>
-          <label for="talks" data-t="t1-label-talks">Gespräche</label>
-          <input type="number" id="talks" min="0" inputmode="numeric">
-          <div class="hint" data-t="t1-hint-talks">4 Gespräche → 1 Partner</div>
-        </div>
-        <div>
-          <label for="partners" data-t="t1-label-partners">Neue Partner</label>
-          <input type="number" id="partners" min="0" inputmode="numeric">
-          <div class="hint" data-t="t1-hint-partners">Diese Woche</div>
-        </div>
-      </div>
+      <div class="frame">
 
-      <button class="cta" id="btn1" data-t="btn-eval">Auswerten</button>
+        <!-- 10 Slides exakt nach Vorgabe -->
 
-      <div class="result" id="res1" style="display:none">
-        <h3 data-t="t1-res-head">Dein Wochenbild</h3>
-        <div class="meter"><i id="meter1"></i></div>
-        <div class="lines" id="lines1"></div>
-        <div class="mentor" id="mentor1"></div>
+        <div class="slide active">
+          <div class="de bigtext">
+            <h3>Wie funktioniert Trustyfy genau</h3>
+            <p>Trustyfy funktioniert als eine technische, bankenlose Plattform, die es dir ermöglicht, dein digitales Vermögen selbst zu verwalten – ohne klassische Bank und ohne zentrale Kontrolle. Dabei verwaltest du deine eigenen Wallets, zu denen nur du den Zugang hast, da Trustyfy keine privaten Schlüssel speichert oder Zugriff auf deine Vermögenswerte hat.</p>
+          </div>
+          <div class="en hidden bigtext">
+            <h3>How exactly does Trustyfy work</h3>
+            <p>Trustyfy is a technical, bankless platform that lets you manage your digital wealth yourself – without a traditional bank and without central control. You manage your own wallets to which only you have access, because Trustyfy neither stores private keys nor has access to your assets.</p>
+          </div>
+        </div>
+
+        <div class="slide">
+          <div class="de">
+            <h3>So funktioniert Trustyfy im Detail</h3>
+            <p><strong>Wallet-Verwaltung:</strong> Du kannst neue Wallets erstellen oder bestehende Wallets (z. B. MetaMask) verbinden und so Kryptowährungen sowie digitale Vermögenswerte selbst verwalten. Die Wallets liegen dezentral auf der Blockchain, nicht auf zentralen Servern von Trustyfy.</p>
+          </div>
+          <div class="en hidden">
+            <h3>Trustyfy in detail</h3>
+            <p><strong>Wallet management:</strong> create new wallets or connect existing ones (e.g. MetaMask) to manage crypto and digital assets yourself. Wallets live on the blockchain, not on Trustyfy’s servers.</p>
+          </div>
+        </div>
+
+        <div class="slide">
+          <div class="de">
+            <h3>Zugriff und Sicherheit</h3>
+            <p>Der Zugang zu Trustyfy erfolgt über deine E-Mail-Adresse und einen 6-stelligen Einmal-Code, der dir bei jedem Login per E-Mail zugesendet wird. Es gibt keine Passwörter oder Speicherung sensibler persönlicher Daten. Optional kannst du eine Zwei-Faktor-Authentifizierung (2FA) aktivieren, um dein Konto zusätzlich abzusichern.</p>
+          </div>
+          <div class="en hidden">
+            <h3>Access and security</h3>
+            <p>Access is via your email address and a 6-digit one-time code sent to you on each login. There are no passwords or storage of sensitive personal data. You can optionally enable 2FA to further secure your account.</p>
+          </div>
+        </div>
+
+        <div class="slide">
+          <div class="de">
+            <h3>Dezentrale Kontrolle</h3>
+            <p>Da Trustyfy keine Bank ist, gibt es keine zentrale Instanz, die dein Wallet sperren oder einfrieren kann. Du bist alleiniger Besitzer deiner privaten Schlüssel und somit für die Sicherung deiner Zugangsdaten selbst verantwortlich. Verlierst du diese, kann niemand den Zugriff wiederherstellen.</p>
+          </div>
+          <div class="en hidden">
+            <h3>Decentralized control</h3>
+            <p>As Trustyfy is not a bank, there is no central entity that can block or freeze your wallet. You alone own your private keys and are responsible for securing your credentials. If you lose them, access cannot be restored by anyone.</p>
+          </div>
+        </div>
+
+        <div class="slide">
+          <div class="de">
+            <h3>Überweisungen und Transaktionen</h3>
+            <p>Über Trustyfy kannst du digitale Überweisungen schnell, direkt und grenzüberschreitend durchführen – oft in wenigen Sekunden bis Minuten. Die Plattform erhebt keine Gebühren für Wallet-Transaktionen, es fallen aber gegebenenfalls Blockchain-Netzwerkgebühren an.</p>
+          </div>
+          <div class="en hidden">
+            <h3>Transfers and transactions</h3>
+            <p>Trustyfy allows fast, direct and cross-border digital transfers – often within seconds to minutes. The platform charges no wallet-transaction fees; blockchain network fees may apply.</p>
+          </div>
+        </div>
+
+        <div class="slide">
+          <div class="de">
+            <h3>Multi-Signatur und gemeinsame Wallets</h3>
+            <p>Für Teams, Firmen oder Familien kannst du Multi-Signatur-Wallets einrichten, bei denen mehrere Personen Transaktionen freigeben müssen. Ebenso kannst du Wallets teilen und Zugriffsrechte individuell vergeben, um gemeinsame Finanzen transparent und sicher zu verwalten.</p>
+          </div>
+          <div class="en hidden">
+            <h3>Multisig & shared wallets</h3>
+            <p>For teams, companies or families you can set up multi-signature wallets where several people must approve transactions. You can also share wallets and assign granular permissions to manage shared finances transparently and securely.</p>
+          </div>
+        </div>
+
+        <div class="slide">
+          <div class="de">
+            <h3>Integration von Dritt-Anbieterdiensten</h3>
+            <p>Über regulierte Drittanbieter kannst du zusätzliche Funktionen wie Debitkarten oder Bankverbindungen mit IBAN nutzen. Die Identitätsprüfung erfolgt dabei direkt bei diesen Partnern, nicht bei Trustyfy selbst.</p>
+          </div>
+          <div class="en hidden">
+            <h3>Third-party integrations</h3>
+            <p>Through regulated partners you can access additional features such as debit cards or bank accounts with IBAN. Identity verification happens directly with these partners, not with Trustyfy.</p>
+          </div>
+        </div>
+
+        <div class="slide">
+          <div class="de">
+            <h3>Plattformunabhängigkeit</h3>
+            <p>Trustyfy läuft browserbasiert auf allen Geräten (Smartphone, Tablet, Desktop) ohne App-Store-Zwang, was maximale Flexibilität bietet.</p>
+          </div>
+          <div class="en hidden">
+            <h3>Platform independence</h3>
+            <p>Trustyfy runs browser-based on all devices (phone, tablet, desktop) without any app-store requirement, giving maximum flexibility.</p>
+          </div>
+        </div>
+
+        <div class="slide">
+          <div class="de">
+            <h3>Cryptofreundliches IBAN Konto & VISA Debit Card</h3>
+            <p>Du bekommst in wenigen Minuten ein IBAN Konto mit dem du bequem und schnell Geld einzahlen und auszahlen kannst. Unlimitiert. VISA Debit Card: Mit der Karte kannst du weltweit sicher und bequem deine Crypto-Assets ausgeben. Das Laden über deine Wallets geht sekundenschnell und kostet nur wenige Cents Transaktionskosten. Die Karten haben keine Limits.</p>
+          </div>
+          <div class="en hidden">
+            <h3>Crypto-friendly IBAN account & VISA debit card</h3>
+            <p>Get an IBAN account within minutes to deposit and withdraw money quickly and conveniently – without limits. With the VISA debit card you can spend your crypto assets worldwide. Loading from your wallets is near-instant and costs only a few cents in network fees. The cards have no limits.</p>
+          </div>
+        </div>
+
+        <div class="slide">
+          <div class="de">
+            <h3>Zusammengefasst</h3>
+            <p>Zusammengefasst ist Trustyfy eine Web3-basierte Softwarelösung, die dir Werkzeuge an die Hand gibt, dein digitales Vermögen selbstbestimmt, sicher und flexibel zu verwalten, ohne dass eine zentrale Bank oder Plattform Kontrolle über dein Geld hat.</p>
+            <p class="note">Quelle: <a href="https://amazon.cryptoscout24.com/let-the-good-guys-win" target="_blank" rel="noopener">amazon.cryptoscout24.com/let-the-good-guys-win</a></p>
+          </div>
+          <div class="en hidden">
+            <h3>Summary</h3>
+            <p>In short, Trustyfy is a Web3 software solution that equips you to manage your digital wealth independently, securely and flexibly – without any central bank or platform controlling your money.</p>
+            <p class="note">Source: <a href="https://amazon.cryptoscout24.com/let-the-good-guys-win" target="_blank" rel="noopener">amazon.cryptoscout24.com/let-the-good-guys-win</a></p>
+          </div>
+        </div>
+
+        <!-- Nav -->
+        <div class="nav">
+          <button class="btn ghost" data-prev="#slides-trust">⬅︎ <span class="de">Zurück</span><span class="en hidden">Back</span></button>
+          <button class="btn ghost" data-next="#slides-trust"><span class="de">Weiter</span><span class="en hidden">Next</span> ➝</button>
+        </div>
       </div>
     </section>
 
-    <!-- TOOL 2: Verdienst-Planer -->
-    <section class="tool" id="tool2">
-      <h2 data-t="t2-title">💶 Tool 2 – Verdienst-Planer</h2>
-      <p class="sub" data-t="t2-sub">
-        Wähle dein Monatsziel, den Paket-Mix und sieh, wie viele Abschlüsse du brauchst. Trage ein, was du bereits geschafft hast – der Plan passt sich an.
-      </p>
-
-      <div class="row">
+    <!-- Vorschau Tools-Seite -->
+    <section class="panel">
+      <div class="cta">
         <div>
-          <label for="goal" data-t="t2-label-goal">Monatsziel (€)</label>
-          <select id="goal">
-            <option value="400">400</option>
-            <option value="500" selected>500</option>
-            <option value="600">600</option>
-            <option value="1000">1.000</option>
-            <option value="1500">1.500</option>
-            <option value="2000">2.000</option>
-            <option value="3000">3.000</option>
-            <option value="4000">4.000</option>
-            <option value="5000">5.000</option>
-            <option value="6000">6.000</option>
-            <option value="8000">8.000</option>
-            <option value="10000">10.000</option>
-          </select>
+          <h3 class="de">➡ Nächster Bereich: Tools &amp; Generator</h3>
+          <h3 class="en hidden">➡ Next section: Tools &amp; Generator</h3>
+          <p class="de">Plane, berechne und vergleiche – entdecke deine Aktivitätsmuster im FSA Office.</p>
+          <p class="en hidden">Plan, calculate and compare – discover your activity patterns in the FSA Office.</p>
         </div>
-        <div>
-          <label for="mixS" data-t="t2-label-mixS">Kleine Pakete (%)</label>
-          <input type="number" id="mixS" value="60" min="0" max="100" inputmode="numeric">
-          <div class="hint" data-t="t2-hint-mix">Summe aus klein + groß = 100 %</div>
-        </div>
-        <div>
-          <label for="mixL" data-t="t2-label-mixL">Große Pakete (%)</label>
-          <input type="number" id="mixL" value="40" min="0" max="100" inputmode="numeric">
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label for="week" data-t="t2-label-week">Aktuelle Woche</label>
-          <select id="week">
-            <option value="1">1</option><option value="2">2</option>
-            <option value="3">3</option><option value="4" selected>4</option>
-          </select>
-        </div>
-        <div>
-          <label for="done" data-t="t2-label-done">Partner bisher</label>
-          <input type="number" id="done" value="0" min="0" inputmode="numeric">
-        </div>
-      </div>
-
-      <button class="cta" id="btn2" data-t="btn-calc">Berechnen</button>
-
-      <div class="result" id="res2" style="display:none">
-        <h3 data-t="t2-res-head">Dein Monatsplan</h3>
-        <div class="lines" id="lines2"></div>
-        <div class="mentor" id="mentor2"></div>
-        <p class="note" data-t="t2-note">
-          Alle Provisionen sind wiederkehrend – solange ein Partner Trustyfy nutzt, fließen in allen Folgejahren dieselben Prozente.
+        <p>
+          <a class="btn" href="/lp-anfang/pages/office-tools.html">
+            <span class="de">Zur Tools-Seite</span>
+            <span class="en hidden">Go to Tools</span>
+          </a>
         </p>
       </div>
     </section>
 
-    <!-- Nice to know -->
-    <section class="tool" id="nicetoknow">
-      <h2 data-t="ntk-title">📣 Nice to know – Wie du Quoten erreichst</h2>
-      <p class="sub" data-t="ntk-body">
-        Einschreibquoten sind kein Zufall. Sie entstehen, wenn Menschen dich regelmäßig erleben.
-        Aktive Promotion und organisierte Stammtische bringen dich in Kontakt mit vielen Interessierten – ohne dass du alles selbst erklären musst.
-        Die Akademie übernimmt das Schulen, du konzentrierst dich auf Einladung, Gespräch und Begleitung.
-        Regelmäßige Zoom-Teilnahmen erhöhen deine Reichweite.
-        Die FSA-Akademie ist dein Copilot – fliegen musst du selbst.
+    <!-- MetaTipp / Neuer Bereich – Text 1:1 -->
+    <section class="panel metabox">
+      <h2 class="de">Neuer Bereich – Eigenverantwortung &amp; Souveränität</h2>
+      <h2 class="en hidden">New Area – Personal Responsibility &amp; Sovereignty</h2>
+
+      <div class="de bigtext">
+        <p>Die Basis dein Fundament steht, jetzt kommt ein neuer Bereich hinzu, ein weiteres Ökosystem was perfekt Deine finanzielle Souveränität massiv Stabilisiert und Dir enormem Vorteil beschert. 
+        Bis hierhin diente alles was gelehrt wurde innerhalb der Akademie dazu das Bewusstsein zu trainieren und ein Fundament zu erschaffen, auf dem Du expandieren kannst. Jeder lernte wie er sein Geld besser Schützen kann, wie man damit sogar Geld verdienen kann,  doch das ist alle nur die Basis, jetzt geht es richtig ab.  Denn  Trustyfy ist nur Level 1, sobald du auf diesen Link klickst handelst Du zu 100 % eigenverantwortlich und mit dem Wissen aus der Akademie auch Souverän. 
+        Klicke nur wenn Du dich bereit fühlst, den die folgen Inhalte verändern Dein leben für immer.</p>
+
+        <p>jetzt wird aus der ganzen Theorie echtes souveränes Handeln. Bildlich gesprochen du baust auf Deinem neuen Fundament das Erdgeschoß auf. Ab hier geht es in die volle Eigenverantwortung, nutze dein gelerntes Wissen um immer die Adler-Perspektive einzunehmen. Sei wachsam und halte dich an die Sicherheit Spielregeln, ab hier hat alles Konsequenzen, die über Verlust  oder Gewinn entscheiden.  finanzielle Souveränität ist kein Spiel, sondern Realität. Alles was Du bisher Erlernt hast wirst Du ab diesen Klick auf den Button zu 100 % brauchen.</p>
+      </div>
+
+      <div class="en hidden bigtext">
+        <p>Your base, your foundation, is set – now a new area is added: another ecosystem that stabilizes your financial sovereignty massively and gives you enormous advantages. Up to this point, everything taught inside the Academy has trained your awareness and built a foundation you can expand on. Everyone learned how to protect money better – even how to earn with it – but that was just the base. Now things get serious. Trustyfy is only Level 1; the moment you click this link you act 100% on your own responsibility – and, with the knowledge from the Academy, with sovereignty.</p>
+        <p>Click only when you feel ready, because the following content will change your life forever.</p>
+        <p>From here, theory turns into truly sovereign action. Figuratively, you’re building the ground floor on your new foundation. From here on it’s full personal responsibility. Use what you learned to keep the eagle perspective. Be alert and follow the safety rules; from here everything has consequences that decide over loss or gain. Financial sovereignty is not a game – it’s reality. Everything you have learned so far you will need 100% from the moment you click the button.</p>
+      </div>
+
+      <p style="margin-top:14px">
+        <a class="btn" href="https://www.metatipp.de/" target="_blank" rel="noopener">
+          <span class="de">Weiter zu MetaTipp.de</span>
+          <span class="en hidden">Continue to MetaTipp.de</span>
+        </a>
       </p>
     </section>
-  </main>
 
-  <!-- Office-Menü unten (globaler Baustein) -->
+    <blockquote>„Ein souveräner Mensch führt sich selbst – bevor er andere führt.“</blockquote>
+
+  </div><!-- /wrap -->
+
+  <!-- Globale Skripte (bestehende Bausteine) -->
+  <script src="/lp-anfang/library/js/menu.js"></script>
+  <script src="/lp-anfang/library/js/music-button.js"></script>
   <script src="/lp-anfang/library/js/office-menu.js"></script>
+  <script src="/lp-anfang/library/js/lang-switcher.js"></script>
 
+  <!-- Minimaler Fallback: Slides + Sprachumschaltung (falls globales Script nicht lädt) -->
   <script>
-    // ---------- Sprachtexte (DE/EN) ----------
-    const UI = {
-      de: {
-        title:"FSA Office – Tools & Generator",
-        intro:"Zwei Werkzeuge, die dir zeigen, wo du stehst – und wohin du willst.",
-        "acc1-btn":"🔑 Worum es hier geht",
-        "acc1-panel":"Diese Seite ist dein ehrlicher Spiegel. Kein Login, keine Speicherung – nur Lernen durch Klarheit. Tool 1 zeigt dir, warum Ergebnisse ausbleiben oder kommen (Telefonate → Gespräche → neue Partner). Tool 2 rechnet dein Monatsziel herunter: Wie viele kleine und große Pakete brauchst du – und wie passt du den Plan an, wenn eine Woche schwächer war?",
-        "acc2-btn":"🎯 Prinzip: Haltung vor Hektik",
-        "acc2-panel":"Wir bewerten keine Menschen, sondern Muster. Wer lernt, regelmäßig kleine Schritte zu gehen, wird vorhersagbar gut. Die Akademie liefert die Sprache und Logik, du lieferst die Schritte.",
-        "acc3-btn":"🧭 Ehrlichkeit als Abkürzung",
-        "acc3-panel":"Du musst niemanden beeindrucken. Zahlen sind Wegweiser, keine Urteile. Je ehrlicher du hier bist, desto weniger Zeit verlierst du draußen. Ziel: Muster erkennen, Kurs anpassen, weitermachen – ohne Drama.",
-
-        "t1-title":"🛠️ Tool 1 – Aktivitäts-Check",
-        "t1-sub":"Wie viele Telefonate, Gespräche und neue Partner hattest du diese Woche? Drei ehrliche Zahlen zeigen dir, warum Erfolg kam oder blieb.",
-        "t1-label-calls":"Telefonate",
-        "t1-hint-calls":"4 Anrufe → 1 Gespräch",
-        "t1-label-talks":"Gespräche",
-        "t1-hint-talks":"4 Gespräche → 1 Partner",
-        "t1-label-partners":"Neue Partner",
-        "t1-hint-partners":"Diese Woche",
-        "btn-eval":"Auswerten",
-        "t1-res-head":"Dein Wochenbild",
-
-        "t2-title":"💶 Tool 2 – Verdienst-Planer",
-        "t2-sub":"Wähle dein Monatsziel, den Paket-Mix und sieh, wie viele Abschlüsse du brauchst. Trage ein, was du bereits geschafft hast – der Plan passt sich an.",
-        "t2-label-goal":"Monatsziel (€)",
-        "t2-label-mixS":"Kleine Pakete (%)",
-        "t2-label-mixL":"Große Pakete (%)",
-        "t2-hint-mix":"Summe aus klein + groß = 100 %",
-        "t2-label-week":"Aktuelle Woche",
-        "t2-label-done":"Partner bisher",
-        "btn-calc":"Berechnen",
-        "t2-res-head":"Dein Monatsplan",
-        "t2-note":"Alle Provisionen sind wiederkehrend – solange ein Partner Trustyfy nutzt, fließen in allen Folgejahren dieselben Prozente.",
-
-        "ntk-title":"📣 Nice to know – Wie du Quoten erreichst",
-        "ntk-body":"Einschreibquoten sind kein Zufall. Sie entstehen, wenn Menschen dich regelmäßig erleben. Aktive Promotion und organisierte Stammtische bringen dich in Kontakt mit vielen Interessierten – ohne dass du alles selbst erklären musst. Die Akademie übernimmt das Schulen, du konzentrierst dich auf Einladung, Gespräch und Begleitung. Regelmäßige Zoom-Teilnahmen erhöhen deine Reichweite. Die FSA-Akademie ist dein Copilot – fliegen musst du selbst.",
-
-        // Tool 1 – Ergebniszeilen & Mentor (DE)
-        t1_lines: (expTalks,expPartners,convTalk,convPart,score) =>
-          `• Erwartet: ${expTalks} Gespräche, ${expPartners} Partner<br>`+
-          `• Gesprächsquote: ${convTalk}% – Abschlussquote: ${convPart}%<br>`+
-          `• Score: ${score}/100`,
-        t1_mentor: (score)=> {
-          if(score>=80) return "Stark: Du arbeitest fokussiert und konsistent. Plane Termine früh, halte deinen Rhythmus – ohne Hektik.";
-          if(score>=50) return "Solide: Etwas hakt noch. Prüfe, ob deine Gespräche wirklich führen – oder nur informieren.";
-          return "Ehrlich gut: Es fehlt an Bewegung. Drei Sessions à 30 Minuten Anrufe in dieser Woche bringen sofort Lernkurve.";
-        },
-
-        // Tool 2 – Zeilen & Mentor (DE)
-        t2_lines: (mixS,mixL,eff,goal,need,small,large,perWeek,done,left,rest,adj) =>
-          `• Mix: ${mixS}% klein / ${mixL}% groß (Ø ${eff} € je Abschluss)<br>`+
-          `• Monatsziel ${goal} € ≈ ${need} Abschlüsse (${small} klein, ${large} groß)<br>`+
-          `• Soll pro Woche: ${perWeek} · Erreicht: ${done} · Rest: ${left}`+
-          (rest>0?` → Ø ${adj}/Woche`:""),
-        t2_mentor: (left,rest) => {
-          if(left<=0) return "Perfekt im Kurs – bleib stabil, keine Zusatzlast aufbauen.";
-          if(rest<=0) return "Monat knapp verfehlt – setz den Fokus neu. In Woche 1 des neuen Monats doppelt aktiv werden.";
-          return "Du hast Spielraum: Teile die Lücke klar auf die verbleibenden Wochen auf. Kleine Routine, große Wirkung.";
-        }
-      },
-
-      en: {
-        title:"FSA Office – Tools & Generator",
-        intro:"Two tools that show where you are – and where you’re headed.",
-        "acc1-btn":"🔑 What this page is for",
-        "acc1-panel":"This page is an honest mirror. No login, no storage – just clarity. Tool 1 shows why results appear or don’t (calls → talks → new partners). Tool 2 turns your monthly goal into weekly targets: how many small and large plans do you need – and how to adjust when a week underperforms.",
-        "acc2-btn":"🎯 Principle: posture before pace",
-        "acc2-panel":"We don't judge people; we look at patterns. Small consistent steps beat random intensity. The Academy brings language and logic – you bring the steps.",
-        "acc3-btn":"🧭 Honesty is the shortcut",
-        "acc3-panel":"You don’t need to impress anyone. Numbers are signposts, not verdicts. The more honest you are here, the less time you lose out there. Aim: see the pattern, adjust course, keep moving – no drama.",
-
-        "t1-title":"🛠️ Tool 1 – Activity Check",
-        "t1-sub":"How many calls, talks and new partners did you have this week? Three honest numbers reveal why results came or not.",
-        "t1-label-calls":"Calls",
-        "t1-hint-calls":"4 calls → 1 talk",
-        "t1-label-talks":"Talks",
-        "t1-hint-talks":"4 talks → 1 partner",
-        "t1-label-partners":"New partners",
-        "t1-hint-partners":"This week",
-        "btn-eval":"Evaluate",
-        "t1-res-head":"Your week at a glance",
-
-        "t2-title":"💶 Tool 2 – Earnings Planner",
-        "t2-sub":"Pick your monthly goal and package mix to see how many sign-ups you need. Enter what you already achieved – the plan adapts.",
-        "t2-label-goal":"Monthly goal (€)",
-        "t2-label-mixS":"Small plans (%)",
-        "t2-label-mixL":"Large plans (%)",
-        "t2-hint-mix":"Small + large = 100%",
-        "t2-label-week":"Current week",
-        "t2-label-done":"Partners so far",
-        "btn-calc":"Calculate",
-        "t2-res-head":"Your monthly plan",
-        "t2-note":"Payouts recur every year – as long as a partner uses Trustyfy, the same percentages flow in all following years.",
-
-        "ntk-title":"📣 Nice to know – How to hit your ratios",
-        "ntk-body":"Ratios aren’t luck. People convert when they experience you regularly. Active promotion and local meetups (stammtisch) connect you with many prospects without explaining everything yourself. The Academy covers the teaching; you focus on inviting, talking, and guiding. Regular Zoom attendance multiplies reach. The Academy is your copilot – you still fly the route.",
-
-        // Tool 1 – EN
-        t1_lines: (expTalks,expPartners,convTalk,convPart,score) =>
-          `• Expected: ${expTalks} talks, ${expPartners} partners<br>`+
-          `• Talk rate: ${convTalk}% – Close rate: ${convPart}%<br>`+
-          `• Score: ${score}/100`,
-        t1_mentor: (score)=> {
-          if(score>=80) return "Strong: focused and consistent. Book slots early and keep the rhythm – no rush.";
-          if(score>=50) return "Decent: something is off. Check if your talks lead or just inform.";
-          return "Useful honesty: you need motion. Three 30-minute call sprints this week will move the needle.";
-        },
-
-        // Tool 2 – EN
-        t2_lines: (mixS,mixL,eff,goal,need,small,large,perWeek,done,left,rest,adj) =>
-          `• Mix: ${mixS}% small / ${mixL}% large (avg ${eff} € per sign-up)<br>`+
-          `• Goal €${goal} ≈ ${need} sign-ups (${small} small, ${large} large)<br>`+
-          `• Weekly target: ${perWeek} · Reached: ${done} · Remaining: ${left}`+
-          (rest>0?` → avg ${adj}/week`:""),
-        t2_mentor: (left,rest) => {
-          if(left<=0) return "On track – stay steady, avoid overloading yourself.";
-          if(rest<=0) return "Month just missed – reset focus. Double activity in week 1 of the new month.";
-          return "You have room: split the gap clearly across remaining weeks. Small routines, big effect.";
-        }
+    (function(){
+      // Sprache toggeln (Fallback)
+      const deBtn = document.getElementById('btn-de');
+      const enBtn = document.getElementById('btn-en');
+      function setLang(lang){
+        document.querySelectorAll('.de').forEach(n=>n.classList.toggle('hidden', lang!=='de'));
+        document.querySelectorAll('.en').forEach(n=>n.classList.toggle('hidden', lang!=='en'));
+        localStorage.setItem('lang', lang);
       }
-    };
+      const saved = localStorage.getItem('lang') || 'de';
+      setLang(saved);
+      deBtn?.addEventListener('click', ()=>setLang('de'));
+      enBtn?.addEventListener('click', ()=>setLang('en'));
 
-    // ---------- Sprach-Anwendung ----------
-    function applyLang(lang){
-      const dict = UI[lang] || UI.de;
-      document.querySelectorAll("[data-t]").forEach(el=>{
-        const k=el.getAttribute("data-t");
-        if(dict[k]) el.innerHTML = dict[k];
-      });
-    }
-
-    // ---------- Akkordeon ----------
-    document.querySelectorAll('.acc-btn').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const p=btn.nextElementSibling;
-        const open=btn.classList.contains('open');
-        document.querySelectorAll('.acc-btn').forEach(b=>b.classList.remove('open'));
-        document.querySelectorAll('.acc-panel').forEach(pn=>pn.style.display='none');
-        if(!open){btn.classList.add('open');p.style.display='block';}
-      });
-    });
-
-    // ---------- Tool 1 Logik ----------
-    function evalTool1(lang){
-      const dict=UI[lang]||UI.de;
-      const calls=+document.getElementById('calls').value||0;
-      const talks=+document.getElementById('talks').value||0;
-      const partners=+document.getElementById('partners').value||0;
-
-      const expTalks = Math.floor(calls/4);
-      const expPartners = Math.floor(talks/4);
-
-      const convTalk = (calls>0)? Math.round((talks/(calls/4))*25) : 0;   // 4 calls -> 1 talk == 25%
-      const convPart = (talks>0)? Math.round((partners/(talks/4))*25) : 0;// 4 talks -> 1 partner == 25%
-      const score = Math.max(0, Math.min(100, Math.round((convTalk + convPart)/2)));
-
-      document.getElementById('meter1').style.width = score + '%';
-      document.getElementById('lines1').innerHTML = dict.t1_lines(expTalks,expPartners,convTalk,convPart,score);
-      document.getElementById('mentor1').textContent = dict.t1_mentor(score);
-      document.getElementById('res1').style.display='block';
-    }
-
-    // ---------- Tool 2 Logik ----------
-    function calcTool2(lang){
-      const dict=UI[lang]||UI.de;
-      const goal=+document.getElementById('goal').value||0;
-      let mixS=+document.getElementById('mixS').value||0;
-      let mixL=+document.getElementById('mixL').value||0;
-      const week=+document.getElementById('week').value||4;
-      const done=+document.getElementById('done').value||0;
-
-      // Mix normalisieren
-      if(mixS<0) mixS=0; if(mixL<0) mixL=0;
-      if(mixS+mixL===0){mixS=60;mixL=40;}
-      else if(mixS+mixL!==100){
-        const sum=mixS+mixL; mixS=Math.round((mixS/sum)*100); mixL=100-mixS;
-        document.getElementById('mixS').value=mixS;
-        document.getElementById('mixL').value=mixL;
+      // Slides
+      function mountSlides(rootSel){
+        const root = document.querySelector(rootSel);
+        if(!root) return;
+        const slides = Array.from(root.querySelectorAll('.slide'));
+        let idx = slides.findIndex(s=>s.classList.contains('active'));
+        function show(i){
+          slides.forEach(s=>s.classList.remove('active'));
+          slides[i].classList.add('active');
+          idx = i;
+        }
+        root.querySelector('[data-prev="'+rootSel+'"]')?.addEventListener('click', ()=>{
+          show((idx-1+slides.length)%slides.length);
+        });
+        root.querySelector('[data-next="'+rootSel+'"]')?.addEventListener('click', ()=>{
+          show((idx+1)%slides.length);
+        });
       }
-
-      // Ertrag pro Abschluss (klein 10% von 15=1.5€ | groß 20% von 60=12€)
-      const eff = ((mixS/100)*1.5 + (mixL/100)*12);
-      const effRounded = Math.round(eff*100)/100;
-
-      const need = Math.max(0, Math.ceil(goal/eff)); // benötigte Abschlüsse
-      const small = Math.ceil(need*(mixS/100));
-      const large = Math.ceil(need*(mixL/100));
-      const perWeek = Math.ceil(need/4);
-
-      const left = Math.max(0, need - done);
-      const rest = Math.max(0, 4 - week);
-      const adj = (rest>0)? Math.ceil(left/rest) : left;
-
-      document.getElementById('lines2').innerHTML = dict.t2_lines(mixS,mixL,effRounded,goal,need,small,large,perWeek,done,left,rest,adj);
-      document.getElementById('mentor2').textContent = dict.t2_mentor(left,rest);
-      document.getElementById('res2').style.display='block';
-    }
-
-    // ---------- Events ----------
-    document.getElementById('btn1').addEventListener('click',()=>evalTool1(localStorage.getItem("fsa_lang")||"de"));
-    document.getElementById('btn2').addEventListener('click',()=>calcTool2(localStorage.getItem("fsa_lang")||"de"));
-
-    // ---------- Sprache initial + Wechsel ----------
-    (function initLang(){
-      if(!localStorage.getItem("fsa_lang")) localStorage.setItem("fsa_lang","de");
-      applyLang(localStorage.getItem("fsa_lang")||"de");
-      document.addEventListener("fsa:lang-change",(ev)=>{
-        const lang=ev.detail||"de";
-        localStorage.setItem("fsa_lang",lang);
-        applyLang(lang);
-        // laufende Resultate neu zeichnen, wenn offen
-        if(document.getElementById('res1').style.display==='block') evalTool1(lang);
-        if(document.getElementById('res2').style.display==='block') calcTool2(lang);
-      });
+      mountSlides('#slides-nw');
+      mountSlides('#slides-trust');
     })();
   </script>
 </body>
 </html>
-
