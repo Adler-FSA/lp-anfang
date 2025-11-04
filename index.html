@@ -3,180 +3,471 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FSA Landingpage — Autoplay Versuch</title>
+<title>FSA Landingpage</title>
 <style>
   :root{
-    --text:#f2f2f2; --gold:#d4af37; --glow:0 0 26px rgba(212,175,55,.45), 0 10px 28px rgba(0,0,0,.55);
-    --maxw:1200px; --marquee-gap:4cm;
+    --text:#f2f2f2;
+    --muted:#b9c2d0;
+    --gold:#d4af37;
+    --turq:#1cc2a0;
+    --bg-card: rgba(15,15,25,.78);
+    --radius:16px;
+    --shadow:0 26px 50px rgba(0,0,0,.55);
+    --glow:0 0 26px rgba(212,175,55,.45), 0 10px 28px rgba(0,0,0,.55);
+    --maxw:1200px;
+    --marquee-speed:60s;   /* ruhig */
+    --marquee-gap:4cm;     /* gewünschte Lücke zwischen Items */
   }
+
   html,body{height:100%}
-  body{margin:0;background:#000;color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,sans-serif;overflow-x:hidden}
-  .bg{position:fixed;inset:0;z-index:-2;background:#000;overflow:hidden;pointer-events:auto}
-  .bg iframe{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:120vw;height:120vh;border:0}
+  body{
+    margin:0;background:#000;color:var(--text);
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,sans-serif;
+    overflow-x:hidden;
+  }
+  h1,h2{font-family:Montserrat,system-ui,sans-serif;margin:0 0 12px}
+  h1{font-size:2.4rem;line-height:1.2}
+  h2{font-size:1.9rem;line-height:1.25}
+
+  /* ===== Hintergrund: YouTube mit Fallback-Slideshow ===== */
+  .bg{position:fixed;inset:0;z-index:-2;background:#000;overflow:hidden;pointer-events:none}
+  .bg iframe{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:120vw;height:120vh;border:0
+  }
   .bg .slides{position:absolute;inset:0;z-index:-3}
-  .slide{position:absolute;inset:0;background:#000 center/cover no-repeat;opacity:0;transition:opacity .9s;filter:brightness(.86)}
+  .slide{
+    position:absolute;inset:0;background:#000 center/cover no-repeat;
+    opacity:0;transition:opacity 1.2s ease-in-out;filter:brightness(.86)
+  }
   .slide.active{opacity:1}
+
+  /* ===== Layout ===== */
   main{position:relative;z-index:1}
-  /* minimal rest (du kannst restlichen CSS/Text unverändert reinnehmen) */
-  .fixed-right{position:fixed;right:20px;bottom:20px;z-index:4}
+  section{padding:90px 0}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  .grid{display:grid;gap:38px}
+  .cols-2{grid-template-columns:repeat(2,1fr)}
+  @media (max-width:980px){.cols-2{grid-template-columns:1fr}}
+
+  /* ===== Glow & Floating (ruhig) ===== */
+  @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-7px)}100%{transform:translateY(0)}}
+  @keyframes pulse{0%{box-shadow:var(--shadow)}50%{box-shadow:0 0 34px rgba(212,175,55,.55), 0 14px 34px rgba(0,0,0,.55)}100%{box-shadow:var(--shadow)}}
+  .floating{animation:float 11s ease-in-out infinite, pulse 11s ease-in-out infinite;will-change:transform,box-shadow}
+
+  /* ===== Cards ===== */
+  .card{
+    background:var(--bg-card);
+    border:1px solid rgba(212,175,55,.18);
+    border-radius:var(--radius);
+    box-shadow:var(--glow);
+    padding:32px;
+    backdrop-filter: blur(4px);
+  }
+
+  /* ===== Menü (vier Türen) ===== */
+  .topbar{position:sticky;top:0;z-index:3;padding:16px 0;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent)}
+  .doors{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+  .door{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:10px 16px;border-radius:999px;border:1px solid rgba(212,175,55,.25);
+    background:rgba(0,0,0,.45);color:#fff;text-decoration:none;font-weight:800;
+    box-shadow:var(--glow);backdrop-filter: blur(6px)
+  }
+  .door:hover{transform:translateY(-1px)}
+
+  /* ===== Mentor ===== */
+  .mentor-head{display:flex;align-items:center;gap:14px;justify-content:center}
+  .mentor-icon{
+    width:44px;height:44px;border-radius:9px;background:rgba(0,0,0,.36);
+    border:1px solid rgba(212,175,55,.25);display:flex;align-items:center;justify-content:center;
+    box-shadow:var(--glow);overflow:hidden
+  }
+  .mentor-icon img{width:100%;height:100%;object-fit:cover;display:block}
+  .mentor-title{font-weight:800}
+
+  /* ===== Laufband (mittig, ruhig) ===== */
+  .laufband-wrap{margin:42px auto 40px;max-width:var(--maxw);padding:0 24px}
+  .laufband{
+    position:relative;overflow:hidden;border:2px solid var(--gold);
+    border-radius:12px;background:rgba(0,0,0,.35);box-shadow:var(--glow)
+  }
+  .laufband::before,.laufband::after{
+    content:"";position:absolute;top:0;bottom:0;width:80px;z-index:1;
+  }
+  .laufband::before{left:0;background:linear-gradient(90deg,#000,transparent)}
+  .laufband::after{right:0;background:linear-gradient(-90deg,#000,transparent)}
+  .marquee{
+    display:flex;align-items:center;gap:var(--marquee-gap);
+    white-space:nowrap;padding:12px 0;will-change:transform;
+    animation:marq var(--marquee-speed) linear infinite;
+    font-size:1.06rem;letter-spacing:.2px
+  }
+  .marquee > span{display:inline-flex;align-items:center;gap:.6rem}
+  @keyframes marq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+  /* ===== Accordion ===== */
+  .acc-box{padding:6px 2px}
+  .acc-row{border-bottom:1px solid rgba(255,255,255,.15);padding:14px 0}
+  .acc-head{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    font-weight:800;color:var(--gold);cursor:pointer
+  }
+  .acc-head .txt{display:flex;align-items:center;gap:10px}
+  .acc-head .chev{transition:transform .25s ease;opacity:.9}
+  .acc-row.open .chev{transform:rotate(90deg)}
+  .acc-body{display:none;color:#e8eaf1;line-height:1.8;margin-top:10px}
+  .acc-row.open .acc-body{display:block}
+
+  /* ===== CTA ===== */
+  .btn{display:inline-block;background:var(--gold);color:#000;padding:14px 22px;border-radius:999px;font-weight:800;text-decoration:none}
+  .btn:hover{filter:brightness(1.05)}
+  .btn.full{display:block;text-align:center}
+
+  /* ===== Fixed Bottom Buttons ===== */
+  .fixed-left,.fixed-right{
+    position:fixed;bottom:20px;z-index:4;display:inline-flex;align-items:center;gap:8px;
+    padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.25);
+    background:rgba(0,0,0,.55);color:#fff;text-decoration:none;font-weight:800;box-shadow:var(--glow);backdrop-filter: blur(6px)
+  }
+  .fixed-left{left:20px}
+  .fixed-right{right:20px}
+
+  /* Mehr Luft über Video (Änderung #1) */
+  #hero{padding-top:110px}
 </style>
 </head>
 <body>
 
-<!-- Hintergrund -->
+<!-- ===== Hintergrund ===== -->
 <div class="bg" aria-hidden="true">
-  <!-- iframe id bleibt bgVideo für YT API -->
   <iframe id="bgVideo" title="Adlerflug" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
-  <div id="slides" class="slides"></div>
+  <div class="slides" id="slides"></div>
 </div>
 
 <main>
-  <!-- hier kommt dein kompletter Seiteninhalt (Hero, Cards, etc.) — unverändert -->
-  <section id="hero" style="padding-top:110px">
-    <div style="max-width:1200px;margin:0 auto;color:var(--text)">
-      <!-- Platzhalterinhalt -->
-      <h1 style="color:var(--gold)">Dein Geld. Deine Freiheit.</h1>
+  <!-- ===== Menü ===== -->
+  <div class="topbar">
+    <div class="doors">
+      <a class="door" href="campus.html">🎓 Campus</a>
+      <a class="door" href="office.html">📂 Office</a>
+      <a class="door" href="grundkurs.html">📘 Grundkurs</a>
+      <a class="door" href="krypto.html">💰 Krypto</a>
+    </div>
+  </div>
+
+  <!-- ===== HERO ===== -->
+  <section id="hero">
+    <div class="wrap grid cols-2">
+      <div class="card floating">
+        <h1>Dein Geld.<br><span style="color:var(--turq)">Deine Freiheit.</span></h1>
+        <p>Die Welt verändert sich: Inflation, KI, Blockchain. Hier lernst du, wie du souverän wirst.</p>
+        <p><strong>Nie mehr Fremdbestimmung.</strong></p>
+        <p>Wer es wirklich will, folgt der Einladung. Viele Tausende entdecken jeden Tag die Krypto-Welt.</p>
+        <p>Viele haben Angst – weil sie keine Ahnung haben. Genau deshalb gibt es die <strong>Finanzielle Souveränitäts Akademie</strong>.</p>
+        <a href="#cta" class="btn" style="margin-top:10px">Jetzt starten</a>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:22px">
+        <div class="card floating" style="font-style:italic;text-align:center">
+          „Eine Investition in Wissen bringt die besten Zinsen.“ – Franklin
+        </div>
+        <div class="card floating">
+          <h2 style="margin-bottom:10px">Deine Vorteile</h2>
+          <ul style="margin:0;padding-left:18px;line-height:1.9">
+            <li>💰 Vermögen schützen</li>
+            <li>🔑 Zugang zu Krypto</li>
+            <li>🧠 KI unterstützt dich – die Kontrolle bleibt bei dir</li>
+            <li>🌐 Klarheit statt Chaos</li>
+          </ul>
+          <p style="margin-top:12px;font-weight:600;color:var(--muted);text-align:center">
+            All das bekommst du schon im kostenlosen Grundkurs.
+          </p>
+        </div>
+        <div class="card floating" style="font-style:italic;text-align:center">
+          „Das Wichtigste ist, in dich selbst zu investieren.“ – Buffett
+        </div>
+      </div>
     </div>
   </section>
+
+  <!-- ===== Mentor ===== -->
+  <section id="mentor">
+    <div class="wrap">
+      <div class="card floating" style="text-align:center">
+        <div class="mentor-head">
+          <div class="mentor-icon">
+            <img src="library/images/mentor-icon.png" alt="" onerror="this.closest('.mentor-icon').innerHTML='🧭'">
+          </div>
+          <h2 class="mentor-title">Dein Digitaler Mentor</h2>
+        </div>
+        <p style="margin-top:8px">
+          Dein persönlicher Begleiter durch die Akademie: Er zeigt dir Schritt für Schritt, wie du Ängste überwindest,
+          Wissen aufbaust und souverän in der neuen Welt bestehst.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Laufband (einzeilig, mittig) ===== -->
+  <section id="laufband-sec">
+    <div class="laufband-wrap">
+      <div class="laufband floating">
+        <div class="marquee" id="mqA"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Reise (Accordion) ===== -->
+  <section id="reise">
+    <div class="wrap">
+      <div class="card floating">
+        <h2 style="margin-bottom:8px">Deine Reise zur finanziellen Souveränität</h2>
+        <div class="acc-box">
+          <div class="acc-row">
+            <div class="acc-head">
+              <div class="txt">🚀 Nie mehr Fremdbestimmung</div>
+              <div class="chev">›</div>
+            </div>
+            <div class="acc-body">Starte deinen eigenen Weg. Wer losgeht, entdeckt die Chancen in Blockchain, KI und Krypto.</div>
+          </div>
+          <div class="acc-row">
+            <div class="acc-head">
+              <div class="txt">✨ Wer es wirklich will, folgt der Einladung</div>
+              <div class="chev">›</div>
+            </div>
+            <div class="acc-body">Du bist nicht allein – die Community wächst täglich.</div>
+          </div>
+          <div class="acc-row">
+            <div class="acc-head">
+              <div class="txt">🧠 Viele Tausende entdecken täglich die Krypto-Welt</div>
+              <div class="chev">›</div>
+            </div>
+            <div class="acc-body">Die Zukunft ist digital. Blockchain, Krypto und KI eröffnen dir neue Einkommensmöglichkeiten.</div>
+          </div>
+          <div class="acc-row">
+            <div class="acc-head">
+              <div class="txt">😌 Angst kommt von Unwissenheit</div>
+              <div class="chev">›</div>
+            </div>
+            <div class="acc-body">Wissen schafft Sicherheit. Genau deshalb gibt es diesen Kurs.</div>
+          </div>
+          <div class="acc-row">
+            <div class="acc-head">
+              <div class="txt">📚 Deshalb gibt es die Akademie</div>
+              <div class="chev">›</div>
+            </div>
+            <div class="acc-body">Hier bekommst du alles: Klarheit, Praxiswissen und die Tools für deine Freiheit.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA ===== -->
+  <section id="cta">
+    <div class="wrap">
+      <div class="card floating" style="text-align:center;padding:50px;max-width:780px;margin:0 auto">
+        <h2 style="font-size:2rem;margin-bottom:8px;color:var(--gold)">Finanzbildung für die neue Welt</h2>
+        <p style="font-size:1.2rem;font-weight:700;color:var(--turq);margin-bottom:24px">Dein Geld. Deine Zukunft. Deine Souveränität.</p>
+        <a href="mailto:info@finanziellesouveraenitaet.de" class="btn full" style="margin-top:8px;font-size:1.08rem;padding:16px 0">
+          🚀 Jetzt kostenlos starten – info@finanziellesouveraenitaet.de
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Kino (unten) ===== -->
+  <section id="kino">
+    <div class="wrap" style="max-width:960px">
+      <div class="floating"
+        style="
+          position:relative;
+          border:2px solid var(--gold);
+          border-radius:16px;
+          aspect-ratio:16/9;
+          box-shadow:var(--glow);
+          overflow:hidden;
+          background:transparent;
+          backdrop-filter:none;">
+        <iframe
+          src="https://www.yout-ube.com/embed/miWBKSszEIw?autoplay=0&mute=0&loop=1&controls=1&modestbranding=1&playsinline=1"
+          title="Kino – Adlerflug"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowfullscreen
+          style="width:100%;height:100%;border:0;background:transparent;">
+        </iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Footer ===== -->
+  <footer class="wrap" style="text-align:center;color:#cbd2e1;padding:50px 0 90px">
+    <div style="font-size:1.2rem;font-weight:800;color:var(--gold);margin-bottom:6px">Finanzbildung für die neue Welt</div>
+    <div style="color:#bcd;margin-bottom:8px;font-style:italic">„Wissen ist Macht – angewandtes Wissen ist Freiheit.“</div>
+    <div style="color:#9aa">© <span id="year"></span> Finanzielle Souveränitäts Akademie</div>
+  </footer>
 </main>
 
-<button id="musicBtn" class="fixed-right">🎵 Musik starten</button>
+<!-- ===== Fixed Buttons & Musik ===== -->
+<a class="fixed-left" href="admin.html" title="Technikraum (nur für Admins)">🔧 Technikraum</a>
+<button id="musicBtn" class="fixed-right" title="Hintergrundmusik">🎵 Musik starten</button>
 <audio id="bgMusic" loop src="library/music/pool/track-01.mp3"></audio>
 
 <script>
-/* =========================================================
-   Robust Autoplay: Yout-ube hack (mirror) -> nocookie -> YT API playVideo()
-   Fallback: Slideshow startet, wenn iframe nicht spielbar.
-   ========================================================= */
+  /* ========= Jahr ========= */
+  document.getElementById('year').textContent = new Date().getFullYear();
 
-(function(){
-  const ytId = "miWBKSszEIw";
-  const iframeEl = document.getElementById('bgVideo');
-  const slidesEl = document.getElementById('slides');
+  /* ========= Accordion-Chevron ========= */
+  document.querySelectorAll('.acc-head').forEach(h=>{
+    h.addEventListener('click',()=>h.parentElement.classList.toggle('open'));
+  });
 
-  // Kandidaten (Hack-Mirror zuerst, dann privacy-nocookie)
-  const CANDIDATES = [
-    id => `https://www.yout-ube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&modestbranding=1&playsinline=1&enablejsapi=1`,
-    id => `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&modestbranding=1&playsinline=1&enablejsapi=1`
+  /* ========= Laufband – einzeilig, ~4 cm Gap ========= */
+  const bandTexts = [
+    "🔑 Zugang zur Welt der Krypto-Assets",
+    "🧠 KI unterstützt dich – die Kontrolle bleibt bei dir",
+    "🌐 Klarheit statt Chaos",
+    "📚 Kostenfreier Grundkurs: Jetzt beginnen",
+    "🧭 Schritt-für-Schritt Anleitungen",
+    "🛡️ Risiko verstehen, Chancen nutzen",
+    "👥 Wachsende Community – du bist nicht allein",
+    "🎯 Fokus auf Umsetzung"
   ];
-
-  // Slideshow build (fallback)
-  const MAX = 48;
-  const nodes = [];
-  for(let i=1;i<=MAX;i++){
-    const n = String(i).padStart(2,'0');
-    const d = document.createElement('div');
-    d.className = 'slide';
-    d.style.backgroundImage = `url('library/images/pool-live/slide-${n}.jpg')`;
-    slidesEl.appendChild(d);
-    nodes.push(d);
+  function buildMarqueeLine(){
+    const line = document.createElement('div');
+    line.style.display='flex';
+    line.style.alignItems='center';
+    line.style.gap = getComputedStyle(document.documentElement).getPropertyValue('--marquee-gap') || '4cm';
+    [...bandTexts, ...bandTexts].forEach(t=>{
+      const span=document.createElement('span');
+      span.textContent=t;
+      line.appendChild(span);
+    });
+    return line.innerHTML;
   }
-  let si = 0, slideTimer = null;
-  function stepSlides(){ nodes.forEach(x=>x.classList.remove('active')); nodes[si].classList.add('active'); si=(si+1)%nodes.length; }
-  function startSlides(){ if(slideTimer) return; stepSlides(); slideTimer = setInterval(stepSlides, 6000); }
+  document.getElementById('mqA').innerHTML = buildMarqueeLine();
 
-  // Versuchs-Logik: wir versuchen Kandidaten nacheinander + YouTube IFrame API
-  let tried = 0, loaded = false, safety = null, player = null, apiReady = false;
-
-  // Lade YouTube IFrame API (nur einmal)
-  function loadYTApi(cb){
-    if(window.YT && window.YT.Player){ apiReady = true; return cb(); }
-    const s = document.createElement('script');
-    s.src = "https://www.youtube.com/iframe_api";
-    s.onload = ()=>{ /* onYouTubeIframeAPIReady wird aufgerufen global */ };
-    document.head.appendChild(s);
-    // Polling fallback
-    let checks = 0;
-    const poll = setInterval(()=>{
-      checks++;
-      if(window.YT && window.YT.Player){ clearInterval(poll); apiReady = true; cb(); }
-      else if(checks>40){ clearInterval(poll); cb(); } // give up after ~4s
-    },100);
-  }
-
-  // Erzeuge Player via API (wenn möglich)
-  function createPlayer(urlCandidateIndex){
-    // Set iframe src first (enablejsapi required in URL)
-    iframeEl.src = CANDIDATES[urlCandidateIndex](ytId);
+  /* ========= Musik-Schalter (mit iOS-Fallback) ========= */
+  const music = document.getElementById('bgMusic');
+  const musicBtn = document.getElementById('musicBtn');
+  let musicOn=false;
+  async function startMusic(){
     try{
-      // Wenn API bereit -> baue Player instance
-      if(window.YT && window.YT.Player){
-        player = new YT.Player('bgVideo', {
-          playerVars:{
-            autoplay:1, mute:1, loop:1, playlist:ytId, controls:0, modestbranding:1, playsinline:1
-          },
-          events:{
-            onReady: function(){
-              apiReady = true;
-              // mute + try play
-              try{ player.mute(); player.playVideo(); loaded = true; clearTimeout(safety); }
-              catch(e){ /* ignore */ }
-            },
-            onStateChange: function(e){
-              // wenn playing -> success
-              if(e.data === YT.PlayerState.PLAYING){ loaded = true; clearTimeout(safety); }
-              if(e.data === YT.PlayerState.ENDED){ /* loop handled by playlist param */ }
-            },
-            onError: function(){
-              // try next candidate
-              if(!loaded){ tried++; tryLoad(); }
-            }
-          }
-        });
-      } else {
-        // no API -> set src only (some browsers will autoplay muted)
-        iframeEl.src = CANDIDATES[urlCandidateIndex](ytId);
+      await music.play();
+      musicOn=true; musicBtn.textContent="⏸ Musik stoppen";
+    }catch(e){ /* iOS blockt ohne Geste */ }
+  }
+  musicBtn.addEventListener('click', async ()=>{
+    if(!musicOn){ await startMusic(); }
+    else{ music.pause(); musicOn=false; musicBtn.textContent="🎵 Musik starten"; }
+  });
+  window.addEventListener('pointerdown', function once(){
+    if(!musicOn){ startMusic(); }
+    window.removeEventListener('pointerdown', once);
+  }, {once:true});
+
+  /* ========= Slideshow vorbereiten (Fallback) ========= */
+  const slidesEl = document.getElementById('slides');
+  const nodes=[];
+  (function buildSlides(){
+    if(!slidesEl) return;
+    const MAX = 48; // vorhandene Bilder
+    for(let i=1;i<=MAX;i++){
+      const n=String(i).padStart(2,'0');
+      const d=document.createElement('div');
+      d.className='slide';
+      d.style.backgroundImage=`url('library/images/pool-live/slide-${n}.jpg')`;
+      slidesEl.appendChild(d);
+      nodes.push(d);
+    }
+  })();
+  let si=0, slideTimer=null;
+  function stepSlides(){
+    if(!nodes.length) return;
+    nodes.forEach(n=>n.classList.remove('active'));
+    nodes[si].classList.add('active');
+    si=(si+1)%nodes.length;
+  }
+  function startSlides(){ if(slideTimer) return; stepSlides(); slideTimer=setInterval(stepSlides, 6000); }
+
+  /* ========= Robuster YT-Loader: Hintergrund (stumm) + Kino (klickbar) ========= */
+  (function robustYT(){
+    const YT_ID = "miWBKSszEIw";
+    const bg = document.getElementById('bgVideo');
+    const kino = document.querySelector('#kino iframe');
+
+    const CANDIDATES = [
+      (id, q)=>`https://www.yout-ube.com/embed/${id}?${q}`,
+      (id, q)=>`https://www.youtube-nocookie.com/embed/${id}?${q}`
+    ];
+    function setSrcWithDelay(iframe, url){
+      try{ iframe.src=''; }catch(e){}
+      setTimeout(()=>{ iframe.src=url; },160);
+    }
+
+    // ---- Hintergrund: autoplay + mute (lautlos, damit Musikspur bleibt)
+    if(bg){
+      const bgQ = `autoplay=1&mute=1&loop=1&playlist=${YT_ID}&controls=0&modestbranding=1&playsinline=1`;
+      let bTried=0, bLoaded=false, bTimer=null, bSeen=false;
+      bg.style.opacity=0;
+
+      function loadBg(){
+        if(bLoaded || bTried>=CANDIDATES.length) return;
+        const url=CANDIDATES[bTried](YT_ID,bgQ);
+        setSrcWithDelay(bg,url);
+        clearTimeout(bTimer);
+        bTimer=setTimeout(()=>{ if(!bLoaded){ bTried++; loadBg(); } },2200);
       }
-    }catch(err){
-      // fallback
-      iframeEl.src = CANDIDATES[urlCandidateIndex](ytId);
-    }
-  }
+      bg.addEventListener('load',()=>{ bLoaded=true; bSeen=true; clearTimeout(bTimer); bg.style.transition="opacity .35s ease"; bg.style.opacity=1; });
+      bg.addEventListener('error',()=>{ if(bLoaded) return; bTried++; loadBg(); });
 
-  function tryLoad(){
-    if(loaded) return;
-    if(tried >= CANDIDATES.length){
-      // alle Kandidaten probiert -> starte Slideshow fallback
-      startSlides();
-      return;
-    }
-    // erst lade API, dann create player
-    loadYTApi(()=>{ createPlayer(tried); });
-
-    // safety: wenn innerhalb 2500ms nichts läuft -> nächster Kandidat
-    clearTimeout(safety);
-    safety = setTimeout(()=>{
-      if(!loaded){
-        tried++;
-        // cleanup previous player if exists
-        try{ if(player && player.destroy) player.destroy(); player = null; }catch(e){}
-        if(tried < CANDIDATES.length) tryLoad();
-        else startSlides();
+      function userKick(){
+        if(!bLoaded){
+          const idx=Math.min(bTried,CANDIDATES.length-1);
+          setSrcWithDelay(bg, CANDIDATES[idx](YT_ID,bgQ));
+        }
+        window.removeEventListener('pointerdown', userKick);
+        window.removeEventListener('touchstart', userKick);
       }
-    }, 2500);
-  }
+      window.addEventListener('pointerdown', userKick, {once:true});
+      window.addEventListener('touchstart', userKick, {once:true});
 
-  // Wenn Autoplay dennoch blockiert, erlauben wir eine automatische "retry" bei erster Interaktion
-  function userRetry(){
-    if(loaded) return;
-    if(player && player.playVideo){
-      player.mute();
-      player.playVideo().catch(()=>{ startSlides(); });
-    } else {
-      // set src again to trigger
-      iframeEl.src = CANDIDATES[Math.min(tried, CANDIDATES.length-1)](ytId);
+      loadBg();
+      setTimeout(()=>{ if(!bSeen) startSlides(); }, 2500);
+      bg.addEventListener('error',()=> startSlides());
     }
-    window.removeEventListener('pointerdown', userRetry);
-    window.removeEventListener('touchstart', userRetry);
-  }
 
-  window.addEventListener('pointerdown', userRetry, { once:true });
-  window.addEventListener('touchstart', userRetry, { once:true });
+    // ---- Kino: kein Autoplay, klickbar
+    if(kino){
+      const kQ = `autoplay=0&mute=0&loop=1&controls=1&modestbranding=1&playsinline=1`;
+      let kTried=0, kLoaded=false, kTimer=null;
+      kino.style.opacity=0; kino.style.transition="opacity .35s ease"; kino.style.pointerEvents="auto";
 
-  // Start
-  tryLoad();
-})();
+      function loadKino(){
+        if(kLoaded || kTried>=CANDIDATES.length) return;
+        const url=CANDIDATES[kTried](YT_ID,kQ);
+        setSrcWithDelay(kino,url);
+        clearTimeout(kTimer);
+        kTimer=setTimeout(()=>{ if(!kLoaded){ kTried++; loadKino(); } },2200);
+      }
+      kino.addEventListener('load',()=>{ kLoaded=true; clearTimeout(kTimer); kino.style.opacity=1; });
+      kino.addEventListener('error',()=>{ if(kLoaded) return; kTried++; loadKino(); });
+
+      function kickKino(){
+        if(!kLoaded){
+          const idx=Math.min(kTried,CANDIDATES.length-1);
+          setSrcWithDelay(kino, CANDIDATES[idx](YT_ID,kQ));
+        }
+        window.removeEventListener('pointerdown', kickKino);
+        window.removeEventListener('touchstart', kickKino);
+      }
+      window.addEventListener('pointerdown', kickKino, {once:true});
+      window.addEventListener('touchstart', kickKino, {once:true});
+
+      loadKino();
+    }
+  })();
 </script>
-
 </body>
 </html>
