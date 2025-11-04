@@ -423,6 +423,7 @@
     ├── krypto.html
     ├── master.css
     ├── office-tools.html
-    └── office.html
+    ├── office.html
+    └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.11.2025, 16:18)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.11.2025, 17:12)_
