@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Adlerflug Slideshow – Clean Test</title>
+<title>Adlerflug Slideshow – Smooth Crossfade</title>
 <style>
   html,body{
     height:100%;
     margin:0;
-    background:transparent;
+    background:#000; /* verhindert weißes Blitzen */
     overflow:hidden;
   }
 
@@ -24,10 +24,13 @@
     inset:0;
     background:center/cover no-repeat;
     opacity:0;
-    transition:opacity 1s ease-in-out;
+    transition:opacity 1.2s ease-in-out; /* sanfter Übergang */
   }
 
-  .slide.active{opacity:1}
+  .slide.active{
+    opacity:1;
+    z-index:1;
+  }
 </style>
 </head>
 <body>
@@ -36,9 +39,17 @@
 
 <script>
   const slidesEl = document.getElementById('slides');
-  const MAX = 48; // 48 Frames aus pool-adler
+  const MAX = 48;
   const nodes = [];
 
+  // Vorab Preload verhindern Weißblitzen
+  for (let i = 1; i <= MAX; i++) {
+    const img = new Image();
+    const n = String(i).padStart(2, '0');
+    img.src = `library/images/pool-adler/slide-${n}.jpg`;
+  }
+
+  // DOM-Nodes
   for (let i = 1; i <= MAX; i++) {
     const n = String(i).padStart(2, '0');
     const d = document.createElement('div');
@@ -50,13 +61,15 @@
 
   let si = 0;
   function step() {
-    nodes.forEach(n => n.classList.remove('active'));
+    const prev = (si - 1 + nodes.length) % nodes.length;
+    nodes[prev].classList.remove('active');
     nodes[si].classList.add('active');
     si = (si + 1) % nodes.length;
   }
 
-  step();
-  setInterval(step, 1500); // 1,5 s pro Frame
+  // erster Frame sofort sichtbar
+  nodes[0].classList.add('active');
+  setInterval(step, 1000); // 1 s Rhythmus + 1.2 s Übergang ergibt fließendes Gleiten
 </script>
 
 </body>
