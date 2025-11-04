@@ -256,6 +256,11 @@
     │   │   │   ├── track-98.mp3
     │   │   │   └── track-99.mp3
     │   │   └── playlist-01.json
+    │   ├── pdf/
+    │   │   ├── FSA-Office-Firmenkontakte.pdf
+    │   │   ├── FSA-Office-Privatkontakte.pdf
+    │   │   ├── FSA-Office-Sicherung.pdf
+    │   │   └── FSA-Office-Ziele.pdf
     │   ├── sets/
     │   │   ├── playlist-01.json
     │   │   ├── sample-01.json
@@ -419,4 +424,4 @@
     ├── office-tools.html
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.11.2025, 23:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.11.2025, 01:09)_
