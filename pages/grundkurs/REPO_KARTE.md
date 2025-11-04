@@ -101,7 +101,8 @@
     │   │   │   ├── slide-47.jpg
     │   │   │   └── slide-48.jpg
     │   │   ├── README.txt
-    │   │   └── index.json
+    │   │   ├── index.json
+    │   │   └── pool-adler
     │   ├── js/
     │   │   ├── shared/
     │   │   │   ├── campus-core.js
@@ -426,4 +427,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.11.2025, 21:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.11.2025, 22:13)_
