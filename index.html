@@ -370,10 +370,59 @@
   }, {once:true});
 
   /* ========= Hintergrund-Video + Fallback-Slideshow ========= */
+<script>
+// === Hintergrund-Video robust laden (mit Fallback) ===
+(function(){
   const ytId = "miWBKSszEIw";
   const iframe = document.getElementById('bgVideo');
-  iframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&playsinline=1`;
 
+  // Reihenfolge der Versuche: erst dein Mirror („Werbefrei-Hack“), dann No-Cookie
+  const CANDIDATES = [
+    (id)=>`https://www.yout-ube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&modestbranding=1&playsinline=1`,
+    (id)=>`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&modestbranding=1&playsinline=1`
+  ];
+
+  let tried = 0, loaded = false, safetyTimer = null;
+
+  function tryLoad(){
+    if (tried >= CANDIDATES.length || loaded) return;
+    const url = CANDIDATES[tried](ytId);
+    // kleines Delay gegen Autoplay/Layout-Races
+    setTimeout(()=>{ iframe.src = url; }, 200);
+
+    clearTimeout(safetyTimer);
+    safetyTimer = setTimeout(()=>{
+      if (!loaded) { tried++; tryLoad(); }
+    }, 2200);
+  }
+
+  iframe.addEventListener('load', ()=>{
+    loaded = true;
+    clearTimeout(safetyTimer);
+  });
+
+  iframe.addEventListener('error', ()=>{
+    if (loaded) return;
+    tried++;
+    tryLoad();
+  });
+
+  // Falls Autoplay von der Policy gebremst wird: beim ersten Tap nochmal triggern
+  function ensureStart(){
+    if (!loaded) {
+      const idx = Math.min(tried, CANDIDATES.length - 1);
+      iframe.src = CANDIDATES[idx](ytId);
+    }
+    window.removeEventListener('pointerdown', ensureStart);
+    window.removeEventListener('touchstart', ensureStart);
+  }
+  window.addEventListener('pointerdown', ensureStart, { once:true });
+  window.addEventListener('touchstart', ensureStart, { once:true });
+
+  // GO
+  tryLoad();
+})();
+</script>
   // Slideshow aus pool-live
   const slidesEl = document.getElementById('slides');
   const MAX = 48; // vorhandene Bilder
