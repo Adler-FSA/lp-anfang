@@ -259,6 +259,7 @@
     │   ├── pdf/
     │   │   ├── FSA-Office-Firmenkontakte.pdf
     │   │   ├── FSA-Office-Privatkontakte.pdf
+    │   │   ├── FSA-Office-Seed-Backup.pdf
     │   │   ├── FSA-Office-Sicherung.pdf
     │   │   └── FSA-Office-Ziele.pdf
     │   ├── sets/
@@ -424,4 +425,4 @@
     ├── office-tools.html
     └── office.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.11.2025, 07:14)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.11.2025, 08:21)_
