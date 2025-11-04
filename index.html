@@ -29,13 +29,9 @@
   h1{font-size:2.4rem;line-height:1.2}
   h2{font-size:1.9rem;line-height:1.25}
 
-  /* ===== Hintergrund: YouTube mit Fallback-Slideshow ===== */
+  /* ===== Hintergrund: nur Slideshow (kein YouTube) ===== */
   .bg{position:fixed;inset:0;z-index:-2;background:#000;overflow:hidden;pointer-events:none}
-  .bg iframe{
-    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-    width:120vw;height:120vh;border:0
-  }
-  .bg .slides{position:absolute;inset:0;z-index:-3}
+  .bg .slides{position:absolute;inset:0}
   .slide{
     position:absolute;inset:0;background:#000 center/cover no-repeat;
     opacity:0;transition:opacity 1.2s ease-in-out;filter:brightness(.86)
@@ -133,15 +129,14 @@
   .fixed-left{left:20px}
   .fixed-right{right:20px}
 
-  /* Mehr Luft über Video (Änderung #1) */
+  /* Mehr Luft über den (früheren) Video-Bereich */
   #hero{padding-top:110px}
 </style>
 </head>
 <body>
 
-<!-- ===== Hintergrund ===== -->
+<!-- ===== Hintergrund (nur Slideshow) ===== -->
 <div class="bg" aria-hidden="true">
-  <iframe id="bgVideo" title="Adlerflug" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
   <div class="slides" id="slides"></div>
 </div>
 
@@ -209,7 +204,7 @@
     </div>
   </section>
 
-  <!-- ===== Laufband (einzeilig, mittig) ===== -->
+  <!-- ===== Laufband ===== -->
   <section id="laufband-sec">
     <div class="laufband-wrap">
       <div class="laufband floating">
@@ -277,7 +272,7 @@
     </div>
   </section>
 
-  <!-- ===== Kino (unten) ===== -->
+  <!-- ===== Kino (Adler: klickbar, ohne Autoplay) ===== -->
   <section id="kino">
     <div class="wrap" style="max-width:960px">
       <div class="floating"
@@ -367,7 +362,7 @@
     window.removeEventListener('pointerdown', once);
   }, {once:true});
 
-  /* ========= Slideshow vorbereiten (Fallback) ========= */
+  /* ========= Slideshow (sofort) ========= */
   const slidesEl = document.getElementById('slides');
   const nodes=[];
   (function buildSlides(){
@@ -390,84 +385,7 @@
     si=(si+1)%nodes.length;
   }
   function startSlides(){ if(slideTimer) return; stepSlides(); slideTimer=setInterval(stepSlides, 6000); }
-
-  /* ========= Robuster YT-Loader: Hintergrund (stumm) + Kino (klickbar) ========= */
-  (function robustYT(){
-    const YT_ID = "miWBKSszEIw";
-    const bg = document.getElementById('bgVideo');
-    const kino = document.querySelector('#kino iframe');
-
-    const CANDIDATES = [
-      (id, q)=>`https://www.yout-ube.com/embed/${id}?${q}`,
-      (id, q)=>`https://www.youtube-nocookie.com/embed/${id}?${q}`
-    ];
-    function setSrcWithDelay(iframe, url){
-      try{ iframe.src=''; }catch(e){}
-      setTimeout(()=>{ iframe.src=url; },160);
-    }
-
-    // ---- Hintergrund: autoplay + mute (lautlos, damit Musikspur bleibt)
-    if(bg){
-      const bgQ = `autoplay=1&mute=1&loop=1&playlist=${YT_ID}&controls=0&modestbranding=1&playsinline=1`;
-      let bTried=0, bLoaded=false, bTimer=null, bSeen=false;
-      bg.style.opacity=0;
-
-      function loadBg(){
-        if(bLoaded || bTried>=CANDIDATES.length) return;
-        const url=CANDIDATES[bTried](YT_ID,bgQ);
-        setSrcWithDelay(bg,url);
-        clearTimeout(bTimer);
-        bTimer=setTimeout(()=>{ if(!bLoaded){ bTried++; loadBg(); } },2200);
-      }
-      bg.addEventListener('load',()=>{ bLoaded=true; bSeen=true; clearTimeout(bTimer); bg.style.transition="opacity .35s ease"; bg.style.opacity=1; });
-      bg.addEventListener('error',()=>{ if(bLoaded) return; bTried++; loadBg(); });
-
-      function userKick(){
-        if(!bLoaded){
-          const idx=Math.min(bTried,CANDIDATES.length-1);
-          setSrcWithDelay(bg, CANDIDATES[idx](YT_ID,bgQ));
-        }
-        window.removeEventListener('pointerdown', userKick);
-        window.removeEventListener('touchstart', userKick);
-      }
-      window.addEventListener('pointerdown', userKick, {once:true});
-      window.addEventListener('touchstart', userKick, {once:true});
-
-      loadBg();
-      setTimeout(()=>{ if(!bSeen) startSlides(); }, 2500);
-      bg.addEventListener('error',()=> startSlides());
-    }
-
-    // ---- Kino: kein Autoplay, klickbar
-    if(kino){
-      const kQ = `autoplay=0&mute=0&loop=1&controls=1&modestbranding=1&playsinline=1`;
-      let kTried=0, kLoaded=false, kTimer=null;
-      kino.style.opacity=0; kino.style.transition="opacity .35s ease"; kino.style.pointerEvents="auto";
-
-      function loadKino(){
-        if(kLoaded || kTried>=CANDIDATES.length) return;
-        const url=CANDIDATES[kTried](YT_ID,kQ);
-        setSrcWithDelay(kino,url);
-        clearTimeout(kTimer);
-        kTimer=setTimeout(()=>{ if(!kLoaded){ kTried++; loadKino(); } },2200);
-      }
-      kino.addEventListener('load',()=>{ kLoaded=true; clearTimeout(kTimer); kino.style.opacity=1; });
-      kino.addEventListener('error',()=>{ if(kLoaded) return; kTried++; loadKino(); });
-
-      function kickKino(){
-        if(!kLoaded){
-          const idx=Math.min(kTried,CANDIDATES.length-1);
-          setSrcWithDelay(kino, CANDIDATES[idx](YT_ID,kQ));
-        }
-        window.removeEventListener('pointerdown', kickKino);
-        window.removeEventListener('touchstart', kickKino);
-      }
-      window.addEventListener('pointerdown', kickKino, {once:true});
-      window.addEventListener('touchstart', kickKino, {once:true});
-
-      loadKino();
-    }
-  })();
+  startSlides(); // sofort loslaufen lassen
 </script>
 </body>
 </html>
