@@ -1,7 +1,7 @@
 /* ===========================================================
    FSA Access-Control v1.0
    Schutzsystem für geschützte Bereiche (Community / Insider / Start-Level-2)
-   Passwörter: 
+   Passwörter:
      Community     → changeme1
      Insider       → changeme2
      Start-Level-2 → changeme3
@@ -14,7 +14,6 @@
     "start-level-2.html": "changeme3"
   };
 
-  // Aktuellen Dateinamen ermitteln
   const current = location.pathname.split("/").pop().toLowerCase();
 
   if (pages[current]) {
