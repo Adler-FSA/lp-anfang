@@ -188,6 +188,7 @@
     │   │   │   ├── campus-sovereign-02.js
     │   │   │   ├── campus-sovereign-03.js
     │   │   │   └── campus-sovereign-04.js
+    │   │   ├── access-control.js
     │   │   ├── back-to-home.js
     │   │   ├── campus-menu.js
     │   │   ├── exam-engine.js
@@ -483,4 +484,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 05.11.2025, 17:14)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 05.11.2025, 18:21)_
