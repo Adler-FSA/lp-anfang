@@ -45,6 +45,8 @@
     │       └── slide-29.jpg
     ├── library/
     │   ├── images/
+    │   │   ├── backgrounds/
+    │   │   │   └── philosophie-bg.jpg
     │   │   ├── icons/
     │   │   │   ├── bank.png
     │   │   │   ├── book.png
@@ -484,4 +486,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 05.11.2025, 18:21)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 05.11.2025, 19:12)_
