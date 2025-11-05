@@ -46,6 +46,7 @@
     ├── library/
     │   ├── images/
     │   │   ├── backgrounds/
+    │   │   │   ├── impressum-bg.jpg
     │   │   │   └── philosophie-bg.jpg
     │   │   ├── icons/
     │   │   │   ├── bank.png
@@ -486,4 +487,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 05.11.2025, 19:12)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 05.11.2025, 20:17)_
