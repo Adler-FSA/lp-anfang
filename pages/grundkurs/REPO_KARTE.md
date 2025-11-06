@@ -322,7 +322,8 @@
     │   │   └── video-01.json
     │   ├── social/
     │   │   ├── adler.jpg
-    │   │   └── akademie.png
+    │   │   ├── akademie.png
+    │   │   └── netzwerk.png
     │   ├── ticker/
     │   │   └── default.json
     │   └── videos/
@@ -452,7 +453,8 @@
     │   │   └── page.json
     │   ├── social/
     │   │   ├── share-adler.html
-    │   │   └── share-akademie.html
+    │   │   ├── share-akademie.html
+    │   │   └── share-netzwerk.html
     │   ├── admin-config.json
     │   ├── community.html
     │   ├── mentoren.html
@@ -494,4 +496,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.11.2025, 10:17)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.11.2025, 11:13)_
