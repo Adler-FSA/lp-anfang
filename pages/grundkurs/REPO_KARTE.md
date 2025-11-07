@@ -450,7 +450,8 @@
     │   ├── krypto/
     │   │   └── page.json
     │   ├── mentor/
-    │   │   └── lektion-souveraen.html
+    │   │   ├── lektion-souveraen.html
+    │   │   └── trustyfy-bewusstsein.html
     │   ├── office/
     │   │   └── page.json
     │   ├── social/
@@ -501,4 +502,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 07.11.2025, 21:11)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 07.11.2025, 22:13)_
