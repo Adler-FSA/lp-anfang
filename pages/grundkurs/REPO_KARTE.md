@@ -455,6 +455,8 @@
     │   │   ├── share-adler.html
     │   │   ├── share-akademie.html
     │   │   └── share-netzwerk.html
+    │   ├── timecells/
+    │   │   └── index.html
     │   ├── admin-config.json
     │   ├── community.html
     │   ├── mentoren.html
@@ -462,7 +464,8 @@
     │   ├── office-tools.html
     │   ├── office.html
     │   ├── social.html
-    │   └── souveraenitaet.html
+    │   ├── souveraenitaet.html
+    │   └── timecells.html
     ├── shows/
     │   ├── bastai.json
     │   ├── blockhaeuser.json
@@ -496,4 +499,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 07.11.2025, 19:12)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 07.11.2025, 20:15)_
