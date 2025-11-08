@@ -203,6 +203,7 @@
     │   │   ├── grundkurs-menu.js
     │   │   ├── krypto-menu.js
     │   │   ├── lang-switcher.js
+    │   │   ├── menu-patch.js
     │   │   ├── menu.js
     │   │   ├── music-button.js
     │   │   ├── office-menu.js
@@ -507,4 +508,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.11.2025, 22:12)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.11.2025, 23:12)_
