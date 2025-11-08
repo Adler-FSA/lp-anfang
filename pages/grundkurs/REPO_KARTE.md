@@ -452,6 +452,8 @@
     │   ├── mentor/
     │   │   ├── lektion-souveraen.html
     │   │   └── trustyfy-bewusstsein.html
+    │   ├── neutral/
+    │   │   └── timecells-mission.html
     │   ├── office/
     │   │   └── page.json
     │   ├── social/
@@ -502,4 +504,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 07.11.2025, 23:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.11.2025, 01:06)_
