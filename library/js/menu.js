@@ -4,10 +4,10 @@ document.addEventListener("DOMContentLoaded", () => {
     <div class="topbar">
       <nav class="doors">
         <a class="door" href="/lp-anfang/index.html">🏠 Startseite</a>
-        <a class="door" href="/lp-anfang/campus.html">🎓 Campus</a>
-        <a class="door" href="/lp-anfang/office.html">📂 Office</a>
-        <a class="door" href="/lp-anfang/grundkurs.html">📘 Grundkurs</a>
         <a class="door" href="/lp-anfang/krypto.html">💰 Krypto</a>
+        <a class="door" href="/lp-anfang/grundkurs.html">📘 Grundkurs</a>
+        <a class="door" href="/lp-anfang/office.html">📂 Office</a>
+        <a class="door" href="/lp-anfang/campus.html">🎓 Campus</a>
       </nav>
 
       <!-- Zusatzbereich für Sprach- & Musikbuttons -->
