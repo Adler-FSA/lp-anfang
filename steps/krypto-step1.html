@@ -21,17 +21,15 @@
     font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   }
 
-  /* ░░ Platz für die feste Topbar (globales Menü) ░░ */
+  /* ░░ Topbar fix: bündig am Viewport ░░ */
   header.global-menu{
     position:fixed;
-    top:0 !important;
-    left:0; right:0;
-    margin-top:0 !important;
+    top:0 !important; left:0; right:0;
+    margin-top:0 !important; padding-top:0 !important;
     z-index:9999;
   }
-  body{ padding-top:86px; } /* Abstand unter der Topbar, damit nichts überlappt */
 
-  .wrap{max-width:1400px;margin:32px auto;padding:0 16px}
+  .wrap{max-width:1400px;margin:0 auto;padding:0 16px}
 
   .hero{
     background:linear-gradient(180deg,rgba(242,201,76,.07),rgba(0,0,0,0));
@@ -39,6 +37,8 @@
     border-radius:16px;
     padding:24px 20px;
     box-shadow:0 0 40px rgba(245,158,11,.15) inset,0 0 24px rgba(245,158,11,.12);
+    /* WICHTIG: Top-Abstand wird per JS gesetzt, damit keine Oberkante-Luft entsteht */
+    margin-top:0;
   }
   .hero h1{margin:0 0 6px;font-size:34px;color:var(--gold);text-align:center}
   .hero p{margin:4px auto 0;max-width:880px;text-align:center;color:var(--muted)}
@@ -102,7 +102,7 @@
 
   <div class="wrap">
     <!-- Hero -->
-    <div class="hero panel">
+    <div class="hero panel" id="first-panel">
       <h1>Schritt&nbsp;1 – Einstieg &amp; On-/Off-Ramp (trustyfy)</h1>
       <p>Hier startest du sauber: KYC, IBAN, Euro → Krypto und zurück. Die Slides zeigen dir den Ablauf Schritt für Schritt – klar und groß.</p>
       <div class="cta-row">
@@ -227,6 +227,26 @@
 <script src="/lp-anfang/library/js/music-button.js"></script>
 
 <script>
+/* ===== Menü-Bündigkeit: dynamischen Abstand unter die Topbar setzen ===== */
+(function ensureTightTopbar(){
+  const hero = document.getElementById('first-panel');
+  function apply(){
+    const h = document.querySelector('header.global-menu');
+    if(h && hero){
+      const gap = Math.max(0, h.offsetHeight + 8); // 8px Luft unter der Leiste
+      hero.style.marginTop = gap + 'px';
+    }
+  }
+  // Wiederholen, bis menu.js das Header-Element eingefügt hat
+  let tries = 0;
+  const t = setInterval(()=>{
+    apply();
+    if(document.querySelector('header.global-menu') || ++tries>20){ clearInterval(t); }
+  }, 50);
+  window.addEventListener('resize', apply);
+})();
+
+/* ===== Slideshow ===== */
 (function(){
   const count = 29;
   const base = "/lp-anfang/krypto/images/slide-";
@@ -267,7 +287,7 @@
     dots[idx].classList.add('active');
   }
 
-  // Patch: Steuerung + Zähler
+  // Zähler
   const counter=document.createElement('div');
   counter.style.cssText="position:absolute;bottom:20px;right:20px;padding:6px 10px;border-radius:8px;background:rgba(0,0,0,.6);color:#f2c94c;font-weight:600;font-size:14px;font-family:system-ui";
   stage.appendChild(counter);
