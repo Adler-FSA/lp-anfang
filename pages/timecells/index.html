@@ -10,12 +10,13 @@
     --accent:#00a36c;
     --text:#f2f2f2;
     --muted:#cbd5e1;
-    --bg-card:rgba(10,10,20,.65);
+    --bg-card: rgba(10,10,20,.62); /* leicht transparenter, damit Hintergrund sichtbar bleibt */
     --radius:16px;
     --shadow:0 26px 50px rgba(0,0,0,.55);
-    --glow:0 0 26px rgba(0,163,108,.35), 0 10px 28px rgba(0,0,0,.55);
+    --glow:0 0 26px rgba(0,163,108,.28), 0 10px 28px rgba(0,0,0,.45);
     --maxw:1000px;
   }
+
   html,body{
     height:100%;
     margin:0;padding:0;
@@ -23,76 +24,137 @@
     font-family:Inter,system-ui,sans-serif;
     background:transparent;
     overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
   }
 
+  /* === fixed background layer (works for desktop + mobile Firefox/Chrome) === */
   .bg-fixed{
-    position:fixed;inset:0;
-    background:url('../../library/images/backgrounds/timecells-index-bg.jpg') center/cover no-repeat;
-    z-index:-2;
+    position:fixed;
+    inset:0;
+    background-image: url('../../library/images/backgrounds/timecells-index-bg.jpg');
+    background-position:center center;
+    background-repeat:no-repeat;
+    background-size:cover;
+    z-index:-3;
+    will-change:transform;
+    transform: translateZ(0); /* force composite layer */
   }
 
-  main{position:relative;z-index:1;padding:120px 20px 100px;}
-  .wrap{max-width:var(--maxw);margin:0 auto;display:flex;flex-direction:column;gap:2.5rem;}
+  /* subtle overlay to keep contrast when needed (kept transparent so background visible) */
+  .bg-overlay{
+    position:fixed;
+    inset:0;
+    background: linear-gradient(rgba(0,0,0,0.18), rgba(0,0,0,0.24));
+    z-index:-2;
+    pointer-events:none;
+  }
+
+  /* main content */
+  main{
+    position:relative;
+    z-index:1;
+    padding:120px 20px 100px;
+    min-height:100vh;
+  }
+  .wrap{
+    max-width:var(--maxw);
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:2.5rem;
+  }
+
   .card{
     background:var(--bg-card);
-    border:1px solid rgba(0,163,108,.25);
+    border:1px solid rgba(0,163,108,.12);
     border-radius:var(--radius);
     box-shadow:var(--glow);
     padding:36px;
-    backdrop-filter:blur(6px);
-    animation:fadeIn 1.4s ease both;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    animation:fadeIn .9s ease both;
   }
-  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
-  h1,h2{font-family:Montserrat,sans-serif;margin-top:0;color:var(--accent)}
-  p{line-height:1.8;color:var(--muted);font-size:1.05rem;margin:0 0 1.2rem}
-  ul{margin:0 0 1.2rem 1.2rem;color:var(--muted);line-height:1.7}
-  li{margin-bottom:.6rem}
+  h1,h2{font-family:Montserrat,system-ui,sans-serif;margin:0 0 10px;color:var(--accent)}
+  h1{font-size:2.1rem;text-align:center}
+  p{line-height:1.75;color:var(--muted);font-size:1.02rem;margin:0 0 1rem}
+  ul{color:var(--muted);margin:0 0 1rem 1.2rem;line-height:1.7}
+  li{margin-bottom:.55rem}
 
+  /* responsive iframe with a max height on mobile */
+  .video-wrap{border-radius:12px;overflow:hidden;border:2px solid var(--accent);box-shadow:var(--glow)}
   iframe{
     width:100%;
     aspect-ratio:16/9;
-    border:2px solid var(--accent);
-    border-radius:var(--radius);
-    box-shadow:var(--glow);
+    display:block;
+    border:0;
+    background:#000;
   }
 
-  footer{text-align:center;padding:40px 20px 60px}
+  /* language buttons fixed top right */
+  .langbar{
+    position:fixed;
+    top:14px; right:18px;
+    z-index:20; display:flex; gap:8px;
+  }
+  .langbtn{
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.12);
+    color:var(--text);
+    padding:6px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+    backdrop-filter: blur(4px);
+  }
+  .langbtn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
   .btn{
     display:inline-block;
-    background:rgba(0,163,108,.2);
+    background:rgba(0,163,108,.16);
     color:var(--accent);
     font-weight:700;
     text-decoration:none;
     padding:12px 28px;
     border-radius:999px;
-    box-shadow:0 0 14px rgba(0,163,108,.25);
-    transition:all .25s ease;
+    box-shadow:0 6px 18px rgba(0,0,0,.35);
   }
-  .btn:hover{background:rgba(0,163,108,.35);box-shadow:0 0 22px rgba(0,163,108,.45);}
-  .langbar{
-    position:fixed;
-    top:14px;right:18px;
-    z-index:10;
-    display:flex;gap:8px;
-  }
-  .langbtn{
-    background:rgba(255,255,255,.08);
-    border:1px solid rgba(255,255,255,.15);
-    color:var(--text);
-    padding:6px 12px;
-    border-radius:8px;
-    cursor:pointer;
-  }
-  .langbtn.active{background:var(--accent);color:#fff}
+  .btn:hover{background:rgba(0,163,108,.26)}
+
+  footer{margin-top:8rem;text-align:center;padding-bottom:40px;color:var(--muted)}
+
   .hidden{display:none!important}
+
+  /* ------------------ MOBILE ADJUSTMENTS ------------------ */
+  @media (max-width:900px){
+    main{padding:90px 16px 80px}
+    .card{padding:22px;border-radius:14px}
+    h1{font-size:1.8rem}
+  }
+
+  @media (max-width:520px){
+    /* reduce blur overlay size so content is crisper on phones */
+    .card{padding:18px;border-radius:12px;backdrop-filter: blur(4px);-webkit-backdrop-filter: blur(4px)}
+    h1{font-size:1.5rem}
+    p{font-size:0.98rem}
+    /* limit iframe height so it's not oversized on phones */
+    iframe{max-height:240px;aspect-ratio:16/9}
+    /* ensure language buttons don't cover content */
+    .langbar{top:10px;right:10px}
+    main{padding-top:80px}
+  }
 </style>
 </head>
 <body>
 
+<!-- fixed background and subtle overlay -->
 <div class="bg-fixed" aria-hidden="true"></div>
+<div class="bg-overlay" aria-hidden="true"></div>
 
-<div class="langbar">
+<!-- language toggles -->
+<div class="langbar" role="navigation" aria-label="language-switcher">
   <button id="btnDE" class="langbtn active" data-i18n="lang.de">DE</button>
   <button id="btnEN" class="langbtn" data-i18n="lang.en">EN</button>
 </div>
@@ -101,83 +163,88 @@
   <div class="wrap">
 
     <!-- HERO -->
-    <div class="card" style="text-align:center">
+    <section class="card" style="text-align:center">
       <h1 class="de">Timecells</h1>
       <h1 class="en hidden">Timecells</h1>
-      <p class="de" style="font-size:1.2rem;">Die Zukunft des dezentralen Finanzwesens in Afrika.</p>
-      <p class="en hidden" style="font-size:1.2rem;">The future of decentralized finance in Africa.</p>
+
+      <p class="de" style="font-size:1.12rem;color:var(--text)">Die Zukunft des dezentralen Finanzwesens in Afrika.</p>
+      <p class="en hidden" style="font-size:1.12rem;color:var(--text)">The future of decentralized finance in Africa.</p>
+
       <p class="de">Mobile Money hat das Leben von Millionen verändert. Timecells geht den nächsten Schritt: Kryptowährungen – ohne Bank, ohne Grenzen, ohne zentrale Kontrolle.</p>
       <p class="en hidden">Mobile Money has changed millions of lives. Timecells takes the next step: cryptocurrencies – without banks, without borders, without central control.</p>
-    </div>
+    </section>
 
     <!-- VIDEO -->
-    <div class="card">
+    <section class="card video-wrap">
       <iframe src="https://www.youtube.com/embed/FqDJ9Rv_FS4?rel=0&modestbranding=1&playsinline=1"
         title="Timecells Präsentation"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowfullscreen></iframe>
-    </div>
+    </section>
 
     <!-- MISSION -->
-    <div class="card">
+    <section class="card">
       <h2 class="de">Unsere Mission</h2>
       <h2 class="en hidden">Our Mission</h2>
+
       <p class="de">Über 1 Milliarde Menschen in Afrika haben ein Smartphone, aber keinen Zugang zu fairen Finanzsystemen. Timecells schafft den Brückenschlag zwischen Krypto-Ökonomie und realer Nutzung.</p>
       <p class="en hidden">Over 1 billion people in Africa own a smartphone but lack access to fair financial systems. Timecells bridges the gap between crypto-economy and real-world usage.</p>
+
       <ul class="de">
         <li>⚡ Schnelle Transaktionen via Mobile Money (M-PESA, Airtel Money u. a.)</li>
         <li>🔒 Keine Bank, kein KYC – volle Kontrolle beim Nutzer</li>
         <li>🌐 Dezentrale Architektur mit eigenem Token (Cellit)</li>
         <li>💸 Rewards für Staking-Teilnehmer bis zu 45 % p.a.</li>
       </ul>
+
       <ul class="en hidden">
         <li>⚡ Fast transactions via Mobile Money (M-PESA, Airtel Money, etc.)</li>
         <li>🔒 No bank, no KYC – full user control</li>
         <li>🌐 Decentralized architecture with its own token (Cellit)</li>
         <li>💸 Rewards for staking participants up to 45% p.a.</li>
       </ul>
-    </div>
+    </section>
 
-    <!-- AFRIKA -->
-    <div class="card">
+    <!-- WHY AFRICA -->
+    <section class="card">
       <h2 class="de">Warum Afrika?</h2>
       <h2 class="en hidden">Why Africa?</h2>
+
       <p class="de">93 % der Kenianer nutzen Mobile Money – aber weniger als 30 % haben ein Bankkonto. Hohe Gebühren und mangelnde Infrastruktur verhindern echten Wohlstand. Timecells gibt Millionen Menschen erstmals Zugang zu einem fairen, digitalen Finanzsystem.</p>
       <p class="en hidden">93% of Kenyans use Mobile Money – but less than 30% have a bank account. High fees and poor infrastructure block real prosperity. Timecells gives millions first-time access to a fair digital financial system.</p>
+
       <blockquote style="margin:20px 0;font-style:italic;color:var(--accent)">
         <span class="de">„Afrika ist bereit für die dezentrale Zukunft.“</span>
         <span class="en hidden">“Africa is ready for the decentralized future.”</span>
       </blockquote>
-    </div>
+    </section>
 
     <footer>
-      <a href="/lp-anfang/pages/timecells/mission.html?nocache=1731055503" class="btn de">🌍 Mission & Vision</a>
-      <a href="/lp-anfang/pages/timecells/mission.html?nocache=1731055503" class="btn en hidden">🌍 Mission & Vision</a>
-      <p style="margin-top:20px;color:var(--muted);font-size:.9rem;">© 2025 Timecells • Dezentrale Finanzinnovation für Afrika</p>
+      <a href="/lp-anfang/pages/timecells/mission.html?nocache=1" class="btn de">🌍 Mission & Vision</a>
+      <a href="/lp-anfang/pages/timecells/mission.html?nocache=1" class="btn en hidden">🌍 Mission & Vision</a>
+      <p style="margin-top:18px;color:var(--muted);font-size:.9rem;">© 2025 Timecells • Dezentrale Finanzinnovation für Afrika</p>
     </footer>
 
   </div>
 </main>
 
 <script>
+/* Language toggler (DE/EN) - uses localStorage */
 (function(){
   const btnDE=document.getElementById('btnDE');
   const btnEN=document.getElementById('btnEN');
-  const setLang=(lang)=>{
-    const isDE=(lang==='de');
+  const applyLang=(lang)=>{
+    const isDE = lang === 'de';
     document.querySelectorAll('.de').forEach(el=>el.classList.toggle('hidden',!isDE));
     document.querySelectorAll('.en').forEach(el=>el.classList.toggle('hidden',isDE));
     btnDE.classList.toggle('active',isDE);
     btnEN.classList.toggle('active',!isDE);
-    document.documentElement.lang=lang;
-    try{localStorage.setItem('timecells_lang',lang);}catch(e){}
+    try{ localStorage.setItem('timecells_lang', lang); }catch(e){}
   };
-  btnDE.addEventListener('click',()=>setLang('de'));
-  btnEN.addEventListener('click',()=>setLang('en'));
-  const storedLang=(()=>{
-    try{return localStorage.getItem('timecells_lang');}catch(e){return null;}
-  })();
-  setLang(storedLang||'de');
+  btnDE.addEventListener('click', ()=>applyLang('de'));
+  btnEN.addEventListener('click', ()=>applyLang('en'));
+  const stored = (function(){ try{return localStorage.getItem('timecells_lang')}catch(e){return null} })();
+  applyLang(stored || 'de');
 })();
 </script>
 
