@@ -507,4 +507,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.11.2025, 14:12)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.11.2025, 15:13)_
