@@ -49,7 +49,8 @@
     │   │   │   ├── impressum-bg.jpg
     │   │   │   ├── kontakt-bg.jpg
     │   │   │   ├── philosophie-bg.jpg
-    │   │   │   └── timecells-bg.jpg
+    │   │   │   ├── timecells-bg.jpg
+    │   │   │   └── timecells-index-bg.jpg
     │   │   ├── icons/
     │   │   │   ├── bank.png
     │   │   │   ├── book.png
@@ -506,4 +507,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.11.2025, 09:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.11.2025, 10:13)_
