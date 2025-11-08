@@ -51,6 +51,7 @@
       // Ganz oben im Body einfügen (feste Topbar).
       document.body.insertBefore(root, document.body.firstChild);
     }
+    return root;
   }
 
   function ensureStyles() {
@@ -94,20 +95,35 @@
     } catch (e) { /* ältere Browser ignorieren */ }
   }
 
+  // Bekannte Init-Hooks der Bausteine vorsichtig anstoßen + Events nachreichen
+  function bootstrapMenu() {
+    try { if (window.FSA_MENU_INIT) window.FSA_MENU_INIT(); } catch(e){}
+    try { if (window.FSA && typeof window.FSA.menuInit === "function") window.FSA.menuInit(); } catch(e){}
+    try { if (typeof window.fsaMenuInit === "function") window.fsaMenuInit(); } catch(e){}
+    try { document.dispatchEvent(new Event("DOMContentLoaded")); } catch(e){}
+    try { document.dispatchEvent(new Event("fsa:menu-init")); } catch(e){}
+    try { window.dispatchEvent(new Event("resize")); } catch(e){}
+  }
+
+  function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
   onReady(async function () {
     try {
       ensureMenuRoot();
       ensureStyles();
 
-      // Bausteine in definierter Reihenfolge laden
+      // Bausteine in definierter Reihenfolge laden (nur wenn nötig)
       for (var i = 0; i < SCRIPTS.length; i++) {
         try { await loadScript(SCRIPTS[i]); } catch (e) { /* still, weiterladen */ }
       }
 
-      // Sprache erneut anwenden (Synchronisierung mit Seite)
+      // Init anstoßen + DE/EN synchronisieren
+      bootstrapMenu();
+      applyLangNow();
+      // kleiner zweiter Durchgang, falls Rendering minimal verzögert ist
+      await wait(120);
       applyLangNow();
     } catch (err) {
-      // Keine UI-Störung – nur leises Logging
       try { console.warn("[FSA menu-patch] ", err && err.message ? err.message : err); } catch (_) {}
     }
   });
