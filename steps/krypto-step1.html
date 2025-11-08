@@ -21,6 +21,10 @@
     font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   }
 
+  /* Platz für die feste Topbar (globales Menü) */
+  body{ padding-top:110px; }
+  .hidden{ display:none !important; }
+
   .wrap{max-width:1400px;margin:32px auto;padding:0 16px}
 
   .hero{
@@ -86,6 +90,10 @@
 </style>
 </head>
 <body>
+
+  <!-- Globales Menü (Platzhalter) -->
+  <div id="menu-root"></div>
+
   <div class="wrap">
     <!-- Hero -->
     <div class="hero panel">
@@ -207,59 +215,63 @@
     </div>
   </div>
 
-<script>
-(function(){
-  const count = 29;
-  const base = "/lp-anfang/krypto/images/slide-";
-  const stage = document.getElementById('stage');
-  const nav = document.getElementById('nav');
-  const prev = document.getElementById('prev');
-  const next = document.getElementById('next');
-  const fallback = document.getElementById('fallback');
+  <!-- Globale Bausteine (Top-Menü, Sprache, Musik) -->
+  <script src="/lp-anfang/library/js/menu.js"></script>
+  <script src="/lp-anfang/library/js/lang-switcher.js"></script>
+  <script src="/lp-anfang/library/js/music-button.js"></script>
 
-  const slides = [];
-  for(let i=1;i<=count;i++){
-    const n = String(i).padStart(2,'0');
-    const img = document.createElement('img');
-    img.loading = i<=2 ? "eager" : "lazy";
-    img.src = `${base}${n}.jpg`;
-    img.alt = `Slide ${i}`;
-    img.className = 'slide' + (i===1 ? ' active':'');
-    slides.push(img);
-  }
-  if(fallback){ fallback.remove(); }
-  slides.forEach(s => stage.insertBefore(s, nav));
+  <script>
+  (function(){
+    const count = 29;
+    const base = "/lp-anfang/krypto/images/slide-";
+    const stage = document.getElementById('stage');
+    const nav = document.getElementById('nav');
+    const prev = document.getElementById('prev');
+    const next = document.getElementById('next');
+    const fallback = document.getElementById('fallback');
 
-  const dots=[];
-  slides.forEach((_,i)=>{
-    const b=document.createElement('button');
-    b.className='dot'+(i===0?' active':'');
-    b.addEventListener('click',()=>show(i));
-    nav.appendChild(b);
-    dots.push(b);
-  });
+    const slides = [];
+    for(let i=1;i<=count;i++){
+      const n = String(i).padStart(2,'0');
+      const img = document.createElement('img');
+      img.loading = i<=2 ? "eager" : "lazy";
+      img.src = `${base}${n}.jpg`;
+      img.alt = `Slide ${i}`;
+      img.className = 'slide' + (i===1 ? ' active':'');
+      slides.push(img);
+    }
+    if(fallback){ fallback.remove(); }
+    slides.forEach(s => stage.insertBefore(s, nav));
 
-  let idx=0;
-  function show(i){
-    slides[idx].classList.remove('active');
-    dots[idx].classList.remove('active');
-    idx=(i+slides.length)%slides.length;
-    slides[idx].classList.add('active');
-    dots[idx].classList.add('active');
-  }
+    const dots=[];
+    slides.forEach((_,i)=>{
+      const b=document.createElement('button');
+      b.className='dot'+(i===0?' active':'');
+      b.addEventListener('click',()=>show(i));
+      nav.appendChild(b);
+      dots.push(b);
+    });
 
-  // Patch: Steuerung + Zähler
-  const counter=document.createElement('div');
-  counter.style.cssText="position:absolute;bottom:20px;right:20px;padding:6px 10px;border-radius:8px;background:rgba(0,0,0,.6);color:#f2c94c;font-weight:600;font-size:14px;font-family:system-ui";
-  stage.appendChild(counter);
+    let idx=0;
+    function show(i){
+      slides[idx].classList.remove('active');
+      dots[idx].classList.remove('active');
+      idx=(i+slides.length)%slides.length;
+      slides[idx].classList.add('active');
+      dots[idx].classList.add('active');
+      updateCounter();
+    }
 
-  function updateCounter(){counter.textContent=`${idx+1} / ${slides.length}`;}
-  updateCounter();
+    // Patch: Steuerung + Zähler
+    const counter=document.createElement('div');
+    counter.style.cssText="position:absolute;bottom:20px;right:20px;padding:6px 10px;border-radius:8px;background:rgba(0,0,0,.6);color:#f2c94c;font-weight:600;font-size:14px;font-family:system-ui";
+    stage.appendChild(counter);
+    function updateCounter(){counter.textContent=`${idx+1} / ${slides.length}`;}
+    updateCounter();
 
-  prev.addEventListener('click',()=>{show(idx-1);updateCounter();});
-  next.addEventListener('click',()=>{show(idx+1);updateCounter();});
-  dots.forEach((d,i)=>d.addEventListener('click',()=>{show(i);updateCounter();}));
-})();
-</script>
+    prev.addEventListener('click',()=>show(idx-1));
+    next.addEventListener('click',()=>show(idx+1));
+  })();
+  </script>
 </body>
 </html>
