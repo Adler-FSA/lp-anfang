@@ -48,7 +48,8 @@
     │   │   ├── backgrounds/
     │   │   │   ├── impressum-bg.jpg
     │   │   │   ├── kontakt-bg.jpg
-    │   │   │   └── philosophie-bg.jpg
+    │   │   │   ├── philosophie-bg.jpg
+    │   │   │   └── timecells-bg.jpg
     │   │   ├── icons/
     │   │   │   ├── bank.png
     │   │   │   ├── book.png
@@ -462,7 +463,7 @@
     │   │   └── share-netzwerk.html
     │   ├── timecells/
     │   │   ├── index.html
-    │   │   └── mission.htm
+    │   │   └── mission.html
     │   ├── admin-config.json
     │   ├── community.html
     │   ├── mentoren.html
@@ -505,4 +506,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.11.2025, 07:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.11.2025, 08:17)_
