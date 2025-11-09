@@ -209,6 +209,7 @@
     │   │   ├── office-menu.js
     │   │   ├── template-loader.js
     │   │   ├── template.js
+    │   │   ├── topbar-autohide.js
     │   │   └── topbar-patch.js
     │   ├── music/
     │   │   ├── pool/
@@ -511,4 +512,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.11.2025, 08:17)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.11.2025, 09:13)_
