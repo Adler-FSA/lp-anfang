@@ -486,7 +486,10 @@
     ├── steps/
     │   ├── krypto-step1.html
     │   ├── krypto-step2.html
-    │   └── krypto-step3.html
+    │   ├── krypto-step3.html
+    │   ├── step1-en.html
+    │   ├── step2-en.html
+    │   └── step3-en.html
     ├── README.md
     ├── admin.html
     ├── app.js
@@ -508,4 +511,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.11.2025, 07:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.11.2025, 08:17)_
