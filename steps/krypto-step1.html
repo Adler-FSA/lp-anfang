@@ -227,7 +227,37 @@
 <script src="/lp-anfang/library/js/music-button.js?v=20251109"></script>
 <script src="/lp-anfang/library/js/topbar-autohide.js?v=20251109"></script>
 <script>
+/* FSA Lang-Bridge: Datei-Paare DE/EN umschalten, ohne lang-switcher.js zu ändern */
+(function () {
+  const KEY='fsa_lang';
+  const path=location.pathname;
 
+  function counterpart(p,to){
+    let m;
+    m=p.match(/\/steps\/krypto-step(\d+)\.html$/);
+    if(m && to==='en') return `/lp-anfang/steps/step${m[1]}-en.html`;
+    m=p.match(/\/steps\/step(\d+)-en\.html$/);
+    if(m && to==='de') return `/lp-anfang/steps/krypto-step${m[1]}.html`;
+    if(p.endsWith('/lp-anfang/krypto.html') && to==='en') return '/lp-anfang/krypto-en.html';
+    if(p.endsWith('/lp-anfang/krypto-en.html') && to==='de') return '/lp-anfang/krypto.html';
+    return null;
+  }
+
+  function go(lang){
+    const target = counterpart(path,(lang||'de').toLowerCase());
+    if(target) location.assign(target+location.search+location.hash);
+  }
+
+  try{
+    const pref=localStorage.getItem(KEY)||'de';
+    const isEN=/-en\.html$/.test(path)||/krypto-en\.html$/.test(path);
+    if((pref==='en' && !isEN) || (pref==='de' && isEN)) go(pref);
+  }catch(e){}
+
+  document.addEventListener('fsa:lang-change', ev => go(ev.detail || (localStorage.getItem(KEY)||'de')));
+  window.addEventListener('storage', ev => { if(ev.key===KEY) go(ev.newValue); });
+})();
+</script>
 /* ===== Slideshow ===== */
 (function(){
   const count = 29;
