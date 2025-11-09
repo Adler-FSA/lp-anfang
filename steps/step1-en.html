@@ -180,7 +180,46 @@
 <script src="/lp-anfang/library/js/music-button.js"></script>
 <!-- NEU: Auto-Hide nur da, wo Topbar existiert -->
 <script src="/lp-anfang/library/js/topbar-autohide.js"></script>
+<!-- FSA Lang-Bridge: krypto-step1 ↔ step1-en (ohne lang-switcher.js anzupassen) -->
 <script>
+(function () {
+  const KEY = 'fsa_lang';
+
+  function targetFor(lang){
+    const p = location.pathname;
+
+    // DE → EN
+    if (/\/lp-anfang\/steps\/krypto-step1\.html$/.test(p) && lang === 'en') {
+      return '/lp-anfang/steps/step1-en.html';
+    }
+
+    // EN → DE
+    if (/\/lp-anfang\/steps\/step1-en\.html$/.test(p) && lang === 'de') {
+      return '/lp-anfang/steps/krypto-step1.html';
+    }
+
+    // optional: Root-Krypto (falls vorhanden)
+    if (p.endsWith('/lp-anfang/krypto.html') && lang === 'en') return '/lp-anfang/krypto-en.html';
+    if (p.endsWith('/lp-anfang/krypto-en.html') && lang === 'de') return '/lp-anfang/krypto.html';
+
+    return null;
+  }
+
+  function go(lang){
+    const t = targetFor((lang||'de').toLowerCase());
+    if (t) location.assign(t + location.search + location.hash);
+  }
+
+  try{
+    const pref = localStorage.getItem(KEY) || 'de';
+    const isEN  = /\/en\.html$|\/krypto-en\.html$/.test(location.pathname);
+    if ((pref === 'en' && !isEN) || (pref === 'de' && isEN)) go(pref);
+  }catch(e){}
+
+  document.addEventListener('fsa:lang-change', ev => go(ev.detail || 'de'));
+  window.addEventListener('storage', ev => { if (ev.key === KEY) go(ev.newValue); });
+})();
+</script>
 /* Slideshow */
 (function(){
   const count=29, base="/lp-anfang/krypto/images/slide-";
