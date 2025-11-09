@@ -1,6 +1,11 @@
-<!-- /lp-anfang/library/js/topbar-autohide.js -->
-<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// FSA Topbar Auto-Hide (mobilfreundlich, sicher mit Safe-Area)
+// Versteckt die Topbar beim Runter-Scrollen und zeigt sie beim Hoch-Scrollen.
+// Funktioniert mit dem FSA-Menü (menu.js) und findet die äußere .topbar robust.
+// ─────────────────────────────────────────────────────────────────────────────
 (function(){
+  'use strict';
+
   // 1) Styles injizieren (Transition + Safe-Area)
   const css = `
   :root{ --safe-top: env(safe-area-inset-top, 0px); }
@@ -17,25 +22,46 @@
 
   // 2) Topbar sicher finden (nach menu.js-Render)
   function findTopbar(){
-    // häufigster Fall: menu.js rendert in #menu-root hinein
+    // Häufigster Fall: menu.js rendert in #menu-root hinein
     const root = document.getElementById('menu-root');
-    if (root && root.firstElementChild) return root.firstElementChild;
+    if (root && root.firstElementChild) {
+      // Bevorzuge die äußere .topbar
+      return root.firstElementChild.closest('.topbar') || root.firstElementChild;
+    }
     // Fallbacks (robust gegen Varianten)
-    return document.querySelector('[data-fsa-topbar]') ||
-           document.querySelector('#menu-root') ||
-           document.querySelector('nav');
+    return document.querySelector('.topbar') ||
+           document.querySelector('[data-fsa-topbar]') ||
+           document.querySelector('#menu-root .topbar') ||
+           document.querySelector('nav'); // letzter Fallback
   }
 
   function init(){
     const bar = findTopbar();
     if (!bar) return false;
-    bar.classList.add('fsa-topbar-autohide');
+
+    // Nur einmal markieren
+    if (!bar.classList.contains('fsa-topbar-autohide')) {
+      bar.classList.add('fsa-topbar-autohide');
+    }
 
     let lastY = window.pageYOffset || document.documentElement.scrollTop || 0;
     let ticking = false;
     let stateHidden = false;
-    const THRESH = 8;      // Scroll-Schwellwert gegen Zittern
-    const SHOW_AT_TOP = 24; // immer anzeigen nahe Seitenanfang
+    const THRESH = 8;        // Scroll-Schwellwert gegen Zittern
+    const SHOW_AT_TOP = 24;  // immer anzeigen nahe Seitenanfang
+
+    function showBar(){
+      if (stateHidden){
+        bar.classList.remove('fsa-topbar-hidden');
+        stateHidden = false;
+      }
+    }
+    function hideBar(){
+      if (!stateHidden){
+        bar.classList.add('fsa-topbar-hidden');
+        stateHidden = true;
+      }
+    }
 
     function onScroll(){
       if (ticking) return;
@@ -46,28 +72,30 @@
 
         if (Math.abs(dy) > THRESH){
           if (dy > 0 && y > SHOW_AT_TOP){ // runter
-            if (!stateHidden){ bar.classList.add('fsa-topbar-hidden'); stateHidden = true; }
-          } else {                         // hoch
-            if (stateHidden){ bar.classList.remove('fsa-topbar-hidden'); stateHidden = false; }
+            hideBar();
+          } else { // hoch
+            showBar();
           }
           lastY = y;
         } else {
           // Kleine Bewegungen: nahe Top immer sichtbar
-          if (y <= SHOW_AT_TOP && stateHidden){
-            bar.classList.remove('fsa-topbar-hidden'); stateHidden = false;
-          }
+          if (y <= SHOW_AT_TOP) showBar();
         }
         ticking = false;
       });
     }
+
     window.addEventListener('scroll', onScroll, { passive:true });
     return true;
   }
 
-  // Warten bis menu.js gerendert hat
+  // Warten bis menu.js gerendert hat (falls beim ersten Versuch noch nichts da ist)
   if (!init()){
-    const mo = new MutationObserver(()=>{ if (init()) mo.disconnect(); });
+    const mo = new MutationObserver(()=>{
+      if (init()) mo.disconnect();
+    });
     mo.observe(document.documentElement, { childList:true, subtree:true });
+
     // Sicherheitsnetz (falls MutationObserver zu früh feuert)
     let tries = 0;
     const iv = setInterval(()=>{
@@ -75,4 +103,3 @@
     }, 50);
   }
 })();
-</script>
