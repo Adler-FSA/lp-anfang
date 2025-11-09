@@ -178,30 +178,23 @@
 <script src="/lp-anfang/library/js/menu.js"></script>
 <script src="/lp-anfang/library/js/lang-switcher.js"></script>
 <script src="/lp-anfang/library/js/music-button.js"></script>
-<!-- NEU: Auto-Hide nur da, wo Topbar existiert -->
 <script src="/lp-anfang/library/js/topbar-autohide.js"></script>
-<!-- FSA Lang-Bridge: krypto-step1 ↔ step1-en (ohne lang-switcher.js anzupassen) -->
+
+<!-- FSA Lang-Bridge: krypto-step1 ↔ step1-en -->
 <script>
 (function () {
   const KEY = 'fsa_lang';
 
   function targetFor(lang){
     const p = location.pathname;
-
-    // DE → EN
     if (/\/lp-anfang\/steps\/krypto-step1\.html$/.test(p) && lang === 'en') {
       return '/lp-anfang/steps/step1-en.html';
     }
-
-    // EN → DE
     if (/\/lp-anfang\/steps\/step1-en\.html$/.test(p) && lang === 'de') {
       return '/lp-anfang/steps/krypto-step1.html';
     }
-
-    // optional: Root-Krypto (falls vorhanden)
     if (p.endsWith('/lp-anfang/krypto.html') && lang === 'en') return '/lp-anfang/krypto-en.html';
     if (p.endsWith('/lp-anfang/krypto-en.html') && lang === 'de') return '/lp-anfang/krypto.html';
-
     return null;
   }
 
@@ -220,12 +213,15 @@
   window.addEventListener('storage', ev => { if (ev.key === KEY) go(ev.newValue); });
 })();
 </script>
-/* Slideshow */
+
+<!-- Slideshow -->
+<script>
 (function(){
   const count=29, base="/lp-anfang/krypto/images/slide-";
   const stage=document.getElementById('stage'), nav=document.getElementById('nav');
   const prev=document.getElementById('prev'), next=document.getElementById('next');
   const fallback=document.getElementById('fallback');
+
   const slides=[];
   for(let i=1;i<=count;i++){
     const n=String(i).padStart(2,'0');
@@ -236,28 +232,47 @@
   }
   if(fallback){fallback.remove()}
   slides.forEach(s=>stage.insertBefore(s,nav));
-  const dots=[]; slides.forEach((_,i)=>{const b=document.createElement('button'); b.className='dot'+(i===0?' active':''); b.onclick=()=>show(i); nav.appendChild(b); dots.push(b);});
+
+  const dots=[];
+  slides.forEach((_,i)=>{
+    const b=document.createElement('button');
+    b.className='dot'+(i===0?' active':'');
+    b.addEventListener('click',()=>show(i));
+    nav.appendChild(b);
+    dots.push(b);
+  });
+
   let idx=0;
   function show(i){
-    slides[idx].classList.remove('active'); dots[idx].classList.remove('active');
+    slides[idx].classList.remove('active');
+    dots[idx].classList.remove('active');
     idx=(i+slides.length)%slides.length;
-    slides[idx].classList.add('active'); dots[idx].classList.add('active'); updateCounter();
+    slides[idx].classList.add('active');
+    dots[idx].classList.add('active');
+    updateCounter();
   }
+
   const counter=document.createElement('div');
   counter.style.cssText="position:absolute;bottom:20px;right:20px;padding:6px 10px;border-radius:8px;background:rgba(0,0,0,.6);color:#f2c94c;font-weight:600;font-size:14px;font-family:system-ui";
   stage.appendChild(counter);
   function updateCounter(){counter.textContent=`${idx+1} / ${slides.length}`;}
   updateCounter();
+
   prev.addEventListener('click',()=>show(idx-1));
   next.addEventListener('click',()=>show(idx+1));
 })();
+</script>
 
-/* nocache for internal links */
+<!-- nocache for internal links -->
+<script>
 (function(){
   const t=Date.now();
   document.querySelectorAll('a[data-internal]').forEach(a=>{
-    const u=new URL(a.getAttribute('href'),location.href);
-    u.searchParams.set('nocache',t); a.href=u.pathname+u.search+u.hash;
+    try{
+      const u=new URL(a.getAttribute('href'),location.href);
+      u.searchParams.set('nocache',t);
+      a.href=u.pathname+u.search+u.hash;
+    }catch(e){}
   });
 })();
 </script>
