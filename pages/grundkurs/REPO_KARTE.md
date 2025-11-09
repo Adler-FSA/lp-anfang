@@ -505,6 +505,7 @@
     ├── grundkurs-sicherheit.html
     ├── grundkurs.html
     ├── index.html
+    ├── krypto-en.html
     ├── krypto-test.html
     ├── krypto.html
     ├── master.css
@@ -512,4 +513,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.11.2025, 22:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.11.2025, 23:12)_
