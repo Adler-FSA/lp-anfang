@@ -6,66 +6,113 @@
 <title>Hörsaal – Szene (Background only)</title>
 <style>
   :root{
-    --scene:url("/lp-anfang/library/images/backgrounds/hoersaal-timecells-bg.jpg");
-    --wall:#0a1117;                 /* dunkle Wandbasis */
-    --wall-soft:rgba(10,17,23,.85); /* Übergang zur Mitte */
-    --ceiling:rgba(0,0,0,.55);      /* Decken-Vignette */
-    --ceiling-mid:rgba(0,0,0,.25);
-    --floor:rgba(0,0,0,.35);        /* Boden-Vignette */
+    --scene-url: "/lp-anfang/library/images/backgrounds/hoersaal-timecells-bg.jpg";
+
+    /* Wand-/Lichtfarben */
+    --wall:#0a1117;
+    --wall-soft:rgba(10,17,23,.85);
+    --edge-glow:rgba(26,193,150,.22);      /* feine Lichtkante (grünlich) */
+    --edge-core:rgba(255,255,255,.12);     /* Kern der Kante */
+    --floor:rgba(0,0,0,.35);
+
+    /* Größen (responsiv) */
+    --wall-w:15vw;     /* Breite der „Wände“ */
+    --edge-w:18vw;     /* Breite des Edge-Overlays (enthält die Lichtkante) */
   }
 
   html,body{height:100%;margin:0;background:#000}
 
-  /* Ebene 0: Foto bleibt vollständig sichtbar (contain).
-     Seitenflächen werden als „Wände“ ergänzt – keine schwarzen Balken. */
-  .scene{
+  /* Ebene 0 – Foto (voll sichtbar, kein Beschnitt) */
+  .scene-photo{
     position:fixed; inset:0; z-index:0;
-    background:
-      /* Foto */
-      var(--scene) center bottom / contain no-repeat,
-
-      /* linke Wand – radialer Verlauf für runde Wirkung */
-      radial-gradient(120% 100% at -10% 50%,
-        var(--wall) 0%, var(--wall) 24%,
-        var(--wall-soft) 42%, rgba(10,17,23,.0) 62%),
-
-      /* rechte Wand */
-      radial-gradient(120% 100% at 110% 50%,
-        var(--wall) 0%, var(--wall) 24%,
-        var(--wall-soft) 42%, rgba(10,17,23,.0) 62%),
-
-      /* Decken-Vignette (leicht, nur oben) */
-      linear-gradient(to bottom, var(--ceiling) 0%, var(--ceiling-mid) 18%, transparent 38%),
-
-      /* Boden-Vignette (Tiefe) */
-      radial-gradient(80% 55% at 50% 92%, var(--floor) 0%, transparent 60%);
-    background-repeat:no-repeat;
+    background:#000 center bottom / contain no-repeat;
     transform:translateZ(0);
   }
 
-  /* Ebene 1: leer; Länge erzeugt Tiefe beim Scrollen */
-  main{
-    position:relative; z-index:1;
-    min-height:180vh;
+  /* Ebene 0.5 – Wände (links/rechts), weicher Verlauf zur Mitte */
+  .walls{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:
+      radial-gradient(120% 100% at -10% 50%,
+        var(--wall) 0%, var(--wall) 24%,
+        var(--wall-soft) 42%, rgba(10,17,23,0) 62%),
+      radial-gradient(120% 100% at 110% 50%,
+        var(--wall) 0%, var(--wall) 24%,
+        var(--wall-soft) 42%, rgba(10,17,23,0) 62%),
+      radial-gradient(80% 55% at 50% 92%, var(--floor) 0%, transparent 60%); /* Boden-Tiefe */
+    background-repeat:no-repeat;
   }
 
-  /* Feinabstimmung bei sehr breiten Displays */
+  /* Ebene 1 – schlanke Lichtkanten (Metall-/Licht-Feeling statt Beton) */
+  .edges{ position:fixed; inset:0; z-index:2; pointer-events:none; }
+  .edges::before, .edges::after{
+    content:""; position:fixed; top:0; bottom:0; width:var(--edge-w);
+    filter:none; /* keine CSS-Filter, nur Verläufe */
+  }
+  /* links: Kante nahe der Innenkante (rechts im Block) */
+  .edges::before{
+    left:0;
+    background:
+      linear-gradient(to right,
+        transparent 0%,
+        transparent 68%,
+        var(--edge-glow) 80%,
+        var(--edge-core) 86%,
+        transparent 100%);
+  }
+  /* rechts: Kante nahe der Innenkante (links im Block) */
+  .edges::after{
+    right:0;
+    background:
+      linear-gradient(to left,
+        transparent 0%,
+        transparent 68%,
+        var(--edge-glow) 80%,
+        var(--edge-core) 86%,
+        transparent 100%);
+  }
+
+  /* Ebene 2 – Bodenschimmer (trägt das Podest), sehr subtil */
+  .floor-shimmer{
+    position:fixed; inset:0; z-index:2; pointer-events:none;
+    background:
+      radial-gradient(55% 30% at 50% 84%,
+        rgba(26,193,150,.14) 0%,
+        rgba(26,193,150,.06) 48%,
+        transparent 72%);
+    background-repeat:no-repeat;
+  }
+
+  /* Länge für Scroll-/Raumgefühl (UI kommt später hierhin) */
+  main{position:relative; z-index:3; min-height:180vh}
+
+  /* Feinschliff für sehr breite Screens */
   @media (min-width:1400px){
-    .scene{
-      background:
-        var(--scene) center bottom / contain no-repeat,
-        radial-gradient(110% 100% at -8% 50%, var(--wall) 0%, var(--wall) 22%, var(--wall-soft) 40%, rgba(10,17,23,0) 60%),
-        radial-gradient(110% 100% at 108% 50%, var(--wall) 0%, var(--wall) 22%, var(--wall-soft) 40%, rgba(10,17,23,0) 60%),
-        linear-gradient(to bottom, var(--ceiling) 0%, var(--ceiling-mid) 16%, transparent 36%),
-        radial-gradient(78% 55% at 50% 92%, var(--floor) 0%, transparent 60%);
-    }
+    :root{ --wall-w:14vw; --edge-w:16vw; }
+  }
+  @media (max-width:820px){
+    :root{ --wall-w:18vw; --edge-w:22vw; }
   }
 </style>
 </head>
 <body>
 
-<div class="scene" aria-hidden="true"></div>
+<!-- Ebenen -->
+<div class="scene-photo" id="photo" aria-hidden="true"></div>
+<div class="walls" aria-hidden="true"></div>
+<div class="edges" aria-hidden="true"></div>
+<div class="floor-shimmer" aria-hidden="true"></div>
+
+<!-- Platzhalter für kommende UI -->
 <main></main>
+
+<script>
+  /* Bild setzen + Cache-Bypass (Safari) – keine Filter */
+  (function(){
+    var el = document.getElementById('photo');
+    el.style.backgroundImage = 'url("'+ (new URL(location.origin + '/lp-anfang/library/images/backgrounds/hoersaal-timecells-bg.jpg')).pathname +'?nocache='+Date.now()+'")';
+  })();
+</script>
 
 </body>
 </html>
