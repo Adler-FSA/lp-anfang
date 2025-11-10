@@ -46,6 +46,7 @@
     ├── library/
     │   ├── images/
     │   │   ├── backgrounds/
+    │   │   │   ├── hörsaal-timecells.jpg
     │   │   │   ├── impressum-bg.jpg
     │   │   │   ├── kontakt-bg.jpg
     │   │   │   ├── philosophie-bg.jpg
@@ -513,4 +514,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.11.2025, 08:22)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.11.2025, 09:18)_
