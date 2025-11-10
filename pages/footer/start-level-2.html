@@ -3,115 +3,217 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hörsaal – Szene (Background only)</title>
+<title>Hörsaal • Timecells – Zugang</title>
 <style>
   :root{
-    --scene-url: "/lp-anfang/library/images/backgrounds/hoersaal-timecells-bg.jpg";
+    --scene-url:"/lp-anfang/library/images/backgrounds/hoersaal-timecells-bg.jpg";
 
-    /* Wand-/Lichtfarben */
-    --wall:#0a1117;
-    --wall-soft:rgba(10,17,23,.85);
-    --edge-glow:rgba(26,193,150,.22);      /* feine Lichtkante (grünlich) */
-    --edge-core:rgba(255,255,255,.12);     /* Kern der Kante */
+    /* Hintergrund-Layer (wie freigegeben) */
+    --wall:#0a1117; --wall-soft:rgba(10,17,23,.85);
+    --edge-glow:rgba(26,193,150,.22); --edge-core:rgba(255,255,255,.12);
     --floor:rgba(0,0,0,.35);
 
-    /* Größen (responsiv) */
-    --wall-w:15vw;     /* Breite der „Wände“ */
-    --edge-w:18vw;     /* Breite des Edge-Overlays (enthält die Lichtkante) */
+    /* UI */
+    --card:rgba(10,17,23,.68);
+    --border:#00a36c;
+    --text:#eaf2f2; --muted:#a9b4be;
+    --accent:#00a36c;
+    --radius:18px; --shadow:0 26px 48px rgba(0,0,0,.55);
+    --maxw:720px;
+
+    --pw-w:320px; --pw-h:48px;
   }
 
-  html,body{height:100%;margin:0;background:#000}
+  html,body{height:100%;margin:0;background:#000;color:var(--text);font-family:Inter,system-ui,sans-serif}
+  .hidden{display:none!important}
 
-  /* Ebene 0 – Foto (voll sichtbar, kein Beschnitt) */
-  .scene-photo{
-    position:fixed; inset:0; z-index:0;
-    background:#000 center bottom / contain no-repeat;
-    transform:translateZ(0);
-  }
-
-  /* Ebene 0.5 – Wände (links/rechts), weicher Verlauf zur Mitte */
+  /* ===== Ebene 0–2: Szene (unverändert) ===== */
+  .scene-photo{position:fixed;inset:0;z-index:0;background:#000 center bottom/contain no-repeat;transform:translateZ(0)}
   .walls{
-    position:fixed; inset:0; z-index:1; pointer-events:none;
+    position:fixed;inset:0;z-index:1;pointer-events:none;
     background:
-      radial-gradient(120% 100% at -10% 50%,
-        var(--wall) 0%, var(--wall) 24%,
-        var(--wall-soft) 42%, rgba(10,17,23,0) 62%),
-      radial-gradient(120% 100% at 110% 50%,
-        var(--wall) 0%, var(--wall) 24%,
-        var(--wall-soft) 42%, rgba(10,17,23,0) 62%),
-      radial-gradient(80% 55% at 50% 92%, var(--floor) 0%, transparent 60%); /* Boden-Tiefe */
+      radial-gradient(120% 100% at -10% 50%, var(--wall) 0%, var(--wall) 24%, var(--wall-soft) 42%, rgba(10,17,23,0) 62%),
+      radial-gradient(120% 100% at 110% 50%, var(--wall) 0%, var(--wall) 24%, var(--wall-soft) 42%, rgba(10,17,23,0) 62%),
+      radial-gradient(80% 55% at 50% 92%, var(--floor) 0%, transparent 60%);
     background-repeat:no-repeat;
   }
-
-  /* Ebene 1 – schlanke Lichtkanten (Metall-/Licht-Feeling statt Beton) */
-  .edges{ position:fixed; inset:0; z-index:2; pointer-events:none; }
-  .edges::before, .edges::after{
-    content:""; position:fixed; top:0; bottom:0; width:var(--edge-w);
-    filter:none; /* keine CSS-Filter, nur Verläufe */
-  }
-  /* links: Kante nahe der Innenkante (rechts im Block) */
+  .edges{position:fixed;inset:0;z-index:2;pointer-events:none}
+  .edges::before,.edges::after{content:"";position:fixed;top:0;bottom:0;width:18vw}
   .edges::before{
-    left:0;
-    background:
-      linear-gradient(to right,
-        transparent 0%,
-        transparent 68%,
-        var(--edge-glow) 80%,
-        var(--edge-core) 86%,
-        transparent 100%);
+    left:0;background:linear-gradient(to right,transparent 68%, var(--edge-glow) 80%, var(--edge-core) 86%, transparent 100%);
   }
-  /* rechts: Kante nahe der Innenkante (links im Block) */
   .edges::after{
-    right:0;
-    background:
-      linear-gradient(to left,
-        transparent 0%,
-        transparent 68%,
-        var(--edge-glow) 80%,
-        var(--edge-core) 86%,
-        transparent 100%);
+    right:0;background:linear-gradient(to left,transparent 68%, var(--edge-glow) 80%, var(--edge-core) 86%, transparent 100%);
   }
-
-  /* Ebene 2 – Bodenschimmer (trägt das Podest), sehr subtil */
   .floor-shimmer{
-    position:fixed; inset:0; z-index:2; pointer-events:none;
-    background:
-      radial-gradient(55% 30% at 50% 84%,
-        rgba(26,193,150,.14) 0%,
-        rgba(26,193,150,.06) 48%,
-        transparent 72%);
-    background-repeat:no-repeat;
+    position:fixed;inset:0;z-index:2;pointer-events:none;
+    background:radial-gradient(55% 30% at 50% 84%, rgba(26,193,150,.14) 0%, rgba(26,193,150,.06) 48%, transparent 72%);
   }
 
-  /* Länge für Scroll-/Raumgefühl (UI kommt später hierhin) */
-  main{position:relative; z-index:3; min-height:180vh}
+  /* ===== Ebene 3: Floating Block (Intro → Gate) ===== */
+  .floating{
+    position:fixed; left:50%; top:42vh; transform:translate(-50%,-50%);
+    width:min(88vw,var(--maxw));
+    background:var(--card);
+    border:1.5px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow), 0 0 36px rgba(0,163,108,.28);
+    padding:26px 28px;
+    z-index:3;
+    backdrop-filter:blur(4px);
+  }
+  .floating h2{margin:0 0 8px;font-size:1.6rem;color:var(--accent)}
+  .floating p{margin:0 0 10px;color:var(--muted);line-height:1.6}
+  .actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px}
 
-  /* Feinschliff für sehr breite Screens */
-  @media (min-width:1400px){
-    :root{ --wall-w:14vw; --edge-w:16vw; }
+  /* Gate (Passwort/Checkbox) – erscheint nach Klick */
+  .pw-wrap{width:var(--pw-w);position:relative;margin-top:6px}
+  .input-wrap{position:relative}
+  .input-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);opacity:.95}
+  input[type="password"]{
+    width:100%;height:var(--pw-h);border-radius:12px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.06);color:var(--text);padding:0 96px 0 38px;font-size:1rem;outline:none;
   }
-  @media (max-width:820px){
-    :root{ --wall-w:18vw; --edge-w:22vw; }
+  input::placeholder{color:#9ba3ae}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    height:var(--pw-h);padding:0 18px;border:none;border-radius:12px;cursor:pointer;
+    background:var(--accent);color:#0b0f14;font-weight:800;box-shadow:0 10px 28px rgba(0,163,108,.28);
   }
+  .btn[disabled]{opacity:.5;cursor:not-allowed;box-shadow:none}
+
+  .chk{display:flex;gap:8px;align-items:flex-start;margin-top:10px}
+  .chk input{margin-top:4px;transform:scale(1.1)}
+  .langbar{position:fixed;right:14px;top:12px;z-index:4;display:flex;gap:8px}
+  .langbtn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:700}
+  .langbtn.active{background:var(--accent);color:#0b0f14}
+
+  @media (max-width:640px){
+    .floating{padding:18px 16px; top:44vh}
+    .floating h2{font-size:1.35rem}
+    :root{--pw-w:100%}
+  }
+
+  main{min-height:180vh} /* Platzhalter, UI liegt im Floating */
 </style>
 </head>
 <body>
 
-<!-- Ebenen -->
+<!-- Hintergrund-Ebenen -->
 <div class="scene-photo" id="photo" aria-hidden="true"></div>
 <div class="walls" aria-hidden="true"></div>
 <div class="edges" aria-hidden="true"></div>
 <div class="floor-shimmer" aria-hidden="true"></div>
 
-<!-- Platzhalter für kommende UI -->
+<!-- Sprachumschalter -->
+<div class="langbar">
+  <button id="btnDE" class="langbtn active">DE</button>
+  <button id="btnEN" class="langbtn">EN</button>
+</div>
+
+<!-- Schwebender Block: State "intro" -> Klick schaltet auf "gate" -->
+<section id="floating" class="floating">
+  <!-- Intro-Text -->
+  <div id="intro">
+    <h2 class="de">Hörsaal • Timecells</h2>
+    <h2 class="en hidden">Lecture Hall • Timecells</h2>
+
+    <p class="de">Präsentationsreihe der Akademie: Innovationen von Menschen für Menschen – für mehr finanzielle Souveränität.</p>
+    <p class="en hidden">Academy presentation series: innovations by people, for people — to strengthen financial sovereignty.</p>
+
+    <p class="de"><strong>Trennung (Akademie-Sicht):</strong> Dieser Hörsaal ist <em>nicht Teil des Lehrplans</em> und <em>keine Empfehlung</em>. Du prüfst, entscheidest und handelst eigenverantwortlich.</p>
+    <p class="en hidden"><strong>Separation (Academy view):</strong> This lecture hall is <em>not part of the curriculum</em> and <em>not a recommendation</em>. You review, decide and act on your own responsibility.</p>
+
+    <p class="de"><strong>Übergang:</strong> Mit dem Passwort betrittst du die <em>Neue Finanzwelt der Gegenwart</em>.</p>
+    <p class="en hidden"><strong>Transition:</strong> With the password you enter the <em>new financial world of today</em>.</p>
+
+    <div class="actions">
+      <button id="toGateDE" class="btn de">Weiter</button>
+      <button id="toGateEN" class="btn en hidden">Continue</button>
+    </div>
+  </div>
+
+  <!-- Gate-UI (zuerst versteckt) -->
+  <div id="gate" class="hidden">
+    <h2 class="de">Zugang • Hörsaal</h2>
+    <h2 class="en hidden">Access • Lecture Hall</h2>
+
+    <div class="pw-wrap">
+      <label class="input-wrap" style="display:block">
+        <!-- Inline-SVG Schloss -->
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="currentColor" d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5Zm-3 8V6a3 3 0 1 1 6 0v3H9Zm3 5a2 2 0 1 1 0 4a2 2 0 0 1 0-4Z"/>
+        </svg>
+        <input id="pw" type="password" placeholder="Passwort" inputmode="latin-password" aria-label="Passwort" />
+        <button id="goDE" class="btn de" type="button" disabled>Hörsaal betreten</button>
+        <button id="goEN" class="btn en hidden" type="button" disabled>Enter lecture hall</button>
+      </label>
+      <label class="chk">
+        <input id="ack" type="checkbox" />
+        <span>
+          <span class="de">Ich habe verstanden: eigene Prüfung, eigene Entscheidung, eigenes Risiko.</span>
+          <span class="en hidden">I understand: my review, my decision, my risk.</span>
+        </span>
+      </label>
+    </div>
+
+    <p id="msg" class="de" style="color:var(--muted);margin-top:10px">Hinweis: Passwortprüfung/Weiterleitung wird nach Freigabe aktiviert.</p>
+    <p id="msgEn" class="en hidden" style="color:var(--muted);margin-top:10px">Note: Password validation/redirect will be enabled after approval.</p>
+  </div>
+</section>
+
 <main></main>
 
 <script>
-  /* Bild setzen + Cache-Bypass (Safari) – keine Filter */
-  (function(){
-    var el = document.getElementById('photo');
-    el.style.backgroundImage = 'url("'+ (new URL(location.origin + '/lp-anfang/library/images/backgrounds/hoersaal-timecells-bg.jpg')).pathname +'?nocache='+Date.now()+'")';
-  })();
+/* Hintergrundbild mit Cache-Bust setzen */
+(function(){
+  var el = document.getElementById('photo');
+  el.style.backgroundImage = 'url("/lp-anfang/library/images/backgrounds/hoersaal-timecells-bg.jpg?nocache='+Date.now()+'")';
+})();
+
+/* Sprache */
+(function(){
+  const btnDE=document.getElementById('btnDE'), btnEN=document.getElementById('btnEN');
+  function setLang(lang){
+    const isDE = (lang==='de');
+    document.documentElement.lang = lang;
+    document.querySelectorAll('.de').forEach(el=>el.classList.toggle('hidden',!isDE));
+    document.querySelectorAll('.en').forEach(el=>el.classList.toggle('hidden',isDE));
+    btnDE.classList.toggle('active',isDE); btnEN.classList.toggle('active',!isDE);
+    try{localStorage.setItem('fsa_lang',lang);}catch(e){}
+  }
+  btnDE.addEventListener('click',()=>setLang('de'));
+  btnEN.addEventListener('click',()=>setLang('en'));
+  setLang((()=>{try{return localStorage.getItem('fsa_lang')||'de';}catch(e){return 'de';}})());
+})();
+
+/* Intro → Gate (gleicher schwebender Block) */
+(function(){
+  const intro=document.getElementById('intro');
+  const gate=document.getElementById('gate');
+  const toGateDE=document.getElementById('toGateDE');
+  const toGateEN=document.getElementById('toGateEN');
+
+  function showGate(){ intro.classList.add('hidden'); gate.classList.remove('hidden'); }
+  toGateDE.addEventListener('click', showGate);
+  toGateEN.addEventListener('click', showGate);
+})();
+
+/* Gate-Button erst aktiv, wenn Checkbox + Passwort gesetzt */
+(function(){
+  const pw=document.getElementById('pw');
+  const ack=document.getElementById('ack');
+  const goDE=document.getElementById('goDE');
+  const goEN=document.getElementById('goEN');
+
+  function update(){
+    const ok = !!pw.value.trim() && ack.checked;
+    goDE.disabled = !ok; goEN.disabled = !ok;
+  }
+  pw.addEventListener('input', update);
+  ack.addEventListener('change', update);
+  update();
+})();
 </script>
 
 </body>
