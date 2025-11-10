@@ -15,10 +15,12 @@
     --radius:18px; --shadow:0 26px 48px rgba(0,0,0,.55);
     --card-maxw:560px; --pw-w:320px; --pw-h:48px;
 
-    /* Ticker: Höhe unverändert, Breite gekürzt wie markiert */
-    --ticker-top:69.5vh;
-    --ticker-maxw:520px;
+    /* ░░ Ticker-Justage ░░
+       Höhe unverändert, nur kürzeres sichtbares Fenster auf dem Sockel */
+    --ticker-top:67vh;            /* vertikale Position bleibt */
+    --ticker-maxw:600px;          /* Breite des Fensters (nur Sockel) */
   }
+
   html,body{height:100%;margin:0;background:#000;color:var(--text);font-family:Inter,system-ui,sans-serif}
   .hidden{display:none!important}
 
@@ -27,15 +29,14 @@
   .walls{position:fixed;inset:0;z-index:1;pointer-events:none;background:
       radial-gradient(120% 100% at -10% 50%, var(--wall) 0%, var(--wall) 24%, var(--wall-soft) 42%, rgba(10,17,23,0) 62%),
       radial-gradient(120% 100% at 110% 50%, var(--wall) 0%, var(--wall) 24%, var(--wall-soft) 42%, rgba(10,17,23,0) 62%),
-      radial-gradient(80% 55% at 50% 92%, var(--floor) 0%, transparent 60%)
-  }
+      radial-gradient(80% 55% at 50% 92%, var(--floor) 0%, transparent 60%)}
   .edges{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.35}
   .edges::before,.edges::after{content:"";position:fixed;top:0;bottom:0;width:18vw}
   .edges::before{left:0;background:linear-gradient(to right,transparent 68%, var(--edge-glow) 80%, var(--edge-core) 86%, transparent 100%)}
   .edges::after{right:0;background:linear-gradient(to left,transparent 68%, var(--edge-glow) 80%, var(--edge-core) 86%, transparent 100%)}
   .floor-shimmer{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(55% 30% at 50% 84%, rgba(26,193,150,.14) 0%, rgba(26,193,150,.06) 48%, transparent 72%)}
 
-  /* Floating-Card (Intro/Gate) */
+  /* Floating-Card (Intro/Gate) – unverändert */
   .floating{
     position:fixed; left:50%; top:43vh; transform:translate(-50%,-50%) scale(.98);
     width:min(88vw,var(--card-maxw)); background:var(--card);
@@ -68,17 +69,17 @@
   .langbtn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:700}
   .langbtn.active{background:var(--accent);color:#0b0f14}
 
-  /* Laufband – ohne Rand, grüne Schrift, mittig auf dem Sockel, kürzer */
+  /* ░░ Laufband – ohne Rahmen, nur auf dem Sockel, kürzer & langsamer ░░ */
   .ticker{
     position:fixed; left:50%; top:var(--ticker-top); transform:translate(-50%,-50%);
-    width:min(64vw,var(--ticker-maxw));
-    background:transparent;
+    width:min(56vw, var(--ticker-maxw));   /* nur Sockelbreite */
+    background:transparent;                /* kein sichtbarer Rahmen */
     z-index:3; overflow:hidden; pointer-events:none;
-    /* weiche Kanten links/rechts */
+    /* sanft maskierte Enden, exakt am Fenster */
     -webkit-mask-image:linear-gradient(to right, transparent 0%, #000 10%, #000 90%, transparent 100%);
             mask-image:linear-gradient(to right, transparent 0%, #000 10%, #000 90%, transparent 100%);
   }
-  .ticker__track{display:inline-block; white-space:nowrap; padding-left:100%; animation:marquee 44s linear infinite}
+  .ticker__track{display:inline-block; white-space:nowrap; padding-left:100%; animation:marquee 46s linear infinite}
   .ticker__track span{display:inline-block; padding:0 1.2rem; color:var(--accent); font-weight:600; text-shadow:0 0 8px rgba(0,163,108,.22)}
   @keyframes marquee{ from{ transform:translateX(0) } to{ transform:translateX(-100%) } }
 
@@ -86,8 +87,8 @@
     .floating{padding:18px 16px; top:45vh}
     .floating h2{font-size:1.28rem}
     .content{max-width:100%}
-    :root{--pw-w:100%; --ticker-top:72vh; --ticker-maxw:360px}
-    .ticker{ width:min(86vw,var(--ticker-maxw)) }
+    :root{--pw-w:100%; --ticker-top:72vh; --ticker-maxw:420px}
+    .ticker{ width:min(74vw, var(--ticker-maxw)) }
   }
 
   main{min-height:180vh}
@@ -160,7 +161,7 @@
   </div>
 </section>
 
-<!-- Laufband (gekürzt, mittig auf dem Sockel) -->
+<!-- Laufband (nur auf dem Sockel sichtbar) -->
 <div class="ticker" role="region" aria-label="Hörsaal-Lauftext">
   <div class="ticker__track">
     <span class="de">TIC wurde entwickelt, um die Barrieren zwischen Krypto-Assets und traditionellem Geld zu durchbrechen. Es bietet Nutzern und Liquiditätsanbietern einen profitablen, gebührenfreien Einstieg in die Krypto-Welt – alles dezentral verwaltet.</span>
@@ -207,30 +208,35 @@
   toGateEN.addEventListener('click', showGate);
 })();
 
-/* Gate-Button + Weiterleitung (Passwort "timecells") */
+/* Gate-Button: aktiv erst mit Checkbox + Passwort; Redirect bei richtigem Passwort */
 (function(){
   const pw=document.getElementById('pw');
   const ack=document.getElementById('ack');
   const goDE=document.getElementById('goDE');
   const goEN=document.getElementById('goEN');
 
-  const secret='timecells'; // exakt
-  // Ziel robust relativ zum Repo: <repo-root>/pages/timecells/index.html
-  const repoRoot = location.pathname.split('/pages/')[0];
-  const target = repoRoot + '/pages/timecells/index.html';
+  const secret='timecells';                         // exakt
+  const target='pages/timecells/index.html';        // gewünschter Zielpfad (relativ)
 
   function update(){
-    const ok = !!pw.value.trim() && ack.checked;
+    const ok = !!(pw.value||'').trim() && ack.checked;
     goDE.disabled = !ok; goEN.disabled = !ok;
   }
+
+  function normalizeVal(s){
+    try{ return s.normalize('NFKC').toLowerCase().trim(); }
+    catch(e){ return (s||'').toLowerCase().trim(); }
+  }
+
   function go(){
-    if (pw.value === secret){
+    if (normalizeVal(pw.value) === secret){
       const url = target + '?nocache=' + Date.now();
       window.location.assign(url);
     } else {
       alert(document.documentElement.lang==='de' ? 'Passwort falsch.' : 'Incorrect password.');
     }
   }
+
   pw.addEventListener('input', update);
   ack.addEventListener('change', update);
   goDE.addEventListener('click', go);
