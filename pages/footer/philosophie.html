@@ -17,32 +17,32 @@
     --topbar:88px; /* wird per JS aktualisiert */
   }
   html,body{
-    height:100%;margin:0;padding:0;
-    background:transparent;color:var(--text);
+    height:100%; margin:0; padding:0;
+    background:transparent; color:var(--text);
     font-family:Inter,system-ui,sans-serif;
     overflow-x:hidden;
   }
 
-  /* Nur Animation für Auto-Hide, keine Position erzwingen */
-  header.global-menu{
+  /* Wichtig: auf das generische .global-menu zielen (DIV ODER HEADER) */
+  .global-menu{
+    position:sticky !important;
+    top:0; left:0; right:0;
     z-index:9999;
     transition:transform .24s ease;
     will-change:transform;
+    transform:translateY(0);
   }
-  header.global-menu.hidden,
-  header.global-menu.is-hidden{
-    transform:translateY(-100%);
-  }
+  .global-menu.is-hidden{ transform:translateY(-100%); }
 
   .bg-fixed{
-    position:fixed;inset:0;
+    position:fixed; inset:0;
     background:url('../../library/images/backgrounds/philosophie-bg.jpg') center/cover no-repeat;
     z-index:-2;
   }
 
   /* Oberabstand dynamisch anhand der echten Headerhöhe */
-  main{position:relative;z-index:1;padding:calc(var(--topbar) + 24px) 20px 100px;}
-  .wrap{max-width:var(--maxw);margin:0 auto;display:flex;flex-direction:column;gap:2.5rem;}
+  main{ position:relative; z-index:1; padding:calc(var(--topbar) + 24px) 20px 100px; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; display:flex; flex-direction:column; gap:2.5rem; }
   .card{
     background:var(--bg-card);
     border:1px solid rgba(212,175,55,.18);
@@ -94,22 +94,6 @@
       <p class="en hidden">Financial sovereignty means more than owning money.<br>
       It is the art of leading your own life again.<br>
       To realize that security doesn’t come from outside, but grows from the awareness of how you use your energy, your time, and your value.</p>
-
-      <p class="de">Viele Menschen spüren, dass etwas nicht stimmt – dass Schulden, Inflation und Kontrolle kein Naturgesetz sind.<br>
-      Sie fühlen, dass sie mehr sind als Zahnräder in einer Maschine, die sie nie gebaut haben.<br>
-      Und genau dort beginnt die stille Revolution: im Moment, in dem du beschließt, dich nicht länger ablenken, kleinhalten oder vertrösten zu lassen.</p>
-      <p class="en hidden">Many people feel that something is off – that debt, inflation and control are not laws of nature.<br>
-      They sense that they are more than cogs in a machine they never built.<br>
-      And that’s where the silent revolution begins: in the moment you decide to stop being distracted, diminished, or pacified.</p>
-
-      <p class="de">Unsere Philosophie ist einfach:<br>
-      Wissen befreit. Verantwortung verwandelt. Bewusstsein verändert alles.<br>
-      Wir zeigen, wie du dein Denken neu ordnest, deine Finanzen verstehst und dein Leben aus der Fremdbestimmung zurückholst.<br>
-      Nicht laut, nicht aggressiv – sondern klar, still und konsequent.</p>
-      <p class="en hidden">Our philosophy is simple:<br>
-      Knowledge liberates. Responsibility transforms. Awareness changes everything.<br>
-      We show you how to realign your thinking, understand your finances, and reclaim your life from external control.<br>
-      Not loudly or aggressively – but clear, calm, and consistent.</p>
     </div>
 
     <!-- ===== Vision ===== -->
@@ -170,7 +154,7 @@
 <script src="../../library/js/topbar-autohide.js?v=20251109"></script>
 
 <script>
-// DE/EN sichtbar schalten (Reaktion auf fsa:lang-change)
+/* DE/EN sichtbar schalten (Reaktion auf fsa:lang-change) */
 document.addEventListener("DOMContentLoaded", () => {
   const applyLang = (lang) => {
     document.querySelectorAll(".de, .en").forEach(el => {
@@ -183,20 +167,41 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("fsa:lang-change", e => applyLang(e.detail || "de"));
 });
 
-// Oberabstand dynamisch an Topbar-Höhe anpassen
+/* Oberabstand dynamisch + robust (DIV/HEADER + spätes Rendern) */
 (function(){
-  function setTopbarHeight(){
-    const h = document.querySelector('header.global-menu');
-    const px = h ? Math.max(56, Math.round(h.getBoundingClientRect().height)) : 88;
-    document.documentElement.style.setProperty('--topbar', px + 'px');
+  const root = document.documentElement;
+  function headerEl(){
+    return document.querySelector('header.global-menu, .global-menu');
   }
-  window.addEventListener('load', setTopbarHeight);
-  window.addEventListener('resize', setTopbarHeight);
-  // zweiter Tick, falls menu.js später rendert
+  function setTopbarHeight(){
+    const h = headerEl();
+    const px = h ? Math.max(56, Math.round(h.getBoundingClientRect().height)) : 88;
+    root.style.setProperty('--topbar', px + 'px');
+  }
+  // initial + on resize
+  window.addEventListener('load', setTopbarHeight, {passive:true});
+  window.addEventListener('resize', setTopbarHeight, {passive:true});
+  // falls menu.js später rendert
+  const mo = new MutationObserver(setTopbarHeight);
+  mo.observe(document.getElementById('menu-root'), {childList:true, subtree:true});
   setTimeout(setTopbarHeight, 400);
 })();
 
-// nocache an interne Links hängen
+/* Fallback-Autohide (wirken auf .global-menu, unabhängig vom externen Script) */
+(function(){
+  const nav = () => document.querySelector('header.global-menu, .global-menu');
+  let lastY = window.scrollY || 0;
+  function onScroll(){
+    const h = nav(); if(!h) return;
+    const y = window.scrollY || 0;
+    if (y > lastY + 8 && y > 40) { h.classList.add('is-hidden'); }
+    else if (y < lastY - 8) { h.classList.remove('is-hidden'); }
+    lastY = y;
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+})();
+  
+/* nocache an interne Links hängen */
 (function(){
   const t = Date.now();
   document.querySelectorAll('a[data-internal]').forEach(a=>{
