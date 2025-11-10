@@ -34,7 +34,8 @@
     z-index:-2;
   }
 
-  main{ position:relative; z-index:1; padding:120px 20px 100px; }
+  /* Fester Oberabstand zur globalen Topbar (Autohide kommt aus topbar-autohide.js) */
+  main{ position:relative; z-index:1; padding:88px 20px 100px; }
   .wrap{ max-width:var(--maxw); margin:0 auto; display:flex; flex-direction:column; gap:2.2rem; }
 
   .card{
@@ -69,7 +70,7 @@
 </head>
 <body>
 
-<!-- Globales Menü + DE/EN + Musik -->
+<!-- Globales Menü (wird durch menu.js gerendert) -->
 <div id="menu-root"></div>
 <div class="bg-fixed" aria-hidden="true"></div>
 
@@ -206,7 +207,7 @@
       <p class="de">Wir können diese Informationen bei Bedarf anpassen. Die jeweils aktuelle Fassung wird auf dieser Seite veröffentlicht.</p>
       <p class="en hidden">We may update this information when necessary. The current version will be published on this page.</p>
 
-      <a href="../../index.html" class="btn-back">
+      <a href="../../index.html" class="btn-back" data-internal>
         <span class="de">← Zurück zur Startseite</span>
         <span class="en hidden">← Back to Startpage</span>
       </a>
@@ -215,23 +216,37 @@
   </div>
 </main>
 
-<!-- Globale Skripte -->
-<script src="../../library/js/menu.js"></script>
-<script src="../../library/js/lang-switcher.js"></script>
-<script src="../../library/js/music-button.js"></script>
+<!-- Globale Skripte (Reihenfolge wie Referenzseiten) -->
+<script src="../../library/js/menu.js?v=20251109"></script>
+<script src="../../library/js/lang-switcher.js?v=20251109"></script>
+<script src="../../library/js/music-button.js?v=20251109"></script>
+<script src="../../library/js/topbar-autohide.js?v=20251109"></script>
 
-<!-- Seiten-Renderer für DE/EN (verdrahtet mit eurem globalen Umschalter) -->
+<!-- Seiten-Renderer DE/EN + nocache -->
 <script>
   (function(){
     function applyLang(code){
       document.querySelectorAll('.de').forEach(el=>el.classList.toggle('hidden', code!=='de'));
       document.querySelectorAll('.en').forEach(el=>el.classList.toggle('hidden', code!=='en'));
+      document.documentElement.lang = code || 'de';
     }
     const stored = localStorage.getItem('fsa_lang') || 'de';
     applyLang(stored);
     document.addEventListener('fsa:lang-change', e=>{
       applyLang(e && e.detail ? e.detail : (localStorage.getItem('fsa_lang')||'de'));
     }, {passive:true});
+  })();
+
+  /* nocache an interne Links hängen */
+  (function(){
+    const t = Date.now();
+    document.querySelectorAll('a[data-internal]').forEach(a=>{
+      try{
+        const u = new URL(a.getAttribute('href'), location.href);
+        u.searchParams.set('nocache', t);
+        a.href = u.pathname + u.search + u.hash;
+      }catch(e){}
+    });
   })();
 </script>
 </body>
