@@ -3,33 +3,55 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hörsaal – Background only (full-bleed)</title>
+<title>Hörsaal – Background Scene (walls)</title>
 <style>
+  :root{
+    /* Basis-Farben für die „Wände“ */
+    --wall:#0a1117;        /* sehr dunkles Grün/Anthrazit */
+    --wall-soft:#0a1117cc; /* halbtransparent für Übergang */
+    --floor-vignette: rgba(0,0,0,.35);
+    --scene:url("/lp-anfang/library/images/backgrounds/hoersaal-timecells-bg.jpg");
+  }
+
   html,body{
     height:100%; margin:0; padding:0;
-    background:transparent;
+    background:#000;  /* Fallback */
   }
 
-  /* Ebene 0: Bild – 1:1 wie Referenz (cover) */
-  .bg-fixed{
+  /* Ebene 0: Szene + seitliche Wände (keine UI) */
+  .scene{
     position:fixed; inset:0; z-index:-2;
-    background: url("/lp-anfang/library/images/backgrounds/hoersaal-timecells-bg.jpg")
-                center bottom / cover no-repeat; /* volle Breite, Tiefe erhalten */
-    background-attachment: fixed; /* Parallax-Tiefe (wo unterstützt) */
-    transform: translateZ(0);     /* iOS-Stabilität */
+    /* Mehrschicht-Hintergrund:
+       1) Foto vollständig sichtbar (contain), am Boden ausgerichtet
+       2) Linke Wand (Verlauf von Rand -> Mitte)
+       3) Rechte Wand
+       4) Leichte Boden-Vignette für Raumtiefe (optional, kein Filter) */
+    background:
+      var(--scene) center bottom / contain no-repeat,
+      linear-gradient(to right, var(--wall) 0%, var(--wall-soft) 12%, transparent 36%),
+      linear-gradient(to left,  var(--wall) 0%, var(--wall-soft) 12%, transparent 36%),
+      radial-gradient(60% 45% at 50% 85%, var(--floor-vignette) 0%, transparent 60%);
+    background-repeat:no-repeat;
+    /* Tiefe beim Scrollen (wo unterstützt) */
+    background-attachment:scroll, scroll, scroll, scroll;
+    transform:translateZ(0);
   }
 
-  /* Ebene 1: leer (Platzhalter) – Länge für Tiefenwirkung */
+  /* Ebene 1: leer, nur Länge für Scroll/Tiefe */
   main{
     position:relative; z-index:1;
-    min-height:180vh; /* mehr Tiefe beim Scrollen */
-    padding:0;
+    min-height:180vh; /* Seite länger für Raumgefühl */
+  }
+
+  /* iOS Safari Fix: vermeidet weiße Blinkflächen beim Resize/Rotate */
+  @supports (-webkit-touch-callout: none) {
+    .scene { will-change: transform; }
   }
 </style>
 </head>
 <body>
 
-<div class="bg-fixed" aria-hidden="true"></div>
+<div class="scene" aria-hidden="true"></div>
 
 <main></main>
 
