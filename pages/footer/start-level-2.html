@@ -19,15 +19,16 @@
     --text:#eaf2f2; --muted:#a9b4be;
     --accent:#00a36c;
     --radius:18px; --shadow:0 26px 48px rgba(0,0,0,.55);
-    --maxw:720px;
 
+    /* Größe Floating Card – bewusst kleiner */
+    --card-maxw:560px;
     --pw-w:320px; --pw-h:48px;
   }
 
   html,body{height:100%;margin:0;background:#000;color:var(--text);font-family:Inter,system-ui,sans-serif}
   .hidden{display:none!important}
 
-  /* ===== Ebene 0–2: Szene (unverändert) ===== */
+  /* ===== Ebene 0–2: Szene ===== */
   .scene-photo{position:fixed;inset:0;z-index:0;background:#000 center bottom/contain no-repeat;transform:translateZ(0)}
   .walls{
     position:fixed;inset:0;z-index:1;pointer-events:none;
@@ -37,7 +38,7 @@
       radial-gradient(80% 55% at 50% 92%, var(--floor) 0%, transparent 60%);
     background-repeat:no-repeat;
   }
-  .edges{position:fixed;inset:0;z-index:2;pointer-events:none}
+  .edges{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.35}
   .edges::before,.edges::after{content:"";position:fixed;top:0;bottom:0;width:18vw}
   .edges::before{
     left:0;background:linear-gradient(to right,transparent 68%, var(--edge-glow) 80%, var(--edge-core) 86%, transparent 100%);
@@ -52,21 +53,31 @@
 
   /* ===== Ebene 3: Floating Block (Intro → Gate) ===== */
   .floating{
-    position:fixed; left:50%; top:42vh; transform:translate(-50%,-50%);
-    width:min(88vw,var(--maxw));
+    position:fixed;
+    left:50%; top:43vh;                      /* exakt zwischen den Vorhängen */
+    transform:translate(-50%,-50%) scale(.98);
+    width:min(88vw,var(--card-maxw));
     background:var(--card);
     border:1.5px solid var(--border);
     border-radius:var(--radius);
     box-shadow:var(--shadow), 0 0 36px rgba(0,163,108,.28);
-    padding:26px 28px;
+    padding:22px 22px;
     z-index:3;
     backdrop-filter:blur(4px);
-  }
-  .floating h2{margin:0 0 8px;font-size:1.6rem;color:var(--accent)}
-  .floating p{margin:0 0 10px;color:var(--muted);line-height:1.6}
-  .actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px}
 
-  /* Gate (Passwort/Checkbox) – erscheint nach Klick */
+    opacity:0;                               /* sanftes Reingleiten */
+    animation:prelude .9s cubic-bezier(.2,.7,.2,1) .1s forwards;
+  }
+  @keyframes prelude{
+    to{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+  }
+  .content{max-width:520px;margin:0 auto}   /* Textbreite schlank zentriert */
+
+  .floating h2{margin:0 0 8px;font-size:1.45rem;color:var(--accent)}
+  .floating p{margin:0 0 10px;color:var(--muted);line-height:1.6}
+  .actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:12px}
+
+  /* Gate (Passwort/Checkbox) */
   .pw-wrap{width:var(--pw-w);position:relative;margin-top:6px}
   .input-wrap{position:relative}
   .input-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);opacity:.95}
@@ -84,17 +95,19 @@
 
   .chk{display:flex;gap:8px;align-items:flex-start;margin-top:10px}
   .chk input{margin-top:4px;transform:scale(1.1)}
+
   .langbar{position:fixed;right:14px;top:12px;z-index:4;display:flex;gap:8px}
   .langbtn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:700}
   .langbtn.active{background:var(--accent);color:#0b0f14}
 
   @media (max-width:640px){
-    .floating{padding:18px 16px; top:44vh}
-    .floating h2{font-size:1.35rem}
+    .floating{padding:18px 16px; top:45vh}
+    .floating h2{font-size:1.28rem}
+    .content{max-width:100%}
     :root{--pw-w:100%}
   }
 
-  main{min-height:180vh} /* Platzhalter, UI liegt im Floating */
+  main{min-height:180vh}
 </style>
 </head>
 <body>
@@ -111,61 +124,63 @@
   <button id="btnEN" class="langbtn">EN</button>
 </div>
 
-<!-- Schwebender Block: State "intro" -> Klick schaltet auf "gate" -->
+<!-- Schwebender Block -->
 <section id="floating" class="floating">
-  <!-- Intro-Text -->
-  <div id="intro">
-    <h2 class="de">Hörsaal • Timecells</h2>
-    <h2 class="en hidden">Lecture Hall • Timecells</h2>
+  <div class="content">
+    <!-- Intro-Text -->
+    <div id="intro">
+      <h2 class="de">Hörsaal • Timecells</h2>
+      <h2 class="en hidden">Lecture Hall • Timecells</h2>
 
-    <p class="de">Präsentationsreihe der Akademie: Innovationen von Menschen für Menschen – für mehr finanzielle Souveränität.</p>
-    <p class="en hidden">Academy presentation series: innovations by people, for people — to strengthen financial sovereignty.</p>
+      <p class="de">Präsentationsreihe der Akademie: Innovationen von Menschen für Menschen – für mehr finanzielle Souveränität.</p>
+      <p class="en hidden">Academy presentation series: innovations by people, for people — to strengthen financial sovereignty.</p>
 
-    <p class="de"><strong>Trennung (Akademie-Sicht):</strong> Dieser Hörsaal ist <em>nicht Teil des Lehrplans</em> und <em>keine Empfehlung</em>. Du prüfst, entscheidest und handelst eigenverantwortlich.</p>
-    <p class="en hidden"><strong>Separation (Academy view):</strong> This lecture hall is <em>not part of the curriculum</em> and <em>not a recommendation</em>. You review, decide and act on your own responsibility.</p>
+      <p class="de"><strong>Trennung (Akademie-Sicht):</strong> Dieser Hörsaal ist <em>nicht Teil des Lehrplans</em> und <em>keine Empfehlung</em>. Du prüfst, entscheidest und handelst eigenverantwortlich.</p>
+      <p class="en hidden"><strong>Separation (Academy view):</strong> This lecture hall is <em>not part of the curriculum</em> and <em>not a recommendation</em>. You review, decide and act on your own responsibility.</p>
 
-    <p class="de"><strong>Übergang:</strong> Mit dem Passwort betrittst du die <em>Neue Finanzwelt der Gegenwart</em>.</p>
-    <p class="en hidden"><strong>Transition:</strong> With the password you enter the <em>new financial world of today</em>.</p>
+      <p class="de"><strong>Übergang:</strong> Mit dem Passwort betrittst du die <em>Neue Finanzwelt der Gegenwart</em>.</p>
+      <p class="en hidden"><strong>Transition:</strong> With the password you enter the <em>new financial world of today</em>.</p>
 
-    <div class="actions">
-      <button id="toGateDE" class="btn de">Weiter</button>
-      <button id="toGateEN" class="btn en hidden">Continue</button>
-    </div>
-  </div>
-
-  <!-- Gate-UI (zuerst versteckt) -->
-  <div id="gate" class="hidden">
-    <h2 class="de">Zugang • Hörsaal</h2>
-    <h2 class="en hidden">Access • Lecture Hall</h2>
-
-    <div class="pw-wrap">
-      <label class="input-wrap" style="display:block">
-        <!-- Inline-SVG Schloss -->
-        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-          <path fill="currentColor" d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5Zm-3 8V6a3 3 0 1 1 6 0v3H9Zm3 5a2 2 0 1 1 0 4a2 2 0 0 1 0-4Z"/>
-        </svg>
-        <input id="pw" type="password" placeholder="Passwort" inputmode="latin-password" aria-label="Passwort" />
-        <button id="goDE" class="btn de" type="button" disabled>Hörsaal betreten</button>
-        <button id="goEN" class="btn en hidden" type="button" disabled>Enter lecture hall</button>
-      </label>
-      <label class="chk">
-        <input id="ack" type="checkbox" />
-        <span>
-          <span class="de">Ich habe verstanden: eigene Prüfung, eigene Entscheidung, eigenes Risiko.</span>
-          <span class="en hidden">I understand: my review, my decision, my risk.</span>
-        </span>
-      </label>
+      <div class="actions">
+        <button id="toGateDE" class="btn de">Weiter</button>
+        <button id="toGateEN" class="btn en hidden">Continue</button>
+      </div>
     </div>
 
-    <p id="msg" class="de" style="color:var(--muted);margin-top:10px">Hinweis: Passwortprüfung/Weiterleitung wird nach Freigabe aktiviert.</p>
-    <p id="msgEn" class="en hidden" style="color:var(--muted);margin-top:10px">Note: Password validation/redirect will be enabled after approval.</p>
+    <!-- Gate-UI -->
+    <div id="gate" class="hidden">
+      <h2 class="de">Zugang • Hörsaal</h2>
+      <h2 class="en hidden">Access • Lecture Hall</h2>
+
+      <div class="pw-wrap">
+        <label class="input-wrap" style="display:block">
+          <!-- Inline-SVG Schloss -->
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5Zm-3 8V6a3 3 0 1 1 6 0v3H9Zm3 5a2 2 0 1 1 0 4a2 2 0 0 1 0-4Z"/>
+          </svg>
+          <input id="pw" type="password" placeholder="Passwort" inputmode="latin-password" aria-label="Passwort" />
+          <button id="goDE" class="btn de" type="button" disabled>Hörsaal betreten</button>
+          <button id="goEN" class="btn en hidden" type="button" disabled>Enter lecture hall</button>
+        </label>
+        <label class="chk">
+          <input id="ack" type="checkbox" />
+          <span>
+            <span class="de">Ich habe verstanden: eigene Prüfung, eigene Entscheidung, eigenes Risiko.</span>
+            <span class="en hidden">I understand: my review, my decision, my risk.</span>
+          </span>
+        </label>
+      </div>
+
+      <p id="msg" class="de" style="color:var(--muted);margin-top:10px">Hinweis: Passwortprüfung/Weiterleitung wird nach Freigabe aktiviert.</p>
+      <p id="msgEn" class="en hidden" style="color:var(--muted);margin-top:10px">Note: Password validation/redirect will be enabled after approval.</p>
+    </div>
   </div>
 </section>
 
 <main></main>
 
 <script>
-/* Hintergrundbild mit Cache-Bust setzen */
+/* Hintergrundbild + Cache-Bypass */
 (function(){
   var el = document.getElementById('photo');
   el.style.backgroundImage = 'url("/lp-anfang/library/images/backgrounds/hoersaal-timecells-bg.jpg?nocache='+Date.now()+'")';
@@ -193,7 +208,6 @@
   const gate=document.getElementById('gate');
   const toGateDE=document.getElementById('toGateDE');
   const toGateEN=document.getElementById('toGateEN');
-
   function showGate(){ intro.classList.add('hidden'); gate.classList.remove('hidden'); }
   toGateDE.addEventListener('click', showGate);
   toGateEN.addEventListener('click', showGate);
@@ -205,7 +219,6 @@
   const ack=document.getElementById('ack');
   const goDE=document.getElementById('goDE');
   const goEN=document.getElementById('goEN');
-
   function update(){
     const ok = !!pw.value.trim() && ack.checked;
     goDE.disabled = !ok; goEN.disabled = !ok;
