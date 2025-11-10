@@ -21,6 +21,12 @@
     font-family:Inter,system-ui,sans-serif;
     overflow-x:hidden;
   }
+  /* Topbar bündig am Viewport */
+  header.global-menu{
+    position:fixed;top:0;left:0;right:0;z-index:9999;
+    margin:0;padding:0;
+  }
+
   .bg-fixed{
     position:fixed;inset:0;
     background:url('../../library/images/backgrounds/philosophie-bg.jpg') center/cover no-repeat;
@@ -53,7 +59,9 @@
 </head>
 <body>
 
+<!-- Globale Topbar -->
 <div id="menu-root"></div>
+
 <div class="bg-fixed" aria-hidden="true"></div>
 
 <main>
@@ -137,7 +145,7 @@
       You are not a victim of the system.<br>
       You are the one who can leave it – and recreate it anew.</p>
 
-      <a href="../../index.html" class="btn-back">
+      <a href="../../index.html" class="btn-back" data-internal>
         <span class="de">← Zurück zur Startseite</span>
         <span class="en hidden">← Back to Startpage</span>
       </a>
@@ -146,21 +154,38 @@
   </div>
 </main>
 
-<script src="../../library/js/menu.js"></script>
-<script src="../../library/js/lang-switcher.js"></script>
-<script src="../../library/js/music-button.js"></script>
+<!-- Globale JS (lokal) -->
+<script src="../../library/js/menu.js?v=20251109"></script>
+<script src="../../library/js/lang-switcher.js?v=20251109"></script>
+<script src="../../library/js/music-button.js?v=20251109"></script>
+<script src="../../library/js/topbar-autohide.js?v=20251109"></script>
 
 <script>
+// DE/EN sichtbar schalten (Reaktion auf fsa:lang-change)
 document.addEventListener("DOMContentLoaded", () => {
   const applyLang = (lang) => {
     document.querySelectorAll(".de, .en").forEach(el => {
       el.classList.add("hidden");
       if (el.classList.contains(lang)) el.classList.remove("hidden");
     });
+    // <html lang> mitführen
+    document.documentElement.lang = (lang || "de");
   };
   applyLang(localStorage.getItem("fsa_lang") || "de");
-  document.addEventListener("fsa:lang-change", e => applyLang(e.detail));
+  document.addEventListener("fsa:lang-change", e => applyLang(e.detail || "de"));
 });
+
+// nocache an interne Links hängen
+(function(){
+  const t = Date.now();
+  document.querySelectorAll('a[data-internal]').forEach(a=>{
+    try{
+      const u = new URL(a.getAttribute('href'), location.href);
+      u.searchParams.set('nocache', t);
+      a.href = u.pathname + u.search + u.hash;
+    }catch(e){}
+  });
+})();
 </script>
 
 </body>
