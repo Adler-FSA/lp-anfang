@@ -17,7 +17,7 @@
 
     /* ░░ Ticker-Justage ░░
        Höhe unverändert, nur kürzeres sichtbares Fenster auf dem Sockel */
-    --ticker-top:70vh;            /* vertikale Position bleibt */
+    --ticker-top:71vh;            /* vertikale Position bleibt */
     --ticker-maxw:600px;          /* Breite des Fensters (nur Sockel) */
   }
 
@@ -143,8 +143,8 @@
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
             <path fill="currentColor" d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5Zm-3 8V6a3 3 0 1 1 6 0v3H9Zm3 5a2 2 0 1 1 0 4a2 2 0 0 1 0-4Z"/>
           </svg>
-          <!-- Sichtbare Eingabe -->
-          <input id="pw" type="text" inputmode="text" placeholder="Passwort" aria-label="Passwort" />
+          <!-- Sichtbare Eingabe (ohne Auto-Cap/Autokorrektur) -->
+          <input id="pw" type="text" inputmode="latin" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Passwort" aria-label="Passwort" />
           <button id="goDE" class="btn de" type="button" disabled>Hörsaal betreten</button>
           <button id="goEN" class="btn en hidden" type="button" disabled>Enter lecture hall</button>
         </label>
@@ -210,24 +210,25 @@
   toGateEN.addEventListener('click', showGate);
 })();
 
-/* Gate-Button: aktiv erst mit Checkbox + Passwort; Redirect bei richtigem Passwort */
+/* Gate-Button: aktiv erst mit Checkbox + Passwort; Redirect bei richtigem Passwort (Case-Sensitive) */
 (function(){
   const pw=document.getElementById('pw');
   const ack=document.getElementById('ack');
   const goDE=document.getElementById('goDE');
   const goEN=document.getElementById('goEN');
 
-  const secret='Timecells';                         // exakt
-  const target='/lp-anfang/pages/timecells/index.html';  // ABSOLUTER Pfad
+  const secret='Timecells';                               // exakt, Case-SENSITIVE
+  const target='/lp-anfang/pages/timecells/index.html';   // absoluter Pfad
 
   function update(){
     const ok = !!(pw.value||'').trim() && ack.checked;
     goDE.disabled = !ok; goEN.disabled = !ok;
   }
 
+  // Keine Kleinschreibung mehr -> Case-Sensitive Vergleich
   function normalizeVal(s){
-    try{ return s.normalize('NFKC').toLowerCase().trim(); }
-    catch(e){ return (s||'').toLowerCase().trim(); }
+    try{ return (s||'').normalize('NFC').trim(); }
+    catch(e){ return (s||'').trim(); }
   }
 
   function go(){
