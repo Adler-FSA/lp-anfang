@@ -3,56 +3,43 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hörsaal – Background Scene (walls)</title>
+<title>Hörsaal – Background Scene</title>
 <style>
   :root{
-    /* Basis-Farben für die „Wände“ */
-    --wall:#0a1117;        /* sehr dunkles Grün/Anthrazit */
-    --wall-soft:#0a1117cc; /* halbtransparent für Übergang */
-    --floor-vignette: rgba(0,0,0,.35);
-    --scene:url("/lp-anfang/library/images/backgrounds/hoersaal-timecells-bg.jpg");
+    --scene-url: url("/lp-anfang/library/images/backgrounds/hoersaal-timecells-bg.jpg");
+    --wall: #0a1117;                  /* Wandfarbe */
+    --wall-soft: rgba(10,17,23,.85);  /* Übergang zur Mitte */
+    --wall-width: 15%;                /* Breite der Seitenwände */
   }
 
   html,body{
-    height:100%; margin:0; padding:0;
-    background:#000;  /* Fallback */
+    height:100%;
+    margin:0;
+    background:transparent;           /* wichtig: nichts überdeckt Ebene 0 */
   }
 
-  /* Ebene 0: Szene + seitliche Wände (keine UI) */
+  /* Ebene 0: Szene + Seitenwände (kein Beschnitt, keine Balken) */
   .scene{
-    position:fixed; inset:0; z-index:-2;
-    /* Mehrschicht-Hintergrund:
-       1) Foto vollständig sichtbar (contain), am Boden ausgerichtet
-       2) Linke Wand (Verlauf von Rand -> Mitte)
-       3) Rechte Wand
-       4) Leichte Boden-Vignette für Raumtiefe (optional, kein Filter) */
+    position:fixed; inset:0; z-index:0;
+    /* Reihenfolge: Bild oben, darunter linke & rechte „Wand“ */
     background:
-      var(--scene) center bottom / contain no-repeat,
-      linear-gradient(to right, var(--wall) 0%, var(--wall-soft) 12%, transparent 36%),
-      linear-gradient(to left,  var(--wall) 0%, var(--wall-soft) 12%, transparent 36%),
-      radial-gradient(60% 45% at 50% 85%, var(--floor-vignette) 0%, transparent 60%);
+      var(--scene-url) center bottom / contain no-repeat,
+      linear-gradient(to right, var(--wall) 0%, var(--wall-soft) calc(var(--wall-width)*0.8), transparent calc(var(--wall-width)*2)),
+      linear-gradient(to left,  var(--wall) 0%, var(--wall-soft) calc(var(--wall-width)*0.8), transparent calc(var(--wall-width)*2));
     background-repeat:no-repeat;
-    /* Tiefe beim Scrollen (wo unterstützt) */
-    background-attachment:scroll, scroll, scroll, scroll;
     transform:translateZ(0);
   }
 
-  /* Ebene 1: leer, nur Länge für Scroll/Tiefe */
+  /* Ebene 1: leer – nur für Länge/Tiefe vorbereitet */
   main{
     position:relative; z-index:1;
-    min-height:180vh; /* Seite länger für Raumgefühl */
-  }
-
-  /* iOS Safari Fix: vermeidet weiße Blinkflächen beim Resize/Rotate */
-  @supports (-webkit-touch-callout: none) {
-    .scene { will-change: transform; }
+    min-height:180vh;                 /* Seite darf länger sein */
   }
 </style>
 </head>
 <body>
 
 <div class="scene" aria-hidden="true"></div>
-
 <main></main>
 
 </body>
