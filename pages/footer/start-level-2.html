@@ -3,37 +3,62 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hörsaal – Background Scene</title>
+<title>Hörsaal – Szene (Background only)</title>
 <style>
   :root{
-    --scene-url: url("/lp-anfang/library/images/backgrounds/hoersaal-timecells-bg.jpg");
-    --wall: #0a1117;                  /* Wandfarbe */
-    --wall-soft: rgba(10,17,23,.85);  /* Übergang zur Mitte */
-    --wall-width: 15%;                /* Breite der Seitenwände */
+    --scene:url("/lp-anfang/library/images/backgrounds/hoersaal-timecells-bg.jpg");
+    --wall:#0a1117;                 /* dunkle Wandbasis */
+    --wall-soft:rgba(10,17,23,.85); /* Übergang zur Mitte */
+    --ceiling:rgba(0,0,0,.55);      /* Decken-Vignette */
+    --ceiling-mid:rgba(0,0,0,.25);
+    --floor:rgba(0,0,0,.35);        /* Boden-Vignette */
   }
 
-  html,body{
-    height:100%;
-    margin:0;
-    background:transparent;           /* wichtig: nichts überdeckt Ebene 0 */
-  }
+  html,body{height:100%;margin:0;background:#000}
 
-  /* Ebene 0: Szene + Seitenwände (kein Beschnitt, keine Balken) */
+  /* Ebene 0: Foto bleibt vollständig sichtbar (contain).
+     Seitenflächen werden als „Wände“ ergänzt – keine schwarzen Balken. */
   .scene{
     position:fixed; inset:0; z-index:0;
-    /* Reihenfolge: Bild oben, darunter linke & rechte „Wand“ */
     background:
-      var(--scene-url) center bottom / contain no-repeat,
-      linear-gradient(to right, var(--wall) 0%, var(--wall-soft) calc(var(--wall-width)*0.8), transparent calc(var(--wall-width)*2)),
-      linear-gradient(to left,  var(--wall) 0%, var(--wall-soft) calc(var(--wall-width)*0.8), transparent calc(var(--wall-width)*2));
+      /* Foto */
+      var(--scene) center bottom / contain no-repeat,
+
+      /* linke Wand – radialer Verlauf für runde Wirkung */
+      radial-gradient(120% 100% at -10% 50%,
+        var(--wall) 0%, var(--wall) 24%,
+        var(--wall-soft) 42%, rgba(10,17,23,.0) 62%),
+
+      /* rechte Wand */
+      radial-gradient(120% 100% at 110% 50%,
+        var(--wall) 0%, var(--wall) 24%,
+        var(--wall-soft) 42%, rgba(10,17,23,.0) 62%),
+
+      /* Decken-Vignette (leicht, nur oben) */
+      linear-gradient(to bottom, var(--ceiling) 0%, var(--ceiling-mid) 18%, transparent 38%),
+
+      /* Boden-Vignette (Tiefe) */
+      radial-gradient(80% 55% at 50% 92%, var(--floor) 0%, transparent 60%);
     background-repeat:no-repeat;
     transform:translateZ(0);
   }
 
-  /* Ebene 1: leer – nur für Länge/Tiefe vorbereitet */
+  /* Ebene 1: leer; Länge erzeugt Tiefe beim Scrollen */
   main{
     position:relative; z-index:1;
-    min-height:180vh;                 /* Seite darf länger sein */
+    min-height:180vh;
+  }
+
+  /* Feinabstimmung bei sehr breiten Displays */
+  @media (min-width:1400px){
+    .scene{
+      background:
+        var(--scene) center bottom / contain no-repeat,
+        radial-gradient(110% 100% at -8% 50%, var(--wall) 0%, var(--wall) 22%, var(--wall-soft) 40%, rgba(10,17,23,0) 60%),
+        radial-gradient(110% 100% at 108% 50%, var(--wall) 0%, var(--wall) 22%, var(--wall-soft) 40%, rgba(10,17,23,0) 60%),
+        linear-gradient(to bottom, var(--ceiling) 0%, var(--ceiling-mid) 16%, transparent 36%),
+        radial-gradient(78% 55% at 50% 92%, var(--floor) 0%, transparent 60%);
+    }
   }
 </style>
 </head>
