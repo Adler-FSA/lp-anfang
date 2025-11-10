@@ -1,44 +1,263 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Start-Level-2 – Zugang</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title data-i18n="meta.title.de">Start-Level-2 – Zugang (geschützt)</title>
+<meta name="description" content="Geschützter Zugang zu einem neuen FSA-Bereich.">
 <style>
-  body {
-    margin:0;
-    font-family:Inter,system-ui,sans-serif;
-    background:#0b0f14;
-    color:#e5e7eb;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    height:100vh;
+  :root{
+    --accent:#0fd18a;           /* Vorhang-Grün */
+    --text:#eef2f7;
+    --muted:#cbd5e1;
+    --panel:rgba(10,12,16,.78); /* Schwebender Block (Startseiten-Stil) */
+    --radius:16px;
+    --shadow:0 26px 50px rgba(0,0,0,.55);
+    --glow:0 0 26px rgba(15,209,138,.35), 0 10px 28px rgba(0,0,0,.55);
+    --maxw:880px;
   }
-  h1 {color:#3b82f6;text-shadow:0 0 18px rgba(59,130,246,.6);}
-  input {
-    padding:10px 14px;
-    border:none;
-    border-radius:6px;
+
+  html,body{
+    height:100%; margin:0; padding:0;
+    background:transparent; color:var(--text);
+    font-family:Inter,system-ui,sans-serif;
+    overflow-x:hidden;
+  }
+
+  /* Fixer Hintergrund (Bühne) */
+  .bg-fixed{
+    position:fixed; inset:0; z-index:-3;
+    /* Umlaute sicher referenzieren */
+    background:url("../../library/images/backgrounds/h%C3%B6rsaal-timecells.jpg") center/cover no-repeat;
+    transform:translateZ(0);
+  }
+  /* Abdunkelung für Lesbarkeit */
+  .bg-tint{
+    position:fixed; inset:0; z-index:-2;
+    background:linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.55) 60%, rgba(0,0,0,.65));
+  }
+
+  /* Overlay für die Sockel-Beschriftung */
+  .stage-label{
+    position:fixed; left:50%; transform:translateX(-50%);
+    z-index:-1;                 /* unterhalb des schwebenden Blocks, über der Tönung */
+    text-align:center;
+    letter-spacing:.28em;
+    font-weight:900;
+    text-transform:uppercase;
+    filter:drop-shadow(0 8px 18px rgba(0,0,0,.6));
+    user-select:none;
+    pointer-events:none;
+  }
+  /* Basissize + responsives Finetuning der vertikalen Position,
+     damit die Schrift auf dem runden Sockel sitzt */
+  .stage-label span{
+    display:block;
+    font-size:42px;
+    color:rgba(230,255,240,.92);
+    text-shadow:
+      0 2px 0 rgba(0,0,0,.35),
+      0 18px 35px rgba(15,209,138,.25);
+  }
+  .stage-label::after{
+    content:"TIMECELLS";
+    display:block;
+    margin-top:6px;
+    font-size:34px;
+    letter-spacing:.28em;
+    color:rgba(200,255,230,.16);     /* leichte Spiegelung */
+    transform:scaleY(-1);
+    filter:blur(1.5px);
+  }
+  @media (min-width:901px){
+    .stage-label{ bottom:13vh; }
+  }
+  @media (max-width:900px){
+    .stage-label{ bottom:16vh; }
+    .stage-label span{ font-size:34px; }
+    .stage-label::after{ font-size:28px; }
+  }
+  @media (max-width:520px){
+    .stage-label{ bottom:18vh; }
+    .stage-label span{ font-size:28px; }
+    .stage-label::after{ font-size:22px; }
+  }
+
+  /* Sprachschalter */
+  .langbar{
+    position:fixed; right:16px; top:14px; z-index:5;
+    display:flex; gap:8px;
+  }
+  .langbtn{
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.14);
+    color:var(--text);
+    padding:6px 12px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:700;
+    backdrop-filter:saturate(130%) blur(2px);
+  }
+  .langbtn.active{ background:var(--accent); color:#0b0f14; border-color:transparent; }
+  .hidden{display:none!important}
+
+  /* Mitte / Schwebender Block */
+  main{
+    min-height:100dvh;
+    display:grid; place-items:center;
+    position:relative; z-index:1;
+    padding:24px;
+  }
+  .card{
+    width:min(100%, var(--maxw));
+    background:var(--panel);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow), var(--glow);
+    padding:28px 26px;
+  }
+  .card h1{
+    margin:0 0 10px;
+    font-size:2rem;
+    color:var(--accent);
+    letter-spacing:.02em;
+  }
+  .lead{ color:var(--muted); margin:0 0 18px; }
+
+  /* Formular */
+  .form-row{ display:flex; align-items:stretch; gap:10px; }
+  .input-wrap{
+    position:relative; flex:1 1 auto;
+  }
+  .input-wrap svg{
+    position:absolute; left:12px; top:50%; transform:translateY(-50%);
+    opacity:.9;
+  }
+  input[type="password"]{
+    width:100%; height:48px;
+    background:rgba(255,255,255,.06);
+    color:var(--text);
+    border:1px solid rgba(255,255,255,.16);
+    border-radius:12px;
+    padding:0 14px 0 40px;      /* Platz für SVG */
+    font-size:1rem;
     outline:none;
   }
-  button {
-    padding:10px 18px;
-    margin-left:8px;
-    border:none;
-    border-radius:6px;
-    background:#3b82f6;
-    font-weight:700;
-    cursor:pointer;
+  input[type="password"]::placeholder{ color:#97a0ad; }
+
+  .btn{
+    display:inline-block;
+    border:none; cursor:pointer;
+    background:var(--accent);
+    color:#071a12; font-weight:800;
+    height:48px; padding:0 18px;
+    border-radius:12px;
+    box-shadow:0 8px 24px rgba(15,209,138,.28);
+    transition:transform .18s ease, filter .18s ease;
+  }
+  .btn:hover{ transform:translateY(-1px); filter:brightness(1.05); }
+
+  .help{
+    margin-top:10px; font-size:.95rem; color:var(--muted);
+  }
+  .err{
+    margin-top:10px; font-weight:700; color:#ffb4b4; display:none;
+  }
+
+  /* Mobile */
+  @media (max-width:640px){
+    .card{ padding:20px; }
+    .card h1{ font-size:1.5rem; }
+    .form-row{ flex-direction:column; }
+    .btn{ width:100%; }
   }
 </style>
 </head>
 <body>
-  <h1>Start-Level-2 – Zugang</h1>
-  <p>Dieser Bereich dient der Vorbereitung auf die nächsten Lernstufen innerhalb der Akademie.</p>
-  <div><input type="password" placeholder="Passwort eingeben"> <button>Login</button></div>
 
-  <script src="../../library/js/access-control.js"></script>
+<!-- Hintergrund -->
+<div class="bg-fixed" aria-hidden="true"></div>
+<div class="bg-tint" aria-hidden="true"></div>
+
+<!-- Sockelbeschriftung -->
+<div class="stage-label" aria-hidden="true">
+  <span>TIMECELLS</span>
+</div>
+
+<!-- Sprachwahl -->
+<div class="langbar">
+  <button id="btnDE" class="langbtn active" data-i18n="lang.de">DE</button>
+  <button id="btnEN" class="langbtn" data-i18n="lang.en">EN</button>
+</div>
+
+<!-- Mitte / Schwebender Block -->
+<main>
+  <section class="card" id="gate">
+    <h1 class="de" data-i18n="gate.title.de">Zugang • Start-Level-2</h1>
+    <h1 class="en hidden" data-i18n="gate.title.en">Access • Start-Level-2</h1>
+
+    <p class="lead de" data-i18n="gate.lead.de">
+      Dieser Bereich ist geschützt. Bitte Passwort eingeben, um fortzufahren.
+    </p>
+    <p class="lead en hidden" data-i18n="gate.lead.en">
+      This area is protected. Please enter the password to continue.
+    </p>
+
+    <form id="pwForm" autocomplete="off" novalidate>
+      <div class="form-row">
+        <label class="input-wrap">
+          <!-- Inline-SVG Schloss -->
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5Zm-3 8V6a3 3 0 1 1 6 0v3H9Zm3 5a2 2 0 1 1 0 4a2 2 0 0 1 0-4Z"/>
+          </svg>
+          <input id="pw" type="password"
+                 placeholder="Passwort"
+                 inputmode="latin-password"
+                 aria-label="Passwort" />
+        </label>
+        <button class="btn de" type="submit" data-i18n="gate.btn.de">Weiter</button>
+        <button class="btn en hidden" type="submit" data-i18n="gate.btn.en">Continue</button>
+      </div>
+      <p id="err" class="err de" data-i18n="gate.err.de">Design-Modus: Passwortprüfung ist noch nicht aktiv.</p>
+      <p id="err_en" class="err en hidden" data-i18n="gate.err.en">Design mode: Password validation not active yet.</p>
+      <p class="help de" data-i18n="gate.help.de">Hinweis: Nach Freigabe wird hier die Weiterleitung zur neuen Plattform erfolgen.</p>
+      <p class="help en hidden" data-i18n="gate.help.en">Note: After activation, this gate will forward to the new platform.</p>
+    </form>
+  </section>
+</main>
+
+<script>
+/* ── Sprache ────────────────────────────────────────────────────────────── */
+(function(){
+  const btnDE=document.getElementById('btnDE');
+  const btnEN=document.getElementById('btnEN');
+  const setLang=(lang)=>{
+    const isDE=(lang==='de');
+    document.querySelectorAll('.de').forEach(el=>el.classList.toggle('hidden',!isDE));
+    document.querySelectorAll('.en').forEach(el=>el.classList.toggle('hidden',isDE));
+    btnDE.classList.toggle('active',isDE);
+    btnEN.classList.toggle('active',!isDE);
+    document.documentElement.lang=lang;
+    try{localStorage.setItem('fsa_lang',lang);}catch(e){}
+  };
+  btnDE.addEventListener('click',()=>setLang('de'));
+  btnEN.addEventListener('click',()=>setLang('en'));
+  const storedLang=(()=>{try{return localStorage.getItem('fsa_lang');}catch(e){return null;}})();
+  setLang(storedLang||'de');
+})();
+
+/* ── Gate: noch ohne echte Prüfung (nur UI) ─────────────────────────────── */
+(function(){
+  const form=document.getElementById('pwForm');
+  const errDE=document.getElementById('err');
+  const errEN=document.getElementById('err_en');
+  form.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    // Design-Phase: keine echte Validierung. Meldung anzeigen.
+    const lang=document.documentElement.lang || 'de';
+    (lang==='de'?errDE:errEN).style.display='block';
+  },{passive:false});
+})();
+</script>
+
 </body>
 </html>
