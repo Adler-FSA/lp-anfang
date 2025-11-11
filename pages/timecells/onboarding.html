@@ -90,34 +90,34 @@
   footer{ text-align:center; margin-top:56px; padding-top:24px; }
   .btn-back{
     display:inline-block; background:var(--accent); color:#fff; text-decoration:none; font-weight:700;
-    padding:12px 26px; border-radius:999px; box-shadow:0 0 28px rgba(0,163,108,.45),0 0 20px rgba(212,175,55,.25);
+    padding:12px 26px; border-radius:999px; box-shadow:0 0 28px rgba(0,163,108,.45), 0 0 20px rgba(212,175,55,.25);
     transition:transform .25s ease,filter .25s ease; margin-bottom:24px;
   }
   .btn-back:hover{ transform:translateY(-3px); filter:brightness(1.08); }
 
-  /* Figma Embed (responsive) */
+  /* Figma – großer On-Page Container (kein Overlay) */
   .figma-wrap{ display:grid; gap:12px; }
-  .figma-embed{
-    position:relative; width:100%; aspect-ratio:16/9;
+  .figma-stage{
+    position:relative; width:100%;
     border:1px solid rgba(255,255,255,.12);
     border-radius:14px; overflow:hidden; background:rgba(0,0,0,.35);
+    /* Default: groß, aber nicht 100% Fensterhöhe */
+    min-height:300px;
   }
-  .figma-embed iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+  /* Fallback-Höhe (wenn kein JS): */
+  .figma-stage:not([style*="height"]){ aspect-ratio:16/9; }
 
-  /* Vollbild-Overlay */
-  .overlay{
-    position:fixed; inset:0; background:rgba(0,0,0,.88);
-    display:flex; align-items:center; justify-content:center; z-index:50;
+  .figma-stage iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+
+  .figma-controls{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .state-badge{
+    font-size:.88rem; padding:6px 10px; border-radius:999px;
+    background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
+    color:#fff;
   }
-  .overlay-inner{
-    position:relative; width:min(94vw,1200px); aspect-ratio:16/9; border-radius:16px; overflow:hidden;
-    border:1px solid rgba(255,255,255,.18); box-shadow:0 20px 60px rgba(0,0,0,.6);
-  }
-  .overlay iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
-  .overlay-close{
-    position:absolute; top:10px; right:10px; display:inline-flex; align-items:center; gap:8px;
-    padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.2);
-    background:rgba(0,0,0,.55); color:#fff; cursor:pointer; z-index:2;
+
+  @media (max-width:640px){
+    .figma-stage{ border-radius:12px; }
   }
 </style>
 </head>
@@ -160,28 +160,22 @@
     </p>
   </div>
 
-  <!-- Präsentation (Figma) -->
-  <div class="card">
+  <!-- Präsentation (Figma) – großer Seiten-Container mit Size-Toggle -->
+  <div class="card" id="figmaCard">
     <h2 class="de">Präsentation (Figma)</h2>
     <h2 class="en hidden">Presentation (Figma)</h2>
+
     <div class="figma-wrap">
       <p class="de">
-        Bitte öffne und sieh dir die Präsentation an. Du kannst sie direkt hier abspielen oder im Vollbild öffnen.
+        Die Präsentation ist unten eingebettet. Mit „Seiten-Vollansicht“ passt sich der Container auf deinem Gerät (iPad/Phone/Desktop)
+        der verfügbaren Höhe an – ohne die Seite zu verlassen.
       </p>
       <p class="en hidden">
-        Please open and view the presentation. You can play it here or open it in fullscreen.
+        The presentation is embedded below. Use “Page full view” to fit the container to your device height (iPad/phone/desktop)
+        without leaving the page.
       </p>
 
-      <div class="figma-embed">
-        <iframe
-          id="figmaFrame"
-          loading="lazy"
-          allowfullscreen
-          src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Fproto%2FRSdor2g7dy6WwMoxscON5q%2FTimecells-Deutch%3Fpage-id%3D180%253A125%26node-id%3D180-127%26p%3Df%26viewport%3D135%252C343%252C0.02%26t%3Db2XFmH8gCBYp5wjO-1%26scaling%3Dmin-zoom%26content-scaling%3Dfixed%26starting-point-node-id%3D180%253A127">
-        </iframe>
-      </div>
-
-      <div class="cta-row">
+      <div class="figma-controls">
         <a class="btn" target="_blank" rel="noopener"
            href="https://www.figma.com/proto/RSdor2g7dy6WwMoxscON5q/Timecells-Deutch?page-id=180%3A125&node-id=180-127&p=f&viewport=135%2C343%2C0.02&t=b2XFmH8gCBYp5wjO-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=180%3A127">
           <!-- External Link Icon -->
@@ -194,19 +188,31 @@
           <span class="en hidden">Open in new tab</span>
         </a>
 
-        <button class="btn" id="btnFigmaFull">
+        <button class="btn" id="btnPageFull">
           <!-- Expand Icon -->
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
           </svg>
-          <span class="de">Vollbild</span>
-          <span class="en hidden">Fullscreen</span>
+          <span class="de" id="labelFullDE">Seiten-Vollansicht</span>
+          <span class="en hidden" id="labelFullEN">Page full view</span>
         </button>
+
+        <span class="state-badge de" id="stateBadgeDE">Status: Normal</span>
+        <span class="state-badge en hidden" id="stateBadgeEN">State: Normal</span>
+      </div>
+
+      <div class="figma-stage" id="figmaStage" role="region" aria-label="Figma Präsentationsbereich">
+        <iframe
+          id="figmaFrame"
+          loading="lazy"
+          allowfullscreen
+          src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Fproto%2FRSdor2g7dy6WwMoxscON5q%2FTimecells-Deutch%3Fpage-id%3D180%253A125%26node-id%3D180-127%26p%3Df%26viewport%3D135%252C343%252C0.02%26t%3Db2XFmH8gCBYp5wjO-1%26scaling%3Dmin-zoom%26content-scaling%3Dfixed%26starting-point-node-id%3D180%253A127">
+        </iframe>
       </div>
     </div>
   </div>
 
-  <!-- Slideshow (30 Folien – identischer Container wie gefordert) -->
+  <!-- Slideshow (30 Folien – identischer Container) -->
   <div class="card" id="slideshow">
     <div class="slide-wrap">
       <div class="slide-head">
@@ -283,25 +289,6 @@
   </footer>
 </main>
 
-<!-- Vollbild-Overlay für Figma -->
-<div id="figmaOverlay" class="overlay hidden" aria-hidden="true">
-  <div class="overlay-inner">
-    <button id="btnCloseOverlay" class="overlay-close" aria-label="Overlay schließen">
-      <!-- Close Icon -->
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-      <span class="de">Schließen</span>
-      <span class="en hidden">Close</span>
-    </button>
-    <iframe
-      id="figmaFrameFull"
-      allowfullscreen
-      src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Fproto%2FRSdor2g7dy6WwMoxscON5q%2FTimecells-Deutch%3Fpage-id%3D180%253A125%26node-id%3D180-127%26p%3Df%26viewport%3D135%252C343%252C0.02%26t%3Db2XFmH8gCBYp5wjO-1%26scaling%3Dmin-zoom%26content-scaling%3Dfixed%26starting-point-node-id%3D180%253A127">
-    </iframe>
-  </div>
-</div>
-
 <script>
 (function(){
   // Parallax
@@ -311,7 +298,6 @@
   // Language
   const btnDE=document.getElementById('btnDE');
   const btnEN=document.getElementById('btnEN');
-  const overlay=document.getElementById('figmaOverlay');
   const setLang=(lang)=>{
     const isDE=(lang==='de');
     document.querySelectorAll('.de').forEach(el=>el.classList.toggle('hidden',!isDE));
@@ -321,33 +307,59 @@
     document.documentElement.lang=lang;
     try{ localStorage.setItem('timecells_lang',lang);}catch(e){}
     render(current); // progress text aktualisieren
-    // Overlay-ARIA
-    overlay.setAttribute('aria-hidden', overlay.classList.contains('hidden') ? 'true' : 'false');
+    // Badge aktualisieren (Textwechsel DE/EN)
+    updateStateBadge();
   };
   btnDE.addEventListener('click',()=>setLang('de'));
   btnEN.addEventListener('click',()=>setLang('en'));
   const lang=(()=>{ try{return localStorage.getItem('timecells_lang')||'de';}catch(e){return 'de';} })();
   setLang(lang);
 
-  // Figma Vollbild
-  const btnFigmaFull=document.getElementById('btnFigmaFull');
-  const btnCloseOverlay=document.getElementById('btnCloseOverlay');
-  btnFigmaFull.addEventListener('click', ()=>{
-    overlay.classList.remove('hidden');
-    overlay.setAttribute('aria-hidden','false');
-  });
-  btnCloseOverlay.addEventListener('click', ()=>{
-    overlay.classList.add('hidden');
-    overlay.setAttribute('aria-hidden','true');
-  });
-  overlay.addEventListener('click', (e)=>{
-    if(e.target===overlay){
-      overlay.classList.add('hidden');
-      overlay.setAttribute('aria-hidden','true');
-    }
-  });
+  // FIGMA: Seiten-Vollansicht (ohne Overlay, responsive für iPad/Phone)
+  const stage = document.getElementById('figmaStage');
+  const card  = document.getElementById('figmaCard');
+  const btnFull = document.getElementById('btnPageFull');
+  const badgeDE = document.getElementById('stateBadgeDE');
+  const badgeEN = document.getElementById('stateBadgeEN');
+  const labelFullDE = document.getElementById('labelFullDE');
+  const labelFullEN = document.getElementById('labelFullEN');
+  let isFull=false;
 
-  // Slides: 30 Platzhalter – später mit Präsentations-Texten befüllen
+  function fitToViewport(){
+    // Höhe so berechnen, dass die Unterkante im sichtbaren Bereich bleibt
+    // Abstand unten 16px Puffer
+    const rect = stage.getBoundingClientRect();
+    const topInView = rect.top;
+    const vh = window.innerHeight;
+    const newH = Math.max(280, Math.floor(vh - topInView - 16));
+    stage.style.height = newH + 'px';
+  }
+  function setNormal(){
+    isFull=false;
+    stage.style.height=''; // CSS-Fallback: aspect-ratio 16/9
+    labelFullDE.textContent='Seiten-Vollansicht';
+    labelFullEN.textContent='Page full view';
+    updateStateBadge();
+  }
+  function setFull(){
+    isFull=true;
+    fitToViewport();
+    labelFullDE.textContent='Zurück zur normalen Größe';
+    labelFullEN.textContent='Back to normal size';
+    updateStateBadge();
+  }
+  function updateStateBadge(){
+    const de = document.documentElement.lang==='de';
+    (de?badgeDE:badgeEN).textContent = (de?'Status: ':'State: ') + (isFull?(de?'Vollansicht':'Full'):'Normal');
+    (de?badgeEN:badgeDE).textContent = (de?'State: Normal':'Status: Normal'); // verborgen, aber gepflegt
+  }
+  btnFull.addEventListener('click', ()=>{
+    if(isFull){ setNormal(); } else { setFull(); }
+  });
+  window.addEventListener('resize', ()=>{ if(isFull) fitToViewport(); });
+  window.addEventListener('orientationchange', ()=>{ setTimeout(()=>{ if(isFull) fitToViewport(); }, 250); });
+
+  // Slideshow: 30 Platzhalter – später mit Präsentations-Texten befüllen
   const slides = Array.from({length:30}, (_,i)=>({
     de:{ title:`Platzhalter – Folie ${i+1}`, text:`Ersetze diese Folie später mit dem jeweiligen Inhalt aus der Präsentation (Schritt ${i+1}).` },
     en:{ title:`Placeholder – Slide ${i+1}`, text:`Replace this slide later with the corresponding content from the presentation (Step ${i+1}).` }
