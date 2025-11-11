@@ -257,7 +257,7 @@
   </div>
 
   <footer>
-    <!-- EINZIGER Button, jetzt zur Basis verdrahtet -->
+    <!-- EINZIGER Button, zur Basis -->
     <a href="timecells-basis.html" class="btn-back de" data-i18n="back.de">← Zurück zur Basis</a>
     <a href="timecells-basis.html" class="btn-back en hidden" data-i18n="back.en">← Back to Basis</a>
     <p>© 2025 Timecells • Dezentrale Finanzinnovation</p>
@@ -286,30 +286,82 @@
   btnEN.addEventListener('click',()=>setLang('en'));
   setLang((()=>{ try{return localStorage.getItem('timecells_lang')||'de';}catch(e){return 'de';} })());
 
-  // Termine: nächste 8 Montage 20:00 Europe/Berlin (Einlass 19:55)
-  const listEl=document.getElementById('nextSlots');
-  function nextMondays(count){
-    const out=[];
-    const now=new Date();
-    for(let i=0;i<200 && out.length<count;i++){
-      const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i);
-      const day=d.getDay(); // 1=Mon
-      if(day===1){
-        const slot=new Date(d.getFullYear(),d.getMonth(),d.getDate(),20,0,0);
+  /* ──────────────────────────────────────────────────────────────
+     Berlin-Fix: Termine ausschließlich nach Europe/Berlin berechnen
+     (unabhängig von Geräte-Zeitzone)
+     ────────────────────────────────────────────────────────────── */
+
+  const TZ = 'Europe/Berlin';
+  const listEl = document.getElementById('nextSlots');
+
+  // Teile-Extractor für eine Zone (stabil, unabhängig von Reihenfolge)
+  function partsInTZ(date, timeZone){
+    const dtf = new Intl.DateTimeFormat('en-GB',{
+      timeZone, year:'numeric', month:'2-digit', day:'2-digit',
+      hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
+    });
+    const obj = {};
+    for (const p of dtf.formatToParts(date)) obj[p.type]=p.value;
+    return obj; // {year,month,day,hour,minute,second}
+  }
+
+  // Offset (Minuten) der Zone zu UTC für einen Zeitpunkt
+  function tzOffsetMinutes(timeZone, date){
+    const p = partsInTZ(date, timeZone);
+    const asUTC = Date.UTC(+p.year, +p.month-1, +p.day, +p.hour, +p.minute, +p.second);
+    return (asUTC - date.getTime())/60000;
+  }
+
+  // Erzeuge einen Zeitpunkt, der einer lokalen Zeit in der Zone entspricht
+  function makeDateInTZ(y,m,d,h,mi,s,timeZone){
+    let t = Date.UTC(y, m-1, d, h, mi, s);
+    let off = tzOffsetMinutes(timeZone, new Date(t));
+    t -= off*60000;
+    // einmal nachziehen, falls DST-Kante
+    const off2 = tzOffsetMinutes(timeZone, new Date(t));
+    if (off2 !== off) t = Date.UTC(y, m-1, d, h, mi, s) - off2*60000;
+    return new Date(t);
+  }
+
+  // Wochentag (0=Sun..6=Sat) aus Sicht der Zone
+  function weekdayIndexInTZ(epochMs, timeZone){
+    const wd = new Intl.DateTimeFormat('en-GB',{timeZone, weekday:'short'}).format(new Date(epochMs));
+    return {Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6}[wd];
+  }
+
+  // Nächste n Montage 20:00 Berlin
+  function nextMondaysBerlin(count){
+    const now = new Date();
+    const pNow = partsInTZ(now, TZ);
+    const todayNoon = makeDateInTZ(+pNow.year, +pNow.month, +pNow.day, 12, 0, 0, TZ); // robust über DST
+    const out = [];
+    for (let i=0; out.length<count && i<220; i++){
+      const candidateEpoch = todayNoon.getTime() + i*86400000; // +1 Tag
+      if (weekdayIndexInTZ(candidateEpoch, TZ) === 1){ // Montag
+        const p = partsInTZ(new Date(candidateEpoch), TZ);
+        const slot = makeDateInTZ(+p.year, +p.month, +p.day, 20, 0, 0, TZ);
         out.push(slot);
       }
     }
-    return out.slice(0,count);
+    return out;
   }
-  const fmtDE=new Intl.DateTimeFormat('de-DE',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Europe/Berlin'});
-  const fmtEN=new Intl.DateTimeFormat('en-GB',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Europe/Berlin'});
+
+  const fmtDE = new Intl.DateTimeFormat('de-DE',{
+    timeZone: TZ, weekday:'long', day:'2-digit', month:'2-digit', year:'numeric',
+    hour:'2-digit', minute:'2-digit', hour12:false
+  });
+  const fmtEN = new Intl.DateTimeFormat('en-GB',{
+    timeZone: TZ, weekday:'long', day:'2-digit', month:'2-digit', year:'numeric',
+    hour:'2-digit', minute:'2-digit', hour12:false
+  });
 
   function renderSlots(){
-    const slots=nextMondays(8);
-    listEl.innerHTML='';
+    const slots = nextMondaysBerlin(8);
+    listEl.innerHTML = '';
     slots.forEach((dt,idx)=>{
-      const isNext=idx===0;
-      const row=document.createElement('div'); row.className='slot';
+      const isNext = (idx===0);
+      const row = document.createElement('div');
+      row.className = 'slot';
       row.innerHTML = `
         <div>
           <div class="de"><strong>${fmtDE.format(dt)}</strong> • Beginn 20:00 • Einlass 19:55</div>
@@ -336,6 +388,7 @@
       listEl.appendChild(row);
     });
   }
+
   renderSlots();
 })();
 </script>
