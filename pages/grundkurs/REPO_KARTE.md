@@ -467,7 +467,9 @@
     │   │   └── share-netzwerk.html
     │   ├── timecells/
     │   │   ├── index.html
-    │   │   └── mission.html
+    │   │   ├── mission.html
+    │   │   ├── onboarding.html
+    │   │   └── workshop.html
     │   ├── admin-config.json
     │   ├── community.html
     │   ├── mentoren.html
@@ -514,4 +516,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.11.2025, 14:15)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.11.2025, 15:15)_
