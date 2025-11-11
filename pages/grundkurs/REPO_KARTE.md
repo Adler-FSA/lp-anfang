@@ -469,6 +469,7 @@
     │   │   ├── index.html
     │   │   ├── mission.html
     │   │   ├── onboarding.html
+    │   │   ├── timecells-basis.html
     │   │   └── workshop.html
     │   ├── admin-config.json
     │   ├── community.html
@@ -516,4 +517,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.11.2025, 15:15)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.11.2025, 16:19)_
