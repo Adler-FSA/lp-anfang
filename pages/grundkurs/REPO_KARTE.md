@@ -46,6 +46,7 @@
     ├── library/
     │   ├── images/
     │   │   ├── backgrounds/
+    │   │   │   ├── hoersaal-timecells-bg-2.jpg
     │   │   │   ├── hoersaal-timecells-bg.jpg
     │   │   │   ├── impressum-bg.jpg
     │   │   │   ├── kontakt-bg.jpg
@@ -517,4 +518,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.11.2025, 19:11)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.11.2025, 20:16)_
