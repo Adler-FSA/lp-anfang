@@ -37,7 +37,6 @@
     border-radius:16px;
     padding:24px 20px;
     box-shadow:0 0 40px rgba(245,158,11,.15) inset,0 0 24px rgba(245,158,11,.12);
-    /* WICHTIG: Top-Abstand wird per JS gesetzt, damit keine Oberkante-Luft entsteht */
     margin-top:0;
   }
   .hero h1{margin:0 0 6px;font-size:34px;color:var(--gold);text-align:center}
@@ -120,6 +119,12 @@
   .toast{ position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,.78); border:1px solid rgba(255,255,255,.18); color:#fff; padding:10px 14px; border-radius:10px; font-size:.92rem; z-index:9999; box-shadow:0 8px 28px rgba(0,0,0,.4); display:none; }
   .toast.show{ display:block; }
   .muted-link-mini{ display:inline-block; margin-top:8px; color:var(--muted); text-decoration:underline; cursor:pointer; }
+
+  /* Loader für Slide-Start */
+  .loader{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:var(--gold); font-weight:700; background:transparent; pointer-events:none;
+  }
 </style>
 </head>
 <body>
@@ -239,6 +244,7 @@
     <div class="panel">
       <div class="stage" id="stage">
         <img src="/lp-anfang/krypto/images/slide-01.jpg" alt="Slide 1" class="slide active" id="fallback">
+        <div class="loader" id="loader">Lade Slides…</div>
         <div class="nav" id="nav"></div>
       </div>
       <div class="control-bar">
@@ -309,7 +315,7 @@
 <script src="/lp-anfang/library/js/music-button.js?v=20251109"></script>
 <script src="/lp-anfang/library/js/topbar-autohide.js?v=20251109"></script>
 
-<!-- FSA Lang-Bridge: Datei-Paare DE/EN umschalten, ohne lang-switcher.js zu ändern -->
+<!-- FSA Lang-Bridge: Datei-Paare DE/EN umschalten -->
 <script>
 (function () {
   const KEY='fsa_lang';
@@ -342,32 +348,35 @@
 })();
 </script>
 
-<!-- ===== Slideshow (Auto-Scan: JPG/PNG/JPEG/WebP) ===== -->
+<!-- ===== Slideshow (Auto-Scan: JPG/PNG/JPEG/WebP, Stop bei erster Lücke) ===== -->
 <script>
 (function(){
   const BASE = "/lp-anfang/krypto/images/slide-";
-  const EXTS = [".jpg",".png",".jpeg",".webp"];     // unterstützte Endungen
-  const MAX  = 120;                                  // obere Schranke
-  const MISS_LIMIT = 10;                             // nach 10 Lücken stoppen
+  const EXTS = [".jpg",".png",".jpeg",".webp"]; // Reihenfolge präferiert
+  const MAX  = 120;                              // harte Obergrenze
+  const MISS_LIMIT = 1;                          // Stop bei erster Lücke
 
   const stage = document.getElementById('stage');
   const nav   = document.getElementById('nav');
   const prev  = document.getElementById('prev');
   const next  = document.getElementById('next');
   const fallback = document.getElementById('fallback');
+  const loader   = document.getElementById('loader');
 
-  const slides=[]; const dots=[]; let idx=0;
+  const slides=[]; const dots=[];
+  let idx=0;
 
   function pad2(n){ return String(n).padStart(2,'0'); }
+  const bust = () => `?v=${Date.now()}`;
 
   function pickExisting(i){
     return new Promise(resolve=>{
-      let resolved=false, remaining=EXTS.length;
+      let done=false, pending=EXTS.length;
       EXTS.forEach(ext=>{
-        const im=new Image();
-        im.onload=()=>{ if(!resolved){ resolved=true; resolve(BASE+pad2(i)+ext); } };
-        im.onerror=()=>{ if(--remaining===0 && !resolved) resolve(null); };
-        im.src = BASE+pad2(i)+ext + "?v=" + Date.now();
+        const test=new Image();
+        test.onload=()=>{ if(!done){ done=true; resolve(BASE+pad2(i)+ext); } };
+        test.onerror=()=>{ if(--pending===0 && !done) resolve(null); };
+        test.src = BASE+pad2(i)+ext + bust(); // Cache-Buster nur fürs Probing
       });
     });
   }
@@ -378,43 +387,59 @@
       const src = await pickExisting(i);
       if(src){ found.push(src); misses=0; } else { misses++; }
     }
+    if(!found.length){
+      if(loader) loader.textContent='Keine Slides gefunden.';
+      return;
+    }
 
-    if(found.length){
-      if(fallback) fallback.remove();
-      found.forEach((src,i)=>{
-        const img=document.createElement('img');
-        img.loading = i<2 ? "eager" : "lazy";
-        img.src = src; img.alt = `Slide ${i+1}`;
-        img.className = 'slide' + (i===0 ? ' active' : '');
-        slides.push(img);
-        stage.insertBefore(img, nav);
+    // DOM aufbauen
+    found.forEach((src,i)=>{
+      const img=document.createElement('img');
+      img.className='slide' + (i===0?' active':'');
+      img.alt=`Slide ${i+1}`;
+      img.decoding='async';
+      if(i<2){ img.loading='eager'; img.setAttribute('fetchpriority','high'); }
+      else    { img.loading='lazy'; }
+      img.src = src + bust(); // reale Anzeige ebenfalls ohne Cache
+      slides.push(img);
+      stage.insertBefore(img, nav);
 
-        const b=document.createElement('button');
-        b.className='dot'+(i===0?' active':'');
-        b.addEventListener('click',()=>show(i));
-        nav.appendChild(b); dots.push(b);
-      });
+      const b=document.createElement('button');
+      b.className='dot'+(i===0?' active':'');
+      b.addEventListener('click',()=>show(i));
+      nav.appendChild(b);
+      dots.push(b);
+    });
+
+    // Zähler
+    const counter=document.createElement('div');
+    counter.style.cssText="position:absolute;bottom:20px;right:20px;padding:6px 10px;border-radius:8px;background:rgba(0,0,0,.6);color:#f2c94c;font-weight:600;font-size:14px;font-family:system-ui";
+    stage.appendChild(counter);
+    function updateCounter(){ counter.textContent=`${idx+1} / ${slides.length}`; }
+
+    function show(i){
+      slides[idx].classList.remove('active');
+      dots[idx].classList.remove('active');
+      idx=(i+slides.length)%slides.length;
+      slides[idx].classList.add('active');
+      dots[idx].classList.add('active');
       updateCounter();
     }
-  }
 
-  function show(i){
-    if(!slides.length) return;
-    slides[idx].classList.remove('active');
-    dots[idx]?.classList.remove('active');
-    idx=(i+slides.length)%slides.length;
-    slides[idx].classList.add('active');
-    dots[idx]?.classList.add('active');
+    // Fallback/Loader erst nach echtem Bild 1 entfernen
+    const first = slides[0];
+    if(first && !first.complete){
+      first.addEventListener('load', ()=>{ if(fallback) fallback.remove(); if(loader) loader.style.display='none'; }, {once:true});
+      first.addEventListener('error', ()=>{ if(loader) loader.textContent='Slide 1 konnte nicht geladen werden.'; }, {once:true});
+    }else{
+      if(fallback) fallback.remove();
+      if(loader) loader.style.display='none';
+    }
+
+    prev.addEventListener('click',()=>show(idx-1));
+    next.addEventListener('click',()=>show(idx+1));
     updateCounter();
   }
-
-  const counter=document.createElement('div');
-  counter.style.cssText="position:absolute;bottom:20px;right:20px;padding:6px 10px;border-radius:8px;background:rgba(0,0,0,.6);color:#f2c94c;font-weight:600;font-size:14px;font-family:system-ui";
-  stage.appendChild(counter);
-  function updateCounter(){ counter.textContent=`${idx+1} / ${slides.length||0}`; }
-
-  prev.addEventListener('click',()=>show(idx-1));
-  next.addEventListener('click',()=>show(idx+1));
 
   build();
 })();
