@@ -40,6 +40,10 @@
   .nav{position:absolute;inset-inline:0;bottom:20px;display:flex;justify-content:center;gap:6px;z-index:5}
   .dot{width:10px;height:10px;border-radius:999px;background:rgba(255,255,255,.28);border:0;cursor:pointer}
   .dot.active{background:#fff}
+  .loader{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:var(--gold);font-weight:700
+  }
 
   /* Controls */
   .control-bar{display:flex;justify-content:center;gap:16px;margin-top:16px;flex-wrap:wrap}
@@ -83,6 +87,10 @@
   .toast.show{ display:block; }
   .muted-link-mini{ display:inline-block; margin-top:8px; color:var(--muted); text-decoration:underline; cursor:pointer; }
 </style>
+
+<!-- Preload first two JPG slides -->
+<link rel="preload" as="image" href="/lp-anfang/krypto/images/slide-01.jpg">
+<link rel="preload" as="image" href="/lp-anfang/krypto/images/slide-02.jpg">
 </head>
 <body>
 
@@ -197,7 +205,8 @@
   <!-- Slideshow -->
   <div class="panel">
     <div class="stage" id="stage">
-      <img src="/lp-anfang/krypto/images/slide-01.jpg" alt="Slide 1" class="slide active" id="fallback">
+      <div class="loader" id="loader">Loading slides…</div>
+      <img src="/lp-anfang/krypto/images/slide-01.jpg" alt="Slide 1" class="slide active" id="fallback" loading="eager" decoding="async" fetchpriority="high">
       <div class="nav" id="nav"></div>
     </div>
     <div class="control-bar">
@@ -298,56 +307,60 @@
 })();
 </script>
 
-<!-- ===== Slideshow (Auto-Scan: JPG/PNG/JPEG/WebP) ===== -->
+<!-- ===== Slideshow JPG-only (fast, no cache-buster) ===== -->
 <script>
 (function(){
   const BASE = "/lp-anfang/krypto/images/slide-";
-  const EXTS = [".jpg",".png",".jpeg",".webp"];
-  const MAX  = 120;
-  const MISS_LIMIT = 10;
+  const EXT  = ".jpg";
+  const MAX  = 200;          // hard upper bound
+  const MISS_LIMIT = 5;      // stop after 5 consecutive holes
+  const FIRST_EAGER = 2;     // #1-2 eager, rest lazy
 
-  const stage=document.getElementById('stage'), nav=document.getElementById('nav');
-  const prev=document.getElementById('prev'), next=document.getElementById('next');
+  const stage = document.getElementById('stage');
+  const nav   = document.getElementById('nav');
+  const prev  = document.getElementById('prev');
+  const next  = document.getElementById('next');
+  const loader= document.getElementById('loader');
   const fallback=document.getElementById('fallback');
 
-  const slides=[], dots=[]; let idx=0;
-  const pad2=n=>String(n).padStart(2,'0');
+  const slides=[]; const dots=[]; let idx=0;
+  const pad2 = n => String(n).padStart(2,'0');
 
-  function pickExisting(i){
-    return new Promise(resolve=>{
-      let resolved=false, remaining=EXTS.length;
-      EXTS.forEach(ext=>{
-        const im=new Image();
-        im.onload=()=>{ if(!resolved){ resolved=true; resolve(BASE+pad2(i)+ext); } };
-        im.onerror=()=>{ if(--remaining===0 && !resolved) resolve(null); };
-        im.src = BASE+pad2(i)+ext + "?v=" + Date.now();
-      });
+  function probe(src){
+    return new Promise(res=>{
+      const im=new Image();
+      im.onload=()=>res(true);
+      im.onerror=()=>res(false);
+      im.src=src; // no cache-buster -> faster
     });
   }
 
   async function build(){
     let misses=0; const found=[];
     for(let i=1;i<=MAX && misses<MISS_LIMIT;i++){
-      const src=await pickExisting(i);
-      if(src){ found.push(src); misses=0; } else { misses++; }
+      const src = `${BASE}${pad2(i)}${EXT}`;
+      if(i===1){ found.push(src); misses=0; continue; } // #1 exists as fallback
+      if(await probe(src)){ found.push(src); misses=0; } else { misses++; }
     }
-    if(found.length){
-      if(fallback) fallback.remove();
-      found.forEach((src,i)=>{
-        const img=document.createElement('img');
-        img.loading=i<2?"eager":"lazy";
-        img.src=src; img.alt=`Slide ${i+1}`;
-        img.className='slide'+(i===0?' active':'');
-        slides.push(img);
-        stage.insertBefore(img,nav);
 
-        const b=document.createElement('button');
-        b.className='dot'+(i===0?' active':'');
-        b.addEventListener('click',()=>show(i));
-        nav.appendChild(b); dots.push(b);
-      });
-      updateCounter();
-    }
+    if(fallback) fallback.remove();
+    if(loader) loader.remove();
+
+    found.forEach((src,i)=>{
+      const img=document.createElement('img');
+      img.src=src; img.alt=`Slide ${i+1}`;
+      img.className='slide'+(i===0?' active':'');
+      img.loading = i < FIRST_EAGER ? 'eager' : 'lazy';
+      img.decoding='async';
+      slides.push(img);
+      stage.insertBefore(img,nav);
+
+      const b=document.createElement('button');
+      b.className='dot'+(i===0?' active':'');
+      b.addEventListener('click',()=>show(i));
+      nav.appendChild(b); dots.push(b);
+    });
+    updateCounter();
   }
 
   function show(i){
