@@ -402,44 +402,6 @@
   const bg=document.querySelector('.bg-fixed');
   window.addEventListener('scroll',()=>{ bg.style.transform=`translateY(${window.scrollY*0.3}px)`; });
 
-  // Language
-  const btnDE=document.getElementById('btnDE');
-  const btnEN=document.getElementById('btnEN');
-  const overlay=document.getElementById('figmaOverlay');
-  const setLang=(lang)=>{
-    const isDE=(lang==='de');
-    document.querySelectorAll('.de').forEach(el=>el.classList.toggle('hidden',!isDE));
-    document.querySelectorAll('.en').forEach(el=>el.classList.toggle('hidden',isDE));
-    btnDE.classList.toggle('active',isDE);
-    btnEN.classList.toggle('active',!isDE);
-    document.documentElement.lang=lang;
-    try{ localStorage.setItem('timecells_lang',lang);}catch(e){}
-    render(current);
-    overlay.setAttribute('aria-hidden', overlay.classList.contains('hidden') ? 'true' : 'false');
-  };
-  btnDE.addEventListener('click',()=>setLang('de'));
-  btnEN.addEventListener('click',()=>setLang('en'));
-  const lang=(()=>{ try{return localStorage.getItem('timecells_lang')||'de';}catch(e){return 'de';} })();
-  setLang(lang);
-
-  // Figma Vollbild
-  const btnFigmaFull=document.getElementById('btnFigmaFull');
-  const btnCloseOverlay=document.getElementById('btnCloseOverlay');
-  btnFigmaFull.addEventListener('click', ()=>{
-    overlay.classList.remove('hidden');
-    overlay.setAttribute('aria-hidden','false');
-  });
-  btnCloseOverlay.addEventListener('click', ()=>{
-    overlay.classList.add('hidden');
-    overlay.setAttribute('aria-hidden','true');
-  });
-  overlay.addEventListener('click', (e)=>{
-    if(e.target===overlay){
-      overlay.classList.add('hidden');
-      overlay.setAttribute('aria-hidden','true');
-    }
-  });
-
   // Slides (30 Platzhalter)
   const slides = Array.from({length:30}, (_,i)=>({
     de:{ title:`Platzhalter – Folie ${i+1}`, text:`Ersetze diese Folie später mit dem jeweiligen Inhalt aus der Präsentation (Schritt ${i+1}).` },
@@ -462,20 +424,18 @@
     idx = clamp(idx,0,slides.length-1);
     current = idx;
     const s = slides[idx];
-    titleDE.textContent = s.de.title;
-    textDE.textContent  = s.de.text;
-    titleEN.textContent = s.en.title;
-    textEN.textContent  = s.en.text;
-
-    progressDE.textContent = `Folie ${idx+1} / ${slides.length}`;
-    progressEN.textContent = `Slide ${idx+1} / ${slides.length}`;
-
-    prevBtn.disabled = (idx===0);
-    nextBtn.disabled = (idx===slides.length-1);
+    if(titleDE){ titleDE.textContent = s.de.title; }
+    if(textDE){  textDE.textContent  = s.de.text; }
+    if(titleEN){ titleEN.textContent = s.en.title; }
+    if(textEN){  textEN.textContent  = s.en.text; }
+    if(progressDE){ progressDE.textContent = `Folie ${idx+1} / ${slides.length}`; }
+    if(progressEN){ progressEN.textContent = `Slide ${idx+1} / ${slides.length}`; }
+    if(prevBtn){ prevBtn.disabled = (idx===0); }
+    if(nextBtn){ nextBtn.disabled = (idx===slides.length-1); }
   }
 
-  prevBtn.addEventListener('click',()=>{ render(current-1); });
-  nextBtn.addEventListener('click',()=>{ render(current+1); });
+  if(prevBtn) prevBtn.addEventListener('click',()=>{ render(current-1); });
+  if(nextBtn) nextBtn.addEventListener('click',()=>{ render(current+1); });
   window.addEventListener('keydown',(e)=>{
     if(e.key==='ArrowLeft')  render(current-1);
     if(e.key==='ArrowRight') render(current+1);
@@ -484,6 +444,45 @@
   const q = new URLSearchParams(location.search);
   const startIdx = parseInt(q.get('s')||'1',10);
   render(isNaN(startIdx)?0:clamp(startIdx-1,0,slides.length-1));
+
+  // Language
+  const btnDE=document.getElementById('btnDE');
+  const btnEN=document.getElementById('btnEN');
+  const overlay=document.getElementById('figmaOverlay');
+  const setLang=(lang)=>{
+    const isDE=(lang==='de');
+    document.querySelectorAll('.de').forEach(el=>el.classList.toggle('hidden',!isDE));
+    document.querySelectorAll('.en').forEach(el=>el.classList.toggle('hidden',isDE));
+    if(btnDE) btnDE.classList.toggle('active',isDE);
+    if(btnEN) btnEN.classList.toggle('active',!isDE);
+    document.documentElement.lang=lang;
+    try{ localStorage.setItem('timecells_lang',lang);}catch(e){}
+    // WICHTIG: Kein Zugriff auf 'current' vor Initialisierung -> abgesichert
+    try{ if(typeof render==='function') render(current||0); }catch(e){}
+    if(overlay) overlay.setAttribute('aria-hidden', overlay.classList.contains('hidden') ? 'true' : 'false');
+  };
+  if(btnDE) btnDE.addEventListener('click',()=>setLang('de'));
+  if(btnEN) btnEN.addEventListener('click',()=>setLang('en'));
+  const lang=(()=>{ try{return localStorage.getItem('timecells_lang')||'de';}catch(e){return 'de';} })();
+  setLang(lang);
+
+  // Figma Vollbild
+  const btnFigmaFull=document.getElementById('btnFigmaFull');
+  const btnCloseOverlay=document.getElementById('btnCloseOverlay');
+  if(btnFigmaFull) btnFigmaFull.addEventListener('click', ()=>{
+    overlay.classList.remove('hidden');
+    overlay.setAttribute('aria-hidden','false');
+  });
+  if(btnCloseOverlay) btnCloseOverlay.addEventListener('click', ()=>{
+    overlay.classList.add('hidden');
+    overlay.setAttribute('aria-hidden','true');
+  });
+  if(overlay) overlay.addEventListener('click', (e)=>{
+    if(e.target===overlay){
+      overlay.classList.add('hidden');
+      overlay.setAttribute('aria-hidden','true');
+    }
+  });
 
   /* ── Affiliate-Leiste & Öffnungslogik ─────────────────────────────────── */
   const ctaEnroll   = document.getElementById('ctaEnroll');
@@ -526,7 +525,7 @@
   }
 
   // CTA: erst prüfen/abfragen, dann öffnen
-  ctaEnroll.addEventListener('click', (e)=>{
+  if(ctaEnroll) ctaEnroll.addEventListener('click', (e)=>{
     e.preventDefault();
     const saved = getSaved();
     if(isValidUrl(saved)){
@@ -537,13 +536,13 @@
   });
 
   // Enter/Escape im Eingabefeld
-  affInput.addEventListener('keydown', (e)=>{
+  if(affInput) affInput.addEventListener('keydown', (e)=>{
     if(e.key==='Enter'){ affSaveOpen.click(); }
     if(e.key==='Escape'){ affCancel.click(); }
   });
 
   // Speichern & Öffnen
-  affSaveOpen.addEventListener('click', ()=>{
+  if(affSaveOpen) affSaveOpen.addEventListener('click', ()=>{
     const val = affInput.value.trim();
     if(!isValidUrl(val)){
       affError.style.display='block';
@@ -556,7 +555,7 @@
   });
 
   // Abbrechen
-  affCancel.addEventListener('click', hideAffBar);
+  if(affCancel) affCancel.addEventListener('click', hideAffBar);
 
   // ESC schließt die Leiste
   window.addEventListener('keydown', (e)=>{
