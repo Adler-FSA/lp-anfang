@@ -72,6 +72,9 @@
   }
   .btn:hover{ transform:translateY(-2px); filter:brightness(1.07); background:rgba(0,0,0,.65); }
   .btn.primary{ background:var(--accent); border-color:var(--accent); box-shadow:0 0 26px rgba(0,163,108,.45); }
+  .btn[aria-disabled="true"]{
+    opacity:.55; filter:grayscale(60%); pointer-events:none;
+  }
   .icon{ width:20px; height:20px; flex:0 0 20px; }
 
   /* Slideshow */
@@ -91,7 +94,7 @@
   .btn-back{
     display:inline-block; background:var(--accent); color:#fff; text-decoration:none; font-weight:700;
     padding:12px 26px; border-radius:999px; box-shadow:0 0 28px rgba(0,163,108,.45),0 0 20px rgba(212,175,55,.25);
-    transition:transform .25s ease,filter .25s ease; margin-bottom:24px;
+    transition:transform .25s ease,filter .25s ease; margin-bottom:12px;
   }
   .btn-back:hover{ transform:translateY(-3px); filter:brightness(1.08); }
 
@@ -122,7 +125,7 @@
 
   /* ── Affiliate-Link „Browserleiste“ ─────────────────────────────────────── */
   .affbar{
-    position:fixed; top:-200px; left:0; right:0; z-index:60;
+    position:fixed; top:-220px; left:0; right:0; z-index:60;
     backdrop-filter:blur(8px) saturate(140%);
     background:linear-gradient(180deg, rgba(3,10,8,.92), rgba(3,10,8,.86));
     border-bottom:1px solid rgba(212,175,55,.28);
@@ -162,6 +165,9 @@
     display:none;
   }
   .toast.show{ display:block; }
+  .muted-link{
+    display:inline-block; margin-top:8px; color:var(--muted); text-decoration:underline; cursor:pointer;
+  }
 </style>
 </head>
 <body>
@@ -186,8 +192,8 @@
       <span class="de" data-i18n="aff.title.de">Affiliate-Link erforderlich</span>
       <span class="en hidden" data-i18n="aff.title.en">Affiliate link required</span>
     </div>
-    <p class="aff-help de" data-i18n="aff.help.de">Bitte füge deinen persönlichen Affiliate-Link ein. Erst danach öffnet sich die Einschreibeseite.</p>
-    <p class="aff-help en hidden" data-i18n="aff.help.en">Paste your personal affiliate link. Only then the enrollment page will open.</p>
+    <p class="aff-help de" data-i18n="aff.help.de">Bitte füge deinen persönlichen Affiliate-Link ein. Erlaubt sind nur Links zur Domain <b>land.timecells.app</b>. Erst danach öffnet sich die Einschreibeseite.</p>
+    <p class="aff-help en hidden" data-i18n="aff.help.en">Paste your personal affiliate link. Only links to <b>land.timecells.app</b> are allowed. Then the enrollment page will open.</p>
 
     <div class="aff-row">
       <div class="addr" style="min-height:44px">
@@ -196,7 +202,7 @@
           <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6" fill="none"/>
           <path d="M3 12h18M12 3a16 16 0 0 1 0 18M12 3a16 16 0 0 0 0 18" stroke="currentColor" stroke-width="1.4" fill="none"/>
         </svg>
-        <input id="affInput" type="url" inputmode="url" autocomplete="url" placeholder="https://…" aria-label="Affiliate-Link" />
+        <input id="affInput" type="url" inputmode="url" autocomplete="url" placeholder="https://land.timecells.app/?ref=…" aria-label="Affiliate-Link" />
       </div>
       <div class="aff-actions">
         <button id="affSaveOpen" class="btn-ghost">
@@ -218,14 +224,18 @@
         </button>
       </div>
     </div>
-    <p id="affError" class="aff-error de" data-i18n="aff.error.de">Bitte eine gültige URL mit http(s) einfügen.</p>
-    <p class="aff-error en hidden" data-i18n="aff.error.en">Please provide a valid http(s) URL.</p>
+    <p id="affError" class="aff-error de" data-i18n="aff.error.de">Bitte eine gültige http(s)-URL zur Domain <b>land.timecells.app</b> einfügen.</p>
+    <p class="aff-error en hidden" data-i18n="aff.error.en">Please provide a valid http(s) URL to <b>land.timecells.app</b>.</p>
   </div>
 </div>
 
 <div id="toast" class="toast" role="status" aria-live="polite">
   <span class="de">Affiliate-Link gespeichert.</span>
   <span class="en hidden">Affiliate link saved.</span>
+  <span class="de hidden" id="toastFromUrl">Affiliate-Link aus URL übernommen.</span>
+  <span class="en hidden" id="toastFromUrlEN">Affiliate link taken from URL.</span>
+  <span class="de hidden" id="toastReset">Affiliate-Link zurückgesetzt.</span>
+  <span class="en hidden" id="toastResetEN">Affiliate link reset.</span>
 </div>
 
 <main>
@@ -327,11 +337,11 @@
       <div class="slide-box">
         <div class="de">
           <h3 class="slide-title" id="titleDE">Platzhalter – Folie 1</h3>
-          <p class="slide-text" id="textDE">Diese Folie ersetzt du später mit Inhalt aus der Präsentation.</p>
+          <p class="slide-text" id="textDE">Ersetze diese Folie später mit dem jeweiligen Inhalt aus der Präsentation (Schritt 1).</p>
         </div>
         <div class="en hidden">
           <h3 class="slide-title" id="titleEN">Placeholder – Slide 1</h3>
-          <p class="slide-text" id="textEN">Replace this slide with content from the presentation.</p>
+          <p class="slide-text" id="textEN">Replace this slide later with the corresponding content from the presentation (Step 1).</p>
         </div>
       </div>
 
@@ -346,8 +356,8 @@
         </button>
 
         <div class="cta-row">
-          <!-- Kein fester href: Öffnung nur nach Affiliate-Eingabe -->
-          <a class="btn primary" id="ctaEnroll" href="#" role="button">
+          <!-- CTA ist per JS gesperrt, bis gültiger Link vorhanden -->
+          <a class="btn primary" id="ctaEnroll" href="#" role="button" aria-disabled="true">
             <!-- Link/Enter Icon -->
             <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M12 5v4m0 6v4M8 9l4-4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -373,6 +383,10 @@
   <footer>
     <a href="timecells-basis.html" class="btn-back de" data-i18n="back.de">← Zurück zur Basis</a>
     <a href="timecells-basis.html" class="btn-back en hidden" data-i18n="back.en">← Back to Basis</a>
+    <div>
+      <button id="affReset" class="muted-link de" data-i18n="aff.reset.de">Affiliate-Link ändern / zurücksetzen</button>
+      <button id="affResetEN" class="muted-link en hidden" data-i18n="aff.reset.en">Change / reset affiliate link</button>
+    </div>
     <p>© 2025 Timecells • Onboarding</p>
   </footer>
 </main>
@@ -457,7 +471,6 @@
     if(btnEN) btnEN.classList.toggle('active',!isDE);
     document.documentElement.lang=lang;
     try{ localStorage.setItem('timecells_lang',lang);}catch(e){}
-    // WICHTIG: Kein Zugriff auf 'current' vor Initialisierung -> abgesichert
     try{ if(typeof render==='function') render(current||0); }catch(e){}
     if(overlay) overlay.setAttribute('aria-hidden', overlay.classList.contains('hidden') ? 'true' : 'false');
   };
@@ -485,6 +498,8 @@
   });
 
   /* ── Affiliate-Leiste & Öffnungslogik ─────────────────────────────────── */
+  const WHITELIST = ['land.timecells.app']; // nur diese Domain erlauben
+
   const ctaEnroll   = document.getElementById('ctaEnroll');
   const affBar      = document.getElementById('affBar');
   const affInput    = document.getElementById('affInput');
@@ -492,47 +507,58 @@
   const affCancel   = document.getElementById('affCancel');
   const affError    = document.getElementById('affError');
   const toast       = document.getElementById('toast');
+  const affReset    = document.getElementById('affReset');
+  const affResetEN  = document.getElementById('affResetEN');
 
+  function isValidUrl(u){
+    try{
+      const url = new URL(u);
+      const hostOk = WHITELIST.includes(url.hostname);
+      const protoOk = (url.protocol==='https:' || url.protocol==='http:');
+      return hostOk && protoOk;
+    }catch(e){ return false; }
+  }
+  function getSaved(){ try{ return localStorage.getItem('timecells_affiliate_url') || ''; }catch(e){ return ''; } }
+  function saveUrl(u){ try{ localStorage.setItem('timecells_affiliate_url', u); }catch(e){} }
+  function clearUrl(){ try{ localStorage.removeItem('timecells_affiliate_url'); }catch(e){} }
+
+  function updateCtaState(){
+    const ok = isValidUrl(getSaved());
+    if(ctaEnroll){
+      ctaEnroll.setAttribute('aria-disabled', ok ? 'false' : 'true');
+    }
+  }
+
+  function openEnroll(u){
+    window.open(u, '_blank', 'noopener,noreferrer');
+  }
+  function showToastSpan(spanId){
+    // Zeigt den spezifischen Text kurz an (DE/EN je nach Sichtbarkeit)
+    Array.from(toast.children).forEach(n=>n.classList.add('hidden'));
+    const el = document.getElementById(spanId);
+    if(el){ el.classList.remove('hidden'); }
+    toast.classList.add('show');
+    setTimeout(()=>toast.classList.remove('show'), 1600);
+  }
   function showAffBar(prefill){
     if(prefill) affInput.value = prefill; else affInput.value = '';
     affBar.classList.add('open'); affBar.setAttribute('aria-hidden','false');
     setTimeout(()=>{ try{ affInput.focus(); affInput.select(); }catch(e){} }, 10);
     document.body.style.overflow='hidden';
+    affError.style.display='none';
   }
   function hideAffBar(){
     affBar.classList.remove('open'); affBar.setAttribute('aria-hidden','true');
     document.body.style.overflow='';
     affError.style.display='none';
   }
-  function isValidUrl(u){
-    try{
-      const url = new URL(u);
-      return url.protocol==='https:' || url.protocol==='http:';
-    }catch(e){ return false; }
-  }
-  function getSaved(){
-    try{ return localStorage.getItem('timecells_affiliate_url') || ''; }catch(e){ return ''; }
-  }
-  function saveUrl(u){
-    try{ localStorage.setItem('timecells_affiliate_url', u); }catch(e){}
-  }
-  function openEnroll(u){
-    window.open(u, '_blank', 'noopener,noreferrer');
-  }
-  function showToast(){
-    toast.classList.add('show');
-    setTimeout(()=>toast.classList.remove('show'), 1400);
-  }
 
-  // CTA: erst prüfen/abfragen, dann öffnen
+  // CTA: wenn gültig -> direkt öffnen, sonst Leiste anzeigen
   if(ctaEnroll) ctaEnroll.addEventListener('click', (e)=>{
     e.preventDefault();
     const saved = getSaved();
-    if(isValidUrl(saved)){
-      openEnroll(saved);
-    }else{
-      showAffBar(saved);
-    }
+    if(isValidUrl(saved)){ openEnroll(saved); }
+    else{ showAffBar(saved); }
   });
 
   // Enter/Escape im Eingabefeld
@@ -549,20 +575,49 @@
       return;
     }
     saveUrl(val);
+    updateCtaState();
     hideAffBar();
-    showToast();
+    showToastSpan('toast'); // „Affiliate-Link gespeichert.“
     openEnroll(val);
   });
 
   // Abbrechen
   if(affCancel) affCancel.addEventListener('click', hideAffBar);
 
+  // Reset/Ändern (Footer)
+  function resetFlow(){
+    clearUrl(); updateCtaState(); showAffBar('');
+    // Toast „zurückgesetzt“ (DE/EN)
+    const isDE = document.documentElement.lang === 'de';
+    showToastSpan(isDE ? 'toastReset' : 'toastResetEN');
+  }
+  if(affReset)   affReset.addEventListener('click', resetFlow);
+  if(affResetEN) affResetEN.addEventListener('click', resetFlow);
+
   // ESC schließt die Leiste
   window.addEventListener('keydown', (e)=>{
-    if(e.key==='Escape' && affBar.classList.contains('open')){
-      hideAffBar();
-    }
+    if(e.key==='Escape' && affBar.classList.contains('open')) hideAffBar();
   });
+
+  // Prefill via ?aff=…  (automatisch speichern, wenn gültig & whitelisted)
+  (function(){
+    const aff = q.get('aff');
+    if(!aff) { updateCtaState(); return; }
+    const candidate = aff.trim();
+    if(isValidUrl(candidate)){
+      saveUrl(candidate);
+      updateCtaState();
+      // Toast „aus URL übernommen“ (DE/EN)
+      const isDE = document.documentElement.lang === 'de';
+      showToastSpan(isDE ? 'toastFromUrl' : 'toastFromUrlEN');
+    }else{
+      // Ungültiger Wert in aff → Leiste öffnen mit vorbefülltem Text zur Korrektur
+      showAffBar(candidate);
+    }
+  })();
+
+  // Initial: CTA-State setzen
+  updateCtaState();
 })();
 </script>
 
