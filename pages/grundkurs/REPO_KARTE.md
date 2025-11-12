@@ -445,6 +445,8 @@
     │       │   ├── video-97.mp4
     │       │   ├── video-98.mp4
     │       │   └── video-99.mp4
+    │       ├── timecells/
+    │       │   └── onboarding.mp4
     │       ├── adlerflug.mp4
     │       └── playlist-01.json
     ├── pages/
@@ -529,4 +531,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.11.2025, 19:12)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.11.2025, 20:17)_
