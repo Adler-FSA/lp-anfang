@@ -485,6 +485,7 @@
     │   │   ├── mission.html
     │   │   ├── onboarding.html
     │   │   ├── timecells-basis.html
+    │   │   ├── timecells-tools.html
     │   │   └── workshop.html
     │   ├── admin-config.json
     │   ├── community.html
@@ -532,4 +533,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.11.2025, 21:14)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.11.2025, 22:14)_
