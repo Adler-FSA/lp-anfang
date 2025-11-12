@@ -54,6 +54,34 @@
   .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.35);color:#bbf7d0;margin-left:8px}
   .foot{margin-top:20px;color:var(--muted);font-size:14px;text-align:center}
   .link{color:#93c5fd;text-decoration:underline}
+
+  /* ===== Affiliate-Bar (Trustyfy) ===== */
+  .affbar{
+    position:fixed; top:-220px; left:0; right:0; z-index:9998;
+    backdrop-filter:blur(8px) saturate(140%);
+    background:linear-gradient(180deg, rgba(17,24,39,.96), rgba(17,24,39,.88));
+    border-bottom:1px solid rgba(242,201,76,.28);
+    box-shadow:0 10px 40px rgba(0,0,0,.5), 0 0 28px rgba(245,158,11,.28);
+    transition:top .28s ease;
+  }
+  .affbar.open{ top:0; }
+  .affbar-inner{ max-width:1400px; margin:0 auto; padding:16px 20px; display:grid; gap:10px; }
+  .aff-row{ display:flex; gap:10px; align-items:center; }
+  .aff-title{ display:flex; align-items:center; gap:8px; font-weight:700; color:#fff; }
+  .addr{ flex:1; display:flex; align-items:center; gap:10px; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.18); border-radius:12px; padding:10px 12px; }
+  .addr svg{ opacity:.9; }
+  .addr input{ flex:1; background:transparent; border:0; outline:0; color:#fff; font-size:.98rem; font-family:inherit; }
+  .aff-help{ color:var(--muted); font-size:.9rem; margin:0 0 2px; }
+  .aff-error{ color:#ffb4b4; font-size:.9rem; margin:0; display:none; }
+  .aff-actions{ display:flex; gap:10px; }
+  .btn-ghost-aff{ display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:10px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.18); color:#fff; cursor:pointer; }
+  .btn-ghost-aff:hover{ filter:brightness(1.06); transform:translateY(-1px); }
+  .icon{width:20px;height:20px;flex:0 0 20px}
+
+  /* Toast */
+  .toast{ position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,.78); border:1px solid rgba(255,255,255,.18); color:#fff; padding:10px 14px; border-radius:10px; font-size:.92rem; z-index:9999; box-shadow:0 8px 28px rgba(0,0,0,.4); display:none; }
+  .toast.show{ display:block; }
+  .muted-link-mini{ display:inline-block; margin-top:8px; color:var(--muted); text-decoration:underline; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -61,14 +89,70 @@
 <!-- Global Topbar/Menu + Lang + Music -->
 <div id="menu-root"></div>
 
+<!-- ░░ Affiliate-Bar (Trustyfy) ░░ -->
+<div id="affBar" class="affbar" role="dialog" aria-modal="true" aria-labelledby="affTitle" aria-hidden="true">
+  <div class="affbar-inner">
+    <div class="aff-title" id="affTitle">
+      <!-- Lock Icon -->
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        <rect x="4" y="10" width="16" height="10" rx="2" stroke="currentColor" stroke-width="1.8" fill="none"/>
+      </svg>
+      <span>Affiliate link required</span>
+    </div>
+    <p class="aff-help">Paste your personal trustyfy affiliate link (only <b>app.trustyfy.com</b>). Then you can open or share it.</p>
+
+    <div class="aff-row">
+      <div class="addr" style="min-height:44px">
+        <!-- Globe Icon -->
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6" fill="none"/>
+          <path d="M3 12h18M12 3a16 16 0 0 1 0 18M12 3a16 16 0 0 0 0 18" stroke="currentColor" stroke-width="1.4" fill="none"/>
+        </svg>
+        <input id="affInput" type="url" inputmode="url" autocomplete="url" placeholder="https://app.trustyfy.com/?by=…" aria-label="Affiliate link" />
+      </div>
+      <div class="aff-actions">
+        <button id="affSaveOpen" class="btn-ghost-aff">
+          <!-- Check Icon -->
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 12l4 4 10-10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Save
+        </button>
+        <button id="affCancel" class="btn-ghost-aff">
+          <!-- X Icon -->
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+          </svg>
+          Cancel
+        </button>
+      </div>
+    </div>
+    <p id="affError" class="aff-error">Please provide a valid http(s) URL to <b>app.trustyfy.com</b>.</p>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast" role="status" aria-live="polite">
+  <span id="tSaved">Affiliate link saved.</span>
+  <span id="tCopied" style="display:none">Link copied.</span>
+  <span id="tShared" style="display:none">Share dialog opened.</span>
+  <span id="tReset" style="display:none">Affiliate link reset.</span>
+  <span id="tFromUrl" style="display:none">Affiliate link taken from URL.</span>
+</div>
+
 <div class="wrap">
   <!-- Hero -->
   <div class="hero panel">
     <h1>Step 1 – On/Off-Ramp (trustyfy)</h1>
     <p>Start clean: KYC, IBAN, Euro → Crypto and back. The slides walk you through each step — large and clear.</p>
     <div class="cta-row">
-      <a class="btn btn-primary" href="https://app.trustyfy.com?by=101eqr" target="_blank" rel="noopener">🚀 Go to trustyfy</a>
+      <!-- Opens saved link or asks for it -->
+      <a class="btn btn-primary" id="ctaOpen" href="https://app.trustyfy.com?by=101eqr" target="_blank" rel="noopener">🚀 Go to trustyfy</a>
+      <!-- Shares/Copies saved link -->
+      <button class="btn btn-ghost" id="ctaShare">Share affiliate link</button>
     </div>
+    <p class="foot"><button id="affReset" class="muted-link-mini">Change / reset affiliate link</button></p>
   </div>
 
   <!-- Intro -->
@@ -260,6 +344,111 @@
 
   prev.addEventListener('click',()=>show(idx-1));
   next.addEventListener('click',()=>show(idx+1));
+})();
+</script>
+
+<!-- ===== Affiliate Flow (Trustyfy) ===== -->
+<script>
+(function(){
+  const WHITELIST = ['app.trustyfy.com'];      // only this domain
+  const KEY = 'trustyfy_affiliate_url';        // shared with DE page
+
+  const ctaOpen    = document.getElementById('ctaOpen');
+  const ctaShare   = document.getElementById('ctaShare');
+  const affBar     = document.getElementById('affBar');
+  const affInput   = document.getElementById('affInput');
+  const affSave    = document.getElementById('affSaveOpen');
+  const affCancel  = document.getElementById('affCancel');
+  const affError   = document.getElementById('affError');
+  const toast      = document.getElementById('toast');
+  const tSaved     = document.getElementById('tSaved');
+  const tCopied    = document.getElementById('tCopied');
+  const tShared    = document.getElementById('tShared');
+  const tReset     = document.getElementById('tReset');
+  const tFromUrl   = document.getElementById('tFromUrl');
+  const btnReset   = document.getElementById('affReset');
+
+  function isValidUrl(u){
+    try{
+      const url = new URL(u);
+      const okHost = WHITELIST.includes(url.hostname);
+      const okProto = (url.protocol==='https:'||url.protocol==='http:');
+      return okHost && okProto;
+    }catch(e){ return false; }
+  }
+  function getSaved(){ try{return localStorage.getItem(KEY)||'';}catch(e){return '';} }
+  function saveUrl(u){ try{ localStorage.setItem(KEY,u); }catch(e){} }
+  function clearUrl(){ try{ localStorage.removeItem(KEY); }catch(e){} }
+
+  function showToast(which){
+    [tSaved,tCopied,tShared,tReset,tFromUrl].forEach(n=>n.style.display='none');
+    if(which) which.style.display='inline';
+    toast.classList.add('show');
+    setTimeout(()=>toast.classList.remove('show'), 1500);
+  }
+
+  function showAffBar(prefill){
+    affInput.value = prefill || '';
+    affBar.classList.add('open'); affBar.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+    affError.style.display='none';
+    setTimeout(()=>{try{affInput.focus();affInput.select();}catch(e){}},10);
+  }
+  function hideAffBar(){
+    affBar.classList.remove('open'); affBar.setAttribute('aria-hidden','true');
+    document.body.style.overflow='';
+    affError.style.display='none';
+  }
+
+  // Open (prefer saved link; otherwise request it)
+  ctaOpen.addEventListener('click', (e)=>{
+    e.preventDefault();
+    const link = getSaved();
+    if(!isValidUrl(link)){ showAffBar(link); return; }
+    window.open(link, '_blank', 'noopener');
+  });
+
+  // Share / Copy
+  ctaShare.addEventListener('click', async ()=>{
+    const link = getSaved();
+    if(!isValidUrl(link)){ showAffBar(link); return; }
+    try{
+      if(navigator.share){
+        await navigator.share({title:'trustyfy – referral', text:'Here is my trustyfy link:', url:link});
+        showToast(tShared);
+      }else if(navigator.clipboard && navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(link); showToast(tCopied);
+      }else{
+        const ta=document.createElement('textarea'); ta.value=link; ta.style.position='fixed'; ta.style.top='-2000px';
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+        showToast(tCopied);
+      }
+    }catch(e){ /* user cancelled share – no op */ }
+  });
+
+  // Save / Cancel
+  affSave.addEventListener('click', ()=>{
+    const val = (affInput.value||'').trim();
+    if(!isValidUrl(val)){ affError.style.display='block'; return; }
+    saveUrl(val); hideAffBar(); showToast(tSaved);
+  });
+  affCancel.addEventListener('click', hideAffBar);
+  window.addEventListener('keydown', e=>{ if(e.key==='Escape' && affBar.classList.contains('open')) hideAffBar(); });
+
+  // Reset
+  btnReset.addEventListener('click', ()=>{
+    clearUrl(); showAffBar(''); showToast(tReset);
+  });
+
+  // Prefill via ?aff=
+  (function(){
+    const q=new URLSearchParams(location.search);
+    const aff=q.get('aff');
+    if(!aff) return;
+    const candidate = aff.trim();
+    if(isValidUrl(candidate)){ saveUrl(candidate); showToast(tFromUrl); }
+    else{ showAffBar(candidate); }
+  })();
 })();
 </script>
 
