@@ -157,6 +157,8 @@
     │   │   │   ├── slide-45.jpg
     │   │   │   ├── slide-47.jpg
     │   │   │   └── slide-48.jpg
+    │   │   ├── timecells/
+    │   │   │   └── onboarding/
     │   │   ├── README.txt
     │   │   └── index.json
     │   ├── js/
@@ -518,4 +520,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.11.2025, 09:17)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.11.2025, 10:17)_
