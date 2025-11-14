@@ -484,6 +484,7 @@
     │   │   ├── index.html
     │   │   ├── mission.html
     │   │   ├── onboarding.html
+    │   │   ├── timecells-about-cco.html
     │   │   ├── timecells-about-ceo.html
     │   │   ├── timecells-akquise-en.html
     │   │   ├── timecells-akquise.html
@@ -538,4 +539,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.11.2025, 12:30)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.11.2025, 13:26)_
