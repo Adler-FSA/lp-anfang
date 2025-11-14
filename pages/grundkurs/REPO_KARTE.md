@@ -540,4 +540,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.11.2025, 21:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.11.2025, 22:13)_
