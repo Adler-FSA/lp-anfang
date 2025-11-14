@@ -488,6 +488,7 @@
     │   │   ├── timecells-akquise.html
     │   │   ├── timecells-basis.html
     │   │   ├── timecells-downloads.html
+    │   │   ├── timecells-roadmap.html
     │   │   ├── timecells-tools.html
     │   │   └── workshop.html
     │   ├── admin-config.json
@@ -536,4 +537,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.11.2025, 07:14)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.11.2025, 08:20)_
