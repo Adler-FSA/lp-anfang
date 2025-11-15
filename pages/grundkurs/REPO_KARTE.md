@@ -475,6 +475,8 @@
     │   │   └── page.json
     │   ├── index/
     │   │   └── page.json
+    │   ├── insider/
+    │   │   └── magazin-basis.html
     │   ├── krypto/
     │   │   └── page.json
     │   ├── mentor/
@@ -548,4 +550,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.11.2025, 07:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.11.2025, 08:17)_
