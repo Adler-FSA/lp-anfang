@@ -58,6 +58,14 @@
     │   │   │   ├── hoersaal-timecells-bg-2.jpg
     │   │   │   ├── hoersaal-timecells-bg.jpg
     │   │   │   ├── impressum-bg.jpg
+    │   │   │   ├── insider-magazin-bg-1.jpg
+    │   │   │   ├── insider-magazin-bg-2.jpg
+    │   │   │   ├── insider-magazin-bg-3.jpg
+    │   │   │   ├── insider-magazin-bg-4.jpg
+    │   │   │   ├── insider-magazin-bg-5.jpg
+    │   │   │   ├── insider-magazin-bg-6.jpg
+    │   │   │   ├── insider-magazin-bg-7.jpg
+    │   │   │   ├── insider-magazin-bg-8.jpg
     │   │   │   ├── kontakt-bg.jpg
     │   │   │   ├── philosophie-bg.jpg
     │   │   │   ├── timecells-bg.jpg
@@ -540,4 +548,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.11.2025, 06:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.11.2025, 07:13)_
