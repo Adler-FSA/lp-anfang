@@ -1,44 +1,309 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Insider – Zugang</title>
-<style>
-  body {
-    margin:0;
-    font-family:Inter,system-ui,sans-serif;
-    background:#0b0f14;
-    color:#e5e7eb;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    height:100vh;
-  }
-  h1 {color:#1cc2a0;text-shadow:0 0 18px rgba(28,194,160,.6);}
-  input {
-    padding:10px 14px;
-    border:none;
-    border-radius:6px;
-    outline:none;
-  }
-  button {
-    padding:10px 18px;
-    margin-left:8px;
-    border:none;
-    border-radius:6px;
-    background:#1cc2a0;
-    font-weight:700;
-    cursor:pointer;
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Insider – Zugang</title>
+  <meta name="description" content="Passwort-geschützter Insider-Zugang zur FSA Akademie.">
+  <style>
+    :root{
+      --bg:#05070b;
+      --panel:rgba(8,10,18,.88);
+      --border:rgba(249,168,51,.65);
+      --text:#f9fafb;
+      --muted:#d1d5db;
+      --accent:#f59e0b; /* warmes Gold passend zum Sonnenaufgang */
+      --error:#f97373;
+      --radius:18px;
+      --shadow:0 24px 60px rgba(0,0,0,.9);
+      --maxw:420px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{
+      height:100%;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      overflow-x:hidden;
+    }
+
+    /* Vollflächiger Hintergrund */
+    .bg-fixed{
+      position:fixed;
+      inset:0;
+      background:url('../../library/images/backgrounds/insider-magazin-bg-1.jpg') center/cover no-repeat;
+      z-index:-2;
+      transform:translateY(0);
+      transition:transform .2s linear;
+    }
+
+    /* Dunkler Overlay für bessere Lesbarkeit */
+    .bg-overlay{
+      position:fixed;
+      inset:0;
+      background:radial-gradient(circle at top,rgba(0,0,0,.35),rgba(0,0,0,.75));
+      z-index:-1;
+    }
+
+    main{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:32px 16px;
+    }
+
+    .card{
+      width:100%;
+      max-width:var(--maxw);
+      background:var(--panel);
+      border-radius:var(--radius);
+      border:1px solid var(--border);
+      box-shadow:var(--shadow),0 0 26px rgba(245,158,11,.45);
+      backdrop-filter:blur(10px) saturate(130%);
+      padding:22px 22px 20px;
+      position:relative;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      border-radius:inherit;
+      background:conic-gradient(from 140deg at 10% 0,#f59e0b33,#fef3c733,transparent 35%,transparent 80%,#f59e0b33);
+      opacity:.45;
+      mix-blend-mode:screen;
+      pointer-events:none;
+    }
+    .card-inner{
+      position:relative;
+      z-index:1;
+    }
+
+    .kicker{
+      font-size:11px;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:#fde68a;
+      margin-bottom:4px;
+    }
+    h1{
+      font-size:22px;
+      line-height:1.3;
+      margin:0 0 6px;
+      color:#fffbeb;
+    }
+    .subtitle{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.6;
+      margin-bottom:16px;
+    }
+
+    .lock-row{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;
+      font-size:13px;
+      color:#fef3c7;
+    }
+    .lock-icon{
+      width:26px;
+      height:26px;
+      border-radius:999px;
+      border:1px solid rgba(248,250,252,.4);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:radial-gradient(circle at 30% 0,#fde68a33,rgba(15,23,42,.9));
+      box-shadow:0 0 14px rgba(245,158,11,.6);
+      flex-shrink:0;
+    }
+    .lock-icon svg{
+      width:15px;height:15px;
+    }
+
+    .label{
+      font-size:12px;
+      margin-bottom:4px;
+      color:var(--muted);
+    }
+    .pass-row{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-bottom:8px;
+    }
+    input[type="text"]{
+      flex:1;
+      border-radius:999px;
+      border:1px solid rgba(249,250,251,.7);
+      background:rgba(15,23,42,.9);
+      color:var(--text);
+      padding:9px 12px;
+      font-size:14px;
+      outline:none;
+      box-shadow:0 0 18px rgba(15,23,42,.85);
+    }
+    input[type="text"]:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px rgba(245,158,11,.7),0 0 24px rgba(245,158,11,.55);
+    }
+    input[type="text"]::placeholder{
+      color:rgba(209,213,219,.75);
+    }
+
+    button{
+      border:none;
+      border-radius:999px;
+      padding:9px 18px;
+      font-size:13px;
+      font-weight:600;
+      letter-spacing:.03em;
+      text-transform:uppercase;
+      cursor:pointer;
+      background:linear-gradient(135deg,#f59e0b,#fbbf24);
+      color:#111827;
+      box-shadow:0 0 22px rgba(245,158,11,.8);
+      white-space:nowrap;
+    }
+    button:active{
+      transform:translateY(1px);
+      box-shadow:0 0 14px rgba(245,158,11,.7);
+    }
+
+    .hint{
+      font-size:11px;
+      color:var(--muted);
+      line-height:1.5;
+      margin-bottom:4px;
+    }
+    .error{
+      font-size:11px;
+      color:var(--error);
+      min-height:14px;
+      margin-top:2px;
+    }
+
+    .footer-note{
+      margin-top:14px;
+      font-size:11px;
+      color:var(--muted);
+      line-height:1.5;
+      border-top:1px solid rgba(249,250,251,.12);
+      padding-top:8px;
+    }
+
+    .shake{
+      animation:shake .25s linear;
+    }
+    @keyframes shake{
+      0%,100%{transform:translateX(0);}
+      25%{transform:translateX(-5px);}
+      75%{transform:translateX(5px);}
+    }
+  </style>
 </head>
 <body>
-  <h1>Insider – Zugang</h1>
-  <p>Dieser Bereich ist nur für eingeladene Mitglieder verfügbar.</p>
-  <div><input type="password" placeholder="Passwort eingeben"> <button>Login</button></div>
 
-  <script src="../../library/js/access-control.js"></script>
+<div class="bg-fixed" aria-hidden="true"></div>
+<div class="bg-overlay" aria-hidden="true"></div>
+
+<main>
+  <section class="card" id="card">
+    <div class="card-inner">
+      <div class="kicker">Insider Bereich</div>
+      <h1>Geschützter Zugang zur Insider-Magazinbasis</h1>
+      <p class="subtitle">
+        Dieser Bereich ist für bestehende Partner gedacht. Nach der Freischaltung findest du
+        im Insider-Magazin Vorlagen und Anleitungen, mit denen du deinen neuen Partnern beim Einrichten
+        ihrer eigenen Akademie helfen kannst.
+      </p>
+
+      <div class="lock-row">
+        <div class="lock-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M9 10V8a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <circle cx="12" cy="14" r="1.3" fill="currentColor"/>
+          </svg>
+        </div>
+        <div>
+          <strong>Passwortgeschützter Zugang</strong><br>
+          <span style="font-size:12px;color:var(--muted);">Gib das Insider-Passwort ein, um zum Magazin zu gelangen.</span>
+        </div>
+      </div>
+
+      <div class="label">Passwort (sichtbar):</div>
+      <div class="pass-row">
+        <input
+          id="insiderPass"
+          type="text"
+          inputmode="text"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="none"
+          spellcheck="false"
+          placeholder="Insider"
+        />
+        <button id="btnGo" type="button">Weiter</button>
+      </div>
+      <p class="hint">
+        Hinweis: Das Passwort lautet <strong>Insider</strong> (ohne Anführungszeichen, genau so geschrieben).
+      </p>
+      <div id="error" class="error"></div>
+
+      <div class="footer-note">
+        Bitte gib dieses Passwort nur an Menschen weiter, mit denen du bewusst zusammenarbeiten möchtest.
+        Die Inhalte des Insider-Magazins sind Handlungsempfehlungen und Vorlagen – keine Finanzberatung.
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function(){
+  const bg = document.querySelector('.bg-fixed');
+  const card = document.getElementById('card');
+  const input = document.getElementById('insiderPass');
+  const btn = document.getElementById('btnGo');
+  const errorEl = document.getElementById('error');
+  const PASSWORD = "Insider"; // exakt so
+
+  // einfacher Parallax-Effekt
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY * 0.25;
+    bg.style.transform = "translateY(" + y + "px)";
+  });
+
+  function checkPassword(){
+    const val = (input.value || "").trim();
+    if (val === PASSWORD){
+      errorEl.textContent = "";
+      try{
+        // kleine Markierung im Local Storage (optional, stört nicht wenn deaktiviert)
+        localStorage.setItem("fsa_insider_ok","1");
+      }catch(e){}
+      window.location.href = "magazin-basis.html";
+    }else{
+      errorEl.textContent = "Passwort stimmt nicht. Bitte noch einmal prüfen.";
+      card.classList.remove('shake');
+      void card.offsetWidth; // reflow für erneute Animation
+      card.classList.add('shake');
+      input.focus();
+    }
+  }
+
+  btn.addEventListener('click', checkPassword);
+  input.addEventListener('keydown', function(ev){
+    if(ev.key === "Enter"){
+      ev.preventDefault();
+      checkPassword();
+    }
+  });
+})();
+</script>
+
 </body>
 </html>
