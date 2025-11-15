@@ -479,6 +479,7 @@
     │   │   ├── akademie-handling.html
     │   │   ├── magazin-basis.html
     │   │   ├── timecells-handling.html
+    │   │   ├── trusttipp-handling.html
     │   │   └── trustyfy-handling.html
     │   ├── krypto/
     │   │   └── page.json
@@ -553,4 +554,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.11.2025, 22:11)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.11.2025, 23:13)_
