@@ -477,7 +477,8 @@
     │   │   └── page.json
     │   ├── insider/
     │   │   ├── akademie-handling.html
-    │   │   └── magazin-basis.html
+    │   │   ├── magazin-basis.html
+    │   │   └── trustyfy-handling.html
     │   ├── krypto/
     │   │   └── page.json
     │   ├── mentor/
@@ -551,4 +552,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.11.2025, 20:14)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.11.2025, 21:11)_
