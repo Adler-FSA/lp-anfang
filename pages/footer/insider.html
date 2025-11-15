@@ -33,13 +33,12 @@
       inset:0;
       background:url('/lp-anfang/library/images/backgrounds/insider-magazin-bg-1.jpg')
                  center 68% / cover no-repeat;
-      /* center 68% sorgt dafür, dass Adler & Sonne näher in die Mitte kommen */
       z-index:0;
       transform:translateY(0);
       transition:transform .25s linear;
     }
 
-    /* Overlay: nur leichte Abdunklung, damit die Tiefe bleibt */
+    /* Overlay: leichte Abdunklung */
     .bg-overlay{
       position:fixed;
       inset:0;
@@ -54,9 +53,22 @@
       display:flex;
       align-items:flex-end;          /* Kapsel unten im Sonnenbereich */
       justify-content:center;
-      padding:0 16px 18vh;           /* höher setzen, damit die Sonne im Zentrum der Kapsel liegt */
+      padding:0 16px 18vh;           /* so sitzt die Sonne im Zentrum der Kapsel */
       position:relative;
       z-index:2;                     /* über Background + Overlay */
+    }
+
+    /* Schwebende Hülle für die Box */
+    .float-shell{
+      width:100%;
+      display:flex;
+      justify-content:center;
+      animation:float 4s ease-in-out infinite;
+    }
+
+    @keyframes float{
+      0%,100%{ transform:translateY(0); }
+      50%    { transform:translateY(-6px); }
     }
 
     .box{
@@ -72,6 +84,7 @@
       align-items:center;
       gap:10px;
       position:relative;
+      transition:box-shadow .2s ease;
     }
 
     .box::before{
@@ -83,6 +96,12 @@
       opacity:.6;
       mix-blend-mode:screen;
       pointer-events:none;
+      animation:pulse 5s ease-in-out infinite;
+    }
+
+    @keyframes pulse{
+      0%,100%{ opacity:.45; }
+      50%    { opacity:.9; }
     }
 
     .box-inner{
@@ -149,6 +168,7 @@
       color:#111827;
       box-shadow:0 0 22px rgba(251,191,36,.9);
       white-space:nowrap;
+      transition:transform .1s ease, box-shadow .15s ease;
     }
     button:active{
       transform:translateY(1px);
@@ -166,6 +186,7 @@
       min-height:14px;
     }
 
+    /* Fehler-Shake */
     .shake{
       animation:shake .25s linear;
     }
@@ -173,6 +194,20 @@
       0%,100%{transform:translateX(0);}
       25%{transform:translateX(-5px);}
       75%{transform:translateX(5px);}
+    }
+
+    /* Lichtblitz bei Erfolg */
+    .box.success{
+      box-shadow:0 0 40px rgba(251,191,36,1),0 0 90px rgba(251,191,36,.95);
+    }
+    .box.success::before{
+      animation:flash .28s ease-out forwards;
+    }
+
+    @keyframes flash{
+      0%  {opacity:.7;filter:brightness(1);}
+      40% {opacity:1; filter:brightness(1.6);}
+      100%{opacity:.5;filter:brightness(1);}
     }
 
     @media (max-width:480px){
@@ -189,37 +224,39 @@
 <div class="bg-overlay" aria-hidden="true"></div>
 
 <main>
-  <section class="box" id="card">
-    <div class="box-inner">
-      <div class="badge" aria-hidden="true">
-        <!-- kleines Schloss-Icon als Inline-SVG -->
-        <svg viewBox="0 0 24 24">
-          <rect x="5" y="11" width="14" height="9" rx="2"
-                fill="none" stroke="currentColor" stroke-width="1.8"/>
-          <path d="M9 11V9a3 3 0 0 1 6 0v2"
-                fill="none" stroke="currentColor" stroke-width="1.8"
-                stroke-linecap="round"/>
-          <circle cx="12" cy="15" r="1.3" fill="currentColor"/>
-        </svg>
-      </div>
+  <div class="float-shell">
+    <section class="box" id="card">
+      <div class="box-inner">
+        <div class="badge" aria-hidden="true">
+          <!-- kleines Schloss-Icon als Inline-SVG -->
+          <svg viewBox="0 0 24 24">
+            <rect x="5" y="11" width="14" height="9" rx="2"
+                  fill="none" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M9 11V9a3 3 0 0 1 6 0v2"
+                  fill="none" stroke="currentColor" stroke-width="1.8"
+                  stroke-linecap="round"/>
+            <circle cx="12" cy="15" r="1.3" fill="currentColor"/>
+          </svg>
+        </div>
 
-      <div class="field-wrap">
-        <input
-          id="insiderPass"
-          type="text"
-          inputmode="text"
-          autocomplete="off"
-          autocorrect="off"
-          autocapitalize="none"
-          spellcheck="false"
-          placeholder="Passwort eingeben"
-        />
-        <button id="btnGo" type="button">Weiter</button>
-      </div>
+        <div class="field-wrap">
+          <input
+            id="insiderPass"
+            type="text"
+            inputmode="text"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="none"
+            spellcheck="false"
+            placeholder="Passwort eingeben"
+          />
+          <button id="btnGo" type="button">Weiter</button>
+        </div>
 
-      <div id="error" class="error"></div>
-    </div>
-  </section>
+        <div id="error" class="error"></div>
+      </div>
+    </section>
+  </div>
 </main>
 
 <script>
@@ -231,7 +268,7 @@
   const errorEl = document.getElementById('error');
   const PASSWORD = "Insider"; // erwartetes Passwort
 
-  // leichter Parallax-Effekt beim Scrollen
+  // Parallax-Effekt beim Scrollen
   window.addEventListener('scroll', () => {
     const y = window.scrollY * 0.25;
     bg.style.transform = "translateY(" + y + "px)";
@@ -244,10 +281,18 @@
       try{
         localStorage.setItem("fsa_insider_ok","1");
       }catch(e){}
-      // Weiterleitung in eigenen Insider-Ordner
-      window.location.href = "../insider/magazin-basis.html";
+
+      // Lichtblitz-Effekt
+      card.classList.remove('shake');
+      card.classList.add('success');
+
+      // kurzer Delay, dann weiterleiten
+      setTimeout(() => {
+        window.location.href = "../insider/magazin-basis.html";
+      }, 220);
     }else{
       errorEl.textContent = "Passwort stimmt nicht.";
+      card.classList.remove('success');
       card.classList.remove('shake');
       void card.offsetWidth; // reflow für Animation
       card.classList.add('shake');
