@@ -508,6 +508,8 @@
     │   │   ├── timecells-roadmap.html
     │   │   ├── timecells-tools.html
     │   │   └── workshop.html
+    │   ├── trustyfy/
+    │   │   └── fast-track.html
     │   ├── admin-config.json
     │   ├── community.html
     │   ├── mentoren.html
@@ -554,4 +556,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.11.2025, 12:26)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.11.2025, 13:20)_
