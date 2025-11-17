@@ -105,9 +105,11 @@
   .yt-slide{
     position:absolute; inset:0;
     display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
   }
   .yt-slide iframe{
     width:100%; height:100%; border:0;
+    pointer-events:auto;
   }
 
   footer{ text-align:center; margin-top:56px; padding-top:24px; }
@@ -356,7 +358,7 @@
           <div id="ytSlide" class="yt-slide hidden" aria-hidden="true">
             <iframe
               id="ytFrame"
-              src="https://www.yout-ube.com/embed/wf7SyOHbFYo?rel=0&modestbranding=1"
+              data-src="https://www.yout-ube.com/embed/wf7SyOHbFYo?rel=0&modestbranding=1"
               title="Timecells Onboarding – YouTube"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowfullscreen>
@@ -453,6 +455,7 @@
   const imgEl=document.getElementById('slideImg');
   const noSlides=document.getElementById('noSlides');
   const ytSlide=document.getElementById('ytSlide');
+  const ytFrame=document.getElementById('ytFrame');
 
   const BASE='../../library/images/timecells/onboarding/';
   const NAME='timecells-onboarding-slide-';
@@ -463,6 +466,7 @@
 
   let slides=[];  // {type:'image',src} oder {type:'video'}
   let idx=0;
+  let ytLoaded=false;
 
   function setProgress(i,total){
     const cur = total ? (i+1) : 0;
@@ -470,11 +474,19 @@
     if(progressEN) progressEN.textContent=`Slide ${cur} / ${total}`;
   }
 
+  function stopVideo(){
+    if(ytFrame && ytFrame.src){
+      ytFrame.src='about:blank';
+      ytLoaded=false;
+    }
+  }
+
   function showImage(src){
     if(ytSlide){
       ytSlide.classList.add('hidden');
       ytSlide.setAttribute('aria-hidden','true');
     }
+    stopVideo();
     if(imgEl){
       imgEl.src=src+`?v=${Date.now()}`;
       imgEl.style.display='block';
@@ -491,15 +503,7 @@
       ytSlide.classList.remove('hidden');
       ytSlide.setAttribute('aria-hidden','false');
     }
-  }
-
-  // NEU: Video stoppen, wenn man von der Video-Slide weg wechselt
-  function stopVideo(){
-    const frame=document.getElementById('ytFrame');
-    if(!frame) return;
-    const src=frame.getAttribute('src');
-    frame.setAttribute('src','');
-    frame.setAttribute('src',src);
+    // WICHTIG: Kein src setzen -> Video startet erst beim Klick (siehe Klick-Handler).
   }
 
   function render(i){
@@ -515,18 +519,8 @@
       if(nextBtn) nextBtn.disabled=true;
       return;
     }
-
-    const prevIdx = idx;
-    const prevSlide = slides[prevIdx];
-
     idx=Math.max(0,Math.min(i,slides.length-1));
     const slide=slides[idx];
-
-    // Wenn vorher Video-Slide aktiv war und wir jetzt auf eine andere Slide wechseln → Video stoppen
-    if(prevSlide && prevSlide.type === 'video' && slide !== prevSlide){
-      stopVideo();
-    }
-
     if(slide.type==='image'){
       showImage(slide.src);
     }else if(slide.type==='video'){
@@ -585,6 +579,20 @@
     if(e.key==='ArrowLeft') render(idx-1);
     if(e.key==='ArrowRight') render(idx+1);
   });
+
+  // Klick auf YouTube-Slide: Video erst dann laden & starten
+  if(ytSlide && ytFrame){
+    ytSlide.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if(!ytLoaded){
+        const base = ytFrame.dataset.src || '';
+        if(!base) return;
+        const url = base.includes('?') ? base + '&autoplay=1' : base + '?autoplay=1';
+        ytFrame.src = url;
+        ytLoaded = true;
+      }
+    });
+  }
 
   // Language toggle
   const btnDE=document.getElementById('btnDE');
