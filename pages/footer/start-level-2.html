@@ -210,35 +210,53 @@
   toGateEN.addEventListener('click', showGate);
 })();
 
-/* Gate-Button: aktiv erst mit Checkbox + Passwort; Redirect bei richtigem Passwort (Case-Sensitive) */
+/* Gate-Button + Auto-Login über localStorage */
 (function(){
   const pw=document.getElementById('pw');
   const ack=document.getElementById('ack');
   const goDE=document.getElementById('goDE');
   const goEN=document.getElementById('goEN');
 
-  const secret='Timecells';                               // exakt, Case-SENSITIVE
-  const target='/lp-anfang/pages/timecells/timecells-basis.html';   // absoluter Pfad
+  const secret='Timecells';   // exakt, Case-SENSITIVE
+  const target='/lp-anfang/pages/timecells/timecells-basis.html';
+  const STORAGE_KEY='fsa_timecells_l2_ok';
 
   function update(){
     const ok = !!(pw.value||'').trim() && ack.checked;
-    goDE.disabled = !ok; goEN.disabled = !ok;
+    goDE.disabled = !ok;
+    goEN.disabled = !ok;
   }
 
-  // Keine Kleinschreibung mehr -> Case-Sensitive Vergleich
   function normalizeVal(s){
     try{ return (s||'').normalize('NFC').trim(); }
     catch(e){ return (s||'').trim(); }
   }
 
+  function redirectNow(){
+    const url = target + '?nocache=' + Date.now();
+    window.location.assign(url);
+  }
+
   function go(){
     if (normalizeVal(pw.value) === secret){
-      const url = target + '?nocache=' + Date.now();
-      window.location.assign(url);
+      try{
+        localStorage.setItem(STORAGE_KEY,'1');
+      }catch(e){}
+      redirectNow();
     } else {
       alert(document.documentElement.lang==='de' ? 'Passwort falsch.' : 'Incorrect password.');
     }
   }
+
+  // Auto-Login, wenn bereits freigeschaltet
+  (function(){
+    try{
+      if (localStorage.getItem(STORAGE_KEY)==='1'){
+        redirectNow();
+        return;
+      }
+    }catch(e){}
+  })();
 
   pw.addEventListener('input', update);
   ack.addEventListener('change', update);
