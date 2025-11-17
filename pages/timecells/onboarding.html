@@ -493,6 +493,15 @@
     }
   }
 
+  // NEU: Video stoppen, wenn man von der Video-Slide weg wechselt
+  function stopVideo(){
+    const frame=document.getElementById('ytFrame');
+    if(!frame) return;
+    const src=frame.getAttribute('src');
+    frame.setAttribute('src','');
+    frame.setAttribute('src',src);
+  }
+
   function render(i){
     if(!slides.length){
       if(imgEl) imgEl.style.display='none';
@@ -506,8 +515,18 @@
       if(nextBtn) nextBtn.disabled=true;
       return;
     }
+
+    const prevIdx = idx;
+    const prevSlide = slides[prevIdx];
+
     idx=Math.max(0,Math.min(i,slides.length-1));
     const slide=slides[idx];
+
+    // Wenn vorher Video-Slide aktiv war und wir jetzt auf eine andere Slide wechseln → Video stoppen
+    if(prevSlide && prevSlide.type === 'video' && slide !== prevSlide){
+      stopVideo();
+    }
+
     if(slide.type==='image'){
       showImage(slide.src);
     }else if(slide.type==='video'){
