@@ -477,6 +477,7 @@
     │   ├── index/
     │   │   └── page.json
     │   ├── insider/
+    │   │   ├── akademie-co-pilot-einrichten.html
     │   │   ├── akademie-handling.html
     │   │   ├── magazin-basis.html
     │   │   ├── timecells-handling.html
@@ -557,4 +558,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 17.11.2025, 20:17)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 17.11.2025, 21:14)_
