@@ -70,6 +70,7 @@
     │   │   │   ├── philosophie-bg.jpg
     │   │   │   ├── timecells-bg.jpg
     │   │   │   ├── timecells-index-bg.jpg
+    │   │   │   ├── timecells-tipp.jpg
     │   │   │   └── timecells-tools-bg.jpg
     │   │   ├── icons/
     │   │   │   ├── bank.png
@@ -510,6 +511,7 @@
     │   │   ├── timecells-basis.html
     │   │   ├── timecells-downloads.html
     │   │   ├── timecells-roadmap.html
+    │   │   ├── timecells-tipp.html
     │   │   ├── timecells-tools.html
     │   │   └── workshop.html
     │   ├── trustyfy/
@@ -560,4 +562,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.11.2025, 04:17)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.11.2025, 05:14)_
