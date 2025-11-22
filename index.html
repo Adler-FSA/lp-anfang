@@ -102,6 +102,22 @@
   .disc-item{display:none;color:#e5e7eb;line-height:1.7;border:1px solid rgba(212,175,55,.25);border-radius:10px;padding:14px 16px;background:rgba(0,0,0,.35)}
   .disc-item.active{display:block}
 
+  /* Share-Button im Footer */
+  .share-btn{
+    padding:10px 20px;
+    border-radius:999px;
+    border:1px solid rgba(250,204,21,.8);
+    background:transparent;
+    color:#facc15;
+    font-weight:700;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .share-btn:hover{
+    background:#facc15;
+    color:#000;
+  }
+
   /* Hilfsklasse für Sprache */
   .hidden{display:none !important}
 
@@ -347,14 +363,14 @@
       </div>
     </div>
 
-    <!-- Social-Link-Block (neu) -->
-    <div class="footer-group share-links">
-      <p>Teile die Akademie mit deiner Welt:</p>
-      <a href="https://adler-fsa.github.io/lp-anfang/pages/social/share-akademie.html" target="_blank" title="Akademie-Link kopieren oder teilen">🏛 Akademie</a> |
-      <a href="https://adler-fsa.github.io/lp-anfang/pages/social/share-adler.html" target="_blank" title="Adler-Link kopieren oder teilen">🦅 Adler</a> |
-      <a href="https://adler-fsa.github.io/lp-anfang/pages/social/share-netzwerk.html" target="_blank" title="Netzwerk-Link kopieren oder teilen">🌐 Netzwerk</a>
+    <!-- Teilen-Button -->
+    <div class="footer-group">
+      <button id="shareBtn" class="share-btn" type="button">
+        <span class="de">Seite teilen</span>
+        <span class="en hidden">Share page</span>
+      </button>
     </div>
-    <!-- Ende Social-Link-Block -->
+    <!-- Ende Teilen-Button -->
 
     <div class="footer-group" style="color:#9aa;margin-top:8px">
       © <span id="year"></span> <span class="de">Finanzielle Souveränitäts Akademie</span><span class="en hidden">Financial Sovereignty Academy</span>
@@ -445,10 +461,38 @@
       Object.keys(items).forEach(k => items[k].classList.toggle('active', k===id && !items[k].classList.contains('active')));
     });
   })();
+
   /* ========= Scroll-Position bei Reload deaktivieren ========= */
   if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
-  }</script>
+  }
+
+  /* ========= Share-Button im Footer ========= */
+  (function(){
+    const btn = document.getElementById('shareBtn');
+    if(!btn) return;
+    btn.addEventListener('click', async ()=>{
+      const url   = location.href;
+      const isDE  = (document.documentElement.lang || 'de') === 'de';
+      const title = isDE ? 'Finanzielle Souveränitäts Akademie' : 'Financial Sovereignty Academy';
+      const text  = isDE
+        ? 'Einladung zur Akademie – Grundkurs & mehr.'
+        : 'Invitation to the Academy – basic course & more.';
+      try{
+        if(navigator.share){
+          await navigator.share({ title, text, url });
+        }else if(navigator.clipboard && navigator.clipboard.writeText){
+          await navigator.clipboard.writeText(url);
+          alert(isDE ? 'Link in die Zwischenablage kopiert.' : 'Link copied to clipboard.');
+        }else{
+          alert(url);
+        }
+      }catch(e){
+        /* Nutzer kann den Dialog einfach abbrechen – dann nichts tun */
+      }
+    });
+  })();
+</script>
 </body>
 </html>
