@@ -563,4 +563,4 @@
     ├── office.html
     └── test.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.11.2025, 16:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.11.2025, 17:16)_
