@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Live-Zoom Übersicht</title>
+  <style>
+    :root {
+      --bg: #050910;
+      --card-bg: #0b131f;
+      --card-border: rgba(65, 198, 160, 0.4);
+      --accent: #21e6b6;
+      --accent-soft: rgba(33, 230, 182, 0.08);
+      --text-main: #e8f1f7;
+      --text-muted: #9aa6b5;
+      --danger: #ffb347;
+      --radius-lg: 18px;
+      --radius-sm: 999px;
+      --shadow-card: 0 22px 40px rgba(0, 0, 0, 0.55);
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px 12px 40px;
+      font-family: var(--font-main);
+      background: radial-gradient(circle at top, #111b2a 0, #050910 55%, #020308 100%);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .zoom-schedule {
+      max-width: 1080px;
+      margin: 0 auto;
+      background: linear-gradient(145deg, rgba(13, 25, 40, 0.98), rgba(6, 12, 22, 0.98));
+      border-radius: 24px;
+      border: 1px solid rgba(33, 230, 182, 0.24);
+      box-shadow: var(--shadow-card);
+      padding: 20px 18px 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .zoom-schedule::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 0 0, rgba(33, 230, 182, 0.12) 0, transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(33, 230, 182, 0.08) 0, transparent 55%);
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .zoom-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .zoom-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .zoom-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .zoom-title {
+      font-size: 1.35rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .zoom-title span {
+      white-space: normal;
+    }
+
+    .badge-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 9px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 80, 80, 0.14);
+      border: 1px solid rgba(255, 120, 120, 0.6);
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #ffe1e1;
+    }
+
+    .badge-live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #ff5252;
+      box-shadow: 0 0 0 4px rgba(255, 82, 82, 0.36);
+      animation: pulse-dot 1.4s infinite ease-out;
+    }
+
+    @keyframes pulse-dot {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(1.9); opacity: 0; }
+    }
+
+    .zoom-subtitle {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+    }
+
+    .timezone-info {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      padding: 2px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(154, 166, 181, 0.4);
+      background: rgba(5, 9, 16, 0.8);
+      white-space: nowrap;
+    }
+
+    .lang-switcher {
+      display: inline-flex;
+      gap: 4px;
+      padding: 3px;
+      border-radius: var(--radius-sm);
+      background: rgba(4, 10, 18, 0.9);
+      border: 1px solid rgba(66, 196, 158, 0.55);
+    }
+
+    .lang-btn {
+      border: none;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-muted);
+      transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
+    }
+
+    .lang-btn.active {
+      background: radial-gradient(circle at 0 0, rgba(33, 230, 182, 0.3), rgba(33, 230, 182, 0.09));
+      color: var(--text-main);
+      transform: translateY(-0.5px);
+    }
+
+    .zoom-list {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    @media (min-width: 720px) {
+      .zoom-schedule {
+        padding: 22px 22px 26px;
+      }
+
+      .zoom-title {
+        font-size: 1.48rem;
+      }
+
+      .zoom-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .zoom-item {
+      position: relative;
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(135deg, rgba(12, 22, 36, 0.96), rgba(4, 9, 18, 0.97)),
+        radial-gradient(circle at 0 0, rgba(33, 230, 182, 0.12), transparent 62%);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 18px 32px rgba(0, 0, 0, 0.52);
+      padding: 12px 12px 14px;
+      overflow: hidden;
+    }
+
+    .zoom-item::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      opacity: 0.3;
+      background:
+        radial-gradient(circle at 0 0, rgba(33, 230, 182, 0.2) 0, transparent 50%),
+        radial-gradient(circle at 100% 0, rgba(33, 230, 182, 0.06) 0, transparent 50%);
+      pointer-events: none;
+    }
+
+    .zoom-item-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .zoom-item-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 10px;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .zoom-item-title {
+      font-size: 0.98rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .zoom-item-audience {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .zoom-when {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 4px 10px;
+      margin-top: 2px;
+      padding: 6px 8px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 0 0, rgba(33, 230, 182, 0.18), rgba(3, 10, 18, 0.95));
+      border: 1px solid rgba(33, 230, 182, 0.35);
+      font-size: 0.8rem;
+    }
+
+    .zoom-label {
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.72rem;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    .zoom-date {
+      font-weight: 500;
+    }
+
+    .zoom-time {
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .zoom-description {
+      margin: 2px 0 0;
+      font-size: 0.8rem;
+      color: var(--text-main);
+    }
+
+    .zoom-topic-tag {
+      margin-top: 4px;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+
+    .zoom-footer-note {
+      margin-top: 12px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      align-items: baseline;
+    }
+
+    .zoom-footer-note strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .zoom-footer-note span {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="zoom-schedule">
+    <div class="zoom-inner">
+      <header class="zoom-header">
+        <div class="zoom-title-block">
+          <div class="zoom-title">
+            <span data-i18n-de="Live-Zoom Übersicht" data-i18n-en="Live Zoom Schedule">
+              Live-Zoom Übersicht
+            </span>
+            <span class="badge-live">
+              <span class="badge-live-dot"></span>
+              <span data-i18n-de="Mehrfach pro Woche" data-i18n-en="Multiple times per week">
+                Mehrfach pro Woche
+              </span>
+            </span>
+          </div>
+          <div class="zoom-subtitle" data-i18n-de="Feste wöchentliche Calls – immer mit dem nächsten Termin."
+               data-i18n-en="Fixed weekly calls – always showing the next upcoming session.">
+            Feste wöchentliche Calls – immer mit dem nächsten Termin.
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+          <div class="timezone-info"
+               data-i18n-de="Alle Zeiten: Europa/Berlin (CET/CEST)"
+               data-i18n-en="All times: Europe/Berlin (CET/CEST)">
+            Alle Zeiten: Europa/Berlin (CET/CEST)
+          </div>
+          <div class="lang-switcher" aria-label="Sprache / Language">
+            <button type="button" class="lang-btn active" data-lang="de">DE</button>
+            <button type="button" class="lang-btn" data-lang="en">EN</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="zoom-list" aria-label="Wöchentliche Zoom-Termine">
+        <!-- Montag – Timecells -->
+        <article class="zoom-item" data-event-id="timecells-mon">
+          <div class="zoom-item-inner">
+            <div class="zoom-item-header">
+              <div>
+                <div class="zoom-item-title"
+                     data-i18n-de="Timecells – Abend-Call"
+                     data-i18n-en="Timecells – Evening Call">
+                  Timecells – Abend-Call
+                </div>
+                <div class="zoom-item-audience"
+                     data-i18n-de="Für Timecells-Interessierte & Partner."
+                     data-i18n-en="For Timecells prospects & partners.">
+                  Für Timecells-Interessierte & Partner.
+                </div>
+              </div>
+            </div>
+            <div class="zoom-when">
+              <span class="zoom-label"
+                    data-i18n-de="Nächster Termin"
+                    data-i18n-en="Next session">Nächster Termin</span>
+              <span class="zoom-date"></span>
+              <span class="zoom-time"></span>
+            </div>
+            <p class="zoom-description"
+               data-i18n-de="Montags-Call mit Fokus auf Praxis, Fragen und aktuellen Timecells-Entwicklungen."
+               data-i18n-en="Monday call focusing on practice, Q&amp;A and current Timecells developments.">
+              Montags-Call mit Fokus auf Praxis, Fragen und aktuellen Timecells-Entwicklungen.
+            </p>
+          </div>
+        </article>
+
+        <!-- Dienstag – Akademie Workshop -->
+        <article class="zoom-item" data-event-id="akademie-tue">
+          <div class="zoom-item-inner">
+            <div class="zoom-item-header">
+              <div>
+                <div class="zoom-item-title"
+                     data-i18n-de="FSA Akademie – Zoom-Workshop"
+                     data-i18n-en="FSA Academy – Zoom Workshop">
+                  FSA Akademie – Zoom-Workshop
+                </div>
+                <div class="zoom-item-audience"
+                     data-i18n-de="Für neue Interessenten & bestehende Partner."
+                     data-i18n-en="For new prospects & existing partners.">
+                  Für neue Interessenten & bestehende Partner.
+                </div>
+              </div>
+            </div>
+            <div class="zoom-when">
+              <span class="zoom-label"
+                    data-i18n-de="Nächster Termin"
+                    data-i18n-en="Next session">Nächster Termin</span>
+              <span class="zoom-date"></span>
+              <span class="zoom-time"></span>
+            </div>
+            <p class="zoom-description"
+               data-i18n-de="Rundflug durch die Akademie, Einstellungen, Co-Pilot im Alltag und Partner-Möglichkeiten."
+               data-i18n-en="Overview of the Academy, settings, using it as a co-pilot and partner options.">
+              Rundflug durch die Akademie, Einstellungen, Co-Pilot im Alltag und Partner-Möglichkeiten.
+            </p>
+          </div>
+        </article>
+
+        <!-- Mittwoch – Trustyfy -->
+        <article class="zoom-item" data-event-id="trustyfy-wed">
+          <div class="zoom-item-inner">
+            <div class="zoom-item-header">
+              <div>
+                <div class="zoom-item-title"
+                     data-i18n-de="Trustyfy – Community Live-Webinar"
+                     data-i18n-en="Trustyfy – Community Live Webinar">
+                  Trustyfy – Community Live-Webinar
+                </div>
+                <div class="zoom-item-audience"
+                     data-i18n-de="Für alle, die Trustyfy nutzen oder kennenlernen möchten."
+                     data-i18n-en="For everyone using or exploring Trustyfy.">
+                  Für alle, die Trustyfy nutzen oder kennenlernen möchten.
+                </div>
+              </div>
+            </div>
+            <div class="zoom-when">
+              <span class="zoom-label"
+                    data-i18n-de="Nächster Termin"
+                    data-i18n-en="Next session">Nächster Termin</span>
+              <span class="zoom-date"></span>
+              <span class="zoom-time"></span>
+            </div>
+            <p class="zoom-description"
+               data-i18n-de="Updates, Hintergründe und Praxisbeispiele direkt aus der Trustyfy-Community."
+               data-i18n-en="Updates, background insights and practical examples from the Trustyfy community.">
+              Updates, Hintergründe und Praxisbeispiele direkt aus der Trustyfy-Community.
+            </p>
+          </div>
+        </article>
+
+        <!-- Donnerstag – Timecells -->
+        <article class="zoom-item" data-event-id="timecells-thu">
+          <div class="zoom-item-inner">
+            <div class="zoom-item-header">
+              <div>
+                <div class="zoom-item-title"
+                     data-i18n-de="Timecells – Deep Dive"
+                     data-i18n-en="Timecells – Deep Dive">
+                  Timecells – Deep Dive
+                </div>
+                <div class="zoom-item-audience"
+                     data-i18n-de="Für alle, die tiefer in Timecells einsteigen möchten."
+                     data-i18n-en="For everyone who wants to dive deeper into Timecells.">
+                  Für alle, die tiefer in Timecells einsteigen möchten.
+                </div>
+              </div>
+            </div>
+            <div class="zoom-when">
+              <span class="zoom-label"
+                    data-i18n-de="Nächster Termin"
+                    data-i18n-en="Next session">Nächster Termin</span>
+              <span class="zoom-date"></span>
+              <span class="zoom-time"></span>
+            </div>
+            <p class="zoom-description"
+               data-i18n-de="Vertiefung, Strategien und Antworten auf Community-Fragen zu Timecells."
+               data-i18n-en="Deeper strategies and answers to community questions around Timecells.">
+              Vertiefung, Strategien und Antworten auf Community-Fragen zu Timecells.
+            </p>
+          </div>
+        </article>
+
+        <!-- Freitag Vormittag – Unternehmer-Stammtisch -->
+        <article class="zoom-item" data-event-id="unternehmer-fri-am">
+          <div class="zoom-item-inner">
+            <div class="zoom-item-header">
+              <div>
+                <div class="zoom-item-title"
+                     data-i18n-de="Unternehmer-Stammtisch"
+                     data-i18n-en="Entrepreneurs Roundtable">
+                  Unternehmer-Stammtisch
+                </div>
+                <div class="zoom-item-audience"
+                     data-i18n-de="Firmen &amp; Geschäftsführer – Fokus auf Vertrauen, Prozesse &amp; Dezentralität."
+                     data-i18n-en="Companies &amp; business owners – focus on trust, processes &amp; decentralisation.">
+                  Firmen &amp; Geschäftsführer – Fokus auf Vertrauen, Prozesse &amp; Dezentralität.
+                </div>
+              </div>
+            </div>
+            <div class="zoom-when">
+              <span class="zoom-label"
+                    data-i18n-de="Nächster Termin"
+                    data-i18n-en="Next session">Nächster Termin</span>
+              <span class="zoom-date"></span>
+              <span class="zoom-time"></span>
+            </div>
+            <p class="zoom-description"
+               data-i18n-de="Austausch für Unternehmer zur Frage, wie sich Vertrauen und Prozesse dezentral aufbauen lassen."
+               data-i18n-en="Exchange for entrepreneurs on how to build trust and processes in a decentral way.">
+              Austausch für Unternehmer zur Frage, wie sich Vertrauen und Prozesse dezentral aufbauen lassen.
+            </p>
+          </div>
+        </article>
+
+        <!-- Freitag Abend – Perspektiven-Stammtisch -->
+        <article class="zoom-item" data-event-id="perspektiven-fri-pm">
+          <div class="zoom-item-inner">
+            <div class="zoom-item-header">
+              <div>
+                <div class="zoom-item-title"
+                     data-i18n-de="Perspektiven-Stammtisch"
+                     data-i18n-en="Perspectives Roundtable">
+                  Perspektiven-Stammtisch
+                </div>
+                <div class="zoom-item-audience"
+                     data-i18n-de="Angestellte &amp; Berufstätige – Stabilität in Zeiten von KI, Krise &amp; Inflation."
+                     data-i18n-en="Employees &amp; working professionals – stability in times of AI, crisis &amp; inflation.">
+                  Angestellte &amp; Berufstätige – Stabilität in Zeiten von KI, Krise &amp; Inflation.
+                </div>
+              </div>
+            </div>
+            <div class="zoom-when">
+              <span class="zoom-label"
+                    data-i18n-de="Nächster Termin"
+                    data-i18n-en="Next session">Nächster Termin</span>
+              <span class="zoom-date"></span>
+              <span class="zoom-time"></span>
+            </div>
+            <p class="zoom-description"
+               data-i18n-de="Abendrunde für Menschen im Angestelltenverhältnis: Sicherheit, Planbarkeit und neue Wege."
+               data-i18n-en="Evening round for employees: security, planning and new ways forward.">
+              Abendrunde für Menschen im Angestelltenverhältnis: Sicherheit, Planbarkeit und neue Wege.
+            </p>
+          </div>
+        </article>
+
+        <!-- Samstag Vormittag – Sicherheits-Treff -->
+        <article class="zoom-item" data-event-id="sicherheit-sat-am">
+          <div class="zoom-item-inner">
+            <div class="zoom-item-header">
+              <div>
+                <div class="zoom-item-title"
+                     data-i18n-de="Sicherheits-Treff"
+                     data-i18n-en="Safety Meetup">
+                  Sicherheits-Treff
+                </div>
+                <div class="zoom-item-audience"
+                     data-i18n-de="Freunde, Familie &amp; Bekannte – Schutz, Aufklärung &amp; Souveränität."
+                     data-i18n-en="Friends, family &amp; acquaintances – protection, education &amp; sovereignty.">
+                  Freunde, Familie &amp; Bekannte – Schutz, Aufklärung &amp; Souveränität.
+                </div>
+              </div>
+            </div>
+            <div class="zoom-when">
+              <span class="zoom-label"
+                    data-i18n-de="Nächster Termin"
+                    data-i18n-en="Next session">Nächster Termin</span>
+              <span class="zoom-date"></span>
+              <span class="zoom-time"></span>
+            </div>
+            <p class="zoom-description"
+               data-i18n-de="Runde für Menschen im direkten Umfeld: Risiken verstehen und sich gemeinsam schützen."
+               data-i18n-en="Round for people in your direct circle: understanding risks and protecting yourselves together.">
+              Runde für Menschen im direkten Umfeld: Risiken verstehen und sich gemeinsam schützen.
+            </p>
+          </div>
+        </article>
+
+        <!-- Samstag Nachmittag – Existenz-Treff -->
+        <article class="zoom-item" data-event-id="existenz-sat-pm">
+          <div class="zoom-item-inner">
+            <div class="zoom-item-header">
+              <div>
+                <div class="zoom-item-title"
+                     data-i18n-de="Existenz-Treff"
+                     data-i18n-en="Existence Meetup">
+                  Existenz-Treff
+                </div>
+                <div class="zoom-item-audience"
+                     data-i18n-de="Alleinerziehende, Rentner &amp; Studenten – Würde, Sicherheit &amp; Perspektive."
+                     data-i18n-en="Single parents, pensioners &amp; students – dignity, security &amp; perspective.">
+                  Alleinerziehende, Rentner &amp; Studenten – Würde, Sicherheit &amp; Perspektive.
+                </div>
+              </div>
+            </div>
+            <div class="zoom-when">
+              <span class="zoom-label"
+                    data-i18n-de="Nächster Termin"
+                    data-i18n-en="Next session">Nächster Termin</span>
+              <span class="zoom-date"></span>
+              <span class="zoom-time"></span>
+            </div>
+            <p class="zoom-description"
+               data-i18n-de="Austausch für Menschen mit besonderen Herausforderungen im Alltag und bei der Vorsorge."
+               data-i18n-en="Exchange for people facing special challenges in everyday life and financial security.">
+              Austausch für Menschen mit besonderen Herausforderungen im Alltag und bei der Vorsorge.
+            </p>
+          </div>
+        </article>
+      </section>
+
+      <div class="zoom-footer-note">
+        <strong data-i18n-de="Hinweis:"
+                data-i18n-en="Note:">Hinweis:</strong>
+        <span data-i18n-de="Zu jedem Termin gehört ein eigener Zoom-Link. Du kannst ihn direkt in der Akademie oder in deiner Einladung hinterlegen."
+              data-i18n-en="Each session has its own Zoom link. You can add it directly inside the Academy or in your invitation messages.">
+          Zu jedem Termin gehört ein eigener Zoom-Link. Du kannst ihn direkt in der Akademie oder in deiner Einladung hinterlegen.
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const events = [
+        { id: "timecells-mon", weekday: 1, startHour: 19, startMinute: 55, endHour: 20, endMinute: 45 },
+        { id: "akademie-tue", weekday: 2, startHour: 19, startMinute: 55, endHour: 20, endMinute: 30 },
+        { id: "trustyfy-wed", weekday: 3, startHour: 19, startMinute: 0, endHour: 20, endMinute: 0 },
+        { id: "timecells-thu", weekday: 4, startHour: 19, startMinute: 55, endHour: 20, endMinute: 45 },
+        { id: "unternehmer-fri-am", weekday: 5, startHour: 10, startMinute: 0, endHour: 10, endMinute: 45 },
+        { id: "perspektiven-fri-pm", weekday: 5, startHour: 19, startMinute: 0, endHour: 19, endMinute: 45 },
+        { id: "sicherheit-sat-am", weekday: 6, startHour: 10, startMinute: 0, endHour: 10, endMinute: 45 },
+        { id: "existenz-sat-pm", weekday: 6, startHour: 14, startMinute: 0, endHour: 14, endMinute: 45 }
+      ];
+
+      let currentLang = "de";
+
+      function getNextOccurrence(weekday, hour, minute) {
+        const now = new Date();
+        // JS: 0=Sunday,1=Monday,...; wir wollen 1=Monday,...,7=Sunday
+        const jsDay = now.getDay(); // 0..6
+        const currentWeekday = jsDay === 0 ? 7 : jsDay; // 1..7
+        let diff = weekday - currentWeekday;
+        if (diff < 0) diff += 7;
+
+        const candidate = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          hour,
+          minute,
+          0,
+          0
+        );
+        candidate.setDate(candidate.getDate() + diff);
+
+        if (candidate <= now) {
+          candidate.setDate(candidate.getDate() + 7);
+        }
+        return candidate;
+      }
+
+      function formatDate(date, lang) {
+        const locale = lang === "de" ? "de-DE" : "en-GB";
+        const options = {
+          weekday: "long",
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric"
+        };
+        return new Intl.DateTimeFormat(locale, options).format(date);
+      }
+
+      function pad2(num) {
+        return num.toString().padStart(2, "0");
+      }
+
+      function formatTimeRange(lang, startHour, startMinute, endHour, endMinute) {
+        const start = pad2(startHour) + ":" + pad2(startMinute);
+        const end = pad2(endHour) + ":" + pad2(endMinute);
+        if (lang === "de") {
+          return start + "–" + end + " Uhr";
+        } else {
+          return start + "–" + end + " (CET)";
+        }
+      }
+
+      function updateSchedule(lang) {
+        events.forEach(function (ev) {
+          const card = document.querySelector('.zoom-item[data-event-id="' + ev.id + '"]');
+          if (!card) return;
+
+          const nextDate = getNextOccurrence(ev.weekday, ev.startHour, ev.startMinute);
+          const dateSpan = card.querySelector(".zoom-date");
+          const timeSpan = card.querySelector(".zoom-time");
+
+          if (dateSpan) {
+            dateSpan.textContent = formatDate(nextDate, lang);
+          }
+          if (timeSpan) {
+            timeSpan.textContent = formatTimeRange(
+              lang,
+              ev.startHour,
+              ev.startMinute,
+              ev.endHour,
+              ev.endMinute
+            );
+          }
+        });
+      }
+
+      function applyTranslations(lang) {
+        const selector = "[data-i18n-de]";
+        document.querySelectorAll(selector).forEach(function (el) {
+          const text =
+            lang === "de"
+              ? el.getAttribute("data-i18n-de")
+              : el.getAttribute("data-i18n-en");
+          if (text != null) {
+            el.textContent = text;
+          }
+        });
+        document.documentElement.lang = lang === "de" ? "de" : "en";
+      }
+
+      function setLang(lang) {
+        currentLang = lang;
+        applyTranslations(lang);
+        updateSchedule(lang);
+        document
+          .querySelectorAll(".lang-btn")
+          .forEach(function (btn) {
+            btn.classList.toggle("active", btn.getAttribute("data-lang") === lang);
+          });
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Initial
+        setLang(currentLang);
+
+        // Sprache umschalten
+        document.querySelectorAll(".lang-btn").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            const lang = btn.getAttribute("data-lang");
+            if (lang && lang !== currentLang) {
+              setLang(lang);
+            }
+          });
+        });
+
+        // Regelmäßig aktualisieren, falls Seite lange offen bleibt
+        setInterval(function () {
+          updateSchedule(currentLang);
+        }, 5 * 60 * 1000);
+      });
+    })();
+  </script>
+</body>
+</html>
