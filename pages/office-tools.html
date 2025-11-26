@@ -231,6 +231,7 @@
         Wähle dein Monatsziel, den Paket-Mix und sieh, wie viele Abschlüsse du brauchst. Trage ein, was du bereits geschafft hast – der Plan passt sich an.
       </p>
 
+      <!-- Monatsziel + Mix -->
       <div class="row">
         <div>
           <label for="goal" data-t="t2-label-goal">Monatsziel (€)</label>
@@ -260,6 +261,7 @@
         </div>
       </div>
 
+      <!-- Woche / Partner / Firmenpakete -->
       <div class="row">
         <div>
           <label for="week" data-t="t2-label-week">Aktuelle Woche</label>
@@ -274,11 +276,29 @@
         </div>
       </div>
 
+      <!-- Firmen-Anbindung -->
+      <div class="row">
+        <div>
+          <label for="firms" data-t="t2-label-firms">Firmenpakete (Anzahl)</label>
+          <input type="number" id="firms" value="0" min="0" inputmode="numeric">
+          <div class="hint" data-t="t2-hint-firms">Optional: Firmenkunden mit 1.200-USDT-Paket.</div>
+        </div>
+        <div>
+          <label for="firmRate" data-t="t2-label-firmRate">Tippgeber-Prozent Firmen (Status)</label>
+          <select id="firmRate">
+            <option value="0.2" data-t="t2-firm20">20 %</option>
+            <option value="0.4" selected data-t="t2-firm40">40 %</option>
+          </select>
+          <div class="hint" data-t="t2-hint-firmRate">Je nach eigenem Status 20 % oder 40 %.</div>
+        </div>
+      </div>
+
       <button class="cta" id="btn2" data-t="btn-calc">Berechnen</button>
 
       <div class="result" id="res2" style="display:none">
         <h3 data-t="t2-res-head">Dein Monatsplan</h3>
         <div class="lines" id="lines2"></div>
+        <div class="lines" id="lines2Firm"></div>
         <div class="mentor" id="mentor2"></div>
         <p class="note" data-t="t2-note">
           Alle Provisionen sind wiederkehrend – solange ein Partner Trustyfy nutzt, fließen in allen Folgejahren dieselben Prozente.
@@ -340,6 +360,12 @@
         "t2-hint-mix":"Summe aus klein + groß = 100 %",
         "t2-label-week":"Aktuelle Woche",
         "t2-label-done":"Partner bisher",
+        "t2-label-firms":"Firmenpakete (Anzahl)",
+        "t2-hint-firms":"Optional: Firmenkunden mit 1.200-USDT-Paket.",
+        "t2-label-firmRate":"Tippgeber-Prozent Firmen (Status)",
+        "t2-firm20":"20 %",
+        "t2-firm40":"40 %",
+        "t2-hint-firmRate":"Je nach eigenem Status 20 % oder 40 %.",
         "btn-calc":"Berechnen",
         "t2-res-head":"Dein Monatsplan",
         "t2-note":"Alle Provisionen sind wiederkehrend – solange ein Partner Trustyfy nutzt, fließen in allen Folgejahren dieselben Prozente.",
@@ -364,6 +390,10 @@
           `• Monatsziel ${goal} € ≈ ${need} Abschlüsse (${small} klein, ${large} groß)<br>`+
           `• Soll pro Woche: ${perWeek} · Erreicht: ${done} · Rest: ${left}`+
           (rest>0?` → Ø ${adj}/Woche`:""),
+        t2_lines_firm: (firms,per,total) => {
+          if(!firms || per<=0) return "• Firmenpakete: aktuell nicht eingerechnet – du kannst sie ergänzen, wenn du Firmenkunden hast.";
+          return `• Firmenpakete: ${firms} × 1.200 USDT → ca. ${per.toFixed(0)} € je Paket ≈ ${total.toFixed(0)} € zusätzlich.`;
+        },
         t2_mentor: (left,rest) => {
           if(left<=0) return "Perfekt im Kurs – bleib stabil, keine Zusatzlast aufbauen.";
           if(rest<=0) return "Monat knapp verfehlt – setz den Fokus neu. In Woche 1 des neuen Monats doppelt aktiv werden.";
@@ -401,6 +431,12 @@
         "t2-hint-mix":"Small + large = 100%",
         "t2-label-week":"Current week",
         "t2-label-done":"Partners so far",
+        "t2-label-firms":"Company packages (number)",
+        "t2-hint-firms":"Optional: company clients with a 1,200-USDT package.",
+        "t2-label-firmRate":"Referral percent companies (status)",
+        "t2-firm20":"20 %",
+        "t2-firm40":"40 %",
+        "t2-hint-firmRate":"Choose 20 % or 40 % according to your status.",
         "btn-calc":"Calculate",
         "t2-res-head":"Your monthly plan",
         "t2-note":"Payouts recur every year – as long as a partner uses Trustyfy, the same percentages keep flowing.",
@@ -425,6 +461,10 @@
           `• Goal €${goal} ≈ ${need} sign-ups (${small} small, ${large} large)<br>`+
           `• Weekly target: ${perWeek} · Reached: ${done} · Remaining: ${left}`+
           (rest>0?` → avg ${adj}/week`:""),
+        t2_lines_firm: (firms,per,total) => {
+          if(!firms || per<=0) return "• Company packages: currently not included – you can add them if you work with companies.";
+          return `• Company packages: ${firms} × 1,200 USDT → about €${per.toFixed(0)} each ≈ €${total.toFixed(0)} extra.`;
+        },
         t2_mentor: (left,rest) => {
           if(left<=0) return "On track — stay steady and don’t overload.";
           if(rest<=0) return "Month just missed — reset focus. Double activity in week 1 of the new month.";
@@ -483,6 +523,8 @@
       let mixL=+document.getElementById('mixL').value||0;
       const week=+document.getElementById('week').value||4;
       const done=+document.getElementById('done').value||0;
+      const firms=+document.getElementById('firms').value||0;
+      const firmRate=parseFloat(document.getElementById('firmRate').value)||0;
 
       // Mix normalisieren
       if(mixS<0) mixS=0; if(mixL<0) mixL=0;
@@ -495,11 +537,11 @@
         document.getElementById('mixL').value=mixL;
       }
 
-      // Ertrag pro Abschluss (klein 10%*15=1.5€ | groß 20%*60=12€)
-      const eff = ((mixS/100)*1.5 + (mixL/100)*12);
+      // Ertrag pro Abschluss (neu: klein 20%*15=3 € | groß 40%*60=24 €)
+      const eff = ((mixS/100)*3 + (mixL/100)*24);
       const effRounded = Math.round(eff*100)/100;
 
-      const need = Math.max(0, Math.ceil(goal/eff)); // benötigte Abschlüsse
+      const need = eff>0 ? Math.max(0, Math.ceil(goal/eff)) : 0; // benötigte Abschlüsse (Basis wie früher)
       const small = Math.ceil(need*(mixS/100));
       const large = Math.ceil(need*(mixL/100));
       const perWeek = Math.ceil(need/4);
@@ -508,8 +550,14 @@
       const rest = Math.max(0, 4 - week);
       const adj = (rest>0)? Math.ceil(left/rest) : left;
 
+      // Firmen-Baustein (separat angezeigt, verändert die obige Rechnung nicht)
+      const firmPer = 1200 * firmRate;     // 20 % = 240, 40 % = 480
+      const firmTotal = firms * firmPer;   // Gesamt-Zubau durch Firmen
+
       document.getElementById('lines2').innerHTML =
         dict.t2_lines(mixS,mixL,effRounded,goal,need,small,large,perWeek,done,left,rest,adj);
+      document.getElementById('lines2Firm').innerHTML =
+        dict.t2_lines_firm(firms,firmPer,firmTotal);
       document.getElementById('mentor2').textContent = dict.t2_mentor(left,rest);
       document.getElementById('res2').style.display='block';
     }
