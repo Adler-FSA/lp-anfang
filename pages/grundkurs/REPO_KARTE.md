@@ -465,6 +465,8 @@
     ├── pages/
     │   ├── akademie/
     │   │   ├── akademie-einkommen.html
+    │   │   ├── akademie-trustyfy-erklaerung.html
+    │   │   ├── akademie-trustyfy-ueberblick.html
     │   │   └── verdienst-rechner.html
     │   ├── campus/
     │   │   └── page.json
@@ -567,4 +569,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.11.2025, 18:19)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.11.2025, 19:12)_
