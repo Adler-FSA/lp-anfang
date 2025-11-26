@@ -1,663 +1,545 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>FSA – Verdienst-Rechner</title>
-  <meta name="description" content="Verdienst-Rechner für die FSA Akademie & Trustyfy: gewünschtes Jahreseinkommen eingeben und mögliche Paket-Kombinationen sehen.">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>FSA Office – Tools & Verdienst-Rechner</title>
+  <meta name="description" content="FSA Office Tools im Campus-Stil: Aktivitäts-Check und Verdienst-Rechner – ehrlich auswerten, fokussiert handeln.">
   <style>
     :root{
-      --bg:#05070b;
-      --bg-alt:#0b1018;
-      --accent:#21e6b6;
+      --bg:#0b0f14;
+      --ink:#e5e7eb;
+      --ink-soft:rgba(229,231,235,.78);
+      --muted:#94a3b8;
       --gold:#d4af37;
-      --text:#f5f5f5;
-      --muted:#b4c0d0;
-      --border:#1f2937;
-      --radius:14px;
-      --shadow:0 22px 55px rgba(0,0,0,.7);
-      --max-width:960px;
-      --fast:.2s ease-out;
+      --card:rgba(13,18,25,.52);
+      --edge:rgba(212,175,55,.30);
+      --soft:rgba(148,163,184,.22);
+      --soft-2:rgba(148,163,184,.14);
+      --ok:#10b981;
+      --warn:#eab308;
+      --bad:#ef4444;
     }
-    *{box-sizing:border-box;}
+    *{box-sizing:border-box}
     body{
       margin:0;
-      min-height:100vh;
+      color:var(--ink);
       font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:radial-gradient(circle at top,#101827 0,#020308 60%,#000 100%);
-      color:var(--text);
-      -webkit-font-smoothing:antialiased;
+      min-height:100vh;
+      background:
+        radial-gradient(1200px 600px at 50% -10%, rgba(212,175,55,.08), transparent 60%),
+        radial-gradient(800px 400px at -10% 20%, rgba(255,255,255,.04), transparent 55%),
+        radial-gradient(800px 400px at 110% 35%, rgba(255,255,255,.03), transparent 55%),
+        var(--bg);
     }
-    .page{
-      max-width:var(--max-width);
-      margin:0 auto;
-      padding:24px 16px 40px;
-    }
-    header.page-header{
-      display:flex;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
-      margin-bottom:20px;
-    }
-    .title-wrap{
-      display:flex;
-      align-items:center;
-      gap:12px;
-    }
-    .badge{
-      width:44px;
-      height:44px;
-      border-radius:50%;
-      background:radial-gradient(circle at 25% 25%,var(--accent),var(--gold));
-      box-shadow:0 0 22px rgba(33,230,182,.6);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex-shrink:0;
-    }
-    .badge svg{
-      width:26px;
-      height:26px;
-      fill:#020308;
-      stroke:#020308;
-      stroke-width:1.4;
-    }
+    main{max-width:1180px;margin:0 auto;padding:6.2rem 1.2rem 6rem}
     h1{
-      font-size:1.55rem;
-      margin:0;
-      letter-spacing:.03em;
-    }
-    .subtitle{
-      font-size:.9rem;
-      color:var(--muted);
-      margin-top:4px;
-    }
-    .lang-switcher{
-      display:inline-flex;
-      padding:3px;
-      border-radius:999px;
-      background:rgba(15,23,42,.9);
-      border:1px solid rgba(148,163,184,.5);
-      box-shadow:0 0 18px rgba(15,23,42,.9);
-    }
-    .lang-btn{
-      border:none;
-      background:transparent;
-      color:var(--muted);
-      font-size:.82rem;
-      padding:6px 12px;
-      border-radius:999px;
-      cursor:pointer;
-      min-width:44px;
-      transition:background var(--fast),color var(--fast),transform var(--fast);
-    }
-    .lang-btn.active{
-      background:radial-gradient(circle at 20% 0,var(--accent),var(--gold));
-      color:#020308;
-      font-weight:600;
-      transform:translateY(-1px);
+      font-size:clamp(2.15rem,3vw,2.7rem);
+      color:#ffda6a;
+      text-align:center;
+      margin:.25rem 0 .6rem;
+      letter-spacing:.01em;
+      text-shadow:0 0 14px rgba(212,175,55,.18);
     }
     .intro{
-      background:linear-gradient(135deg,rgba(15,23,42,.96),rgba(8,47,73,.96));
-      border-radius:var(--radius);
-      border:1px solid rgba(148,163,184,.6);
-      padding:16px 16px 14px;
-      box-shadow:var(--shadow);
-      margin-bottom:18px;
-      position:relative;
+      text-align:center;
+      max-width:880px;
+      margin:0 auto 1.6rem;
+      color:var(--muted);
+      line-height:1.6;
+    }
+    .acc{max-width:940px;margin:1.2rem auto;}
+    .acc-item{
+      background:var(--card);
+      border:1px solid var(--edge);
+      border-radius:14px;
       overflow:hidden;
+      margin-bottom:14px;
+      box-shadow:0 10px 26px rgba(0,0,0,.32);
+      backdrop-filter:blur(6px);
     }
-    .intro::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:radial-gradient(circle at 0 0,rgba(33,230,182,.18),transparent 55%);
-      pointer-events:none;
-    }
-    .intro-inner{position:relative;z-index:1;}
-    .intro-pill{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      font-size:.75rem;
-      border-radius:999px;
-      border:1px solid rgba(148,163,184,.7);
-      padding:2px 9px;
-      background:rgba(15,23,42,.92);
-      color:var(--muted);
-      margin-bottom:6px;
-    }
-    .intro-pill-dot{
-      width:6px;
-      height:6px;
-      border-radius:50%;
-      background:var(--accent);
-      box-shadow:0 0 8px rgba(33,230,182,.9);
-    }
-    .intro-title{
-      font-size:1.1rem;
-      margin:0 0 4px;
-    }
-    .intro-text{
-      font-size:.9rem;
-      color:var(--muted);
-      margin:0 0 4px;
-    }
-    .note{
-      font-size:.8rem;
-      color:var(--muted);
-      margin:0;
-    }
-    .note strong{color:var(--gold);font-weight:500;}
-    .layout{
-      display:grid;
-      grid-template-columns:minmax(0,1.25fr) minmax(0,1.1fr);
-      gap:16px;
-      margin-top:18px;
-    }
-    @media (max-width:860px){
-      .layout{grid-template-columns:minmax(0,1fr);}
-    }
-    .card{
-      background:radial-gradient(circle at top left,rgba(33,230,182,.04),transparent 55%),
-                 linear-gradient(145deg,rgba(15,23,42,.97),rgba(15,23,42,.99));
-      border-radius:var(--radius);
-      border:1px solid var(--border);
-      padding:14px 14px 12px;
-      box-shadow:0 16px 42px rgba(0,0,0,.72);
-    }
-    .card-header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:8px;
-      margin-bottom:10px;
-    }
-    .card-title{
-      font-size:.95rem;
-      font-weight:600;
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-    .title-bar{
-      width:18px;
-      height:3px;
-      border-radius:999px;
-      background:linear-gradient(90deg,var(--accent),var(--gold));
-      flex-shrink:0;
-    }
-    .card-tag{
-      font-size:.7rem;
-      color:var(--muted);
-      padding:2px 8px;
-      border-radius:999px;
-      border:1px solid rgba(148,163,184,.55);
-      white-space:nowrap;
-    }
-    label{
-      display:block;
-      font-size:.85rem;
-      margin-bottom:4px;
-      color:var(--muted);
-    }
-    .input-row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:flex-end;
-      margin-bottom:8px;
-    }
-    .input-group{
-      flex:1 1 140px;
-      min-width:0;
-    }
-    input[type="number"]{
+    .acc-btn{
       width:100%;
-      padding:7px 9px;
-      border-radius:8px;
-      border:1px solid rgba(148,163,184,.7);
-      background:rgba(15,23,42,.95);
-      color:var(--text);
+      text-align:left;
+      padding:.95rem 1.1rem;
+      background:rgba(11,15,20,.66);
+      color:#fff;
+      border:none;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      gap:.8rem;
+      cursor:pointer;
+    }
+    .chev{margin-left:auto;transition:transform .2s ease}
+    .acc-btn.open .chev{transform:rotate(90deg)}
+    .acc-panel{
+      display:none;
+      padding:1rem 1.1rem 1.15rem;
+      color:var(--ink-soft);
+      border-top:1px solid rgba(212,175,55,.18);
+      line-height:1.65;
+    }
+    .tool{
+      max-width:940px;
+      margin:22px auto;
+      background:var(--card);
+      border:1px solid var(--edge);
+      border-radius:16px;
+      padding:1.2rem 1rem 1.1rem;
+      box-shadow:0 14px 32px rgba(0,0,0,.32);
+      backdrop-filter:blur(6px);
+    }
+    .tool h2{margin:.15rem 0 .35rem;font-size:1.25rem;color:#fff;}
+    .sub{color:var(--ink-soft);margin:0 0 .9rem;font-size:.96rem;line-height:1.6;}
+    .row{display:grid;gap:.85rem;margin:.7rem 0;}
+    @media(max-width:860px){.row{grid-template-columns:1fr}}
+    @media(min-width:861px){.row{grid-template-columns:repeat(3,minmax(180px,1fr))}}
+    label{display:block;color:#fff;font-size:.86rem;margin-bottom:.28rem}
+    input[type=number],select{
+      width:100%;padding:.6rem .65rem;border-radius:10px;
+      border:1px solid var(--soft);background:rgba(15,23,42,.48);color:#fff;
+      outline:none;
+    }
+    input[type=number]:focus,select:focus{
+      border-color:rgba(236,204,111,.55);
+      box-shadow:0 0 0 3px rgba(236,204,111,.18)
+    }
+    .hint{font-size:.8rem;color:var(--muted);margin-top:.25rem}
+    .cta{
+      margin-top:.95rem;background:rgba(236,204,111,.12);
+      border:1px solid rgba(236,204,111,.55);color:#fff;
+      padding:.56rem 1.15rem;border-radius:999px;
+      cursor:pointer;font-weight:600;
+    }
+    .cta:hover{background:rgba(236,204,111,.22)}
+    .result{
+      margin-top:.95rem;background:rgba(15,23,42,.35);
+      border:1px solid var(--soft);border-radius:12px;padding:.85rem .95rem;
+    }
+    .result h3{margin:.2rem 0 .55rem;font-size:1rem;color:#fff;}
+    .meter{height:10px;background:var(--soft-2);border-radius:999px;overflow:hidden;border:1px solid var(--soft);}
+    .meter>i{display:block;height:100%;background:linear-gradient(90deg,var(--bad),var(--warn),var(--ok));width:0%}
+    .lines{line-height:1.62;color:var(--ink-soft);margin-top:.5rem}
+    .mentor{
+      margin-top:.7rem;font-size:.92rem;color:var(--ink-soft);
+      border-left:4px solid var(--warn);background:rgba(234,179,8,.10);
+      padding:.68rem .75rem;border-radius:8px;line-height:1.66;
+    }
+    .sc-grid{
+      display:grid;
+      gap:.75rem;
+      margin-top:.7rem;
+    }
+    @media(min-width:861px){
+      .sc-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
+    }
+    .sc-card{
+      background:rgba(15,23,42,.55);
+      border-radius:10px;
+      border:1px solid var(--soft);
+      padding:.65rem .7rem .6rem;
+      font-size:.86rem;
+      color:var(--ink-soft);
+    }
+    .sc-title{
+      font-weight:600;
+      color:#fff;
+      margin-bottom:.25rem;
       font-size:.9rem;
     }
-    input[type="number"]:focus{
-      outline:2px solid var(--accent);
-      outline-offset:1px;
-      border-color:var(--accent);
-    }
-    .controls{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-    button{
-      border:none;
-      font-size:.85rem;
-      border-radius:999px;
-      padding:7px 14px;
-      cursor:pointer;
-      transition:transform var(--fast),box-shadow var(--fast),background var(--fast),color var(--fast);
-    }
-    .btn-primary{
-      background:linear-gradient(135deg,var(--accent),var(--gold));
-      color:#020308;
-      font-weight:600;
-      box-shadow:0 10px 26px rgba(33,230,182,.55);
-    }
-    .btn-primary:hover{
-      transform:translateY(-1px);
-      box-shadow:0 14px 30px rgba(33,230,182,.7);
-    }
-    .btn-ghost{
-      background:rgba(15,23,42,.9);
-      color:var(--muted);
-      border:1px solid rgba(148,163,184,.6);
-    }
-    .btn-ghost:hover{
-      background:rgba(15,23,42,1);
-      color:var(--text);
-    }
-    .inline-radio{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin:2px 0 6px;
-      font-size:.8rem;
-      color:var(--muted);
-    }
-    .inline-radio label{
-      display:inline-flex;
-      align-items:center;
-      gap:4px;
-      margin:0;
-    }
-    .inline-radio input[type="radio"]{
-      width:auto;
-      accent-color:var(--accent);
-    }
-    .results-note{
-      font-size:.8rem;
-      color:var(--muted);
-      margin:2px 0 0;
-    }
-    .examples{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:10px;
-      font-size:.8rem;
-    }
-    @media (max-width:900px){
-      .examples{grid-template-columns:minmax(0,1fr);}
-    }
-    .example-card{
-      background:radial-gradient(circle at top,rgba(212,175,55,.08),rgba(15,23,42,.97));
-      border-radius:var(--radius);
-      border:1px solid rgba(148,163,184,.6);
-      padding:10px 10px 8px;
-    }
-    .example-title{
-      font-weight:600;
-      margin-bottom:4px;
-      color:var(--text);
-    }
-    .example-meta{
-      font-size:.75rem;
-      color:var(--gold);
-      margin-bottom:4px;
-    }
-    .example-list{
-      margin:0 0 4px 16px;
-      padding:0;
-      color:var(--muted);
-    }
-    .example-list li{margin-bottom:2px;}
-    .example-footer{
-      font-size:.75rem;
-      color:var(--muted);
-      border-top:1px solid rgba(148,163,184,.35);
-      padding-top:3px;
-      margin-top:4px;
+    .sc-meta{
+      font-size:.78rem;
+      color:#e5e7eb;
+      margin-bottom:.2rem;
     }
     .value{
       font-variant-numeric:tabular-nums;
       font-weight:600;
-      color:var(--accent);
+      color:#fbbf24;
     }
-    footer.page-footer{
-      margin-top:22px;
-      padding-top:10px;
-      border-top:1px solid rgba(31,41,55,.9);
-      font-size:.78rem;
-      color:var(--muted);
+    .note{max-width:940px;margin:22px auto;color:#d1d5db;text-align:center;line-height:1.65;}
+    .radio-row{
       display:flex;
       flex-wrap:wrap;
-      gap:8px;
-      justify-content:space-between;
+      gap:.5rem;
+      align-items:center;
+      font-size:.82rem;
+      color:var(--muted);
     }
+    .radio-row label{
+      margin:0;
+      display:inline-flex;
+      align-items:center;
+      gap:.35rem;
+    }
+    .radio-row input[type=radio]{accent-color:#facc15;}
   </style>
 </head>
 <body>
-  <div class="page">
-    <header class="page-header">
-      <div class="title-wrap">
-        <div class="badge" aria-hidden="true">
-          <!-- Inline-SVG: Calculator/Coin Hybrid -->
-          <svg viewBox="0 0 32 32" role="img" aria-hidden="true">
-            <rect x="6" y="4" width="14" height="24" rx="3" ry="3"></rect>
-            <rect x="9" y="8" width="8" height="4" rx="1" ry="1"></rect>
-            <circle cx="11" cy="16" r="1.1"></circle>
-            <circle cx="16" cy="16" r="1.1"></circle>
-            <circle cx="11" cy="20" r="1.1"></circle>
-            <circle cx="16" cy="20" r="1.1"></circle>
-            <circle cx="24" cy="16" r="6.5"></circle>
-            <path d="M24 11v10M21 14h6" stroke-linecap="round"></path>
-          </svg>
+  <script src="/lp-anfang/library/js/menu.js"></script>
+  <script src="/lp-anfang/library/js/lang-switcher.js"></script>
+  <script src="/lp-anfang/library/js/music-button.js"></script>
+
+  <main>
+    <h1 data-t="title">FSA Office – Tools & Verdienst-Rechner</h1>
+    <p class="intro" data-t="intro">Zwei Werkzeuge, die dir zeigen, wo du stehst – und wohin du willst.</p>
+
+    <section class="acc">
+      <div class="acc-item">
+        <button class="acc-btn"><span data-t="acc1-btn">🔑 Worum es hier geht</span><span class="chev">▶</span></button>
+        <div class="acc-panel" data-t="acc1-panel">
+          Diese Seite ist dein ehrlicher Spiegel. Kein Login, keine Speicherung – nur Lernen durch Klarheit.
+          Tool&nbsp;1 zeigt, warum Ergebnisse ausbleiben oder kommen (Telefonate → Gespräche → neue Partner).
+          Tool&nbsp;2 ist dein Verdienst-Rechner: Du gibst ein Jahresziel ein und siehst, wie viele 15-, 60- und Firmenpakete in verschiedenen Szenarien nötig wären.
+        </div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-btn"><span data-t="acc2-btn">🎯 Prinzip: Haltung vor Hektik</span><span class="chev">▶</span></button>
+        <div class="acc-panel" data-t="acc2-panel">
+          Wir bewerten keine Menschen, sondern Muster. Regelmäßige kleine Schritte schlagen hektische Ausreißer.
+          Die Akademie liefert Sprache & Logik – du lieferst die Schritte.
+        </div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-btn"><span data-t="acc3-btn">🧭 Ehrlichkeit als Abkürzung</span><span class="chev">▶</span></button>
+        <div class="acc-panel" data-t="acc3-panel">
+          Zahlen sind Wegweiser, keine Urteile. Je ehrlicher du hier bist, desto schneller sparst du draußen Zeit.
+          Ziel: Muster sehen, Kurs anpassen, weitermachen – ohne Drama.
+        </div>
+      </div>
+    </section>
+
+    <!-- TOOL 1: Aktivitäts-Check -->
+    <section class="tool" id="tool1">
+      <h2 data-t="t1-title">🛠️ Tool 1 – Aktivitäts-Check</h2>
+      <p class="sub" data-t="t1-sub">
+        Wie viele Telefonate, Gespräche und neue Partner hattest du diese Woche? Drei ehrliche Zahlen zeigen dir, warum Erfolg kam oder ausblieb.
+      </p>
+
+      <div class="row">
+        <div>
+          <label for="calls" data-t="t1-label-calls">Telefonate</label>
+          <input type="number" id="calls" min="0" inputmode="numeric">
+          <div class="hint" data-t="t1-hint-calls">4 Anrufe → 1 Gespräch</div>
         </div>
         <div>
-          <h1 data-i18n="header.title">FSA Verdienst-Rechner</h1>
-          <p class="subtitle" data-i18n="header.subtitle">
-            Gib dein gewünschtes Jahreseinkommen ein und sieh, wie der Mix aus 15-, 60- und Firmenpaketen aussehen könnte.
-          </p>
+          <label for="talks" data-t="t1-label-talks">Gespräche</label>
+          <input type="number" id="talks" min="0" inputmode="numeric">
+          <div class="hint" data-t="t1-hint-talks">4 Gespräche → 1 Partner</div>
+        </div>
+        <div>
+          <label for="partners" data-t="t1-label-partners">Neue Partner</label>
+          <input type="number" id="partners" min="0" inputmode="numeric">
+          <div class="hint" data-t="t1-hint-partners">Diese Woche</div>
         </div>
       </div>
-      <div class="lang-switcher" aria-label="Language selector">
-        <button type="button" class="lang-btn active" data-lang="de">DE</button>
-        <button type="button" class="lang-btn" data-lang="en">EN</button>
-      </div>
-    </header>
 
-    <section class="intro">
-      <div class="intro-inner">
-        <div class="intro-pill">
-          <span class="intro-pill-dot"></span>
-          <span data-i18n="intro.pill">Dein Zielbetrag – drei mögliche Wege dorthin</span>
-        </div>
-        <h2 class="intro-title" data-i18n="intro.title">
-          Wie viele aktive Nutzer brauchst du für dein Wunsch-Einkommen?
-        </h2>
-        <p class="intro-text" data-i18n="intro.text1">
-          Dieser Rechner zeigt dir, wie dein gewünschtes Jahreseinkommen aussehen könnte – nur mit 60-USDT-Paketen, mit einem Mix aus 15 und 60 USDT oder mit einem Firmenpaket plus 60-USDT-Paketen.
-        </p>
-        <p class="intro-text" data-i18n="intro.text2">
-          Alle Zahlen sind Beispiele auf Basis der aktuellen Tippgeber-Prozente: 20 % auf 15 USDT, 40 % auf 60 USDT und 20/40 % auf Firmenpakete mit 1.200 USDT.
-        </p>
-        <p class="note" data-i18n="intro.note">
-          Hinweis: Es wird vereinfachend mit 1 USDT ≈ 1 € gerechnet. Es handelt sich um Orientierung, nicht um eine Ertragsgarantie.
-        </p>
+      <div class="hint" style="margin-top:.35rem" data-t="t1-benchmark-note">
+        Hinweis: Die Quoten sind Erfahrungswerte, keine Gesetze. Als Startwert rechnen wir mit 4→1 (4 Anrufe ≈ 1 Gespräch, 4 Gespräche ≈ 1 Partner).
+        Deine echten Zahlen dürfen abweichen – passe sie später mit wachsender Erfahrung an.
+      </div>
+
+      <button class="cta" id="btn1" data-t="btn-eval">Auswerten</button>
+
+      <div class="result" id="res1" style="display:none">
+        <h3 data-t="t1-res-head">Dein Wochenbild</h3>
+        <div class="meter"><i id="meter1"></i></div>
+        <div class="lines" id="lines1"></div>
+        <div class="mentor" id="mentor1"></div>
       </div>
     </section>
 
-    <section class="layout">
-      <article class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <span class="title-bar"></span>
-            <span data-i18n="form.title">1. Dein Zielbetrag & Einstellungen</span>
-          </div>
-          <span class="card-tag" data-i18n="form.tag">Eingabe & Grundeinstellungen</span>
-        </div>
-
-        <div class="input-row">
-          <div class="input-group">
-            <label for="targetAmount" data-i18n="form.targetLabel">Gewünschtes Jahreseinkommen (in € / USDT)</label>
-            <input type="number" id="targetAmount" min="0" step="100" value="2000" />
-          </div>
-          <div class="input-group">
-            <label data-i18n="form.firmRateLabel">Tippgeber-Prozent für Firmenpaket (1.200 USDT)</label>
-            <div class="inline-radio">
-              <label>
-                <input type="radio" name="firmRate" value="0.2" />
-                <span data-i18n="form.firmRate20">20 %</span>
-              </label>
-              <label>
-                <input type="radio" name="firmRate" value="0.4" checked />
-                <span data-i18n="form.firmRate40">40 %</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="controls">
-          <button type="button" class="btn-primary" id="calcBtn" data-i18n="form.calcBtn">
-            Berechnen
-          </button>
-          <button type="button" class="btn-ghost" id="resetBtn" data-i18n="form.resetBtn">
-            Zurücksetzen
-          </button>
-        </div>
-        <p class="results-note" data-i18n="form.resultsNote">
-          Der Rechner zeigt dir drei Szenarien: nur 60-USDT-Pakete, einen Mix 15/60 und ein Firmenpaket plus 60-USDT-Pakete.
-        </p>
-      </article>
-
-      <article class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <span class="title-bar"></span>
-            <span data-i18n="summary.title">2. Zusammenfassung</span>
-          </div>
-          <span class="card-tag" data-i18n="summary.tag">Auf einen Blick</span>
-        </div>
-        <p class="intro-text">
-          <span data-i18n="summary.targetPrefix">Ziel-Jahreseinkommen:</span>
-          <span class="value" id="summaryTarget">2.000</span>
-          <span class="value">€</span>
-        </p>
-        <p class="intro-text">
-          <span data-i18n="summary.smallInfo">Tippgeber auf 15 USDT (20 %):</span>
-          <span class="value" id="summarySmallReward">3</span>
-          <span>€ pro aktivem Nutzer und Jahr</span>
-        </p>
-        <p class="intro-text">
-          <span data-i18n="summary.largeInfo">Tippgeber auf 60 USDT (40 %):</span>
-          <span class="value" id="summaryLargeReward">24</span>
-          <span>€ pro aktivem Nutzer und Jahr</span>
-        </p>
-        <p class="intro-text">
-          <span data-i18n="summary.firmInfo">Tippgeber auf 1.200 USDT Firmenpaket:</span>
-          <span class="value" id="summaryFirmReward">480</span>
-          <span>€ (je nach gewähltem Prozentsatz)</span>
-        </p>
-      </article>
-    </section>
-
-    <section style="margin-top:18px;">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <span class="title-bar"></span>
-            <span data-i18n="scenarios.title">3. Deine drei Szenarien</span>
-          </div>
-          <span class="card-tag" data-i18n="scenarios.tag">Beispiele – keine Vorgabe</span>
-        </div>
-
-        <div class="examples">
-          <div class="example-card">
-            <div class="example-title" data-i18n="sc1.title">Szenario 1 – nur 60-USDT-Pakete</div>
-            <div class="example-meta" data-i18n="sc1.meta">Fokus: großes Paket, 40 % Tippgeber</div>
-            <ul class="example-list">
-              <li>
-                <span data-i18n="sc1.line1">Benötigte 60-USDT-Pakete:</span>
-                <span class="value" id="sc1NumLarge">0</span>
-              </li>
-              <li>
-                <span data-i18n="sc1.line2">Belohnung pro Paket:</span>
-                <span class="value">24</span> €
-              </li>
-            </ul>
-            <p class="example-footer" data-i18n="sc1.footer">
-              Dieses Szenario zeigt, wie viele aktive Nutzer mit 60-USDT-Paket nötig wären, wenn dein Einkommen ausschließlich über dieses Paket entsteht.
-            </p>
-          </div>
-
-          <div class="example-card">
-            <div class="example-title" data-i18n="sc2.title">Szenario 2 – Mix 15 & 60 USDT</div>
-            <div class="example-meta" data-i18n="sc2.meta">Fokus: ca. 50 % klein, 50 % groß</div>
-            <ul class="example-list">
-              <li>
-                <span data-i18n="sc2.line1">Ø Belohnung pro Person (Mix):</span>
-                <span class="value" id="sc2AvgReward">13.5</span> €
-              </li>
-              <li>
-                <span data-i18n="sc2.line2">Benötigte Gesamtanzahl Nutzer:</span>
-                <span class="value" id="sc2NumUsers">0</span>
-              </li>
-            </ul>
-            <p class="example-footer" data-i18n="sc2.footer">
-              Hier siehst du, wie viele aktive Nutzer du ungefähr brauchst, wenn sich dein Einkommen aus einer Mischung von 15- und 60-USDT-Paketen zusammensetzt.
-            </p>
-          </div>
-
-          <div class="example-card">
-            <div class="example-title" data-i18n="sc3.title">Szenario 3 – 1 Firmenpaket + 60-USDT-Pakete</div>
-            <div class="example-meta" data-i18n="sc3.meta">Fokus: ein Firmenkunde plus Privatnutzer</div>
-            <ul class="example-list">
-              <li>
-                <span data-i18n="sc3.line1">Firmenpakete à 1.200 USDT:</span>
-                <span class="value" id="sc3NumFirms">1</span>
-              </li>
-              <li>
-                <span data-i18n="sc3.line2">Tippgeber je Firmenpaket:</span>
-                <span class="value" id="sc3FirmReward">480</span> €
-              </li>
-              <li>
-                <span data-i18n="sc3.line3">Zusätzliche 60-USDT-Pakete nötig:</span>
-                <span class="value" id="sc3NumLarge">0</span>
-              </li>
-            </ul>
-            <p class="example-footer" data-i18n="sc3.footer">
-              Dieses Beispiel kombiniert einen Firmenkunden mit 1.200-USDT-Paket und zusätzlichen 60-USDT-Paketen, um dein gewünschtes Jahreseinkommen zu erreichen.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <footer class="page-footer">
-      <p data-i18n="footer.note">
-        Alle Berechnungen sind Näherungen und dienen nur zur Orientierung. Dein tatsächliches Einkommen hängt von deiner Aktivität, Abschlussquoten, Laufzeiten und Wechselkursen ab.
+    <!-- TOOL 2: Verdienst-Rechner -->
+    <section class="tool" id="tool2">
+      <h2 data-t="t2-title">💶 Tool 2 – Verdienst-Rechner</h2>
+      <p class="sub" data-t="t2-sub">
+        Gib dein gewünschtes Jahres-Einkommen ein und sieh, wie der Mix aus 15-, 60- und Firmenpaketen in drei Beispiel-Szenarien aussehen könnte.
       </p>
-      <p data-i18n="footer.lang">
-        Sprache oben rechts wechseln: DE / EN.
+
+      <div class="row">
+        <div>
+          <label for="targetYear" data-t="t2-label-target">Wunsch-Einkommen pro Jahr (€ / USDT)</label>
+          <input type="number" id="targetYear" min="0" step="100" value="2000" inputmode="numeric">
+          <div class="hint" data-t="t2-hint-target">Beispiel: 2.000, 5.000 oder 24.000</div>
+        </div>
+        <div>
+          <label data-t="t2-label-firmRate">Tippgeber-Prozent Firmenpaket (1.200 USDT)</label>
+          <div class="radio-row">
+            <label>
+              <input type="radio" name="firmRate" value="0.2">
+              <span data-t="t2-firm20">20 %</span>
+            </label>
+            <label>
+              <input type="radio" name="firmRate" value="0.4" checked>
+              <span data-t="t2-firm40">40 %</span>
+            </label>
+          </div>
+          <div class="hint" data-t="t2-hint-firm">
+            Firmen-Tippgeber wird wie bei den Privatpaketen mit 20 % oder 40 % gerechnet.
+          </div>
+        </div>
+      </div>
+
+      <button class="cta" id="btn2" data-t="btn-calc">Berechnen</button>
+
+      <div class="result" id="res2" style="display:none">
+        <h3 data-t="t2-res-head">Deine Beispiel-Szenarien</h3>
+        <div class="lines">
+          <span data-t="t2-line-target">Ziel-Jahreseinkommen:</span>
+          <span class="value" id="t2GoalOut">0</span> €
+        </div>
+        <div class="lines">
+          <span data-t="t2-line-assumption">Annahmen Tippgeber-Belohnung:</span><br>
+          <span data-t="t2-line-small">• 15 USDT → 20 % =</span>
+          <span class="value" id="t2SmallOut">3</span> € / Nutzer / Jahr<br>
+          <span data-t="t2-line-large">• 60 USDT → 40 % =</span>
+          <span class="value" id="t2LargeOut">24</span> € / Nutzer / Jahr<br>
+          <span data-t="t2-line-firm">• 1.200 USDT Firmenpaket →</span>
+          <span class="value" id="t2FirmOut">480</span> €
+        </div>
+
+        <div class="sc-grid">
+          <div class="sc-card">
+            <div class="sc-title" data-t="t2-s1-title">Szenario 1 – nur 60-USDT-Pakete</div>
+            <div class="sc-meta" data-t="t2-s1-meta">Fokus: große Pakete mit 40 % Tippgeber-Belohnung</div>
+            <p>
+              <span data-t="t2-s1-line1">Benötigte aktive Nutzer mit 60-USDT-Paket:</span>
+              <br><span class="value" id="sc1Large">0</span>
+            </p>
+            <p data-t="t2-s1-note">
+              Dieses Szenario zeigt, wie dein Ziel ausschließlich über 60-USDT-Pakete erreichbar wäre.
+            </p>
+          </div>
+
+          <div class="sc-card">
+            <div class="sc-title" data-t="t2-s2-title">Szenario 2 – Mix 15 & 60 USDT</div>
+            <div class="sc-meta" data-t="t2-s2-meta">Annahme: 50 % 15-USDT-Pakete, 50 % 60-USDT-Pakete</div>
+            <p>
+              <span data-t="t2-s2-line1">Ø Belohnung pro Person im Mix:</span>
+              <br><span class="value" id="sc2Avg">13,5</span> €
+            </p>
+            <p>
+              <span data-t="t2-s2-line2">Benötigte Gesamtanzahl aktiver Nutzer:</span>
+              <br><span class="value" id="sc2Users">0</span>
+            </p>
+            <p data-t="t2-s2-note">
+              So könnte dein Ziel aussehen, wenn etwa die Hälfte deiner Nutzer das kleine und die andere Hälfte das große Paket nutzt.
+            </p>
+          </div>
+
+          <div class="sc-card">
+            <div class="sc-title" data-t="t2-s3-title">Szenario 3 – 1 Firmenpaket + 60-USDT-Pakete</div>
+            <div class="sc-meta" data-t="t2-s3-meta">Ein Firmenkunde plus Privatnutzer mit 60-USDT-Paket</div>
+            <p>
+              <span data-t="t2-s3-line1">Anzahl Firmenpakete à 1.200 USDT:</span>
+              <br><span class="value" id="sc3Firms">1</span>
+            </p>
+            <p>
+              <span data-t="t2-s3-line2">Zusätzliche 60-USDT-Pakete nötig:</span>
+              <br><span class="value" id="sc3Large">0</span>
+            </p>
+            <p data-t="t2-s3-note">
+              Ein Firmenpaket deckt bereits einen Teil deines Ziels ab – den Rest übernehmen 60-USDT-Pakete.
+            </p>
+          </div>
+        </div>
+
+        <p class="mentor" data-t="t2-note">
+          Alle Beträge sind Beispiele zur Orientierung. Dein reales Einkommen hängt von deiner Aktivität, Abschlussquote und davon ab, wie viele Nutzer und Firmen langfristig aktiv bleiben.
+        </p>
+      </div>
+    </section>
+
+    <section class="tool" id="nicetoknow">
+      <h2 data-t="ntk-title">📣 Nice to Know – Wie du deine Quote wirklich erreichst</h2>
+      <p class="sub" data-t="ntk-body">
+        Wachstum ist kein Zufall, sondern die Folge von Bewegung. Wer täglich aktiv bleibt, erzeugt Resonanz — nicht durch Druck, sondern durch Präsenz.<br><br>
+        Jede Einladung, jeder Zoom-Call, jeder Stammtisch ist ein Impuls, der Wirkung entfaltet. Nicht, weil du überredest, sondern weil du sichtbar wirst.
+        Die Akademie übernimmt das Erklären, Schulen und Aufbauen – du sorgst dafür, dass Menschen überhaupt erfahren, dass es sie gibt.<br><br>
+        So entsteht Dynamik:<br>
+        • Promotion schafft Aufmerksamkeit.<br>
+        • Zooms vertiefen Verständnis.<br>
+        • Campus & Office halten dich im Rhythmus.<br><br>
+        Dein Job ist nicht, alle zu überzeugen, sondern Türen zu öffnen. Das System erklärt sich selbst – du bist der, der es teilt.<br><br>
+        Die FSA-Akademie ist dein Copilot, dein Werkzeugkasten und dein Spiegel. Sie zeigt dir Wege, wie du Verantwortung, Wissen und Aktion in Einklang bringst.
+        Aber den Flug musst du selbst antreten – Tag für Tag, Gespräch für Gespräch.
       </p>
-    </footer>
-  </div>
+    </section>
+  </main>
+
+  <script src="/lp-anfang/library/js/office-menu.js"></script>
 
   <script>
-    (function(){
-      const translations = {
-        de:{
-          "header.title":"FSA Verdienst-Rechner",
-          "header.subtitle":"Gib dein gewünschtes Jahreseinkommen ein und sieh, wie der Mix aus 15-, 60- und Firmenpaketen aussehen könnte.",
-          "intro.pill":"Dein Zielbetrag – drei mögliche Wege dorthin",
-          "intro.title":"Wie viele aktive Nutzer brauchst du für dein Wunsch-Einkommen?",
-          "intro.text1":"Dieser Rechner zeigt dir, wie dein gewünschtes Jahreseinkommen aussehen könnte – nur mit 60-USDT-Paketen, mit einem Mix aus 15 und 60 USDT oder mit einem Firmenpaket plus 60-USDT-Paketen.",
-          "intro.text2":"Alle Zahlen sind Beispiele auf Basis der aktuellen Tippgeber-Prozente: 20 % auf 15 USDT, 40 % auf 60 USDT und 20/40 % auf Firmenpakete mit 1.200 USDT.",
-          "intro.note":"Hinweis: Es wird vereinfachend mit 1 USDT ≈ 1 € gerechnet. Es handelt sich um Orientierung, nicht um eine Ertragsgarantie.",
-          "form.title":"1. Dein Zielbetrag & Einstellungen",
-          "form.tag":"Eingabe & Grundeinstellungen",
-          "form.targetLabel":"Gewünschtes Jahreseinkommen (in € / USDT)",
-          "form.firmRateLabel":"Tippgeber-Prozent für Firmenpaket (1.200 USDT)",
-          "form.firmRate20":"20 %",
-          "form.firmRate40":"40 %",
-          "form.calcBtn":"Berechnen",
-          "form.resetBtn":"Zurücksetzen",
-          "form.resultsNote":"Der Rechner zeigt dir drei Szenarien: nur 60-USDT-Pakete, einen Mix 15/60 und ein Firmenpaket plus 60-USDT-Pakete.",
-          "summary.title":"2. Zusammenfassung",
-          "summary.tag":"Auf einen Blick",
-          "summary.targetPrefix":"Ziel-Jahreseinkommen:",
-          "summary.smallInfo":"Tippgeber auf 15 USDT (20 %):",
-          "summary.largeInfo":"Tippgeber auf 60 USDT (40 %):",
-          "summary.firmInfo":"Tippgeber auf 1.200 USDT Firmenpaket:",
-          "scenarios.title":"3. Deine drei Szenarien",
-          "scenarios.tag":"Beispiele – keine Vorgabe",
-          "sc1.title":"Szenario 1 – nur 60-USDT-Pakete",
-          "sc1.meta":"Fokus: großes Paket, 40 % Tippgeber",
-          "sc1.line1":"Benötigte 60-USDT-Pakete:",
-          "sc1.line2":"Belohnung pro Paket:",
-          "sc1.footer":"Dieses Szenario zeigt, wie viele aktive Nutzer mit 60-USDT-Paket nötig wären, wenn dein Einkommen ausschließlich über dieses Paket entsteht.",
-          "sc2.title":"Szenario 2 – Mix 15 & 60 USDT",
-          "sc2.meta":"Fokus: ca. 50 % klein, 50 % groß",
-          "sc2.line1":"Ø Belohnung pro Person (Mix):",
-          "sc2.line2":"Benötigte Gesamtanzahl Nutzer:",
-          "sc2.footer":"Hier siehst du, wie viele aktive Nutzer du ungefähr brauchst, wenn sich dein Einkommen aus einer Mischung von 15- und 60-USDT-Paketen zusammensetzt.",
-          "sc3.title":"Szenario 3 – 1 Firmenpaket + 60-USDT-Pakete",
-          "sc3.meta":"Fokus: ein Firmenkunde plus Privatnutzer",
-          "sc3.line1":"Firmenpakete à 1.200 USDT:",
-          "sc3.line2":"Tippgeber je Firmenpaket:",
-          "sc3.line3":"Zusätzliche 60-USDT-Pakete nötig:",
-          "sc3.footer":"Dieses Beispiel kombiniert einen Firmenkunden mit 1.200-USDT-Paket und zusätzlichen 60-USDT-Paketen, um dein gewünschtes Jahreseinkommen zu erreichen.",
-          "footer.note":"Alle Berechnungen sind Näherungen und dienen nur zur Orientierung. Dein tatsächliches Einkommen hängt von deiner Aktivität, Abschlussquoten, Laufzeiten und Wechselkursen ab.",
-          "footer.lang":"Sprache oben rechts wechseln: DE / EN."
-        },
-        en:{
-          "header.title":"FSA Income Calculator",
-          "header.subtitle":"Enter your desired annual income and see how a mix of 15, 60 and company packages could look.",
-          "intro.pill":"Your target amount – three possible paths",
-          "intro.title":"How many active users do you need for your target income?",
-          "intro.text1":"This calculator shows how your desired annual income could look – using only 60-USDT packages, a mix of 15 and 60 USDT, or one company package plus 60-USDT packages.",
-          "intro.text2":"All figures are examples based on the current referral percentages: 20 % on 15 USDT, 40 % on 60 USDT and 20/40 % on company packages with 1,200 USDT.",
-          "intro.note":"Note: For simplicity 1 USDT ≈ €1 is used. This is guidance only, not an income guarantee.",
-          "form.title":"1. Your target & settings",
-          "form.tag":"Input & base settings",
-          "form.targetLabel":"Desired annual income (in € / USDT)",
-          "form.firmRateLabel":"Referral percent for company package (1,200 USDT)",
-          "form.firmRate20":"20 %",
-          "form.firmRate40":"40 %",
-          "form.calcBtn":"Calculate",
-          "form.resetBtn":"Reset",
-          "form.resultsNote":"The calculator shows three scenarios: only 60-USDT packages, a 15/60 mix, and one company package plus 60-USDT packages.",
-          "summary.title":"2. Summary",
-          "summary.tag":"At a glance",
-          "summary.targetPrefix":"Target annual income:",
-          "summary.smallInfo":"Referral on 15 USDT (20 %):",
-          "summary.largeInfo":"Referral on 60 USDT (40 %):",
-          "summary.firmInfo":"Referral on 1,200 USDT company package:",
-          "scenarios.title":"3. Your three scenarios",
-          "scenarios.tag":"Examples – not a requirement",
-          "sc1.title":"Scenario 1 – only 60-USDT packages",
-          "sc1.meta":"Focus: large package, 40 % referral",
-          "sc1.line1":"Required 60-USDT packages:",
-          "sc1.line2":"Reward per package:",
-          "sc1.footer":"This scenario shows how many active users with a 60-USDT package would be needed if your income came only from this package.",
-          "sc2.title":"Scenario 2 – mix 15 & 60 USDT",
-          "sc2.meta":"Focus: approx. 50 % small, 50 % large",
-          "sc2.line1":"Avg. reward per person (mix):",
-          "sc2.line2":"Required total number of users:",
-          "sc2.footer":"Here you see roughly how many active users you need if your income comes from a mix of 15- and 60-USDT packages.",
-          "sc3.title":"Scenario 3 – 1 company package + 60-USDT packages",
-          "sc3.meta":"Focus: one company client plus private users",
-          "sc3.line1":"Company packages of 1,200 USDT:",
-          "sc3.line2":"Reward per company package:",
-          "sc3.line3":"Additional 60-USDT packages required:",
-          "sc3.footer":"This example combines one company client with a 1,200-USDT package and additional 60-USDT packages to reach your desired annual income.",
-          "footer.note":"All calculations are approximations and for orientation only. Your actual income depends on your activity, closing rates, durations and exchange rates.",
-          "footer.lang":"Change language at the top right: DE / EN."
-        }
-      };
+    const UI = {
+      de: {
+        title:"FSA Office – Tools & Verdienst-Rechner",
+        intro:"Zwei Werkzeuge, die dir zeigen, wo du stehst – und wohin du willst.",
+        "acc1-btn":"🔑 Worum es hier geht",
+        "acc1-panel":"Diese Seite ist dein ehrlicher Spiegel. Kein Login, keine Speicherung – nur Lernen durch Klarheit. Tool 1 zeigt, warum Ergebnisse ausbleiben oder kommen (Telefonate → Gespräche → neue Partner). Tool 2 ist dein Verdienst-Rechner: Du gibst ein Jahresziel ein und siehst, wie viele 15-, 60- und Firmenpakete in verschiedenen Szenarien nötig wären.",
+        "acc2-btn":"🎯 Prinzip: Haltung vor Hektik",
+        "acc2-panel":"Wir bewerten keine Menschen, sondern Muster. Wer lernt, regelmäßig kleine Schritte zu gehen, wird vorhersagbar gut. Die Akademie liefert die Sprache und Logik, du lieferst die Schritte.",
+        "acc3-btn":"🧭 Ehrlichkeit als Abkürzung",
+        "acc3-panel":"Zahlen sind Wegweiser, keine Urteile. Je ehrlicher du hier bist, desto weniger Zeit verlierst du draußen. Ziel: Muster erkennen, Kurs anpassen, weitermachen – ohne Drama.",
+        "t1-title":"🛠️ Tool 1 – Aktivitäts-Check",
+        "t1-sub":"Wie viele Telefonate, Gespräche und neue Partner hattest du diese Woche? Drei ehrliche Zahlen zeigen dir, warum Erfolg kam oder ausblieb.",
+        "t1-label-calls":"Telefonate",
+        "t1-hint-calls":"4 Anrufe → 1 Gespräch",
+        "t1-label-talks":"Gespräche",
+        "t1-hint-talks":"4 Gespräche → 1 Partner",
+        "t1-label-partners":"Neue Partner",
+        "t1-hint-partners":"Diese Woche",
+        "t1-benchmark-note":"Hinweis: Die Quoten sind Erfahrungswerte, keine Gesetze. Als Startwert rechnen wir mit 4→1 (4 Anrufe ≈ 1 Gespräch, 4 Gespräche ≈ 1 Partner). Deine echten Zahlen dürfen abweichen – passe sie später mit wachsender Erfahrung an.",
+        "btn-eval":"Auswerten",
+        "t1-res-head":"Dein Wochenbild",
 
+        "t2-title":"💶 Tool 2 – Verdienst-Rechner",
+        "t2-sub":"Gib dein gewünschtes Jahres-Einkommen ein und sieh, wie der Mix aus 15-, 60- und Firmenpaketen in drei Beispiel-Szenarien aussehen könnte.",
+        "t2-label-target":"Wunsch-Einkommen pro Jahr (€ / USDT)",
+        "t2-hint-target":"Beispiel: 2.000, 5.000 oder 24.000",
+        "t2-label-firmRate":"Tippgeber-Prozent Firmenpaket (1.200 USDT)",
+        "t2-firm20":"20 %",
+        "t2-firm40":"40 %",
+        "t2-hint-firm":"Firmen-Tippgeber wird wie bei den Privatpaketen mit 20 % oder 40 % gerechnet.",
+        "btn-calc":"Berechnen",
+        "t2-res-head":"Deine Beispiel-Szenarien",
+        "t2-line-target":"Ziel-Jahreseinkommen:",
+        "t2-line-assumption":"Annahmen Tippgeber-Belohnung:",
+        "t2-line-small":"• 15 USDT → 20 % =",
+        "t2-line-large":"• 60 USDT → 40 % =",
+        "t2-line-firm":"• 1.200 USDT Firmenpaket →",
+        "t2-s1-title":"Szenario 1 – nur 60-USDT-Pakete",
+        "t2-s1-meta":"Fokus: große Pakete mit 40 % Tippgeber-Belohnung",
+        "t2-s1-line1":"Benötigte aktive Nutzer mit 60-USDT-Paket:",
+        "t2-s1-note":"Dieses Szenario zeigt, wie dein Ziel ausschließlich über 60-USDT-Pakete erreichbar wäre.",
+        "t2-s2-title":"Szenario 2 – Mix 15 & 60 USDT",
+        "t2-s2-meta":"Annahme: 50 % 15-USDT-Pakete, 50 % 60-USDT-Pakete",
+        "t2-s2-line1":"Ø Belohnung pro Person im Mix:",
+        "t2-s2-line2":"Benötigte Gesamtanzahl aktiver Nutzer:",
+        "t2-s2-note":"So könnte dein Ziel aussehen, wenn etwa die Hälfte deiner Nutzer das kleine und die andere Hälfte das große Paket nutzt.",
+        "t2-s3-title":"Szenario 3 – 1 Firmenpaket + 60-USDT-Pakete",
+        "t2-s3-meta":"Ein Firmenkunde plus Privatnutzer mit 60-USDT-Paket",
+        "t2-s3-line1":"Anzahl Firmenpakete à 1.200 USDT:",
+        "t2-s3-line2":"Zusätzliche 60-USDT-Pakete nötig:",
+        "t2-s3-note":"Ein Firmenpaket deckt bereits einen Teil deines Ziels ab – den Rest übernehmen 60-USDT-Pakete.",
+        "t2-note":"Alle Beträge sind Beispiele zur Orientierung. Dein reales Einkommen hängt von deiner Aktivität, Abschlussquote und davon ab, wie viele Nutzer und Firmen langfristig aktiv bleiben.",
+
+        "ntk-title":"📣 Nice to Know – Wie du deine Quote wirklich erreichst",
+        "ntk-body":"Wachstum ist kein Zufall, sondern die Folge von Bewegung. Wer täglich aktiv bleibt, erzeugt Resonanz — nicht durch Druck, sondern durch Präsenz.<br><br>Jede Einladung, jeder Zoom-Call, jeder Stammtisch ist ein Impuls, der Wirkung entfaltet. Nicht, weil du überredest, sondern weil du sichtbar wirst. Die Akademie übernimmt das Erklären, Schulen und Aufbauen – du sorgst dafür, dass Menschen überhaupt erfahren, dass es sie gibt.<br><br>So entsteht Dynamik:<br>• Promotion schafft Aufmerksamkeit.<br>• Zooms vertiefen Verständnis.<br>• Campus & Office halten dich im Rhythmus.<br><br>Dein Job ist nicht, alle zu überzeugen, sondern Türen zu öffnen. Das System erklärt sich selbst – du bist der, der es teilt.<br><br>Die FSA-Akademie ist dein Copilot, dein Werkzeugkasten und dein Spiegel. Sie zeigt dir Wege, wie du Verantwortung, Wissen und Aktion in Einklang bringst. Aber den Flug musst du selbst antreten – Tag für Tag, Gespräch für Gespräch.",
+
+        t1_lines:(eT,eP,cT,cP,s)=>`• Erwartet: ${eT} Gespräche, ${eP} Partner<br>• Gesprächsquote: ${cT}% – Abschlussquote: ${cP}%<br>• Score: ${s}/100`,
+        t1_mentor:(s)=>{
+          if(s>=80) return "Stark: Du arbeitest fokussiert und konsistent. Plane Termine früh, halte deinen Rhythmus – ohne Hektik.";
+          if(s>=50) return "Solide: Etwas hakt noch. Prüfe, ob deine Gespräche wirklich führen – oder nur informieren.";
+          return "Ehrlich gut: Es fehlt an Bewegung. Drei Sessions à 30 Minuten Anrufe in dieser Woche bringen sofort Lernkurve.";
+        }
+      },
+      en: {
+        title:"FSA Office – Tools & Income Calculator",
+        intro:"Two tools that show where you are – and where you’re headed.",
+        "acc1-btn":"🔑 What this page is for",
+        "acc1-panel":"This page is an honest mirror. No login, no storage – just clarity. Tool 1 explains why results appear or not (calls → talks → new partners). Tool 2 is your income calculator: you enter a yearly target and see how many 15, 60 and company packages would be needed in different scenarios.",
+        "acc2-btn":"🎯 Principle: posture before pace",
+        "acc2-panel":"We don’t judge people, we read patterns. Small consistent steps beat hectic bursts. The Academy brings language & logic – you bring the steps.",
+        "acc3-btn":"🧭 Honesty is the shortcut",
+        "acc3-panel":"Numbers are signposts, not verdicts. The more honest you are here, the less time you lose out there. See the pattern, adjust, keep moving – no drama.",
+        "t1-title":"🛠️ Tool 1 – Activity Check",
+        "t1-sub":"How many calls, talks and new partners did you have this week? Three honest numbers reveal why results came or didn’t.",
+        "t1-label-calls":"Calls",
+        "t1-hint-calls":"4 calls → 1 talk",
+        "t1-label-talks":"Talks",
+        "t1-hint-talks":"4 talks → 1 partner",
+        "t1-label-partners":"New partners",
+        "t1-hint-partners":"This week",
+        "t1-benchmark-note":"Note: Ratios are experience values, not laws. As a starting point we use 4→1 (4 calls ≈ 1 talk, 4 talks ≈ 1 partner). Your real numbers may differ – adjust later as you gain data.",
+        "btn-eval":"Evaluate",
+        "t1-res-head":"Your week at a glance",
+
+        "t2-title":"💶 Tool 2 – Income Calculator",
+        "t2-sub":"Enter your desired yearly income and see how a mix of 15, 60 and company packages could look in three example scenarios.",
+        "t2-label-target":"Target income per year (€ / USDT)",
+        "t2-hint-target":"Example: 2,000, 5,000 or 24,000",
+        "t2-label-firmRate":"Referral percent company package (1,200 USDT)",
+        "t2-firm20":"20 %",
+        "t2-firm40":"40 %",
+        "t2-hint-firm":"Company referral is calculated just like private packages at 20 % or 40 %. ",
+        "btn-calc":"Calculate",
+        "t2-res-head":"Your example scenarios",
+        "t2-line-target":"Target yearly income:",
+        "t2-line-assumption":"Assumed referral rewards:",
+        "t2-line-small":"• 15 USDT → 20 % =",
+        "t2-line-large":"• 60 USDT → 40 % =",
+        "t2-line-firm":"• 1,200 USDT company package →",
+        "t2-s1-title":"Scenario 1 – only 60-USDT packages",
+        "t2-s1-meta":"Focus: large packages with 40 % referral reward",
+        "t2-s1-line1":"Required active users with 60-USDT package:",
+        "t2-s1-note":"This scenario shows how your target could be reached using only 60-USDT packages.",
+        "t2-s2-title":"Scenario 2 – mix 15 & 60 USDT",
+        "t2-s2-meta":"Assumption: 50 % 15-USDT, 50 % 60-USDT packages",
+        "t2-s2-line1":"Ø reward per person in the mix:",
+        "t2-s2-line2":"Required total number of active users:",
+        "t2-s2-note":"This shows your target if about half your users choose the small and half the large package.",
+        "t2-s3-title":"Scenario 3 – 1 company package + 60-USDT packages",
+        "t2-s3-meta":"One company client plus private users with 60-USDT package",
+        "t2-s3-line1":"Number of company packages of 1,200 USDT:",
+        "t2-s3-line2":"Additional 60-USDT packages required:",
+        "t2-s3-note":"One company package already covers part of your goal – the rest comes from 60-USDT packages.",
+        "t2-note":"All amounts are examples for orientation. Your real income depends on your activity, closing rates and how many users and companies stay active long term.",
+
+        "ntk-title":"📣 Nice to know – How to truly hit your ratios",
+        "ntk-body":"Growth isn’t random; it follows movement. Daily activity creates resonance — not through pressure, but through presence.<br><br>Every invite, every Zoom call, every meetup is an impulse with impact. Not because you push people, but because you become visible. The Academy handles explaining, teaching, building — your job is to make sure people hear about it at all.<br><br>This is how momentum forms:<br>• Promotion creates awareness.<br>• Zooms deepen understanding.<br>• Campus & Office keep your rhythm.<br><br>Your job isn’t to convince everyone — it’s to open doors. The system explains itself; you’re the one who shares it.<br><br>The FSA Academy is your copilot, toolbox, and mirror. It shows ways to align responsibility, knowledge, and action. But you must take the flight yourself — day by day, conversation by conversation.",
+
+        t1_lines:(eT,eP,cT,cP,s)=>`• Expected: ${eT} talks, ${eP} partners<br>• Talk rate: ${cT}% – Close rate: ${cP}%<br>• Score: ${s}/100`,
+        t1_mentor:(s)=>{
+          if(s>=80) return "Strong: focused and consistent. Book slots early and keep the rhythm — no rush.";
+          if(s>=50) return "Decent: something’s off. Check whether your talks truly lead — not just inform.";
+          return "Useful honesty: you need motion. Three 30-minute call sprints this week will move the needle.";
+        }
+      }
+    };
+
+    function applyLang(lang){
+      const dict = UI[lang] || UI.de;
+      document.querySelectorAll("[data-t]").forEach(el=>{
+        const k=el.getAttribute("data-t");
+        if(dict[k]) el.innerHTML = dict[k];
+      });
+      document.documentElement.lang = lang;
+    }
+
+    document.querySelectorAll('.acc-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const p=btn.nextElementSibling;
+        const open=btn.classList.contains('open');
+        document.querySelectorAll('.acc-btn').forEach(b=>b.classList.remove('open'));
+        document.querySelectorAll('.acc-panel').forEach(pn=>pn.style.display='none');
+        if(!open){btn.classList.add('open');p.style.display='block';}
+      });
+    });
+
+    function evalTool1(lang){
+      const dict=UI[lang]||UI.de;
+      const calls=+document.getElementById('calls').value||0;
+      const talks=+document.getElementById('talks').value||0;
+      const partners=+document.getElementById('partners').value||0;
+      const expTalks = Math.floor(calls/4);
+      const expPartners = Math.floor(talks/4);
+      const convTalk = (calls>0)? Math.round((talks/(calls/4))*25) : 0;
+      const convPart = (talks>0)? Math.round((partners/(talks/4))*25) : 0;
+      const score = Math.max(0, Math.min(100, Math.round((convTalk + convPart)/2)));
+      document.getElementById('meter1').style.width = score + '%';
+      document.getElementById('lines1').innerHTML = dict.t1_lines(expTalks,expPartners,convTalk,convPart,score);
+      document.getElementById('mentor1').textContent = dict.t1_mentor(score);
+      document.getElementById('res1').style.display='block';
+    }
+
+    (function(){
       const smallReward = 15 * 0.20; // 3
       const largeReward = 60 * 0.40; // 24
       const firmPrice  = 1200;
 
-      const targetInput = document.getElementById("targetAmount");
-      const calcBtn = document.getElementById("calcBtn");
-      const resetBtn = document.getElementById("resetBtn");
-
-      const summaryTarget = document.getElementById("summaryTarget");
-      const summarySmallReward = document.getElementById("summarySmallReward");
-      const summaryLargeReward = document.getElementById("summaryLargeReward");
-      const summaryFirmReward = document.getElementById("summaryFirmReward");
-
-      const sc1NumLarge = document.getElementById("sc1NumLarge");
-      const sc2AvgReward = document.getElementById("sc2AvgReward");
-      const sc2NumUsers = document.getElementById("sc2NumUsers");
-      const sc3NumFirms = document.getElementById("sc3NumFirms");
-      const sc3FirmReward = document.getElementById("sc3FirmReward");
-      const sc3NumLarge = document.getElementById("sc3NumLarge");
+      const targetInput = document.getElementById("targetYear");
+      const btn2 = document.getElementById("btn2");
 
       function getFirmRate(){
         const checked = document.querySelector("input[name='firmRate']:checked");
@@ -666,87 +548,63 @@
       }
 
       function formatNumber(num){
-        if (!isFinite(num)) return "0";
-        return Math.round(num).toLocaleString(document.documentElement.lang || "de-DE");
+        if(!isFinite(num)) return "0";
+        const lang = document.documentElement.lang || "de";
+        return Math.round(num).toLocaleString(lang === "de" ? "de-DE" : "en-US");
       }
 
-      function recalc(){
+      function formatDecimal(num){
+        const lang = document.documentElement.lang || "de";
+        const fixed = num.toFixed(1);
+        return lang === "de" ? fixed.replace(".", ",") : fixed;
+      }
+
+      function calcTool2(){
         let target = parseFloat(targetInput.value);
-        if (isNaN(target) || target < 0) target = 0;
+        if(isNaN(target) || target < 0){ target = 0; }
 
         const firmRate = getFirmRate();
         const firmReward = firmPrice * firmRate;
+
+        const sc1Large = target <= 0 ? 0 : Math.ceil(target / largeReward);
+
         const avgReward = (smallReward + largeReward) / 2;
-
-        // Szenario 1: nur 60-USDT-Pakete
-        const sc1 = target <= 0 ? 0 : Math.ceil(target / largeReward);
-
-        // Szenario 2: 50/50 Mix
         const sc2Users = target <= 0 ? 0 : Math.ceil(target / avgReward);
 
-        // Szenario 3: 1 Firmenpaket + 60-USDT-Pakete
         const numFirms = 1;
         let rest = target - firmReward * numFirms;
-        if (rest < 0) rest = 0;
+        if(rest < 0) rest = 0;
         const sc3Large = rest <= 0 ? 0 : Math.ceil(rest / largeReward);
 
-        // Summary
-        summaryTarget.textContent = formatNumber(target);
-        summarySmallReward.textContent = smallReward.toFixed(0);
-        summaryLargeReward.textContent = largeReward.toFixed(0);
-        summaryFirmReward.textContent = firmReward.toFixed(0);
-
-        // Szenarien
-        sc1NumLarge.textContent = formatNumber(sc1);
-        sc2AvgReward.textContent = avgReward.toFixed(1).replace(".", document.documentElement.lang === "de" ? "," : ".");
-        sc2NumUsers.textContent = formatNumber(sc2Users);
-        sc3NumFirms.textContent = numFirms;
-        sc3FirmReward.textContent = firmReward.toFixed(0);
-        sc3NumLarge.textContent = formatNumber(sc3Large);
+        document.getElementById("t2GoalOut").textContent = formatNumber(target);
+        document.getElementById("t2SmallOut").textContent = smallReward.toFixed(0);
+        document.getElementById("t2LargeOut").textContent = largeReward.toFixed(0);
+        document.getElementById("t2FirmOut").textContent  = firmReward.toFixed(0);
+        document.getElementById("sc1Large").textContent = formatNumber(sc1Large);
+        document.getElementById("sc2Avg").textContent   = formatDecimal(avgReward);
+        document.getElementById("sc2Users").textContent = formatNumber(sc2Users);
+        document.getElementById("sc3Firms").textContent = numFirms.toString();
+        document.getElementById("sc3Large").textContent = formatNumber(sc3Large);
+        document.getElementById("res2").style.display = "block";
       }
 
-      calcBtn.addEventListener("click", recalc);
-      resetBtn.addEventListener("click", function(){
-        targetInput.value = 2000;
-        document.querySelector("input[name='firmRate'][value='0.4']").checked = true;
-        recalc();
+      btn2.addEventListener("click", calcTool2);
+      calcTool2();
+      document.addEventListener("fsa:lang-change", calcTool2);
+    })();
+
+    document.getElementById('btn1').addEventListener('click',()=>evalTool1(localStorage.getItem("fsa_lang")||"de"));
+
+    (function initLang(){
+      if(!localStorage.getItem("fsa_lang")) localStorage.setItem("fsa_lang","de");
+      const lang = localStorage.getItem("fsa_lang") || "de";
+      applyLang(lang);
+      document.addEventListener("fsa:lang-change",(ev)=>{
+        const l=ev.detail||"de";
+        localStorage.setItem("fsa_lang",l);
+        applyLang(l);
+        if(document.getElementById('res1').style.display==='block') evalTool1(l);
       });
-
-      // i18n
-      function setLang(lang){
-        const chosen = lang === "en" ? "en" : "de";
-        document.documentElement.lang = chosen;
-        localStorage.setItem("fsa-income-calc-lang", chosen);
-
-        document.querySelectorAll("[data-i18n]").forEach(function(el){
-          const key = el.getAttribute("data-i18n");
-          const txt = translations[chosen] && translations[chosen][key];
-          if (txt) el.textContent = txt;
-        });
-
-        document.querySelectorAll(".lang-btn").forEach(function(btn){
-          btn.classList.toggle("active", btn.getAttribute("data-lang") === chosen);
-        });
-
-        // Zahlen ggf. neu formatieren
-        recalc();
-      }
-
-      document.querySelectorAll(".lang-btn").forEach(function(btn){
-        btn.addEventListener("click", function(){
-          setLang(btn.getAttribute("data-lang"));
-        });
-      });
-
-      const storedLang = localStorage.getItem("fsa-income-calc-lang");
-      if (storedLang === "en" || storedLang === "de"){
-        setLang(storedLang);
-      } else {
-        setLang("de");
-      }
-
-      // Initial
-      recalc();
     })();
   </script>
 </body>
