@@ -464,7 +464,8 @@
     │       └── playlist-01.json
     ├── pages/
     │   ├── akademie/
-    │   │   └── akademie-einkommen.html
+    │   │   ├── akademie-einkommen.html
+    │   │   └── verdienst-rechner.html
     │   ├── campus/
     │   │   └── page.json
     │   ├── footer/
@@ -566,4 +567,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.11.2025, 14:16)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.11.2025, 15:14)_
