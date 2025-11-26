@@ -463,6 +463,8 @@
     │       ├── adlerflug.mp4
     │       └── playlist-01.json
     ├── pages/
+    │   ├── akademie/
+    │   │   └── akademie-einkommen.html
     │   ├── campus/
     │   │   └── page.json
     │   ├── footer/
@@ -564,4 +566,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.11.2025, 09:18)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.11.2025, 10:17)_
