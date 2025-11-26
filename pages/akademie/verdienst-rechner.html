@@ -3,582 +3,464 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>FSA Office – Tools & Generator</title>
-  <meta name="description" content="FSA Office Tools im Campus-Stil: Aktivitäts-Check und Verdienst-Planer – ehrlich auswerten, fokussiert handeln.">
+  <title>Trustyfy – Einkommens-Rechner</title>
   <style>
     :root{
-      /* Campus-Farben */
-      --bg:#0b0f14;
-      --ink:#e5e7eb;
-      --ink-soft:rgba(229,231,235,.78);
-      --muted:#94a3b8;
-      --gold:#d4af37;
-
-      /* Cards */
-      --card:rgba(13,18,25,.52);
-      --edge:rgba(212,175,55,.30);
-      --soft:rgba(148,163,184,.22);
-      --soft-2:rgba(148,163,184,.14);
-
-      /* Accents */
-      --ok:#10b981;
-      --warn:#eab308;
-      --bad:#ef4444;
+      --bg:#050813;
+      --grad1:#0b1120;
+      --grad2:#020617;
+      --card:#0f172a;
+      --card-soft:#111827;
+      --edge:rgba(248,250,252,.08);
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --gold:#facc15;
+      --accent:#22c55e;
+      --radius:18px;
+      --shadow:0 24px 60px rgba(0,0,0,.75);
+      --badge:rgba(148,163,184,.16);
+      --pill:#020617;
     }
-
     *{box-sizing:border-box}
-
-    /* Campus-Background (ohne harten Schein) */
-    body{
-      margin:0;
-      color:var(--ink);
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      min-height:100vh;
-      background:
-        radial-gradient(1200px 600px at 50% -10%, rgba(212,175,55,.08), transparent 60%),
-        radial-gradient(800px 400px at -10% 20%, rgba(255,255,255,.04), transparent 55%),
-        radial-gradient(800px 400px at 110% 35%, rgba(255,255,255,.03), transparent 55%),
-        var(--bg);
+    html,body{margin:0;padding:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(1200px 800px at 0 0,#1e293b 0,transparent 55%),radial-gradient(1200px 800px at 100% 0,#0f172a 0,transparent 55%),linear-gradient(160deg,var(--grad1),var(--grad2));color:var(--text);min-height:100vh;}
+    body{display:flex;justify-content:center;padding:20px;}
+    main{width:100%;max-width:1120px;margin:0 auto;padding:18px 0 40px;}
+    .lang-switch{display:flex;justify-content:flex-end;gap:6px;margin-bottom:14px;}
+    .lang-switch button{
+      border-radius:999px;border:1px solid rgba(148,163,184,.4);
+      background:var(--pill);color:var(--muted);
+      padding:6px 14px;font-size:.82rem;cursor:pointer;
     }
-
-    main{max-width:1180px;margin:0 auto;padding:6.2rem 1.2rem 6rem}
-
-    h1{
-      font-size:clamp(2.15rem,3vw,2.7rem);
-      color:#ffda6a;
-      text-align:center;
-      margin:.25rem 0 .6rem;
-      letter-spacing:.01em;
-      text-shadow:0 0 14px rgba(212,175,55,.18);
+    .lang-switch button.active{
+      background:rgba(250,204,21,.08);
+      color:var(--gold);
+      border-color:rgba(250,204,21,.7);
     }
-    .intro{
-      text-align:center;
-      max-width:880px;
-      margin:0 auto 1.6rem;
-      color:var(--muted);
-      line-height:1.6;
-    }
-
-    /* Intro-Akkordeon */
-    .acc{max-width:940px;margin:1.2rem auto;}
-    .acc-item{
-      background:var(--card);
+    .card{
+      background:radial-gradient(circle at top left,rgba(250,204,21,.18),transparent 55%),var(--card);
+      border-radius:var(--radius);
       border:1px solid var(--edge);
-      border-radius:14px;
-      overflow:hidden;
-      margin-bottom:14px;
-      box-shadow:0 10px 26px rgba(0,0,0,.32);
-      backdrop-filter:blur(6px);
+      box-shadow:var(--shadow);
+      padding:22px 20px 22px;
+      margin-bottom:18px;
     }
-    .acc-btn{
+    .card-soft{
+      background:var(--card-soft);
+      border-radius:var(--radius);
+      border:1px solid rgba(148,163,184,.4);
+      box-shadow:0 18px 40px rgba(15,23,42,.9);
+      padding:18px 18px 18px;
+      margin-bottom:16px;
+    }
+    .card-header{
+      display:flex;align-items:flex-start;gap:14px;margin-bottom:8px;
+    }
+    .card h1{
+      margin:0;font-size:clamp(1.7rem,2.3vw,2.1rem);letter-spacing:.01em;
+    }
+    .card h2{
+      margin:0;font-size:1.18rem;
+    }
+    .badge{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:4px 10px;border-radius:999px;
+      background:var(--badge);
+      font-size:.78rem;color:var(--muted);margin-top:6px;
+    }
+    .pill-title{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:4px 10px;border-radius:999px;
+      background:rgba(15,23,42,.9);
+      border:1px solid rgba(148,163,184,.45);
+      font-size:.8rem;color:var(--muted);margin-bottom:.35rem;
+    }
+    p{margin:.35rem 0 0;color:var(--muted);line-height:1.75;font-size:.95rem;}
+    .hidden{display:none!important}
+
+    /* Layout Rechner */
+    .calc-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1.1fr) minmax(0,1.1fr);
+      gap:20px;
+      margin-top:10px;
+    }
+    @media(max-width:880px){
+      .calc-grid{grid-template-columns:1fr;}
+      .card,.card-soft{padding:18px 16px;}
+    }
+    .steps p{margin-bottom:.2rem;}
+
+    label{
+      display:block;
+      font-size:.86rem;
+      color:#e5e7eb;
+      margin-bottom:4px;
+    }
+    input[type="number"],select{
       width:100%;
-      text-align:left;
-      padding:.95rem 1.1rem;
-      background:rgba(11,15,20,.66);
-      color:#fff;
-      border:none;
-      font-weight:700;
-      display:flex;
-      align-items:center;
-      gap:.8rem;
-      cursor:pointer;
-    }
-    .chev{margin-left:auto;transition:transform .2s ease}
-    .acc-btn.open .chev{transform:rotate(90deg)}
-    .acc-panel{
-      display:none;
-      padding:1rem 1.1rem 1.15rem;
-      color:var(--ink-soft);
-      border-top:1px solid rgba(212,175,55,.18);
-      line-height:1.65;
-    }
-
-    /* Tool-Karten – vertikal untereinander, ~1 cm Abstand */
-    .tool{
-      max-width:940px;
-      margin:22px auto; /* ~1 cm optisch */
-      background:var(--card);
-      border:1px solid var(--edge);
-      border-radius:16px;
-      padding:1.2rem 1rem 1.1rem;
-      box-shadow:0 14px 32px rgba(0,0,0,.32);
-      backdrop-filter:blur(6px);
-    }
-    .tool h2{margin:.15rem 0 .35rem;font-size:1.25rem;color:#fff;}
-    .sub{color:var(--ink-soft);margin:0 0 .9rem;font-size:.96rem;line-height:1.6;}
-
-    /* Grid für Eingaben */
-    .row{display:grid;gap:.85rem;margin:.7rem 0;}
-    @media(max-width:860px){.row{grid-template-columns:1fr}}
-    @media(min-width:861px){.row{grid-template-columns:repeat(3,minmax(180px,1fr))}}
-    label{display:block;color:#fff;font-size:.86rem;margin-bottom:.28rem}
-    input[type=number],select{
-      width:100%;padding:.6rem .65rem;border-radius:10px;
-      border:1px solid var(--soft);background:rgba(15,23,42,.48);color:#fff;
+      padding:8px 10px;
+      border-radius:11px;
+      border:1px solid rgba(148,163,184,.6);
+      background:#020617;
+      color:#e5e7eb;
+      font-size:.9rem;
       outline:none;
     }
-    input[type=number]:focus,select:focus{border-color:rgba(236,204,111,.55);box-shadow:0 0 0 3px rgba(236,204,111,.18)}
-    .hint{font-size:.8rem;color:var(--muted);margin-top:.25rem}
-
-    /* Buttons */
-    .cta{
-      margin-top:.95rem;background:rgba(236,204,111,.12);
-      border:1px solid rgba(236,204,111,.55);color:#fff;padding:.56rem 1.15rem;border-radius:999px;
-      cursor:pointer;font-weight:600;
+    input[type="number"]:focus,select:focus{
+      border-color:rgba(250,204,21,.8);
+      box-shadow:0 0 0 1px rgba(250,204,21,.7);
     }
-    .cta:hover{background:rgba(236,204,111,.22)}
-
-    /* Ergebnisse */
-    .result{
-      margin-top:.95rem;background:rgba(15,23,42,.35);
-      border:1px solid var(--soft);border-radius:12px;padding:.85rem .95rem;
-    }
-    .result h3{margin:.2rem 0 .55rem;font-size:1rem;color:#fff;}
-    .meter{height:10px;background:var(--soft-2);border-radius:999px;overflow:hidden;border:1px solid var(--soft);}
-    .meter>i{display:block;height:100%;background:linear-gradient(90deg,var(--bad),var(--warn),var(--ok));width:0%}
-    .lines{line-height:1.62;color:var(--ink-soft);margin-top:.5rem}
-    .mentor{
-      margin-top:.7rem;font-size:.92rem;color:var(--ink-soft);
-      border-left:4px solid var(--warn);background:rgba(234,179,8,.10);
-      padding:.68rem .75rem;border-radius:8px;line-height:1.66;
+    .field{margin-bottom:10px;}
+    .hint{font-size:.78rem;color:var(--muted);margin-top:2px;}
+    .group-label{
+      font-size:.8rem;color:var(--muted);margin:10px 0 4px;
+      text-transform:uppercase;letter-spacing:.06em;
     }
 
-    /* Info-Block */
-    .note{max-width:940px;margin:22px auto;color:#d1d5db;text-align:center;line-height:1.65;}
+    .btn{
+      display:inline-flex;align-items:center;gap:6px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.7);
+      background:transparent;
+      padding:8px 14px;
+      font-size:.86rem;
+      color:#e5e7eb;
+      cursor:pointer;
+      text-decoration:none;
+    }
+    .btn-primary{
+      border-color:rgba(250,204,21,.8);
+      background:rgba(250,204,21,.12);
+      color:var(--gold);
+    }
+    .btn svg{width:15px;height:15px;flex-shrink:0;}
+    .btn-block{margin-top:10px;}
+
+    .result-box{
+      margin-top:10px;
+      border-radius:14px;
+      border:1px solid rgba(148,163,184,.5);
+      background:rgba(15,23,42,.9);
+      padding:12px 12px 10px;
+      font-size:.9rem;
+      color:var(--muted);
+    }
+    .result-box strong{color:#e5e7eb;}
+    .result-line+ .result-line{margin-top:4px;}
+    .gap-ok{color:#22c55e;}
+    .gap-miss{color:#f97373;}
+
+    /* Paket-Kacheln */
+    .grid-3{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+    }
+    @media(max-width:960px){
+      .grid-3{grid-template-columns:1fr;}
+    }
+    .pkg{
+      border-radius:16px;
+      border:1px solid rgba(148,163,184,.5);
+      padding:14px 14px 12px;
+      background:#020617;
+    }
+    .pkg h3{margin:0 0 4px;font-size:1rem;color:#e5e7eb;}
+    .pkg p{margin:.2rem 0;font-size:.87rem;}
+    .pkg ul{margin:.25rem 0 0 1.05rem;padding:0;font-size:.86rem;line-height:1.6;}
+    .highlight{color:#facc15;font-weight:600;}
+    .footer-nav{
+      display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:10px;
+    }
   </style>
 </head>
 <body>
-  <!-- Globale Bausteine (extern im Repo) -->
-  <script src="/lp-anfang/library/js/menu.js"></script>
-  <script src="/lp-anfang/library/js/lang-switcher.js"></script>
-  <script src="/lp-anfang/library/js/music-button.js"></script>
+<main>
 
-  <main>
-    <h1 data-t="title">FSA Office – Tools & Generator</h1>
-    <p class="intro" data-t="intro">Zwei Werkzeuge, die dir zeigen, wo du stehst – und wohin du willst.</p>
+  <div class="lang-switch">
+    <button type="button" data-lang-switch="de">DE</button>
+    <button type="button" data-lang-switch="en">EN</button>
+  </div>
 
-    <!-- Intro-Akkordeon -->
-    <section class="acc">
-      <div class="acc-item">
-        <button class="acc-btn"><span data-t="acc1-btn">🔑 Worum es hier geht</span><span class="chev">▶</span></button>
-        <div class="acc-panel" data-t="acc1-panel">
-          Diese Seite ist dein ehrlicher Spiegel. Kein Login, keine Speicherung – nur Lernen durch Klarheit.
-          Tool&nbsp;1 zeigt, warum Ergebnisse ausbleiben oder kommen (Telefonate → Gespräche → neue Partner).
-          Tool&nbsp;2 rechnet dein Monatsziel herunter: Wie viele kleine und große Pakete brauchst du – und wie passt du den Plan an, wenn eine Woche schwächer war?
+  <!-- Header -->
+  <section class="card">
+    <div class="card-header">
+      <svg width="32" height="32" viewBox="0 0 24 24" aria-hidden="true">
+        <defs>
+          <linearGradient id="gradCalc" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#facc15"/>
+            <stop offset="1" stop-color="#a855f7"/>
+          </linearGradient>
+        </defs>
+        <circle cx="12" cy="12" r="11" fill="#020617" stroke="url(#gradCalc)" stroke-width="2"/>
+        <rect x="7" y="7" width="10" height="4" rx="1" fill="url(#gradCalc)"/>
+        <path d="M9 13h2M13 13h2M9 16h2M13 16h2" stroke="url(#gradCalc)" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h1 class="de">Dein Einkommens-Rechner</h1>
+        <h1 class="en hidden">Your income calculator</h1>
+        <div class="badge">
+          <span class="de">Wunscheinkommen eingeben – sehen, was dir noch fehlt</span>
+          <span class="en hidden">Enter your target income – see what is missing</span>
         </div>
-      </div>
-      <div class="acc-item">
-        <button class="acc-btn"><span data-t="acc2-btn">🎯 Prinzip: Haltung vor Hektik</span><span class="chev">▶</span></button>
-        <div class="acc-panel" data-t="acc2-panel">
-          Wir bewerten keine Menschen, sondern Muster. Regelmäßige kleine Schritte schlagen hektische Ausreißer.
-          Die Akademie liefert Sprache & Logik – du lieferst die Schritte.
-        </div>
-      </div>
-      <div class="acc-item">
-        <button class="acc-btn"><span data-t="acc3-btn">🧭 Ehrlichkeit als Abkürzung</span><span class="chev">▶</span></button>
-        <div class="acc-panel" data-t="acc3-panel">
-          Zahlen sind Wegweiser, keine Urteile. Je ehrlicher du hier bist, desto schneller sparst du draußen Zeit.
-          Ziel: Muster sehen, Kurs anpassen, weitermachen – ohne Drama.
-        </div>
-      </div>
-    </section>
-
-    <!-- TOOL 1: Aktivitäts-Check -->
-    <section class="tool" id="tool1">
-      <h2 data-t="t1-title">🛠️ Tool 1 – Aktivitäts-Check</h2>
-      <p class="sub" data-t="t1-sub">
-        Wie viele Telefonate, Gespräche und neue Partner hattest du diese Woche? Drei ehrliche Zahlen zeigen dir, warum Erfolg kam oder ausblieb.
-      </p>
-
-      <div class="row">
-        <div>
-          <label for="calls" data-t="t1-label-calls">Telefonate</label>
-          <input type="number" id="calls" min="0" inputmode="numeric">
-          <div class="hint" data-t="t1-hint-calls">4 Anrufe → 1 Gespräch</div>
-        </div>
-        <div>
-          <label for="talks" data-t="t1-label-talks">Gespräche</label>
-          <input type="number" id="talks" min="0" inputmode="numeric">
-          <div class="hint" data-t="t1-hint-talks">4 Gespräche → 1 Partner</div>
-        </div>
-        <div>
-          <label for="partners" data-t="t1-label-partners">Neue Partner</label>
-          <input type="number" id="partners" min="0" inputmode="numeric">
-          <div class="hint" data-t="t1-hint-partners">Diese Woche</div>
-        </div>
-      </div>
-
-      <!-- Erfahrungswert-Hinweis -->
-      <div class="hint" style="margin-top:.35rem" data-t="t1-benchmark-note">
-        Hinweis: Die Quoten sind Erfahrungswerte, keine Gesetze. Als Startwert rechnen wir mit 4→1 (4 Anrufe ≈ 1 Gespräch, 4 Gespräche ≈ 1 Partner).
-        Deine echten Zahlen dürfen abweichen – passe sie später mit wachsender Erfahrung an.
-      </div>
-
-      <button class="cta" id="btn1" data-t="btn-eval">Auswerten</button>
-
-      <div class="result" id="res1" style="display:none">
-        <h3 data-t="t1-res-head">Dein Wochenbild</h3>
-        <div class="meter"><i id="meter1"></i></div>
-        <div class="lines" id="lines1"></div>
-        <div class="mentor" id="mentor1"></div>
-      </div>
-    </section>
-
-    <!-- TOOL 2: Verdienst-Planer -->
-    <section class="tool" id="tool2">
-      <h2 data-t="t2-title">💶 Tool 2 – Verdienst-Planer</h2>
-      <p class="sub" data-t="t2-sub">
-        Wähle dein Monatsziel, den Paket-Mix und sieh, wie viele Abschlüsse du brauchst. Trage ein, was du bereits geschafft hast – der Plan passt sich an.
-      </p>
-
-      <!-- Monatsziel + Mix -->
-      <div class="row">
-        <div>
-          <label for="goal" data-t="t2-label-goal">Monatsziel (€)</label>
-          <select id="goal">
-            <option value="400">400</option>
-            <option value="500" selected>500</option>
-            <option value="600">600</option>
-            <option value="1000">1.000</option>
-            <option value="1500">1.500</option>
-            <option value="2000">2.000</option>
-            <option value="3000">3.000</option>
-            <option value="4000">4.000</option>
-            <option value="5000">5.000</option>
-            <option value="6000">6.000</option>
-            <option value="8000">8.000</option>
-            <option value="10000">10.000</option>
-          </select>
-        </div>
-        <div>
-          <label for="mixS" data-t="t2-label-mixS">Kleine Pakete (%)</label>
-          <input type="number" id="mixS" value="60" min="0" max="100" inputmode="numeric">
-          <div class="hint" data-t="t2-hint-mix">Summe aus klein + groß = 100 %</div>
-        </div>
-        <div>
-          <label for="mixL" data-t="t2-label-mixL">Große Pakete (%)</label>
-          <input type="number" id="mixL" value="40" min="0" max="100" inputmode="numeric">
-        </div>
-      </div>
-
-      <!-- Woche / Partner / Firmenpakete -->
-      <div class="row">
-        <div>
-          <label for="week" data-t="t2-label-week">Aktuelle Woche</label>
-          <select id="week">
-            <option value="1">1</option><option value="2">2</option>
-            <option value="3">3</option><option value="4" selected>4</option>
-          </select>
-        </div>
-        <div>
-          <label for="done" data-t="t2-label-done">Partner bisher</label>
-          <input type="number" id="done" value="0" min="0" inputmode="numeric">
-        </div>
-      </div>
-
-      <!-- Firmen-Anbindung -->
-      <div class="row">
-        <div>
-          <label for="firms" data-t="t2-label-firms">Firmenpakete (Anzahl)</label>
-          <input type="number" id="firms" value="0" min="0" inputmode="numeric">
-          <div class="hint" data-t="t2-hint-firms">Optional: Firmenkunden mit 1.200-USDT-Paket.</div>
-        </div>
-        <div>
-          <label for="firmRate" data-t="t2-label-firmRate">Tippgeber-Prozent Firmen (Status)</label>
-          <select id="firmRate">
-            <option value="0.2" data-t="t2-firm20">20 %</option>
-            <option value="0.4" selected data-t="t2-firm40">40 %</option>
-          </select>
-          <div class="hint" data-t="t2-hint-firmRate">Je nach eigenem Status 20 % oder 40 %.</div>
-        </div>
-      </div>
-
-      <button class="cta" id="btn2" data-t="btn-calc">Berechnen</button>
-
-      <div class="result" id="res2" style="display:none">
-        <h3 data-t="t2-res-head">Dein Monatsplan</h3>
-        <div class="lines" id="lines2"></div>
-        <div class="lines" id="lines2Firm"></div>
-        <div class="mentor" id="mentor2"></div>
-        <p class="note" data-t="t2-note">
-          Alle Provisionen sind wiederkehrend – solange ein Partner Trustyfy nutzt, fließen in allen Folgejahren dieselben Prozente.
+        <p class="de">
+          Dieser Rechner arbeitet mit den offiziellen Trustyfy-Paketen (Plus Plan,
+          Corporate Pro, Crypto Companies) und den zwei Tippgeber-Stufen
+          20 % und 40 %. Du gibst dein Wunsch-Jahreseinkommen und deine aktuellen
+          Pakete ein – der Rechner zeigt dir, wie nah du dran bist und welche
+          Größenordnung noch fehlt.
+        </p>
+        <p class="en hidden">
+          This calculator uses the official Trustyfy plans (Plus Plan, Corporate Pro,
+          Crypto Companies) and the two referral levels 20% and 40%.
+          You enter your desired yearly income and your current packages –
+          the calculator shows how close you are and what order of magnitude is still missing.
         </p>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Nice to know – dein kompletter Text -->
-    <section class="tool" id="nicetoknow">
-      <h2 data-t="ntk-title">📣 Nice to Know – Wie du deine Quote wirklich erreichst</h2>
-      <p class="sub" data-t="ntk-body">
-        Wachstum ist kein Zufall, sondern die Folge von Bewegung. Wer täglich aktiv bleibt, erzeugt Resonanz — nicht durch Druck, sondern durch Präsenz.<br><br>
-        Jede Einladung, jeder Zoom-Call, jeder Stammtisch ist ein Impuls, der Wirkung entfaltet. Nicht, weil du überredest, sondern weil du sichtbar wirst.
-        Die Akademie übernimmt das Erklären, Schulen und Aufbauen – du sorgst dafür, dass Menschen überhaupt erfahren, dass es sie gibt.<br><br>
-        So entsteht Dynamik:<br>
-        • Promotion schafft Aufmerksamkeit.<br>
-        • Zooms vertiefen Verständnis.<br>
-        • Campus & Office halten dich im Rhythmus.<br><br>
-        Dein Job ist nicht, alle zu überzeugen, sondern Türen zu öffnen. Das System erklärt sich selbst – du bist der, der es teilt.<br><br>
-        Die FSA-Akademie ist dein Copilot, dein Werkzeugkasten und dein Spiegel. Sie zeigt dir Wege, wie du Verantwortung, Wissen und Aktion in Einklang bringst.
-        Aber den Flug musst du selbst antreten – Tag für Tag, Gespräch für Gespräch.
-      </p>
-    </section>
-  </main>
+  <!-- Rechner -->
+  <section class="card-soft">
+    <div class="pill-title de">DREI SCHRITTE</div>
+    <div class="pill-title en hidden">THREE STEPS</div>
 
-  <!-- Office-Menü unten (globaler Baustein) -->
-  <script src="/lp-anfang/library/js/office-menu.js"></script>
+    <div class="calc-grid">
+      <div class="steps">
+        <h2 class="de">So nutzt du den Rechner</h2>
+        <h2 class="en hidden">How to use this calculator</h2>
+        <p class="de"><strong>1. Ziel klarmachen:</strong> Überlege dir, welches zusätzliche Jahres­einkommen du dir mit Akademie &amp; Trustyfy aufbauen möchtest – z.&nbsp;B. 2.000&nbsp;€, 6.000&nbsp;€ oder 24.000&nbsp;€.</p>
+        <p class="en hidden"><strong>1. Clarify your target:</strong> Decide which additional yearly income you want to build with the Academy &amp; Trustyfy – e.g. 2,000, 6,000 or 24,000.</p>
+        <p class="de"><strong>2. Status wählen:</strong> Trage ein, ob du aktuell mit 20 % (Free/Free Corporate) oder mit 40 % (eigener Plus-Plan oder Firmenpaket) unterwegs bist.</p>
+        <p class="en hidden"><strong>2. Choose your status:</strong> Enter whether you currently receive 20% (Free/Free Corporate) or 40% (your own Plus or corporate plan).</p>
+        <p class="de"><strong>3. Pakete eintragen:</strong> Schätze, wie viele Plus-Nutzer, Corporate-Pro-Firmen und Crypto-Companies-Firmen du realistisch aufbauen kannst. Der Rechner zeigt dir dein Jahresergebnis und die Lücke zu deinem Ziel.</p>
+        <p class="en hidden"><strong>3. Enter packages:</strong> Estimate how many Plus users, Corporate Pro and Crypto Companies clients you can realistically build. The calculator shows your yearly result and the gap to your target.</p>
+      </div>
 
-  <script>
-    // ---------- Sprachtexte (DE/EN) ----------
-    const UI = {
-      de: {
-        title:"FSA Office – Tools & Generator",
-        intro:"Zwei Werkzeuge, die dir zeigen, wo du stehst – und wohin du willst.",
-        "acc1-btn":"🔑 Worum es hier geht",
-        "acc1-panel":"Diese Seite ist dein ehrlicher Spiegel. Kein Login, keine Speicherung – nur Lernen durch Klarheit. Tool 1 zeigt, warum Ergebnisse ausbleiben oder kommen (Telefonate → Gespräche → neue Partner). Tool 2 rechnet dein Monatsziel herunter: Wie viele kleine und große Pakete brauchst du – und wie passt du den Plan an, wenn eine Woche schwächer war?",
-        "acc2-btn":"🎯 Prinzip: Haltung vor Hektik",
-        "acc2-panel":"Wir bewerten keine Menschen, sondern Muster. Wer lernt, regelmäßig kleine Schritte zu gehen, wird vorhersagbar gut. Die Akademie liefert die Sprache und Logik, du lieferst die Schritte.",
-        "acc3-btn":"🧭 Ehrlichkeit als Abkürzung",
-        "acc3-panel":"Zahlen sind Wegweiser, keine Urteile. Je ehrlicher du hier bist, desto weniger Zeit verlierst du draußen. Ziel: Muster erkennen, Kurs anpassen, weitermachen – ohne Drama.",
+      <div>
+        <div class="field">
+          <label class="de" for="targetIncome">Dein Wunsch­einkommen pro Jahr (USDT / €)</label>
+          <label class="en hidden" for="targetIncome">Your desired yearly income (USDT / €)</label>
+          <input type="number" id="targetIncome" min="0" step="100" value="12000" inputmode="decimal">
+          <div class="hint de">Beispiel: 2.000, 6.000, 12.000 oder 24.000 – so, wie es für dich sinnvoll ist.</div>
+          <div class="hint en hidden">Example: 2,000, 6,000, 12,000 or 24,000 – whatever fits your situation.</div>
+        </div>
 
-        "t1-title":"🛠️ Tool 1 – Aktivitäts-Check",
-        "t1-sub":"Wie viele Telefonate, Gespräche und neue Partner hattest du diese Woche? Drei ehrliche Zahlen zeigen dir, warum Erfolg kam oder ausblieb.",
-        "t1-label-calls":"Telefonate",
-        "t1-hint-calls":"4 Anrufe → 1 Gespräch",
-        "t1-label-talks":"Gespräche",
-        "t1-hint-talks":"4 Gespräche → 1 Partner",
-        "t1-label-partners":"Neue Partner",
-        "t1-hint-partners":"Diese Woche",
-        "t1-benchmark-note":"Hinweis: Die Quoten sind Erfahrungswerte, keine Gesetze. Als Startwert rechnen wir mit 4→1 (4 Anrufe ≈ 1 Gespräch, 4 Gespräche ≈ 1 Partner). Deine echten Zahlen dürfen abweichen – passe sie später mit wachsender Erfahrung an.",
-        "btn-eval":"Auswerten",
-        "t1-res-head":"Dein Wochenbild",
+        <div class="field">
+          <label class="de" for="status">Dein aktueller Trustyfy-Status</label>
+          <label class="en hidden" for="status">Your current Trustyfy status</label>
+          <select id="status">
+            <option value="20" selected>Free / Free Corporate – 20 % Tippgeber-Belohnung</option>
+            <option value="40">Eigener Plus- oder Firmenplan – 40 % Tippgeber-Belohnung</option>
+          </select>
+          <div class="hint de">Wenn du auf 40 % gehst, halbiert sich ungefähr die Anzahl der Pakete, die du brauchst.</div>
+          <div class="hint en hidden">At 40% the number of packages you need roughly halves compared to 20%.</div>
+        </div>
 
-        "t2-title":"💶 Tool 2 – Verdienst-Planer",
-        "t2-sub":"Wähle dein Monatsziel, den Paket-Mix und sieh, wie viele Abschlüsse du brauchst. Trage ein, was du bereits geschafft hast – der Plan passt sich an.",
-        "t2-label-goal":"Monatsziel (€)",
-        "t2-label-mixS":"Kleine Pakete (%)",
-        "t2-label-mixL":"Große Pakete (%)",
-        "t2-hint-mix":"Summe aus klein + groß = 100 %",
-        "t2-label-week":"Aktuelle Woche",
-        "t2-label-done":"Partner bisher",
-        "t2-label-firms":"Firmenpakete (Anzahl)",
-        "t2-hint-firms":"Optional: Firmenkunden mit 1.200-USDT-Paket.",
-        "t2-label-firmRate":"Tippgeber-Prozent Firmen (Status)",
-        "t2-firm20":"20 %",
-        "t2-firm40":"40 %",
-        "t2-hint-firmRate":"Je nach eigenem Status 20 % oder 40 %.",
-        "btn-calc":"Berechnen",
-        "t2-res-head":"Dein Monatsplan",
-        "t2-note":"Alle Provisionen sind wiederkehrend – solange ein Partner Trustyfy nutzt, fließen in allen Folgejahren dieselben Prozente.",
+        <div class="group-label de">Aktive Pakete, die zu dir gehören</div>
+        <div class="group-label en hidden">Active packages connected to you</div>
 
-        "ntk-title":"📣 Nice to Know – Wie du deine Quote wirklich erreichst",
-        "ntk-body":"Wachstum ist kein Zufall, sondern die Folge von Bewegung. Wer täglich aktiv bleibt, erzeugt Resonanz — nicht durch Druck, sondern durch Präsenz.<br><br>Jede Einladung, jeder Zoom-Call, jeder Stammtisch ist ein Impuls, der Wirkung entfaltet. Nicht, weil du überredest, sondern weil du sichtbar wirst. Die Akademie übernimmt das Erklären, Schulen und Aufbauen – du sorgst dafür, dass Menschen überhaupt erfahren, dass es sie gibt.<br><br>So entsteht Dynamik:<br>• Promotion schafft Aufmerksamkeit.<br>• Zooms vertiefen Verständnis.<br>• Campus & Office halten dich im Rhythmus.<br><br>Dein Job ist nicht, alle zu überzeugen, sondern Türen zu öffnen. Das System erklärt sich selbst – du bist der, der es teilt.<br><br>Die FSA-Akademie ist dein Copilot, dein Werkzeugkasten und dein Spiegel. Sie zeigt dir Wege, wie du Verantwortung, Wissen und Aktion in Einklang bringst. Aber den Flug musst du selbst antreten – Tag für Tag, Gespräch für Gespräch.",
+        <div class="field">
+          <label class="de" for="plusCount">Plus-Nutzer (Privat)</label>
+          <label class="en hidden" for="plusCount">Plus users (private)</label>
+          <input type="number" id="plusCount" min="0" value="0" inputmode="numeric">
+          <div class="hint de">Plus Plan ≈ 60&nbsp;$ Paket pro Jahr</div>
+          <div class="hint en hidden">Plus Plan ≈ 60&nbsp;$ package per year</div>
+        </div>
 
-        // Tool 1 – Ergebniszeilen & Mentor (DE)
-        t1_lines: (expTalks,expPartners,convTalk,convPart,score) =>
-          `• Erwartet: ${expTalks} Gespräche, ${expPartners} Partner<br>`+
-          `• Gesprächsquote: ${convTalk}% – Abschlussquote: ${convPart}%<br>`+
-          `• Score: ${score}/100`,
-        t1_mentor: (score)=> {
-          if(score>=80) return "Stark: Du arbeitest fokussiert und konsistent. Plane Termine früh, halte deinen Rhythmus – ohne Hektik.";
-          if(score>=50) return "Solide: Etwas hakt noch. Prüfe, ob deine Gespräche wirklich führen – oder nur informieren.";
-          return "Ehrlich gut: Es fehlt an Bewegung. Drei Sessions à 30 Minuten Anrufe in dieser Woche bringen sofort Lernkurve.";
-        },
+        <div class="field">
+          <label class="de" for="corpCount">Corporate Pro (Firmenkunden)</label>
+          <label class="en hidden" for="corpCount">Corporate Pro (business clients)</label>
+          <input type="number" id="corpCount" min="0" value="0" inputmode="numeric">
+          <div class="hint de">Corporate Pro ≈ 600&nbsp;$ Paket pro Jahr</div>
+          <div class="hint en hidden">Corporate Pro ≈ 600&nbsp;$ package per year</div>
+        </div>
 
-        // Tool 2 – Zeilen & Mentor (DE)
-        t2_lines: (mixS,mixL,eff,goal,need,small,large,perWeek,done,left,rest,adj) =>
-          `• Mix: ${mixS}% klein / ${mixL}% groß (Ø ${eff} € je Abschluss)<br>`+
-          `• Monatsziel ${goal} € ≈ ${need} Abschlüsse (${small} klein, ${large} groß)<br>`+
-          `• Soll pro Woche: ${perWeek} · Erreicht: ${done} · Rest: ${left}`+
-          (rest>0?` → Ø ${adj}/Woche`:""),
-        t2_lines_firm: (firms,per,total) => {
-          if(!firms || per<=0) return "• Firmenpakete: aktuell nicht eingerechnet – du kannst sie ergänzen, wenn du Firmenkunden hast.";
-          return `• Firmenpakete: ${firms} × 1.200 USDT → ca. ${per.toFixed(0)} € je Paket ≈ ${total.toFixed(0)} € zusätzlich.`;
-        },
-        t2_mentor: (left,rest) => {
-          if(left<=0) return "Perfekt im Kurs – bleib stabil, keine Zusatzlast aufbauen.";
-          if(rest<=0) return "Monat knapp verfehlt – setz den Fokus neu. In Woche 1 des neuen Monats doppelt aktiv werden.";
-          return "Du hast Spielraum: Teile die Lücke klar auf die verbleibenden Wochen auf. Kleine Routine, große Wirkung.";
-        }
-      },
+        <div class="field">
+          <label class="de" for="cryptoCount">Crypto Companies (Krypto-Unternehmen)</label>
+          <label class="en hidden" for="cryptoCount">Crypto Companies (crypto businesses)</label>
+          <input type="number" id="cryptoCount" min="0" value="0" inputmode="numeric">
+          <div class="hint de">Crypto Companies ≈ 3.000&nbsp;$ Paket pro Jahr</div>
+          <div class="hint en hidden">Crypto Companies ≈ 3,000&nbsp;$ package per year</div>
+        </div>
 
-      en: {
-        title:"FSA Office – Tools & Generator",
-        intro:"Two tools that show where you are – and where you’re headed.",
-        "acc1-btn":"🔑 What this page is for",
-        "acc1-panel":"This page is an honest mirror. No login, no storage – just clarity. Tool 1 explains why results appear or not (calls → talks → new partners). Tool 2 turns your monthly goal into weekly targets and adapts when a week underperforms.",
-        "acc2-btn":"🎯 Principle: posture before pace",
-        "acc2-panel":"We don’t judge people, we read patterns. Small consistent steps beat hectic bursts. The Academy brings language & logic – you bring the steps.",
-        "acc3-btn":"🧭 Honesty is the shortcut",
-        "acc3-panel":"Numbers are signposts, not verdicts. The more honest you are here, the less time you lose out there. See the pattern, adjust, keep moving – no drama.",
+        <button id="btnCalc" class="btn btn-primary btn-block" type="button">
+          <span class="de">Berechnen, wo du stehst</span>
+          <span class="en hidden">Calculate where you stand</span>
+          <svg viewBox="0 0 24 24"><path d="M8 5l7 7-7 7" fill="none" stroke="#facc15" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
 
-        "t1-title":"🛠️ Tool 1 – Activity Check",
-        "t1-sub":"How many calls, talks and new partners did you have this week? Three honest numbers reveal why results came or didn’t.",
-        "t1-label-calls":"Calls",
-        "t1-hint-calls":"4 calls → 1 talk",
-        "t1-label-talks":"Talks",
-        "t1-hint-talks":"4 talks → 1 partner",
-        "t1-label-partners":"New partners",
-        "t1-hint-partners":"This week",
-        "t1-benchmark-note":"Note: Ratios are experience values, not laws. As a starting point we use 4→1 (4 calls ≈ 1 talk, 4 talks ≈ 1 partner). Your real numbers may differ – adjust later as you gain data.",
-        "btn-eval":"Evaluate",
-        "t1-res-head":"Your week at a glance",
+        <div id="resultBox" class="result-box" style="display:none;">
+          <div id="resDe" class="de"></div>
+          <div id="resEn" class="en hidden"></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        "t2-title":"💶 Tool 2 – Earnings Planner",
-        "t2-sub":"Pick your monthly goal and package mix to see how many sign-ups you need. Enter what you already achieved – the plan adapts.",
-        "t2-label-goal":"Monthly goal (€)",
-        "t2-label-mixS":"Small plans (%)",
-        "t2-label-mixL":"Large plans (%)",
-        "t2-hint-mix":"Small + large = 100%",
-        "t2-label-week":"Current week",
-        "t2-label-done":"Partners so far",
-        "t2-label-firms":"Company packages (number)",
-        "t2-hint-firms":"Optional: company clients with a 1,200-USDT package.",
-        "t2-label-firmRate":"Referral percent companies (status)",
-        "t2-firm20":"20 %",
-        "t2-firm40":"40 %",
-        "t2-hint-firmRate":"Choose 20 % or 40 % according to your status.",
-        "btn-calc":"Calculate",
-        "t2-res-head":"Your monthly plan",
-        "t2-note":"Payouts recur every year – as long as a partner uses Trustyfy, the same percentages keep flowing.",
+  <!-- Paket-Erklärung unter dem Rechner -->
+  <section class="card-soft">
+    <div class="pill-title de">WORAUF DER RECHNER AUFBAUT</div>
+    <div class="pill-title en hidden">WHAT THIS CALCULATOR IS BASED ON</div>
+    <h2 class="de">Paket-Grundlagen &amp; Tippgeber-Belohnung pro Jahr</h2>
+    <h2 class="en hidden">Plan basics &amp; yearly referral rewards</h2>
+    <p class="de">
+      Zur Orientierung siehst du hier, wie viel Tippgeber-Einkommen ein einziges aktives Paket
+      pro Jahr erzeugt – einmal mit 20 % und einmal mit 40 % Belohnung.
+    </p>
+    <p class="en hidden">
+      For orientation you see how much yearly referral income a single active package can
+      generate – once at 20% and once at 40%.
+    </p>
 
-        "ntk-title":"📣 Nice to know – How to truly hit your ratios",
-        "ntk-body":"Growth isn’t random; it follows movement. Daily activity creates resonance — not through pressure, but through presence.<br><br>Every invite, every Zoom call, every meetup is an impulse with impact. Not because you push people, but because you become visible. The Academy handles explaining, teaching, building — your job is to make sure people hear about it at all.<br><br>This is how momentum forms:<br>• Promotion creates awareness.<br>• Zooms deepen understanding.<br>• Campus & Office keep your rhythm.<br><br>Your job isn’t to convince everyone — it’s to open doors. The system explains itself; you’re the one who shares it.<br><br>The FSA Academy is your copilot, toolbox, and mirror. It shows ways to align responsibility, knowledge, and action. But you must take the flight yourself — day by day, conversation by conversation.",
+    <div class="grid-3">
+      <article class="pkg">
+        <h3 class="de">Plus Plan – Privatanwender</h3>
+        <h3 class="en hidden">Plus Plan – private users</h3>
+        <p class="de"><strong>Paketgröße:</strong> ca. 60&nbsp;$ pro Jahr</p>
+        <p class="en hidden"><strong>Package size:</strong> approx. 60&nbsp;$ per year</p>
+        <ul class="de">
+          <li><span class="highlight">20 %:</span> 12&nbsp;$ pro Jahr Tippgeber-Einkommen</li>
+          <li><span class="highlight">40 %:</span> 24&nbsp;$ pro Jahr Tippgeber-Einkommen</li>
+        </ul>
+        <ul class="en hidden">
+          <li><span class="highlight">20%:</span> 12&nbsp;$ per year referral income</li>
+          <li><span class="highlight">40%:</span> 24&nbsp;$ per year referral income</li>
+        </ul>
+      </article>
 
-        // Tool 1 – EN
-        t1_lines: (expTalks,expPartners,convTalk,convPart,score) =>
-          `• Expected: ${expTalks} talks, ${expPartners} partners<br>`+
-          `• Talk rate: ${convTalk}% – Close rate: ${convPart}%<br>`+
-          `• Score: ${score}/100`,
-        t1_mentor: (score)=> {
-          if(score>=80) return "Strong: focused and consistent. Book slots early and keep the rhythm — no rush.";
-          if(score>=50) return "Decent: something’s off. Check whether your talks truly lead — not just inform.";
-          return "Useful honesty: you need motion. Three 30-minute call sprints this week will move the needle.";
-        },
+      <article class="pkg">
+        <h3 class="de">Corporate Pro – Firmenkunden</h3>
+        <h3 class="en hidden">Corporate Pro – business clients</h3>
+        <p class="de"><strong>Paketgröße:</strong> ca. 600&nbsp;$ pro Jahr</p>
+        <p class="en hidden"><strong>Package size:</strong> approx. 600&nbsp;$ per year</p>
+        <ul class="de">
+          <li><span class="highlight">20 %:</span> 120&nbsp;$ pro Jahr Tippgeber-Einkommen</li>
+          <li><span class="highlight">40 %:</span> 240&nbsp;$ pro Jahr Tippgeber-Einkommen</li>
+        </ul>
+        <ul class="en hidden">
+          <li><span class="highlight">20%:</span> 120&nbsp;$ per year referral income</li>
+          <li><span class="highlight">40%:</span> 240&nbsp;$ per year referral income</li>
+        </ul>
+      </article>
 
-        // Tool 2 – EN
-        t2_lines: (mixS,mixL,eff,goal,need,small,large,perWeek,done,left,rest,adj) =>
-          `• Mix: ${mixS}% small / ${mixL}% large (avg €${eff} per sign-up)<br>`+
-          `• Goal €${goal} ≈ ${need} sign-ups (${small} small, ${large} large)<br>`+
-          `• Weekly target: ${perWeek} · Reached: ${done} · Remaining: ${left}`+
-          (rest>0?` → avg ${adj}/week`:""),
-        t2_lines_firm: (firms,per,total) => {
-          if(!firms || per<=0) return "• Company packages: currently not included – you can add them if you work with companies.";
-          return `• Company packages: ${firms} × 1,200 USDT → about €${per.toFixed(0)} each ≈ €${total.toFixed(0)} extra.`;
-        },
-        t2_mentor: (left,rest) => {
-          if(left<=0) return "On track — stay steady and don’t overload.";
-          if(rest<=0) return "Month just missed — reset focus. Double activity in week 1 of the new month.";
-          return "You’ve got room: split the gap clearly across the remaining weeks. Small routines, big effect.";
-        }
-      }
-    };
+      <article class="pkg">
+        <h3 class="de">Crypto Companies – Krypto-Firmen</h3>
+        <h3 class="en hidden">Crypto Companies – crypto firms</h3>
+        <p class="de"><strong>Paketgröße:</strong> ca. 3.000&nbsp;$ pro Jahr</p>
+        <p class="en hidden"><strong>Package size:</strong> approx. 3,000&nbsp;$ per year</p>
+        <ul class="de">
+          <li><span class="highlight">20 %:</span> 600&nbsp;$ pro Jahr Tippgeber-Einkommen</li>
+          <li><span class="highlight">40 %:</span> 1.200&nbsp;$ pro Jahr Tippgeber-Einkommen</li>
+        </ul>
+        <ul class="en hidden">
+          <li><span class="highlight">20%:</span> 600&nbsp;$ per year referral income</li>
+          <li><span class="highlight">40%:</span> 1,200&nbsp;$ per year referral income</li>
+        </ul>
+      </article>
+    </div>
 
-    // ---------- Sprache anwenden ----------
-    function applyLang(lang){
-      const dict = UI[lang] || UI.de;
-      document.querySelectorAll("[data-t]").forEach(el=>{
-        const k=el.getAttribute("data-t");
-        if(dict[k]) el.innerHTML = dict[k];
-      });
-    }
+    <div class="footer-nav">
+      <a href="akademie-trustyfy-basis.html" class="btn">
+        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" fill="none" stroke="#e5e7eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="de">Zur Trustyfy-Basis</span>
+        <span class="en hidden">Back to Trustyfy hub</span>
+      </a>
+      <a href="akademie-einkommen.html" class="btn">
+        <span class="de">Zur Einkommens-Erklärseite</span>
+        <span class="en hidden">Back to income explanation</span>
+        <svg viewBox="0 0 24 24"><path d="M8 5l7 7-7 7" fill="none" stroke="#e5e7eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </section>
 
-    // ---------- Akkordeon ----------
-    document.querySelectorAll('.acc-btn').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const p=btn.nextElementSibling;
-        const open=btn.classList.contains('open');
-        document.querySelectorAll('.acc-btn').forEach(b=>b.classList.remove('open'));
-        document.querySelectorAll('.acc-panel').forEach(pn=>pn.style.display='none');
-        if(!open){btn.classList.add('open');p.style.display='block';}
-      });
+</main>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const buttons = document.querySelectorAll("[data-lang-switch]");
+  const hiddenClass = "hidden";
+  function applyLang(lang){
+    localStorage.setItem("fsa_lang", lang);
+    document.querySelectorAll(".de,.en").forEach(el=>{
+      el.classList.add(hiddenClass);
+      if(el.classList.contains(lang)) el.classList.remove(hiddenClass);
     });
+    buttons.forEach(btn=>{
+      btn.classList.toggle("active", btn.dataset.langSwitch === lang);
+    });
+  }
+  const stored = localStorage.getItem("fsa_lang") || "de";
+  applyLang(stored);
+  buttons.forEach(btn=>{
+    btn.addEventListener("click", ()=>applyLang(btn.dataset.langSwitch));
+  });
 
-    // ---------- Tool 1 Logik ----------
-    function evalTool1(lang){
-      const dict=UI[lang]||UI.de;
-      const calls=+document.getElementById('calls').value||0;
-      const talks=+document.getElementById('talks').value||0;
-      const partners=+document.getElementById('partners').value||0;
+  const targetIncome = document.getElementById("targetIncome");
+  const status = document.getElementById("status");
+  const plusCount = document.getElementById("plusCount");
+  const corpCount = document.getElementById("corpCount");
+  const cryptoCount = document.getElementById("cryptoCount");
+  const btnCalc = document.getElementById("btnCalc");
+  const box = document.getElementById("resultBox");
+  const resDe = document.getElementById("resDe");
+  const resEn = document.getElementById("resEn");
 
-      // Erwartete Werte aus Benchmarks
-      const expTalks = Math.floor(calls/4);
-      const expPartners = Math.floor(talks/4);
+  function calc(){
+    const target = Math.max(0, Number(targetIncome.value)||0);
+    const lvl = Number(status.value)||20;
 
-      // Konversionsschätzung relativ zum Benchmark (4→1 entspricht 25 %)
-      const convTalk = (calls>0)? Math.round((talks/(calls/4))*25) : 0;
-      const convPart = (talks>0)? Math.round((partners/(talks/4))*25) : 0;
-      const score = Math.max(0, Math.min(100, Math.round((convTalk + convPart)/2)));
+    const plus = Math.max(0, Number(plusCount.value)||0);
+    const corp = Math.max(0, Number(corpCount.value)||0);
+    const crypto = Math.max(0, Number(cryptoCount.value)||0);
 
-      document.getElementById('meter1').style.width = score + '%';
-      document.getElementById('lines1').innerHTML = dict.t1_lines(expTalks,expPartners,convTalk,convPart,score);
-      document.getElementById('mentor1').textContent = dict.t1_mentor(score);
-      document.getElementById('res1').style.display='block';
-    }
+    // Paketertrag pro Jahr
+    const factor = lvl/100;
+    const pPlus = 60*factor;
+    const pCorp = 600*factor;
+    const pCrypto = 3000*factor;
 
-    // ---------- Tool 2 Logik ----------
-    function calcTool2(lang){
-      const dict=UI[lang]||UI.de;
-      const goal=+document.getElementById('goal').value||0;
-      let mixS=+document.getElementById('mixS').value||0;
-      let mixL=+document.getElementById('mixL').value||0;
-      const week=+document.getElementById('week').value||4;
-      const done=+document.getElementById('done').value||0;
-      const firms=+document.getElementById('firms').value||0;
-      const firmRate=parseFloat(document.getElementById('firmRate').value)||0;
+    const income = plus*pPlus + corp*pCorp + crypto*pCrypto;
+    const gap = Math.max(0, target - income);
 
-      // Mix normalisieren
-      if(mixS<0) mixS=0; if(mixL<0) mixL=0;
-      if(mixS+mixL===0){mixS=60;mixL=40;}
-      else if(mixS+mixL!==100){
-        const sum=mixS+mixL;
-        mixS=Math.round((mixS/sum)*100);
-        mixL=100-mixS;
-        document.getElementById('mixS').value=mixS;
-        document.getElementById('mixL').value=mixL;
-      }
+    const needPlus = pPlus>0? Math.ceil(gap/pPlus):0;
+    const needCorp = pCorp>0? Math.ceil(gap/pCorp):0;
+    const needCrypto = pCrypto>0? Math.ceil(gap/pCrypto):0;
 
-      // Ertrag pro Abschluss (neu: klein 20%*15=3 € | groß 40%*60=24 €)
-      const eff = ((mixS/100)*3 + (mixL/100)*24);
-      const effRounded = Math.round(eff*100)/100;
+    const fmt = v => v.toLocaleString("de-DE",{maximumFractionDigits:0});
 
-      const need = eff>0 ? Math.max(0, Math.ceil(goal/eff)) : 0; // benötigte Abschlüsse (Basis wie früher)
-      const small = Math.ceil(need*(mixS/100));
-      const large = Math.ceil(need*(mixL/100));
-      const perWeek = Math.ceil(need/4);
+    resDe.innerHTML =
+      `<div class="result-line"><strong>Dein Wunsch:</strong> ${fmt(target)} $/Jahr</div>`+
+      `<div class="result-line"><strong>Aktueller Stand:</strong> ${fmt(income)} $/Jahr `+
+      `(Plus: ${plus} × ${fmt(pPlus)}, Corporate Pro: ${corp} × ${fmt(pCorp)}, Crypto Companies: ${crypto} × ${fmt(pCrypto)})</div>`+
+      (gap>0
+       ? `<div class="result-line gap-miss"><strong>Es fehlen noch:</strong> ca. ${fmt(gap)} $/Jahr.</div>`
+       : `<div class="result-line gap-ok"><strong>Du liegst auf oder über deinem Ziel.</strong></div>`
+      )+
+      `<div class="result-line"><strong>Orientierung (bei deinem aktuellen Status):</strong><br>`+
+      `Nur Plus: ca. ${needPlus} zusätzliche Pakete<br>`+
+      `Nur Corporate Pro: ca. ${needCorp} Firmen<br>`+
+      `Nur Crypto Companies: ca. ${needCrypto} Firmen</div>`+
+      `<div class="result-line"><strong>Hinweis:</strong> Es geht nicht darum, alles sofort zu erreichen, sondern dir einen klaren Kompass zu geben, welche Größenordnung zu deinem Ziel passt.</div>`;
 
-      const left = Math.max(0, need - done);
-      const rest = Math.max(0, 4 - week);
-      const adj = (rest>0)? Math.ceil(left/rest) : left;
+    resEn.innerHTML =
+      `<div class="result-line"><strong>Your target:</strong> ${fmt(target)} $/year</div>`+
+      `<div class="result-line"><strong>Current level:</strong> ${fmt(income)} $/year `+
+      `(Plus: ${plus} × ${fmt(pPlus)}, Corporate Pro: ${corp} × ${fmt(pCorp)}, Crypto Companies: ${crypto} × ${fmt(pCrypto)})</div>`+
+      (gap>0
+       ? `<div class="result-line gap-miss"><strong>Still missing:</strong> approx. ${fmt(gap)} $/year.</div>`
+       : `<div class="result-line gap-ok"><strong>You are at or above your target.</strong></div>`
+      )+
+      `<div class="result-line"><strong>Orientation (with your current level):</strong><br>`+
+      `Only Plus: approx. ${needPlus} additional packages<br>`+
+      `Only Corporate Pro: approx. ${needCorp} companies<br>`+
+      `Only Crypto Companies: approx. ${needCrypto} companies</div>`+
+      `<div class="result-line"><strong>Note:</strong> The goal is not to hit everything at once, but to give you a clear compass for which order of magnitude fits your target.</div>`;
 
-      // Firmen-Baustein (separat angezeigt, verändert die obige Rechnung nicht)
-      const firmPer = 1200 * firmRate;     // 20 % = 240, 40 % = 480
-      const firmTotal = firms * firmPer;   // Gesamt-Zubau durch Firmen
+    box.style.display = "block";
+  }
 
-      document.getElementById('lines2').innerHTML =
-        dict.t2_lines(mixS,mixL,effRounded,goal,need,small,large,perWeek,done,left,rest,adj);
-      document.getElementById('lines2Firm').innerHTML =
-        dict.t2_lines_firm(firms,firmPer,firmTotal);
-      document.getElementById('mentor2').textContent = dict.t2_mentor(left,rest);
-      document.getElementById('res2').style.display='block';
-    }
-
-    // ---------- Events ----------
-    document.getElementById('btn1').addEventListener('click',()=>evalTool1(localStorage.getItem("fsa_lang")||"de"));
-    document.getElementById('btn2').addEventListener('click',()=>calcTool2(localStorage.getItem("fsa_lang")||"de"));
-
-    // ---------- Sprache initialisieren + auf Wechsel reagieren ----------
-    (function initLang(){
-      if(!localStorage.getItem("fsa_lang")) localStorage.setItem("fsa_lang","de");
-      applyLang(localStorage.getItem("fsa_lang")||"de");
-      document.addEventListener("fsa:lang-change",(ev)=>{
-        const lang=ev.detail||"de";
-        localStorage.setItem("fsa_lang",lang);
-        applyLang(lang);
-        // offene Resultate neu berechnen
-        if(document.getElementById('res1').style.display==='block') evalTool1(lang);
-        if(document.getElementById('res2').style.display==='block') calcTool2(lang);
-      });
-    })();
-  </script>
+  btnCalc.addEventListener("click", calc);
+});
+</script>
 </body>
 </html>
