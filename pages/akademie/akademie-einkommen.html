@@ -1,869 +1,368 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Akademie &amp; Trustyfy – Dein Einkommen planen</title>
-  <meta name="description" content="FSA Akademie + Trustyfy: Einkommens-Rechner mit den offiziellen Paketen für Privatpersonen und Firmen – damit du selbst planen kannst, was du für dein Wunscheinkommen tun musst.">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Verdienen mit der Akademie & Trustyfy</title>
   <style>
     :root{
-      --bg:#050816;
-      --card:#0b1020;
-      --card-soft:rgba(15,23,42,.96);
-      --border:rgba(148,163,184,.55);
-      --gold:#d4af37;
-      --gold-soft:rgba(212,175,55,.26);
-      --accent:#22c55e;
-      --accent-soft:rgba(34,197,94,.16);
+      --bg:#050813;
+      --grad1:#0b1120;
+      --grad2:#020617;
+      --card:#0f172a;
+      --card-soft:#111827;
+      --edge:rgba(248,250,252,.08);
       --text:#e5e7eb;
       --muted:#9ca3af;
+      --gold:#facc15;
+      --accent:#22c55e;
       --radius:18px;
-      --shadow:0 26px 60px rgba(0,0,0,.9);
-      --topbar-pad:120px; /* wird per JS angepasst */
-      --maxw:1040px;
+      --shadow:0 24px 60px rgba(0,0,0,.75);
+      --badge:rgba(148,163,184,.16);
+      --pill:#020617;
     }
-
     *{box-sizing:border-box}
-
-    html,body{
-      margin:0;
-      padding:0;
-      height:100%;
-      background:
-        radial-gradient(1400px 900px at 50% -10%, rgba(212,175,55,.25), transparent 60%),
-        radial-gradient(1200px 900px at 0% 90%, rgba(56,189,248,.18), transparent 55%),
-        radial-gradient(1200px 900px at 100% 100%, rgba(45,212,191,.14), transparent 55%),
-        var(--bg);
-      color:var(--text);
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      overflow-x:hidden;
+    html,body{margin:0;padding:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(1200px 800px at 0 0,#1e293b 0,transparent 55%),radial-gradient(1200px 800px at 100% 0,#0f172a 0,transparent 55%),linear-gradient(160deg,var(--grad1),var(--grad2));color:var(--text);min-height:100vh;}
+    body{display:flex;justify-content:center;padding:20px;}
+    main{width:100%;max-width:1120px;margin:0 auto;padding:18px 0 40px;}
+    .lang-switch{display:flex;justify-content:flex-end;gap:6px;margin-bottom:14px;}
+    .lang-switch button{
+      border-radius:999px;border:1px solid rgba(148,163,184,.4);
+      background:var(--pill);color:var(--muted);
+      padding:6px 14px;font-size:.82rem;cursor:pointer;
     }
-
-    body::before{
-      content:"";
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      background:
-        linear-gradient(135deg,rgba(15,23,42,.8),transparent 40%),
-        radial-gradient(900px 900px at 0% 0%,rgba(15,23,42,.9),transparent 55%);
-      z-index:-1;
+    .lang-switch button.active{
+      background:rgba(250,204,21,.08);
+      color:var(--gold);
+      border-color:rgba(250,204,21,.7);
     }
-
-    main{
-      position:relative;
-      padding:var(--topbar-pad) 18px 96px;
-      z-index:1;
-    }
-
-    .wrap{
-      max-width:var(--maxw);
-      margin:0 auto;
-      display:flex;
-      flex-direction:column;
-      gap:2.3rem;
-    }
-
     .card{
+      background:radial-gradient(circle at top left,rgba(250,204,21,.18),transparent 55%),var(--card);
+      border-radius:var(--radius);
+      border:1px solid var(--edge);
+      box-shadow:var(--shadow);
+      padding:22px 20px 22px;
+      margin-bottom:18px;
+    }
+    .card-soft{
       background:var(--card-soft);
       border-radius:var(--radius);
-      border:1px solid var(--border);
-      box-shadow:var(--shadow);
-      padding:26px 22px 26px;
-      backdrop-filter:blur(10px);
+      border:1px solid rgba(148,163,184,.4);
+      box-shadow:0 18px 40px rgba(15,23,42,.9);
+      padding:18px 18px 18px;
+      margin-bottom:16px;
     }
-
-    @media(min-width:900px){
-      .card{padding:30px 30px 30px;}
-    }
-
     .card-header{
-      display:flex;
-      align-items:flex-start;
-      gap:.9rem;
-      margin-bottom:.4rem;
+      display:flex;align-items:flex-start;gap:14px;margin-bottom:8px;
     }
-
-    .icon-inline{
-      width:30px;
-      height:30px;
-      flex:0 0 30px;
+    .card h1{
+      margin:0;font-size:clamp(1.7rem,2.3vw,2.1rem);letter-spacing:.01em;
     }
-    .icon-inline svg{
-      width:100%;height:100%;display:block;
+    .card h2{
+      margin:0;font-size:1.2rem;
     }
-
-    h1,h2,h3{
-      margin:0;
-      letter-spacing:.01em;
+    .badge{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:4px 10px;border-radius:999px;
+      background:var(--badge);
+      font-size:.78rem;color:var(--muted);margin-top:6px;
     }
-
-    h1{
-      font-size:clamp(1.9rem,3vw,2.3rem);
-      color:#fef9c3;
-      text-shadow:0 0 20px rgba(212,175,55,.45);
+    .pill-title{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:4px 10px;border-radius:999px;
+      background:rgba(15,23,42,.9);
+      border:1px solid rgba(148,163,184,.45);
+      font-size:.8rem;color:var(--muted);margin-bottom:.35rem;
     }
-
-    h2{
-      font-size:1.32rem;
+    p{margin:.35rem 0 0;color:var(--muted);line-height:1.75;font-size:.95rem;}
+    ul{margin:.45rem 0 0 1.1rem;padding:0;color:var(--muted);font-size:.95rem;line-height:1.7;}
+    li+li{margin-top:.25rem;}
+    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
+    @media(max-width:780px){
+      .grid-2{grid-template-columns:1fr;}
+      .card,.card-soft{padding:18px 16px;}
+    }
+    .footer-nav{
+      display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:4px;
+    }
+    .btn{
+      display:inline-flex;align-items:center;gap:6px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.7);
+      background:transparent;
+      padding:7px 13px;
+      font-size:.82rem;
+      color:#e5e7eb;
+      cursor:pointer;
+      text-decoration:none;
+    }
+    .btn-primary{
+      border-color:rgba(250,204,21,.8);
+      background:rgba(250,204,21,.12);
       color:var(--gold);
     }
-
-    h3{
-      font-size:1.02rem;
-      color:#fef3c7;
-    }
-
-    p{
-      margin:.4rem 0 .8rem;
-      line-height:1.7;
-      font-size:.97rem;
-      color:var(--muted);
-    }
-
-    .lead{
-      font-size:1rem;
-      color:#e5e7eb;
-    }
-
-    .tagline{
-      font-size:.9rem;
-      color:var(--muted);
-    }
-
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:.4rem;
-      padding:4px 10px;
-      border-radius:999px;
-      font-size:.78rem;
-      background:rgba(15,23,42,.95);
-      border:1px solid var(--gold-soft);
-      color:#facc15;
-      margin-top:.3rem;
-    }
-    .badge-dot{
-      width:8px;height:8px;border-radius:999px;
-      background:radial-gradient(circle,var(--gold),transparent);
-    }
-
-    /* Zweispaltiges Layout im mittleren Block */
-    .split{
-      display:grid;
-      grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);
-      gap:1.6rem;
-      margin-top:1.2rem;
-    }
-    @media(max-width:880px){
-      .split{grid-template-columns:1fr}
-    }
-
-    .step{
-      margin-bottom:1.1rem;
-      padding:12px 14px 12px;
-      border-radius:14px;
-      border:1px solid rgba(148,163,184,.6);
-      background:rgba(15,23,42,.88);
-    }
-    .step-title{
-      font-size:.9rem;
-      font-weight:600;
-      color:#e5e7eb;
-      margin-bottom:.25rem;
-    }
-    .step-body{
-      font-size:.86rem;
-      color:#cbd5f5;
-      line-height:1.6;
-    }
-
-    /* Formular / Rechner */
-    label{
-      display:block;
-      font-size:.86rem;
-      color:#e5e7eb;
-      margin-bottom:.27rem;
-    }
-
-    input[type=number], select{
-      width:100%;
-      padding:.55rem .65rem;
-      border-radius:11px;
-      border:1px solid rgba(148,163,184,.7);
-      background:rgba(15,23,42,.96);
-      color:#f9fafb;
-      font-size:.95rem;
-      outline:none;
-    }
-    input[type=number]:focus,select:focus{
-      border-color:var(--gold);
-      box-shadow:0 0 0 1px rgba(212,175,55,.5);
-    }
-
-    .field-row{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:.9rem;
-      margin:.95rem 0 .15rem;
-    }
-    @media(max-width:880px){
-      .field-row{grid-template-columns:1fr}
-    }
-
-    .hint{
-      font-size:.78rem;
-      color:#9ca3af;
-      margin-top:.2rem;
-    }
-
-    .btn-primary{
-      margin-top:.9rem;
-      display:inline-flex;
-      align-items:center;
-      gap:.45rem;
-      padding:.6rem 1.4rem;
-      border-radius:999px;
-      border:1px solid rgba(212,175,55,.8);
-      background:linear-gradient(120deg,rgba(250,204,21,.2),rgba(250,250,210,.05));
-      color:#fefce8;
-      font-size:.95rem;
-      font-weight:600;
-      cursor:pointer;
-      box-shadow:0 20px 45px rgba(0,0,0,.85);
-      transition:background .18s ease, transform .12s ease, box-shadow .18s ease;
-    }
-    .btn-primary:hover{
-      background:linear-gradient(120deg,rgba(250,204,21,.28),rgba(250,250,210,.09));
-      transform:translateY(-1px);
-      box-shadow:0 24px 60px rgba(0,0,0,.95);
-    }
-    .btn-primary svg{width:18px;height:18px;}
-
-    .result{
-      margin-top:1.1rem;
-      border-radius:14px;
-      border:1px solid rgba(148,163,184,.65);
-      background:rgba(15,23,42,.96);
-      padding:.9rem .95rem .95rem;
-    }
-    .result-main{
-      font-size:.95rem;
-      color:#e5e7eb;
-      margin-bottom:.6rem;
-    }
-    .result-extra{
-      font-size:.9rem;
-      color:#cbd5f5;
-    }
-    .note{
-      margin-top:.7rem;
-      font-size:.78rem;
-      color:#9ca3af;
-    }
-
-    /* Paket-Zusammenfassung unten */
-    .pkg-grid{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:1rem;
-      margin-top:1.1rem;
-    }
-    @media(max-width:950px){
-      .pkg-grid{grid-template-columns:1fr}
-    }
-
-    .pkg-card{
-      border-radius:14px;
-      border:1px solid rgba(148,163,184,.6);
-      background:linear-gradient(150deg,rgba(15,23,42,.98),rgba(15,23,42,.92));
-      padding:.9rem .9rem .95rem;
-    }
-    .pkg-name{
-      font-size:.95rem;
-      font-weight:600;
-      color:#fefce8;
-      margin-bottom:.1rem;
-    }
-    .pkg-price{
-      font-size:.86rem;
-      color:#facc15;
-      margin-bottom:.35rem;
-    }
-    .pkg-body{
-      font-size:.84rem;
-      color:#cbd5f5;
-      margin-bottom:.35rem;
-    }
-    .pkg-line{
-      font-size:.8rem;
-      color:#bbf7d0;
-    }
-
-    .footer-nav{
-      margin-top:1.4rem;
-      display:flex;
-      flex-wrap:wrap;
-      gap:.75rem;
-    }
-    .btn-ghost{
-      display:inline-flex;
-      align-items:center;
-      gap:.45rem;
-      padding:.55rem 1.2rem;
-      border-radius:999px;
-      border:1px solid rgba(148,163,184,.7);
-      background:rgba(15,23,42,.9);
-      color:#e5e7eb;
-      font-size:.9rem;
-      text-decoration:none;
-      box-shadow:0 16px 40px rgba(0,0,0,.85);
-      transition:background .18s ease, transform .12s ease, box-shadow .18s ease;
-    }
-    .btn-ghost:hover{
-      background:rgba(31,41,55,.96);
-      transform:translateY(-1px);
-      box-shadow:0 20px 55px rgba(0,0,0,.98);
-    }
-    .btn-ghost svg{width:16px;height:16px;}
-
-    .de{}
-    .en{display:none}
-    .hidden{display:none!important}
-
-    /* Topbar Auto-Hide wie bei den anderen Akademie-Seiten */
-    #menu-root > *{
-      position:fixed;
-      left:0;right:0;top:0;
-      z-index:9999;
-      transition:transform .24s ease;
-      will-change:transform;
-    }
-    #menu-root > *.fsa-hide{transform:translateY(-110%)}
+    .btn svg{width:15px;height:15px;flex-shrink:0;}
+    .highlight{color:#facc15;font-weight:600;}
   </style>
 </head>
 <body>
-
-<div id="menu-root"></div>
-
 <main>
-  <div class="wrap">
 
-    <!-- Intro / Block 1 -->
-    <section class="card">
-      <div class="card-header">
-        <div class="icon-inline" aria-hidden="true">
-          <!-- Coin / Wachstum Icon -->
-          <svg viewBox="0 0 32 32">
-            <defs>
-              <linearGradient id="gCoin" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#facc15"/>
-                <stop offset="1" stop-color="#22c55e"/>
-              </linearGradient>
-            </defs>
-            <circle cx="16" cy="16" r="14" fill="url(#gCoin)" opacity=".95"/>
-            <path d="M11.5 18.5 15 14l3 3 5-7" fill="none" stroke="#022c22" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M9 19h14" stroke="#022c22" stroke-width="1.6" stroke-linecap="round" opacity=".9"/>
-          </svg>
+  <div class="lang-switch">
+    <button type="button" data-lang-switch="de">DE</button>
+    <button type="button" data-lang-switch="en">EN</button>
+  </div>
+
+  <section class="card">
+    <div class="card-header">
+      <svg width="32" height="32" viewBox="0 0 24 24" aria-hidden="true">
+        <defs>
+          <linearGradient id="gradInc" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#facc15"/>
+            <stop offset="1" stop-color="#22c55e"/>
+          </linearGradient>
+        </defs>
+        <circle cx="12" cy="12" r="11" fill="#020617" stroke="url(#gradInc)" stroke-width="2"/>
+        <path d="M7 14l3-3 3 3 4-6" fill="none" stroke="url(#gradInc)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <h1 class="de">Verdienen mit der Akademie &amp; Trustyfy</h1>
+        <h1 class="en hidden">Earning with the Academy &amp; Trustyfy</h1>
+        <div class="badge">
+          <span class="de">Lernen + Nutzen + Weitergeben – mit klarer Tippgeber-Struktur</span>
+          <span class="en hidden">Learn + use + share – with a clear referral structure</span>
         </div>
-        <div>
-          <h1>
-            <span class="de">Verdienen mit der Akademie &amp; Trustyfy</span>
-            <span class="en">Earning with the Academy &amp; Trustyfy</span>
-          </h1>
-          <div class="badge">
-            <span class="badge-dot"></span>
-            <span class="de">Rechner + Klarheit, was du dafür tun musst</span>
-            <span class="en hidden">Calculator + clarity on what you need to do</span>
-          </div>
-        </div>
+        <p class="de">
+          Die FSA Akademie erklärt dir die neue Finanzwelt – Trustyfy ist das Werkzeug dahinter.
+          Wenn du beides zusammenbringst, kannst du dir ein <strong>wiederkehrendes Einkommen</strong> aufbauen:
+          nicht durch Druck, sondern durch ehrliche Empfehlungen.
+        </p>
+        <p class="en hidden">
+          The FSA Academy explains the new financial world – Trustyfy is the tool behind it.
+          Combining both, you can build a <strong>recurring income</strong>:
+          not through pressure, but honest recommendations.
+        </p>
       </div>
+    </div>
+  </section>
 
-      <p class="lead de">
-        Die FSA Akademie erklärt dir die neue Finanzwelt – Trustyfy ist das Werkzeug dahinter. 
-        Auf dieser Seite kannst du dir ausrechnen, was passieren muss, damit aus Lernen ein 
-        wiederkehrendes Einkommen wird.
-      </p>
-      <p class="lead en hidden">
-        The FSA Academy explains the new financial world – Trustyfy is the tool behind it.
-        On this page you can calculate what has to happen so that learning turns into recurring income.
-      </p>
+  <!-- Tippgeber-Modell -->
+  <section class="card-soft">
+    <div class="pill-title de">TIPPGEBER-MODELL</div>
+    <div class="pill-title en hidden">REFERRAL MODEL</div>
+    <h2 class="de">Die zwei Stufen – 20 % und 40 %</h2>
+    <h2 class="en hidden">The two levels – 20% and 40%</h2>
+    <p class="de">
+      Trustyfy arbeitet mit einer klaren Struktur:
+      <span class="highlight">20 % Tippgeber-Belohnung</span> für alle, die den kostenlosen
+      Zugang nutzen, und <span class="highlight">40 %</span> für alle, die selbst ein
+      Plus- oder Firmenpaket haben.
+    </p>
+    <p class="en hidden">
+      Trustyfy uses a clear structure:
+      <span class="highlight">20% referral reward</span> for everyone using the free access
+      and <span class="highlight">40%</span> for those who have their own Plus or corporate plan.
+    </p>
+    <p class="de">
+      Wichtig: Es handelt sich nicht um einen Strukturvertrieb mit vielen Ebenen.
+      Du bekommst eine Tippgeber-Belohnung für deine direkten Empfehlungen –
+      jedes Jahr erneut, solange die Pakete aktiv bleiben.
+    </p>
+    <p class="en hidden">
+      Important: this is not a multi-level scheme with many layers.
+      You receive a referral reward for your direct recommendations –
+      every year again, as long as the plans stay active.
+    </p>
+  </section>
 
+  <!-- Pakete – kompakte Übersicht -->
+  <section class="grid-2">
+    <article class="card-soft">
+      <div class="pill-title de">PAKETE FÜR PRIVATPERSONEN</div>
+      <div class="pill-title en hidden">PLANS FOR INDIVIDUALS</div>
+      <h2 class="de">Free &amp; Plus Plan</h2>
+      <h2 class="en hidden">Free &amp; Plus Plan</h2>
       <p class="de">
-        Der Rechner arbeitet mit den offiziellen Trustyfy-Paketen (Plus Plan, Corporate Pro,
-        Crypto Companies) und den beiden Tippgeber-Stufen (20&nbsp;% und 40&nbsp;%). 
-        Du gibst dein Wunscheinkommen und deine aktuellen Pakete ein – der Rechner zeigt dir,
-        was noch fehlt und wie du die Lücke schließen kannst.
+        <strong>Free Plan</strong> – Start ohne Kosten:
       </p>
       <p class="en hidden">
-        The calculator uses the official Trustyfy plans (Plus, Corporate Pro, Crypto Companies)
-        and the two referral levels (20% and 40%).
-        You enter your desired income and your current plans – the calculator shows what is missing
-        and how you could close the gap.
+        <strong>Free Plan</strong> – start without costs:
       </p>
-    </section>
+      <ul class="de">
+        <li>0&nbsp;$/Monat, um Trustyfy kennenzulernen.</li>
+        <li>Unbegrenzte Wallets, Transaktionen und Assets – multichain.</li>
+        <li>Kontoauszüge bis zu einem Jahr rückwirkend.</li>
+        <li>Bereits hier: <span class="highlight">20 % Tippgeber-Belohnung</span> im Affiliate-Programm.</li>
+      </ul>
+      <ul class="en hidden">
+        <li>0&nbsp;$/month to get to know Trustyfy.</li>
+        <li>Unlimited wallets, transactions and assets – multichain.</li>
+        <li>Statements for up to one year.</li>
+        <li>Already here: <span class="highlight">20% referral reward</span> in the affiliate program.</li>
+      </ul>
+      <p class="de">
+        <strong>Plus Plan</strong> – Vollpaket für Privatanwender:
+      </p>
+      <p class="en hidden">
+        <strong>Plus Plan</strong> – full package for private users:
+      </p>
+      <ul class="de">
+        <li>Aktuell ca. <strong>60&nbsp;$ pro Jahr</strong> (Monatsplan).</li>
+        <li>Alles aus dem Free Plan plus virtuelle und physische Karten.</li>
+        <li>Maximale <span class="highlight">40 % Tippgeber-Belohnung</span>, wenn du selbst Plus-Nutzer bist.</li>
+      </ul>
+      <ul class="en hidden">
+        <li>Currently approx. <strong>60&nbsp;$ per year</strong> (monthly plan).</li>
+        <li>Everything from Free Plan plus virtual and physical cards.</li>
+        <li>Maximum <span class="highlight">40% referral reward</span> when you are a Plus user yourself.</li>
+      </ul>
+    </article>
 
-    <!-- Block 2: Erklärung + Rechner -->
-    <section class="card">
-      <div class="card-header">
-        <div class="icon-inline" aria-hidden="true">
-          <!-- Rechner Icon -->
-          <svg viewBox="0 0 32 32">
-            <rect x="4.5" y="4.5" width="23" height="23" rx="7" fill="#020617" stroke="#facc15" stroke-width="1.6"/>
-            <path d="M11 11h4M13 9v4" stroke="#facc15" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M19 10.3h4" stroke="#22c55e" stroke-width="1.7" stroke-linecap="round"/>
-            <path d="M11 20h4M11 22.5h4" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round"/>
-            <path d="M19 19.5 23 23.5M23 19.5 19 23.5" stroke="#e5e7eb" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <div>
-          <h2>
-            <span class="de">Dein Einkommens-Rechner</span>
-            <span class="en hidden">Your income calculator</span>
-          </h2>
-          <p class="tagline de">
-            Drei Schritte: Wunsch eingeben, aktuelle Situation eintragen, Lücke sehen – 
-            und verstehen, welche Mischung aus Paketen dich dorthin bringt.
-          </p>
-          <p class="tagline en hidden">
-            Three steps: set your target, enter your current situation, see the gap – 
-            and understand which mix of plans can take you there.
-          </p>
-        </div>
-      </div>
+    <article class="card-soft">
+      <div class="pill-title de">PAKETE FÜR UNTERNEHMEN</div>
+      <div class="pill-title en hidden">PLANS FOR COMPANIES</div>
+      <h2 class="de">Free Corporate, Corporate Pro &amp; Crypto Companies</h2>
+      <h2 class="en hidden">Free Corporate, Corporate Pro &amp; Crypto Companies</h2>
+      <p class="de">
+        <strong>Free Corporate</strong> – Firmenstart:
+      </p>
+      <p class="en hidden">
+        <strong>Free Corporate</strong> – company starter:
+      </p>
+      <ul class="de">
+        <li>0&nbsp;$/Monat für Teams, Vereine und Firmen, die starten wollen.</li>
+        <li>Unlimitierte Wallets, Transaktionen, Assets – multichain.</li>
+        <li>Statements bis zu einem Jahr, <span class="highlight">20 % Tippgeber-Belohnung</span>.</li>
+      </ul>
+      <ul class="en hidden">
+        <li>0&nbsp;$/month for teams, associations and companies that want to start.</li>
+        <li>Unlimited wallets, transactions, assets – multichain.</li>
+        <li>Statements up to one year, <span class="highlight">20% referral reward</span>.</li>
+      </ul>
+      <p class="de">
+        <strong>Corporate Pro</strong> – Hauptpaket für Firmen:
+      </p>
+      <p class="en hidden">
+        <strong>Corporate Pro</strong> – core plan for companies:
+      </p>
+      <ul class="de">
+        <li>Ca. <strong>50&nbsp;$ pro Monat ≈ 600&nbsp;$ pro Jahr</strong>.</li>
+        <li>Krypto-freundliche Firmenkonten, Rollen, Freigaben, ENS-Kurzname, Early-Access.</li>
+        <li><span class="highlight">40 % Tippgeber-Belohnung</span> für qualifizierte Partner.</li>
+      </ul>
+      <ul class="en hidden">
+        <li>Approx. <strong>50&nbsp;$ per month ≈ 600&nbsp;$ per year</strong>.</li>
+        <li>Crypto-friendly corporate accounts, roles, approvals, ENS name, early access.</li>
+        <li><span class="highlight">40% referral reward</span> for qualified partners.</li>
+      </ul>
+      <p class="de">
+        <strong>Crypto Companies</strong> – für Krypto-Unternehmen:
+      </p>
+      <p class="en hidden">
+        <strong>Crypto Companies</strong> – for crypto businesses:
+      </p>
+      <ul class="de">
+        <li>Ca. <strong>250&nbsp;$ pro Monat ≈ 3.000&nbsp;$ pro Jahr</strong>.</li>
+        <li>Inhaltlich ähnlich zu Corporate Pro, aber auf den Krypto-/Blockchain-Bereich zugeschnitten.</li>
+        <li>Tippgeber-Belohnung analog zum Corporate-Pro-Paket.</li>
+      </ul>
+      <ul class="en hidden">
+        <li>Approx. <strong>250&nbsp;$ per month ≈ 3,000&nbsp;$ per year</strong>.</li>
+        <li>Similar to Corporate Pro but tailored to the crypto/blockchain sector.</li>
+        <li>Referral rewards aligned with the Corporate Pro plan.</li>
+      </ul>
+    </article>
+  </section>
 
-      <div class="split">
-        <!-- Linke Seite: Erklärung in Schritten -->
-        <div>
-          <div class="step">
-            <div class="step-title de">1. Dein Ziel klarmachen</div>
-            <div class="step-title en hidden">1. Get clear on your goal</div>
-            <div class="step-body de">
-              Trage ein, welches zusätzliche Jahreseinkommen du dir mit Akademie &amp; Trustyfy
-              aufbauen möchtest. Das kann ein „zweites Standbein“ (z.&nbsp;B. 6.000&nbsp;€) 
-              oder ein vollwertiges Jahreseinkommen (z.&nbsp;B. 24.000&nbsp;€) sein.
-            </div>
-            <div class="step-body en hidden">
-              Enter the additional yearly income you want to build with the Academy &amp; Trustyfy.
-              This may be a “second pillar” (e.g. 6,000&nbsp;€) or a full yearly income
-              (e.g. 24,000&nbsp;€).
-            </div>
-          </div>
+  <!-- Beispiele -->
+  <section class="card-soft">
+    <div class="pill-title de">BEISPIELE AUS DER PRAXIS</div>
+    <div class="pill-title en hidden">PRACTICAL EXAMPLES</div>
+    <h2 class="de">Von Zusatz-Einkommen zum Jahresbetrag</h2>
+    <h2 class="en hidden">From side income to yearly amount</h2>
+    <p class="de">
+      Um ein Gefühl zu bekommen, was möglich ist, hilft ein grober Rahmen.
+      Wir rechnen hier vereinfacht mit USDT/$ ≈ €.
+    </p>
+    <p class="en hidden">
+      To get a feeling for what is possible, a rough frame helps.
+      For simplicity we use USDT/$ ≈ €.
+    </p>
+    <p class="de">
+      <strong>Beispiel 1 – ca. 2.000&nbsp;€ pro Jahr:</strong><br>
+      Wenn du selbst auf 40&nbsp;% Tippgeber-Belohnung kommst,
+      erzeugt ein aktiver Plus-Plan etwa <span class="highlight">24&nbsp;$</span> pro Jahr,
+      ein Corporate-Pro-Plan etwa <span class="highlight">240&nbsp;$</span> und
+      ein Crypto-Companies-Plan etwa <span class="highlight">1.200&nbsp;$</span>.
+      Eine Mischung aus rund 60&nbsp;Plus-Nutzern und ein paar Firmenkunden
+      bringt dich in die Nähe von 2.000&nbsp;€ pro Jahr.
+    </p>
+    <p class="en hidden">
+      <strong>Example 1 – approx. 2,000&nbsp;€/year:</strong><br>
+      At 40% referral level, one active Plus plan creates about <span class="highlight">24&nbsp;$</span>
+      per year, a Corporate Pro about <span class="highlight">240&nbsp;$</span> and a
+      Crypto Companies plan about <span class="highlight">1,200&nbsp;$</span>.
+      A mix of around 60 Plus users and a few corporate clients gets you close to 2,000&nbsp;€/year.
+    </p>
+    <p class="de">
+      <strong>Beispiel 2 – ca. 24.000&nbsp;€ pro Jahr:</strong><br>
+      Wenn du konsequent weiterarbeitest und dein Netzwerk wächst,
+      können dich z.&nbsp;B. 200&nbsp;Plus-Nutzer, 30&nbsp;Corporate-Pro-Firmen
+      und einige Crypto-Companies-Firmen in die Größenordnung eines
+      zusätzlichen Jahresgehalts bringen.
+    </p>
+    <p class="en hidden">
+      <strong>Example 2 – approx. 24,000&nbsp;€/year:</strong><br>
+      If you keep going consistently and your network grows,
+      e.g. 200 Plus users, 30 Corporate Pro companies and some Crypto Companies
+      clients can move you into the range of an additional yearly income.
+    </p>
+    <p class="de">
+      Das ist keine Garantie und kein Versprechen – sondern eine
+      <strong>realistische Möglichkeit</strong> für Menschen, die bereit sind
+      dranzubleiben, regelmäßig Gespräche zu führen und die Akademie als
+      Copilot im Alltag zu nutzen.
+    </p>
+    <p class="en hidden">
+      This is not a guarantee or promise – but a
+      <strong>realistic possibility</strong> for people who are willing to keep going,
+      have regular conversations and use the Academy as a co-pilot in everyday life.
+    </p>
+    <div class="footer-nav">
+      <a href="akademie-trustyfy-basis.html" class="btn">
+        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" fill="none" stroke="#e5e7eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="de">Zur Trustyfy-Basis</span>
+        <span class="en hidden">Back to Trustyfy hub</span>
+      </a>
+      <a href="verdienst-rechner.html" class="btn btn-primary">
+        <span class="de">Weiter: Mit dem Rechner deinen eigenen Plan bauen</span>
+        <span class="en hidden">Next: Build your own plan with the calculator</span>
+        <svg viewBox="0 0 24 24"><path d="M8 5l7 7-7 7" fill="none" stroke="#facc15" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </section>
 
-          <div class="step">
-            <div class="step-title de">2. Deinen Status wählen</div>
-            <div class="step-title en hidden">2. Choose your status</div>
-            <div class="step-body de">
-              Mit einem kostenlosen Account erhältst du 20&nbsp;% Tippgeber-Belohnung.
-              Wenn du selbst einen Plus Plan oder ein Firmenpaket nutzt, arbeitest du mit 40&nbsp;%.
-              Das verdoppelt deinen Ertrag pro Paket – bei gleicher Arbeit.
-            </div>
-            <div class="step-body en hidden">
-              With a free account you receive 20% referral reward.
-              If you use a Plus plan or a business plan yourself, you work with 40%.
-              This doubles your income per plan – with the same activity.
-            </div>
-          </div>
-
-          <div class="step">
-            <div class="step-title de">3. Pakete eintragen &amp; Lücke sehen</div>
-            <div class="step-title en hidden">3. Enter plans &amp; see the gap</div>
-            <div class="step-body de">
-              Trage ein, wie viele Plus-Nutzer, Corporate-Pro-Firmen und Crypto-Companies-Firmen 
-              du dir mittelfristig vorstellen kannst. Der Rechner zeigt dir, welches 
-              Jahreseinkommen daraus entsteht – und wie viele Pakete dir bis zu deinem Ziel 
-              ungefähr fehlen.
-            </div>
-            <div class="step-body en hidden">
-              Enter how many Plus users, Corporate Pro businesses and Crypto Companies clients
-              you can realistically imagine over time. The calculator shows the resulting yearly
-              income – and how many plans are missing to roughly reach your target.
-            </div>
-          </div>
-        </div>
-
-        <!-- Rechte Seite: Formular -->
-        <div>
-          <label for="goal">
-            <span class="de">Dein Wunscheinkommen pro Jahr (USDT / €)</span>
-            <span class="en hidden">Your desired yearly income (USDT / €)</span>
-          </label>
-          <input type="number" id="goal" min="0" step="100" value="12000" inputmode="numeric">
-          <div class="hint de">Beispiel: 6.000, 12.000 oder 24.000 – so, wie es für dich sinnvoll ist.</div>
-          <div class="hint en hidden">Example: 6,000, 12,000 or 24,000 – whatever makes sense for you.</div>
-
-          <div style="margin-top:.9rem">
-            <label for="status">
-              <span class="de">Dein aktueller Trustyfy-Status</span>
-              <span class="en hidden">Your current Trustyfy status</span>
-            </label>
-            <select id="status">
-              <option value="20">Free – 20 % Tippgeber-Belohnung</option>
-              <option value="40" selected>Paid – 40 % Tippgeber-Belohnung</option>
-            </select>
-            <div class="hint de">Wenn du auf 40&nbsp;% gehst, halbiert sich die Anzahl der Pakete, die du brauchst.</div>
-            <div class="hint en hidden">With 40%, the number of needed plans is roughly cut in half.</div>
-          </div>
-
-          <div class="field-row">
-            <div>
-              <label for="nPlus">
-                <span class="de">Plus-Nutzer (Privat)</span>
-                <span class="en hidden">Plus users (individual)</span>
-              </label>
-              <input type="number" id="nPlus" min="0" step="1" value="80" inputmode="numeric">
-              <div class="hint de">60&nbsp;$ Paket pro Jahr</div>
-              <div class="hint en hidden">$60 plan per year</div>
-            </div>
-            <div>
-              <label for="nCorp">
-                <span class="de">Corporate Pro (Firmen)</span>
-                <span class="en hidden">Corporate Pro (business)</span>
-              </label>
-              <input type="number" id="nCorp" min="0" step="1" value="3" inputmode="numeric">
-              <div class="hint de">ca. 600&nbsp;$ Paket pro Jahr</div>
-              <div class="hint en hidden">approx. $600 plan per year</div>
-            </div>
-            <div>
-              <label for="nCrypto">
-                <span class="de">Crypto Companies</span>
-                <span class="en hidden">Crypto Companies</span>
-              </label>
-              <input type="number" id="nCrypto" min="0" step="1" value="1" inputmode="numeric">
-              <div class="hint de">ca. 3.000&nbsp;$ Paket pro Jahr</div>
-              <div class="hint en hidden">approx. $3,000 plan per year</div>
-            </div>
-          </div>
-
-          <button class="btn-primary" id="btnCalc">
-            <svg viewBox="0 0 32 32" aria-hidden="true">
-              <path d="M6 18.5 14 10l4 4 8-8" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M6 24h20" stroke="#e5e7eb" stroke-width="1.8" stroke-linecap="round"/>
-            </svg>
-            <span class="de">Berechnen, wo du stehst</span>
-            <span class="en hidden">Calculate where you stand</span>
-          </button>
-
-          <div class="result hidden" id="resBox">
-            <h3>
-              <span class="de">Dein Ergebnis</span>
-              <span class="en hidden">Your result</span>
-            </h3>
-            <p class="result-main" id="resMain"></p>
-            <p class="result-extra" id="resExtra"></p>
-            <p class="note de">
-              Alle Zahlen sind grobe Orientierungswerte, keine Einkommensgarantie und ersetzen 
-              nicht die offiziellen Informationen von Trustyfy.
-            </p>
-            <p class="note en hidden">
-              All numbers are rough guidance only, not an income guarantee and not a replacement
-              for official Trustyfy information.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Block 3: Pakete, auf denen der Rechner basiert -->
-    <section class="card">
-      <div class="card-header">
-        <div class="icon-inline" aria-hidden="true">
-          <!-- Pakete / Layer Icon -->
-          <svg viewBox="0 0 32 32">
-            <path d="M16 4 6 9.2l10 5.1 10-5.1L16 4Z" fill="#020617" stroke="#facc15" stroke-width="1.6" stroke-linejoin="round"/>
-            <path d="M6 16.2 16 21.5l10-5.3" fill="none" stroke="#22c55e" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M6 22.2 16 27.5l10-5.3" fill="none" stroke="#38bdf8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div>
-          <h2>
-            <span class="de">Worauf der Rechner aufbaut</span>
-            <span class="en hidden">What the calculator is based on</span>
-          </h2>
-          <p class="tagline de">
-            Zur Orientierung: So viel Tippgeber-Einkommen erzeugt ein einziges aktives Paket pro Jahr – 
-            je nach Status mit 20&nbsp;% oder 40&nbsp;%.
-          </p>
-          <p class="tagline en hidden">
-            For orientation: this is the yearly referral income per single active plan – 
-            depending on whether you are at 20% or 40%.
-          </p>
-        </div>
-      </div>
-
-      <div class="pkg-grid">
-        <!-- Plus -->
-        <div class="pkg-card">
-          <div class="pkg-name">
-            <span class="de">Plus Plan (Privatnutzer)</span>
-            <span class="en hidden">Plus plan (individual)</span>
-          </div>
-          <div class="pkg-price">
-            <span class="de">60&nbsp;$ Paket pro Jahr</span>
-            <span class="en hidden">$60 plan per year</span>
-          </div>
-          <div class="pkg-body de">
-            Vollpaket für Privatpersonen – alles aus dem Free Plan plus Konto, Karten 
-            und maximaler Tippgeber-Belohnung.
-          </div>
-          <div class="pkg-body en hidden">
-            Full package for individuals – everything from the free plan plus account, cards
-            and maximum referral reward.
-          </div>
-          <div class="pkg-line de">
-            • 20&nbsp;%: 12&nbsp;$ pro Jahr<br>
-            • 40&nbsp;%: 24&nbsp;$ pro Jahr
-          </div>
-          <div class="pkg-line en hidden">
-            • 20%: 12&nbsp;$ per year<br>
-            • 40%: 24&nbsp;$ per year
-          </div>
-        </div>
-
-        <!-- Corporate Pro -->
-        <div class="pkg-card">
-          <div class="pkg-name">
-            <span class="de">Corporate Pro (Firmenkunden)</span>
-            <span class="en hidden">Corporate Pro (business clients)</span>
-          </div>
-          <div class="pkg-price">
-            <span class="de">ca. 600&nbsp;$ Paket pro Jahr</span>
-            <span class="en hidden">approx. $600 plan per year</span>
-          </div>
-          <div class="pkg-body de">
-            Upgrade für Unternehmen – mit krypto-freundlichem Firmenkonto, Rollen,
-            Freigaben und Karten.
-          </div>
-          <div class="pkg-body en hidden">
-            Upgrade for companies – with crypto-friendly business account, roles,
-            approvals and cards.
-          </div>
-          <div class="pkg-line de">
-            • 20&nbsp;%: 120&nbsp;$ pro Jahr<br>
-            • 40&nbsp;%: 240&nbsp;$ pro Jahr
-          </div>
-          <div class="pkg-line en hidden">
-            • 20%: 120&nbsp;$ per year<br>
-            • 40%: 240&nbsp;$ per year
-          </div>
-        </div>
-
-        <!-- Crypto Companies -->
-        <div class="pkg-card">
-          <div class="pkg-name">
-            <span class="de">Crypto Companies (Krypto-Unternehmen)</span>
-            <span class="en hidden">Crypto Companies (crypto firms)</span>
-          </div>
-          <div class="pkg-price">
-            <span class="de">ca. 3.000&nbsp;$ Paket pro Jahr</span>
-            <span class="en hidden">approx. $3,000 plan per year</span>
-          </div>
-          <div class="pkg-body de">
-            Für Unternehmen, die selbst im Krypto-/Blockchain-Bereich arbeiten und
-            erweiterte Strukturen brauchen.
-          </div>
-          <div class="pkg-body en hidden">
-            For companies that operate in the crypto / blockchain space and need
-            extended structures.
-          </div>
-          <div class="pkg-line de">
-            • 20&nbsp;%: 600&nbsp;$ pro Jahr<br>
-            • 40&nbsp;%: 1.200&nbsp;$ pro Jahr
-          </div>
-          <div class="pkg-line en hidden">
-            • 20%: 600&nbsp;$ per year<br>
-            • 40%: 1,200&nbsp;$ per year
-          </div>
-        </div>
-      </div>
-
-      <div class="footer-nav">
-        <a href="../../index.html" class="btn-ghost">
-          <svg viewBox="0 0 32 32" aria-hidden="true">
-            <path d="M18.5 8 11 15.5 18.5 23" fill="none" stroke="#e5e7eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M21 8v15" fill="none" stroke="#e5e7eb" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-          <span class="de">Zurück zur Startseite</span>
-          <span class="en hidden">Back to start page</span>
-        </a>
-        <a href="./akademie-trustyfy-erklaerung.html" class="btn-ghost">
-          <svg viewBox="0 0 32 32" aria-hidden="true">
-            <path d="M11 8 21 16 11 24" fill="none" stroke="#e5e7eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span class="de">Zur Trustyfy-Erklärseite</span>
-          <span class="en hidden">To the Trustyfy explainer page</span>
-        </a>
-        <a href="./verdienst-rechner.html" class="btn-ghost">
-          <svg viewBox="0 0 32 32" aria-hidden="true">
-            <rect x="6" y="6" width="20" height="20" rx="5" fill="none" stroke="#e5e7eb" stroke-width="1.6"/>
-            <path d="M11 13h4M13 11v4" stroke="#facc15" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span class="de">Zum detaillierten Verdienst-Rechner</span>
-          <span class="en hidden">To the detailed income calculator</span>
-        </a>
-      </div>
-    </section>
-
-  </div>
 </main>
-
-<script src="../../library/js/menu.js"></script>
-<script src="../../library/js/lang-switcher.js"></script>
-<script src="../../library/js/music-button.js"></script>
-
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  // ---------- Sprache ----------
+  const buttons = document.querySelectorAll("[data-lang-switch]");
+  const hiddenClass = "hidden";
   function applyLang(lang){
-    document.querySelectorAll(".de, .en").forEach(el=>{
-      if(el.classList.contains("de")){
-        el.style.display = (lang==="en") ? "none" : "";
-      }else if(el.classList.contains("en")){
-        el.style.display = (lang==="en") ? "" : "none";
-      }
+    localStorage.setItem("fsa_lang", lang);
+    document.querySelectorAll(".de,.en").forEach(el=>{
+      el.classList.add(hiddenClass);
+      if(el.classList.contains(lang)) el.classList.remove(hiddenClass);
+    });
+    buttons.forEach(btn=>{
+      btn.classList.toggle("active", btn.dataset.langSwitch === lang);
     });
   }
-  let currentLang = localStorage.getItem("fsa_lang") || "de";
-  applyLang(currentLang);
-  document.addEventListener("fsa:lang-change", ev=>{
-    currentLang = ev.detail || "de";
-    localStorage.setItem("fsa_lang", currentLang);
-    applyLang(currentLang);
-    if(!document.getElementById("resBox").classList.contains("hidden")){
-      calculate();
-    }
+  const stored = localStorage.getItem("fsa_lang") || "de";
+  applyLang(stored);
+  buttons.forEach(btn=>{
+    btn.addEventListener("click", ()=>applyLang(btn.dataset.langSwitch));
   });
-
-  // ---------- Topbar Auto-Hide ----------
-  const bar = document.querySelector("#menu-root > *");
-  if(bar){
-    const setPad = () => {
-      const h = Math.max(56, Math.round(bar.getBoundingClientRect().height));
-      document.documentElement.style.setProperty("--topbar-pad", (h + 26) + "px");
-    };
-    setPad();
-    window.addEventListener("resize", setPad, {passive:true});
-    setTimeout(setPad, 120);
-    setTimeout(setPad, 600);
-
-    let lastY = window.pageYOffset || 0;
-    window.addEventListener("scroll", () => {
-      const y = window.pageYOffset || 0;
-      if(y > lastY + 6 && y > 40){
-        bar.classList.add("fsa-hide");
-      }else if(y < lastY - 6){
-        bar.classList.remove("fsa-hide");
-      }
-      lastY = y;
-    }, {passive:true});
-  }
-
-  // ---------- Rechner-Logik ----------
-  const goalEl   = document.getElementById("goal");
-  const statusEl = document.getElementById("status");
-  const nPlusEl  = document.getElementById("nPlus");
-  const nCorpEl  = document.getElementById("nCorp");
-  const nCryptEl = document.getElementById("nCrypto");
-  const resBox   = document.getElementById("resBox");
-  const resMain  = document.getElementById("resMain");
-  const resExtra = document.getElementById("resExtra");
-
-  function calculate(){
-    const goal  = Math.max(0, Number(goalEl.value)||0);
-    const rate  = Number(statusEl.value)||20; // 20 oder 40
-    const nPlus = Math.max(0, Math.floor(Number(nPlusEl.value)||0));
-    const nCorp = Math.max(0, Math.floor(Number(nCorpEl.value)||0));
-    const nCryp = Math.max(0, Math.floor(Number(nCryptEl.value)||0));
-
-    if(goal<=0){
-      if(currentLang==="de"){
-        resMain.textContent = "Bitte gib zuerst ein realistisches Jahresziel ein – zum Beispiel 6.000, 12.000 oder 24.000.";
-        resExtra.textContent = "";
-      }else{
-        resMain.textContent = "Please enter a realistic yearly target first – for example 6,000, 12,000 or 24,000.";
-        resExtra.textContent = "";
-      }
-      resBox.classList.remove("hidden");
-      return;
-    }
-
-    // Ertrag pro Paket (Jahresbasis)
-    const plusYear   = 60   * (rate/100);   // 12 | 24
-    const corpYear   = 600  * (rate/100);   // 120 | 240
-    const cryptYear  = 3000 * (rate/100);   // 600 | 1200
-
-    const incPlus  = nPlus * plusYear;
-    const incCorp  = nCorp * corpYear;
-    const incCrypt = nCryp * cryptYear;
-    const total    = incPlus + incCorp + incCrypt;
-
-    const diff = goal - total;
-    const absDiff = Math.abs(diff);
-
-    // Vorschlag, wie man die Lücke schließen könnte
-    const addPlus  = Math.ceil(Math.max(0, diff) / plusYear);
-    const addCorp  = Math.ceil(Math.max(0, diff) / corpYear);
-    const addCrypt = Math.ceil(Math.max(0, diff) / cryptYear);
-
-    if(currentLang==="de"){
-      resMain.innerHTML =
-        `Mit deinem aktuellen Plan (Plus: <strong>${nPlus}</strong>, Corporate Pro: <strong>${nCorp}</strong>, `+
-        `Crypto Companies: <strong>${nCryp}</strong>) erzeugst du ungefähr ein `+
-        `jährliches Tippgeber-Einkommen von <strong>${total.toLocaleString("de-DE")} USDT</strong>.`;
-
-      if(diff > 0){
-        resExtra.innerHTML =
-          `Zu deinem Ziel von <strong>${goal.toLocaleString("de-DE")} USDT</strong> fehlen dir noch etwa `+
-          `<strong>${absDiff.toLocaleString("de-DE")} USDT</strong> pro Jahr.<br><br>`+
-          `Mögliche Wege, um diese Lücke zu schließen (jeweils ungefähr):<br>`+
-          `• nur über Plus-Pläne: noch ca. <strong>${addPlus}</strong> aktive Plus-Nutzer<br>`+
-          `• nur über Corporate-Pro-Firmen: noch ca. <strong>${addCorp}</strong> Firmenkunden<br>`+
-          `• nur über Crypto-Companies-Kunden: noch ca. <strong>${addCrypt}</strong> große Krypto-Firmen<br><br>`+
-          `In der Praxis wirst du meist eine Mischung daraus aufbauen – der Rechner hilft dir nur, ein Gefühl `+
-          `für die Größenordnung zu bekommen.`;
-      }else if(diff < 0){
-        resExtra.innerHTML =
-          `Du liegst etwa <strong>${absDiff.toLocaleString("de-DE")} USDT</strong> über deinem Ziel. `+
-          `Das bedeutet: Schon mit weniger Paketen könntest du dein Ziel erreichen – oder du nutzt das Plus `+
-          `als zusätzlichen Puffer für Schwankungen und Ausfälle.`;
-      }else{
-        resExtra.innerHTML =
-          `Du triffst dein Ziel ziemlich genau. Achte jetzt vor allem darauf, deine bestehenden Nutzer und `+
-          `Firmen langfristig zu halten – dann wiederholt sich dieses Einkommen Jahr für Jahr.`;
-      }
-    }else{
-      resMain.innerHTML =
-        `With your current setup (Plus: <strong>${nPlus}</strong>, Corporate Pro: <strong>${nCorp}</strong>, `+
-        `Crypto Companies: <strong>${nCryp}</strong>) you generate roughly a yearly referral income of `+
-        `<strong>${total.toLocaleString("en-US")} USDT</strong>.`;
-
-      if(diff > 0){
-        resExtra.innerHTML =
-          `To reach your target of <strong>${goal.toLocaleString("en-US")} USDT</strong> you are missing about `+
-          `<strong>${absDiff.toLocaleString("en-US")} USDT</strong> per year.<br><br>`+
-          `Possible ways to close this gap (each roughly):<br>`+
-          `• only via Plus plans: about <strong>${addPlus}</strong> additional active Plus users<br>`+
-          `• only via Corporate Pro clients: about <strong>${addCorp}</strong> business clients<br>`+
-          `• only via Crypto Companies clients: about <strong>${addCrypt}</strong> large crypto firms<br><br>`+
-          `In practice you will usually build a mix of these – the calculator just helps you get a feeling for the magnitude.`;
-      }else if(diff < 0){
-        resExtra.innerHTML =
-          `You are roughly <strong>${absDiff.toLocaleString("en-US")} USDT</strong> above your target. `+
-          `That means you could reach your target with fewer plans – or you use this as buffer for `+
-          `fluctuations and cancellations.`;
-      }else{
-        resExtra.innerHTML =
-          `You hit your target almost exactly. The key now is to keep your existing users and companies `+
-          `for the long term so this income can repeat year after year.`;
-      }
-    }
-
-    resBox.classList.remove("hidden");
-  }
-
-  document.getElementById("btnCalc").addEventListener("click", calculate);
 });
 </script>
-
 </body>
 </html>
