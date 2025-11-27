@@ -347,6 +347,7 @@
     │   │   ├── fsa_trustyfy_leitfaden_angestellte.pdf
     │   │   ├── fsa_trustyfy_leitfaden_familie.pdf
     │   │   ├── fsa_trustyfy_leitfaden_sensible_gruppen.pdf
+    │   │   ├── fsa_trustyfy_leitfaden_vertriebspartner_v4.pdf
     │   │   └── trustyfy-schritt-fuer-schritt-11112025.pdf
     │   ├── sets/
     │   │   ├── playlist-01.json
@@ -574,4 +575,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.11.2025, 10:17)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.11.2025, 11:14)_
