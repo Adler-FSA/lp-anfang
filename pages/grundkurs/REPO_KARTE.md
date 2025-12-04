@@ -472,6 +472,7 @@
     │   │   ├── akademie-einkommen.html
     │   │   ├── akademie-trustyfy-basis.html
     │   │   ├── akademie-trustyfy-erklaerung.html
+    │   │   ├── akademie-trustyfy-firmen-expose.html
     │   │   ├── akademie-trustyfy-ueberblick.html
     │   │   ├── fsa-akademie-flyer.html
     │   │   └── verdienst-rechner.html
@@ -576,4 +577,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.12.2025, 08:22)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.12.2025, 09:19)_
