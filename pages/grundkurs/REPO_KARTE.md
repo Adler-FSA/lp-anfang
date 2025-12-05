@@ -508,7 +508,8 @@
     │   │   ├── timecells-mission.html
     │   │   └── workflow-akademie.html
     │   ├── office/
-    │   │   └── page.json
+    │   │   ├── page.json
+    │   │   └── wallets.html
     │   ├── social/
     │   │   ├── share-adler.html
     │   │   ├── share-akademie.html
@@ -577,4 +578,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 05.12.2025, 19:12)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 05.12.2025, 20:17)_
