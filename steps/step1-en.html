@@ -1,507 +1,434 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Step 1 – On/Off-Ramp (trustyfy)</title>
-<style>
-  :root{
-    --bg:#0b0f14; --panel:#121821; --text:#e5e7eb; --muted:#9ca3af;
-    --gold:#f2c94c; --shadow:0 0 32px rgba(245,158,11,.12);
-  }
-  html,body{margin:0;background:var(--bg);color:var(--text);
-    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-  /* Kein extra Top-Abstand (Topbar bleibt kleben) */
-  .wrap{max-width:1400px;margin:20px auto;padding:0 16px}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Step 1 – Digital Accounts & Entry Euro ↔ Crypto</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#121821;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --gold:#f2c94c;
+      --glow:#f59e0b;
+    }
+    html,body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    }
 
-  .hero{
-    background:linear-gradient(180deg,rgba(242,201,76,.07),rgba(0,0,0,0));
-    border:1px solid rgba(242,201,76,.25);
-    border-radius:16px; padding:24px 20px; box-shadow:var(--shadow);
-  }
-  .hero h1{margin:0 0 6px;font-size:34px;color:var(--gold);text-align:center}
-  .hero p{margin:4px auto 0;max-width:880px;text-align:center;color:var(--muted)}
-  .cta-row{display:flex;gap:12px;justify-content:center;margin-top:16px;flex-wrap:wrap}
-  .btn{border:0;border-radius:12px;padding:12px 18px;font-weight:700;cursor:pointer}
-  .btn-primary{background:var(--gold);color:#111827;box-shadow:0 0 18px rgba(245,158,11,.25)}
-  .btn-ghost{background:transparent;color:var(--gold);border:1px solid rgba(242,201,76,.35)}
+    /* Topbar fix */
+    header.global-menu{
+      position:fixed;
+      top:0!important;
+      left:0;
+      right:0;
+      margin-top:0!important;
+      padding-top:0!important;
+      z-index:9999;
+    }
 
-  .panel{
-    background:var(--panel); border:1px solid rgba(242,201,76,.18);
-    border-radius:16px; box-shadow:var(--shadow); padding:20px; margin-top:24px;
-  }
+    .wrap{
+      max-width:1400px;
+      margin:0 auto;
+      padding:80px 16px 32px;
+      box-sizing:border-box;
+    }
 
-  /* Slideshow */
-  .stage{position:relative;width:100%;height:75vh;border-radius:14px;overflow:hidden;
-    background:#000;border:1px solid rgba(242,201,76,.16)}
-  .slide{position:absolute;inset:0;opacity:0;transition:opacity .35s ease}
-  .slide.active{opacity:1}
-  .stage img{width:100%;height:100%;object-fit:contain;background:#000}
-  .nav{position:absolute;inset-inline:0;bottom:20px;display:flex;justify-content:center;gap:6px;z-index:5}
-  .dot{width:10px;height:10px;border-radius:999px;background:rgba(255,255,255,.28);border:0;cursor:pointer}
-  .dot.active{background:#fff}
-  .loader{
-    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    color:var(--gold);font-weight:700
-  }
+    .hero{
+      background:linear-gradient(180deg,rgba(242,201,76,.07),rgba(0,0,0,0));
+      border:1px solid rgba(242,201,76,.25);
+      border-radius:16px;
+      padding:24px 20px 20px;
+      box-shadow:0 0 40px rgba(245,158,11,.15) inset,0 0 24px rgba(245,158,11,.12);
+      margin-top:0;
+    }
+    .hero h1{
+      margin:0 0 6px;
+      font-size:32px;
+      color:var(--gold);
+      text-align:center;
+    }
+    .hero p{
+      margin:4px auto 0;
+      max-width:900px;
+      text-align:center;
+      color:var(--muted);
+      font-size:1.02rem;
+      line-height:1.6;
+    }
+    .cta-row{
+      display:flex;
+      gap:12px;
+      justify-content:center;
+      margin-top:16px;
+      flex-wrap:wrap;
+    }
+    .btn{
+      border:0;
+      border-radius:12px;
+      padding:12px 18px;
+      font-weight:700;
+      cursor:pointer;
+      font-size:.98rem;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .btn-primary{
+      background:var(--gold);
+      color:#111827;
+      box-shadow:0 0 18px rgba(245,158,11,.25);
+    }
+    .btn-ghost{
+      background:transparent;
+      color:var(--gold);
+      border:1px solid rgba(242,201,76,.35);
+    }
 
-  /* Controls */
-  .control-bar{display:flex;justify-content:center;gap:16px;margin-top:16px;flex-wrap:wrap}
-  .ctrl-btn{background:var(--gold);color:#111827;font-weight:700;padding:12px 18px;border-radius:10px;border:0;cursor:pointer}
-  .ctrl-btn:hover{background:#ffd95c;}
+    .panel{
+      background:var(--panel);
+      border:1px solid rgba(242,201,76,.18);
+      border-radius:16px;
+      box-shadow:0 0 32px rgba(245,158,11,.12);
+      padding:20px;
+      margin-top:24px;
+    }
 
-  /* FAQ */
-  details{border:1px solid rgba(242,201,76,.15);border-radius:10px;margin-bottom:10px;padding:12px 14px;background:rgba(255,255,255,.02)}
-  summary{cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:space-between;color:var(--gold)}
-  summary::-webkit-details-marker{display:none}
-  details p{margin-top:10px;color:var(--muted);line-height:1.5}
-  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.35);color:#bbf7d0;margin-left:8px}
-  .foot{margin-top:20px;color:var(--muted);font-size:14px;text-align:center}
-  .link{color:#93c5fd;text-decoration:underline}
+    .panel h2{
+      color:var(--gold);
+      margin:0 0 12px;
+      font-size:24px;
+      text-align:center;
+    }
 
-  /* ===== Affiliate-Bar (Trustyfy) ===== */
-  .affbar{
-    position:fixed; top:-220px; left:0; right:0; z-index:9998;
-    backdrop-filter:blur(8px) saturate(140%);
-    background:linear-gradient(180deg, rgba(17,24,39,.96), rgba(17,24,39,.88));
-    border-bottom:1px solid rgba(242,201,76,.28);
-    box-shadow:0 10px 40px rgba(0,0,0,.5), 0 0 28px rgba(245,158,11,.28);
-    transition:top .28s ease;
-  }
-  .affbar.open{ top:0; }
-  .affbar-inner{ max-width:1400px; margin:0 auto; padding:16px 20px; display:grid; gap:10px; }
-  .aff-row{ display:flex; gap:10px; align-items:center; }
-  .aff-title{ display:flex; align-items:center; gap:8px; font-weight:700; color:#fff; }
-  .addr{ flex:1; display:flex; align-items:center; gap:10px; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.18); border-radius:12px; padding:10px 12px; }
-  .addr svg{ opacity:.9; }
-  .addr input{ flex:1; background:transparent; border:0; outline:0; color:#fff; font-size:.98rem; font-family:inherit; }
-  .aff-help{ color:var(--muted); font-size:.9rem; margin:0 0 2px; }
-  .aff-error{ color:#ffb4b4; font-size:.9rem; margin:0; display:none; }
-  .aff-actions{ display:flex; gap:10px; }
-  .btn-ghost-aff{ display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:10px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.18); color:#fff; cursor:pointer; }
-  .btn-ghost-aff:hover{ filter:brightness(1.06); transform:translateY(-1px); }
-  .icon{width:20px;height:20px;flex:0 0 20px}
+    .panel p{
+      color:var(--muted);
+      font-size:1.02rem;
+      line-height:1.6;
+      margin:0 0 10px;
+    }
 
-  /* Toast */
-  .toast{ position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,.78); border:1px solid rgba(255,255,255,.18); color:#fff; padding:10px 14px; border-radius:10px; font-size:.92rem; z-index:9999; box-shadow:0 8px 28px rgba(0,0,0,.4); display:none; }
-  .toast.show{ display:block; }
-  .muted-link-mini{ display:inline-block; margin-top:8px; color:var(--muted); text-decoration:underline; cursor:pointer; }
-</style>
+    .panel ul{
+      color:var(--muted);
+      font-size:1rem;
+      line-height:1.6;
+      padding-left:22px;
+      margin:0 0 8px;
+    }
 
-<!-- Preload first two JPG slides -->
-<link rel="preload" as="image" href="/lp-anfang/krypto/images/slide-01.jpg">
-<link rel="preload" as="image" href="/lp-anfang/krypto/images/slide-02.jpg">
+    .panel li{margin-bottom:6px;}
+
+    .badge{
+      display:inline-block;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:12px;
+      background:rgba(34,197,94,.15);
+      border:1px solid rgba(34,197,94,.35);
+      color:#bbf7d0;
+      margin-left:8px;
+    }
+
+    blockquote{
+      max-width:720px;
+      margin:16px auto 0;
+      padding-left:16px;
+      border-left:3px solid var(--gold);
+      font-style:italic;
+      color:var(--muted);
+    }
+
+    .two-columns{
+      display:grid;
+      grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);
+      gap:20px;
+    }
+    @media (max-width:900px){
+      .two-columns{grid-template-columns:minmax(0,1fr);}
+    }
+
+    .q-list{
+      list-style:none;
+      padding-left:0;
+      margin:0;
+    }
+    .q-list li{
+      margin-bottom:10px;
+      padding-left:0;
+    }
+    .q-label{
+      display:inline-block;
+      padding:2px 8px;
+      border-radius:999px;
+      background:rgba(148,163,184,.16);
+      color:var(--text);
+      font-size:.82rem;
+      margin-right:6px;
+    }
+
+    .nav-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:4px;
+    }
+    .nav-row a{
+      color:#93c5fd;
+      text-decoration:underline;
+      font-size:.95rem;
+    }
+    .foot{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:.9rem;
+      text-align:center;
+    }
+  </style>
 </head>
 <body>
 
-<!-- Global Topbar/Menu + Lang + Music -->
-<div id="menu-root"></div>
+  <!-- Global topbar -->
+  <div id="menu-root"></div>
 
-<!-- ░░ Affiliate-Bar (Trustyfy) ░░ -->
-<div id="affBar" class="affbar" role="dialog" aria-modal="true" aria-labelledby="affTitle" aria-hidden="true">
-  <div class="affbar-inner">
-    <div class="aff-title" id="affTitle">
-      <!-- Lock Icon -->
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        <rect x="4" y="10" width="16" height="10" rx="2" stroke="currentColor" stroke-width="1.8" fill="none"/>
-      </svg>
-      <span>Affiliate link required</span>
-    </div>
-    <p class="aff-help">Paste your personal trustyfy affiliate link (only <b>app.trustyfy.com</b>). Then you can open or share it.</p>
-
-    <div class="aff-row">
-      <div class="addr" style="min-height:44px">
-        <!-- Globe Icon -->
-        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6" fill="none"/>
-          <path d="M3 12h18M12 3a16 16 0 0 1 0 18M12 3a16 16 0 0 0 0 18" stroke="currentColor" stroke-width="1.4" fill="none"/>
-        </svg>
-        <input id="affInput" type="url" inputmode="url" autocomplete="url" placeholder="https://app.trustyfy.com/?by=…" aria-label="Affiliate link" />
+  <div class="wrap">
+    <!-- Hero -->
+    <section class="hero panel" id="top">
+      <h1>Step&nbsp;1 – Digital Accounts &amp; Entry Euro ↔ Crypto</h1>
+      <p>
+        In this step you get a simple map: which types of accounts and providers exist, how you can generally move
+        from Euros into crypto and back again – and what role your mentor plays in this. No brands, no sales pressure.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#building-blocks">🔍 Understand the 3 building blocks</a>
+        <a class="btn btn-ghost" href="#mentor">🤝 Talk to your mentor – guiding questions</a>
       </div>
-      <div class="aff-actions">
-        <button id="affSaveOpen" class="btn-ghost-aff">
-          <!-- Check Icon -->
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M5 12l4 4 10-10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Save
-        </button>
-        <button id="affCancel" class="btn-ghost-aff">
-          <!-- X Icon -->
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
-          </svg>
-          Cancel
-        </button>
+    </section>
+
+    <!-- Why this step matters -->
+    <section class="panel" id="why">
+      <h2>Why this step matters</h2>
+      <p>
+        You may already feel it: cash is disappearing, branches are closing, more and more runs through apps,
+        cards and “some online service”. At the same time you hear about Bitcoin, stablecoins, wallets and
+        crypto exchanges.
+      </p>
+      <p>
+        Many people feel torn: on one side convenience (“everything in one app”), on the other side the question:
+        <strong>“What happens if something suddenly gets blocked?”</strong>
+      </p>
+      <p>
+        This step helps you get a simple, clear map:
+      </p>
+      <ul>
+        <li>Which types of accounts and providers exist (bank, FinTech, crypto).</li>
+        <li>Which three building blocks you always see again (IBAN, exchange, wallet).</li>
+        <li>Which paths you can take – without locking yourself into one provider.</li>
+        <li>How to decide together with your mentor what actually fits you.</li>
+      </ul>
+      <blockquote>
+        “Freedom doesn’t happen when you hand everything over – it starts when you understand what you’re doing.”
+      </blockquote>
+      <p class="foot">
+        Note: The Academy explains models and options. The concrete choice of provider is yours –
+        ideally in dialogue with your mentor.
+      </p>
+    </section>
+
+    <!-- Basics – three worlds -->
+    <section class="panel" id="basics">
+      <h2>Basics – three worlds, one money system</h2>
+      <p>
+        Imagine your money system as three worlds that increasingly touch each other:
+      </p>
+      <ul>
+        <li><strong>1. Classic banking world</strong> – account with IBAN, transfers, standing orders, salary, rent.</li>
+        <li><strong>2. FinTech world</strong> – modern apps with IBAN &amp; card, often with extra features.</li>
+        <li><strong>3. Crypto world</strong> – digital assets like Bitcoin or stablecoins, managed via exchanges and wallets.</li>
+      </ul>
+      <p>
+        A “digital account” is simply an account you manage fully online – whether it’s a bank, a FinTech
+        or a crypto service. Three questions matter:
+      </p>
+      <ul>
+        <li><strong>Who regulates it?</strong> Banking supervision, financial regulator – or nobody you can see?</li>
+        <li><strong>What can you do there?</strong> Only Euros, or also buy, swap and hold crypto?</li>
+        <li><strong>Who is in control?</strong> Is it just your login – or do you really own the assets technically and legally?</li>
+      </ul>
+      <p>
+        The goal of this step: you see which world you are currently in – and where you might have blind spots.
+      </p>
+    </section>
+
+    <!-- The three building blocks -->
+    <section class="panel" id="building-blocks">
+      <h2>The three building blocks – your “house” with three rooms</h2>
+      <p>
+        You can picture your setup as a small house with three rooms. Each room has its own purpose –
+        together they form your system.
+      </p>
+
+      <div class="two-columns">
+        <div>
+          <h3 style="color:var(--gold);margin:10px 0 6px;">1. IBAN &amp; payments – the Euro room</h3>
+          <p>
+            This is where everyday life happens: salary, bills, rent, groceries. You use transfers, direct debits
+            and cards. Almost everything in day-to-day life is settled in Euros – so this room will always matter.
+          </p>
+          <p><strong>Question for you:</strong> How stable do you feel here? Do you have a plan B if something stops working?</p>
+
+          <h3 style="color:var(--gold);margin:16px 0 6px;">2. Crypto exchange / swap – the exchange room</h3>
+          <p>
+            This is the room where you can swap Euros into crypto and crypto back into Euros. Often this is a
+            separate platform or app.
+          </p>
+          <ul>
+            <li>This is where most fees appear (trading, spreads, deposits/withdrawals).</li>
+            <li>You should know <strong>where</strong> you swap, <strong>what</strong> you swap and <strong>under which conditions</strong>.</li>
+          </ul>
+          <p><strong>Question for you:</strong> Do you really understand how your current “exchange room” works?</p>
+        </div>
+
+        <div>
+          <h3 style="color:var(--gold);margin:10px 0 6px;">3. Wallet / self-custody – the vault room</h3>
+          <p>
+            A wallet is like your personal vault for digital assets. You hold your coins yourself and have
+            a secret recovery phrase (“seed”).
+          </p>
+          <ul>
+            <li>If you secure it well, you become independent from single providers.</li>
+            <li>If you lose it or share it, the money is gone – there is no undo button.</li>
+          </ul>
+          <p>
+            <strong>Question for you:</strong> Are you ready to take responsibility for your own vault – or do you first
+            need a learning phase with small amounts?
+          </p>
+        </div>
       </div>
-    </div>
-    <p id="affError" class="aff-error">Please provide a valid http(s) URL to <b>app.trustyfy.com</b>.</p>
-  </div>
-</div>
+    </section>
 
-<!-- Toast -->
-<div id="toast" class="toast" role="status" aria-live="polite">
-  <span id="tSaved">Affiliate link saved.</span>
-  <span id="tCopied" style="display:none">Link copied.</span>
-  <span id="tShared" style="display:none">Share dialog opened.</span>
-  <span id="tReset" style="display:none">Affiliate link reset.</span>
-  <span id="tFromUrl" style="display:none">Affiliate link taken from URL.</span>
-</div>
+    <!-- Three paths -->
+    <section class="panel" id="paths">
+      <h2>Three possible paths – no brands, just models</h2>
+      <p>
+        There is no “one right way”. In practice, three base models appear again and again – you can discuss these
+        with your mentor:
+      </p>
+      <ul>
+        <li>
+          <strong>Path A – Bank + crypto exchange + own wallet</strong><br>
+          Salary to bank account → part of it to an exchange → buy crypto → move into your own wallet.<br>
+          <em>Pros:</em> clear roles, strong regulation. <em>Cons:</em> more steps, a bit more technical.
+        </li>
+        <li>
+          <strong>Path B – FinTech/neobank with crypto function + wallet</strong><br>
+          Modern account with IBAN &amp; card → crypto purchases in the same app → optional transfer to own wallet.<br>
+          <em>Pros:</em> very convenient. <em>Cons:</em> coins often sit with the provider, not with you at first.
+        </li>
+        <li>
+          <strong>Path C – Specialised crypto/FinTech provider with card &amp; bridge</strong><br>
+          Specialised service combining crypto and everyday spending (card, bridges between Euros and crypto).<br>
+          <em>Pros:</em> close to the crypto world. <em>Cons:</em> you must look very carefully at legal and technical structure.
+        </li>
+      </ul>
+      <p>
+        The goal here is not to choose immediately – but to recognise which combination <em>could</em> fit you.
+      </p>
+    </section>
 
-<div class="wrap">
-  <!-- Hero -->
-  <div class="hero panel">
-    <h1>Step 1 – On/Off-Ramp (trustyfy)</h1>
-    <p>Start clean: KYC, IBAN, Euro → Crypto and back. The slides walk you through each step — large and clear.</p>
-    <div class="cta-row">
-      <!-- Opens saved link or asks for it -->
-      <a class="btn btn-primary" id="ctaOpen" href="https://app.trustyfy.com?by=101eqr" target="_blank" rel="noopener">🚀 Go to trustyfy</a>
-      <!-- Shares/Copies saved link -->
-      <button class="btn btn-ghost" id="ctaShare">Share affiliate link</button>
-    </div>
-    <p class="foot"><button id="affReset" class="muted-link-mini">Change / reset affiliate link</button></p>
-  </div>
+    <!-- Exercises -->
+    <section class="panel" id="exercises">
+      <h2>🧪 Your first practice tasks <span class="badge">small &amp; safe</span></h2>
+      <p>
+        Before bigger amounts are involved, you can practice with very small sums – no matter which path you choose later.
+      </p>
+      <ul>
+        <li>💸 Decide on a small “learning budget” (e.g. 10–20&nbsp;€) you’re willing to practice with.</li>
+        <li>📝 Write down where your main account is today and whether you already use any crypto access.</li>
+        <li>🧭 Mark on a piece of paper which building blocks you already have (IBAN, exchange, wallet) – and which are missing.</li>
+      </ul>
+      <p class="foot">
+        These tasks are meant to give you clarity – not pressure. It’s about knowing where you stand.
+      </p>
+    </section>
 
-  <!-- Intro -->
-  <div class="panel">
-    <h2 style="color:var(--gold);text-align:center;margin-bottom:14px;font-size:26px;">Financial sovereignty — not a dream, a path</h2>
-    <p style="color:var(--muted);max-width:900px;margin:0 auto 14px;text-align:center;font-size:1.05rem;line-height:1.6;">
-      Financial sovereignty means: no one but you decides over your money, your access, your choices.
-      No bank, no state, no algorithm that can lock you out.
-    </p>
-    <p style="color:var(--muted);max-width:900px;margin:0 auto 14px;text-align:center;font-size:1.05rem;line-height:1.6;">
-      With <strong style="color:var(--gold);">Trustyfy</strong> this becomes real.
-      You get your own IBAN, swap FIAT directly to crypto and keep full control —
-      no app-store gatekeeping, no intermediaries, no permission.
-    </p>
-    <ul style="color:var(--muted);max-width:700px;margin:0 auto 14px;font-size:1rem;line-height:1.6;text-align:left;">
-      <li>🚀 Leave a system that can freeze or block you at any time.</li>
-      <li>🌍 Enter a global financial network that belongs to no one — yet is open to all.</li>
-      <li>🧠 Build safety through knowledge and responsibility instead of institutions.</li>
-      <li>🔑 Learn what it means to truly own your money.</li>
-    </ul>
-    <blockquote style="max-width:700px;margin:18px auto 0;padding-left:16px;border-left:3px solid var(--gold);font-style:italic;color:var(--muted);">
-      “Freedom isn’t a gift. It starts when you decide to take control yourself.”
-    </blockquote>
-  </div>
+    <!-- Mentor & checklist -->
+    <section class="panel" id="mentor">
+      <h2>🤝 Talk to your mentor – guiding questions</h2>
+      <div class="two-columns">
+        <div>
+          <p>
+            The Academy explains models, paths and risks – it does not replace personal decisions.
+            That’s where your mentor comes in: someone who has their own experience and can show you examples.
+          </p>
+          <p>
+            Your mentor may show you their personal combination of bank, FinTech, crypto provider and wallet –
+            but in the end <strong>you</strong> decide. At your pace, with your sense of safety.
+          </p>
+        </div>
+        <div>
+          <ul class="q-list">
+            <li><span class="q-label">Question 1</span>What does my current setup look like (account, app, any crypto)?</li>
+            <li><span class="q-label">Question 2</span>Which of the three paths (A/B/C) best fits my situation?</li>
+            <li><span class="q-label">Question 3</span>With which very small amounts can I practice safely?</li>
+            <li><span class="q-label">Question 4</span>How do I move towards more self-custody (own wallet) step by step?</li>
+          </ul>
+        </div>
+      </div>
+      <p class="foot">
+        The FSA Academy is provider-neutral. Concrete providers are your choice together with your mentor –
+        based on knowledge, not advertising.
+      </p>
+    </section>
 
-  <!-- What you accomplish -->
-  <div class="panel" style="text-align:center;">
-    <h2 style="color:var(--gold);margin-bottom:14px;font-size:26px;">🧭 What you’ll complete <span class="badge">Ready</span></h2>
-    <ul style="list-style:none;padding:0;max-width:700px;margin:0 auto;text-align:left;color:var(--muted);line-height:1.6;font-size:1.05rem;">
-      <li>✅ Open a <b>trustyfy</b> account and pass KYC.</li>
-      <li>🏦 Get your own <b>IBAN</b> — deposit/withdraw via bank transfer.</li>
-      <li>💱 Swap Euros to <b>crypto</b> (on-ramp) — and back (off-ramp).</li>
-      <li>📊 Transparency: fees, networks, slippage — visible.</li>
-      <li>🔑 Full control: your money, your path — no app-store lock-ins.</li>
-    </ul>
-    <p class="foot">
-      Tip: open trustyfy in a new tab and follow the slides step by step.
-      <a class="link" href="https://app.trustyfy.com?by=101eqr" target="_blank" rel="noopener">app.trustyfy.com</a>
-    </p>
-  </div>
-
-  <!-- Slideshow -->
-  <div class="panel">
-    <div class="stage" id="stage">
-      <div class="loader" id="loader">Loading slides…</div>
-      <img src="/lp-anfang/krypto/images/slide-01.jpg" alt="Slide 1" class="slide active" id="fallback" loading="eager" decoding="async" fetchpriority="high">
-      <div class="nav" id="nav"></div>
-    </div>
-    <div class="control-bar">
-      <button class="ctrl-btn" id="prev">◀ Back</button>
-      <button class="ctrl-btn" id="next">Next ▶</button>
-    </div>
-  </div>
-
-  <!-- Mentor -->
-  <div class="panel">
-    <h2 style="color:var(--gold);text-align:center;margin-bottom:16px;">🎉 Strong move — welcome to financial self-reliance</h2>
-    <p style="color:var(--muted);max-width:880px;margin:0 auto 16px;text-align:center;font-size:1.05rem;line-height:1.6;">
-      You’ve built your <strong>own financial infrastructure</strong>. From now on you’re not a spectator — you’re in control.
-    </p>
-    <p style="color:var(--muted);max-width:880px;margin:0 auto 16px;text-align:center;font-size:1.05rem;line-height:1.6;">
-      A mentor would say: <em>“That wasn’t a small click — that was a decision for freedom.”</em>
-    </p>
+    <!-- Navigation -->
+    <section class="panel">
+      <div class="nav-row">
+        <a href="/lp-anfang/krypto-en.html">← Back to crypto overview</a>
+        <a href="/lp-anfang/steps/step2-en.html">Go to Step 2 – Centralised or decentralised? →</a>
+      </div>
+    </section>
   </div>
 
-  <!-- Tasks -->
-  <div class="panel">
-    <h2 style="color:var(--gold);text-align:center;margin-bottom:16px;">🧪 First exercises</h2>
-    <ul style="color:var(--muted);max-width:700px;margin:0 auto;font-size:1.05rem;line-height:1.6;">
-      <li>💸 <b>Deposit</b> a small amount (e.g., €10) to learn the flow.</li>
-      <li>🔄 <b>Swap</b> to a cryptocurrency of your choice — and back to Euros.</li>
-      <li>🚀 <b>Test</b> a transfer: send a tiny amount to yourself or a partner.</li>
-    </ul>
-    <p style="text-align:center;color:var(--muted);margin-top:12px;">
-      👉 These drills build confidence — before it really matters.
-    </p>
-  </div>
+  <!-- Global scripts -->
+  <script src="/lp-anfang/library/js/menu.js?v=20251109"></script>
+  <script src="/lp-anfang/library/js/lang-switcher.js?v=20251109"></script>
+  <script src="/lp-anfang/library/js/music-button.js?v=20251109"></script>
+  <script src="/lp-anfang/library/js/topbar-autohide.js?v=20251109"></script>
 
-  <!-- FAQ -->
-  <div class="panel">
-    <h2 style="color:var(--gold);text-align:center;margin-bottom:10px;">❓ FAQ</h2>
-    <p style="text-align:center;color:var(--muted);margin-bottom:20px;">💡 Tap a question to reveal the answer.</p>
-    <div style="max-width:880px;margin:0 auto;">
-      <details><summary>⏳ How long does a bank deposit take?</summary><p>Usually 1–2 business days, depending on your bank.</p></details>
-      <details><summary>🪪 Do I need KYC every time?</summary><p>No. After initial setup your account stays verified.</p></details>
-      <details><summary>💸 What are the fees?</summary><p>Transparent in the app — no hidden costs.</p></details>
-      <details><summary>🔐 Can my account be frozen?</summary><p>Not by banks — you’re in control.</p></details>
-      <details><summary>✍️ What if I mistype an address?</summary><p>On-chain transfers are final. Always double-check.</p></details>
-      <details><summary>🧠 How safe is my balance?</summary><p>Trustyfy is regulated and uses cryptography — your knowledge is key.</p></details>
-      <details><summary>💱 Can I off-ramp back to fiat?</summary><p>Yes, you can withdraw to Euros anytime.</p></details>
-      <details><summary>🔑 Do I need a hardware wallet?</summary><p>Recommended for larger amounts — for starters your account is fine.</p></details>
-      <details><summary>🔐 What if I forget my password?</summary><p>Secure reset with your verified data.</p></details>
-      <details><summary>⚖️ Is all this legal?</summary><p>Yes. You exercise your right to financial self-determination.</p></details>
-    </div>
-  </div>
-
-  <!-- Next -->
-  <div class="panel" style="text-align:center;">
-    <h2 style="color:var(--gold);margin-bottom:14px;">🚀 Next step</h2>
-    <p style="color:var(--muted);max-width:800px;margin:0 auto 20px;font-size:1.05rem;line-height:1.6;">
-      You’ve set the foundation. Next: turn knowledge into practice — consciously and with a system.
-    </p>
-    <a class="btn btn-primary" href="./step2-en.html" data-internal style="font-size:1.1rem;">Continue to Step 2 →</a>
-  </div>
-</div>
-
-<!-- Global JS (local) -->
-<script src="/lp-anfang/library/js/menu.js"></script>
-<script src="/lp-anfang/library/js/lang-switcher.js"></script>
-<script src="/lp-anfang/library/js/music-button.js"></script>
-<script src="/lp-anfang/library/js/topbar-autohide.js"></script>
-
-<!-- FSA Lang-Bridge: krypto-step1 ↔ step1-en -->
-<script>
-(function () {
-  const KEY = 'fsa_lang';
-
-  function targetFor(lang){
-    const p = location.pathname;
-    if (/\/lp-anfang\/steps\/krypto-step1\.html$/.test(p) && lang === 'en') {
-      return '/lp-anfang/steps/step1-en.html';
+  <!-- Language bridge -->
+  <script>
+  (function () {
+    const KEY='fsa_lang';
+    const path=location.pathname;
+    function counterpart(p,to){
+      let m;
+      m=p.match(/\/steps\/krypto-step(\d+)\.html$/);
+      if(m && to==='en') return `/lp-anfang/steps/step${m[1]}-en.html`;
+      m=p.match(/\/steps\/step(\d+)-en\.html$/);
+      if(m && to==='de') return `/lp-anfang/steps/krypto-step${m[1]}.html`;
+      if(p.endsWith('/lp-anfang/krypto.html') && to==='en') return '/lp-anfang/krypto-en.html';
+      if(p.endsWith('/lp-anfang/krypto-en.html') && to==='de') return '/lp-anfang/krypto.html';
+      return null;
     }
-    if (/\/lp-anfang\/steps\/step1-en\.html$/.test(p) && lang === 'de') {
-      return '/lp-anfang/steps/krypto-step1.html';
+    function go(lang){
+      const target = counterpart(path,(lang||'de').toLowerCase());
+      if(target) location.assign(target+location.search+location.hash);
     }
-    if (p.endsWith('/lp-anfang/krypto.html') && lang === 'en') return '/lp-anfang/krypto-en.html';
-    if (p.endsWith('/lp-anfang/krypto-en.html') && lang === 'de') return '/lp-anfang/krypto.html';
-    return null;
-  }
-
-  function go(lang){
-    const t = targetFor((lang||'de').toLowerCase());
-    if (t) location.assign(t + location.search + location.hash);
-  }
-
-  try{
-    const pref = localStorage.getItem(KEY) || 'de';
-    const isEN  = /\/en\.html$|\/krypto-en\.html$/.test(location.pathname);
-    if ((pref === 'en' && !isEN) || (pref === 'de' && isEN)) go(pref);
-  }catch(e){}
-
-  document.addEventListener('fsa:lang-change', ev => go(ev.detail || 'de'));
-  window.addEventListener('storage', ev => { if (ev.key === KEY) go(ev.newValue); });
-})();
-</script>
-
-<!-- ===== Slideshow JPG-only (fast, no cache-buster) ===== -->
-<script>
-(function(){
-  const BASE = "/lp-anfang/krypto/images/slide-";
-  const EXT  = ".jpg";
-  const MAX  = 200;          // hard upper bound
-  const MISS_LIMIT = 5;      // stop after 5 consecutive holes
-  const FIRST_EAGER = 2;     // #1-2 eager, rest lazy
-
-  const stage = document.getElementById('stage');
-  const nav   = document.getElementById('nav');
-  const prev  = document.getElementById('prev');
-  const next  = document.getElementById('next');
-  const loader= document.getElementById('loader');
-  const fallback=document.getElementById('fallback');
-
-  const slides=[]; const dots=[]; let idx=0;
-  const pad2 = n => String(n).padStart(2,'0');
-
-  function probe(src){
-    return new Promise(res=>{
-      const im=new Image();
-      im.onload=()=>res(true);
-      im.onerror=()=>res(false);
-      im.src=src; // no cache-buster -> faster
-    });
-  }
-
-  async function build(){
-    let misses=0; const found=[];
-    for(let i=1;i<=MAX && misses<MISS_LIMIT;i++){
-      const src = `${BASE}${pad2(i)}${EXT}`;
-      if(i===1){ found.push(src); misses=0; continue; } // #1 exists as fallback
-      if(await probe(src)){ found.push(src); misses=0; } else { misses++; }
-    }
-
-    if(fallback) fallback.remove();
-    if(loader) loader.remove();
-
-    found.forEach((src,i)=>{
-      const img=document.createElement('img');
-      img.src=src; img.alt=`Slide ${i+1}`;
-      img.className='slide'+(i===0?' active':'');
-      img.loading = i < FIRST_EAGER ? 'eager' : 'lazy';
-      img.decoding='async';
-      slides.push(img);
-      stage.insertBefore(img,nav);
-
-      const b=document.createElement('button');
-      b.className='dot'+(i===0?' active':'');
-      b.addEventListener('click',()=>show(i));
-      nav.appendChild(b); dots.push(b);
-    });
-    updateCounter();
-  }
-
-  function show(i){
-    if(!slides.length) return;
-    slides[idx].classList.remove('active');
-    dots[idx]?.classList.remove('active');
-    idx=(i+slides.length)%slides.length;
-    slides[idx].classList.add('active');
-    dots[idx]?.classList.add('active');
-    updateCounter();
-  }
-
-  const counter=document.createElement('div');
-  counter.style.cssText="position:absolute;bottom:20px;right:20px;padding:6px 10px;border-radius:8px;background:rgba(0,0,0,.6);color:#f2c94c;font-weight:600;font-size:14px;font-family:system-ui";
-  stage.appendChild(counter);
-  function updateCounter(){ counter.textContent=`${idx+1} / ${slides.length||0}`; }
-
-  prev.addEventListener('click',()=>show(idx-1));
-  next.addEventListener('click',()=>show(idx+1));
-
-  build();
-})();
-</script>
-
-<!-- ===== Affiliate Flow (Trustyfy) ===== -->
-<script>
-(function(){
-  const WHITELIST = ['app.trustyfy.com'];      // only this domain
-  const KEY = 'trustyfy_affiliate_url';        // shared with DE page
-
-  const ctaOpen    = document.getElementById('ctaOpen');
-  const ctaShare   = document.getElementById('ctaShare');
-  const affBar     = document.getElementById('affBar');
-  const affInput   = document.getElementById('affInput');
-  const affSave    = document.getElementById('affSaveOpen');
-  const affCancel  = document.getElementById('affCancel');
-  const affError   = document.getElementById('affError');
-  const toast      = document.getElementById('toast');
-  const tSaved     = document.getElementById('tSaved');
-  const tCopied    = document.getElementById('tCopied');
-  const tShared    = document.getElementById('tShared');
-  const tReset     = document.getElementById('tReset');
-  const tFromUrl   = document.getElementById('tFromUrl');
-  const btnReset   = document.getElementById('affReset');
-
-  function isValidUrl(u){
     try{
-      const url = new URL(u);
-      const okHost = WHITELIST.includes(url.hostname);
-      const okProto = (url.protocol==='https:'||url.protocol==='http:');
-      return okHost && okProto;
-    }catch(e){ return false; }
-  }
-  function getSaved(){ try{return localStorage.getItem(KEY)||'';}catch(e){return '';} }
-  function saveUrl(u){ try{ localStorage.setItem(KEY,u); }catch(e){} }
-  function clearUrl(){ try{ localStorage.removeItem(KEY); }catch(e){} }
-
-  function showToast(which){
-    [tSaved,tCopied,tShared,tReset,tFromUrl].forEach(n=>n.style.display='none');
-    if(which) which.style.display='inline';
-    toast.classList.add('show');
-    setTimeout(()=>toast.classList.remove('show'), 1500);
-  }
-
-  function showAffBar(prefill){
-    affInput.value = prefill || '';
-    affBar.classList.add('open'); affBar.setAttribute('aria-hidden','false');
-    document.body.style.overflow='hidden';
-    affError.style.display='none';
-    setTimeout(()=>{try{affInput.focus();affInput.select();}catch(e){}},10);
-  }
-  function hideAffBar(){
-    affBar.classList.remove('open'); affBar.setAttribute('aria-hidden','true');
-    document.body.style.overflow='';
-    affError.style.display='none';
-  }
-
-  // Open (prefer saved link; otherwise request it)
-  ctaOpen.addEventListener('click', (e)=>{
-    e.preventDefault();
-    const link = getSaved();
-    if(!isValidUrl(link)){ showAffBar(link); return; }
-    window.open(link, '_blank', 'noopener');
-  });
-
-  // Share / Copy
-  ctaShare.addEventListener('click', async ()=>{
-    const link = getSaved();
-    if(!isValidUrl(link)){ showAffBar(link); return; }
-    try{
-      if(navigator.share){
-        await navigator.share({title:'trustyfy – referral', text:'Here is my trustyfy link:', url:link});
-        showToast(tShared);
-      }else if(navigator.clipboard && navigator.clipboard.writeText){
-        await navigator.clipboard.writeText(link); showToast(tCopied);
-      }else{
-        const ta=document.createElement('textarea'); ta.value=link; ta.style.position='fixed'; ta.style.top='-2000px';
-        document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-        showToast(tCopied);
-      }
-    }catch(e){ /* user cancelled share – no op */ }
-  });
-
-  // Save / Cancel
-  affSave.addEventListener('click', ()=>{
-    const val = (affInput.value||'').trim();
-    if(!isValidUrl(val)){ affError.style.display='block'; return; }
-    saveUrl(val); hideAffBar(); showToast(tSaved);
-  });
-  affCancel.addEventListener('click', hideAffBar);
-  window.addEventListener('keydown', e=>{ if(e.key==='Escape' && affBar.classList.contains('open')) hideAffBar(); });
-
-  // Reset
-  btnReset.addEventListener('click', ()=>{
-    clearUrl(); showAffBar(''); showToast(tReset);
-  });
-
-  // Prefill via ?aff=
-  (function(){
-    const q=new URLSearchParams(location.search);
-    const aff=q.get('aff');
-    if(!aff) return;
-    const candidate = aff.trim();
-    if(isValidUrl(candidate)){ saveUrl(candidate); showToast(tFromUrl); }
-    else{ showAffBar(candidate); }
-  })();
-})();
-</script>
-
-<!-- nocache for internal links -->
-<script>
-(function(){
-  const t=Date.now();
-  document.querySelectorAll('a[data-internal]').forEach(a=>{
-    try{
-      const u=new URL(a.getAttribute('href'),location.href);
-      u.searchParams.set('nocache',t);
-      a.href=u.pathname+u.search+u.hash;
+      const pref=localStorage.getItem(KEY)||'de';
+      const isEN=/-en\.html$/.test(path)||/krypto-en\.html$/.test(path);
+      if((pref==='en' && !isEN) || (pref==='de' && isEN)) go(pref);
     }catch(e){}
-  });
-})();
-</script>
+    document.addEventListener('fsa:lang-change', ev => go(ev.detail || (localStorage.getItem(KEY)||'de')));
+    window.addEventListener('storage', ev => { if(ev.key===KEY) go(ev.newValue); });
+  })();
+  </script>
 </body>
 </html>
