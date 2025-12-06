@@ -9,7 +9,7 @@
 
 (function () {
   // ============================================================
-  // 1) DATEN – DE (1:1) + EN (sinngemäß)
+  // 1) DATEN – DE (1:1, Trustyfy neutralisiert) + EN (sinngemäß)
   // ============================================================
   const COMMUNITY_CONTENT = {
     de: {
@@ -72,7 +72,7 @@
                 "Hallo [Name],",
                 "unsere Treffen sind offen für alle, die mehr aus ihrem Gehalt und ihrer Zeit machen wollen.",
                 "Wir sprechen über Geldflüsse, digitale Freiheit und den Wert von Selbstbestimmung.",
-                "FSA & Trustyfy zeigen gemeinsam, wie man sich unabhängig absichert – auch ohne große Vorkenntnisse.",
+                "Die FSA-Akademie zeigt zusammen mit passenden dezentralen Lösungen, wie man sich unabhängig absichert – auch ohne große Vorkenntnisse.",
                 "Bist du neugierig? Ich halte dir einen Platz frei.",
                 "Herzliche Grüße – [Dein Name]"
               ]
@@ -107,7 +107,7 @@
                 "Skript:",
                 "„Hallo [Name], viele Menschen funktionieren nur noch – Arbeit, Rechnungen, Wiederholung.",
                 "Beim „Neue Perspektive Treff“ reden wir darüber, wie man Geld und Sicherheit versteht – nicht nur verdient.",
-                "Die FSA-Akademie erklärt, was im Hintergrund passiert, und Trustyfy zeigt, wie du dein Einkommen unabhängiger machst.",
+                "Die FSA-Akademie erklärt, was im Hintergrund passiert, und dezentrale Lösungen zeigen, wie du dein Einkommen unabhängiger machst.",
                 "Keine Theorie, keine Fachwörter – nur Klartext.",
                 "Ich lade dich ein, dir das einmal anzuhören – der Austausch hilft vielen schon nach dem ersten Abend.“"
               ]
@@ -124,7 +124,7 @@
                 "„Viele Menschen spüren, dass sich etwas ändert – KI, Inflation, neue Regeln.",
                 "Aber niemand sagt, wie man sich vorbereitet.",
                 "Beim FSA-Treff zeigen wir, wie man Verständnis aufbaut und Schritt für Schritt finanziell selbstbestimmter wird.",
-                "Trustyfy macht es technisch einfach, die FSA-Akademie erklärt den Rest.",
+                "Ein dezentrales Setup macht den technischen Teil einfach, die FSA-Akademie erklärt den Rest.",
                 "Ein Abend, und du gehst mit neuer Ruhe nach Hause.",
                 "Hast du Lust, dir das einmal anzusehen?“"
               ]
@@ -155,7 +155,7 @@
                 "Skript:",
                 "„Unsere Treffen finden regelmäßig statt – meist alle zwei Wochen.",
                 "Viele kommen nach dem ersten Abend wieder, weil sie merken: Es tut gut, nicht allein zu sein mit den eigenen Fragen.",
-                "FSA liefert Verständnis, Trustyfy liefert Stabilität, die Gruppe liefert Mut.",
+                "FSA liefert Verständnis, dezentrale Strukturen liefern Stabilität, die Gruppe liefert Mut.",
                 "Wenn du willst, bist du beim nächsten Treff dabei – ich schick dir den Termin.“"
               ]
             }
@@ -186,7 +186,7 @@
             {
               title: "Snippet 4",
               body: [
-                "„FSA & Trustyfy – deine Werkzeuge für ein sicheres Morgen.“"
+                "„FSA & dezentrale Lösungen – deine Werkzeuge für ein sicheres Morgen.“"
               ]
             }
           ]
@@ -195,7 +195,7 @@
     },
 
     // ============================================================
-    // EN – sinngemäß für dieselbe Struktur
+    // EN – sinngemäß für dieselbe Struktur (Trustyfy neutralisiert)
     // ============================================================
     en: {
       title: "📘 Target Group 2 – Employees & Professionals",
@@ -257,7 +257,7 @@
                 "Hi [Name],",
                 "our meetups are open to anyone who wants to get more out of their salary and time.",
                 "We talk about money flows, digital freedom and the value of self-determination.",
-                "FSA & Trustyfy together show how to secure yourself independently – even without much prior knowledge.",
+                "FSA plus decentralized solutions together show how to secure yourself independently – even without much prior knowledge.",
                 "Curious? I’ll keep a seat for you.",
                 "Kind regards, [Your name]"
               ]
@@ -292,7 +292,7 @@
                 "Script:",
                 "“Hi [Name], a lot of people are just running – work, bills, repeat.",
                 "In our “New Perspective” meetup we talk about how to actually understand money and safety – not just earn it.",
-                "The FSA Academy explains what’s happening in the background, and Trustyfy shows how to make your income more independent.",
+                "The FSA Academy explains what’s happening in the background, and decentralized setups show how to make your income more independent.",
                 "No theory, no buzzwords – just plain talk.",
                 "I’d like to invite you – for many people one evening was already enough to calm things down.”"
               ]
@@ -308,7 +308,7 @@
                 "“Many people feel things are changing – AI, inflation, new rules.",
                 "But nobody tells them how to prepare.",
                 "At the FSA meetup we show how to build understanding and become more financially self-determined step by step.",
-                "Trustyfy makes the technical part easy, the FSA Academy explains the rest.",
+                "A decentralized setup makes the technical part easy, the FSA Academy explains the rest.",
                 "After one evening people often leave with more peace.",
                 "Would you like to join the next one?”"
               ]
@@ -338,7 +338,7 @@
                 "Script:",
                 "“Our meetups take place regularly – usually every two weeks.",
                 "Many come back after the first evening, because it simply feels good not to be alone with your questions.",
-                "FSA provides understanding, Trustyfy provides stability, the group provides courage.",
+                "FSA provides understanding, decentralized structures provide stability, the group provides courage.",
                 "If you want, I’ll send you the date for the next meetup.”"
               ]
             }
@@ -369,7 +369,7 @@
             {
               title: "Snippet 4",
               body: [
-                "“FSA & Trustyfy – your tools for a safer tomorrow.”"
+                "“FSA & decentralized solutions – your tools for a safer tomorrow.”"
               ]
             }
           ]
