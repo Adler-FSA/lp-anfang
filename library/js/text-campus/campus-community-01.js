@@ -11,14 +11,14 @@
 
 (function () {
   // --------------------------------------------------------------------
-  // 1) DATEN – DE immer 1:1 aus deiner Vorlage
+  // 1) DATEN – DE immer 1:1 aus deiner Vorlage (Trustyfy neutralisiert)
   // --------------------------------------------------------------------
   const COMMUNITY_CONTENT = {
     // ░░ DEUTSCH ░░
     de: {
       title: "📊 Zielgruppe 1 – Firmen & Geschäftsführer (Unternehmer-Treff)",
       subtitle:
-        "In einer Welt, die sich digitalisiert und beschleunigt, braucht echte Führung wieder persönliche Begegnung. Der Unternehmer-Treff bringt Gleichgesinnte zusammen – für Austausch, Kooperation und Weitblick. Die FSA-Akademie vermittelt das Verständnis, Trustyfy liefert die Struktur für stabile, dezentrale Werte.",
+        "In einer Welt, die sich digitalisiert und beschleunigt, braucht echte Führung wieder persönliche Begegnung. Der Unternehmer-Treff bringt Gleichgesinnte zusammen – für Austausch, Kooperation und Weitblick. Die FSA-Akademie vermittelt das Verständnis, und wir zeigen Wege zu stabilen, dezentral organisierten Werten.",
       blocks: [
         // ─────────────────────────────────────────────
         // 1. Messenger-Vorlagen
@@ -41,7 +41,7 @@
               body: [
                 "Strategie entsteht selten im stillen Kämmerlein.",
                 "Unsere Treffen bringen Perspektiven zusammen – von Geschäftsführung bis Start-up.",
-                "FSA zeigt, wie dezentrale Systeme Stabilität schaffen – Trustyfy zeigt, wie man sie praktisch nutzt.",
+                "Die FSA-Akademie zeigt, wie dezentrale Systeme Stabilität schaffen – und wie Unternehmen sie praktisch nutzen können.",
                 "➡️ Wenn du Lust auf Impulse statt Vorträge hast, komm vorbei."
               ]
             },
@@ -77,10 +77,10 @@
             {
               title: "E-Mail 2 – „Strategie im Wandel“",
               body: [
-                "Betreff: Vertrauen statt Unsicherheit – FSA & Trustyfy",
+                "Betreff: Vertrauen statt Unsicherheit – FSA & Dezentralität",
                 "Hallo [Name],",
                 "die Märkte ändern sich, aber Prinzipien bleiben: Verständnis, Transparenz, Sicherheit.",
-                "FSA & Trustyfy verbinden diese Dreiheit.",
+                "Die FSA-Akademie und dezentrale Strukturen verbinden diese Dreiheit.",
                 "Beim nächsten Unternehmer-Treff zeigen wir konkrete Wege zur digitalen Selbstbestimmung.",
                 "Ich freue mich, wenn Sie dabei sind."
               ]
@@ -131,7 +131,7 @@
                 "„Hallo [Name], viele Unternehmen digitalisieren, aber kaum jemand prüft, wie sicher die Systeme wirklich sind.",
                 "Die meisten Abläufe laufen über Plattformen, die uns gar nicht gehören – und genau da liegt das Risiko.",
                 "Beim FSA-Unternehmer-Treff zeigen wir, wie man finanzielle und digitale Verantwortung zurück ins eigene Haus holt.",
-                "Die FSA-Akademie liefert das Verständnis, Trustyfy die praktische Umsetzung.",
+                "Die FSA-Akademie liefert das Verständnis, passende dezentrale Lösungen sorgen für die praktische Umsetzung.",
                 "Wer jetzt handelt, sichert sich Vorteile, bevor neue Regeln kommen.",
                 "Wäre das ein Thema für Sie?“"
               ]
@@ -189,7 +189,7 @@
             },
             {
               title: "Snippet 4",
-              body: ["„FSA & Trustyfy – die Brücke zwischen Idee und Sicherheit.“"]
+              body: ["„FSA & dezentrale Lösungen – die Brücke zwischen Idee und Sicherheit.“"]
             }
           ]
         }
@@ -200,7 +200,7 @@
     en: {
       title: "📊 Target Group 1 – Companies & Executives (Entrepreneurs’ Meetup)",
       subtitle:
-        "In a world that accelerates and digitizes, real leadership needs personal connection again. The Entrepreneurs’ Meetup brings together like-minded people – for exchange, cooperation and foresight. FSA provides the understanding, Trustyfy provides the structure for stable, decentralized value.",
+        "In a world that accelerates and digitizes, real leadership needs personal connection again. The Entrepreneurs’ Meetup brings together like-minded people – for exchange, cooperation and foresight. FSA provides the understanding, and we explore structures for stable, decentralized value.",
       blocks: [
         {
           type: "section",
@@ -220,7 +220,7 @@
               body: [
                 "Strategy rarely grows in isolation.",
                 "Our meetings bring together perspectives – from established CEOs to young founders.",
-                "FSA shows how decentralized systems create stability – Trustyfy shows how to implement them.",
+                "FSA shows how decentralized systems create stability – and how companies can implement them in practice.",
                 "➡️ If you prefer impulses over lectures, this format is for you."
               ]
             },
@@ -252,10 +252,10 @@
             {
               title: "Email 2 – “Strategy in motion”",
               body: [
-                "Subject: Trust instead of uncertainty – FSA & Trustyfy",
+                "Subject: Trust instead of uncertainty – FSA & decentralization",
                 "Hi [Name],",
                 "markets change – principles don’t: understanding, transparency, security.",
-                "FSA & Trustyfy combine these three.",
+                "FSA and decentralized structures combine these three.",
                 "At the next meetup we’ll show concrete ways to reach digital self-sovereignty.",
                 "Would be great to have you join."
               ]
@@ -302,7 +302,7 @@
                 "“Hi [Name], many companies digitize – but very few check how secure their setup really is.",
                 "Most processes run on platforms we don’t own – that’s where the risk sits.",
                 "At the meetup we show how to bring financial and digital responsibility back into your own structure.",
-                "FSA explains the ‘why’, Trustyfy shows the ‘how’.",
+                "FSA explains the ‘why’, real decentralized setups show the ‘how’.",
                 "Acting now means being prepared before new rules arrive.",
                 "Would that be relevant to you?”"
               ]
@@ -345,7 +345,7 @@
             { title: "Snippet 1", body: ["“Real leadership starts with understanding – not with control.”"] },
             { title: "Snippet 2", body: ["“Entrepreneurs meet – not to sell, but to understand.”"] },
             { title: "Snippet 3", body: ["“Freedom in business means sharing knowledge, not hiding it.”"] },
-            { title: "Snippet 4", body: ["“FSA & Trustyfy – the bridge between idea and security.”"] }
+            { title: "Snippet 4", body: ["“FSA & decentralized solutions – the bridge between idea and security.”"] }
           ]
         }
       ]
