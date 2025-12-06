@@ -48,8 +48,8 @@
                 "Ein souveräner Mensch handelt nach eigenen Prinzipien. Nicht nach Stimmungen, sondern nach Werten.",
                 "Werte sind kein Schmuck, sie sind Betriebssystem. Die Akademie hilft, sie zu formulieren: Was ist für dich nicht verhandelbar?",
                 "Fairness? Transparenz? Zeit für Familie?",
-                "Trustyfy funktioniert genau so: jedes Handeln ist sichtbar, weil es auf definierten Prinzipien beruht.",
-                "Kein Zwang, keine versteckte Agenda. So wird Technik zum Spiegel deines Bewusstseins."
+                "Gerechte Systeme funktionieren genauso: jedes Handeln ist sichtbar, weil es auf klar definierten Prinzipien beruht.",
+                "Kein Zwang, keine versteckte Agenda – Strukturen werden zum Spiegel deines Bewusstseins."
               ]
             }
           ]
@@ -64,7 +64,7 @@
                 "Persönliche Souveränität bedeutet, Grenzen zu erkennen und freundlich zu verteidigen.",
                 "„Heute nicht.“ ist kein Rückzug, sondern Gesetzgebung in eigener Sache.",
                 "Artikel 1 GG – Würde – beginnt genau dort.",
-                "Trustyfy nennt das Permission Layer: jeder Zugriff braucht Zustimmung. Gleiches gilt für dein Leben."
+                "In guten digitalen Systemen nennt man das „Permission Layer“: jeder Zugriff braucht Zustimmung. Gleiches gilt für dein Leben."
               ]
             }
           ]
@@ -138,8 +138,8 @@
                 "A sovereign person acts by principle, not by mood.",
                 "Values aren’t decoration – they are the operating system.",
                 "The Academy helps you define them: What for you is non-negotiable? Fairness? Transparency? Time for family?",
-                "Trustyfy works by the same logic: every action is visible because it’s based on clear principles.",
-                "No coercion, no hidden agenda. Technology becomes a mirror of awareness."
+                "Well-designed systems work the same way: every action is visible because it’s based on clear principles.",
+                "No coercion, no hidden agenda – structures become a mirror of awareness."
               ]
             }
           ]
@@ -153,7 +153,7 @@
                 "Personal sovereignty means recognizing and kindly defending your limits.",
                 "“Not today.” isn’t withdrawal – it’s legislation in your own name.",
                 "Article 1 of the Constitution – dignity – begins there.",
-                "Trustyfy calls this the Permission Layer: every access requires consent. The same applies to your life."
+                "In good digital setups this is called a “permission layer”: every access requires consent. The same applies to your life."
               ]
             }
           ]
