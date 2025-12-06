@@ -44,7 +44,7 @@
                 "Budgetieren, investieren, diversifizieren – alles gut, aber ohne Bewusstheit bleiben es Tools.",
                 "Die Akademie lehrt den Unterschied zwischen Besitz und Zugriff. Besitz ist juristisch; Zugriff ist real.",
                 "Viele merken das erst, wenn ein Konto gesperrt wird oder eine Wallet leer ist.",
-                "Trustyfy löst das anders: dezentrale Beteiligung, nachvollziehbare Buchung, kein blinder Mittelsmann.",
+                "Eine dezentrale Finanzstruktur löst das anders: transparente Beteiligung, nachvollziehbare Buchungen, kein blinder Mittelsmann.",
                 "So wird Ökonomie wieder Bildung – kein Glücksspiel."
               ]
             }
@@ -58,7 +58,7 @@
                 "Wenn Märkte fallen, sucht das Ego nach Kontrolle. Aber Souveränität zeigt sich in Ruhe, nicht im Aktionismus.",
                 "Wer Prinzipien hat – Liquidität aufgeteilt, Schuldenplan, klaren Fokus – bleibt handlungsfähig.",
                 "Die Akademie nennt das Antifragiles Denken: Systeme so bauen, dass sie von Stress lernen.",
-                "Trustyfy demonstriert es täglich – Transparenz ersetzt Panik."
+                "Ein klar dokumentiertes, dezentrales System zeigt es täglich – Transparenz ersetzt Panik."
               ]
             }
           ]
@@ -127,7 +127,7 @@
                 "Budgeting, investing, diversifying – all fine, but without awareness they stay tools.",
                 "The Academy teaches the difference between ownership and access. Ownership is legal; access is real.",
                 "Many realize that only when an account is frozen or a wallet emptied.",
-                "Trustyfy solves this differently: decentralized participation, transparent booking, no blind intermediary.",
+                "A decentralized financial structure approaches this differently: transparent participation, traceable bookings, no blind intermediary.",
                 "Economy becomes education again – not a gamble."
               ]
             }
@@ -141,7 +141,7 @@
                 "When markets fall, the ego seeks control. But sovereignty shows in calm, not in reaction.",
                 "Those with principles – distributed liquidity, a debt plan, clear focus – remain capable of action.",
                 "The Academy calls this antifragile thinking: systems built to learn from stress.",
-                "Trustyfy demonstrates it daily – transparency replaces panic."
+                "A clearly documented, decentralized setup proves it every day – transparency replaces panic."
               ]
             }
           ]
