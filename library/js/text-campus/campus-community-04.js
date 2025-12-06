@@ -22,7 +22,8 @@
     // ===================== DEUTSCH =====================
     de: {
       title: "❤️ Zielgruppe 4 – Alleinerziehende, Rentner & Studenten",
-      subtitle: "Drei Lebenssituationen, ein gemeinsamer Druck: Alles wird teurer, alles wird digitaler, alles wird kontrollierter. Diese Stammtische zeigen: Mit FSA (Verstehen) + Trustyfy (Technik) kann man trotzdem souverän bleiben.",
+      subtitle:
+        "Drei Lebenssituationen, ein gemeinsamer Druck: Alles wird teurer, alles wird digitaler, alles wird kontrollierter. Diese Stammtische zeigen: Mit FSA (Verstehen) + einer dezentralen Technik-Schicht kann man trotzdem souverän bleiben.",
       sections: [
         // ---------- 4A – Alleinerziehende ----------
         {
@@ -35,19 +36,19 @@
                 "„Ich weiß, wie es sich anfühlt, wenn man jeden Tag alles allein stemmen muss – Familie, Arbeit, Rechnungen.",
                 "Viele sagen, man solle einfach stark bleiben. Aber Stärke heißt, sich rechtzeitig selbst abzusichern.",
                 "Im FSA-Stammtisch lernst du, wie du dein Geld und dein Wissen so strukturierst, dass niemand dir etwas sperren oder nehmen kann.",
-                "Trustyfy schützt dein Einkommen technisch – die Akademie erklärt das Warum.",
+                "Eine dezentrale Lösung schützt dein Einkommen technisch – die Akademie erklärt das Warum.",
                 "➡️ Magst du beim nächsten Treffen reinschauen? Es geht nicht um Verkauf, sondern um Sicherheit.“",
                 "",
                 "Vorlage 2 – „Von Sorge zu Ruhe“",
                 "„Früher dachte ich, Sicherheit kommt von außen – heute weiß ich, sie beginnt bei mir.",
                 "Der FSA-Stammtisch ist mein Anker geworden: Dort reden Menschen offen über Geld, Familie und Verantwortung.",
-                "Trustyfy sorgt dafür, dass mein Einkommen wirklich mir gehört – keine Bank, kein Dritter, kein Zufall.",
+                "Ein dezentrales System sorgt dafür, dass mein Einkommen wirklich mir gehört – keine Bank, kein Dritter, kein Zufall.",
                 "➡️ Wenn du wissen willst, wie das geht, komm einfach vorbei oder online dazu.“",
                 "",
                 "Vorlage 3 – „Klarheit statt Chaos“",
                 "„Manchmal wird alles zu viel – und genau dann hilft Struktur.",
                 "Im FSA-Stammtisch lernst du, was finanzielle Souveränität praktisch bedeutet – verständlich, menschlich, ehrlich.",
-                "Trustyfy ist der technische Part – es schützt dein Einkommen, du bleibst handlungsfähig.",
+                "Eine dezentrale Struktur ist der technische Part – sie schützt dein Einkommen, du bleibst handlungsfähig.",
                 "➡️ Ein Abend, ein Gespräch, und du siehst klarer. Ich lade dich ein.“"
               ]
             },
@@ -60,7 +61,7 @@
                 "jeder Tag ist voll – Familie, Arbeit, Verpflichtungen. Oft bleibt kein Raum, an sich selbst zu denken.",
                 "Ich habe gelernt, dass Sicherheit nicht von Banken oder Gesetzen kommt, sondern von Wissen und Struktur.",
                 "Im kostenlosen FSA-Grundkurs und den Stammtischen findest du genau das – echte Aufklärung statt Versprechen.",
-                "Trustyfy schützt das, was du aufbaust – dezentral, unabhängig und sicher.",
+                "Eine dezentrale Lösung schützt das, was du aufbaust – unabhängig und sicher.",
                 "Wenn du magst, schick ich dir den Link oder lade dich zum nächsten Treffen ein.",
                 "Herzliche Grüße [Dein Name]",
                 "",
@@ -69,7 +70,7 @@
                 "Hallo [Name],",
                 "allein für alles zuständig zu sein kostet Kraft.",
                 "Der FSA-Stammtisch bietet eine Gemeinschaft, die versteht, was das bedeutet – und Wege zeigt, um wieder Balance zu finden.",
-                "Mit Trustyfy behältst du die Kontrolle über dein Geld, egal was Banken oder Systeme ändern.",
+                "Mit einer dezentralen Struktur behältst du die Kontrolle über dein Geld, egal was Banken oder Systeme ändern.",
                 "Es ist kein Risiko, nur Wissen – und das verändert alles.",
                 "Melde dich gern, wenn du teilnehmen willst.",
                 "Beste Grüße [Dein Name]",
@@ -79,7 +80,7 @@
                 "Hallo [Name],",
                 "ich weiß, dass du vieles gleichzeitig trägst – und genau darum ist Klarheit so wichtig.",
                 "Im FSA-Stammtisch sprechen wir offen über finanzielle Selbstbestimmung, Verantwortung und technische Lösungen.",
-                "Trustyfy sorgt dafür, dass dein Einkommen unter deiner Kontrolle bleibt – transparent und sicher.",
+                "Eine dezentrale Lösung sorgt dafür, dass dein Einkommen unter deiner Kontrolle bleibt – transparent und sicher.",
                 "Es geht um Wissen, nicht um Werbung.",
                 "Wenn du magst, bist du herzlich eingeladen.",
                 "Liebe Grüße [Dein Name]"
@@ -93,7 +94,7 @@
                 "„Hallo [Name], ich weiß, wie viel Kraft es kostet, alles allein zu tragen.",
                 "Viele leben im Dauerlauf und merken gar nicht, wie abhängig sie vom System sind.",
                 "Im FSA-Stammtisch zeigen wir, wie man Schritt für Schritt wieder Raum und Kontrolle zurückbekommt.",
-                "Trustyfy sichert das technisch ab – kein Fremdzugriff, kein Stillstand.",
+                "Eine dezentrale Lösung sichert das technisch ab – kein Fremdzugriff, kein Stillstand.",
                 "Das Gespräch ist kein Verkauf, sondern Hilfe zur Selbsthilfe.",
                 "Ich lade dich ein, beim nächsten Treffen dabei zu sein – online oder vor Ort.“",
                 "",
@@ -102,14 +103,14 @@
                 "„Hey [Name], viele von uns leben ständig unter Druck – Job, Familie, Finanzen.",
                 "Ich möchte dir zeigen, wie du durch Verständnis und Technik Ruhe in das Chaos bringst.",
                 "Im FSA-Treff lernst du, wie Geldflüsse wirklich laufen und wie du sie selbst lenkst.",
-                "Trustyfy gibt dir die technische Unabhängigkeit dazu.",
+                "Die dezentrale Technik-Schicht gibt dir die technische Unabhängigkeit dazu.",
                 "Ein kurzes Gespräch reicht – du entscheidest danach selbst, ob es für dich passt.“",
                 "",
                 "Leitfaden 3 – Klarheit gewinnen, Ruhe finden",
                 "🔹 Interne Anleitung: Von Überforderung zu Handlungsfähigkeit führen.",
                 "„Hallo [Name], viele denken, Sicherheit sei eine Frage des Einkommens – aber es ist eine Frage des Verstehens.",
                 "Wir zeigen, wie du deine Finanzen selbst strukturierst und Absicherung aufbaust, die dir wirklich gehört.",
-                "Mit Trustyfy bleibt dein Geld unter deiner Kontrolle – und das fühlt sich ganz anders an.",
+                "Mit einer dezentralen Lösung bleibt dein Geld unter deiner Kontrolle – und das fühlt sich ganz anders an.",
                 "Der FSA-Stammtisch ist dafür ein guter Startpunkt.",
                 "Ich erklär dir gern, wie du mitmachen kannst.“"
               ]
@@ -117,9 +118,9 @@
             {
               heading: "🔗 4. Share-Snippets",
               body: [
-                "1️⃣ „Sicherheit beginnt mit Verständnis – FSA zeigt den Weg, Trustyfy macht dich unabhängig.“",
+                "1️⃣ „Sicherheit beginnt mit Verständnis – FSA zeigt den Weg, eine dezentrale Struktur macht dich unabhängig.“",
                 "2️⃣ „Alleinerziehend heißt nicht allein – in der Community findest du Stärke und Wissen.“",
-                "3️⃣ „Weniger Sorge, mehr Selbstbestimmung – FSA und Trustyfy zeigen wie.“",
+                "3️⃣ „Weniger Sorge, mehr Selbstbestimmung – FSA und dezentrale Technik zeigen wie.“",
                 "4️⃣ „Ruhe kommt, wenn du verstehst – und handelst.“"
               ]
             }
@@ -137,19 +138,19 @@
                 "„Viele merken, wie schnell sich alles ändert – Banken, Gesetze, digitale Konten.",
                 "Doch Sicherheit heißt nicht, die Kontrolle abzugeben.",
                 "Im FSA-Stammtisch lernen wir, wie man finanzielle Selbstbestimmung auch im Alter bewahrt.",
-                "Trustyfy ist dafür das Werkzeug: dezentral, ruhig, verständlich.",
+                "Eine dezentrale Lösung ist dafür das Werkzeug: dezentral, ruhig, verständlich.",
                 "➡️ Ich zeige Ihnen gern, wie das funktioniert – keine Theorie, sondern Souveränität.“",
                 "",
                 "Vorlage 2 – „Ruhe durch Selbstverwaltung“",
                 "„Viele Rentner haben Angst, dass neue Regeln ihre Ersparnisse einschränken.",
                 "Im FSA-Treff erklären wir, wie Sie Ihr Geld selbst verwalten und vor Eingriffen schützen können.",
-                "Trustyfy bietet eine einfache Lösung – Sie bleiben Herr über Ihr Eigentum.",
+                "Eine dezentrale Struktur bietet eine einfache Lösung – Sie bleiben Herr über Ihr Eigentum.",
                 "➡️ Es geht nicht um Investments, sondern um Freiheit.“",
                 "",
                 "Vorlage 3 – „Souverän bis zum Schluss“",
                 "„Sicherheit bedeutet nicht Abhängigkeit – sondern Selbstbestimmung.",
                 "Mit der FSA-Akademie lernen Sie, Systeme zu verstehen und bewusst zu handeln.",
-                "Trustyfy sichert Ihre Werte ab – diskret und verlässlich.",
+                "Eine dezentrale Lösung sichert Ihre Werte ab – diskret und verlässlich.",
                 "➡️ Kommen Sie zum nächsten Stammtisch – wir erklären alles in Ruhe.“"
               ]
             },
@@ -161,7 +162,7 @@
                 "Sehr geehrter [Name],",
                 "wir leben in Zeiten großer Umbrüche. Banken digitalisieren, Regeln ändern sich – aber Sicherheit muss bleiben.",
                 "Im FSA-Stammtisch zeigen wir verständlich, wie Sie Ihr Geld selbst sichern können.",
-                "Trustyfy unterstützt dabei technisch – einfach, sicher, dezentral.",
+                "Eine dezentrale Technik-Schicht unterstützt dabei technisch – einfach, sicher, unabhängig.",
                 "Keine Verpflichtung, nur Wissen.",
                 "Ich würde mich freuen, Sie beim nächsten Treffen zu begrüßen.",
                 "Mit freundlichen Grüßen [Ihr Name]",
@@ -171,7 +172,7 @@
                 "Sehr geehrter [Name],",
                 "viele Menschen vertrauen blind auf Systeme, die sich ständig ändern.",
                 "Im FSA-Treff lernen Sie, diese Zusammenhänge zu verstehen und eigene Wege zu gehen.",
-                "Trustyfy gibt Ihnen Werkzeuge an die Hand, um Ihr Geld zu schützen – ohne Bank oder Dritte.",
+                "Eine dezentrale Lösung gibt Ihnen Werkzeuge an die Hand, um Ihr Geld zu schützen – ohne Bank oder Dritte.",
                 "Es lohnt sich, sich zu informieren – denn Wissen ist heute Sicherheit.",
                 "Beste Grüße [Ihr Name]",
                 "",
@@ -180,7 +181,7 @@
                 "Sehr geehrter [Name],",
                 "der FSA-Stammtisch vereint Menschen, die vorsorgen wollen – nicht durch Angst, sondern durch Verständnis.",
                 "Wir erklären, wie digitale Zentralwährungen funktionieren und was das für Ihre Rente bedeutet.",
-                "Trustyfy ist eine praktische Lösung, die Unabhängigkeit wieder möglich macht.",
+                "Eine dezentrale Struktur ist eine praktische Lösung, die Unabhängigkeit wieder möglich macht.",
                 "Ich lade Sie herzlich ein, mehr darüber zu erfahren.",
                 "Mit besten Grüßen [Ihr Name]"
               ]
@@ -193,14 +194,14 @@
                 "„Guten Tag [Name], viele merken, wie schnell sich alles ändert – Gesetze, Zinsen, digitale Konten.",
                 "Ich möchte Ihnen zeigen, wie Sie Ihre Werte weiterhin selbst verwalten können.",
                 "Im FSA-Stammtisch lernen wir, wie Verständnis Ruhe bringt.",
-                "Trustyfy sichert diese Ruhe technisch ab – transparent, ohne Abhängigkeit.",
+                "Eine dezentrale Lösung sichert diese Ruhe technisch ab – transparent, ohne Abhängigkeit.",
                 "Ich lade Sie ein, mitzuhören oder Ihre Fragen direkt im Treffen zu stellen.“",
                 "",
                 "Leitfaden 2 – Würde bewahren",
                 "🔹 Interne Anleitung: Gefühl von Kontrolle vermitteln, nicht Verlust.",
                 "„Herr / Frau [Name], Sicherheit heißt heute mehr denn je, selbst zu verstehen, wie Systeme arbeiten.",
                 "Wir erklären einfach, wie Sie Ihr Geld vor stillen Eingriffen schützen können.",
-                "Trustyfy macht das sichtbar und nachvollziehbar.",
+                "Eine dezentrale Struktur macht das sichtbar und nachvollziehbar.",
                 "Es geht nicht um Panik, sondern um Würde und Vertrauen in die eigene Handlungsfähigkeit.",
                 "Ich zeige Ihnen gern, wie einfach das sein kann.“",
                 "",
@@ -208,7 +209,7 @@
                 "🔹 Interne Anleitung: Klarheit ohne Überforderung, Sprache ruhig halten.",
                 "„Guten Tag [Name], viele fragen sich, was passiert, wenn Zinsen und Regeln plötzlich ändern.",
                 "Im FSA-Treff lernen Sie, wie Sie vorsorgen, ohne abhängig zu bleiben.",
-                "Trustyfy bietet eine einfach bedienbare Lösung – keine App, die verwirrt, sondern ein Werkzeug, das Freiheit gibt.",
+                "Eine dezentrale Lösung bietet eine einfach bedienbare Struktur – keine App, die verwirrt, sondern ein Werkzeug, das Freiheit gibt.",
                 "Ein kurzer Austausch reicht, um zu verstehen, warum Wissen die beste Vorsorge ist.",
                 "Ich lade Sie herzlich ein, beim nächsten Treffen dabei zu sein – online oder persönlich.“"
               ]
@@ -216,10 +217,10 @@
             {
               heading: "🔗 4. Share-Snippets",
               body: [
-                "1️⃣ „Sicherheit im Alter bedeutet, selbst zu entscheiden – FSA & Trustyfy zeigen, wie.“",
+                "1️⃣ „Sicherheit im Alter bedeutet, selbst zu entscheiden – FSA & dezentrale Lösungen zeigen, wie.“",
                 "2️⃣ „Würde heißt, zu verstehen – nicht zu vertrauen.“",
                 "3️⃣ „Freiheit bleibt, wenn Wissen wächst.“",
-                "4️⃣ „Digitale Zeiten brauchen menschliche Klarheit – FSA & Trustyfy.“"
+                "4️⃣ „Digitale Zeiten brauchen menschliche Klarheit – FSA & dezentrale Strukturen.“"
               ]
             }
           ]
@@ -235,19 +236,19 @@
                 "Vorlage 1 – „Freiheit fängt beim Wissen an“",
                 "„Wir leben digital – aber kaum jemand weiß, wer die Regeln schreibt.",
                 "Im FSA-Stammtisch lernst du, wie Geldsysteme wirklich funktionieren und wie du dein eigenes Wallet sicher führst.",
-                "Trustyfy macht das praktisch – du kontrollierst, was dir gehört.",
+                "Eine dezentrale Lösung macht das praktisch – du kontrollierst, was dir gehört.",
                 "➡️ Sei beim nächsten Treffen dabei, online oder vor Ort. Wissen ist das neue Kapital.“",
                 "",
                 "Vorlage 2 – „Zukunft selbst gestalten“",
                 "„Schule lehrt vieles, aber kaum jemand erklärt, wie Geld wirklich fließt.",
                 "Der FSA-Stammtisch ist dein Raum für Fragen, Austausch und echtes Verstehen.",
-                "Trustyfy zeigt dir, wie du Unabhängigkeit digital leben kannst – sicher und dezentral.",
+                "Dezentrale Technik zeigt dir, wie du Unabhängigkeit digital leben kannst – sicher und dezentral.",
                 "➡️ Wenn du Zukunft willst, die du selbst steuerst, bist du hier richtig.“",
                 "",
                 "Vorlage 3 – „Freiheit ohne Filter“",
                 "„Wir sind ständig online – aber kaum jemand versteht die Mechanik dahinter.",
                 "Im FSA-Treff lernst du, Systeme zu durchschauen statt ihnen zu folgen.",
-                "Trustyfy macht Sicherheit sichtbar – du entscheidest, wer Zugriff hat.",
+                "Eine dezentrale Struktur macht Sicherheit sichtbar – du entscheidest, wer Zugriff hat.",
                 "➡️ Kein Gerede, kein Verkauf – einfach Klarheit.“"
               ]
             },
@@ -259,7 +260,7 @@
                 "Hey [Name],",
                 "du studierst, arbeitest, planst dein Leben – aber kaum jemand erklärt, wie Geldsysteme wirklich laufen.",
                 "Der FSA-Stammtisch ist ein Ort, wo du genau das lernst – ehrlich, klar, praxisnah.",
-                "Trustyfy sorgt dafür, dass du dein Geld selbst verwalten kannst, ohne Bank, ohne Mittelsmann.",
+                "Eine dezentrale Lösung sorgt dafür, dass du dein Geld selbst verwalten kannst, ohne Bank, ohne Mittelsmann.",
                 "Wenn du willst, zeig ich dir, wie einfach das ist.",
                 "LG [Dein Name]",
                 "",
@@ -268,7 +269,7 @@
                 "Hey [Name],",
                 "viele wollen frei sein, aber kaum jemand versteht, wie Freiheit wirklich funktioniert.",
                 "Im FSA-Stammtisch lernst du, Kontrolle über deine Finanzen zu übernehmen – Schritt für Schritt.",
-                "Trustyfy ist das Tool dafür – sicher, dezentral, transparent.",
+                "Dezentrale Technik ist das Tool dafür – sicher, transparent und unabhängig.",
                 "Lust, das mal zu erleben? Ich schick dir den Link zum nächsten Treffen.",
                 "",
                 "E-Mail 3 – „Dein Einstieg in echte Unabhängigkeit“",
@@ -276,7 +277,7 @@
                 "Hey [Name],",
                 "alles wird digital, aber echte Freiheit kommt vom Verstehen.",
                 "Im FSA-Stammtisch zeigen wir, wie du Systeme hinterfragst und selbst steuerst.",
-                "Mit Trustyfy lernst du, wie Sicherheit funktioniert, wenn du sie selbst gestaltest.",
+                "Mit einer dezentralen Lösung lernst du, wie Sicherheit funktioniert, wenn du sie selbst gestaltest.",
                 "Es dauert nur ein Treffen, um den Unterschied zu sehen."
               ]
             },
@@ -288,21 +289,21 @@
                 "„Hey [Name], hast du dich schon mal gefragt, wer eigentlich die Kontrolle über dein Geld hat?",
                 "Die meisten denken, Banken und Apps sind neutral – sind sie aber nicht.",
                 "Im FSA-Treff lernst du, wie das System funktioniert und wie du es für dich nutzt.",
-                "Trustyfy zeigt dir, wie du Werte selbst verwaltest, sicher und unabhängig.",
+                "Eine dezentrale Lösung zeigt dir, wie du Werte selbst verwaltest, sicher und unabhängig.",
                 "Lass uns kurz sprechen, ich erklär’s dir ohne Blabla.“",
                 "",
                 "Leitfaden 2 – Freiheit praktisch leben",
                 "🔹 Interne Anleitung: Locker, aber mit Mehrwert – Motivation statt Moral.",
                 "„Hi [Name], viele reden über Unabhängigkeit, aber kaum jemand lebt sie.",
                 "Wir im FSA-Stammtisch zeigen dir, wie das praktisch aussieht – Schritt für Schritt, mit echten Tools.",
-                "Trustyfy ist dein Startpunkt für finanzielle Eigenständigkeit.",
+                "Eine dezentrale Struktur ist dein Startpunkt für finanzielle Eigenständigkeit.",
                 "Ein Gespräch lohnt sich, weil du danach weißt, wie du deine Zukunft steuerst.“",
                 "",
                 "Leitfaden 3 – Sicherheit digital denken",
                 "🔹 Interne Anleitung: Technik-Neugier nutzen, nicht überfordern.",
                 "„Hey [Name], du bist ständig online – und genau da liegt die Chance.",
                 "Im FSA-Stammtisch lernst du, digitale Freiheit mit echtem Schutz zu verbinden.",
-                "Trustyfy gibt dir Kontrolle über dein Wallet, dein Geld, dein Wissen.",
+                "Dezentrale Technik gibt dir Kontrolle über dein Wallet, dein Geld, dein Wissen.",
                 "Ich erklär dir das in 10 Minuten – ehrlich, ohne Fachchinesisch.“"
               ]
             },
@@ -323,7 +324,8 @@
     // ===================== ENGLISH =====================
     en: {
       title: "❤️ Target Group 4 – Single parents, retirees & students",
-      subtitle: "Three life situations, one shared pressure: everything gets more expensive, more digital and more controlled. These community meetups explain: with FSA (understanding) + Trustyfy (tech) you can still stay sovereign.",
+      subtitle:
+        "Three life situations, one shared pressure: everything gets more expensive, more digital and more controlled. These community meetups explain: with FSA (understanding) + a decentralized tech layer you can still stay sovereign.",
       sections: [
         {
           label: "4A – Single parents",
@@ -335,19 +337,19 @@
                 "“I know what it feels like when you carry everything alone – kids, job, bills.",
                 "People say: just stay strong. But real strength is to protect yourself early.",
                 "In the FSA meetup you learn how to structure your money and knowledge so no bank or platform can block you.",
-                "Trustyfy protects your income on the technical level – the academy explains the why.",
+                "A decentralized setup protects your income on the technical level – the academy explains the why.",
                 "➡️ Want to join the next session? It’s not selling, it’s safety.”",
                 "",
                 "Template 2 – “From worry to calm”",
                 "“I used to think security comes from outside – today I know it starts with me.",
                 "The FSA meetup became my anchor: people talk openly about money, family and responsibility.",
-                "Trustyfy makes sure my income really belongs to me – no bank, no third party, no surprise.",
+                "A decentralized system makes sure my income really belongs to me – no bank, no third party, no surprise.",
                 "➡️ If you want to know how it works, join in – on site or online.”",
                 "",
                 "Template 3 – “Clarity instead of chaos”",
                 "“Sometimes everything is too much – and that’s when structure helps.",
                 "In the FSA meetup you learn what financial sovereignty means in practice – clear, human, honest.",
-                "Trustyfy is the tech part – it shields your income so you can act.",
+                "A decentralized structure is the tech part – it shields your income so you can act.",
                 "➡️ One evening, one talk – and you see clearer. You’re invited.”"
               ]
             },
@@ -360,7 +362,7 @@
                 "days are full – family, work, duties. Often there’s no space to think about yourself.",
                 "I learned that safety does not come from banks or laws but from knowledge and structure.",
                 "In the free FSA course and in the meetups you get exactly that – real clarity, no promises.",
-                "Trustyfy protects what you build – decentralized, independent, secure.",
+                "A decentralized solution protects what you build – independent and secure.",
                 "If you like I can send you the link or invite you to the next meetup.",
                 "Warm regards [Your name]",
                 "",
@@ -369,7 +371,7 @@
                 "Hi [Name],",
                 "doing everything alone is exhausting.",
                 "The FSA meetup is a group that understands that – and shows steps back to balance.",
-                "With Trustyfy you stay in control of your money no matter what banks or systems change.",
+                "With a decentralized structure you stay in control of your money no matter what banks or systems change.",
                 "No risk – just knowledge, and that changes everything.",
                 "Let me know if you want to join.",
                 "Best, [Your name]",
@@ -379,7 +381,7 @@
                 "Hi [Name],",
                 "I know you carry a lot – that is exactly why clarity matters.",
                 "In the FSA meetup we talk openly about financial self-determination, responsibility and technical solutions.",
-                "Trustyfy keeps your income under your control – transparent and safe.",
+                "A decentralized setup keeps your income under your control – transparent and safe.",
                 "It’s about knowledge, not advertising.",
                 "You’re very welcome to join.",
                 "Best, [Your name]"
@@ -393,7 +395,7 @@
                 "“Hi [Name], I know how much energy it takes to carry everything alone.",
                 "Many live in permanent rush and don’t see how dependent they are on the system.",
                 "In the FSA meetup we show how to get space and control back – step by step.",
-                "Trustyfy locks it in technically – no foreign access, no freeze.",
+                "A decentralized solution locks it in technically – no foreign access, no freeze.",
                 "It’s not selling, it’s help to help yourself.",
                 "Join the next meetup – online or in person.”",
                 "",
@@ -402,14 +404,14 @@
                 "“Hey [Name], a lot of us live under permanent pressure – job, family, money.",
                 "I want to show you how understanding + tech brings calm into that chaos.",
                 "In the FSA meetup you learn how money flows really work and how you control them.",
-                "Trustyfy gives you the technical independence.",
+                "The decentralized tech layer gives you the independence.",
                 "A short call is enough – you decide afterwards.”",
                 "",
                 "Script 3 – Gain clarity, find calm",
                 "🔹 Internal guidance: lead from overwhelm to capability.",
                 "“Hi [Name], many think safety is about income – but it’s about understanding.",
                 "We show how to structure your finances and build protection that truly belongs to you.",
-                "With Trustyfy your money stays in your control – and that feels different.",
+                "With a decentralized setup your money stays in your control – and that feels different.",
                 "The FSA meetup is a good starting point.",
                 "I can explain how to join.”"
               ]
@@ -417,9 +419,9 @@
             {
               heading: "🔗 4. Share snippets",
               body: [
-                "1️⃣ “Security starts with understanding – FSA shows it, Trustyfy makes it independent.”",
+                "1️⃣ “Security starts with understanding – FSA shows it, a decentralized structure makes it independent.”",
                 "2️⃣ “Single parent does not mean alone – the community gives strength and knowledge.”",
-                "3️⃣ “Less worry, more sovereignty – FSA & Trustyfy show how.”",
+                "3️⃣ “Less worry, more sovereignty – FSA & decentralized tech show how.”",
                 "4️⃣ “Calm comes when you understand – and act.”"
               ]
             }
@@ -436,19 +438,19 @@
                 "“A lot is changing fast – banks, rules, digital money.",
                 "But safety does not mean giving control away.",
                 "In the FSA meetup we show how to keep financial self-determination in later life.",
-                "Trustyfy is the tool for that: decentralized, calm, understandable.",
+                "A decentralized solution is the tool for that: calm, transparent, understandable.",
                 "➡️ I can walk you through it – no theory, just sovereignty.”",
                 "",
                 "Template 2 – “Calm through self-administration”",
                 "“Many retirees fear that new rules will limit their savings.",
                 "In the FSA meetup we explain how to manage your money yourself and protect it from interventions.",
-                "Trustyfy offers a simple solution – you stay in charge.",
+                "A decentralized structure offers a simple way – you stay in charge.",
                 "➡️ It’s not about investments – it’s about freedom.”",
                 "",
                 "Template 3 – “Sovereign to the end”",
                 "“Safety is not dependency – it is conscious control.",
                 "With the FSA academy you understand the system and take decisions yourself.",
-                "Trustyfy secures your values – discreet and reliable.",
+                "A decentralized setup secures your values – discreet and reliable.",
                 "➡️ Join the next meetup – we explain it in peace.”"
               ]
             },
@@ -460,7 +462,7 @@
                 "Dear [Name],",
                 "we live in times of change. Banks go digital, rules change – but safety should stay.",
                 "In the FSA meetup we explain in simple words how to secure money yourself.",
-                "Trustyfy supports technically – simple, safe, decentralized.",
+                "A decentralized tech layer supports this – simple, safe, independent.",
                 "No obligation, just knowledge.",
                 "I’d be happy to welcome you to the next meetup.",
                 "Kind regards [Your name]",
@@ -470,7 +472,7 @@
                 "Dear [Name],",
                 "many people trust systems that change all the time.",
                 "In the FSA meetup you learn to understand these changes and choose your own path.",
-                "Trustyfy gives you tools to protect your money – without a bank or third party.",
+                "A decentralized solution gives you tools to protect your money – without a bank or third party.",
                 "It’s worth getting informed – knowledge is safety today.",
                 "Best regards [Your name]",
                 "",
@@ -479,7 +481,7 @@
                 "Dear [Name],",
                 "the FSA meetup brings together people who want to prepare – not through fear, but through understanding.",
                 "We explain how digital currencies work and what that means for your retirement money.",
-                "Trustyfy is a practical way to stay independent.",
+                "A decentralized structure is a practical way to stay independent.",
                 "You’re warmly invited to learn more.",
                 "Kind regards [Your name]"
               ]
@@ -492,14 +494,14 @@
                 "“Good day [Name], a lot is changing – rules, interest rates, digital accounts.",
                 "I’d like to show you how to stay in control of your values.",
                 "In the FSA meetup we show how understanding creates calm.",
-                "Trustyfy locks that calm in – transparent, no dependency.",
+                "A decentralized solution locks that calm in – transparent, no dependency.",
                 "I invite you to listen in or ask your questions directly.”",
                 "",
                 "Script 2 – Keep your dignity",
                 "🔹 Internal guidance: convey control, not loss.",
                 "“Mr/Ms [Name], safety today means understanding how systems work.",
                 "We explain how to protect money from silent interventions.",
-                "Trustyfy makes it visible and traceable.",
+                "A decentralized structure makes it visible and traceable.",
                 "It’s not about panic – it’s about dignity and the ability to act.",
                 "I can show you how easy it is.”",
                 "",
@@ -507,7 +509,7 @@
                 "🔹 Internal guidance: clarity without overwhelming.",
                 "“Good day [Name], many people ask what happens if rules or rates suddenly change.",
                 "In the FSA meetup we show how to prepare without being dependent.",
-                "Trustyfy is easy to use – not a confusing app, but a tool for freedom.",
+                "A decentralized solution is easy to use – not a confusing app, but a tool for freedom.",
                 "Let’s talk briefly – then you know why knowledge is the best preparation.",
                 "You’re welcome to join the next meetup.”"
               ]
@@ -515,10 +517,10 @@
             {
               heading: "🔗 4. Share snippets",
               body: [
-                "1️⃣ “Security in retirement means deciding yourself – FSA & Trustyfy show how.”",
+                "1️⃣ “Security in retirement means deciding yourself – FSA & decentralized solutions show how.”",
                 "2️⃣ “Dignity means understanding – not just trusting.”",
                 "3️⃣ “Freedom stays when knowledge grows.”",
-                "4️⃣ “Digital times need human clarity – FSA & Trustyfy.”"
+                "4️⃣ “Digital times need human clarity – FSA & decentralized structures.”"
               ]
             }
           ]
@@ -533,19 +535,19 @@
                 "Template 1 – “Freedom starts with knowledge”",
                 "“We live digital – but hardly anyone knows who sets the rules.",
                 "In the FSA meetup you learn how money systems work and how to run your own wallet securely.",
-                "Trustyfy makes it practical – you control what’s yours.",
+                "A decentralized solution makes it practical – you control what’s yours.",
                 "➡️ Join the next meetup, online or on site. Knowledge is the new capital.”",
                 "",
                 "Template 2 – “Shape your own future”",
                 "“School teaches a lot but almost never how money actually flows.",
                 "The FSA meetup is your space for questions and real understanding.",
-                "Trustyfy shows how to live digital independence – safe and decentralized.",
+                "Decentralized tech shows how to live digital independence – safe and sovereign.",
                 "➡️ If you want a future you control yourself, this is your place.”",
                 "",
                 "Template 3 – “Freedom without filters”",
                 "“We are always online – but hardly anyone understands the mechanics.",
                 "In the meetup you learn to see through systems instead of following them.",
-                "Trustyfy makes security visible – you decide who gets access.",
+                "A decentralized structure makes security visible – you decide who gets access.",
                 "➡️ No hype, no sales – just clarity.”"
               ]
             },
@@ -557,7 +559,7 @@
                 "Hey [Name],",
                 "you study, work, plan your life – but nobody explains how money systems really run.",
                 "The FSA meetup is where you learn exactly that – honest, clear, hands-on.",
-                "Trustyfy makes sure you can manage your money yourself – no bank, no middleman.",
+                "A decentralized solution makes sure you can manage your money yourself – no bank, no middleman.",
                 "If you want, I’ll show you how easy it is.",
                 "Best, [Your name]",
                 "",
@@ -566,7 +568,7 @@
                 "Hey [Name],",
                 "many want to be free but rarely understand how freedom actually works.",
                 "In the FSA meetup you learn to take control over your finances – step by step.",
-                "Trustyfy is the tool – secure, decentralized, transparent.",
+                "Decentralized tech is the tool – secure, transparent, independent.",
                 "If you’re curious, I’ll send you the link.",
                 "",
                 "Email 3 – “Your entry into real independence”",
@@ -574,7 +576,7 @@
                 "Hey [Name],",
                 "everything becomes digital, but real freedom comes from understanding.",
                 "In the meetup we show how to question systems and steer yourself.",
-                "With Trustyfy you learn how to build your own secure setup.",
+                "With a decentralized setup you learn how to build your own secure structure.",
                 "It takes only one session to see the difference."
               ]
             },
@@ -586,21 +588,21 @@
                 "“Hey [Name], ever asked who actually controls your money?",
                 "Most people think banks and apps are neutral – they’re not.",
                 "In the FSA meetup you learn how the system works and how to use it for yourself.",
-                "Trustyfy shows you how to self-custody values – secure and independent.",
+                "A decentralized solution shows you how to custody values yourself – secure and independent.",
                 "Let’s talk for 10 minutes – no jargon.”",
                 "",
                 "Script 2 – Live freedom practically",
                 "🔹 Internal guidance: motivation over morality.",
                 "“Hi [Name], lots of people talk about independence but don’t live it.",
                 "We show what it looks like in real life – step by step, with real tools.",
-                "Trustyfy is your starting point for financial independence.",
+                "A decentralized structure is your starting point for financial independence.",
                 "A short call is worth it – after that you know how to steer your future.”",
                 "",
                 "Script 3 – Think security digital",
                 "🔹 Internal guidance: use tech interest, don’t overload.",
                 "“Hey [Name], you’re online all the time – that’s the opportunity.",
                 "In the FSA meetup you learn to connect digital freedom with real protection.",
-                "Trustyfy gives you control over wallet, money and knowledge.",
+                "Decentralized tech gives you control over wallet, money and knowledge.",
                 "I can explain it in 10 minutes – clear and simple.”"
               ]
             },
@@ -648,7 +650,9 @@
       sec.className = "social-section";
 
       const h2 = document.createElement("h2");
-      h2.textContent = section.label || (lang === "de" ? "Bereich " : "Section ") + (sIdx + 1);
+      h2.textContent =
+        section.label ||
+        ((lang === "de" ? "Bereich " : "Section ") + (sIdx + 1));
       sec.appendChild(h2);
 
       (section.blocks || []).forEach((blk) => {
@@ -681,7 +685,9 @@
     closeBtn.addEventListener("click", () => {
       host.innerHTML = "";
       host.style.display = "none";
-      document.dispatchEvent(new CustomEvent("community:closed", { detail: "04" }));
+      document.dispatchEvent(
+        new CustomEvent("community:closed", { detail: "04" })
+      );
     });
     wrap.appendChild(closeBtn);
 
