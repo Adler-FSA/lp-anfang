@@ -6,18 +6,18 @@
 const campusSocial03 = {
   meta: {
     id: "tg3",
-    group: "trustyfy-fsa",
-    version: "1.0.0",
+    group: "fsa-dezentral",
+    version: "1.0.1",
     title_de: "Zielgruppe 3 – Freunde, Familie & Bekannte",
     title_en: "Target Group 3 – Friends, Family & Close Contacts",
     topic_de: "Kontrolle zurückholen – bevor sie verschwindet",
     topic_en: "Regain control – before it disappears",
-    lastUpdate: "2025-10-30",
-    source: "FSA / Trustyfy – Social Set 03",
+    lastUpdate: "2025-12-06",
+    source: "FSA – Social Set 03 (dezentral)",
   },
   de: {
     title: "Zielgruppe 3 – Freunde, Familie & Bekannte",
-    intro: "Für Menschen, die du persönlich kennst. Vertrauter Ton, aber klare Warnung vor wachsender Kontrolle, digitalen Währungen, Kontosperrungen und stiller Enteignung. Trustyfy = Werkzeug. FSA-Akademie = Verständnis.",
+    intro: "Für Menschen, die du persönlich kennst. Vertrauter Ton, aber klare Warnung vor wachsender Kontrolle, digitalen Währungen, Kontosperrungen und stiller Enteignung. Eigene dezentrale Lösungen = Werkzeuge. FSA-Akademie = Verständnis.",
     sections: [
       {
         id: "messenger",
@@ -51,15 +51,15 @@ const campusSocial03 = {
             ]
           },
 
-          // Trustyfy-Variante (verstärkt, mit Kontrolle / Pfändung / Digitaler Euro)
+          // Verstärkte Variante (Kontrolle / Pfändung / Digitaler Euro) – produktneutral
           {
             heading: "Vorlage 4 – „Ich seh, was passiert – und das macht mir Angst“",
             body: [
               "Ich beobachte, was um uns herum passiert – gesperrte Konten, Pfändungen, Vorschriften, immer mehr Kontrolle.",
               "Man darf kaum noch frei entscheiden, wofür man sein Geld nutzt, und bald soll der digitale Euro kommen – der jede Zahlung nachverfolgbar macht.",
               "Ich will dich nicht verunsichern, aber ich kann nicht mehr wegsehen.",
-              "Mit Trustyfy hab ich eine Möglichkeit gefunden, meine Werte zu schützen – dezentral, ohne Banken, ohne Zugriff von außen.",
-              "➡️ Ich schick dir den Einstieg dazu – einfach, kostenlos, aber mit allem, was man wissen sollte, bevor es zu spät ist."
+              "Darum hab ich mir ein eigenes dezentrales Finanz-Setup aufgebaut: Werte verteilt, Zugriffe unter eigener Kontrolle, nicht nur bei einer Bank.",
+              "➡️ Wenn du möchtest, zeig ich dir, wie so etwas grundsätzlich funktioniert – einfach, Schritt für Schritt, ohne Risiko."
             ]
           },
           {
@@ -68,8 +68,8 @@ const campusSocial03 = {
               "Ich weiß, das klingt drastisch – aber es passiert längst.",
               "Menschen werden gesperrt, weil sie die falschen Dinge sagen oder weil eine Bank „interne Prüfungen“ macht.",
               "Was dann? Kein Zugriff mehr aufs eigene Geld, keine Kontrolle, keine Freiheit.",
-              "Ich will nicht, dass du mal in dieser Lage bist. Trustyfy schützt dein Einkommen und deine Identität – dezentral, sicher, ohne Dritte.",
-              "➡️ Schau dir das an. Es geht nicht um Misstrauen, sondern um Vorsorge."
+              "Ich will nicht, dass du mal in dieser Lage bist. Mit einem dezentralen Konten- und Wallet-Setup kannst du einen Teil deines Einkommens außerhalb solcher Sperren organisieren.",
+              "➡️ Schau dir das Thema an. Es geht nicht um Misstrauen, sondern um Vorsorge – und darum, deine eigenen Lösungen zu kennen."
             ]
           },
           {
@@ -78,9 +78,9 @@ const campusSocial03 = {
               "Immer mehr wird digital kontrolliert – Gesundheit, Zahlungen, Verhalten.",
               "Bald bestimmt ein Algorithmus, was „erlaubt“ ist – so wie im Sozialkreditsystem in China.",
               "Ich will das nicht einfach hinnehmen.",
-              "Mit Trustyfy kann ich meine Werte selbst verwalten – ohne Genehmigung, ohne Beobachtung.",
-              "Und die FSA-Akademie erklärt, wie das System funktioniert, damit man nicht mehr blind vertraut.",
-              "➡️ Ich zeig’s dir. Das Wissen wird bald der Unterschied sein zwischen Freiheit und Gehorsam."
+              "Deshalb verwalte ich einen Teil meiner Werte heute schon in einem eigenen dezentralen System – ohne Genehmigung, ohne dauernde Beobachtung.",
+              "Und die FSA-Akademie erklärt, wie das große System funktioniert, damit man nicht mehr blind vertraut.",
+              "➡️ Ich zeig’s dir gern. Das Wissen wird bald der Unterschied sein zwischen Freiheit und Gehorsam."
             ]
           }
         ]
@@ -129,7 +129,7 @@ const campusSocial03 = {
             ]
           },
 
-          // Trustyfy / Kontroll-Thema
+          // Kontroll-Thema – produktneutral
           {
             heading: "E-Mail 4 – „Ich hab Angst, dass wir’s zu spät merken“",
             body: [
@@ -137,7 +137,7 @@ const campusSocial03 = {
               "Hey [Name],",
               "ich weiß, du hältst dich aus Politik und Finanzen lieber raus – ging mir auch so.",
               "Aber gerade passiert etwas, das uns alle betrifft: immer mehr Kontrolle, neue Gesetze, digitale Währungen – und am Ende verlieren wir das, was Freiheit mal war.",
-              "Ich hab mit Trustyfy eine Möglichkeit gefunden, mich davor zu schützen – mein Einkommen bleibt mein Eigentum.",
+              "Ich habe für mich eine dezentrale Struktur aufgebaut, in der mein Einkommen nicht nur an ein einziges Konto gebunden ist.",
               "Und durch die FSA-Akademie hab ich verstanden, wie tief die Kontrolle schon geht.",
               "Bitte schau’s dir an. Ich würd mich schlecht fühlen, wenn ich’s wüsste und dir nichts sage.",
               "Liebe Grüße,",
@@ -152,7 +152,7 @@ const campusSocial03 = {
               "viele denken, das mit der „digitalen Kontrolle“ sei übertrieben.",
               "Aber was, wenn du eines Tages dein Konto nicht mehr nutzen darfst, weil ein System dich falsch bewertet?",
               "Ich hab das nicht erfunden – es ist Realität in anderen Ländern, und hier sind die Schritte längst geplant.",
-              "Mit Trustyfy kann man sein Vermögen und seine Identität dezentral sichern. Niemand kann das einfrieren.",
+              "Mit einem dezentralen Werte-Setup kann man Vermögen und Identität besser schützen, weil nicht alles an einer Stelle hängt.",
               "Ich will dich nicht bekehren – nur vorbereiten.",
               "Wenn du magst, zeig ich dir, wie’s geht.",
               "Alles Gute,",
@@ -166,8 +166,8 @@ const campusSocial03 = {
               "Hey [Name],",
               "ich merk, wie sich vieles verändert – immer neue Regeln, immer weniger Freiheit.",
               "Es fühlt sich an, als würden wir langsam enteignet, Stück für Stück, digital.",
-              "Ich hab’s satt, abhängig zu sein. Trustyfy gibt mir die Möglichkeit, mein Eigentum selbst zu verwalten – unabhängig, geschützt, dezentral.",
-              "Und mit der FSA-Akademie verstehst du, was dahinter steckt – warum Wissen jetzt der einzige Schutz ist.",
+              "Ich hab’s satt, abhängig zu sein. Ein eigenes dezentrales Finanz-Setup gibt mir die Möglichkeit, mein Eigentum selbst zu verwalten – unabhängiger, geschützter, verteilter.",
+              "Und mit der FSA-Akademie verstehst du, was dahinter steckt – warum Wissen jetzt der wichtigste Schutz ist.",
               "Ich schick dir gern den Link. Lies es, bevor andere für dich entscheiden.",
               "Bleib frei,",
               "[Dein Name]"
@@ -192,7 +192,7 @@ const campusSocial03 = {
               "„Hey [Name], darf ich kurz ehrlich sein?",
               "Ich hab echt ein ungutes Gefühl, wohin das gerade alles läuft – Pfändungen, Sperrungen, digitaler Euro … immer mehr Kontrolle.",
               "Ich will einfach nicht, dass du überrascht wirst, wenn es soweit ist.",
-              "Ich hab mir Trustyfy angeschaut – da behältst du dein Einkommen in deiner Hand, nicht in der einer Bank oder Behörde.",
+              "Ich habe für mich ein dezentrales Finanz-Setup aufgebaut, bei dem nicht eine einzige Bank alles entscheiden kann.",
               "Ich kann dir das in 15 Minuten zeigen – kein Verkauf, nur Aufklärung.",
               "Wann passt’s dir besser – heute Abend oder morgen früh?“"
             ]
@@ -209,9 +209,9 @@ const campusSocial03 = {
               "🔹 Vorlese-Skript",
               "„Ich weiß, das ist kein schönes Thema.",
               "Aber was würdest du tun, wenn dein Konto morgen gesperrt ist – weil du in einem System steckst, das jeden Schritt bewertet?",
-              "Das klingt nach Science Fiction, aber das ist genau das, wohin der digitale Euro führt.",
-              "Ich hab eine Lösung gefunden: Trustyfy – dort verwaltest du dein Einkommen selbst, komplett dezentral, ohne zentrale Instanz.",
-              "Ich zeig dir, wie das funktioniert. 15 Minuten – und du verstehst, warum das Thema so wichtig ist.“"
+              "Das klingt nach Science Fiction, aber genau dorthin können digitale Zentralwährungen und neue Kontrollmechanismen führen.",
+              "Ich habe mir deswegen ein eigenes dezentrales Werte-Setup aufgebaut, bei dem ich mehr Zugriffe selbst steuere.",
+              "Ich zeig dir gern, wie das grundsätzlich funktioniert. 15 Minuten – und du verstehst, warum das Thema so wichtig ist.“"
             ]
           },
           {
@@ -221,14 +221,14 @@ const campusSocial03 = {
               "Ziel: Vom Gefühl der Ohnmacht zur Selbstbestimmung führen. Herausstellen, dass Freiheit keine Idee, sondern eine praktische Entscheidung ist.",
               "Dauer: 7–10 Minuten",
               "Stil: Motivierend, ruhig, authentisch. Kein Druck, nur Einladung zum Selbstdenken.",
-              "Zielhandlung: Termin für eine Kurz-Präsentation oder Begleitung zur Registrierung bei Trustyfy.",
+              "Zielhandlung: Termin für eine Kurz-Präsentation oder Begleitung beim Aufsetzen einer eigenen dezentralen Struktur.",
               "",
               "🔹 Vorlese-Skript",
               "„Ich glaub, viele spüren’s, reden aber nicht drüber – dass wir langsam die Kontrolle verlieren.",
               "Steuern, Daten, Bankkonten – alles zentral, alles einsehbar.",
-              "Ich will das nicht hinnehmen – und ich hab endlich was gefunden, das dagegen hilft: Trustyfy.",
-              "Damit hast du wieder volle Kontrolle über dein Vermögen – niemand kann’s sperren, niemand schreibt dir vor, wofür du es nutzt.",
-              "Komm, ich zeig’s dir – morgen kurz 15 Minuten. Danach verstehst du, warum das kein Trend, sondern Notwendigkeit ist.“"
+              "Ich will das nicht hinnehmen – und ich hab für mich endlich einen Weg gefunden, gegenzusteuern.",
+              "Ich verteile einen Teil meiner Werte in ein dezentrales System, bei dem ich Freigaben und Zugriffe selbst bestimme.",
+              "Komm, ich zeig dir die Grundidee – morgen kurz 15 Minuten. Danach verstehst du, warum das kein Trend, sondern eine wichtige Vorsorge ist.“"
             ]
           }
         ]
@@ -238,11 +238,11 @@ const campusSocial03 = {
         label: "4. Share-Snippets",
         blocks: [
           {
-            heading: "Social-Snippets (Trustyfy / Kontrolle)",
+            heading: "Social-Snippets (Dezentral / Kontrolle)",
             body: [
-              "1️⃣ „Kontrolle wächst, Freiheit schrumpft – wer sein Geld sichern will, muss handeln. Trustyfy zeigt, wie.“",
+              "1️⃣ „Kontrolle wächst, Freiheit schrumpft – wer sein Geld sichern will, braucht einen Plan B. Dezentrale Strukturen zeigen, wie.“",
               "2️⃣ „Digitaler Euro, Kontosperrung, Überwachung – oder Selbstbestimmung? Entscheide dich, bevor andere es tun.“",
-              "3️⃣ „Pfändung, Sperre, Kontrolle – das neue Normal. Dezentral ist die Antwort. Trustyfy & FSA erklären, wie du dich schützt.“"
+              "3️⃣ „Pfändung, Sperre, Kontrolle – das neue Normal. Dezentral ist die Antwort. FSA zeigt dir, wie du dich vorbereitest.“"
             ]
           },
           {
@@ -259,7 +259,7 @@ const campusSocial03 = {
   },
   en: {
     title: "Target Group 3 – Friends, Family & Close Contacts",
-    intro: "For people you already know and care about. Warm, personal, but crystal clear about rising digital control, frozen accounts, CBDC/digital euro and silent expropriation. Trustyfy = the shield. FSA Academy = the explanation.",
+    intro: "For people you already know and care about. Warm, personal, but crystal clear about rising digital control, frozen accounts, CBDC/digital euro and silent expropriation. Your own decentralized setup = the shield. FSA Academy = the explanation.",
     sections: [
       {
         id: "messenger",
@@ -286,7 +286,7 @@ const campusSocial03 = {
           {
             heading: "Template 3 – “Time for what really matters”",
             body: [
-              "So much life time is lost in bills, stress and worry.",
+              "So much lifetime is lost in bills, stress and worry.",
               "Financial sovereignty means: more time again – for family, friends, hobbies, yourself.",
               "The FSA Academy shows step by step how to build that – no pressure, no risk.",
               "➡️ I’d love us to meet again soon – with a clear head and more time."
@@ -298,8 +298,8 @@ const campusSocial03 = {
               "Frozen accounts, new rules, more and more control – it’s already happening.",
               "With the digital euro every payment can be tracked.",
               "I don’t want to scare you – I just don’t want you to be surprised.",
-              "Trustyfy lets you protect your income and assets – decentralized, no bank, no third party.",
-              "➡️ I can show you the entry – it’s simple and free."
+              "That’s why I built my own small decentralized setup for my money – values spread across different places, with access rights under my control.",
+              "➡️ If you like, I can show you the basic idea – simple, step by step, without any obligation."
             ]
           },
           {
@@ -308,18 +308,19 @@ const campusSocial03 = {
               "Sounds extreme – but it’s happening already.",
               "People get blocked because of “internal reviews” or because they said the wrong thing.",
               "Then what? No access to your own money.",
-              "Trustyfy keeps control in your hands – that’s why I’m telling you.",
-              "➡️ Take a look at it before everything gets more strict."
+              "I don’t want you to end up in that position. With a decentralized mix of accounts and wallets you can keep part of your income outside of a single point of failure.",
+              "➡️ Have a look at this topic before everything becomes more restrictive."
             ]
           },
           {
             heading: "Template 6 – “I want us to stay free”",
             body: [
               "More and more is controlled digitally – health, payments, behavior.",
-              "Soon algorithms decide what is “allowed”.",
-              "Trustyfy lets you manage your values yourself.",
-              "FSA explains why this wave of control is coming.",
-              "➡️ I’ll show you. 15 minutes are enough."
+              "Soon algorithms will decide what is “allowed”.",
+              "I don’t want to just accept that.",
+              "So I manage part of my assets in a decentralized way – where I decide which keys and approvals exist.",
+              "And the FSA Academy explains the bigger system, so you don’t have to trust blindly.",
+              "➡️ I’m happy to walk you through it. Knowledge will be the difference between freedom and pure obedience."
             ]
           }
         ]
@@ -372,9 +373,9 @@ const campusSocial03 = {
             body: [
               "Subject: Let’s prepare before it’s too late",
               "Hey [Name],",
-              "control is rising – more rules, more tracking, more digital.",
-              "With Trustyfy I can secure my income without banks.",
-              "And with FSA I finally understood the “why” behind all of this.",
+              "control is rising – more rules, more tracking, more digital money.",
+              "I decided to build a small decentralized setup for my income so it doesn’t only depend on one account.",
+              "And through FSA I finally understood the “why” behind all of this.",
               "Please have a look. I’d feel bad if I knew and didn’t tell you.",
               "Take care,",
               "[Your Name]"
@@ -396,9 +397,9 @@ const campusSocial03 = {
               "",
               "🔹 Script",
               "“Hey [Name], can I be honest for a second?",
-              "I really don’t like where all this is going – frozen accounts, new digital money, more control.",
+              "I really don’t like where all this is going – frozen accounts, new digital money, more control everywhere.",
               "I don’t want you to be caught off guard.",
-              "I found Trustyfy – with that your income stays in your hands.",
+              "That’s why I built my own decentralized setup so not everything depends on one bank account.",
               "I can show you in 15 minutes, no sell, just info.",
               "What’s better for you – tonight or tomorrow?”"
             ]
@@ -407,30 +408,30 @@ const campusSocial03 = {
             heading: "Phone Guide 2 – What if your account is blocked?",
             body: [
               "🔹 Internal notes",
-              "Goal: make the vulnerability visible, then bring relief with Trustyfy.",
+              "Goal: make the vulnerability visible, then bring relief with the idea of a decentralized plan B.",
               "Duration: 6–8 minutes.",
               "Outcome: link or call.",
               "",
               "🔹 Script",
               "“What would you do if tomorrow your bank said: account blocked?",
-              "That’s exactly what this new digital control enables.",
-              "With Trustyfy you manage your income yourself – no arbitrary block.",
-              "Give me 15 minutes and I’ll walk you through it.”"
+              "That’s exactly what these new digital control options can enable.",
+              "That’s why I’m building a decentralized way of holding part of my assets, where I define the access rules.",
+              "Give me 15 minutes and I’ll walk you through the basics so you can decide for yourself.”"
             ]
           },
           {
             heading: "Phone Guide 3 – Freedom instead of silent control",
             body: [
               "🔹 Internal notes",
-              "Goal: turn worry into action. Show that freedom is a decision.",
+              "Goal: turn worry into action. Show that freedom is a decision, not a slogan.",
               "Duration: 7–10 minutes.",
               "Outcome: 15-min presentation.",
               "",
               "🔹 Script",
               "“A lot of people feel it, they just don’t talk about it – control is growing everywhere.",
-              "I don’t want to wait until everything is centralized.",
-              "That’s why I’m using Trustyfy and I’m learning with FSA.",
-              "If you want, I’ll show you tomorrow – 15 minutes, then you know whether it’s for you.”"
+              "I don’t want to wait until everything is centralized and decided for us.",
+              "That’s why I’m combining FSA (for understanding) with a decentralized structure for my own money.",
+              "If you want, I’ll show you the basic idea tomorrow – 15 minutes, and then you know whether it’s something for you.”"
             ]
           }
         ]
@@ -440,11 +441,11 @@ const campusSocial03 = {
         label: "4. Share snippets",
         blocks: [
           {
-            heading: "Share / Social",
+            heading: "Share / Social (decentralized / control)",
             body: [
-              "1️⃣ “Control rises, freedom shrinks – protect your money now. Trustyfy shows how.”",
-              "2️⃣ “Digital euro, tracking, frozen accounts – or self-determination. Decide before others do.”",
-              "3️⃣ “FSA gives you the knowledge, Trustyfy gives you the tool. Quiet revolution, by yourself.”"
+              "1️⃣ “Control rises, freedom shrinks – if you want to protect your money, you need a decentralized plan B.”",
+              "2️⃣ “Digital euro, tracking, frozen accounts – or self-determination. Decide before others do it for you.”",
+              "3️⃣ “New rules are coming – knowledge from FSA plus your own decentralized setup keeps you from being the last to notice.”"
             ]
           }
         ]
@@ -452,7 +453,7 @@ const campusSocial03 = {
     ]
   }
 };
+
 // ===============================================================
 // EXPORT – stellt den Datensatz für social.html bereit
 window.FSA_SOCIAL_03 = campusSocial03;
-
