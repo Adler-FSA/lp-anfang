@@ -1,6 +1,6 @@
 // /lp-anfang/library/js/text-campus/campus-social-02.js
 // =====================================================================
-// FSA / Trustyfy – Social Toolkit
+// FSA – Social Toolkit (dezentral)
 // Zielgruppe 2 – Angestellte / Berufstätige
 // Vollständige Fassung DE / EN
 // Schema vereinheitlicht mit social-01.js (=> blocks[])
@@ -9,14 +9,14 @@
 // =====================================================================
 
 (function () {
-  // 1. ORIGINAL-INHALT in Schema {de: {title, subtitle, blocks: [...]}, en: {...}}
+  // 1. INHALT in Schema {de: {title, subtitle, blocks: [...]}, en: {...}}
   const SOCIAL_02 = {
     // ────────────────────────────────────────────────────────────────
     // DEUTSCH
     // ────────────────────────────────────────────────────────────────
     de: {
       title: "📘 Zielgruppe 2 – Angestellte / Berufstätige",
-      subtitle: "Sicherheit neu denken – Unabhängigkeit mit Trustyfy und der FSA-Akademie",
+      subtitle: "Sicherheit neu denken – Unabhängigkeit mit dezentralen Strukturen und der FSA-Akademie",
       blocks: [
         // 1. WhatsApp / Messenger
         {
@@ -28,8 +28,8 @@
                 "Viele Menschen arbeiten härter als je zuvor – und doch wächst die Unsicherheit. Löhne stagnieren, Preise steigen, Zukunft bleibt unklar.",
                 "Ich kenne das Gefühl, immer zu funktionieren – aber innerlich zu merken, dass sich nichts ändert.",
                 "Genau darum gibt es die FSA-Akademie: Sie zeigt, wie man versteht, was mit Geld wirklich passiert, und wie man sich Schritt für Schritt absichern kann.",
-                "Trustyfy setzt genau dort an: Es schützt Einkommen, Werte und Identität dezentral – ohne Bank, ohne stille Sperren, ohne Dritte.",
-                "➡️ Ich empfehle dir den kostenlosen Grundkurs – kein Risiko, aber vielleicht dein Wendepunkt.",
+                "Ein dezentrales Finanz-Setup setzt genau dort an: Einkommen, Rücklagen und Identität werden so organisiert, dass sie nicht nur an eine einzige Bank oder Plattform gebunden sind.",
+                "➡️ Ich empfehle dir den kostenlosen Grundkurs – kein Risiko, aber vielleicht dein Wendepunkt. Dort siehst du auch, wie du deine eigenen Werkzeuge wählen kannst.",
                 "👉 Wenn du willst, schick ich dir sofort den Link."
               ]
             },
@@ -39,7 +39,7 @@
                 "Viele verbringen ihre besten Stunden im Job – und tauschen jeden Monat Zeit gegen Geld, das kaum reicht.",
                 "Freiheit klingt schön, aber wer zeigt einem, wie man sie wirklich erreicht?",
                 "In der FSA-Akademie lernst du, wie Einkommen auch dann fließt, wenn du mal nicht arbeitest – durch Wissen, das kaum jemand teilt.",
-                "Trustyfy ist die technische Seite davon: Dein Geld bleibt bei dir, auch wenn Systeme wackeln oder Gesetze nachziehen.",
+                "Dazu gehört auch eine dezentrale Struktur für dein Geld: Du verteilst Werte auf Lösungen, bei denen du Zugriffe und Freigaben selbst bestimmst.",
                 "➡️ Wenn du das Gefühl hast, du willst mehr vom Leben als Rechnungen – melde dich. Ich schick dir den Startlink.",
                 "👉 15 Minuten Erklärung – du siehst sofort, ob es für dich passt."
               ]
@@ -49,7 +49,7 @@
               body: [
                 "Viele haben Angst vor der Zukunft – Inflation, KI, Jobabbau, Rente. Aber niemand erklärt, wie man sich vorbereitet.",
                 "Der Grundkurs der FSA-Akademie öffnet genau da den Blick: Wie du Geldflüsse verstehst, digitale Chancen erkennst, Verantwortung übernimmst.",
-                "Trustyfy liefert dazu die Praxis: Einkommen dezentral sichern, vor Pfändungen und Kontosperren schützen, Abhängigkeit von Banken reduzieren.",
+                "Dazu kommen praktische Beispiele für dezentrale Konten- und Wallet-Strukturen, mit denen du Einkommen und Rücklagen weniger angreifbar machst.",
                 "Kein Druck, kein Verkauf – nur Klarheit.",
                 "➡️ Wenn du willst, dass dein Einkommen für dich arbeitet – nicht umgekehrt – ich zeig dir, wo du anfangen kannst.",
                 "👉 Sag kurz Bescheid, dann schick ich dir alles rüber."
@@ -71,7 +71,7 @@
                 "ich weiß, wie sich der Alltag anfühlt, wenn Arbeit alles bestimmt und am Monatsende wenig bleibt.",
                 "Die FSA-Akademie bietet einen kostenlosen Einstiegskurs, der genau das aufbricht: Du lernst, wie Geld wirklich funktioniert – und warum kleine Entscheidungen große Wirkung haben können.",
                 "Ich habe selbst dort angefangen – und es hat meinen Blick komplett verändert.",
-                "Parallel dazu arbeite ich mit Trustyfy – einer dezentralen Lösung, mit der man Einkommen und Werte so verwalten kann, dass kein Dritter sie einfach sperrt oder einzieht.",
+                "Parallel dazu arbeite ich mit einem dezentralen Finanz-Setup, bei dem Einkommen und Werte nicht nur von einem einzigen Konto oder Anbieter abhängen.",
                 "Willst du den Link? Ich schick ihn dir gern.",
                 "Viele Grüße,",
                 "[Dein Name]"
@@ -84,8 +84,8 @@
                 "",
                 "Hallo [Name],",
                 "wir leben in einer Zeit, in der Sicherheit teuer wird – aber Wissen kostenlos ist.",
-                "Der Grundkurs der FSA-Akademie zeigt, wie du dein Einkommen schützt, Risiken erkennst und dich unabhängig machst – ohne Werbung, ohne Verpflichtung.",
-                "Trustyfy ergänzt das Ganze auf der technischen Ebene: Dezentral, transparent, keine stillen Eingriffe von Banken oder Institutionen.",
+                "Der Grundkurs der FSA-Akademie zeigt, wie du dein Einkommen schützt, Risiken erkennst und dich unabhängiger machst – ohne Werbung, ohne Verpflichtung.",
+                "Dezentrale Konten- und Wallet-Lösungen ergänzen das Ganze auf der technischen Ebene: transparent, verteilte Verantwortung, weniger stille Eingriffe von Banken oder Institutionen.",
                 "Wenn du dir zwei Stunden Zeit nimmst, wirst du verstehen, warum das Thema so viele bewegt.",
                 "Ich helfe dir gern beim Einstieg.",
                 "Herzliche Grüße,",
@@ -100,7 +100,7 @@
                 "Hallo [Name],",
                 "die meisten Menschen wissen alles über ihren Job – aber kaum etwas über das System, in dem ihr Geld verschwindet.",
                 "Die FSA-Akademie hat das geändert. Im kostenlosen Grundkurs lernst du, wie du dein Geld, deine Zeit und deine Entscheidungen wieder selbst steuerst.",
-                "Trustyfy zeigt dir parallel, wie du Einkommen und Vermögenswerte so verwaltest, dass niemand sie dir einfach wegnehmen oder blockieren kann – auch nicht bei strengeren EU-Vorgaben.",
+                "Du bekommst außerdem Beispiele, wie Menschen ihre Einkommen und Vermögenswerte in dezentralen Strukturen organisieren, sodass sie weniger anfällig für Sperren und Zugriffe von außen sind.",
                 "Ich war skeptisch, aber der Kurs spricht Klartext – ohne Fachchinesisch, ohne Verkaufsdruck.",
                 "Wenn du willst, schick ich dir den Link.",
                 "Beste Grüße,",
@@ -123,14 +123,14 @@
                 "Ablauf:",
                 "1. Verbindung über Alltag und Unsicherheit herstellen",
                 "2. Systemische Abhängigkeit (Bank, Staat, KI) ansprechen",
-                "3. Gefahr – Pfändung, Zugriff, Zwangsverwaltung",
-                "4. Weg aus der Ohnmacht – Dezentralität + Wissen (FSA + Trustyfy)",
+                "3. Risiko – Sperrungen, Zugriffe, Zwangsmaßnahmen",
+                "4. Weg aus der Ohnmacht – Bildung (FSA) + eigene dezentrale Finanzstruktur",
                 "5. Einladung zum Gespräch oder Grundkurs",
                 "Hinweis: Nicht missionieren. Du bietest einen Weg an, keinen Dogmatismus.",
                 "",
                 "„Hallo [Name], darf ich ehrlich sein? Ich kenne kaum jemanden, der sich heute noch wirklich sicher fühlt. Preise steigen, Gesetze ändern sich ständig, und immer mehr hängt an zentralen Systemen – Banken, Arbeitgebern, Behörden.“",
                 "„Viele geben alles, aber haben das Gefühl, die Kontrolle über ihr Leben zu verlieren. Manche hatten schon Kontosperrungen, andere fürchten, dass KI und neue EU-Verordnungen ihnen den Job nehmen.“",
-                "„Ich arbeite mit der FSA-Akademie und Trustyfy – zwei Wege, um genau das zu ändern: eigenes Wissen aufbauen, Werte schützen, Einkommen unabhängig machen.“",
+                "„Ich arbeite deshalb mit der FSA-Akademie und einer ergänzenden, dezentralen Struktur für meine Geldflüsse – damit Entscheidungen wieder bei mir liegen.“",
                 "„Es geht nicht um Reichtum, sondern um Sicherheit. Ich kann Ihnen das gern zeigen – 15 Minuten reichen. Wann passt es besser – heute Abend oder morgen Vormittag?“"
               ]
             },
@@ -143,13 +143,13 @@
                 "Ablauf:",
                 "1. Einstieg über Unsicherheit und Kontrollverlust",
                 "2. Politische und regulatorische Eingriffe kurz anreißen (digitale Währungen, Konto-Monitoring)",
-                "3. Lösung: Dezentrale Systeme (Trustyfy) und Bildung (FSA)",
+                "3. Lösung: dezentrale Systeme als Ergänzung + Bildung in der FSA-Akademie",
                 "4. Abschluss: Einladung zum Gespräch",
                 "Wichtig: Nicht drohen. Immer sagen: „Es gibt einen Weg.“",
                 "",
                 "„Hallo [Name], ich rufe an, weil viele sagen: ‘Man arbeitet und spart, aber alles wird enger.’ Kennen Sie das?“",
                 "„Viele merken nicht, wie sehr sie von Systemen abhängig sind, die sie nicht beeinflussen können. Ein Klick – und das Konto ist gesperrt. Ein neues Gesetz – und eine Abgabe kommt.“",
-                "„Mit Trustyfy kann man Werte und Zahlungen selbst verwalten, ohne Fremdzugriff. Und in der FSA-Akademie lernt man, wie man sich schon heute absichert.“",
+                "„Mit einer eigenen, dezentralen Struktur kann man Werte und Zahlungen besser verteilen und unter eigener Kontrolle behalten. Und in der FSA-Akademie lernt man, wie man sich schon heute darauf vorbereitet.“",
                 "„Keine Theorie, keine Verkaufsnummer – nur Information. Wollen wir das kurz durchgehen? 15 Minuten reichen.“"
               ]
             },
@@ -157,19 +157,19 @@
               title: "📞 Leitfaden 3 – Aus der Abhängigkeit in die Freiheit",
               body: [
                 "🔹 Interne Anleitung",
-                "Ziel: Begreifen lassen, dass „Normalität“ Abhängigkeit bedeutet – und dass Freiheit wieder möglich ist.",
-                "Themen: Pfändung, digitale Zentralwährungen, Social Credit, politische Zugriffe.",
+                "Ziel: Begreifen lassen, dass „Normalität“ Abhängigkeit bedeutet – und dass mehr Freiheit wieder möglich ist.",
+                "Themen: digitale Zentralwährungen, Social Credit, politische Zugriffe.",
                 "Ablauf:",
                 "1. Persönliche Frage zum Sicherheitsgefühl",
                 "2. Realbeispiel (Sperrung, Zwangskontrolle)",
-                "3. Lösung: Dezentrale Selbstverwaltung + digitale Souveränität",
+                "3. Lösung: dezentrale Selbstverwaltung + digitale Souveränität mit eigenem Werkzeug-Setup",
                 "4. Einladung zum Online-Call",
                 "Tonalität: ruhig, souverän, nicht verschwörerisch.",
                 "",
                 "„[Name], darf ich Sie direkt fragen? Wenn morgen Ihr Konto gesperrt wird oder eine neue Regel Ihre Arbeit verändert – wären Sie vorbereitet?“",
-                "„Viele verlassen sich auf Systeme, die ihnen nicht gehören. Digitale Zentralwährungen und Überwachung kommen – und damit Kontrolle über unser Leben.“",
-                "„Mit Trustyfy und der FSA-Akademie bauen wir die Gegenstrategie auf: dezentrale Strukturen, eigene Freigaben, keine Pfändung, keine Blockade, keine stille Zensur.“",
-                "„Ich zeige Ihnen gern, wie das geht. Wann passt ein kurzes Gespräch besser – morgen Vormittag oder nach Feierabend?“"
+                "„Viele verlassen sich auf Systeme, die ihnen nicht gehören. Digitale Zentralwährungen und Überwachung kommen – und damit mehr Kontrolle über unser Leben.“",
+                "„Mit einer Kombination aus Wissen (FSA-Akademie) und dezentral organisierten Werten bauen wir eine Gegenstrategie auf: klare Freigaben, verteilte Zugriffe, weniger Abhängigkeit von einem einzigen System.“",
+                "„Ich zeige Ihnen gern, wie das grundsätzlich geht. Wann passt ein kurzes Gespräch besser – morgen Vormittag oder nach Feierabend?“"
               ]
             }
           ]
@@ -182,19 +182,19 @@
             {
               title: "Snippet 1",
               body: [
-                "„Viele arbeiten hart, aber kaum jemand versteht, warum Geld immer knapper wird. Lern’s im kostenlosen FSA-Grundkurs.“"
+                "„Viele arbeiten hart, aber kaum jemand versteht, warum Geld immer knapper wird. Lern’s im kostenlosen FSA-Grundkurs – und baue dir danach dein eigenes dezentrales Sicherheitsnetz auf.“"
               ]
             },
             {
               title: "Snippet 2",
               body: [
-                "„Wenn du keine Zeit hast, brauchst du Wissen. Die FSA-Akademie zeigt, wie du Zeit und Geld zurückholst – Trustyfy schützt es technisch.“"
+                "„Wenn du keine Zeit hast, brauchst du Systeme. Die FSA-Akademie erklärt dir die Zusammenhänge – und zeigt, wie du dein Geld technisch absicherst.“"
               ]
             },
             {
               title: "Snippet 3",
               body: [
-                "„Zukunftsangst? Nur bis du verstehst, wie Geld wirklich funktioniert – und wie du es dezentral sicherst.“"
+                "„Zukunftsangst bleibt, bis du verstehst, wie Geld wirklich funktioniert – und wie du es in eigenen, dezentralen Strukturen organisierst.“"
               ]
             }
           ]
@@ -207,41 +207,42 @@
     // ────────────────────────────────────────────────────────────────
     en: {
       title: "📘 Target Group 2 – Employees & Professionals",
-      subtitle: "Rethinking security – independence with Trustyfy and the FSA Academy",
+      subtitle: "Rethinking security – independence with decentralized setups and the FSA Academy",
       blocks: [
         {
           heading: "1. WhatsApp / Facebook / Telegram – templates",
           items: [
             {
-              title: "Template 1 – “The Cost of Feeling Safe”",
+              title: "Template 1 – “The cost of feeling safe”",
               body: [
-                "Many people work harder than ever – but still feel less secure. Salaries stagnate, prices go up, the future feels unstable.",
-                "That feeling of ‘I keep running, but nothing changes’ – that’s exactly what we address.",
-                "The FSA Academy explains how money flows really work and how to protect yourself step by step.",
-                "Trustyfy adds the tech layer: it keeps your income and assets under your control – no silent freezes, no third-party access.",
-                "➡️ I recommend starting with the free basic course – no risk, but possibly your turning point.",
-                "👉 If you want, I can send you the link right away."
+                "Many people work harder than ever – and still feel less secure. Salaries stagnate, prices go up, the future feels unstable.",
+                "That feeling of ‘I keep running, but nothing really changes’ – that’s exactly where we start.",
+                "The FSA Academy explains how money flows actually work and how you can protect yourself step by step.",
+                "A decentralized financial setup adds the technical side: your income and savings are not tied to one single bank or platform.",
+                "➡️ My recommendation is to start with the free basic course – no risk, but it might be a turning point. From there you can choose the tools that fit you.",
+                "👉 If you like, I can send you the link right away."
               ]
             },
             {
-              title: "Template 2 – “Time vs. Life”",
+              title: "Template 2 – “Time vs. life”",
               body: [
-                "Most people trade their best hours for money – and still it is not enough.",
-                "Freedom sounds great – but hardly anyone shows you how to get it.",
-                "Inside the FSA Academy you learn how to create income that keeps flowing even when you are not working.",
-                "Trustyfy is the backup: decentralized, independent from banks, future-proof.",
-                "➡️ If you feel you want more than just paying bills – tell me. I’ll send you the link.",
-                "👉 15 minutes of explanation and you’ll know if it’s for you."
+                "Most people trade their best hours for money – and still it is barely enough.",
+                "Freedom sounds great – but hardly anyone shows you how to move in that direction.",
+                "Inside the FSA Academy you learn how to build income streams that do not depend only on your monthly job.",
+                "On the technical side you can add a decentralized structure for your money, where you control access rights and approvals yourself.",
+                "➡️ If you feel you want more than just paying bills, tell me. I’ll send you the starting link.",
+                "👉 15 minutes of explanation and you will know if it’s for you."
               ]
             },
             {
-              title: "Template 3 – “From Fear to Clarity”",
+              title: "Template 3 – “From fear to clarity”",
               body: [
-                "People are worried: inflation, AI, job cuts, pensions – but nobody explains how to prepare.",
-                "The FSA Academy gives the clarity. Trustyfy gives the protection.",
-                "No pressure, no sales – just information.",
+                "People worry about inflation, AI, job cuts, pensions – but nobody explains how to prepare.",
+                "The FSA Academy gives you the bigger picture: how to read money flows, spot digital opportunities and take responsibility.",
+                "You also see practical examples of decentralized account and wallet structures that make income and reserves less vulnerable to blocks and outages.",
+                "No pressure, no sales pitch – just clarity.",
                 "➡️ If you want your income to work for you – not the other way round – I can show you where to start.",
-                "👉 Short message is enough and I’ll send you everything."
+                "👉 Send me a quick message and I’ll forward everything."
               ]
             }
           ]
@@ -256,23 +257,26 @@
                 "Subject: Free intro course – understanding financial sovereignty",
                 "",
                 "Hi [Name],",
-                "I know what it’s like when work takes over and still nothing is really secure.",
-                "The FSA Academy has a free starter course that finally explains how money actually works – and how to protect yourself.",
-                "Together with Trustyfy you get a technical way to keep your income out of centralized control.",
-                "Do you want the link?",
-                "Best,",
+                "I know what it feels like when work dominates everything and still nothing is really secure at the end of the month.",
+                "The FSA Academy offers a free starter course that breaks this pattern: you learn how money actually works – and why small decisions can make a big difference.",
+                "That course completely changed the way I look at my own finances.",
+                "Alongside it I use a decentralized setup for my income and assets, so they don’t depend on a single account or provider.",
+                "Would you like the link? I’m happy to send it.",
+                "Best regards,",
                 "[Your Name]"
               ]
             },
             {
-              title: "Email 2 – “Why knowledge = security now”",
+              title: "Email 2 – “More than just finances”",
               body: [
-                "Subject: Why decentralization is becoming the new safety layer",
+                "Subject: Why knowledge means security today",
                 "",
                 "Hello [Name],",
-                "we’re living in a time where control is increasing but personal security is not.",
-                "The FSA Academy shows the principles. Trustyfy makes them real: decentralized, transparent, and independent from banks.",
-                "Take 2 hours to watch it – you’ll be ahead of 90% of people.",
+                "we live in a time where personal security gets expensive – but knowledge is still free.",
+                "The FSA Academy’s basic course shows how to protect your income, recognize risks and become more independent – without advertising or obligations.",
+                "Decentralized account and wallet solutions add the technical layer: transparent, distributed and less prone to silent interventions from banks or institutions.",
+                "If you invest two hours to watch it, you’ll understand why this topic is gaining attention.",
+                "Happy to help you get started.",
                 "Kind regards,",
                 "[Your Name]"
               ]
@@ -280,12 +284,14 @@
             {
               title: "Email 3 – “From functioning to understanding”",
               body: [
-                "Subject: How to break out of financial dependency",
+                "Subject: Ways out of financial dependency – free FSA basic course",
                 "",
                 "Hello [Name],",
-                "most people know everything about their job – but almost nothing about the system their money sits in.",
-                "That’s why I like the FSA Academy – and why I use Trustyfy to secure income outside bank rules.",
-                "If you’re open for that, I’ll send you the links.",
+                "most people know their job inside out – but almost nothing about the system their money disappears into.",
+                "The FSA Academy changed that for me. In the free basic course you learn how to take control of your money, your time and your decisions again.",
+                "You also see how people organise income and assets in decentralized structures so they are less exposed to blocks or external access.",
+                "I was skeptical at first, but the course is straightforward – no jargon, no pressure.",
+                "If you like, I’ll send you the link.",
                 "Best regards,",
                 "[Your Name]"
               ]
@@ -297,50 +303,59 @@
           heading: "3. Call scripts (with internal guidance)",
           items: [
             {
-              title: "📞 Call Script 1 – Face reality, reclaim security",
+              title: "📞 Call script 1 – Face reality, reclaim security",
               body: [
                 "🔹 Internal guidance",
-                "Goal: make them feel that ‘security’ today is mostly an illusion based on central systems.",
+                "Goal: help them feel that ‘security’ today is no longer a given.",
                 "Tone: calm, empathetic, factual.",
                 "Steps:",
                 "1. connect via everyday pressure",
-                "2. point out system dependency (bank, state, employer, AI)",
-                "3. show risk (freezing, garnishment, digital euro)",
-                "4. offer way out: FSA (knowledge) + Trustyfy (tech)",
-                "5. schedule 15 min call",
+                "2. name system dependency (bank, state, employer, AI)",
+                "3. outline risks (freezes, access, new rules)",
+                "4. way out: education (FSA) + personal decentralized structure for income and savings",
+                "5. invite to a short call or the basic course",
                 "",
-                "“Hello [Name], I’m calling because many people tell me they work more than ever but still feel vulnerable.”",
-                "“Prices go up, laws change, and more and more is decided by systems we don’t control.”",
-                "“That’s why I work with the FSA Academy and Trustyfy – together they give you back control over income and assets.”",
-                "“I can show you in 15 minutes. When is better – today evening or tomorrow morning?”"
+                "“Hello [Name], can I be honest? I hardly know anyone who still feels truly secure. Prices rise, laws change, and more and more depends on central systems – banks, employers, authorities.”",
+                "“Many people give everything, but feel they are losing control over their life. Some already had account issues, others are afraid of AI and new EU regulations.”",
+                "“That’s why I work with the FSA Academy and an additional decentralized setup for my money flows – so that decisions come back to me.”",
+                "“It’s not about getting rich, it’s about not being helpless. I can show you the basics in 15 minutes. What suits you better – this evening or tomorrow morning?”"
               ]
             },
             {
-              title: "📞 Call Script 2 – Turn fear into action",
+              title: "📞 Call script 2 – Turn fear into action",
               body: [
                 "🔹 Internal guidance",
-                "Goal: transform anxiety (job, AI, central control) into concrete next step.",
-                "Don’t exaggerate – stay real.",
-                "CTA: 15 min Zoom/phone.",
+                "Goal: transform anxiety into a concrete next step.",
+                "Focus: job security, cost of living, digital control.",
+                "Steps:",
+                "1. start with the feeling of ‘getting tighter’",
+                "2. point to political and regulatory trends (digital currencies, monitoring)",
+                "3. offer solution: decentralized setups as complement + FSA for understanding",
+                "4. close with invitation to 15 min call",
                 "",
-                "“Hi [Name], a lot of people right now have the feeling: ‘I work and work, but it gets tighter.’ Do you know that?”",
-                "“That’s often because income sits in places we don’t control – banks, platforms, payroll systems.”",
-                "“With Trustyfy you can manage values and payments yourself – and the FSA Academy explains the bigger picture.”",
-                "“I can walk you through it quickly. 15 minutes is enough.”"
+                "“Hi [Name], I’m calling because many people tell me: ‘I work and save, but it gets tighter every year.’ Do you know that feeling?”",
+                "“Often that’s because their income sits entirely in systems they can’t influence. One click – and access is restricted. One new rule – and fees or limits appear.”",
+                "“With a personal decentralized structure you can spread values and keep more control over how money moves. And the FSA Academy explains how to prepare for this now.”",
+                "“No hype, no pressure – just information. Shall we go through it briefly? 15 minutes is enough.”"
               ]
             },
             {
-              title: "📞 Call Script 3 – From functioning to freedom",
+              title: "📞 Call script 3 – From dependency to more freedom",
               body: [
                 "🔹 Internal guidance",
-                "Goal: help them see that they are ‘functioning’ but not really steering.",
-                "Emphasize digital control, CBDC, social-credit-style risks.",
-                "Finish with: ‘Let’s look at it before rules get tighter.’",
+                "Goal: make them see that ‘normal’ often means dependent – and that more freedom is possible.",
+                "Topics: digital currencies, social-credit-style systems, political access.",
+                "Steps:",
+                "1. ask about their feeling of security",
+                "2. share a real-world example (blocking, forced control)",
+                "3. solution: decentralized self-management + digital sovereignty with tools they choose themselves",
+                "4. invite to online call",
+                "Tone: calm, confident, not conspiratorial.",
                 "",
-                "“[Name], may I ask you something personal? If tomorrow your account was frozen or your job situation changed – would you be ready?”",
-                "“Most people aren’t – because their income is centrally controlled.”",
-                "“With Trustyfy and FSA you can build a parallel, decentralized buffer – under your name, under your control.”",
-                "“I can show you how – 15 minutes, relaxed. When suits you?”"
+                "“[Name], may I ask you directly? If tomorrow your main account were restricted or a new rule changed your work situation – would you be prepared?”",
+                "“Most people rely on systems they don’t own. Digital central-bank money and more monitoring are coming – and with that, more control over our lives.”",
+                "“By combining knowledge from the FSA Academy with a decentralized way of organising your assets, you build a counter-strategy: clear approvals, distributed access, less dependency on a single system.”",
+                "“I’m happy to show you the basic idea. When is a short conversation easier – tomorrow morning or after work?”"
               ]
             }
           ]
@@ -352,19 +367,19 @@
             {
               title: "Snippet 1",
               body: [
-                "“Most people work hard, but only few know how to protect their money. Start with the FSA intro – then secure it with Trustyfy.”"
+                "“Most people work hard, but few understand why money keeps getting tighter. Start with the free FSA intro course – then build your own decentralized safety net.”"
               ]
             },
             {
               title: "Snippet 2",
               body: [
-                "“No time? Then you need systems. FSA explains, Trustyfy protects.”"
+                "“No time? Then you need systems. The FSA Academy explains the logic – and shows how to secure your money technically.”"
               ]
             },
             {
               title: "Snippet 3",
               body: [
-                "“Digital control is coming. Decentralized income is the answer.”"
+                "“Future anxiety stays until you understand how money really works – and how to organise it in your own decentralized structures.”"
               ]
             }
           ]
@@ -373,10 +388,10 @@
     }
   };
 
-  // 2. GLOBAL EXPORT (wichtig für social.html)
+  // 2. GLOBAL EXPORT (für social.html)
   window.FSA_SOCIAL_02 = SOCIAL_02;
 
-  // 3. OPTIONAL: eigener Renderer (damit du 02 auch direkt öffnen kannst wie 01)
+  // 3. OPTIONAL: eigener Renderer (wie bei 01 nutzbar)
   function createHost() {
     let host = document.getElementById("socialContent");
     if (!host) {
@@ -447,7 +462,7 @@
     host.appendChild(wrap);
   }
 
-  // 4. Styles (ähnlich wie 01, aber eigener Prefix)
+  // 4. Styles (ähnlich wie 01, eigener Prefix)
   const style = document.createElement("style");
   style.textContent = `
     #socialContent {
@@ -541,5 +556,5 @@
   if (params.get("open") === "02") {
     const lang = localStorage.getItem("fsa_lang") || "de";
     renderSocial02(lang);
-  }
+    }
 })();
