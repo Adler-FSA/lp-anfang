@@ -31,7 +31,7 @@
                 "Das fühlt sich edel an, ist aber subtile Kontrolle.",
                 "Ein souveräner Mentor begleitet, er ersetzt nicht.",
                 "Die Akademie zeigt, wie man Räume hält, nicht Menschen.",
-                "Trustyfy spiegelt diese Haltung: jede Aktion ist sichtbar, niemand „besitzt“ den anderen."
+                "Gute Strukturen spiegeln diese Haltung: jede Aktion ist nachvollziehbar, niemand „besitzt“ den anderen."
               ]
             }
           ]
@@ -56,7 +56,7 @@
             {
               body: [
                 "FairPlay ist kein Regelheft, sondern Haltung.",
-                "In Trustyfy heißt das: Transparenz vor Strategie.",
+                "In fairen Systemen heißt das: Transparenz vor Strategie.",
                 "In Beziehungen: Wahrheit vor Harmonie.",
                 "Die Akademie trainiert diese Haltung, bis sie Gewohnheit wird.",
                 "Denn ein System ist nur so stark wie seine Gespräche."
@@ -115,7 +115,7 @@
                 "It feels noble but is subtle control.",
                 "A sovereign mentor accompanies, he doesn’t replace.",
                 "The Academy shows how to hold space, not people.",
-                "Trustyfy mirrors this attitude: every action is visible, no one ‘owns’ another."
+                "Solid systems mirror this attitude: every action is visible, no one ‘owns’ another."
               ]
             }
           ]
@@ -140,7 +140,7 @@
             {
               body: [
                 "FairPlay is not a rulebook but an attitude.",
-                "In Trustyfy it means: transparency before strategy.",
+                "In healthy systems it means: transparency before strategy.",
                 "In relationships: truth before harmony.",
                 "The Academy trains this until it becomes habit.",
                 "Because a system is only as strong as its conversations."
