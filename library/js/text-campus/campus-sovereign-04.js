@@ -37,15 +37,15 @@
           ]
         },
         {
-          heading: "2. Trustyfy als Vorbild für digitale Ethik",
+          heading: "2. Digitale Ethik in der Praxis",
           items: [
             {
               body: [
-                "Trustyfy ist der technische Beweis, dass Transparenz und Datenschutz sich nicht ausschließen.",
-                "Alle Teilnehmer sehen, was geschieht – aber niemand sieht, was privat bleibt.",
+                "Ein faires, dezentrales System zeigt, dass Transparenz und Datenschutz sich nicht ausschließen.",
+                "Alle Beteiligten sehen, was geschieht – aber Privates bleibt geschützt.",
                 "Jede Aktion ist verschlüsselt, jede Zustimmung freiwillig.",
                 "So funktioniert Dezentralität als Würdeprinzip.",
-                "Die Akademie nutzt dieses Beispiel, um digitale Bildung zur Bürgerpflicht zu machen."
+                "Die Akademie nutzt solche Beispiele, um digitale Bildung zur Bürgerpflicht zu machen."
               ]
             }
           ]
@@ -121,15 +121,15 @@
           ]
         },
         {
-          heading: "2. Trustyfy as a model of digital ethics",
+          heading: "2. Digital ethics in practice",
           items: [
             {
               body: [
-                "Trustyfy proves that transparency and privacy can coexist.",
-                "All participants see what happens – yet no one sees what stays private.",
+                "A fair, decentralized setup proves that transparency and privacy can coexist.",
+                "Participants can see what happens – while what stays private remains protected.",
                 "Every action is encrypted, every consent voluntary.",
                 "That’s decentralization as a principle of dignity.",
-                "The Academy uses this to make digital literacy a civic duty."
+                "The Academy uses such examples to make digital literacy a civic duty."
               ]
             }
           ]
