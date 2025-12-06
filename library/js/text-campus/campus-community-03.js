@@ -7,7 +7,7 @@
 
 (function () {
   // ============================================================
-  // 1) DATEN – DE (1:1 Vorgabe) + EN (sinngemäß)
+  // 1) DATEN – DE (1:1 Vorgabe, Trustyfy neutralisiert) + EN (sinngemäß)
   // ============================================================
   const COMMUNITY_CONTENT = {
     de: {
@@ -32,7 +32,7 @@
               body: [
                 "Sicherheit fängt zuhause an.",
                 "Unsere Treffen zeigen, wie man finanzielle Stabilität für sich und die Familie schafft – nicht durch Angst, sondern durch Verständnis.",
-                "FSA erklärt, Trustyfy sichert ab.",
+                "FSA erklärt, dezentrale Lösungen sichern ab.",
                 "➡️ Ich lade dich ein, dabei zu sein."
               ]
             },
@@ -86,7 +86,7 @@
                 "Hallo [Name],",
                 "viele Menschen spüren, dass sich die Welt ändert – finanziell und digital.",
                 "Beim FSA-Treff lernen wir, wie man Ruhe behält und Verantwortung übernimmt.",
-                "FSA liefert Verständnis, Trustyfy die Technik dazu.",
+                "FSA liefert Verständnis, dezentrale Systeme liefern die Technik dazu.",
                 "Ich würde mich freuen, dich dabei zu haben.",
                 "Herzliche Grüße",
                 "[Dein Name]"
@@ -108,7 +108,7 @@
                 "Skript:",
                 "„Hallo [Name], wir reden so oft über Probleme – aber selten darüber, wie wir sie lösen können.",
                 "Beim FSA-Sicherheits-Treff geht es darum, dass wir einander helfen, die Dinge besser zu verstehen: Geld, Sicherheit, digitale Abhängigkeit.",
-                "FSA zeigt die Zusammenhänge, Trustyfy macht sie praktisch.",
+                "FSA zeigt die Zusammenhänge, dezentrale Strukturen machen sie praktisch.",
                 "Ein Abend bringt mehr Klarheit als viele Diskussionen im Alltag.",
                 "Wenn du willst, komm einfach dazu – der Rahmen ist locker.“"
               ]
@@ -137,7 +137,7 @@
                 "Skript:",
                 "„Viele wissen nicht mehr, wem man trauen kann – Banken, Politik, Medien.",
                 "Beim FSA-Sicherheits-Treff finden wir eine Antwort: Wir schaffen unser eigenes Verständnis, unabhängig von Dritten.",
-                "FSA liefert das Wissen, Trustyfy die Technik.",
+                "FSA liefert das Wissen, dezentrale Lösungen liefern die Technik.",
                 "Das gibt Sicherheit, die bleibt.",
                 "Hast du Lust, dir das einmal in Ruhe anzuhören?“"
               ]
@@ -177,7 +177,7 @@
             {
               title: "Snippet 3",
               body: [
-                "„FSA & Trustyfy – weil Vertrauen das beste System ist.“"
+                "„FSA & dezentrale Lösungen – weil Vertrauen das beste System ist.“"
               ]
             },
             {
@@ -214,7 +214,7 @@
               body: [
                 "Safety starts at home.",
                 "Our meetups show how to build financial stability for yourself and your family – not through fear, but through understanding.",
-                "FSA explains, Trustyfy protects.",
+                "FSA explains, decentralized solutions protect.",
                 "➡️ I’d like to invite you to be part of it."
               ]
             },
@@ -268,7 +268,7 @@
                 "Hi [Name],",
                 "many people sense that things are changing – financially and digitally.",
                 "At the FSA meetup we learn how to stay calm and take responsibility.",
-                "FSA provides the understanding, Trustyfy the technical shield.",
+                "FSA provides the understanding, decentralized systems provide the technical shield.",
                 "I’d love to have you there.",
                 "Best,",
                 "[Your name]"
@@ -290,7 +290,7 @@
                 "Script:",
                 "“Hi [Name], we often talk about problems – but rarely about how to actually solve them.",
                 "In the FSA security meetup we help each other understand the important things: money, safety, digital dependency.",
-                "FSA shows the logic, Trustyfy makes it practical.",
+                "FSA shows the logic, a decentralized setup makes it practical.",
                 "One evening brings more clarity than a week of random discussions.",
                 "If you like, just join the next one – it’s a very relaxed format.”"
               ]
@@ -318,7 +318,7 @@
                 "Script:",
                 "“Many people no longer know who to trust – banks, politics, media.",
                 "In the FSA security meetup we build our own understanding – independent of third parties.",
-                "FSA provides the knowledge, Trustyfy provides the tech.",
+                "FSA provides the knowledge, decentralized solutions provide the tech.",
                 "That creates safety that lasts.",
                 "Want to listen in on the next session?”"
               ]
@@ -358,7 +358,7 @@
             {
               title: "Snippet 3",
               body: [
-                "“FSA & Trustyfy – because trust is the best system.”"
+                "“FSA & decentralized solutions – because trust is the best system.”"
               ]
             },
             {
