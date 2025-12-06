@@ -496,6 +496,7 @@
     │   │   ├── akademie-co-pilot-einrichten.html
     │   │   ├── akademie-handling.html
     │   │   ├── magazin-basis.html
+    │   │   ├── mentor-sicherheit.html
     │   │   ├── timecells-handling.html
     │   │   ├── trusttipp-handling.html
     │   │   └── trustyfy-handling.html
@@ -578,4 +579,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.12.2025, 08:19)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.12.2025, 09:14)_
