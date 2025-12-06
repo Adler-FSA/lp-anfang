@@ -1,15 +1,15 @@
 // library/js/text-social-01.js
 // Zielgruppe 1 – Firmen & Geschäftsführer
-// Verdratung für: lang-switcher.js (event: fsa:lang-change)
+// Verdrahtung für: lang-switcher.js (event: fsa:lang-change)
 // Anzeige: einfacher einspaltiger Renderer, mobil lesbar
-// Keine Kürzungen. DE = 1:1 aus Vorgabe. EN = sinngemäße, professionelle Fassung.
+// Keine Kürzungen. DE = voll, EN = sinngemäße, professionelle Fassung.
 
 (function () {
   // 1. Alle Inhalte in beiden Sprachen
   const SOCIAL_CONTENT = {
     de: {
       title: "📊 Zielgruppe 1 – Firmen & Geschäftsführer",
-      subtitle: "Thema: Dezentrale Zukunft mit Trustyfy – Kontrolle, Effizienz, Vertrauen",
+      subtitle: "Thema: Dezentrale Finanzstrukturen – Kontrolle, Effizienz, Vertrauen",
       blocks: [
         {
           type: "section",
@@ -20,10 +20,10 @@
               body: [
                 "Viele Unternehmen spüren, wie abhängig ihre Abläufe von Banken, Plattformen und zentralen Servern geworden sind.",
                 "Ein einziger technischer oder regulatorischer Eingriff – und Prozesse stehen still.",
-                "Trustyfy zeigt, dass Kontrolle auch ohne Zwischeninstanzen möglich ist: direkte Freigaben, transparente Strukturen, sichere Partnernetzwerke.",
+                "Immer mehr Firmen ergänzen ihre klassische Struktur deshalb um ein dezentrales Finanz-Setup: eigene Wallets, klare Freigabewege, transparente Partnerprozesse.",
                 "Dezentral bedeutet nicht Chaos – es bedeutet Stabilität, Nachvollziehbarkeit und echte Datensouveränität.",
-                "➡️ Ich nutze es selbst, um Unternehmensprozesse resilienter zu machen. Wenn Sie möchten, zeige ich Ihnen, wie das funktioniert.",
-                "👉 Lassen Sie uns kurz abstimmen, wann ich Ihnen die Lösung in 15 Minuten zeigen darf."
+                "➡️ Ich arbeite selbst mit so einem Setup und kann Ihnen zeigen, wie der Aufbau grundsätzlich funktioniert – unabhängig davon, für welche Anbieter Sie sich später entscheiden.",
+                "👉 Lassen Sie uns kurz abstimmen, wann ich Ihnen den Ansatz in 15 Minuten zeigen darf."
               ]
             },
             {
@@ -31,17 +31,17 @@
               body: [
                 "Im Geschäftsleben entscheidet Vertrauen schneller als jede Kalkulation.",
                 "Doch in einer Zeit, in der Cyberangriffe, Kontosperren und Systemausfälle zunehmen, braucht Vertrauen eine technische Grundlage.",
-                "Trustyfy bildet Vertrauen digital ab – jede Transaktion, jede Vereinbarung, jeder Partnerprozess ist transparent und geschützt.",
-                "➡️ Wenn Sie überlegen, wie Sie Ihr Unternehmen krisenfest und unabhängig aufstellen, lohnt sich ein Blick auf diese Lösung.",
-                "👉 Vereinbaren Sie einen Gesprächstermin, um zu sehen, wie Trustyfy Vertrauen mess- und überprüfbar macht."
+                "Ein dezentrales Konto- und Wallet-Setup macht Abläufe nachvollziehbar: jede Transaktion, jede Vereinbarung, jeder Partnerprozess bleibt prüfbar und geschützt.",
+                "➡️ Wenn Sie überlegen, wie Sie Ihr Unternehmen krisenfest und unabhängiger aufstellen, lohnt sich ein Blick auf diese Art von Struktur.",
+                "👉 Vereinbaren Sie einen Gesprächstermin, dann zeige ich Ihnen, wie ich das in meiner eigenen Praxis gelöst habe."
               ]
             },
             {
               title: "Vorlage 3 – „Kontrolle zurück ins eigene Haus holen“",
               body: [
                 "Viele Firmen wissen nicht, wie viel Kontrolle sie längst abgegeben haben – an Banken, Payment-Provider und Plattformen.",
-                "Trustyfy bringt sie zurück: dezentrale Zahlungsfreigaben, eigene Unternehmens-Wallets, keine stillen Sperren, keine fremden Server.",
-                "➡️ Ich zeige Ihnen gern, wie Unternehmen damit rechtssicher und unangreifbar werden – zehn Minuten reichen für den Überblick.",
+                "Mit einer dezentralen Architektur holen Sie Entscheidungsrechte zurück: eigene Unternehmens-Wallets, definierte Freigaben, weniger stille Sperren, weniger Fremdserver.",
+                "➡️ Gern zeige ich Ihnen, wie Unternehmen damit rechtssicher und handlungsfähig bleiben – zehn Minuten reichen für den Überblick.",
                 "👉 Lassen Sie uns einen kurzen Einblick vereinbaren – unverbindlich, aber mit Substanz."
               ]
             }
@@ -59,9 +59,9 @@
                 "Sehr geehrte Frau / sehr geehrter Herr [Nachname],",
                 "Digitalisierung bringt Effizienz – aber auch Abhängigkeit.",
                 "Bankrichtlinien, Datenschutzgesetze und zentrale Schnittstellen machen Unternehmen verwundbar.",
-                "Trustyfy schließt diese Lücke: sichere Prozesse, direkte Abrechnung, volle Transparenz – ohne Dritte.",
-                "Ich zeige Ihnen gern, warum immer mehr Unternehmen diesen Weg gehen – und wie das in der Praxis aussieht.",
-                "👉 Lassen Sie uns einen 15-Minuten-Termin vereinbaren, um die Möglichkeiten für Ihr Unternehmen durchzugehen.",
+                "In meinen Projekten arbeite ich deshalb mit einer zusätzlichen, dezentralen Finanzstruktur: eigene Wallets, klare Freigaben, volle Transparenz – ohne weitere Zwischenstationen.",
+                "Ich zeige Ihnen gern, warum immer mehr Unternehmen diesen Weg zumindest als Ergänzung prüfen – und wie das in der Praxis aussieht.",
+                "👉 Lassen Sie uns einen 15-Minuten-Termin vereinbaren, um die Möglichkeiten für Ihr Unternehmen durchzugehen – produktneutral, anhand eines Beispiel-Setups.",
                 "Mit freundlichen Grüßen",
                 "[Ihr Name]"
               ]
@@ -73,9 +73,9 @@
                 "",
                 "Sehr geehrte Frau / sehr geehrter Herr [Nachname],",
                 "neue EU-Vorgaben und Compliance-Richtlinien führen dazu, dass Unternehmen immer weniger direkt entscheiden können.",
-                "Trustyfy gibt Ihnen diese Hoheit zurück – jede Zahlung, jeder Datenfluss, jede Freigabe liegt unter Ihrer Kontrolle.",
-                "Keine Bank kann blockieren, keine Plattform dazwischen greifen.",
-                "Wenn Sie möchten, erläutere ich Ihnen in 15 Minuten, wie Sie das konkret umsetzen können.",
+                "Mit einer dezentralen Struktur für Zahlungs- und Werteströme holen Sie sich ein Stück Hoheit zurück – jede Zahlung, jeder Datenfluss, jede Freigabe liegt wieder näher an Ihrem eigenen Haus.",
+                "Keine einzelne Bank und keine Plattform entscheidet allein über Ihre Handlungsfähigkeit.",
+                "Wenn Sie möchten, erläutere ich Ihnen in 15 Minuten, wie so ein Aufbau grundsätzlich funktioniert – losgelöst von bestimmten Produkten.",
                 "👉 Antworten Sie mir kurz mit Ihrem Wunschtermin – ich passe mich gern an.",
                 "Freundliche Grüße",
                 "[Ihr Name]"
@@ -88,10 +88,10 @@
                 "",
                 "Sehr geehrte Frau / sehr geehrter Herr [Nachname],",
                 "fast alle Geschäftsprozesse laufen über fremde Systeme – bis eine Schnittstelle ausfällt oder Regeln geändert werden.",
-                "Trustyfy ermöglicht unabhängige Strukturen: eigene Konten, eigene Freigaben, volle Nachvollziehbarkeit – ohne Abhängigkeit von zentralen Anbietern.",
+                "Mit einer dezentralen Konto- und Wallet-Struktur schaffen Sie unabhängige Bahnen: eigene Konten, eigene Freigaben, volle Nachvollziehbarkeit – mit weniger Abhängigkeit von einzelnen zentralen Anbietern.",
                 "So bleiben Sie handlungsfähig und rechtssicher – auch in Krisenzeiten.",
-                "Gern zeige ich Ihnen Beispiele aus der Praxis.",
-                "👉 Buchen Sie hier einen Kurztermin für den Einblick in unsere Lösung.",
+                "Gern zeige ich Ihnen Beispiele aus der Praxis und mein eigenes Setup als Orientierung.",
+                "👉 Buchen Sie hier einen Kurztermin, dann gehen wir die Optionen gemeinsam durch.",
                 "Beste Grüße",
                 "[Ihr Name]"
               ]
@@ -107,15 +107,15 @@
               body: [
                 "🔹 Interne Anleitung:",
                 "Ziel: Neugier wecken → kurzer 15-Minuten-Termin.",
-                "Gesprächsrichtung: Druck von außen (EU, Banken, Plattformen) sichtbar machen, dann Trustyfy als Lösung zur Rückgewinnung von Kontrolle positionieren.",
-                "Einwandbehandlung: „Wir haben IT/Compliance“ → Trustyfy ergänzt, nicht ersetzt.",
-                "Ergebnis: Terminvereinbarung oder Demo-Link.",
+                "Gesprächsrichtung: Druck von außen (EU, Banken, Plattformen) sichtbar machen, dann eine dezentrale Finanzstruktur als Möglichkeit zur Rückgewinnung von Kontrolle positionieren.",
+                "Einwandbehandlung: „Wir haben IT/Compliance“ → dezentrale Setups ergänzen, sie ersetzen nicht die bestehende Infrastruktur.",
+                "Ergebnis: Terminvereinbarung oder Demo-Link zu einem Beispiel-Setup.",
                 "",
                 "Skript:",
                 "„Guten Tag [Name], viele Unternehmer spüren, wie die Spielräume enger werden – EU-Regulierungen, Bankrichtlinien, digitale Abhängigkeiten.",
-                "Trustyfy bietet die Möglichkeit, Kontrolle über eigene Daten- und Zahlungsstrukturen zurückzugewinnen.",
-                "Keine dritte Instanz kann sperren oder zugreifen. Alles läuft dezentral und revisionssicher.",
-                "Lassen Sie uns das gemeinsam durchgehen – ich zeige Ihnen in 15 Minuten, wie Sie Ihre Systeme absichern können.“"
+                "Ich arbeite deshalb mit einer zusätzlichen, dezentralen Struktur für Zahlungs- und Werteströme.",
+                "Damit bleiben Daten- und Zahlungswege nachvollziehbar, ohne dass eine einzelne Instanz alles sperren kann.",
+                "Lassen Sie uns das gemeinsam durchgehen – ich zeige Ihnen in 15 Minuten, wie so ein Setup aussehen kann und welche Fragen Sie intern klären sollten.“"
               ]
             },
             {
@@ -123,16 +123,16 @@
               body: [
                 "🔹 Interne Anleitung:",
                 "Ziel: Bewusstsein für Abhängigkeiten wecken → Termin für Beratung.",
-                "Gesprächsführung: Mit aktuellen Risiken beginnen (digitale Zentralwährung, Kontoüberwachung, Compliance-Sperren), dann Lösung Trustyfy als souveräne Alternative vorstellen.",
-                "Einwandbehandlung: „Ist das legal?“ → Ja, rechtskonform und auditierbar.",
+                "Gesprächsführung: Mit aktuellen Risiken beginnen (digitale Zentralwährung, Kontoüberwachung, Compliance-Sperren), dann eine dezentrale Architektur als souveräne Ergänzung vorstellen.",
+                "Einwandbehandlung: „Ist das legal?“ → Ja, die Struktur kann rechtskonform, prüfbar und mit sauberer Buchhaltung umgesetzt werden.",
                 "Ergebnis: Einladung zu 15-Minuten-Call.",
                 "",
                 "Skript:",
                 "„Herr / Frau [Name], Sie kennen die aktuellen Themen: digitale Zentralwährungen, Konto-Überwachung, Compliance-Sperren.",
                 "Was passiert, wenn der Zugang plötzlich blockiert wird?",
-                "Mit Trustyfy lagern Sie Vermögenswerte in eine eigene dezentrale Struktur – kein Server, keine Behörde, kein Algorithmus kann eingreifen.",
-                "Buchhaltung und Nachweis bleiben erhalten, aber Sie behalten die volle Hoheit.",
-                "Ich lade Sie zu einem kurzen Termin ein – wir sehen uns an, wie Sie Ihr Unternehmen vor Fremdzugriff schützen können.“"
+                "Mit einer dezentralen Wertestruktur lagern Sie einen Teil der Vermögenswerte in eine eigene, technisch abgesicherte Umgebung aus – kein einzelner Server, keine Behörde und kein Algorithmus entscheidet allein.",
+                "Buchhaltung und Nachweis bleiben erhalten, aber Sie behalten mehr Hoheit über die Zugänge.",
+                "Ich lade Sie zu einem kurzen Termin ein – wir sehen uns an, wie so etwas in Ihrem Kontext aussehen könnte.“"
               ]
             },
             {
@@ -140,15 +140,15 @@
               body: [
                 "🔹 Interne Anleitung:",
                 "Ziel: Strategisches Denken anstoßen → 30-Minuten-Gespräch.",
-                "Gesprächsführung: Fragen nach Sicherheitsgefühl, dann Aufzeigen von Alternativen durch dezentrale Architektur.",
-                "Einwandbehandlung: „Zu kompliziert.“ → Pilot möglich, kein Eingriff in bestehende IT.",
-                "Ergebnis: Folgetermin mit Demo oder Praxisbeispiel.",
+                "Gesprächsführung: Fragen nach Sicherheitsgefühl, dann Alternativen durch dezentrale Architektur aufzeigen.",
+                "Einwandbehandlung: „Zu kompliziert.“ → Einstieg auch als Pilot möglich, ohne die bestehende IT sofort anzufassen.",
+                "Ergebnis: Folgetermin mit Beispiel-Demo oder Praxisfall.",
                 "",
                 "Skript:",
-                "„Darf ich Sie direkt fragen, [Name]? Wie sicher fühlen Sie sich, wenn Ihr Geschäftsvermögen auf zentralen Systemen liegt?",
-                "Trustyfy macht aus Abhängigkeit eine Stärke: Dezentrale Infrastruktur, eigene Freigaben, kein Zugriff von außen.",
+                "„Darf ich Sie direkt fragen, [Name]? Wie sicher fühlen Sie sich, wenn Ihr Geschäftsvermögen fast komplett auf zentralen Systemen liegt?",
+                "Eine ergänzende, dezentrale Infrastruktur macht Sie weniger störanfällig: eigene Freigaben, klare Verantwortlichkeiten, weniger Fremdzugriff.",
                 "Sie entscheiden, wer wann was sehen oder ausführen darf.",
-                "Lassen Sie uns das konkret prüfen – ich zeige Ihnen die Vorgehensweise und Beispiele aus der Praxis.“"
+                "Lassen Sie uns das konkret prüfen – ich zeige Ihnen die Vorgehensweise und Beispiele aus der Praxis, die Sie mit Ihren eigenen Dienstleistern adaptieren können.“"
               ]
             },
             {
@@ -156,15 +156,15 @@
               body: [
                 "🔹 Interne Anleitung:",
                 "Ziel: Thema „Vertrauen“ mit Sicherheitsaspekt verbinden → Demo.",
-                "Gesprächsführung: Auf Abhängigkeit von Plattformen hinweisen, dann zeigen, wie Trustyfy Vertrauen technisch nachweisbar macht.",
-                "Einwandbehandlung: „Wir haben Verträge.“ → Papier reicht nicht mehr – digitale Nachweise schützen besser.",
-                "Ergebnis: 15-Minuten-Live-Demo.",
+                "Gesprächsführung: Auf Abhängigkeit von Plattformen hinweisen, dann zeigen, wie eine dezentrale Struktur Vertrauen technisch untermauert.",
+                "Einwandbehandlung: „Wir haben Verträge.“ → Papier reicht nicht mehr – digitale, nachweisbare Transaktionen schützen besser.",
+                "Ergebnis: 15-Minuten-Live-Überblick.",
                 "",
                 "Skript:",
                 "„Viele Unternehmen vertrauen auf Plattformen – bis eine Regeländerung alles stoppt.",
-                "Vertrauen ohne Kontrolle ist kein Schutz mehr.",
-                "Trustyfy macht Vertrauen messbar: Jede Transaktion ist authentifiziert, jede Freigabe protokolliert, keine fremde Instanz dazwischen.",
-                "So bleiben Partnerschaften sicher, ohne Abhängigkeit.",
+                "Vertrauen ohne technische Kontrolle ist kein Schutz mehr.",
+                "Mit einer dezentralen Finanzarchitektur machen Sie Vereinbarungen nachvollziehbar: Jede Freigabe ist protokolliert, jede Transaktion zuordenbar, ohne dass ein Dritter dazwischen sitzt.",
+                "So bleiben Partnerschaften belastbar, auch wenn sich Rahmenbedingungen ändern.",
                 "Lassen Sie uns einen Zeitpunkt finden, an dem ich Ihnen die Struktur live zeige – 15 Minuten genügen.“"
               ]
             }
@@ -177,19 +177,19 @@
             {
               title: "Snippet 1",
               body: [
-                "„Zentrale Systeme schaffen Abhängigkeit – Dezentralität schafft Freiheit. Mit Trustyfy bleibt Kontrolle im eigenen Haus. 👉 Jetzt Gespräch anfordern.“"
+                "„Zentrale Systeme schaffen Abhängigkeit – dezentrale Strukturen schaffen Handlungsspielraum. Wer heute ergänzt, bleibt morgen souveräner. 👉 Kurzgespräch anfordern.“"
               ]
             },
             {
               title: "Snippet 2",
               body: [
-                "„Wenn Vertrauen zur Schwachstelle wird, braucht es Technik, die schützt. Trustyfy macht Unternehmen unangreifbar. 👉 Termin vereinbaren und Verfahren kennenlernen.“"
+                "„Wenn Vertrauen zur Schwachstelle wird, braucht es Technik, die schützt. Dezentrale Finanz-Setups machen Unternehmen weniger angreifbar. 👉 Termin vereinbaren und Prinzip kennenlernen.“"
               ]
             },
             {
               title: "Snippet 3",
               body: [
-                "„Wer heute vorsorgt, bleibt morgen souverän – dezentrale Prozesse, sichere Werte, volle Kontrolle. 👉 Mehr erfahren im Kurzgespräch.“"
+                "„Wer heute vorsorgt, bleibt morgen souverän – dezentrale Prozesse, gesicherte Werte, klar geregelte Zugriffe. 👉 Mehr erfahren im Kurzgespräch.“"
               ]
             }
           ]
@@ -197,10 +197,10 @@
       ]
     },
 
-    // 2. Englische Fassung – sinngemäß, nicht 1:1 wörtlich
+    // 2. Englische Fassung – sinngemäß, produktneutral
     en: {
       title: "📊 Target Group 1 – Companies & Executives",
-      subtitle: "Topic: A decentralized future with Trustyfy – control, efficiency, trust",
+      subtitle: "Topic: Decentralized financial structures – control, efficiency, trust",
       blocks: [
         {
           type: "section",
@@ -210,30 +210,30 @@
               title: "Template 1 – “The future of collaboration”",
               body: [
                 "Many companies feel how dependent their operations have become on banks, platforms and centralized servers.",
-                "One single technical or regulatory interruption – and operations stop.",
-                "Trustyfy proves that control is possible without intermediaries: direct approvals, transparent structures, secure partner networks.",
+                "A single technical or regulatory intervention can bring processes to a halt.",
+                "That’s why more and more firms add a decentralized financial setup on top of their classic banking stack: own wallets, clear approval flows, transparent partner processes.",
                 "Decentralized does not mean chaos – it means stability, auditability and real data sovereignty.",
-                "➡️ I’m using it myself to make business processes more resilient. If you want, I can walk you through it.",
-                "👉 Let’s schedule 15 minutes so I can show you the setup."
+                "➡️ I use such a setup myself and can walk you through the basic architecture – independent of which providers you choose later.",
+                "👉 Let’s schedule 15 minutes so I can show you the concept."
               ]
             },
             {
               title: "Template 2 – “Trust as the new currency”",
               body: [
-                "In business, trust often decides faster than any calculation.",
+                "In business, trust often decides faster than any spreadsheet.",
                 "But in times of cyber attacks, frozen accounts and system outages, trust needs a technical foundation.",
-                "Trustyfy maps trust digitally – every transaction, every agreement, every partner process is transparent and protected.",
-                "➡️ If you want to make your company more crisis-proof and independent, this is worth a look.",
-                "👉 Book a short call to see how Trustyfy makes trust measurable."
+                "A decentralized account and wallet structure keeps processes transparent: every transaction, every agreement and every partner flow stays verifiable and protected.",
+                "➡️ If you are thinking about making your company more resilient and independent, this type of setup is worth a look.",
+                "👉 Book a short call and I’ll show you how I implemented it in my own work – without pushing any specific product."
               ]
             },
             {
               title: "Template 3 – “Bringing control back in-house”",
               body: [
-                "Many companies don’t even realize how much control they already handed over – to banks, payment providers and platforms.",
-                "Trustyfy brings it back: decentralized payment approvals, company wallets, no silent blocks, no external servers.",
-                "➡️ I can show you how companies become compliant and hard to attack – 10 minutes are enough for the overview.",
-                "👉 Let’s do a short walk-through – no obligation, real substance."
+                "Many companies don’t realize how much control they already handed over – to banks, payment providers and platforms.",
+                "With a decentralized architecture you pull part of that control back: company wallets, defined approvals, fewer silent blocks and fewer external servers.",
+                "➡️ I’m happy to show you how businesses stay compliant and manoeuvrable with this approach – 10 minutes are enough for a first overview.",
+                "👉 Let’s schedule a brief walk-through – no obligation, but concrete."
               ]
             }
           ]
@@ -250,9 +250,9 @@
                 "Dear Ms / Mr [Last name],",
                 "Digitalization increases efficiency – but also dependency.",
                 "Bank policies, data protection rules and centralized APIs make companies vulnerable.",
-                "Trustyfy closes that gap: secure processes, direct settlement, full transparency – without third parties.",
-                "I’d be happy to show you why more and more companies are moving in this direction – and how it looks in practice.",
-                "👉 Let’s set up a 15-minute call to go through the options for your company.",
+                "In my projects I therefore use an additional, decentralized financial structure: own wallets, clear approvals, full transparency – with fewer intermediaries.",
+                "I’d be happy to show you why more and more companies are exploring this path and how it works in practice.",
+                "👉 Let’s set up a 15-minute call to look at the options for your company – based on a neutral example setup.",
                 "Best regards,",
                 "[Your name]"
               ]
@@ -263,11 +263,11 @@
                 "Subject: Control is not mistrust – it is protection",
                 "",
                 "Dear Ms / Mr [Last name],",
-                "new EU requirements and compliance rules are limiting the room for maneuver.",
-                "Trustyfy gives you that sovereignty back – every payment, every data flow, every approval stays in your control.",
-                "No bank can block, no platform can interfere.",
-                "If you like, I can explain in 15 minutes how to set this up.",
-                "👉 Just reply with a time that suits you.",
+                "New EU requirements and compliance rules are shrinking the room for manoeuvre.",
+                "A decentralized structure for payments and assets can give you part of that sovereignty back – every payment, every data flow and every approval stays closer to your own house.",
+                "No single bank or platform decides alone about your ability to act.",
+                "If you like, I can explain in 15 minutes how such a setup works in principle – independent of specific vendors.",
+                "👉 Just reply with a time that suits you and I’ll adapt.",
                 "Best regards,",
                 "[Your name]"
               ]
@@ -278,11 +278,11 @@
                 "Subject: How to protect your company against external access",
                 "",
                 "Dear Ms / Mr [Last name],",
-                "Most business processes run on other people’s systems – until an interface fails or rules change.",
-                "Trustyfy enables independent structures: own accounts, own approvals, full traceability – without dependency on centralized providers.",
-                "That way you stay operational and compliant – even in crises.",
-                "Happy to show you real cases.",
-                "👉 Book a short call and I’ll show you the setup.",
+                "Most business processes run on external systems – until an interface fails or rules change.",
+                "With a decentralized account and wallet structure you build independent rails: own accounts, own approvals, full traceability – with less dependency on single centralized providers.",
+                "This helps you stay operational and compliant – even in times of crisis.",
+                "I’d be glad to share practical examples and my own setup as a reference.",
+                "👉 Book a short call and we’ll go through the options together.",
                 "Best regards,",
                 "[Your name]"
               ]
@@ -298,15 +298,15 @@
               body: [
                 "🔹 Internal guidance:",
                 "Goal: create curiosity → 15-minute call.",
-                "Direction: make external pressure (EU, banks, platforms) visible, then position Trustyfy as control restoration.",
-                "Objections: “We have compliance/IT.” → Trustyfy complements, it does not replace.",
-                "Result: call scheduled or demo link.",
+                "Direction: make external pressure (EU, banks, platforms) visible, then position a decentralized financial structure as a way to regain control.",
+                "Objections: “We have IT/compliance.” → decentralized setups complement, they don’t replace existing infrastructure.",
+                "Result: call scheduled or link to a sample walkthrough.",
                 "",
                 "Script:",
-                "“Good morning [Name], many executives feel their room for maneuver is getting smaller – EU regulation, bank policies, digital dependencies.",
-                "Trustyfy gives you back control over your own data and payment structures.",
-                "No third party can block or access. Everything runs decentralized and auditable.",
-                "Let’s go through it together – I can show you in 15 minutes how to secure your systems.”"
+                "“Good morning [Name], many executives feel their room for manoeuvre getting smaller – EU regulation, bank policies, digital dependencies.",
+                "That is why I work with an additional decentralized structure for payments and assets.",
+                "This keeps data and payment flows transparent without a single party being able to shut everything down.",
+                "Let’s go through this together – I can show you in 15 minutes what such a setup can look like and which questions you should clarify internally.”"
               ]
             },
             {
@@ -314,32 +314,32 @@
               body: [
                 "🔹 Internal guidance:",
                 "Goal: raise awareness of dependencies → schedule advisory call.",
-                "Flow: start with current risks (digital currencies, account monitoring, compliance blocks), then present Trustyfy as sovereign alternative.",
-                "Objection: “Is this legal?” → yes, compliant and auditable.",
+                "Flow: start with current risks (digital central bank money, account monitoring, compliance-based blocks), then present a decentralized architecture as a sovereign complement.",
+                "Objection: “Is this legal?” → yes, it can be implemented in a compliant, auditable way together with proper accounting.",
                 "Result: 15-minute info call.",
                 "",
                 "Script:",
-                "“Mr / Ms [Name], you’ve seen the current developments: digital currencies, account monitoring, compliance-based blocks.",
+                "“Mr / Ms [Name], you’ve seen the recent developments: digital currencies, account monitoring, compliance-based account freezes.",
                 "What happens if access is suddenly blocked?",
-                "With Trustyfy you store assets in your own decentralized structure – no server, no authority, no algorithm can interfere.",
-                "Accounting and audit trail remain, but you keep full sovereignty.",
-                "I’d like to invite you to a short call – we can look at how to protect your company from external access.”"
+                "With a decentralized asset structure you move part of your assets into your own technically secured environment – no single server, authority or algorithm decides alone.",
+                "Accounting and audit trail remain intact, but you keep more sovereignty over access.",
+                "I’d like to invite you to a short call – we can look at how such an approach could work in your context.”"
               ]
             },
             {
               title: "Script 3 – Independence as a strategy",
               body: [
                 "🔹 Internal guidance:",
-                "Goal: make it a strategic topic → 30-minute talk.",
-                "Flow: ask about current feeling of security, then show decentralized architecture as option.",
-                "Objection: “Sounds complex.” → can start with pilot, no need to touch existing IT.",
-                "Result: follow-up with demo.",
+                "Goal: make it a strategic topic → 30-minute conversation.",
+                "Flow: ask about their current feeling of security, then show decentralized architecture as an option.",
+                "Objection: “Sounds complex.” → you can start with a pilot without touching the existing IT stack right away.",
+                "Result: follow-up with demo or case study.",
                 "",
                 "Script:",
-                "“May I ask you directly, [Name]? How secure do you feel when your business assets sit on centralized systems?",
-                "Trustyfy turns that dependency into a strength: decentralized infrastructure, own approvals, no external access.",
+                "“May I ask you directly, [Name]? How secure do you feel when your business assets sit almost entirely on centralized systems?",
+                "An additional decentralized infrastructure makes you less fragile: own approvals, clear responsibilities, less external access.",
                 "You define who can see or execute what.",
-                "Let’s review this in concrete terms – I’ll show you the steps and real examples.”"
+                "Let’s review this in concrete terms – I’ll show you the steps and real-world examples that you can adapt with your own providers.”"
               ]
             },
             {
@@ -347,15 +347,15 @@
               body: [
                 "🔹 Internal guidance:",
                 "Goal: link ‘trust’ with ‘technical proof’ → demo.",
-                "Flow: point to platform dependency, then show how Trustyfy makes trust verifiable.",
-                "Objection: “We have contracts.” → paper is no longer enough, verifiable digital transactions are better.",
-                "Result: 15-minute live demo.",
+                "Flow: point to platform dependency, then show how a decentralized structure technically underpins trust.",
+                "Objection: “We have contracts.” → paper is no longer enough; verifiable digital transactions offer better protection.",
+                "Result: 15-minute live overview.",
                 "",
                 "Script:",
                 "“Many companies rely on platforms – until a rule change stops everything.",
-                "Trust without control is no longer protection.",
-                "Trustyfy makes trust measurable: every transaction authenticated, every approval logged, no foreign instance in between.",
-                "This keeps partnerships secure, without dependency.",
+                "Trust without technical control is no longer real protection.",
+                "With a decentralized financial architecture you make agreements verifiable: every approval is logged, every transaction attributable, without a third party in the middle.",
+                "This keeps partnerships robust, even when conditions change.",
                 "Let’s find a time when I can show you the structure live – 15 minutes is enough.”"
               ]
             }
@@ -368,19 +368,19 @@
             {
               title: "Snippet 1",
               body: [
-                "“Centralized systems create dependency – decentralization creates freedom. With Trustyfy, control stays in your company. 👉 Request a call.”"
+                "“Centralized systems create dependency – decentralized structures create room to manoeuvre. Those who add them today stay more sovereign tomorrow. 👉 Request a short call.”"
               ]
             },
             {
               title: "Snippet 2",
               body: [
-                "“When trust becomes the weak spot, you need tech that protects. Trustyfy makes companies hard to attack. 👉 Book a call and see the flow.”"
+                "“When trust becomes the weak spot, you need tech that protects. Decentralized financial setups make companies harder to attack. 👉 Book a call and learn the principle.”"
               ]
             },
             {
               title: "Snippet 3",
               body: [
-                "“Those who prepare today stay sovereign tomorrow – decentralized processes, secured assets, full control. 👉 Learn more in a short session.”"
+                "“Preparing today keeps you sovereign tomorrow – decentralized processes, secured assets, clearly defined access. 👉 Learn more in a brief session.”"
               ]
             }
           ]
@@ -548,10 +548,7 @@
   `;
   document.head.appendChild(style);
 
-  // 5. Initial render (nimmt gespeicherte Sprache aus lang-switcher)
-  const savedLang = localStorage.getItem("fsa_lang") || "de";
-  // Standard: nicht sofort zeigen – erst wenn Seite es will -> Event
-  // Aber wir machen eine Helper-Funktion global:
+  // 5. Helper-Funktion global
   window.renderSocial01 = function (lang) {
     renderSocial01(lang || (localStorage.getItem("fsa_lang") || "de"));
   };
@@ -559,7 +556,6 @@
   // 6. Auf Sprachwechsel reagieren
   document.addEventListener("fsa:lang-change", (ev) => {
     const lang = ev.detail || "de";
-    // nur aktualisieren, wenn gerade offen
     const host = document.getElementById("socialContent");
     if (host && host.innerHTML.trim() !== "") {
       renderSocial01(lang);
@@ -571,6 +567,7 @@
     const lang = localStorage.getItem("fsa_lang") || "de";
     renderSocial01(lang);
   });
-window.FSA_SOCIAL_01 = SOCIAL_CONTENT;       
-})();
 
+  // Bereit für social.html (neue Logik)
+  window.FSA_SOCIAL_01 = SOCIAL_CONTENT;
+})();
