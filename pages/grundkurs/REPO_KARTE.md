@@ -501,6 +501,8 @@
     │   │   ├── trusttipp-handling.html
     │   │   └── trustyfy-handling.html
     │   ├── krypto/
+    │   │   ├── krypto-welt-status.html
+    │   │   ├── krypto-welt-timeline.html
     │   │   └── page.json
     │   ├── mentor/
     │   │   ├── lektion-souveraen.html
@@ -579,4 +581,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.12.2025, 12:32)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.12.2025, 13:31)_
