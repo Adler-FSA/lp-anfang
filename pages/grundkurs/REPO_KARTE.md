@@ -501,8 +501,10 @@
     │   │   ├── trusttipp-handling.html
     │   │   └── trustyfy-handling.html
     │   ├── krypto/
+    │   │   ├── krypto-welt-index.html
     │   │   ├── krypto-welt-status.html
     │   │   ├── krypto-welt-timeline.html
+    │   │   ├── krypto-welt-unternehmen.html
     │   │   ├── krypto-welt-zahlen.html
     │   │   └── page.json
     │   ├── mentor/
@@ -582,4 +584,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.12.2025, 14:17)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.12.2025, 15:17)_
