@@ -503,6 +503,7 @@
     │   ├── krypto/
     │   │   ├── krypto-welt-status.html
     │   │   ├── krypto-welt-timeline.html
+    │   │   ├── krypto-welt-zahlen.html
     │   │   └── page.json
     │   ├── mentor/
     │   │   ├── lektion-souveraen.html
@@ -581,4 +582,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.12.2025, 13:31)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.12.2025, 14:17)_
