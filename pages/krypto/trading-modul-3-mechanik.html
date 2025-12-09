@@ -1,0 +1,1169 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Trading-Modul 3 – Wie ein Trade technisch abläuft</title>
+  <meta name="description" content="Modul 3 des FSA Trading-Grundkurses: Wie ein Trade von der Idee über die Order bis zur Ausführung abläuft – Ordertypen, Kosten und ein einfacher Praxis-Workflow für Einsteiger.">
+  <style>
+    :root{
+      --bg:#050814;
+      --bg-grad1:#020617;
+      --bg-grad2:#02091b;
+      --card:rgba(15,23,42,.96);
+      --card-soft:rgba(15,23,42,.9);
+      --gold:#d4af37;
+      --gold-soft:rgba(212,175,55,.2);
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --radius:16px;
+      --shadow:0 22px 60px rgba(0,0,0,.75);
+      --maxw:1040px;
+    }
+
+    *{box-sizing:border-box;}
+
+    html,body{
+      margin:0;
+      padding:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at top left,rgba(34,211,238,.14),transparent 55%),
+        radial-gradient(circle at bottom right,rgba(212,175,55,.22),transparent 50%),
+        linear-gradient(145deg,var(--bg-grad1),var(--bg-grad2));
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+    }
+
+    body{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      padding:32px 16px 42px;
+    }
+
+    .page{
+      width:100%;
+      max-width:var(--maxw);
+      position:relative;
+    }
+
+    .page-header{
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      margin-bottom:24px;
+    }
+
+    .page-header-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:4px 11px;
+      border-radius:999px;
+      border:1px solid var(--gold-soft);
+      background:rgba(15,23,42,.85);
+      box-shadow:0 0 0 1px rgba(148,163,184,.35);
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    .badge-dot{
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:radial-gradient(circle,var(--gold),#854d0e);
+      box-shadow:0 0 14px rgba(212,175,55,.9);
+      flex-shrink:0;
+    }
+
+    .back-link{
+      font-size:12px;
+      text-decoration:none;
+      color:var(--muted);
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-top:6px;
+    }
+
+    .back-link span.icon{font-size:16px;line-height:1;}
+    .back-link:hover{color:var(--gold);}
+
+    .lang-toggle{
+      display:inline-flex;
+      padding:3px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.5);
+      background:rgba(15,23,42,.9);
+      gap:3px;
+    }
+
+    .lang-btn{
+      border:none;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:12px;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      cursor:pointer;
+      background:transparent;
+      color:var(--muted);
+      transition:background-color .16s ease,color .16s ease,transform .12s ease;
+    }
+
+    .lang-btn:hover{transform:translateY(-1px);}
+    .lang-btn.active{background:var(--gold);color:#020617;font-weight:600;}
+
+    .hero-subtitle{
+      font-size:13px;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin:0 0 4px;
+    }
+
+    h1{
+      font-size:26px;
+      line-height:1.15;
+      margin:0 0 6px;
+    }
+
+    .hero-lead{
+      margin:0;
+      font-size:15px;
+      line-height:1.6;
+      color:var(--muted);
+      max-width:820px;
+    }
+
+    .hero-highlight{
+      display:inline-block;
+      margin-top:6px;
+      padding:5px 10px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.55);
+      background:rgba(15,23,42,.9);
+      font-size:12px;
+      color:var(--gold);
+    }
+
+    .section{margin-bottom:22px;}
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      border:1px solid rgba(148,163,184,.35);
+      box-shadow:var(--shadow);
+      padding:18px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card-soft{
+      background:var(--card-soft);
+      border:1px solid rgba(148,163,184,.3);
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background:
+        radial-gradient(circle at top,var(--gold-soft),transparent 60%),
+        radial-gradient(circle at bottom,rgba(56,189,248,.14),transparent 60%);
+      opacity:.35;
+      mix-blend-mode:screen;
+      pointer-events:none;
+    }
+
+    .card > *{position:relative;z-index:1;}
+
+    .pill-label{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 9px;
+      border-radius:999px;
+      background:rgba(15,23,42,.96);
+      border:1px solid rgba(148,163,184,.45);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+
+    .pill-dot{
+      width:6px;
+      height:6px;
+      border-radius:999px;
+      background:var(--gold);
+      box-shadow:0 0 10px rgba(212,175,55,.9);
+    }
+
+    h2{font-size:20px;margin:0 0 6px;}
+    .section-lead{margin:0 0 14px;font-size:14px;color:var(--muted);max-width:820px;}
+
+    .note{
+      margin-top:10px;
+      padding:8px 10px;
+      border-radius:10px;
+      background:rgba(15,23,42,.96);
+      border:1px dashed rgba(148,163,184,.6);
+      font-size:11px;
+      color:var(--muted);
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);
+      gap:16px;
+      margin-top:8px;
+    }
+
+    .grid-3{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-top:8px;
+    }
+
+    .info-card{
+      background:rgba(15,23,42,.98);
+      border-radius:14px;
+      border:1px solid rgba(148,163,184,.4);
+      padding:10px 12px 11px;
+      font-size:13px;
+    }
+
+    .info-card p{margin:0 0 6px;color:var(--muted);line-height:1.5;}
+
+    .tagline{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      color:var(--muted);
+      margin-bottom:2px;
+    }
+
+    .list{
+      margin:6px 0 0;
+      padding-left:16px;
+      font-size:13px;
+      color:var(--muted);
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+
+    .step-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+      margin-top:8px;
+    }
+
+    .step-card{
+      background:rgba(15,23,42,.98);
+      border-radius:14px;
+      border:1px solid rgba(148,163,184,.45);
+      padding:10px 12px 11px;
+      font-size:13px;
+    }
+
+    .step-label{
+      font-size:11px;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:2px;
+    }
+
+    .step-title{font-size:14px;font-weight:600;margin-bottom:4px;}
+
+    .step-list{
+      margin:4px 0 0;
+      padding-left:14px;
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+    }
+
+    .order-card{
+      background:rgba(15,23,42,.98);
+      border-radius:14px;
+      border:1px solid rgba(148,163,184,.45);
+      padding:10px 12px 11px;
+      font-size:13px;
+    }
+
+    .order-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:6px;
+      margin-bottom:4px;
+    }
+
+    .order-name{font-size:14px;font-weight:600;}
+
+    .order-chip{
+      font-size:10px;
+      padding:2px 7px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.6);
+      background:rgba(15,23,42,.96);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+
+    .order-sub{font-size:12px;color:var(--muted);margin:2px 0 4px;}
+
+    .order-list{
+      margin:4px 0 0;
+      padding-left:14px;
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+    }
+
+    .mini-table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:6px;
+      font-size:12px;
+    }
+
+    .mini-table th,
+    .mini-table td{
+      border:1px solid rgba(148,163,184,.5);
+      padding:5px 6px;
+      text-align:left;
+    }
+
+    .mini-table th{
+      background:rgba(15,23,42,.98);
+      font-weight:600;
+      font-size:11px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    .mini-table td{color:var(--muted);}
+
+    .question{margin-top:8px;margin-bottom:6px;font-size:13px;color:var(--text);}
+    .exercise-block{margin-bottom:10px;}
+    .scenario-label{font-size:12px;color:var(--muted);margin-bottom:4px;}
+
+    .select-row{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-top:4px;
+    }
+
+    select{
+      background:rgba(15,23,42,.98);
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.6);
+      padding:4px 9px;
+      font-size:12px;
+      color:var(--muted);
+      outline:none;
+    }
+
+    .btn-primary{
+      border:none;
+      border-radius:999px;
+      padding:7px 14px;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      cursor:pointer;
+      background:var(--gold);
+      color:#020617;
+      font-weight:600;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-top:8px;
+      transition:background-color .16s ease,transform .12s ease,box-shadow .12s ease;
+    }
+
+    .btn-primary span.icon{font-size:15px;}
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 0 20px rgba(212,175,55,.8);}
+
+    .result-box{
+      margin-top:8px;
+      padding:8px 10px;
+      border-radius:10px;
+      background:rgba(15,23,42,.96);
+      border:1px solid rgba(148,163,184,.6);
+      font-size:12px;
+      color:var(--muted);
+      white-space:pre-line;
+      min-height:40px;
+    }
+
+    .lock-overlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:radial-gradient(circle at top,rgba(15,23,42,.7),rgba(15,23,42,.96));
+      backdrop-filter:blur(5px);
+      z-index:50;
+    }
+
+    .lock-card{
+      max-width:420px;
+      width:90%;
+      background:rgba(15,23,42,.98);
+      border-radius:16px;
+      border:1px solid rgba(148,163,184,.7);
+      box-shadow:0 24px 70px rgba(0,0,0,.85);
+      padding:14px;
+      font-size:13px;
+    }
+
+    .lock-card h2{font-size:16px;margin:0 0 6px;}
+    .lock-card p{margin:0 0 8px;font-size:12px;color:var(--muted);}
+    .lock-card a{color:var(--gold);text-decoration:none;}
+    .lock-card a:hover{text-decoration:underline;}
+    .lock-card .btn-primary{margin-top:6px;}
+
+    @media (max-width:980px){
+      .grid-3{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
+      .grid-2{grid-template-columns:1fr;}
+      .step-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
+    }
+
+    @media (max-width:720px){
+      body{padding:20px 12px 30px;}
+      h1{font-size:23px;}
+      .grid-3,.step-grid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+  <!-- Lock-Layer für passwortgeschützten Kurs -->
+  <div class="lock-overlay" id="lockOverlay">
+    <div class="lock-card">
+      <h2 data-i18n="lock.title">Dieser Kursbereich ist geschützt</h2>
+      <p data-i18n="lock.text">
+        Modul 3 gehört zum passwortgeschützten Trading-Grundkurs der FSA Akademie. Bitte öffne zuerst die
+        Kurs-Startseite, gib dort deinen Kurs-Code ein und komm anschließend wieder hierher zurück.
+      </p>
+      <p data-i18n="lock.hint">
+        Tipp: Wenn du den Code bereits eingegeben hast und diese Meldung trotzdem siehst, aktualisiere die Seite oder
+        öffne sie in einem neuen Tab.
+      </p>
+      <button class="btn-primary" id="lockToHub">
+        <span data-i18n="lock.button">Zur Kurs-Startseite</span>
+        <span class="icon">›</span>
+      </button>
+    </div>
+  </div>
+
+  <main class="page">
+    <header class="page-header">
+      <div class="page-header-top">
+        <div>
+          <div class="badge">
+            <span class="badge-dot"></span>
+            <span data-i18n="mod3.badge">Trading-Grundkurs · Modul 3</span>
+          </div>
+          <a href="trading-grundkurs.html" class="back-link">
+            <span class="icon">‹</span>
+            <span data-i18n="mod3.back">Zur Kurs-Übersicht zurück</span>
+          </a>
+        </div>
+        <div class="lang-toggle" aria-label="Sprachauswahl">
+          <button class="lang-btn active" data-lang="de">DE</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+        </div>
+      </div>
+      <div>
+        <p class="hero-subtitle" data-i18n="mod3.subtitle">Mechanik – vom Klick bis zur Ausführung</p>
+        <h1 data-i18n="mod3.title">Wie ein Trade technisch abläuft</h1>
+        <p class="hero-lead" data-i18n="mod3.lead">
+          Bevor du echte Orders platzierst, lohnt sich ein Blick hinter die Kulissen: Was passiert zwischen deiner Idee,
+          deinem Klick in der App und der realen Ausführung am Markt – und wo entstehen Kosten und Fehlerquellen?
+        </p>
+        <span class="hero-highlight" data-i18n="mod3.highlight">
+          Ziel: Du verstehst den Ablauf eines Trades so klar, dass du ihn später mit Simulator und kleinen Beträgen üben kannst.
+        </span>
+      </div>
+    </header>
+
+    <!-- 1 · Drei Phasen -->
+    <section class="section">
+      <div class="card card-soft">
+        <div class="pill-label">
+          <span class="pill-dot"></span>
+          <span data-i18n="mod3.flow.label">1 · Drei Phasen: Vor dem Klick, beim Klick, nach dem Klick</span>
+        </div>
+        <h2 data-i18n="mod3.flow.title">Ein Trade ist mehr als ein Knopfdruck</h2>
+        <p class="section-lead" data-i18n="mod3.flow.lead">
+          Von außen sieht es nach „Kaufen“ und „Verkaufen“ aus. In der Praxis besteht ein verantwortlicher Trade aus
+          Vorbereitung, Ausführung und Auswertung.
+        </p>
+
+        <div class="step-grid">
+          <div class="step-card">
+            <p class="step-label" data-i18n="mod3.flow.pre.label">Phase 1</p>
+            <p class="step-title" data-i18n="mod3.flow.pre.title">Vor dem Klick</p>
+            <ul class="step-list">
+              <li data-i18n="mod3.flow.pre.1">Markt, Produkt und Betrag anhand deines Plans wählen.</li>
+              <li data-i18n="mod3.flow.pre.2">Risiko festlegen: Wie viel darf der Trade maximal kosten?</li>
+              <li data-i18n="mod3.flow.pre.3">Orderart auswählen, die zu deiner Idee passt.</li>
+            </ul>
+          </div>
+          <div class="step-card">
+            <p class="step-label" data-i18n="mod3.flow.click.label">Phase 2</p>
+            <p class="step-title" data-i18n="mod3.flow.click.title">Beim Klick</p>
+            <ul class="step-list">
+              <li data-i18n="mod3.flow.click.1">Die App sendet deine Order an einen Handelsplatz.</li>
+              <li data-i18n="mod3.flow.click.2">Dort wird ein passendes Gegenangebot gesucht.</li>
+              <li data-i18n="mod3.flow.click.3">Die Order wird ganz, teilweise oder gar nicht ausgeführt.</li>
+            </ul>
+          </div>
+          <div class="step-card">
+            <p class="step-label" data-i18n="mod3.flow.post.label">Phase 3</p>
+            <p class="step-title" data-i18n="mod3.flow.post.title">Nach dem Klick</p>
+            <ul class="step-list">
+              <li data-i18n="mod3.flow.post.1">Du siehst Ausführungskurs, Gebühren und Rest-Order.</li>
+              <li data-i18n="mod3.flow.post.2">Die Position erscheint im Depot oder in der Wallet.</li>
+              <li data-i18n="mod3.flow.post.3">Du dokumentierst Grund, Risiko und Ergebnis des Trades.</li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="note" data-i18n="mod3.flow.note">
+          Dieses Modul erklärt die Technik. Ob ein Trade überhaupt zu dir, deinem Budget und deiner Lebenssituation
+          passt, klären die anderen Module und der FSA-Grundkurs.
+        </p>
+      </div>
+    </section>
+
+    <!-- 2 · Orderarten -->
+    <section class="section">
+      <div class="card">
+        <div class="pill-label">
+          <span class="pill-dot"></span>
+          <span data-i18n="mod3.orders.label">2 · Orderarten in einfacher Sprache</span>
+        </div>
+        <h2 data-i18n="mod3.orders.title">Wie du der Plattform sagst, was genau du willst</h2>
+        <p class="section-lead" data-i18n="mod3.orders.lead">
+          Eine Order ist eine Anweisung an den Markt. Orderarten legen fest, wie schnell und wie genau sie ausgeführt
+          werden soll – und wie viel Kursabweichung du akzeptierst.
+        </p>
+
+        <div class="grid-3">
+          <article class="order-card">
+            <div class="order-head">
+              <div>
+                <p class="order-name" data-i18n="mod3.orders.market.title">Market-Order</p>
+                <p class="order-sub" data-i18n="mod3.orders.market.sub">„Bitte sofort ausführen – zum aktuellen Marktpreis.“</p>
+              </div>
+              <div class="order-chip" data-i18n="mod3.orders.market.chip">Schnell, wenig Kontrolle</div>
+            </div>
+            <ul class="order-list">
+              <li data-i18n="mod3.orders.market.1">Geeignet, wenn Geschwindigkeit wichtiger ist als der exakte Preis.</li>
+              <li data-i18n="mod3.orders.market.2">Bei starken Schwankungen kann der Ausführungskurs deutlich abweichen.</li>
+              <li data-i18n="mod3.orders.market.3">In illiquiden Märkten oder mit großen Beträgen vorsichtig einsetzen.</li>
+            </ul>
+          </article>
+
+          <article class="order-card">
+            <div class="order-head">
+              <div>
+                <p class="order-name" data-i18n="mod3.orders.limit.title">Limit-Order</p>
+                <p class="order-sub" data-i18n="mod3.orders.limit.sub">„Nur ausführen, wenn mein Preis oder besser erreicht wird.“</p>
+              </div>
+              <div class="order-chip" data-i18n="mod3.orders.limit.chip">Kontrolle, evtl. keine Ausführung</div>
+            </div>
+            <ul class="order-list">
+              <li data-i18n="mod3.orders.limit.1">Du legst einen maximalen Kauf- oder minimalen Verkaufspreis fest.</li>
+              <li data-i18n="mod3.orders.limit.2">Die Order wird nur ausgeführt, wenn der Markt deinen Preis erreicht.</li>
+              <li data-i18n="mod3.orders.limit.3">Sie kann teilweise oder gar nicht ausgeführt werden.</li>
+            </ul>
+          </article>
+
+          <article class="order-card">
+            <div class="order-head">
+              <div>
+                <p class="order-name" data-i18n="mod3.orders.stop.title">Stop-Order / Stop-Loss</p>
+                <p class="order-sub" data-i18n="mod3.orders.stop.sub">„Wenn dieser Kurs erreicht wird, starte eine Order.“</p>
+              </div>
+              <div class="order-chip" data-i18n="mod3.orders.stop.chip">Schutz & Trigger</div>
+            </div>
+            <ul class="order-list">
+              <li data-i18n="mod3.orders.stop.1">Wird erst aktiv, wenn der Stop-Kurs erreicht oder durchbrochen wird.</li>
+              <li data-i18n="mod3.orders.stop.2">Stop-Loss kann Verluste begrenzen – aber nicht auf den Cent genau.</li>
+              <li data-i18n="mod3.orders.stop.3">In schnellen Märkten sind Kurslücken und Slippage möglich.</li>
+            </ul>
+          </article>
+        </div>
+
+        <p class="note" data-i18n="mod3.orders.note">
+          Später gibt es Varianten wie Stop-Limit oder OCO. Für Einsteiger reicht es, diese drei Grundtypen sicher zu
+          verstehen und bewusst einzusetzen.
+        </p>
+      </div>
+    </section>
+
+    <!-- 3 · Kosten -->
+    <section class="section">
+      <div class="card card-soft">
+        <div class="pill-label">
+          <span class="pill-dot"></span>
+          <span data-i18n="mod3.costs.label">3 · Kosten, die du bei jedem Trade sehen solltest</span>
+        </div>
+        <h2 data-i18n="mod3.costs.title">Dein Ergebnis ist mehr als Ein- und Ausstieg</h2>
+        <p class="section-lead" data-i18n="mod3.costs.lead">
+          Viele Einsteiger achten nur auf den Gewinn in Euro. In Wirklichkeit arbeiten immer mehrere Kostenarten im
+          Hintergrund mit.
+        </p>
+
+        <div class="grid-2">
+          <div class="info-card">
+            <p class="tagline" data-i18n="mod3.costs.visible.label">Direkt sichtbare Kosten</p>
+            <ul class="list">
+              <li data-i18n="mod3.costs.visible.1">Ordergebühren der Plattform oder des Brokers.</li>
+              <li data-i18n="mod3.costs.visible.2">Börsen- oder Netzwerkgebühren (z. B. Blockchain-Fees).</li>
+              <li data-i18n="mod3.costs.visible.3">Finanzierungskosten bei gehebelten Produkten über Nacht.</li>
+            </ul>
+          </div>
+          <div class="info-card">
+            <p class="tagline" data-i18n="mod3.costs.hidden.label">Versteckte / indirekte Kosten</p>
+            <ul class="list">
+              <li data-i18n="mod3.costs.hidden.1">Spread: Unterschied zwischen Kauf- und Verkaufskurs.</li>
+              <li data-i18n="mod3.costs.hidden.2">Slippage: Ausführung weicht vom angezeigten Kurs ab.</li>
+              <li data-i18n="mod3.costs.hidden.3">Steuern auf Gewinne – je nach Land und Produkt.</li>
+            </ul>
+          </div>
+        </div>
+
+        <table class="mini-table">
+          <thead>
+            <tr>
+              <th data-i18n="mod3.costs.table.type">Bestandteil</th>
+              <th data-i18n="mod3.costs.table.example">Beispiel</th>
+              <th data-i18n="mod3.costs.table.effect">Wirkung auf dich</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-i18n="mod3.costs.table.row1.type">Spread</td>
+              <td data-i18n="mod3.costs.table.row1.example">Kauf zu 100, sofortiger Verkauf nur zu 99,50 möglich.</td>
+              <td data-i18n="mod3.costs.table.row1.effect">Du startest im Minus – der Markt muss erst aufholen.</td>
+            </tr>
+            <tr>
+              <td data-i18n="mod3.costs.table.row2.type">Gebühr</td>
+              <td data-i18n="mod3.costs.table.row2.example">0,10 % auf Kauf und 0,10 % auf Verkauf.</td>
+              <td data-i18n="mod3.costs.table.row2.effect">Viele kleine Trades summieren sich zu spürbaren Kosten.</td>
+            </tr>
+            <tr>
+              <td data-i18n="mod3.costs.table.row3.type">Slippage</td>
+              <td data-i18n="mod3.costs.table.row3.example">Market-Order bei 100, Ausführung bei 100,80.</td>
+              <td data-i18n="mod3.costs.table.row3.effect">Dein reales Risiko pro Trade ist höher als geplant.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p class="note" data-i18n="mod3.costs.note">
+          In den späteren Modulen verknüpfen wir diese Kosten mit konkreten Zahlen im Trading-Simulator. So siehst du,
+          wie viele Übungstrades dein Lernbudget realistisch hergibt.
+        </p>
+      </div>
+    </section>
+
+    <!-- 4 · Workflow -->
+    <section class="section">
+      <div class="card">
+        <div class="pill-label">
+          <span class="pill-dot"></span>
+          <span data-i18n="mod3.workflow.label">4 · Ein einfacher Praxis-Workflow</span>
+        </div>
+        <h2 data-i18n="mod3.workflow.title">Vom Gedanken zum dokumentierten Trade</h2>
+        <p class="section-lead" data-i18n="mod3.workflow.lead">
+          Der Ablauf ist überall ähnlich. Dieser Vorschlag hilft dir, eine klare Routine zu entwickeln – zuerst im
+          Simulator, später ggf. mit echtem Geld.
+        </p>
+
+        <div class="grid-2">
+          <div class="info-card">
+            <p class="tagline" data-i18n="mod3.workflow.steps.label">Technische Schritte</p>
+            <ul class="list">
+              <li data-i18n="mod3.workflow.steps.1">Markt und Produkt wählen (Aktie, ETF, Krypto-Spot usw.).</li>
+              <li data-i18n="mod3.workflow.steps.2">Orderart und Positionsgröße festlegen.</li>
+              <li data-i18n="mod3.workflow.steps.3">Risiko begrenzen: Stop-Loss oder maximalen Verlust bestimmen.</li>
+              <li data-i18n="mod3.workflow.steps.4">Ordermaske prüfen: Kurs, Stückzahl, Gebühren.</li>
+              <li data-i18n="mod3.workflow.steps.5">Ausführung kontrollieren und Abweichungen notieren.</li>
+              <li data-i18n="mod3.workflow.steps.6">Trade kurz in einer Tabelle oder Notiz erfassen.</li>
+            </ul>
+          </div>
+          <div class="info-card">
+            <p class="tagline" data-i18n="mod3.workflow.fsa.label">Mit der FSA Akademie</p>
+            <ul class="list">
+              <li data-i18n="mod3.workflow.fsa.1">Erst Basis-Module zu Geld, Risiko und Krypto durchlaufen.</li>
+              <li data-i18n="mod3.workflow.fsa.2">Dann den Trading-Simulator nutzen, um diese Schritte zu üben.</li>
+              <li data-i18n="mod3.workflow.fsa.3">Eigene Dokumentations-Vorlage anlegen (wir liefern Beispiele).</li>
+              <li data-i18n="mod3.workflow.fsa.4">Später mit sehr kleinen Beträgen starten und Routinen testen.</li>
+              <li data-i18n="mod3.workflow.fsa.5">Regelmäßig auswerten, welche Trades planvoll waren und welche spontan.</li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="note" data-i18n="mod3.workflow.note">
+          Dieser Workflow macht Trading nicht „sicher“. Aber er hilft dir, klare Schritte zu haben – statt aus dem Bauch
+          heraus auf jede Kursbewegung zu reagieren.
+        </p>
+      </div>
+    </section>
+
+    <!-- 5 · Mini-Übung -->
+    <section class="section">
+      <div class="card card-soft">
+        <div class="pill-label">
+          <span class="pill-dot"></span>
+          <span data-i18n="mod3.exercise.label">5 · Mini-Übung: Welche Order passt?</span>
+        </div>
+        <h2 data-i18n="mod3.exercise.title">Drei Situationen – drei Orderideen</h2>
+        <p class="section-lead" data-i18n="mod3.exercise.lead">
+          Diese kurze Übung ersetzt keine Beratung. Sie hilft dir nur, ein Gefühl dafür zu bekommen, welche Orderart
+          zu welcher Situation passt.
+        </p>
+
+        <div class="exercise-block">
+          <p class="question" data-i18n="mod3.exercise.sc1.title">
+            Situation 1: Du willst sofort eine kleine Position aufbauen, beobachtest den Markt schon länger und der
+            aktuelle Preis ist für dich in Ordnung.
+          </p>
+          <p class="scenario-label" data-i18n="mod3.exercise.sc1.label">Welche Orderart passt am ehesten?</p>
+          <div class="select-row">
+            <select id="sc1">
+              <option value="" data-i18n="mod3.exercise.select.default">Bitte auswählen …</option>
+              <option value="market" data-i18n="mod3.exercise.option.market">Market-Order</option>
+              <option value="limit" data-i18n="mod3.exercise.option.limit">Limit-Order</option>
+              <option value="stop" data-i18n="mod3.exercise.option.stop">Stop-Order / Stop-Loss</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="exercise-block">
+          <p class="question" data-i18n="mod3.exercise.sc2.title">
+            Situation 2: Du möchtest eine Aktie nur dann kaufen, wenn sie noch etwas günstiger wird – du willst aber
+            nicht ständig in die App schauen.
+          </p>
+          <p class="scenario-label" data-i18n="mod3.exercise.sc2.label">Welche Orderart passt am ehesten?</p>
+          <div class="select-row">
+            <select id="sc2">
+              <option value="" data-i18n="mod3.exercise.select.default">Bitte auswählen …</option>
+              <option value="market" data-i18n="mod3.exercise.option.market">Market-Order</option>
+              <option value="limit" data-i18n="mod3.exercise.option.limit">Limit-Order</option>
+              <option value="stop" data-i18n="mod3.exercise.option.stop">Stop-Order / Stop-Loss</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="exercise-block">
+          <p class="question" data-i18n="mod3.exercise.sc3.title">
+            Situation 3: Du besitzt bereits eine Position. Wenn der Kurs unter einen bestimmten Punkt fällt, soll sie
+            automatisch verkauft werden.
+          </p>
+          <p class="scenario-label" data-i18n="mod3.exercise.sc3.label">Welche Orderart passt am ehesten?</p>
+          <div class="select-row">
+            <select id="sc3">
+              <option value="" data-i18n="mod3.exercise.select.default">Bitte auswählen …</option>
+              <option value="market" data-i18n="mod3.exercise.option.market">Market-Order</option>
+              <option value="limit" data-i18n="mod3.exercise.option.limit">Limit-Order</option>
+              <option value="stop" data-i18n="mod3.exercise.option.stop">Stop-Order / Stop-Loss</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="evalButton">
+          <span data-i18n="mod3.exercise.button">Ergebnis anzeigen</span>
+          <span class="icon">›</span>
+        </button>
+
+        <div class="result-box" id="resultBox"></div>
+
+        <p class="note" data-i18n="mod3.exercise.note">
+          Später im Trading-Simulator kannst du diese Situationen mit echten Kursen und Beträgen nachspielen – ohne
+          Risiko, aber mit denselben Entscheidungswegen.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      const translations = {
+        de:{
+          "mod3.meta.title":"Trading-Modul 3 – Wie ein Trade technisch abläuft",
+          "mod3.meta.description":"Modul 3 des FSA Trading-Grundkurses: Wie ein Trade von der Idee über die Order bis zur Ausführung abläuft – Ordertypen, Kosten und ein einfacher Praxis-Workflow für Einsteiger.",
+
+          "mod3.badge":"Trading-Grundkurs · Modul 3",
+          "mod3.back":"Zur Kurs-Übersicht zurück",
+
+          "mod3.subtitle":"Mechanik – vom Klick bis zur Ausführung",
+          "mod3.title":"Wie ein Trade technisch abläuft",
+          "mod3.lead":"Bevor du echte Orders platzierst, lohnt sich ein Blick hinter die Kulissen: Was passiert zwischen deiner Idee, deinem Klick in der App und der realen Ausführung am Markt – und wo entstehen Kosten und Fehlerquellen?",
+          "mod3.highlight":"Ziel: Du verstehst den Ablauf eines Trades so klar, dass du ihn später mit Simulator und kleinen Beträgen üben kannst.",
+
+          "mod3.flow.label":"1 · Drei Phasen: Vor dem Klick, beim Klick, nach dem Klick",
+          "mod3.flow.title":"Ein Trade ist mehr als ein Knopfdruck",
+          "mod3.flow.lead":"Von außen sieht es nach „Kaufen“ und „Verkaufen“ aus. In der Praxis besteht ein verantwortlicher Trade aus Vorbereitung, Ausführung und Auswertung.",
+          "mod3.flow.pre.label":"Phase 1",
+          "mod3.flow.pre.title":"Vor dem Klick",
+          "mod3.flow.pre.1":"Markt, Produkt und Betrag anhand deines Plans wählen.",
+          "mod3.flow.pre.2":"Risiko festlegen: Wie viel darf der Trade maximal kosten?",
+          "mod3.flow.pre.3":"Orderart auswählen, die zu deiner Idee passt.",
+          "mod3.flow.click.label":"Phase 2",
+          "mod3.flow.click.title":"Beim Klick",
+          "mod3.flow.click.1":"Die App sendet deine Order an einen Handelsplatz.",
+          "mod3.flow.click.2":"Dort wird ein passendes Gegenangebot gesucht.",
+          "mod3.flow.click.3":"Die Order wird ganz, teilweise oder gar nicht ausgeführt.",
+          "mod3.flow.post.label":"Phase 3",
+          "mod3.flow.post.title":"Nach dem Klick",
+          "mod3.flow.post.1":"Du siehst Ausführungskurs, Gebühren und Rest-Order.",
+          "mod3.flow.post.2":"Die Position erscheint im Depot oder in der Wallet.",
+          "mod3.flow.post.3":"Du dokumentierst Grund, Risiko und Ergebnis des Trades.",
+          "mod3.flow.note":"Dieses Modul erklärt die Technik. Ob ein Trade überhaupt zu dir, deinem Budget und deiner Lebenssituation passt, klären die anderen Module und der FSA-Grundkurs.",
+
+          "mod3.orders.label":"2 · Orderarten in einfacher Sprache",
+          "mod3.orders.title":"Wie du der Plattform sagst, was genau du willst",
+          "mod3.orders.lead":"Eine Order ist eine Anweisung an den Markt. Orderarten legen fest, wie schnell und wie genau sie ausgeführt werden soll – und wie viel Kursabweichung du akzeptierst.",
+          "mod3.orders.market.title":"Market-Order",
+          "mod3.orders.market.sub":"„Bitte sofort ausführen – zum aktuellen Marktpreis.“",
+          "mod3.orders.market.chip":"Schnell, wenig Kontrolle",
+          "mod3.orders.market.1":"Geeignet, wenn Geschwindigkeit wichtiger ist als der exakte Preis.",
+          "mod3.orders.market.2":"Bei starken Schwankungen kann der Ausführungskurs deutlich abweichen.",
+          "mod3.orders.market.3":"In illiquiden Märkten oder mit großen Beträgen vorsichtig einsetzen.",
+          "mod3.orders.limit.title":"Limit-Order",
+          "mod3.orders.limit.sub":"„Nur ausführen, wenn mein Preis oder besser erreicht wird.“",
+          "mod3.orders.limit.chip":"Kontrolle, evtl. keine Ausführung",
+          "mod3.orders.limit.1":"Maximalen Kauf- oder minimalen Verkaufspreis festlegen.",
+          "mod3.orders.limit.2":"Wird nur ausgeführt, wenn der Markt deinen Preis erreicht.",
+          "mod3.orders.limit.3":"Kann teilweise oder gar nicht ausgeführt werden.",
+          "mod3.orders.stop.title":"Stop-Order / Stop-Loss",
+          "mod3.orders.stop.sub":"„Wenn dieser Kurs erreicht wird, starte eine Order.“",
+          "mod3.orders.stop.chip":"Schutz & Trigger",
+          "mod3.orders.stop.1":"Wird erst aktiv, wenn der Stop-Kurs erreicht oder durchbrochen wird.",
+          "mod3.orders.stop.2":"Kann Verluste begrenzen – aber nicht auf den Cent genau.",
+          "mod3.orders.stop.3":"In schnellen Märkten sind Kurslücken und Slippage möglich.",
+          "mod3.orders.note":"Für Einsteiger reicht es, diese drei Grundtypen sicher zu verstehen. Komplexere Varianten kannst du später ergänzen.",
+
+          "mod3.costs.label":"3 · Kosten, die du bei jedem Trade sehen solltest",
+          "mod3.costs.title":"Dein Ergebnis ist mehr als Ein- und Ausstieg",
+          "mod3.costs.lead":"Viele Einsteiger achten nur auf den Gewinn in Euro. In Wirklichkeit arbeiten immer mehrere Kostenarten im Hintergrund mit.",
+          "mod3.costs.visible.label":"Direkt sichtbare Kosten",
+          "mod3.costs.visible.1":"Ordergebühren der Plattform oder des Brokers.",
+          "mod3.costs.visible.2":"Börsen- oder Netzwerkgebühren (z. B. Blockchain-Fees).",
+          "mod3.costs.visible.3":"Finanzierungskosten bei gehebelten Produkten über Nacht.",
+          "mod3.costs.hidden.label":"Versteckte / indirekte Kosten",
+          "mod3.costs.hidden.1":"Spread: Unterschied zwischen Kauf- und Verkaufskurs.",
+          "mod3.costs.hidden.2":"Slippage: Ausführung weicht vom angezeigten Kurs ab.",
+          "mod3.costs.hidden.3":"Steuern auf Gewinne – je nach Land und Produkt.",
+          "mod3.costs.table.type":"Bestandteil",
+          "mod3.costs.table.example":"Beispiel",
+          "mod3.costs.table.effect":"Wirkung auf dich",
+          "mod3.costs.table.row1.type":"Spread",
+          "mod3.costs.table.row1.example":"Kauf zu 100, sofortiger Verkauf nur zu 99,50.",
+          "mod3.costs.table.row1.effect":"Du startest im Minus – der Markt muss erst aufholen.",
+          "mod3.costs.table.row2.type":"Gebühr",
+          "mod3.costs.table.row2.example":"0,10 % auf Kauf und 0,10 % auf Verkauf.",
+          "mod3.costs.table.row2.effect":"Viele kleine Trades summieren sich zu spürbaren Kosten.",
+          "mod3.costs.table.row3.type":"Slippage",
+          "mod3.costs.table.row3.example":"Market-Order bei 100, Ausführung bei 100,80.",
+          "mod3.costs.table.row3.effect":"Dein reales Risiko pro Trade ist höher als geplant.",
+          "mod3.costs.note":"Im Simulator siehst du später, wie stark diese Faktoren dein Ergebnis beeinflussen.",
+
+          "mod3.workflow.label":"4 · Ein einfacher Praxis-Workflow",
+          "mod3.workflow.title":"Vom Gedanken zum dokumentierten Trade",
+          "mod3.workflow.lead":"Der Ablauf ist überall ähnlich. Dieser Vorschlag hilft dir, eine klare Routine zu entwickeln – zuerst im Simulator, später ggf. mit echtem Geld.",
+          "mod3.workflow.steps.label":"Technische Schritte",
+          "mod3.workflow.steps.1":"Markt und Produkt wählen (Aktie, ETF, Krypto-Spot usw.).",
+          "mod3.workflow.steps.2":"Orderart und Positionsgröße festlegen.",
+          "mod3.workflow.steps.3":"Risiko begrenzen: Stop-Loss oder maximalen Verlust bestimmen.",
+          "mod3.workflow.steps.4":"Ordermaske prüfen: Kurs, Stückzahl, Gebühren.",
+          "mod3.workflow.steps.5":"Ausführung kontrollieren und Abweichungen notieren.",
+          "mod3.workflow.steps.6":"Trade kurz in einer Tabelle oder Notiz erfassen.",
+          "mod3.workflow.fsa.label":"Mit der FSA Akademie",
+          "mod3.workflow.fsa.1":"Erst Basis-Module zu Geld, Risiko und Krypto nutzen.",
+          "mod3.workflow.fsa.2":"Dann den Trading-Simulator mit kleinen Beträgen testen.",
+          "mod3.workflow.fsa.3":"Eigene Dokumentations-Vorlage aufbauen.",
+          "mod3.workflow.fsa.4":"Später mit sehr kleinen Beträgen real handeln.",
+          "mod3.workflow.fsa.5":"Regelmäßig auswerten, welche Trades planvoll waren.",
+          "mod3.workflow.note":"Der Workflow macht Trading nicht risikolos, aber er gibt dir klare Schritte statt spontaner Aktionen.",
+
+          "mod3.exercise.label":"5 · Mini-Übung: Welche Order passt?",
+          "mod3.exercise.title":"Drei Situationen – drei Orderideen",
+          "mod3.exercise.lead":"Diese kurze Übung hilft dir, ein Gefühl dafür zu bekommen, welche Orderart zu welcher Situation passt.",
+          "mod3.exercise.sc1.title":"Situation 1: Du willst sofort eine kleine Position aufbauen, beobachtest den Markt schon länger und der aktuelle Preis ist für dich in Ordnung.",
+          "mod3.exercise.sc1.label":"Welche Orderart passt am ehesten?",
+          "mod3.exercise.sc2.title":"Situation 2: Du möchtest eine Aktie nur dann kaufen, wenn sie noch etwas günstiger wird – du willst aber nicht ständig in die App schauen.",
+          "mod3.exercise.sc2.label":"Welche Orderart passt am ehesten?",
+          "mod3.exercise.sc3.title":"Situation 3: Du besitzt bereits eine Position. Wenn der Kurs unter einen bestimmten Punkt fällt, soll sie automatisch verkauft werden.",
+          "mod3.exercise.sc3.label":"Welche Orderart passt am ehesten?",
+          "mod3.exercise.select.default":"Bitte auswählen …",
+          "mod3.exercise.option.market":"Market-Order",
+          "mod3.exercise.option.limit":"Limit-Order",
+          "mod3.exercise.option.stop":"Stop-Order / Stop-Loss",
+          "mod3.exercise.button":"Ergebnis anzeigen",
+          "mod3.exercise.note":"Im Trading-Simulator kannst du diese Situationen später mit realen Kursen nachspielen.",
+          "mod3.exercise.result.perfect":"Deine Auswahl passt sehr gut zu den Situationen.\n\n• Situation 1: Market-Order – Fokus auf sofortige Ausführung.\n• Situation 2: Limit-Order – du wartest auf einen besseren Preis.\n• Situation 3: Stop-Order / Stop-Loss – automatischer Schutz nach unten.\n\nWichtig: In der Praxis prüfst du zusätzlich immer Liquidität, Kosten und dein persönliches Risiko.",
+          "mod3.exercise.result.ok":"Teilweise triffst du passende Orderarten, teilweise gäbe es technisch sinnvollere Varianten.\n\nMerke dir die Muster:\n• Sofortige Ausführung → eher Market.\n• Warten auf einen bestimmten Preis → eher Limit.\n• Automatischer Trigger bei einem Kurs → eher Stop.\n\nNutze dieses Modul und später den Simulator, um das zu vertiefen.",
+          "mod3.exercise.result.low":"Deine Auswahl weicht deutlich von den typischen Zuordnungen ab.\n\nDas ist am Anfang normal – genau dafür ist dieser Kurs da.\n\nEmpfehlung:\n• Lies die drei Orderarten oben noch einmal durch.\n• Stell dir vor, was genau passieren soll, wenn der Kurs dein Niveau erreicht.\n• Teste später im Simulator, wie sich die Orderarten auswirken, ohne echtes Geld zu riskieren.",
+
+          "lock.title":"Dieser Kursbereich ist geschützt",
+          "lock.text":"Modul 3 gehört zum passwortgeschützten Trading-Grundkurs der FSA Akademie. Bitte öffne zuerst die Kurs-Startseite, gib dort deinen Kurs-Code ein und komm anschließend wieder hierher zurück.",
+          "lock.hint":"Tipp: Wenn du den Code bereits eingegeben hast und diese Meldung trotzdem siehst, aktualisiere die Seite oder öffne sie in einem neuen Tab.",
+          "lock.button":"Zur Kurs-Startseite"
+        },
+        en:{
+          "mod3.meta.title":"Trading Module 3 – How a trade works technically",
+          "mod3.meta.description":"Module 3 of the FSA trading course: from idea to order to execution – order types, costs and a simple practical workflow for beginners.",
+
+          "mod3.badge":"Trading course · Module 3",
+          "mod3.back":"Back to course overview",
+
+          "mod3.subtitle":"Mechanics – from click to execution",
+          "mod3.title":"How a trade works technically",
+          "mod3.lead":"Before placing real orders, it’s worth looking behind the scenes: what happens between your idea, your tap in the app and the actual execution in the market – and where costs and potential errors arise.",
+          "mod3.highlight":"Goal: you understand the flow of a trade clearly enough to practise it later with the simulator and small amounts.",
+
+          "mod3.flow.label":"1 · Three phases: before, during and after the click",
+          "mod3.flow.title":"A trade is more than a button press",
+          "mod3.flow.lead":"From the outside it looks like just “buy” and “sell”. In reality, a responsible trade consists of preparation, execution and review.",
+          "mod3.flow.pre.label":"Phase 1",
+          "mod3.flow.pre.title":"Before the click",
+          "mod3.flow.pre.1":"Choose market, product and size based on your plan.",
+          "mod3.flow.pre.2":"Define risk: how much may this trade cost at most?",
+          "mod3.flow.pre.3":"Select the order type that fits your idea.",
+          "mod3.flow.click.label":"Phase 2",
+          "mod3.flow.click.title":"During the click",
+          "mod3.flow.click.1":"The app sends your order to a trading venue.",
+          "mod3.flow.click.2":"There a matching counter-order is searched.",
+          "mod3.flow.click.3":"The order is executed fully, partially or not at all.",
+          "mod3.flow.post.label":"Phase 3",
+          "mod3.flow.post.title":"After the click",
+          "mod3.flow.post.1":"You see execution price, fees and any remaining order.",
+          "mod3.flow.post.2":"The position appears in your portfolio or wallet.",
+          "mod3.flow.post.3":"You document reason, risk and result of the trade.",
+          "mod3.flow.note":"This module explains the mechanics. Whether a trade fits you and your finances is covered in other modules and the FSA base course.",
+
+          "mod3.orders.label":"2 · Order types in simple language",
+          "mod3.orders.title":"How to tell the platform exactly what you want",
+          "mod3.orders.lead":"An order is an instruction to the market. Order types define how fast and how precisely it should be executed – and how much price deviation you accept.",
+          "mod3.orders.market.title":"Market order",
+          "mod3.orders.market.sub":"“Execute now at the current market price.”",
+          "mod3.orders.market.chip":"Fast, little control",
+          "mod3.orders.market.1":"Useful when speed matters more than the exact price.",
+          "mod3.orders.market.2":"In volatile markets execution can differ strongly from the last quote.",
+          "mod3.orders.market.3":"Use with care in illiquid markets or with large sizes.",
+          "mod3.orders.limit.title":"Limit order",
+          "mod3.orders.limit.sub":"“Only execute if my price or better is reached.”",
+          "mod3.orders.limit.chip":"Control, possible non-execution",
+          "mod3.orders.limit.1":"You set a maximum buy price or minimum sell price.",
+          "mod3.orders.limit.2":"Executed only if the market reaches your level.",
+          "mod3.orders.limit.3":"May be partially executed or not at all.",
+          "mod3.orders.stop.title":"Stop order / stop loss",
+          "mod3.orders.stop.sub":"“When this price is reached, trigger an order.”",
+          "mod3.orders.stop.chip":"Protection & trigger",
+          "mod3.orders.stop.1":"Becomes active only once the stop price is reached or broken.",
+          "mod3.orders.stop.2":"Can limit losses, but not to the exact cent.",
+          "mod3.orders.stop.3":"In fast markets gaps and slippage are possible.",
+          "mod3.orders.note":"For beginners it’s enough to master these three basic types. More complex variants can be added later.",
+
+          "mod3.costs.label":"3 · Costs you should see on every trade",
+          "mod3.costs.title":"Your result is more than entry and exit",
+          "mod3.costs.lead":"Many beginners only look at the profit in money terms. In reality several types of costs are at work in the background.",
+          "mod3.costs.visible.label":"Directly visible costs",
+          "mod3.costs.visible.1":"Order fees charged by the platform or broker.",
+          "mod3.costs.visible.2":"Exchange or network fees (e.g. blockchain fees).",
+          "mod3.costs.visible.3":"Financing costs on leveraged products held overnight.",
+          "mod3.costs.hidden.label":"Hidden / indirect costs",
+          "mod3.costs.hidden.1":"Spread: difference between buy and sell price.",
+          "mod3.costs.hidden.2":"Slippage: execution differs from the shown price.",
+          "mod3.costs.hidden.3":"Taxes on profits – depending on country and product.",
+          "mod3.costs.table.type":"Component",
+          "mod3.costs.table.example":"Example",
+          "mod3.costs.table.effect":"Effect on you",
+          "mod3.costs.table.row1.type":"Spread",
+          "mod3.costs.table.row1.example":"Buy at 100, immediate sell only at 99.50.",
+          "mod3.costs.table.row1.effect":"You start in the red – the market must move in your favour first.",
+          "mod3.costs.table.row2.type":"Fee",
+          "mod3.costs.table.row2.example":"0.10% on buy and 0.10% on sell.",
+          "mod3.costs.table.row2.effect":"Many small trades add up to noticeable costs.",
+          "mod3.costs.table.row3.type":"Slippage",
+          "mod3.costs.table.row3.example":"Market order at 100, execution at 100.80.",
+          "mod3.costs.table.row3.effect":"Your real per-trade risk is higher than planned.",
+          "mod3.costs.note":"Later in the simulator you’ll see how strongly these factors influence your results.",
+
+          "mod3.workflow.label":"4 · A simple practical workflow",
+          "mod3.workflow.title":"From idea to documented trade",
+          "mod3.workflow.lead":"The basic flow is similar everywhere. This suggestion helps you build a routine – first in the simulator, later (maybe) with real money.",
+          "mod3.workflow.steps.label":"Technical steps",
+          "mod3.workflow.steps.1":"Choose market and product (stock, ETF, crypto spot, …).",
+          "mod3.workflow.steps.2":"Set order type and position size.",
+          "mod3.workflow.steps.3":"Limit risk: define stop loss or maximum loss.",
+          "mod3.workflow.steps.4":"Check the order ticket: price, quantity, fees.",
+          "mod3.workflow.steps.5":"Verify execution and note any deviations.",
+          "mod3.workflow.steps.6":"Log the trade briefly in a table or notes.",
+          "mod3.workflow.fsa.label":"With the FSA Academy",
+          "mod3.workflow.fsa.1":"First complete the basic modules on money, risk and crypto.",
+          "mod3.workflow.fsa.2":"Then practise this workflow in the trading simulator.",
+          "mod3.workflow.fsa.3":"Create your own simple logging template.",
+          "mod3.workflow.fsa.4":"Later start with very small real amounts.",
+          "mod3.workflow.fsa.5":"Review regularly which trades followed your plan.",
+          "mod3.workflow.note":"The workflow doesn’t remove risk but gives you clear steps instead of random actions.",
+
+          "mod3.exercise.label":"5 · Mini exercise: which order fits?",
+          "mod3.exercise.title":"Three situations – three order ideas",
+          "mod3.exercise.lead":"This short exercise helps you build intuition which order type fits which situation.",
+          "mod3.exercise.sc1.title":"Situation 1: you want to build a small position right now, have been watching the market and the current price is okay for you.",
+          "mod3.exercise.sc1.label":"Which order type fits best?",
+          "mod3.exercise.sc2.title":"Situation 2: you only want to buy a stock if it becomes a bit cheaper – but you don’t want to watch the app all the time.",
+          "mod3.exercise.sc2.label":"Which order type fits best?",
+          "mod3.exercise.sc3.title":"Situation 3: you already hold a position. If the price falls below a certain level it should be sold automatically.",
+          "mod3.exercise.sc3.label":"Which order type fits best?",
+          "mod3.exercise.select.default":"Please choose …",
+          "mod3.exercise.option.market":"Market order",
+          "mod3.exercise.option.limit":"Limit order",
+          "mod3.exercise.option.stop":"Stop order / stop loss",
+          "mod3.exercise.button":"Show result",
+          "mod3.exercise.note":"Later in the simulator you can replay these situations with real price data.",
+          "mod3.exercise.result.perfect":"Your choices fit the situations very well.\n\n• Situation 1: market order – focus on immediate execution.\n• Situation 2: limit order – you wait for a better price.\n• Situation 3: stop order / stop loss – automatic downside protection.\n\nIn real trading you additionally check liquidity, costs and your personal risk.",
+          "mod3.exercise.result.ok":"Some of your choices match well, others could be improved.\n\nPatterns to remember:\n• Immediate execution → more like market.\n• Waiting for a specific price → more like limit.\n• Automatic trigger at a price level → more like stop.\n\nUse this module and the simulator to deepen that intuition.",
+          "mod3.exercise.result.low":"Your choices differ quite a lot from the usual mapping.\n\nThat’s normal at the beginning – this course is made exactly for that.\n\nRecommendation:\n• Read the three order types above again.\n• Imagine what exactly should happen once the price hits your level.\n• Test different order types later in the simulator without risking real money.",
+
+          "lock.title":"This course section is protected",
+          "lock.text":"Module 3 belongs to the password-protected trading course of the FSA Academy. Please open the course start page first, enter your course code there and then come back here.",
+          "lock.hint":"Tip: if you already entered the code and still see this message, refresh the page or open it in a new tab.",
+          "lock.button":"Go to course start page"
+        }
+      };
+
+      function applyTranslations(lang){
+        const dict = translations[lang] || translations.de;
+        document.documentElement.lang = lang;
+
+        document.querySelectorAll("[data-i18n]").forEach(function(el){
+          const key = el.getAttribute("data-i18n");
+          const val = dict[key];
+          if(typeof val === "string"){
+            el.textContent = val;
+          }
+        });
+
+        if(dict["mod3.meta.title"]){ document.title = dict["mod3.meta.title"]; }
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if(metaDesc && dict["mod3.meta.description"]){
+          metaDesc.setAttribute("content", dict["mod3.meta.description"]);
+        }
+
+        document.querySelectorAll(".lang-btn").forEach(function(btn){
+          btn.classList.toggle("active", btn.getAttribute("data-lang") === lang);
+        });
+
+        try{ localStorage.setItem("tradingCourseLang", lang); }catch(e){}
+        updateResultBox(true);
+      }
+
+      function evaluateExercise(){
+        const answers = {
+          sc1: document.getElementById("sc1")?.value || "",
+          sc2: document.getElementById("sc2")?.value || "",
+          sc3: document.getElementById("sc3")?.value || ""
+        };
+        let correct = 0;
+        if(answers.sc1 === "market") correct++;
+        if(answers.sc2 === "limit")  correct++;
+        if(answers.sc3 === "stop")   correct++;
+        return {correct, answered:(answers.sc1||answers.sc2||answers.sc3)?true:false};
+      }
+
+      function updateResultBox(onlyTranslate){
+        const box = document.getElementById("resultBox");
+        if(!box) return;
+        const lang = document.documentElement.lang === "en" ? "en" : "de";
+        const dict = translations[lang];
+        let key = box.dataset.resultKey;
+
+        if(!onlyTranslate){
+          const res = evaluateExercise();
+          if(!res.answered){
+            box.textContent = "";
+            box.dataset.resultKey = "";
+            return;
+          }
+          if(res.correct === 3){
+            key = "mod3.exercise.result.perfect";
+          }else if(res.correct === 2){
+            key = "mod3.exercise.result.ok";
+          }else{
+            key = "mod3.exercise.result.low";
+          }
+          box.dataset.resultKey = key;
+        }
+
+        if(!key) return;
+        box.textContent = dict[key] || "";
+      }
+
+      function checkLock(){
+        const overlay = document.getElementById("lockOverlay");
+        let locked = true;
+        try{
+          locked = localStorage.getItem("tradingCourseUnlocked") !== "1";
+        }catch(e){ locked = true; }
+        if(overlay){ overlay.style.display = locked ? "flex" : "none"; }
+      }
+
+      document.addEventListener("DOMContentLoaded",function(){
+        let lang = "de";
+        try{
+          const stored = localStorage.getItem("tradingCourseLang");
+          if(stored === "de" || stored === "en"){ lang = stored; }
+        }catch(e){}
+        document.querySelectorAll(".lang-btn").forEach(function(btn){
+          btn.addEventListener("click",function(){
+            applyTranslations(btn.getAttribute("data-lang"));
+          });
+        });
+        applyTranslations(lang);
+
+        checkLock();
+        document.getElementById("lockToHub")?.addEventListener("click",function(){
+          window.location.href = "trading-grundkurs.html";
+        });
+
+        document.getElementById("evalButton")?.addEventListener("click",function(e){
+          e.preventDefault();
+          updateResultBox(false);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
