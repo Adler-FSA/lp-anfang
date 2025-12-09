@@ -509,6 +509,8 @@
     │   │   ├── page.json
     │   │   ├── trading-aufklaerung.html
     │   │   ├── trading-betrugsradar.html
+    │   │   ├── trading-grundkurs.html
+    │   │   ├── trading-modul-1-orientierung.html
     │   │   ├── trading-rahmen.html
     │   │   ├── trading-simulator.html
     │   │   └── trading-zahlen.html
@@ -589,4 +591,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.12.2025, 19:12)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.12.2025, 20:16)_
