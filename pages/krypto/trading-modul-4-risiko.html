@@ -1,0 +1,966 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Trading-Modul 4 – Risiko & Money-Management</title>
+  <meta name="description" content="Modul 4 des FSA Trading-Grundkurses: Wie viel du pro Trade riskierst, wie du Positionsgrößen berechnest und warum große Drawdowns so gefährlich sind – in einfacher Sprache erklärt.">
+  <style>
+    :root{
+      --bg:#050814;
+      --bg-grad1:#020617;
+      --bg-grad2:#02091b;
+      --card:rgba(15,23,42,.96);
+      --card-soft:rgba(15,23,42,.9);
+      --gold:#d4af37;
+      --gold-soft:rgba(212,175,55,.2);
+      --accent:#22c55e;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --radius:16px;
+      --shadow:0 22px 60px rgba(0,0,0,.75);
+      --maxw:1040px;
+    }
+
+    *{box-sizing:border-box;}
+
+    html,body{
+      margin:0;
+      padding:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at top left,rgba(34,211,238,.14),transparent 55%),
+        radial-gradient(circle at bottom right,rgba(212,175,55,.22),transparent 50%),
+        linear-gradient(145deg,var(--bg-grad1),var(--bg-grad2));
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+    }
+
+    body{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      padding:32px 16px 42px;
+    }
+
+    .page{
+      width:100%;
+      max-width:var(--maxw);
+      position:relative;
+    }
+
+    .page-header{
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      margin-bottom:24px;
+    }
+
+    .page-header-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:4px 11px;
+      border-radius:999px;
+      border:1px solid var(--gold-soft);
+      background:rgba(15,23,42,.85);
+      box-shadow:0 0 0 1px rgba(148,163,184,.35);
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    .badge-dot{
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:radial-gradient(circle,var(--gold),#854d0e);
+      box-shadow:0 0 14px rgba(212,175,55,.9);
+      flex-shrink:0;
+    }
+
+    .back-link{
+      font-size:12px;
+      text-decoration:none;
+      color:var(--muted);
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-top:6px;
+    }
+
+    .back-link span.icon{font-size:16px;line-height:1;}
+    .back-link:hover{color:var(--gold);}
+
+    .lang-toggle{
+      display:inline-flex;
+      padding:3px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.5);
+      background:rgba(15,23,42,.9);
+      gap:3px;
+    }
+
+    .lang-btn{
+      border:none;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:12px;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      cursor:pointer;
+      background:transparent;
+      color:var(--muted);
+      transition:background-color .16s ease,color .16s ease,transform .12s ease;
+    }
+
+    .lang-btn:hover{transform:translateY(-1px);}
+    .lang-btn.active{background:var(--gold);color:#020617;font-weight:600;}
+
+    .hero-subtitle{
+      font-size:13px;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin:0 0 4px;
+    }
+
+    h1{
+      font-size:26px;
+      line-height:1.15;
+      margin:0 0 6px;
+    }
+
+    .hero-lead{
+      margin:0;
+      font-size:15px;
+      line-height:1.6;
+      color:var(--muted);
+      max-width:820px;
+    }
+
+    .hero-highlight{
+      display:inline-block;
+      margin-top:6px;
+      padding:5px 10px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.55);
+      background:rgba(15,23,42,.9);
+      font-size:12px;
+      color:var(--gold);
+    }
+
+    .section{margin-bottom:22px;}
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      border:1px solid rgba(148,163,184,.35);
+      box-shadow:var(--shadow);
+      padding:18px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card-soft{
+      background:var(--card-soft);
+      border:1px solid rgba(148,163,184,.3);
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background:
+        radial-gradient(circle at top,var(--gold-soft),transparent 60%),
+        radial-gradient(circle at bottom,rgba(56,189,248,.14),transparent 60%);
+      opacity:.35;
+      mix-blend-mode:screen;
+      pointer-events:none;
+    }
+
+    .card > *{position:relative;z-index:1;}
+
+    .pill-label{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 9px;
+      border-radius:999px;
+      background:rgba(15,23,42,.96);
+      border:1px solid rgba(148,163,184,.45);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+
+    .pill-dot{
+      width:6px;
+      height:6px;
+      border-radius:999px;
+      background:var(--gold);
+      box-shadow:0 0 10px rgba(212,175,55,.9);
+    }
+
+    h2{font-size:20px;margin:0 0 6px;}
+    h3{font-size:15px;margin:0 0 4px;}
+    .section-lead{margin:0 0 14px;font-size:14px;color:var(--muted);max-width:820px;}
+
+    .note{
+      margin-top:10px;
+      padding:8px 10px;
+      border-radius:10px;
+      background:rgba(15,23,42,.96);
+      border:1px dashed rgba(148,163,184,.6);
+      font-size:11px;
+      color:var(--muted);
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);
+      gap:16px;
+      margin-top:8px;
+    }
+
+    .grid-3{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-top:8px;
+    }
+
+    .info-card{
+      background:rgba(15,23,42,.98);
+      border-radius:14px;
+      border:1px solid rgba(148,163,184,.4);
+      padding:10px 12px 11px;
+      font-size:13px;
+    }
+
+    .info-card p{margin:0 0 6px;color:var(--muted);line-height:1.5;}
+
+    .tagline{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      color:var(--muted);
+      margin-bottom:2px;
+    }
+
+    .list{
+      margin:6px 0 0;
+      padding-left:16px;
+      font-size:13px;
+      color:var(--muted);
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+
+    .mini-table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:6px;
+      font-size:12px;
+    }
+
+    .mini-table th,
+    .mini-table td{
+      border:1px solid rgba(148,163,184,.5);
+      padding:5px 6px;
+      text-align:left;
+    }
+
+    .mini-table th{
+      background:rgba(15,23,42,.98);
+      font-weight:600;
+      font-size:11px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    .mini-table td{color:var(--muted);}
+
+    /* Calculator */
+    .input-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:6px;
+    }
+
+    .field{
+      flex:1 1 140px;
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .field label{font-size:12px;}
+    .field small{font-size:11px;color:var(--muted);opacity:.85;}
+
+    input[type="number"]{
+      width:100%;
+      padding:6px 8px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.6);
+      background:rgba(15,23,42,.98);
+      color:var(--text);
+      font-size:12px;
+      outline:none;
+    }
+
+    input[type="number"]::placeholder{color:rgba(148,163,184,.7);}
+
+    .btn-primary{
+      border:none;
+      border-radius:999px;
+      padding:7px 14px;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      cursor:pointer;
+      background:var(--gold);
+      color:#020617;
+      font-weight:600;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-top:8px;
+      transition:background-color .16s ease,transform .12s ease,box-shadow .12s ease;
+    }
+
+    .btn-primary span.icon{font-size:15px;}
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 0 20px rgba(212,175,55,.8);}
+
+    .result-box{
+      margin-top:8px;
+      padding:8px 10px;
+      border-radius:10px;
+      background:rgba(15,23,42,.96);
+      border:1px solid rgba(148,163,184,.6);
+      font-size:12px;
+      color:var(--muted);
+      white-space:pre-line;
+      min-height:40px;
+    }
+
+    .checklist{
+      margin:8px 0 0;
+      padding-left:16px;
+      font-size:13px;
+      color:var(--muted);
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+
+    .lock-overlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:radial-gradient(circle at top,rgba(15,23,42,.7),rgba(15,23,42,.96));
+      backdrop-filter:blur(5px);
+      z-index:50;
+    }
+
+    .lock-card{
+      max-width:420px;
+      width:90%;
+      background:rgba(15,23,42,.98);
+      border-radius:16px;
+      border:1px solid rgba(148,163,184,.7);
+      box-shadow:0 24px 70px rgba(0,0,0,.85);
+      padding:14px;
+      font-size:13px;
+    }
+
+    .lock-card h2{font-size:16px;margin:0 0 6px;}
+    .lock-card p{margin:0 0 8px;font-size:12px;color:var(--muted);}
+    .lock-card a{color:var(--gold);text-decoration:none;}
+    .lock-card a:hover{text-decoration:underline;}
+    .lock-card .btn-primary{margin-top:6px;}
+
+    @media (max-width:980px){
+      .grid-2{grid-template-columns:1fr;}
+      .grid-3{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
+    }
+
+    @media (max-width:720px){
+      body{padding:20px 12px 30px;}
+      h1{font-size:23px;}
+      .grid-3{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+  <!-- Lock-Overlay -->
+  <div class="lock-overlay" id="lockOverlay">
+    <div class="lock-card">
+      <h2 data-i18n="lock.title">Dieser Kursbereich ist geschützt</h2>
+      <p data-i18n="lock.text">
+        Modul 4 gehört zum passwortgeschützten Trading-Grundkurs der FSA Akademie. Bitte öffne zuerst die
+        Kurs-Startseite, gib dort deinen Kurs-Code ein und komm anschließend wieder hierher zurück.
+      </p>
+      <p data-i18n="lock.hint">
+        Tipp: Wenn du den Code bereits eingegeben hast und diese Meldung trotzdem siehst, aktualisiere die Seite oder
+        öffne sie in einem neuen Tab.
+      </p>
+      <button class="btn-primary" id="lockToHub">
+        <span data-i18n="lock.button">Zur Kurs-Startseite</span>
+        <span class="icon">›</span>
+      </button>
+    </div>
+  </div>
+
+  <main class="page">
+    <header class="page-header">
+      <div class="page-header-top">
+        <div>
+          <div class="badge">
+            <span class="badge-dot"></span>
+            <span data-i18n="mod4.badge">Trading-Grundkurs · Modul 4</span>
+          </div>
+          <a href="trading-grundkurs.html" class="back-link">
+            <span class="icon">‹</span>
+            <span data-i18n="mod4.back">Zur Kurs-Übersicht zurück</span>
+          </a>
+        </div>
+        <div class="lang-toggle" aria-label="Sprachauswahl">
+          <button class="lang-btn active" data-lang="de">DE</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+        </div>
+      </div>
+      <div>
+        <p class="hero-subtitle" data-i18n="mod4.subtitle">Risiko & Money-Management</p>
+        <h1 data-i18n="mod4.title">Wie viel Verlust dein Konto wirklich aushält</h1>
+        <p class="hero-lead" data-i18n="mod4.lead">
+          In diesem Modul geht es nicht um Gewinne, sondern um Schutz: Wie viel du pro Trade riskierst, wie du
+          Positionsgrößen berechnest und warum große Drawdowns gefährlicher sind als viele kleine Verluste.
+        </p>
+        <span class="hero-highlight" data-i18n="mod4.highlight">
+          Ziel: Du kannst in klaren Zahlen ausdrücken, was ein einzelner Trade und was ein schlechter Monat maximal kosten darf.
+        </span>
+      </div>
+    </header>
+
+    <!-- 1 · Warum Risiko-Management zuerst kommt -->
+    <section class="section">
+      <div class="card card-soft">
+        <div class="pill-label">
+          <span class="pill-dot"></span>
+          <span data-i18n="mod4.why.label">1 · Warum Risiko-Management vor der Strategie kommt</span>
+        </div>
+        <h2 data-i18n="mod4.why.title">Ohne Rahmen wird jeder Fehler teuer</h2>
+        <p class="section-lead" data-i18n="mod4.why.lead">
+          Viele Menschen investieren mehr Zeit in Indikatoren als in die Frage: „Was darf mich dieser Trade kosten?“
+          Genau diese Zahl entscheidet, ob du nach einer Verlustserie weitermachen kannst – oder aufgeben musst.
+        </p>
+
+        <div class="grid-2">
+          <div class="info-card">
+            <p class="tagline" data-i18n="mod4.why.left.label">Drei Ebenen von Risiko</p>
+            <ul class="list">
+              <li data-i18n="mod4.why.left.1">
+                Risiko pro Trade – wie viel Prozent deines Kontos du bei einem einzigen Trade verlieren kannst.
+              </li>
+              <li data-i18n="mod4.why.left.2">
+                Risiko pro Tag / Woche – wie groß ein schlechter Zeitraum maximal sein darf.
+              </li>
+              <li data-i18n="mod4.why.left.3">
+                Gesamtrisiko – welcher maximale Drawdown für dich psychisch und finanziell aushaltbar ist.
+              </li>
+            </ul>
+          </div>
+          <div class="info-card">
+            <p class="tagline" data-i18n="mod4.why.right.label">Was dieses Modul klärt</p>
+            <ul class="list">
+              <li data-i18n="mod4.why.right.1">Konservative Richtwerte für Risiko pro Trade.</li>
+              <li data-i18n="mod4.why.right.2">Wie du Positionsgrößen aus Stopp-Abstand und Kontogröße berechnest.</li>
+              <li data-i18n="mod4.why.right.3">Warum ein Minus von 50 % mehr als 50 % Gewinn zum Ausgleich braucht.</li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="note" data-i18n="mod4.why.note">
+          Du musst kein Profi werden. Aber ohne einfachen Risikorahmen wird selbst eine gute Strategie langfristig
+          kaum überleben.
+        </p>
+      </div>
+    </section>
+
+    <!-- 2 · Wieviel pro Trade? -->
+    <section class="section">
+      <div class="card">
+        <div class="pill-label">
+          <span class="pill-dot"></span>
+          <span data-i18n="mod4.pertrade.label">2 · Wie viel pro Trade? – typische Rahmen</span>
+        </div>
+        <h2 data-i18n="mod4.pertrade.title">Riskierst du einen Chip – oder den ganzen Tisch?</h2>
+        <p class="section-lead" data-i18n="mod4.pertrade.lead">
+          Profis denken selten in „Einsatz“, sondern in Prozent vom Gesamtkonto. Kleine Prozente wirken harmlos –
+          aber sie entscheiden, ob eine Verlustserie für dich noch ein Lernkapitel ist oder ein Knock-out.
+        </p>
+
+        <div class="grid-2">
+          <div class="info-card">
+            <p class="tagline" data-i18n="mod4.pertrade.left.label">Konservative Richtwerte</p>
+            <ul class="list">
+              <li data-i18n="mod4.pertrade.left.1">0,25–0,5 % pro Trade – sehr vorsichtig, geeignet für Lernphase.</li>
+              <li data-i18n="mod4.pertrade.left.2">1 % pro Trade – typische Obergrenze vieler seriöser Trader.</li>
+              <li data-i18n="mod4.pertrade.left.3">Über 2 % pro Trade – aggressiv, kann kleine Serien sehr teuer machen.</li>
+            </ul>
+          </div>
+          <div class="info-card">
+            <p class="tagline" data-i18n="mod4.pertrade.right.label">Was zu dir passt</p>
+            <ul class="list">
+              <li data-i18n="mod4.pertrade.right.1">
+                Wie lange du dein Lernkapital psychisch und finanziell aushältst, wenn es mal schlecht läuft.
+              </li>
+              <li data-i18n="mod4.pertrade.right.2">
+                Ob du noch andere Verpflichtungen hast (Familie, Selbstständigkeit, Kredite).
+              </li>
+              <li data-i18n="mod4.pertrade.right.3">
+                Ob du Trading als Lernprojekt siehst – oder als „Notlösung“, um ein Loch zu stopfen.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="note" data-i18n="mod4.pertrade.note">
+          In unserem Kurs gehen wir davon aus, dass du klein beginnst. Deswegen arbeiten viele Beispiele mit 0,5 % Risiko
+          pro Trade oder weniger.
+        </p>
+      </div>
+    </section>
+
+    <!-- 3 · Rechner: Positionsgröße -->
+    <section class="section">
+      <div class="card card-soft">
+        <div class="pill-label">
+          <span class="pill-dot"></span>
+          <span data-i18n="mod4.calc.label">3 · Mini-Rechner: Wie groß darf deine Position sein?</span>
+        </div>
+        <h2 data-i18n="mod4.calc.title">Positionsgröße aus Konto, Risiko und Stopp-Abstand</h2>
+        <p class="section-lead" data-i18n="mod4.calc.lead">
+          Der häufigste Fehler: Erst Stückzahl wählen, dann hoffen, dass das Risiko schon „passt“. Professioneller ist es
+          umgekehrt: Du legst das Risiko fest – der Rechner sagt dir, wie viele Stücke daraus werden.
+        </p>
+
+        <div class="input-row">
+          <div class="field">
+            <label for="accSize" data-i18n="mod4.calc.acc.label">Kontogröße</label>
+            <input type="number" id="accSize" min="0" step="0.01" placeholder="2.000" />
+            <small data-i18n="mod4.calc.acc.hint">Gesamtbetrag, den du für dieses Konto eingeplant hast (z. B. in €).</small>
+          </div>
+          <div class="field">
+            <label for="riskPercent" data-i18n="mod4.calc.risk.label">Risiko pro Trade (%)</label>
+            <input type="number" id="riskPercent" min="0" step="0.1" placeholder="0,5" />
+            <small data-i18n="mod4.calc.risk.hint">Typisch: 0,25–1 % in der Lernphase.</small>
+          </div>
+          <div class="field">
+            <label for="stopDistance" data-i18n="mod4.calc.stop.label">Stopp-Abstand pro Einheit</label>
+            <input type="number" id="stopDistance" min="0" step="0.01" placeholder="10" />
+            <small data-i18n="mod4.calc.stop.hint">Differenz zwischen Einstiegskurs und Stopp (z. B. 10 € pro Aktie).</small>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="calcBtn">
+          <span data-i18n="mod4.calc.button">Position berechnen</span>
+          <span class="icon">›</span>
+        </button>
+
+        <div class="result-box" id="calcResult"></div>
+
+        <p class="note" data-i18n="mod4.calc.note">
+          Dieser Rechner ersetzt keine vollständige Beratung. Er hilft dir nur, ein Gefühl dafür zu bekommen, wie klein
+          eine Position werden kann, wenn du Risiko wirklich ernst nimmst.
+        </p>
+      </div>
+    </section>
+
+    <!-- 4 · Drawdown -->
+    <section class="section">
+      <div class="card">
+        <div class="pill-label">
+          <span class="pill-dot"></span>
+          <span data-i18n="mod4.dd.label">4 · Drawdowns: Warum ein Minus von 50 % so weh tut</span>
+        </div>
+        <h2 data-i18n="mod4.dd.title">Verluste in Prozent – und der Weg zurück</h2>
+        <p class="section-lead" data-i18n="mod4.dd.lead">
+          Ein Minus von 50 % „fühlt“ sich halb so schlimm an wie 100 % Verlust. Mathematisch ist der Weg zurück
+          allerdings viel länger. Diese Tabelle macht das greifbar.
+        </p>
+
+        <table class="mini-table">
+          <thead>
+            <tr>
+              <th data-i18n="mod4.dd.col1">Drawdown</th>
+              <th data-i18n="mod4.dd.col2">Benötigter Gewinn, um wieder auf 0 zu kommen</th>
+              <th data-i18n="mod4.dd.col3">Kommentar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>-10 %</td>
+              <td>+11,1 %</td>
+              <td data-i18n="mod4.dd.row1">Unangenehm, aber mit guter Strategie realistisch auszugleichen.</td>
+            </tr>
+            <tr>
+              <td>-20 %</td>
+              <td>+25 %</td>
+              <td data-i18n="mod4.dd.row2">Viele fühlen hier schon starken Druck, Fehler nehmen zu.</td>
+            </tr>
+            <tr>
+              <td>-30 %</td>
+              <td>+42,9 %</td>
+              <td data-i18n="mod4.dd.row3">Es dauert spürbar länger, psychisch sehr anspruchsvoll.</td>
+            </tr>
+            <tr>
+              <td>-50 %</td>
+              <td>+100 %</td>
+              <td data-i18n="mod4.dd.row4">Du musst dein Geld verdoppeln, nur um wieder bei 0 zu sein.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p class="note" data-i18n="mod4.dd.note">
+          Deine wichtigste Aufgabe ist nicht, jeden Gewinn mitzunehmen – sondern große Drawdowns zu verhindern. Genau
+          dafür sind kleine Risikoprozent pro Trade da.
+        </p>
+      </div>
+    </section>
+
+    <!-- 5 · Checkliste & kleine Übung -->
+    <section class="section">
+      <div class="card card-soft">
+        <div class="pill-label">
+          <span class="pill-dot"></span>
+          <span data-i18n="mod4.check.label">5 · Checkliste für dein persönliches Risikoprofil</span>
+        </div>
+        <h2 data-i18n="mod4.check.title">Bevor du den Simulator mit echten Zahlen fütterst</h2>
+        <p class="section-lead" data-i18n="mod4.check.lead">
+          Nimm dir ein Blatt Papier oder eine Notiz-App und beantworte die folgenden Punkte. Sie bilden den Rahmen für
+          alle späteren Übungen im Trading-Simulator.
+        </p>
+
+        <ul class="checklist">
+          <li data-i18n="mod4.check.1">Wie hoch darf dein maximaler Drawdown in diesem Lernprojekt sein (z. B. 10 oder 20 %)?</li>
+          <li data-i18n="mod4.check.2">Welchen Prozentsatz pro Trade möchtest du in der Lernphase maximal riskieren?</li>
+          <li data-i18n="mod4.check.3">Nach wie vielen Verlust-Trades in Folge legst du verpflichtend eine Pause ein?</li>
+          <li data-i18n="mod4.check.4">Welche Summe ist „Lernkapital“ – und welches Geld darf auf keinen Fall angetastet werden?</li>
+          <li data-i18n="mod4.check.5">Mit wem kannst du über deine Regeln sprechen, damit du sie nicht spontan änderst?</li>
+        </ul>
+
+        <p class="note" data-i18n="mod4.check.note">
+          In den nächsten Modulen verknüpfen wir diese Antworten mit dem Trading-Simulator und mit echten Kursverläufen.
+          So bleibt Trading ein Lernprojekt – und nicht der Versuch, ein Loch im Konto auf einen Schlag zu schließen.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      const translations = {
+        de:{
+          "mod4.meta.title":"Trading-Modul 4 – Risiko & Money-Management",
+          "mod4.meta.description":"Modul 4 des FSA Trading-Grundkurses: Wie viel du pro Trade riskierst, wie du Positionsgrößen berechnest und warum große Drawdowns so gefährlich sind – in einfacher Sprache erklärt.",
+
+          "mod4.badge":"Trading-Grundkurs · Modul 4",
+          "mod4.back":"Zur Kurs-Übersicht zurück",
+
+          "mod4.subtitle":"Risiko & Money-Management",
+          "mod4.title":"Wie viel Verlust dein Konto wirklich aushält",
+          "mod4.lead":"In diesem Modul geht es nicht um Gewinne, sondern um Schutz: Wie viel du pro Trade riskierst, wie du Positionsgrößen berechnest und warum große Drawdowns gefährlicher sind als viele kleine Verluste.",
+          "mod4.highlight":"Ziel: Du kannst in klaren Zahlen ausdrücken, was ein einzelner Trade und was ein schlechter Monat maximal kosten darf.",
+
+          "mod4.why.label":"1 · Warum Risiko-Management vor der Strategie kommt",
+          "mod4.why.title":"Ohne Rahmen wird jeder Fehler teuer",
+          "mod4.why.lead":"Viele Menschen investieren mehr Zeit in Indikatoren als in die Frage: „Was darf mich dieser Trade kosten?“ Genau diese Zahl entscheidet, ob du nach einer Verlustserie weitermachen kannst – oder aufgeben musst.",
+          "mod4.why.left.label":"Drei Ebenen von Risiko",
+          "mod4.why.left.1":"Risiko pro Trade – wie viel Prozent deines Kontos du bei einem einzigen Trade verlieren kannst.",
+          "mod4.why.left.2":"Risiko pro Tag / Woche – wie groß ein schlechter Zeitraum maximal sein darf.",
+          "mod4.why.left.3":"Gesamtrisiko – welcher maximale Drawdown für dich psychisch und finanziell aushaltbar ist.",
+          "mod4.why.right.label":"Was dieses Modul klärt",
+          "mod4.why.right.1":"Konservative Richtwerte für Risiko pro Trade.",
+          "mod4.why.right.2":"Wie du Positionsgrößen aus Stopp-Abstand und Kontogröße berechnest.",
+          "mod4.why.right.3":"Warum ein Minus von 50 % mehr als 50 % Gewinn zum Ausgleich braucht.",
+          "mod4.why.note":"Du musst kein Profi werden. Aber ohne einfachen Risikorahmen wird selbst eine gute Strategie langfristig kaum überleben.",
+
+          "mod4.pertrade.label":"2 · Wie viel pro Trade? – typische Rahmen",
+          "mod4.pertrade.title":"Riskierst du einen Chip – oder den ganzen Tisch?",
+          "mod4.pertrade.lead":"Profis denken selten in „Einsatz“, sondern in Prozent vom Gesamtkonto. Kleine Prozente wirken harmlos – aber sie entscheiden, ob eine Verlustserie für dich noch ein Lernkapitel ist oder ein Knock-out.",
+          "mod4.pertrade.left.label":"Konservative Richtwerte",
+          "mod4.pertrade.left.1":"0,25–0,5 % pro Trade – sehr vorsichtig, geeignet für die Lernphase.",
+          "mod4.pertrade.left.2":"1 % pro Trade – typische Obergrenze vieler seriöser Trader.",
+          "mod4.pertrade.left.3":"Über 2 % pro Trade – aggressiv, kleine Serien können sehr teuer werden.",
+          "mod4.pertrade.right.label":"Was zu dir passt",
+          "mod4.pertrade.right.1":"Wie lange du dein Lernkapital aushältst, wenn es mal schlecht läuft.",
+          "mod4.pertrade.right.2":"Ob du weitere Verpflichtungen hast (Familie, Selbstständigkeit, Kredite).",
+          "mod4.pertrade.right.3":"Ob du Trading als Lernprojekt oder als „Notlösung“ siehst.",
+          "mod4.pertrade.note":"Im Kurs arbeiten viele Beispiele mit 0,5 % Risiko pro Trade oder weniger – bewusst konservativ.",
+
+          "mod4.calc.label":"3 · Mini-Rechner: Wie groß darf deine Position sein?",
+          "mod4.calc.title":"Positionsgröße aus Konto, Risiko und Stopp-Abstand",
+          "mod4.calc.lead":"Statt zuerst die Stückzahl zu wählen und dann zu hoffen, dass das Risiko passt, drehst du es hier um: Du legst das Risiko fest – der Rechner liefert die passende Positionsgröße.",
+          "mod4.calc.acc.label":"Kontogröße",
+          "mod4.calc.acc.hint":"Gesamtbetrag, den du für dieses Konto eingeplant hast (z. B. in €).",
+          "mod4.calc.risk.label":"Risiko pro Trade (%)",
+          "mod4.calc.risk.hint":"Typisch in der Lernphase: 0,25–1 %.",
+          "mod4.calc.stop.label":"Stopp-Abstand pro Einheit",
+          "mod4.calc.stop.hint":"Differenz zwischen Einstiegskurs und Stopp (z. B. 10 € pro Aktie).",
+          "mod4.calc.button":"Position berechnen",
+          "mod4.calc.note":"Der Rechner ersetzt keine vollständige Beratung. Er macht nur sichtbar, wie klein eine Position werden kann, wenn du Risiko ernst nimmst.",
+          "mod4.calc.error":"Bitte gib positive Werte für Kontogröße, Risiko und Stopp-Abstand ein.",
+          "mod4.calc.result":"Bei einem Konto von {account} und {riskPercent} % Risiko pro Trade darfst du maximal {riskAmount} verlieren.\n\nBei einem Stopp-Abstand von {stopDistance} pro Einheit ergibt das eine Positionsgröße von ca. {positionSize} Stück.\n\nHinweis: Gebühren, Spreads und Slippage sind hier noch nicht berücksichtigt.",
+
+          "mod4.dd.label":"4 · Drawdowns: Warum ein Minus von 50 % so weh tut",
+          "mod4.dd.title":"Verluste in Prozent – und der Weg zurück",
+          "mod4.dd.lead":"Ein Minus von 50 % „fühlt“ sich halb so schlimm an wie 100 % Verlust. Mathematisch musst du danach dein Geld verdoppeln, nur um wieder bei null zu landen.",
+          "mod4.dd.col1":"Drawdown",
+          "mod4.dd.col2":"Benötigter Gewinn, um wieder auf 0 zu kommen",
+          "mod4.dd.col3":"Kommentar",
+          "mod4.dd.row1":"Unangenehm, aber mit disziplinierter Strategie oft noch gut handhabbar.",
+          "mod4.dd.row2":"Viele spüren hier starken Druck – emotionale Fehler nehmen zu.",
+          "mod4.dd.row3":"Es dauert lange, bis du wieder auf dem Ausgangsstand bist.",
+          "mod4.dd.row4":"Große Verluste zerstören nicht nur Kapital, sondern auch Vertrauen in die eigene Strategie.",
+          "mod4.dd.note":"Kleine, kontrollierte Verluste sind Teil des Spiels. Große Drawdowns sind ein Zeichen, dass Regeln oder Positionsgrößen nicht zu dir passen.",
+
+          "mod4.check.label":"5 · Checkliste für dein persönliches Risikoprofil",
+          "mod4.check.title":"Bevor du den Simulator mit echten Zahlen fütterst",
+          "mod4.check.lead":"Beantworte die folgenden Fragen schriftlich. Sie bilden deinen persönlichen Rahmen für alle weiteren Module.",
+          "mod4.check.1":"Wie hoch darf dein maximaler Drawdown in diesem Lernprojekt sein (z. B. 10 oder 20 %)?",
+          "mod4.check.2":"Welchen Prozentsatz pro Trade möchtest du in der Lernphase maximal riskieren?",
+          "mod4.check.3":"Nach wie vielen Verlust-Trades in Folge legst du verpflichtend eine Pause ein?",
+          "mod4.check.4":"Welche Summe ist „Lernkapital“ – und welches Geld darf auf keinen Fall angetastet werden?",
+          "mod4.check.5":"Mit wem kannst du über deine Regeln sprechen, damit du sie nicht spontan änderst?",
+          "mod4.check.note":"In den nächsten Modulen verknüpfen wir diese Antworten mit dem Trading-Simulator und realen Kursverläufen.",
+
+          "lock.title":"Dieser Kursbereich ist geschützt",
+          "lock.text":"Modul 4 gehört zum passwortgeschützten Trading-Grundkurs der FSA Akademie. Bitte öffne zuerst die Kurs-Startseite, gib dort deinen Kurs-Code ein und komm anschließend wieder hierher zurück.",
+          "lock.hint":"Tipp: Wenn du den Code bereits eingegeben hast und diese Meldung trotzdem siehst, aktualisiere die Seite oder öffne sie in einem neuen Tab.",
+          "lock.button":"Zur Kurs-Startseite"
+        },
+        en:{
+          "mod4.meta.title":"Trading Module 4 – Risk & money management",
+          "mod4.meta.description":"Module 4 of the FSA trading course: how much you risk per trade, how to calculate position size and why large drawdowns are so dangerous – explained in simple language.",
+
+          "mod4.badge":"Trading course · Module 4",
+          "mod4.back":"Back to course overview",
+
+          "mod4.subtitle":"Risk & money management",
+          "mod4.title":"How much loss your account can really handle",
+          "mod4.lead":"This module is not about profits but protection: how much you risk per trade, how to calculate position size and why big drawdowns are more dangerous than many small losses.",
+          "mod4.highlight":"Goal: you can state in clear numbers how much a single trade and a bad month may cost at most.",
+
+          "mod4.why.label":"1 · Why risk management comes before strategy",
+          "mod4.why.title":"Without a framework every mistake gets expensive",
+          "mod4.why.lead":"Many people spend more time on indicators than on the question: “How much may this trade cost me?” That number decides whether you can continue after a losing streak – or have to stop.",
+          "mod4.why.left.label":"Three levels of risk",
+          "mod4.why.left.1":"Risk per trade – how much of your account you can lose on a single trade.",
+          "mod4.why.left.2":"Risk per day / week – how big a bad period may be.",
+          "mod4.why.left.3":"Total risk – which maximum drawdown you can handle mentally and financially.",
+          "mod4.why.right.label":"What this module clarifies",
+          "mod4.why.right.1":"Conservative guidelines for risk per trade.",
+          "mod4.why.right.2":"How to derive position size from stop distance and account size.",
+          "mod4.why.right.3":"Why a 50% loss needs more than 50% gain to recover.",
+          "mod4.why.note":"You don’t have to become a pro. But without a simple risk framework even a good strategy is unlikely to survive over time.",
+
+          "mod4.pertrade.label":"2 · How much per trade? – typical ranges",
+          "mod4.pertrade.title":"Do you risk one chip – or the whole table?",
+          "mod4.pertrade.lead":"Professionals rarely think in “stake”, but in percentage of the whole account. Small percentages look harmless – yet they decide whether a losing streak is a learning chapter or a knock-out.",
+          "mod4.pertrade.left.label":"Conservative guidelines",
+          "mod4.pertrade.left.1":"0.25–0.5% per trade – very cautious, suitable for the learning phase.",
+          "mod4.pertrade.left.2":"1% per trade – typical ceiling for many serious traders.",
+          "mod4.pertrade.left.3":"Above 2% per trade – aggressive, small streaks can become very expensive.",
+          "mod4.pertrade.right.label":"What fits you",
+          "mod4.pertrade.right.1":"How long you can tolerate your learning capital being under pressure.",
+          "mod4.pertrade.right.2":"Whether you have other obligations (family, business, loans).",
+          "mod4.pertrade.right.3":"Whether you see trading as a learning project or as a “last resort”.",
+          "mod4.pertrade.note":"In our course many examples use 0.5% risk per trade or less – deliberately conservative.",
+
+          "mod4.calc.label":"3 · Mini calculator: how large may your position be?",
+          "mod4.calc.title":"Position size from account, risk and stop distance",
+          "mod4.calc.lead":"Instead of picking size first and hoping the risk is okay, you do the opposite here: you define the risk – the calculator tells you the position size.",
+          "mod4.calc.acc.label":"Account size",
+          "mod4.calc.acc.hint":"Total amount you dedicate to this account (e.g. in €).",
+          "mod4.calc.risk.label":"Risk per trade (%)",
+          "mod4.calc.risk.hint":"Typical in the learning phase: 0.25–1%.",
+          "mod4.calc.stop.label":"Stop distance per unit",
+          "mod4.calc.stop.hint":"Difference between entry price and stop (e.g. 10 € per share).",
+          "mod4.calc.button":"Calculate position",
+          "mod4.calc.note":"This calculator is not full advice. It simply shows how small a position may become once you take risk seriously.",
+          "mod4.calc.error":"Please enter positive values for account size, risk and stop distance.",
+          "mod4.calc.result":"With an account of {account} and {riskPercent}% risk per trade you may lose at most {riskAmount} on this trade.\n\nWith a stop distance of {stopDistance} per unit this results in a position size of about {positionSize} units.\n\nNote: fees, spreads and slippage are not included here.",
+
+          "mod4.dd.label":"4 · Drawdowns: why a 50% loss hurts so much",
+          "mod4.dd.title":"Losses in percent – and the way back",
+          "mod4.dd.lead":"A 50% loss may feel “half as bad” as 100%. Mathematically you need to double your money afterwards just to break even.",
+          "mod4.dd.col1":"Drawdown",
+          "mod4.dd.col2":"Required gain to break even",
+          "mod4.dd.col3":"Comment",
+          "mod4.dd.row1":"Unpleasant but often manageable with a disciplined strategy.",
+          "mod4.dd.row2":"Many people feel strong pressure here – emotional mistakes increase.",
+          "mod4.dd.row3":"It takes time to get back to your starting point.",
+          "mod4.dd.row4":"Large losses destroy not only capital but also trust in your approach.",
+          "mod4.dd.note":"Small, controlled losses are part of the game. Large drawdowns signal that rules or position sizes do not fit you.",
+
+          "mod4.check.label":"5 · Checklist for your personal risk profile",
+          "mod4.check.title":"Before you feed the simulator with real numbers",
+          "mod4.check.lead":"Answer the following questions in writing. They form your personal framework for all later modules.",
+          "mod4.check.1":"What maximum drawdown do you accept in this learning project (e.g. 10 or 20%)?",
+          "mod4.check.2":"Which percentage per trade do you want to risk at most in the learning phase?",
+          "mod4.check.3":"After how many losing trades in a row do you take a mandatory break?",
+          "mod4.check.4":"Which part of your money is “learning capital” – and which funds must never be touched?",
+          "mod4.check.5":"Who can you talk to about your rules so you don’t change them spontaneously?",
+          "mod4.check.note":"In the next modules we link these answers with the trading simulator and real price charts.",
+
+          "lock.title":"This course section is protected",
+          "lock.text":"Module 4 belongs to the password-protected trading course of the FSA Academy. Please open the course start page first, enter your course code there and then come back here.",
+          "lock.hint":"Tip: if you already entered the code and still see this message, refresh the page or open it in a new tab.",
+          "lock.button":"Go to course start page"
+        }
+      };
+
+      function format(template, data){
+        return template.replace(/\{(\w+)\}/g,function(_,key){
+          return (key in data)? data[key] : "";
+        });
+      }
+
+      function applyTranslations(lang){
+        const dict = translations[lang] || translations.de;
+        document.documentElement.lang = lang;
+
+        document.querySelectorAll("[data-i18n]").forEach(function(el){
+          const key = el.getAttribute("data-i18n");
+          const val = dict[key];
+          if(typeof val === "string"){
+            el.textContent = val;
+          }
+        });
+
+        if(dict["mod4.meta.title"]){ document.title = dict["mod4.meta.title"]; }
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if(metaDesc && dict["mod4.meta.description"]){
+          metaDesc.setAttribute("content", dict["mod4.meta.description"]);
+        }
+
+        document.querySelectorAll(".lang-btn").forEach(function(btn){
+          btn.classList.toggle("active", btn.getAttribute("data-lang") === lang);
+        });
+
+        try{ localStorage.setItem("tradingCourseLang", lang); }catch(e){}
+
+        // Neu rendern, falls bereits ein Ergebnis im Rechner steht
+        updateCalcResult(true);
+      }
+
+      function checkLock(){
+        const overlay = document.getElementById("lockOverlay");
+        let locked = true;
+        try{
+          locked = localStorage.getItem("tradingCourseUnlocked") !== "1";
+        }catch(e){ locked = true; }
+        if(overlay){ overlay.style.display = locked ? "flex" : "none"; }
+      }
+
+      function updateCalcResult(onlyTranslate){
+        const box = document.getElementById("calcResult");
+        if(!box) return;
+        const lang = document.documentElement.lang === "en" ? "en" : "de";
+        const dict = translations[lang];
+
+        const state = box.dataset.hasResult === "1";
+        if(onlyTranslate && !state) return;
+
+        if(!state){
+          const acc = parseFloat(document.getElementById("accSize")?.value.replace(",","."));
+          const riskPct = parseFloat(document.getElementById("riskPercent")?.value.replace(",","."));
+          const stopDist = parseFloat(document.getElementById("stopDistance")?.value.replace(",","."));
+
+          if(!(acc>0) || !(riskPct>0) || !(stopDist>0)){
+            box.textContent = dict["mod4.calc.error"];
+            box.dataset.hasResult = "0";
+            return;
+          }
+
+          const riskAmount = acc * (riskPct/100);
+          const size = riskAmount / stopDist;
+
+          const data = {
+            account: acc.toFixed(2),
+            riskPercent: riskPct.toFixed(2),
+            riskAmount: riskAmount.toFixed(2),
+            stopDistance: stopDist.toFixed(2),
+            positionSize: size.toFixed(2)
+          };
+
+          box.textContent = format(dict["mod4.calc.result"], data);
+          box.dataset.hasResult = "1";
+          box.dataset.account = data.account;
+          box.dataset.riskPercent = data.riskPercent;
+          box.dataset.riskAmount = data.riskAmount;
+          box.dataset.stopDistance = data.stopDistance;
+          box.dataset.positionSize = data.positionSize;
+        }else{
+          const data = {
+            account: box.dataset.account,
+            riskPercent: box.dataset.riskPercent,
+            riskAmount: box.dataset.riskAmount,
+            stopDistance: box.dataset.stopDistance,
+            positionSize: box.dataset.positionSize
+          };
+          box.textContent = format(dict["mod4.calc.result"], data);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded",function(){
+        let lang = "de";
+        try{
+          const stored = localStorage.getItem("tradingCourseLang");
+          if(stored === "de" || stored === "en"){ lang = stored; }
+        }catch(e){}
+        document.querySelectorAll(".lang-btn").forEach(function(btn){
+          btn.addEventListener("click",function(){
+            applyTranslations(btn.getAttribute("data-lang"));
+          });
+        });
+        applyTranslations(lang);
+
+        checkLock();
+        document.getElementById("lockToHub")?.addEventListener("click",function(){
+          window.location.href = "trading-grundkurs.html";
+        });
+
+        document.getElementById("calcBtn")?.addEventListener("click",function(e){
+          e.preventDefault();
+          const box = document.getElementById("calcResult");
+          if(box){
+            box.dataset.hasResult = "0";
+          }
+          updateCalcResult(false);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
