@@ -506,7 +506,8 @@
     │   │   ├── krypto-welt-timeline.html
     │   │   ├── krypto-welt-unternehmen.html
     │   │   ├── krypto-welt-zahlen.html
-    │   │   └── page.json
+    │   │   ├── page.json
+    │   │   └── trading-aufklaerung.html
     │   ├── mentor/
     │   │   ├── lektion-souveraen.html
     │   │   └── trustyfy-bewusstsein.html
@@ -584,4 +585,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.12.2025, 09:19)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.12.2025, 10:19)_
