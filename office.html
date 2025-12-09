@@ -242,5 +242,46 @@
       }
     })();
   </script>
+
+  <!-- Sprachumschaltung für diese Seite (DE/EN über fsa_lang + Event) -->
+  <script>
+    (function(){
+      const KEY = 'fsa_lang';
+
+      function applyLanguage(lang){
+        const isEN = (lang === 'en');
+        document.documentElement.lang = isEN ? 'en' : 'de';
+
+        document.querySelectorAll('.de').forEach(el=>{
+          el.classList.toggle('hidden', isEN);
+        });
+        document.querySelectorAll('.en').forEach(el=>{
+          el.classList.toggle('hidden', !isEN);
+        });
+      }
+
+      // Initial: aus LocalStorage lesen (Standard DE)
+      let startLang = 'de';
+      try{
+        const stored = localStorage.getItem(KEY);
+        if(stored === 'en' || stored === 'de'){ startLang = stored; }
+      }catch(e){}
+      applyLanguage(startLang);
+
+      // Reagiert auf globales Event vom lang-switcher.js
+      document.addEventListener('fsa:lang-change', function(ev){
+        const lang = (ev && ev.detail) || 'de';
+        applyLanguage(lang);
+      });
+
+      // Reagiert auf Änderungen in anderen Tabs/Fenstern
+      window.addEventListener('storage', function(ev){
+        if(ev.key === KEY){
+          const lang = ev.newValue === 'en' ? 'en' : 'de';
+          applyLanguage(lang);
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
