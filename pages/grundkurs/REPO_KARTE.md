@@ -508,7 +508,10 @@
     │   │   ├── krypto-welt-zahlen.html
     │   │   ├── page.json
     │   │   ├── trading-aufklaerung.html
-    │   │   └── trading-simulator.html
+    │   │   ├── trading-betrugsradar.html
+    │   │   ├── trading-rahmen.html
+    │   │   ├── trading-simulator.html
+    │   │   └── trading-zahlen.html
     │   ├── mentor/
     │   │   ├── lektion-souveraen.html
     │   │   └── trustyfy-bewusstsein.html
@@ -586,4 +589,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.12.2025, 11:15)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.12.2025, 12:33)_
