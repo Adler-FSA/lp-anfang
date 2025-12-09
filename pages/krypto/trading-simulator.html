@@ -1,0 +1,987 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Trading-Simulator – Gewinne & Verluste nachvollziehen</title>
+  <meta name="description" content="Ein einfacher Trading-Simulator: Gib Startbetrag und Risiko ein und sieh, wie sich eine Serie von Gewinnen und Verlusten auf dein Konto auswirkt – ohne echtes Geld.">
+  <style>
+    :root{
+      --bg:#050814;
+      --bg-grad1:#020617;
+      --bg-grad2:#02091b;
+      --card:rgba(15,23,42,.96);
+      --card-soft:rgba(15,23,42,.9);
+      --accent:#00a36c;
+      --accent-soft:rgba(34,197,94,.2);
+      --gold:#d4af37;
+      --gold-soft:rgba(212,175,55,.2);
+      --danger:#f97373;
+      --danger-soft:rgba(248,113,113,.18);
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --radius:16px;
+      --shadow:0 18px 45px rgba(0,0,0,.7);
+      --maxw:1040px;
+    }
+
+    *{box-sizing:border-box;}
+
+    html,body{
+      margin:0;
+      padding:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at top left,rgba(34,211,238,.12),transparent 55%),
+        radial-gradient(circle at bottom right,rgba(212,175,55,.16),transparent 55%),
+        linear-gradient(145deg,var(--bg-grad1),var(--bg-grad2));
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+    }
+
+    body{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      padding:32px 16px 40px;
+    }
+
+    .page{
+      width:100%;
+      max-width:var(--maxw);
+    }
+
+    .page-header{
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      margin-bottom:22px;
+    }
+
+    .page-header-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid var(--gold-soft);
+      background:rgba(15,23,42,.8);
+      box-shadow:0 0 0 1px rgba(148,163,184,.3);
+      font-size:12px;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    .badge-dot{
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:radial-gradient(circle,var(--gold),#854d0e);
+      box-shadow:0 0 14px rgba(212,175,55,.8);
+      flex-shrink:0;
+    }
+
+    .lang-toggle{
+      display:inline-flex;
+      padding:3px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.5);
+      background:rgba(15,23,42,.9);
+      gap:3px;
+    }
+
+    .lang-btn{
+      border:none;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:12px;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      cursor:pointer;
+      background:transparent;
+      color:var(--muted);
+      transition:background-color .16s ease,color .16s ease,transform .12s ease;
+    }
+
+    .lang-btn:hover{transform:translateY(-1px);}
+
+    .lang-btn.active{
+      background:var(--gold);
+      color:#020617;
+      font-weight:600;
+    }
+
+    h1{
+      font-size:26px;
+      line-height:1.15;
+      margin:0 0 4px;
+    }
+
+    .hero-lead{
+      margin:0;
+      font-size:15px;
+      line-height:1.6;
+      color:var(--muted);
+      max-width:760px;
+    }
+
+    .back-link{
+      font-size:12px;
+      text-decoration:none;
+      color:var(--muted);
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-top:2px;
+    }
+
+    .back-link span{
+      font-size:16px;
+      line-height:1;
+    }
+
+    .back-link:hover{
+      color:var(--gold);
+    }
+
+    .section{
+      margin-bottom:22px;
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      border:1px solid rgba(148,163,184,.35);
+      box-shadow:var(--shadow);
+      padding:18px 18px 18px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card-soft{
+      background:var(--card-soft);
+      border:1px solid rgba(148,163,184,.3);
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background:
+        radial-gradient(circle at top,var(--gold-soft),transparent 60%),
+        radial-gradient(circle at bottom,rgba(59,130,246,.12),transparent 60%);
+      opacity:.3;
+      mix-blend-mode:screen;
+      pointer-events:none;
+    }
+
+    .card > *{position:relative;z-index:1;}
+
+    .pill-label{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 9px;
+      border-radius:999px;
+      background:rgba(15,23,42,.92);
+      border:1px solid rgba(148,163,184,.45);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+
+    .pill-dot{
+      width:6px;
+      height:6px;
+      border-radius:999px;
+      background:var(--gold);
+      box-shadow:0 0 10px rgba(212,175,55,.8);
+    }
+
+    h2{
+      font-size:20px;
+      margin:0 0 6px;
+    }
+
+    .section-lead{
+      margin:0 0 14px;
+      font-size:14px;
+      color:var(--muted);
+      max-width:760px;
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:minmax(0,1.1fr) minmax(0,1.3fr);
+      gap:16px;
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px 12px;
+      margin-bottom:12px;
+    }
+
+    .form-group{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      font-size:13px;
+    }
+
+    label{
+      color:var(--muted);
+    }
+
+    .input, .select{
+      appearance:none;
+      border-radius:10px;
+      border:1px solid rgba(148,163,184,.5);
+      background:rgba(15,23,42,.96);
+      padding:7px 9px;
+      font-size:13px;
+      color:var(--text);
+    }
+
+    .input:focus, .select:focus{
+      outline:none;
+      border-color:var(--gold);
+      box-shadow:0 0 0 1px rgba(212,175,55,.4);
+    }
+
+    .input::-webkit-outer-spin-button,
+    .input::-webkit-inner-spin-button{
+      -webkit-appearance:none;
+      margin:0;
+    }
+
+    .input[type="number"]{
+      -moz-appearance:textfield;
+    }
+
+    .hint{
+      font-size:11px;
+      color:var(--muted);
+    }
+
+    .btn-primary{
+      border:none;
+      border-radius:999px;
+      padding:7px 16px;
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      cursor:pointer;
+      background:var(--gold);
+      color:#020617;
+      font-weight:600;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-top:4px;
+      transition:background-color .16s ease,transform .12s ease,box-shadow .12s ease;
+    }
+
+    .btn-primary:hover{
+      transform:translateY(-1px);
+      box-shadow:0 0 18px rgba(212,175,55,.6);
+    }
+
+    .btn-primary span{
+      font-size:15px;
+    }
+
+    .disclaimer{
+      margin-top:10px;
+      padding:8px 10px;
+      border-radius:10px;
+      background:rgba(15,23,42,.96);
+      border:1px dashed rgba(148,163,184,.55);
+      font-size:11px;
+      color:var(--muted);
+    }
+
+    .result-header{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:flex-end;
+      justify-content:space-between;
+      margin-bottom:8px;
+    }
+
+    .summary{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      font-size:13px;
+    }
+
+    .summary-item{
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(15,23,42,.96);
+      border:1px solid rgba(148,163,184,.5);
+    }
+
+    .summary-item strong{
+      color:var(--text);
+    }
+
+    .summary-item.loss{
+      background:var(--danger-soft);
+      border-color:var(--danger);
+      color:#fecaca;
+    }
+
+    .summary-item.win{
+      background:var(--accent-soft);
+      border-color:var(--accent);
+      color:#bbf7d0;
+    }
+
+    .scenario-note{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .table-wrap{
+      margin-top:8px;
+      border-radius:12px;
+      overflow:hidden;
+      border:1px solid rgba(148,163,184,.35);
+      background:rgba(15,23,42,.96);
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:12px;
+    }
+
+    thead{
+      background:rgba(15,23,42,.98);
+    }
+
+    th,td{
+      padding:7px 8px;
+      text-align:left;
+      border-bottom:1px solid rgba(30,41,59,.9);
+    }
+
+    th{
+      font-weight:500;
+      color:var(--muted);
+    }
+
+    tbody tr:last-child td{
+      border-bottom:none;
+    }
+
+    .col-center{text-align:center;}
+    .col-right{text-align:right;}
+
+    .bar-cell{
+      width:40%;
+    }
+
+    .bar-outer{
+      height:10px;
+      border-radius:999px;
+      background:rgba(15,23,42,1);
+      overflow:hidden;
+      border:1px solid rgba(30,64,175,.8);
+    }
+
+    .bar-inner{
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,var(--accent),var(--gold));
+      width:0;
+      transition:width .3s ease;
+    }
+
+    .row-loss{
+      background:linear-gradient(90deg,rgba(127,29,29,.35),transparent);
+    }
+
+    .row-win{
+      background:linear-gradient(90deg,rgba(22,163,74,.28),transparent);
+    }
+
+    .row-neutral{
+      background:rgba(15,23,42,1);
+    }
+
+    .explain-list{
+      margin:8px 0 0;
+      padding-left:16px;
+      font-size:13px;
+      color:var(--muted);
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+
+    .legend{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:8px;
+      font-size:11px;
+      color:var(--muted);
+    }
+
+    .legend-item{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .legend-dot{
+      width:10px;
+      height:10px;
+      border-radius:999px;
+    }
+
+    .legend-dot.win{
+      background:var(--accent);
+    }
+
+    .legend-dot.loss{
+      background:#f97373;
+    }
+
+    .legend-dot.size{
+      background:linear-gradient(90deg,var(--accent),var(--gold));
+    }
+
+    @media (max-width:880px){
+      .grid-2{grid-template-columns:1fr;}
+    }
+
+    @media (max-width:720px){
+      body{
+        padding:20px 12px 28px;
+      }
+      h1{
+        font-size:24px;
+      }
+      .form-grid{
+        grid-template-columns:1fr;
+      }
+      .summary-item{
+        font-size:12px;
+      }
+      th:nth-child(4),
+      td:nth-child(4){
+        display:none; /* Equity-Bar auf schmalen Geräten ausblenden */
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="page-header">
+      <div class="page-header-top">
+        <div>
+          <div class="badge">
+            <span class="badge-dot"></span>
+            <span data-i18n="sim.badge">Trading-Simulator</span>
+          </div>
+          <a href="trading-aufklaerung.html" class="back-link">
+            <span>‹</span>
+            <span data-i18n="sim.back">Zurück zur Aufklärungsseite</span>
+          </a>
+        </div>
+        <div class="lang-toggle" aria-label="Sprachauswahl">
+          <button class="lang-btn active" data-lang="de">DE</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+        </div>
+      </div>
+      <div>
+        <h1 data-i18n="sim.title">Spielerisch verstehen, wie dein Konto schwankt</h1>
+        <p class="hero-lead" data-i18n="sim.lead">
+          Dieser einfache Simulator zeigt dir, wie sich eine feste Serie von Gewinnen und Verlusten auf dein
+          Konto auswirkt – je nachdem, wie viel Geld du einsetzt und welches Risiko du pro Trade wählst.
+        </p>
+      </div>
+    </header>
+
+    <!-- Einstellungen + Erklärung -->
+    <section class="section">
+      <div class="card card-soft">
+        <div class="grid-2">
+          <div>
+            <div class="pill-label">
+              <span class="pill-dot"></span>
+              <span data-i18n="sim.settings.label">Schritt 1 – Deine Einstellungen</span>
+            </div>
+            <h2 data-i18n="sim.settings.title">Startbetrag & Risiko wählen</h2>
+            <p class="section-lead" data-i18n="sim.settings.lead">
+              Trag deinen Startbetrag und dein Risiko pro Trade ein. Danach wählst du ein Szenario – der Simulator
+              berechnet, wie sich dein Kontostand über mehrere Trades verändert.
+            </p>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="startAmount" data-i18n="sim.settings.start.label">Startbetrag</label>
+                <input id="startAmount" class="input" type="number" min="100" step="50" value="1000">
+                <span class="hint" data-i18n="sim.settings.start.hint">Beispiel: 1.000 € Spielgeld.</span>
+              </div>
+              <div class="form-group">
+                <label for="riskPercent" data-i18n="sim.settings.risk.label">Risiko pro Trade (in %)</label>
+                <input id="riskPercent" class="input" type="number" min="1" max="50" step="1" value="5">
+                <span class="hint" data-i18n="sim.settings.risk.hint">Wie viel vom Konto pro Trade auf dem Spiel steht.</span>
+              </div>
+              <div class="form-group">
+                <label for="scenarioSelect" data-i18n="sim.settings.scenario.label">Szenario</label>
+                <select id="scenarioSelect" class="select">
+                  <option value="balanced" data-i18n="sim.settings.scenario.balanced">Wellenfahrt: Gewinne & Verluste gemischt</option>
+                  <option value="losing" data-i18n="sim.settings.scenario.losing">Drucktest: längere Verlustphase</option>
+                </select>
+                <span class="hint" data-i18n="sim.settings.scenario.hint">Beide Szenarien sind bewusst vereinfacht.</span>
+              </div>
+              <div class="form-group">
+                <label data-i18n="sim.settings.trades.label">Anzahl Trades</label>
+                <div class="input" style="opacity:.7;" data-i18n="sim.settings.trades.value">8 feste Schritte (vorgegeben)</div>
+                <span class="hint" data-i18n="sim.settings.trades.hint">Die Reihenfolge der Trades ist im Szenario vorgegeben.</span>
+              </div>
+            </div>
+
+            <button id="runSim" class="btn-primary">
+              <span data-i18n="sim.settings.button">Simulation starten</span>
+              <span>›</span>
+            </button>
+
+            <div class="disclaimer" data-i18n="sim.settings.disclaimer">
+              Hinweis: Diese Simulation nutzt vereinfachte Beispiel-Serien. Sie zeigt keine echte Marktprognose und
+              ist keine Anlageempfehlung, sondern ein Lernwerkzeug.
+            </div>
+          </div>
+
+          <div>
+            <div class="pill-label">
+              <span class="pill-dot"></span>
+              <span data-i18n="sim.explain.label">Was der Simulator zeigt</span>
+            </div>
+            <h2 data-i18n="sim.explain.title">Warum selbst kleine Prozente viel ausmachen</h2>
+            <p class="section-lead" data-i18n="sim.explain.lead">
+              Viele unterschätzen, wie schnell sich ein Konto bewegt, wenn Gewinne und Verluste aufeinander folgen.
+              Besonders, wenn pro Trade ein fester Prozentsatz des aktuellen Kontos eingesetzt wird.
+            </p>
+            <ul class="explain-list">
+              <li data-i18n="sim.explain.point1">
+                Nach Verlusten wird der Einsatz kleiner – aber du brauchst mehr Prozent Gewinn, um zurück auf Null
+                zu kommen.
+              </li>
+              <li data-i18n="sim.explain.point2">
+                Eine Verlustserie mit hohem Risiko kann dein Konto stark drücken, auch wenn später Gewinne kommen.
+              </li>
+              <li data-i18n="sim.explain.point3">
+                Selbst bei gemischten Ergebnissen kann zu hohes Risiko das Konto langfristig nach unten ziehen.
+              </li>
+            </ul>
+            <p class="disclaimer" data-i18n="sim.explain.note">
+              Ziel des Simulators ist nicht, dir Trading schmackhaft zu machen, sondern dir ein Gefühl für
+              Schwankungen, Risiko und Verlustphasen zu geben.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ergebnisse -->
+    <section class="section">
+      <div class="card">
+        <div class="pill-label">
+          <span class="pill-dot"></span>
+          <span data-i18n="sim.result.label">Schritt 2 – Verlauf & Auswertung</span>
+        </div>
+        <h2 data-i18n="sim.result.title">Wie sich dein Kontostand Schritt für Schritt verändert</h2>
+        <p class="section-lead" data-i18n="sim.result.lead">
+          Nachdem du die Simulation gestartet hast, siehst du hier jeden Trade mit Ergebnis in Euro, prozentualer
+          Veränderung und Kontostand nach dem Trade.
+        </p>
+
+        <div class="result-header">
+          <div class="summary" id="summary">
+            <!-- wird per JS gefüllt -->
+          </div>
+          <div class="legend">
+            <div class="legend-item">
+              <span class="legend-dot win"></span>
+              <span data-i18n="sim.legend.win">Gewinn-Trade</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot loss"></span>
+              <span data-i18n="sim.legend.loss">Verlust-Trade</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot size"></span>
+              <span data-i18n="sim.legend.size">Balken: Kontogröße im Vergleich</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="scenario-note" id="scenarioNote">
+          <!-- wird per JS gefüllt -->
+        </p>
+
+        <div class="table-wrap">
+          <table aria-describedby="scenarioNote">
+            <thead>
+              <tr>
+                <th class="col-center" data-i18n="sim.table.head.step">Trade</th>
+                <th class="col-center" data-i18n="sim.table.head.result">Ergebnis</th>
+                <th class="col-right" data-i18n="sim.table.head.balance">Kontostand danach</th>
+                <th class="bar-cell" data-i18n="sim.table.head.bar">Verlauf (relativ)</th>
+              </tr>
+            </thead>
+            <tbody id="simRows">
+              <!-- wird per JS gefüllt -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      // --- Übersetzungen ---
+      const translations = {
+        de:{
+          "sim.meta.title":"Trading-Simulator – Gewinne & Verluste nachvollziehen",
+          "sim.meta.description":"Ein einfacher Trading-Simulator: Gib Startbetrag und Risiko ein und sieh, wie sich eine Serie von Gewinnen und Verlusten auf dein Konto auswirkt – ohne echtes Geld.",
+
+          "sim.badge":"Trading-Simulator",
+          "sim.back":"Zurück zur Aufklärungsseite",
+
+          "sim.title":"Spielerisch verstehen, wie dein Konto schwankt",
+          "sim.lead":"Dieser einfache Simulator zeigt dir, wie sich eine feste Serie von Gewinnen und Verlusten auf dein Konto auswirkt – je nachdem, wie viel Geld du einsetzt und welches Risiko du pro Trade wählst.",
+
+          "sim.settings.label":"Schritt 1 – Deine Einstellungen",
+          "sim.settings.title":"Startbetrag & Risiko wählen",
+          "sim.settings.lead":"Trag deinen Startbetrag und dein Risiko pro Trade ein. Danach wählst du ein Szenario – der Simulator berechnet, wie sich dein Kontostand über mehrere Trades verändert.",
+          "sim.settings.start.label":"Startbetrag",
+          "sim.settings.start.hint":"Beispiel: 1.000 € Spielgeld.",
+          "sim.settings.risk.label":"Risiko pro Trade (in %)",
+          "sim.settings.risk.hint":"Wie viel vom Konto pro Trade auf dem Spiel steht.",
+          "sim.settings.scenario.label":"Szenario",
+          "sim.settings.scenario.balanced":"Wellenfahrt: Gewinne & Verluste gemischt",
+          "sim.settings.scenario.losing":"Drucktest: längere Verlustphase",
+          "sim.settings.scenario.hint":"Beide Szenarien sind bewusst vereinfacht.",
+          "sim.settings.trades.label":"Anzahl Trades",
+          "sim.settings.trades.value":"8 feste Schritte (vorgegeben)",
+          "sim.settings.trades.hint":"Die Reihenfolge der Trades ist im Szenario vorgegeben.",
+          "sim.settings.button":"Simulation starten",
+          "sim.settings.disclaimer":"Hinweis: Diese Simulation nutzt vereinfachte Beispiel-Serien. Sie zeigt keine echte Marktprognose und ist keine Anlageempfehlung, sondern ein Lernwerkzeug.",
+
+          "sim.explain.label":"Was der Simulator zeigt",
+          "sim.explain.title":"Warum selbst kleine Prozente viel ausmachen",
+          "sim.explain.lead":"Viele unterschätzen, wie schnell sich ein Konto bewegt, wenn Gewinne und Verluste aufeinander folgen. Besonders, wenn pro Trade ein fester Prozentsatz des aktuellen Kontos eingesetzt wird.",
+          "sim.explain.point1":"Nach Verlusten wird der Einsatz kleiner – aber du brauchst mehr Prozent Gewinn, um zurück auf Null zu kommen.",
+          "sim.explain.point2":"Eine Verlustserie mit hohem Risiko kann dein Konto stark drücken, auch wenn später Gewinne kommen.",
+          "sim.explain.point3":"Selbst bei gemischten Ergebnissen kann zu hohes Risiko das Konto langfristig nach unten ziehen.",
+          "sim.explain.note":"Ziel des Simulators ist nicht, dir Trading schmackhaft zu machen, sondern dir ein Gefühl für Schwankungen, Risiko und Verlustphasen zu geben.",
+
+          "sim.result.label":"Schritt 2 – Verlauf & Auswertung",
+          "sim.result.title":"Wie sich dein Kontostand Schritt für Schritt verändert",
+          "sim.result.lead":"Nachdem du die Simulation gestartet hast, siehst du hier jeden Trade mit Ergebnis in Euro, prozentualer Veränderung und Kontostand nach dem Trade.",
+
+          "sim.legend.win":"Gewinn-Trade",
+          "sim.legend.loss":"Verlust-Trade",
+          "sim.legend.size":"Balken: Kontogröße im Vergleich",
+
+          "sim.table.head.step":"Trade",
+          "sim.table.head.result":"Ergebnis",
+          "sim.table.head.balance":"Kontostand danach",
+          "sim.table.head.bar":"Verlauf (relativ)",
+
+          "sim.scenario.balanced.note":"Szenario „Wellenfahrt“: Eine Mischung aus Gewinnen und Verlusten – typisch für eine volatile Marktphase.",
+          "sim.scenario.losing.note":"Szenario „Drucktest“: Mehrere Verluste in Folge zeigen, wie stark eine Durststrecke auf das Konto wirkt.",
+
+          "sim.summary.start":"Startbetrag",
+          "sim.summary.end":"Endbetrag",
+          "sim.summary.change":"Veränderung",
+          "sim.summary.drawdown":"Größter Rückgang vom Zwischenhoch",
+
+          "sim.summary.loss":"Verlust insgesamt",
+          "sim.summary.gain":"Gewinn insgesamt"
+        },
+        en:{
+          "sim.meta.title":"Trading simulator – see gains & losses in action",
+          "sim.meta.description":"A simple trading simulator: enter starting capital and risk and see how a sequence of wins and losses affects your balance – with no real money.",
+
+          "sim.badge":"Trading simulator",
+          "sim.back":"Back to education page",
+
+          "sim.title":"Get a feel for how your balance moves",
+          "sim.lead":"This simple simulator shows how a fixed series of wins and losses affects your account – depending on how much money you use and what risk you choose per trade.",
+
+          "sim.settings.label":"Step 1 – Your settings",
+          "sim.settings.title":"Choose starting capital & risk",
+          "sim.settings.lead":"Enter your starting amount and your risk per trade. Then choose a scenario – the simulator will calculate how your balance changes over several trades.",
+          "sim.settings.start.label":"Starting capital",
+          "sim.settings.start.hint":"Example: 1,000 € of play money.",
+          "sim.settings.risk.label":"Risk per trade (in %)",
+          "sim.settings.risk.hint":"How much of the account is at stake on each trade.",
+          "sim.settings.scenario.label":"Scenario",
+          "sim.settings.scenario.balanced":"Rollercoaster: mixed wins & losses",
+          "sim.settings.scenario.losing":"Stress test: extended losing phase",
+          "sim.settings.scenario.hint":"Both scenarios are intentionally simplified.",
+          "sim.settings.trades.label":"Number of trades",
+          "sim.settings.trades.value":"8 fixed steps (predefined)",
+          "sim.settings.trades.hint":"The order of trades is predefined in each scenario.",
+          "sim.settings.button":"Run simulation",
+          "sim.settings.disclaimer":"Note: This simulation uses simplified example sequences. It is not a real market forecast and not investment advice – it is a learning tool.",
+
+          "sim.explain.label":"What the simulator shows",
+          "sim.explain.title":"Why even small percentages matter",
+          "sim.explain.lead":"Many people underestimate how quickly an account can move when wins and losses follow each other – especially when each trade risks a fixed percentage of the current balance.",
+          "sim.explain.point1":"After losses, your position size shrinks – but you need a higher percentage gain to get back to break-even.",
+          "sim.explain.point2":"A losing streak with high risk can push your balance down a lot, even if profits follow later.",
+          "sim.explain.point3":"Even with mixed outcomes, excessive risk can drag the account down over time.",
+          "sim.explain.note":"The simulator is not meant to make trading attractive to you, but to give you a feeling for volatility, risk and losing phases.",
+
+          "sim.result.label":"Step 2 – Path & evaluation",
+          "sim.result.title":"How your balance changes step by step",
+          "sim.result.lead":"After you start the simulation, you’ll see each trade with result in currency, percentage change and balance after the trade.",
+
+          "sim.legend.win":"Winning trade",
+          "sim.legend.loss":"Losing trade",
+          "sim.legend.size":"Bar: relative account size",
+
+          "sim.table.head.step":"Trade",
+          "sim.table.head.result":"Result",
+          "sim.table.head.balance":"Balance afterwards",
+          "sim.table.head.bar":"Path (relative)",
+
+          "sim.scenario.balanced.note":"Scenario “Rollercoaster”: a mix of wins and losses – typical for a volatile market phase.",
+          "sim.scenario.losing.note":"Scenario “Stress test”: several losses in a row to show how a drawdown affects the account.",
+
+          "sim.summary.start":"Starting capital",
+          "sim.summary.end":"Final balance",
+          "sim.summary.change":"Change",
+          "sim.summary.drawdown":"Max drop from peak",
+
+          "sim.summary.loss":"Total loss",
+          "sim.summary.gain":"Total gain"
+        }
+      };
+
+      function formatMoney(v, lang){
+        const negative = v < 0;
+        const abs = Math.abs(v);
+        const rounded = Math.round(abs);
+        const parts = rounded.toString().split("").reverse();
+        const out = [];
+        for(let i=0;i<parts.length;i++){
+          if(i>0 && i%3===0){ out.push("."); }
+          out.push(parts[i]);
+        }
+        let s = out.reverse().join("");
+        if(negative) s = "-" + s;
+        return lang === "en" ? s + " €" : s + " €";
+      }
+
+      function formatPercent(v){
+        const sign = v > 0 ? "+" : v < 0 ? "−" : "";
+        const abs = Math.abs(v);
+        const rounded = Math.round(abs*10)/10;
+        return sign + rounded.toString().replace(".", ",") + " %";
+      }
+
+      function applyTranslations(lang){
+        const dict = translations[lang] || translations.de;
+        document.documentElement.lang = lang;
+        document.querySelectorAll("[data-i18n]").forEach(function(el){
+          const key = el.getAttribute("data-i18n");
+          const val = dict[key];
+          if(typeof val === "string"){
+            el.textContent = val;
+          }
+        });
+        if(dict["sim.meta.title"]){ document.title = dict["sim.meta.title"]; }
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if(metaDesc && dict["sim.meta.description"]){
+          metaDesc.setAttribute("content", dict["sim.meta.description"]);
+        }
+        document.querySelectorAll(".lang-btn").forEach(function(btn){
+          btn.classList.toggle("active", btn.getAttribute("data-lang") === lang);
+        });
+        try{ localStorage.setItem("tradingSimLang", lang); }catch(e){}
+      }
+
+      function runSimulation(){
+        const lang = document.documentElement.lang === "en" ? "en" : "de";
+        const dict = translations[lang] || translations.de;
+        const startInput = document.getElementById("startAmount");
+        const riskInput = document.getElementById("riskPercent");
+        const scenarioSel = document.getElementById("scenarioSelect");
+        const rowsBody = document.getElementById("simRows");
+        const summaryBox = document.getElementById("summary");
+        const scenarioNote = document.getElementById("scenarioNote");
+
+        let start = parseFloat(startInput.value.replace(",", "."));
+        if(!isFinite(start) || start < 100){ start = 1000; }
+
+        let risk = parseFloat(riskInput.value.replace(",", "."));
+        if(!isFinite(risk) || risk <= 0){ risk = 5; }
+        if(risk > 80) risk = 80;
+
+        const scenarioKey = scenarioSel.value === "losing" ? "losing" : "balanced";
+
+        // R-Multiples: Ergebnis in Vielfachen des Risikos
+        let rArray;
+        if(scenarioKey === "balanced"){
+          rArray = [1,-1,2,-2,1,-1,-1,3];   // gemischt
+        }else{
+          rArray = [-1,-1,-1,1,-2,-1,-1,2]; // verlustlastig
+        }
+
+        const steps = [];
+        let balance = start;
+        let peak = start;
+        let maxDrawdown = 0;
+
+        for(let i=0;i<rArray.length;i++){
+          const r = rArray[i];
+          const riskAmount = balance * (risk/100);
+          const pl = riskAmount * r;
+          const newBalance = balance + pl;
+          const changePercent = (pl / balance) * 100;
+          peak = Math.max(peak, newBalance);
+          const dd = peak > 0 ? (peak - newBalance)/peak * 100 : 0;
+          if(dd > maxDrawdown){ maxDrawdown = dd; }
+
+          steps.push({
+            trade:i+1,
+            r:r,
+            pl:pl,
+            balance:newBalance,
+            changePercent:changePercent
+          });
+          balance = newBalance;
+        }
+
+        const endBalance = balance;
+        const diff = endBalance - start;
+        const diffPercent = (diff / start)*100;
+
+        // Tabelle rendern
+        rowsBody.innerHTML = "";
+        const balances = steps.map(s => s.balance);
+        const maxBalance = Math.max.apply(null, balances.concat([start]));
+        steps.forEach(function(s){
+          const tr = document.createElement("tr");
+          let cls;
+          if(s.pl > 0) cls = "row-win";
+          else if(s.pl < 0) cls = "row-loss";
+          else cls = "row-neutral";
+          tr.className = cls;
+
+          const tdStep = document.createElement("td");
+          tdStep.className = "col-center";
+          tdStep.textContent = s.trade.toString();
+
+          const tdRes = document.createElement("td");
+          tdRes.className = "col-center";
+          const sign = s.pl > 0 ? "+" : s.pl < 0 ? "−" : "";
+          const absValue = Math.abs(s.pl);
+          const percentStr = formatPercent(s.changePercent).replace("−","-"); // Zeichen bleibt
+          tdRes.textContent = sign + formatMoney(absValue, lang) + " (" + percentStr + ")";
+
+          const tdBal = document.createElement("td");
+          tdBal.className = "col-right";
+          tdBal.textContent = formatMoney(s.balance, lang);
+
+          const tdBar = document.createElement("td");
+          tdBar.className = "bar-cell";
+          const outer = document.createElement("div");
+          outer.className = "bar-outer";
+          const inner = document.createElement("div");
+          inner.className = "bar-inner";
+          const rel = maxBalance > 0 ? (s.balance / maxBalance)*100 : 0;
+          inner.style.width = Math.max(3, Math.min(100, rel)) + "%";
+          outer.appendChild(inner);
+          tdBar.appendChild(outer);
+
+          tr.appendChild(tdStep);
+          tr.appendChild(tdRes);
+          tr.appendChild(tdBal);
+          tr.appendChild(tdBar);
+          rowsBody.appendChild(tr);
+        });
+
+        // Zusammenfassung
+        summaryBox.innerHTML = "";
+        function addSummaryItem(labelKey,valueText,extraClass){
+          const item = document.createElement("div");
+          item.className = "summary-item" + (extraClass ? " "+extraClass : "");
+          const label = dict[labelKey] || labelKey;
+          const strong = document.createElement("strong");
+          strong.textContent = label + ": ";
+          const span = document.createElement("span");
+          span.textContent = valueText;
+          item.appendChild(strong);
+          item.appendChild(span);
+          summaryBox.appendChild(item);
+        }
+
+        addSummaryItem("sim.summary.start", formatMoney(start, lang));
+        addSummaryItem("sim.summary.end", formatMoney(endBalance, lang));
+
+        const diffText = formatMoney(Math.abs(diff), lang) +
+          " (" + formatPercent(diffPercent).replace("−","-") + ")";
+        const diffClass = diff >= 0 ? "win" : "loss";
+        const changeKey = "sim.summary.change";
+        addSummaryItem(changeKey, diffText, diffClass);
+
+        const ddText = formatPercent(maxDrawdown).replace("−","-");
+        addSummaryItem("sim.summary.drawdown", ddText);
+
+        scenarioNote.textContent = dict[
+          scenarioKey === "balanced" ? "sim.scenario.balanced.note" : "sim.scenario.losing.note"
+        ] || "";
+      }
+
+      document.addEventListener("DOMContentLoaded", function(){
+        // Sprache initialisieren
+        let lang = "de";
+        try{
+          const stored = localStorage.getItem("tradingSimLang");
+          if(stored === "de" || stored === "en"){ lang = stored; }
+        }catch(e){}
+        applyTranslations(lang);
+
+        document.querySelectorAll(".lang-btn").forEach(function(btn){
+          btn.addEventListener("click", function(){
+            const l = btn.getAttribute("data-lang");
+            applyTranslations(l);
+          });
+        });
+
+        document.getElementById("runSim").addEventListener("click", function(){
+          runSimulation();
+        });
+
+        // Erste Demo-Simulation automatisch
+        runSimulation();
+      });
+    })();
+  </script>
+</body>
+</html>
