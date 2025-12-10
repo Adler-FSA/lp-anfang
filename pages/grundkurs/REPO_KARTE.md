@@ -518,6 +518,7 @@
     │   │   ├── trading-modul-6-plattformen.html
     │   │   ├── trading-modul-7-psychologie.html
     │   │   ├── trading-modul-8-praxis.html
+    │   │   ├── trading-modul-9-abschluss.html
     │   │   ├── trading-plattformen-uebersicht.html
     │   │   ├── trading-rahmen.html
     │   │   ├── trading-simulator.html
@@ -599,4 +600,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.12.2025, 09:19)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.12.2025, 10:18)_
