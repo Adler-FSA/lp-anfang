@@ -513,6 +513,7 @@
     │   │   ├── trading-modul-1-orientierung.html
     │   │   ├── trading-modul-2-maerkte.html
     │   │   ├── trading-modul-3-mechanik.html
+    │   │   ├── trading-modul-4-risiko.html
     │   │   ├── trading-rahmen.html
     │   │   ├── trading-simulator.html
     │   │   └── trading-zahlen.html
@@ -593,4 +594,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.12.2025, 23:15)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.12.2025, 01:14)_
