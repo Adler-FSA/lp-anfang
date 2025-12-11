@@ -501,6 +501,7 @@
     │   │   ├── trusttipp-handling.html
     │   │   └── trustyfy-handling.html
     │   ├── krypto/
+    │   │   ├── krypto-glossar.html
     │   │   ├── krypto-welt-index.html
     │   │   ├── krypto-welt-status.html
     │   │   ├── krypto-welt-timeline.html
@@ -602,4 +603,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.12.2025, 13:35)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.12.2025, 14:18)_
