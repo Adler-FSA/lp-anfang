@@ -503,6 +503,7 @@
     │   ├── krypto/
     │   │   ├── krypto-glossar.html
     │   │   ├── krypto-glossary.html
+    │   │   ├── krypto-setup-intro-en.html
     │   │   ├── krypto-setup-intro.html
     │   │   ├── krypto-setup-modul1-en.html
     │   │   ├── krypto-setup-modul1.html
@@ -619,4 +620,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.12.2025, 15:17)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.12.2025, 16:19)_
