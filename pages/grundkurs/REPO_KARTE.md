@@ -514,6 +514,10 @@
     │   │   ├── krypto-setup-modul4.html
     │   │   ├── krypto-setup-modul5-en.html
     │   │   ├── krypto-setup-modul5.html
+    │   │   ├── krypto-setup-modul6-en.html
+    │   │   ├── krypto-setup-modul6.html
+    │   │   ├── krypto-setup-modul7-en.html
+    │   │   ├── krypto-setup-modul7.html
     │   │   ├── krypto-welt-index.html
     │   │   ├── krypto-welt-status.html
     │   │   ├── krypto-welt-timeline.html
@@ -615,4 +619,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.12.2025, 14:15)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.12.2025, 15:17)_
