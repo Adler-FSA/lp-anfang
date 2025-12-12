@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FSA Krypto-Setup – Modul 4 – Schutz vor Pfändung & Kontosperren</title>
+<style>
+  :root{
+    --bg:#020617;
+    --bg2:#020814;
+    --panel:#050816;
+    --panel-soft:#070b1c;
+    --border:rgba(148,163,184,.45);
+    --gold:#eab308;
+    --gold-soft:rgba(234,179,8,.35);
+    --txt:#e5e7eb;
+    --muted:#9ca3af;
+    --accent:#38bdf8;
+    --shadow:0 18px 45px rgba(15,23,42,.95);
+    --radius:18px;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{
+    margin:0;
+    padding:0;
+    background:radial-gradient(circle at top,#02081a 0,#020617 40%,#020617 100%);
+    color:var(--txt);
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* Abstand unter fixer Topbar */
+  #setup-hero{padding-top:88px;}
+
+  .wrap{
+    max-width:1100px;
+    margin:40px auto 48px;
+    padding:0 20px 40px;
+  }
+
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:4px 12px;
+    border-radius:999px;
+    border:1px solid rgba(148,163,184,.55);
+    background:rgba(15,23,42,.88);
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--muted);
+    margin-bottom:10px;
+  }
+
+  .pill span{
+    width:18px;
+    height:18px;
+    border-radius:999px;
+    background:radial-gradient(circle,var(--gold) 0,#854d0e 60%,#020617 100%);
+    box-shadow:0 0 18px rgba(234,179,8,.75);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:11px;
+    color:#020617;
+    font-weight:700;
+  }
+
+  .hero{
+    background:linear-gradient(145deg,rgba(15,23,42,.98),rgba(8,16,32,.98));
+    border-radius:var(--radius);
+    border:1px solid rgba(148,163,184,.55);
+    box-shadow:var(--shadow);
+    padding:26px 22px 22px;
+    margin-bottom:32px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .hero::before{
+    content:"";
+    position:absolute;
+    inset:-40%;
+    background:
+      radial-gradient(circle at 0 0,rgba(56,189,248,.14) 0,transparent 55%),
+      radial-gradient(circle at 100% 0,rgba(234,179,8,.18) 0,transparent 52%);
+    opacity:.9;
+    pointer-events:none;
+  }
+
+  .hero-inner{position:relative; z-index:1;}
+
+  .hero h1{
+    margin:4px 0 8px;
+    font-size:clamp(26px,3.1vw,32px);
+    font-weight:800;
+    letter-spacing:.02em;
+    color:var(--gold);
+  }
+
+  .hero p{
+    margin:4px 0;
+    color:var(--txt);
+    opacity:.96;
+    font-size:15px;
+    line-height:1.6;
+  }
+
+  .hero p.small{
+    font-size:13px;
+    color:var(--muted);
+    margin-top:10px;
+  }
+
+  .hero-highlight{
+    margin-top:14px;
+    padding:12px 14px;
+    border-radius:12px;
+    border:1px solid rgba(56,189,248,.35);
+    background:radial-gradient(circle at 0 0,rgba(15,23,42,.9),rgba(15,23,42,.96));
+    font-size:14px;
+  }
+
+  .hero-highlight b{color:#bae6fd;}
+
+  .section{
+    background:radial-gradient(circle at top,rgba(15,23,42,.98),rgba(15,23,42,.97));
+    border-radius:var(--radius);
+    border:1px solid rgba(148,163,184,.55);
+    box-shadow:var(--shadow);
+    padding:22px 20px 20px;
+    margin-bottom:26px;
+  }
+
+  .section h2{
+    margin:0 0 10px;
+    font-size:19px;
+    color:var(--gold);
+  }
+
+  .section h3{
+    margin:18px 0 6px;
+    font-size:16px;
+    color:#e5e7eb;
+  }
+
+  .section p{
+    margin:6px 0;
+    font-size:14px;
+    line-height:1.7;
+    color:var(--txt);
+  }
+
+  .section p.hint{
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  .section ul{
+    margin:6px 0 8px 20px;
+    padding:0;
+    font-size:14px;
+    line-height:1.6;
+    color:var(--txt);
+  }
+
+  .divider{
+    height:1px;
+    border:0;
+    margin:18px 0;
+    background:linear-gradient(90deg,transparent,rgba(148,163,184,.6),transparent);
+  }
+
+  .section-title-small{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    color:var(--muted);
+    margin-bottom:4px;
+  }
+
+  .label{
+    margin-top:10px;
+    margin-bottom:4px;
+    font-size:13px;
+    font-weight:600;
+    color:#cbd5f5;
+  }
+
+  .field-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin:4px 0 6px;
+  }
+
+  .field{
+    flex:1 1 160px;
+    min-width:160px;
+    font-size:13px;
+  }
+
+  textarea,
+  input[type="text"],
+  input[type="number"]{
+    width:100%;
+    padding:8px 9px;
+    border-radius:10px;
+    border:1px solid rgba(148,163,184,.7);
+    background:rgba(15,23,42,.96);
+    color:var(--txt);
+    font-size:13px;
+    resize:vertical;
+    min-height:38px;
+  }
+
+  textarea{min-height:70px;}
+
+  textarea:focus,
+  input[type="text"]:focus,
+  input[type="number"]:focus{
+    outline:1px solid var(--accent);
+    border-color:var(--accent);
+    box-shadow:0 0 0 1px rgba(56,189,248,.5);
+  }
+
+  .small-note{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:4px;
+  }
+
+  .checklist-item{
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+    margin:4px 0;
+    font-size:13px;
+  }
+
+  .checklist-item input[type="checkbox"]{
+    margin-top:2px;
+    width:15px;
+    height:15px;
+    accent-color:var(--gold);
+  }
+
+  .mentor{
+    border-left:3px solid var(--gold);
+    padding:8px 10px;
+    margin:10px 0 4px;
+    font-size:13px;
+    background:rgba(24,24,18,.45);
+  }
+
+  .mentor b{color:var(--gold);}
+
+  .actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:14px;
+  }
+
+  .btn-ghost,
+  .btn-gold{
+    border-radius:999px;
+    padding:8px 16px;
+    font-size:13px;
+    border:1px solid rgba(148,163,184,.7);
+    background:rgba(15,23,42,.9);
+    color:var(--txt);
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    white-space:nowrap;
+  }
+
+  .btn-gold{
+    background:linear-gradient(135deg,#facc15,#eab308);
+    border-color:rgba(250,204,21,.9);
+    color:#111827;
+    font-weight:700;
+    box-shadow:0 0 24px rgba(250,204,21,.55);
+  }
+
+  .btn-ghost:hover{background:rgba(15,23,42,1);}
+  .btn-gold:hover{filter:brightness(1.05);}
+
+  .footer-nav{
+    margin-top:26px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:space-between;
+  }
+
+  .footer-nav-group{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  .footer-nav a{text-decoration:none;}
+
+  .footer-note{
+    margin-top:10px;
+    font-size:11px;
+    color:var(--muted);
+  }
+
+  @media (max-width:700px){
+    .hero{padding:20px 16px;}
+    .section{padding:18px 14px 16px;}
+    .wrap{padding:0 14px 32px;}
+  }
+
+  /* DRUCKANSICHT */
+  @media print{
+    #menu-root,
+    .footer-nav,
+    .actions{
+      display:none !important;
+    }
+
+    html,body{
+      background:#ffffff;
+      color:#000000;
+    }
+
+    .wrap{
+      max-width:100%;
+      margin:20px auto;
+      padding:0 10px 20px;
+    }
+
+    .hero,
+    .section{
+      background:#ffffff !important;
+      box-shadow:none;
+      border-radius:18px;
+      border:2px solid #000000;
+    }
+
+    .hero::before{display:none !important;}
+
+    .pill{
+      background:#ffffff !important;
+      color:#000000 !important;
+      border:1px solid #000000;
+    }
+
+    .pill span{
+      background:#ffffff !important;
+      color:#000000 !important;
+      box-shadow:none;
+      border:1px solid #000000;
+    }
+
+    .hero h1,
+    .section h2,
+    .section h3,
+    .section-title-small,
+    .label,
+    .mentor b{
+      color:#000000 !important;
+    }
+
+    .hero p,
+    .hero p.small,
+    .section p,
+    .section ul,
+    .small-note{
+      color:#000000 !important;
+    }
+
+    .hero-highlight,
+    .mentor,
+    .checklist-item,
+    .footer-note{
+      background:#ffffff !important;
+      color:#000000 !important;
+      border-color:#000000 !important;
+    }
+
+    textarea,
+    input[type="text"],
+    input[type="number"]{
+      background:#ffffff !important;
+      color:#000000 !important;
+      border:1px solid #000000 !important;
+    }
+
+    .checklist-item input[type="checkbox"]{
+      accent-color:#000000;
+    }
+  }
+</style>
+</head>
+<body data-storage-prefix="fsa-krypto-setup-m4-de:">
+
+<div id="menu-root"></div>
+
+<div class="wrap">
+  <section class="hero" id="setup-hero">
+    <div class="hero-inner">
+      <div class="pill"><span>4</span> Krypto-Setup – Modul</div>
+      <h1>Modul 4 – Schutz vor Pfändung &amp; Kontosperren</h1>
+      <p>
+        Du kombinierst dein zentrales und dein dezentrales Setup so, dass dich Kontosperrungen, Pfändungen oder
+        technische Störungen nicht sofort handlungsunfähig machen.
+      </p>
+      <p class="small">
+        Nach diesem Modul weißt du, welche Geldströme bei dir „angreifbar“ sind, wo du bewusst verwundbar bleibst
+        (z. B. Gehalt auf dem Hauptkonto) und welche Reservezugänge du brauchst, um deine Grundkosten trotzdem
+        zahlen zu können. Es geht um Resilienz und Eigenverantwortung, nicht darum, Gesetze zu umgehen.
+      </p>
+      <div class="hero-highlight">
+        <b>Hinweis:</b> Deine Eingaben werden nur lokal in deinem Browser gespeichert (localStorage).
+        Du kannst die Seite später mit deinen Eintragungen ausdrucken oder die Daten für dieses Modul wieder löschen.
+      </div>
+      <div class="actions" style="margin-top:14px;">
+        <button type="button" class="btn-ghost" id="print-module">🖨️ Modul ausdrucken</button>
+        <button type="button" class="btn-ghost" id="clear-module-data">✖️ Eingaben für Modul 4 löschen</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Schritt 1 -->
+  <section class="section">
+    <div class="section-title-small">Schritt 1</div>
+    <h2>Mini-Szenario: „Karte abgelehnt – mitten im Monat“</h2>
+
+    <p>
+      Du stehst an der Supermarktkasse, dein Warenkorb ist voll. Du zahlst wie immer mit Karte – abgelehnt.
+      Du schaust in die Banking-App: Konto gesperrt. Vielleicht ein Fehler, vielleicht eine Pfändung,
+      vielleicht ein KYC-Problem. Miete, Handyvertrag, Stromabschlag stehen in den nächsten Tagen an.
+    </p>
+
+    <p><b>Leitfragen:</b></p>
+    <ul>
+      <li>Über wie viele unabhängige Zahlungswege verfügst du aktuell wirklich?</li>
+      <li>Wie lange könntest du rein praktisch überbrücken (Essen, Tanken, Miete), wenn dein Hauptkonto 30 Tage blockiert wäre?</li>
+      <li>Welche deiner heutigen Einnahmen laufen nur über eine Bank / einen Anbieter?</li>
+    </ul>
+
+    <p class="label">
+      Mini-Aufgabe: „Stell dir vor, dein Hauptkonto ist 30 Tage gesperrt.
+      – Welche drei Rechnungen würden dir als erstes das Genick brechen?
+      – Welche Zugänge hättest du Stand heute noch – und wie schnell?“
+    </p>
+    <textarea data-storage-key="m4-s1-szenario"></textarea>
+  </section>
+
+  <!-- Schritt 2 -->
+  <section class="section">
+    <div class="section-title-small">Schritt 2</div>
+    <h2>Drei Arten von „Zugriff weg“</h2>
+
+    <p>Damit du nicht alles in einen Topf wirfst, unterscheiden wir im Kurs:</p>
+
+    <h3>1. Juristische Maßnahmen</h3>
+    <ul>
+      <li>Pfändung, Gerichtsbeschluss, Steuerrückstand</li>
+      <li>Konto wird ganz oder teilweise blockiert</li>
+      <li>Hier gelten Gesetze – das Ziel ist Transparenz &amp; Planbarkeit, nicht Versteckspiel.</li>
+    </ul>
+
+    <h3>2. Bank-/Plattform-Entscheidungen</h3>
+    <ul>
+      <li>KYC-Probleme, „Verdacht auf Geldwäsche“, interne Prüfungen</li>
+      <li>Kündigung des Kontos / der Geschäftsbeziehung</li>
+      <li>Du wirst als Kunde nicht mehr gewollt – auch ohne Fehlverhalten.</li>
+    </ul>
+
+    <h3>3. Technische Störungen &amp; menschliche Fehler</h3>
+    <ul>
+      <li>IT-Ausfall, Kartenprobleme, vergessene PIN, kaputtes Gerät</li>
+      <li>Dinge, die keinen juristischen Hintergrund haben, dich aber trotzdem lahmlegen.</li>
+    </ul>
+
+    <div class="mentor">
+      <b>Merksatz:</b><br>
+      „Du kannst nicht jede Maßnahme verhindern – aber du kannst vermeiden, dass eine einzige Stelle über deine komplette Zahlungsfähigkeit entscheidet.“
+    </div>
+
+    <p class="label">Was nimmst du aus diesen drei Kategorien für dich mit?</p>
+    <textarea data-storage-key="m4-s2-reflexion"></textarea>
+  </section>
+
+  <!-- Schritt 3 -->
+  <section class="section">
+    <div class="section-title-small">Schritt 3</div>
+    <h2>Schutzschicht 1: Zentrales Setup robuster machen</h2>
+
+    <p>Hier knüpfst du an Modul 2 an und gehst einen Schritt weiter.</p>
+
+    <h3>3.1 Zwei unabhängige Zahlungssäulen</h3>
+    <p>Im Kurs als Empfehlung zum Durchdenken:</p>
+    <ul>
+      <li>Hauptkonto für Gehalt / Einnahmen &amp; laufende Fixkosten</li>
+      <li>Zweitkonto (andere Bank / anderer Anbieter) für Alltag &amp; Reserverolle</li>
+    </ul>
+
+    <p class="label">Fragen im Modul:</p>
+    <ul>
+      <li>Welche Fixkosten müssen über das Hauptkonto laufen – und was könntest du umziehen?</li>
+      <li>Hättest du heute ein Konto, auf das dein Arbeitgeber im Notfall schnell umstellen könnte?</li>
+    </ul>
+
+    <p class="label">Deine Gedanken zu Haupt- und Zweitkonto:</p>
+    <textarea data-storage-key="m4-s3-zahlungssaulen"></textarea>
+
+    <hr class="divider" />
+
+    <p class="label">
+      Mini-Aufgabe: „Markiere in deiner Bestandsliste (aus Modul 1) alle Daueraufträge und Lastschriften,
+      die wohl oder übel an dein jetziges Hauptkonto gebunden sind. – Wie viele davon könntest du in den nächsten
+      3 Monaten flexibel migrieren?“
+    </p>
+    <textarea data-storage-key="m4-s3-mini-aufgabe"></textarea>
+  </section>
+
+  <!-- Schritt 4 -->
+  <section class="section">
+    <div class="section-title-small">Schritt 4</div>
+    <h2>Schutzschicht 2: Dezentraler Notfallzugang</h2>
+
+    <h3>4.1 Zweck: Nicht Steuern sparen, sondern Zeit kaufen</h3>
+    <p>
+      Es geht darum, Überbrückungszeit zu gewinnen: Essen, Miete, Mobilität. Deine steuerlichen und rechtlichen
+      Pflichten bleiben – du verschiebst nur, wie du in einem Engpass zahlungsfähig bleibst.
+    </p>
+
+    <div class="mentor">
+      <b>Mentor-Hinweis:</b><br>
+      „Rechtliche Probleme löst du nicht mit Technik. Aber Technik kann verhindern, dass ein Streitfall dich sofort existenziell trifft.“
+    </div>
+
+    <h3>4.2 Brücke von Krypto zurück in den Alltag</h3>
+    <p>Im Kurs als Gedankenmodell (keine individuelle Steuer- oder Rechtsberatung):</p>
+    <ul>
+      <li>Welche 1–2 On-/Off-Ramps könntest du nutzen, falls dein Hauptkonto blockiert ist?</li>
+      <li>z. B. andere Bank, Prepaid-Karte, Zahlungsdienst, der von deinem Krypto-Setup aus erreichbar ist.</li>
+      <li>Gibt es regionale Alternativen (z. B. Anbieter in anderem Land, soweit rechtlich zulässig)?</li>
+    </ul>
+
+    <p class="label">Reflexionsfragen:</p>
+    <ul>
+      <li>Falls du morgen nur noch Zugriff auf deine Stablecoins / Coins hättest:
+        Wie würdest du in 72 Stunden Essen, Tanken und Miete organisieren?</li>
+      <li>Welche Dienstleister könntest du ohne dein Haupthaus-Bankkonto nutzen?</li>
+    </ul>
+
+    <p class="label">Dein Notfallplan mit Krypto-On-/Off-Ramps:</p>
+    <textarea data-storage-key="m4-s4-notfallplan"></textarea>
+  </section>
+
+  <!-- Schritt 5 -->
+  <section class="section">
+    <div class="section-title-small">Schritt 5</div>
+    <h2>Schutzschicht 3: Verteilung &amp; Limits</h2>
+
+    <h3>5.1 Keine „Single Point of Failure“-Konten mehr</h3>
+    <p>Im Kurs als klare Regel:</p>
+    <ul>
+      <li>Kein Konto, auf dem alles Einkommen, alle Rücklagen und alle Abbuchungen zusammenlaufen.</li>
+    </ul>
+
+    <p class="label">
+      „Mein maximaler Zielbetrag je Einzelkonto (zentral) ist: ______ €. Alles darüber verteile ich auf …“
+    </p>
+
+    <div class="field-row">
+      <div class="field">
+        <div class="label">Maximaler Zielbetrag je Einzelkonto (€):</div>
+        <input type="number" data-storage-key="m4-s5-max-konto">
+      </div>
+    </div>
+
+    <div class="label">Verteilung oberhalb dieses Betrags:</div>
+    <div class="field-row">
+      <div class="field">
+        <div class="label">Konto B / Zweitbank:</div>
+        <input type="text" data-storage-key="m4-s5-konto-b">
+      </div>
+      <div class="field">
+        <div class="label">Dezentrale Reserve (Wallet XY):</div>
+        <input type="text" data-storage-key="m4-s5-wallet">
+      </div>
+      <div class="field">
+        <div class="label">Weitere liquidierbare Anlagen:</div>
+        <input type="text" data-storage-key="m4-s5-anlagen">
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <h3>5.2 Deine persönliche „Sperrungs-Checkliste“</h3>
+    <p>Im Kurs erstellst du für dich:</p>
+
+    <div class="label">1. Wenn Konto X gesperrt wird, dann …</div>
+    <textarea data-storage-key="m4-s5-plan-konto-x"></textarea>
+    <div class="small-note">
+      z. B. Gehalt geht übergangsweise auf Konto Y, Miete &amp; Fixkosten über Z, Zugriff auf Reserve-Wallet A.
+    </div>
+
+    <div class="label">2. Welche Beträge dürfen nicht automatisiert eingezogen werden?</div>
+    <textarea data-storage-key="m4-s5-keine-lastschrift"></textarea>
+
+    <div class="label">3. Wer muss informiert werden?</div>
+    <textarea data-storage-key="m4-s5-wer-informieren"></textarea>
+
+    <p class="label">
+      Mini-Aufgabe: „Schreibe einen kurzen Muster-Satz, den du in einer Stresssituation an deinen Arbeitgeber schicken
+      könntest (z. B. wegen Konto-Wechsel in einer Sperrsituation).“
+    </p>
+    <textarea data-storage-key="m4-s5-mustersatz"></textarea>
+  </section>
+
+  <!-- Schritt 6 -->
+  <section class="section">
+    <div class="section-title-small">Schritt 6</div>
+    <h2>Konkrete Aufgaben in Modul 4</h2>
+
+    <p>Nutze diesen Block als To-do-Liste:</p>
+
+    <div class="checklist-item">
+      <input type="checkbox" data-storage-key="m4-task-sperre">
+      <div>Sperrungs-Szenario schriftlich durchgespielt (30 Tage Sperre des Hauptkontos – mindestens zwei alternative Zahlungswege definiert).</div>
+    </div>
+    <div class="checklist-item">
+      <input type="checkbox" data-storage-key="m4-task-limits">
+      <div>Maximalbeträge &amp; Rollen pro Konto festgelegt (Haupt- und Zweitkonto mit klaren Obergrenzen).</div>
+    </div>
+    <div class="checklist-item">
+      <input type="checkbox" data-storage-key="m4-task-runway">
+      <div>Verknüpfung mit dem dezentralen Setup: Teil der Stablecoin-/Wallet-Reserven explizit als „Notfall-Runway“ definiert (z. B. 2 Monatsbudgets).</div>
+    </div>
+
+    <p class="label">Notizen zu deinen Entscheidungen in Modul 4:</p>
+    <textarea data-storage-key="m4-task-notizen"></textarea>
+  </section>
+
+  <!-- Schritt 7 -->
+  <section class="section">
+    <div class="section-title-small">Schritt 7</div>
+    <h2>Verbindung zu den weiteren Modulen</h2>
+
+    <p>
+      Nach Modul 4 hast du verstanden, wo du zentral angreifbar bist, weißt, wie du dein Wallet-Setup als Reservesystem
+      nutzt, und hast erste Abläufe vorbereitet, falls ein Konto gesperrt wird.
+    </p>
+    <p>
+      In den folgenden Modulen arbeitest du weiter:
+    </p>
+    <ul>
+      <li>Modul 5 vertieft dein Sicherheitskonzept &amp; Backups (technische &amp; organisatorische Schutzschichten).</li>
+      <li>Modul 6 kümmert sich um Alltag, Routinen &amp; Warnsignale, damit du frühzeitig merkst, wenn etwas kippt.</li>
+      <li>Modul 7 setzt alles zu einem Gesamtbild deiner finanziellen Souveränität zusammen.</li>
+    </ul>
+  </section>
+
+  <!-- Ergebnis -->
+  <section class="section">
+    <div class="section-title-small">Abschluss</div>
+    <h2>Ergebnis von Modul 4 – Zusammenfassung</h2>
+
+    <p>Kurzfassung, mit der du das Modul abschließt:</p>
+
+    <p class="label">Meine Zahlungswege &amp; Reservezugänge:</p>
+    <div class="field-row">
+      <div class="field">
+        <div class="label">Zahlungsweg 1 (z. B. Hauptkonto):</div>
+        <input type="text" data-storage-key="m4-summary-weg1">
+      </div>
+      <div class="field">
+        <div class="label">Zahlungsweg 2 (z. B. Zweitkonto):</div>
+        <input type="text" data-storage-key="m4-summary-weg2">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <div class="label">Weitere Zahlungswege / Alternativen:</div>
+        <input type="text" data-storage-key="m4-summary-weg3">
+      </div>
+    </div>
+
+    <p class="label">Mein definierter Notfall-Runway aus dezentralen Reserven:</p>
+    <textarea data-storage-key="m4-summary-runway"></textarea>
+
+    <p class="label">Mein Plan für 30 Tage Kontosperre (Kurzfassung):</p>
+    <textarea data-storage-key="m4-summary-plan"></textarea>
+
+    <div class="footer-note">
+      „Ich habe mindestens zwei voneinander unabhängige Zahlungswege definiert.
+      Mein Hauptkonto ist nicht mehr mein einziger kritischer Punkt.
+      Ich weiß, welcher Teil meiner dezentralen Reserven als Notfall-Runway gedacht ist,
+      und ich habe einen einfachen Plan, wie ich 30 Tage Sperrung überbrücken kann,
+      ohne panisch alles aufzulösen oder in rechtliche Grauzonen zu gehen.“
+    </div>
+  </section>
+
+  <!-- Footer-Navigation -->
+  <div class="footer-nav">
+    <div class="footer-nav-group">
+      <a href="/lp-anfang/pages/krypto/krypto-setup-modul3.html" class="btn-gold" data-internal>← Zurück zu Modul 3</a>
+    </div>
+    <div class="footer-nav-group">
+      <a href="/lp-anfang/pages/krypto/krypto-setup-intro.html" class="btn-ghost" data-internal>Zur Übersicht Krypto-Setup</a>
+      <a href="/lp-anfang/pages/krypto/krypto-setup-modul5.html" class="btn-gold" data-internal>Weiter zu Modul 5 →</a>
+    </div>
+  </div>
+</div>
+
+<script src="/lp-anfang/library/js/menu.js?v=20251109"></script>
+<script src="/lp-anfang/library/js/lang-switcher.js?v=20251109"></script>
+<script src="/lp-anfang/library/js/music-button.js?v=20251109"></script>
+<script src="/lp-anfang/library/js/topbar-autohide.js?v=20251109"></script>
+
+<!-- Lang-Bridge Modul 4 DE ↔ EN -->
+<script>
+(function () {
+  const KEY = 'fsa_lang';
+  const p = location.pathname;
+
+  function counterpart(to){
+    if (p.endsWith('/lp-anfang/pages/krypto/krypto-setup-modul4.html') && to === 'en')
+      return '/lp-anfang/pages/krypto/krypto-setup-modul4-en.html';
+    if (p.endsWith('/lp-anfang/pages/krypto/krypto-setup-modul4-en.html') && to === 'de')
+      return '/lp-anfang/pages/krypto/krypto-setup-modul4.html';
+    return null;
+  }
+
+  function go(lang){
+    const t = counterpart((lang || 'de').toLowerCase());
+    if (t) location.assign(t + location.search + location.hash);
+  }
+
+  try{
+    const pref = localStorage.getItem(KEY) || 'de';
+    const isEN  = /krypto-setup-modul4-en\.html$/.test(p);
+    if ((pref === 'en' && !isEN) || (pref === 'de' && isEN)) go(pref);
+  }catch(e){}
+
+  document.addEventListener('fsa:lang-change', ev => go(ev.detail || 'de'));
+  window.addEventListener('storage', ev => { if (ev.key === KEY) go(ev.newValue); });
+})();
+</script>
+
+<!-- LocalStorage + Drucken -->
+<script>
+(function(){
+  const prefix = document.body.getAttribute('data-storage-prefix') || 'fsa-krypto-setup-m4-de:';
+
+  function saveField(el){
+    const key = el.getAttribute('data-storage-key');
+    if (!key) return;
+    let val = '';
+    if (el.type === 'checkbox'){
+      val = el.checked ? '1' : '0';
+    } else {
+      val = el.value;
+    }
+    try{
+      localStorage.setItem(prefix + key, val);
+    }catch(e){}
+  }
+
+  function loadField(el){
+    const key = el.getAttribute('data-storage-key');
+    if (!key) return;
+    try{
+      const stored = localStorage.getItem(prefix + key);
+      if (stored === null) return;
+      if (el.type === 'checkbox'){
+        el.checked = stored === '1';
+      } else {
+        el.value = stored;
+      }
+    }catch(e){}
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const fields = document.querySelectorAll('[data-storage-key]');
+    fields.forEach(el => {
+      loadField(el);
+      const evt = (el.type === 'checkbox') ? 'change' : 'input';
+      el.addEventListener(evt, () => saveField(el));
+    });
+
+    const clearBtn = document.getElementById('clear-module-data');
+    if (clearBtn){
+      clearBtn.addEventListener('click', function(){
+        if (!confirm('Möchtest du wirklich alle Eingaben in diesem Modul löschen?')) return;
+        try{
+          const keys = Object.keys(localStorage);
+          keys.forEach(k => {
+            if (k.startsWith(prefix)) localStorage.removeItem(k);
+          });
+        }catch(e){}
+        fields.forEach(el => {
+          if (el.type === 'checkbox') el.checked = false;
+          else el.value = '';
+        });
+      });
+    }
+
+    const printBtn = document.getElementById('print-module');
+    if (printBtn){
+      printBtn.addEventListener('click', function(){
+        window.print();
+      });
+    }
+  });
+})();
+</script>
+
+<!-- Cache-Bypass für interne Links -->
+<script>
+(function(){
+  const t = Date.now();
+  document.querySelectorAll('a[data-internal]').forEach(a=>{
+    try{
+      const u = new URL(a.getAttribute('href'), location.href);
+      u.searchParams.set('nocache', t);
+      a.href = u.pathname + u.search + u.hash;
+    }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
