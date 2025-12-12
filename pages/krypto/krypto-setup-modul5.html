@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FSA Krypto-Setup – Modul 5 – Sicherheitskonzept & Backups</title>
+<style>
+  :root{
+    --bg:#020617;
+    --bg2:#020814;
+    --panel:#050816;
+    --panel-soft:#070b1c;
+    --border:rgba(148,163,184,.45);
+    --gold:#eab308;
+    --gold-soft:rgba(234,179,8,.35);
+    --txt:#e5e7eb;
+    --muted:#9ca3af;
+    --accent:#38bdf8;
+    --shadow:0 18px 45px rgba(15,23,42,.95);
+    --radius:18px;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{
+    margin:0;
+    padding:0;
+    background:radial-gradient(circle at top,#02081a 0,#020617 40%,#020617 100%);
+    color:var(--txt);
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* Abstand unter fixer Topbar aus menu.js */
+  #setup-hero{padding-top:88px;}
+
+  .wrap{
+    max-width:1100px;
+    margin:40px auto 48px;
+    padding:0 20px 40px;
+  }
+
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:4px 12px;
+    border-radius:999px;
+    border:1px solid rgba(148,163,184,.55);
+    background:rgba(15,23,42,.88);
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--muted);
+    margin-bottom:10px;
+  }
+
+  .pill span{
+    width:18px;
+    height:18px;
+    border-radius:999px;
+    background:radial-gradient(circle,var(--gold) 0,#854d0e 60%,#020617 100%);
+    box-shadow:0 0 18px rgba(234,179,8,.75);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:11px;
+    color:#020617;
+    font-weight:700;
+  }
+
+  .hero{
+    background:linear-gradient(145deg,rgba(15,23,42,.98),rgba(8,16,32,.98));
+    border-radius:var(--radius);
+    border:1px solid rgba(148,163,184,.55);
+    box-shadow:var(--shadow);
+    padding:26px 22px 22px;
+    margin-bottom:32px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .hero::before{
+    content:"";
+    position:absolute;
+    inset:-40%;
+    background:
+      radial-gradient(circle at 0 0,rgba(56,189,248,.14) 0,transparent 55%),
+      radial-gradient(circle at 100% 0,rgba(234,179,8,.18) 0,transparent 52%);
+    opacity:.9;
+    pointer-events:none;
+  }
+
+  .hero-inner{position:relative; z-index:1;}
+
+  .hero h1{
+    margin:4px 0 8px;
+    font-size:clamp(26px,3.1vw,32px);
+    font-weight:800;
+    letter-spacing:.02em;
+    color:var(--gold);
+  }
+
+  .hero p{
+    margin:4px 0;
+    color:var(--txt);
+    opacity:.96;
+    font-size:15px;
+    line-height:1.6;
+  }
+
+  .hero p.small{
+    font-size:13px;
+    color:var(--muted);
+    margin-top:10px;
+  }
+
+  .hero-highlight{
+    margin-top:14px;
+    padding:12px 14px;
+    border-radius:12px;
+    border:1px solid rgba(56,189,248,.35);
+    background:radial-gradient(circle at 0 0,rgba(15,23,42,.9),rgba(15,23,42,.96));
+    font-size:14px;
+  }
+
+  .hero-highlight b{color:#bae6fd;}
+
+  .section{
+    background:radial-gradient(circle at top,rgba(15,23,42,.98),rgba(15,23,42,.97));
+    border-radius:var(--radius);
+    border:1px solid rgba(148,163,184,.55);
+    box-shadow:var(--shadow);
+    padding:22px 20px 20px;
+    margin-bottom:26px;
+  }
+
+  .section h2{
+    margin:0 0 10px;
+    font-size:19px;
+    color:var(--gold);
+  }
+
+  .section h3{
+    margin:18px 0 6px;
+    font-size:16px;
+    color:#e5e7eb;
+  }
+
+  .section p{
+    margin:6px 0;
+    font-size:14px;
+    line-height:1.7;
+    color:var(--txt);
+  }
+
+  .section p.hint{
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  .section ul{
+    margin:6px 0 8px 20px;
+    padding:0;
+    font-size:14px;
+    line-height:1.6;
+    color:var(--txt);
+  }
+
+  .divider{
+    height:1px;
+    border:0;
+    margin:18px 0;
+    background:linear-gradient(90deg,transparent,rgba(148,163,184,.6),transparent);
+  }
+
+  .label{
+    margin-top:10px;
+    margin-bottom:4px;
+    font-size:13px;
+    font-weight:600;
+    color:#cbd5f5;
+  }
+
+  .field-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin:4px 0 6px;
+  }
+
+  .field{
+    flex:1 1 160px;
+    min-width:160px;
+    font-size:13px;
+  }
+
+  textarea,
+  input[type="text"],
+  input[type="number"]{
+    width:100%;
+    padding:8px 9px;
+    border-radius:10px;
+    border:1px solid rgba(148,163,184,.7);
+    background:rgba(15,23,42,.96);
+    color:var(--txt);
+    font-size:13px;
+    resize:vertical;
+    min-height:38px;
+  }
+
+  textarea{
+    min-height:70px;
+  }
+
+  textarea:focus,
+  input[type="text"]:focus,
+  input[type="number"]:focus{
+    outline:1px solid var(--accent);
+    border-color:var(--accent);
+    box-shadow:0 0 0 1px rgba(56,189,248,.5);
+  }
+
+  .small-note{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:4px;
+  }
+
+  .checklist-item{
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+    margin:4px 0;
+    font-size:13px;
+  }
+
+  .checklist-item input[type="checkbox"]{
+    margin-top:2px;
+    width:15px;
+    height:15px;
+    accent-color:var(--gold);
+  }
+
+  .two-cols{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    margin-top:6px;
+  }
+
+  .col{
+    flex:1 1 260px;
+    min-width:240px;
+  }
+
+  .col-box{
+    border-radius:14px;
+    border:1px solid rgba(148,163,184,.55);
+    background:radial-gradient(circle at top,rgba(15,23,42,.98),rgba(15,23,42,.98));
+    padding:12px 12px 10px;
+    font-size:13px;
+  }
+
+  .col-box h4{
+    margin:0 0 6px;
+    font-size:13px;
+    color:#e5e7eb;
+  }
+
+  .col-box textarea{
+    min-height:90px;
+  }
+
+  .mentor{
+    border-left:3px solid var(--gold);
+    padding:8px 10px;
+    margin:10px 0 4px;
+    font-size:13px;
+    background:rgba(24,24,18,.45);
+  }
+
+  .mentor b{color:var(--gold);}
+
+  .section-title-small{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    color:var(--muted);
+    margin-bottom:4px;
+  }
+
+  /* Buttons unten */
+  .actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:14px;
+  }
+
+  .btn-ghost,
+  .btn-gold{
+    border-radius:999px;
+    padding:8px 16px;
+    font-size:13px;
+    border:1px solid rgba(148,163,184,.7);
+    background:rgba(15,23,42,.9);
+    color:var(--txt);
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    white-space:nowrap;
+  }
+
+  .btn-gold{
+    background:linear-gradient(135deg,#facc15,#eab308);
+    border-color:rgba(250,204,21,.9);
+    color:#111827;
+    font-weight:700;
+    box-shadow:0 0 24px rgba(250,204,21,.55);
+  }
+
+  .btn-ghost:hover{
+    background:rgba(15,23,42,1);
+  }
+
+  .btn-gold:hover{
+    filter:brightness(1.05);
+  }
+
+  .footer-nav{
+    margin-top:26px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:space-between;
+  }
+
+  .footer-nav-group{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  .footer-nav a{
+    text-decoration:none;
+  }
+
+  .footer-note{
+    margin-top:10px;
+    font-size:11px;
+    color:var(--muted);
+  }
+
+  @media (max-width:700px){
+    .hero{padding:20px 16px;}
+    .section{padding:18px 14px 16px;}
+    .wrap{padding:0 14px 32px;}
+  }
+
+  /* Druckansicht: tintensparend, gut lesbar */
+  @media print{
+    #menu-root,
+    .footer-nav,
+    .actions{
+      display:none !important;
+    }
+    body{
+      background:#ffffff !important;
+      color:#000000 !important;
+      -webkit-print-color-adjust:exact;
+      print-color-adjust:exact;
+    }
+    .hero,
+    .section{
+      box-shadow:none !important;
+      border-color:#999 !important;
+      background:#ffffff !important;
+    }
+    .hero::before{
+      display:none !important;
+    }
+    .col-box,
+    .mentor{
+      background:#ffffff !important;
+      border-color:#999 !important;
+    }
+    .section p,
+    .small-note,
+    .label,
+    .section h2,
+    .section h3{
+      color:#000000 !important;
+    }
+    textarea,
+    input[type="text"],
+    input[type="number"]{
+      border-color:#777 !important;
+      background:#ffffff !important;
+      color:#000000 !important;
+    }
+  }
+</style>
+</head>
+<body data-storage-prefix="fsa-krypto-setup-m5-de:">
+
+<!-- Platzhalter für die Topbar (aus menu.js) -->
+<div id="menu-root"></div>
+
+<div class="wrap">
+  <section class="hero" id="setup-hero">
+    <div class="hero-inner">
+      <div class="pill"><span>5</span> Krypto-Setup – Modul</div>
+      <h1>Modul 5 – Sicherheitskonzept &amp; Backups</h1>
+      <p>
+        Du baust ein Sicherheitskonzept, das nicht nur theoretisch sicher ist, sondern auch in echten Stress-Situationen
+        funktioniert: Geräteverlust, Hackerangriff, Feuer, Krankenhausaufenthalt oder längerer Ausfall.
+      </p>
+      <p class="small">
+        Danach weißt du, wo deine Schwachstellen liegen, wie Seeds, Passwörter und Geräte gesichert sind und wie du
+        im Notfall ohne Hektik einen Wiederherstellungstest durchführen kannst.
+      </p>
+      <div class="hero-highlight">
+        <b>Hinweis:</b> Deine Eingaben werden nur lokal in deinem Browser gespeichert (localStorage).
+        Du kannst die Seite später mit deinen Eintragungen ausdrucken oder die Daten für dieses Modul wieder löschen.
+      </div>
+      <div class="actions" style="margin-top:14px;">
+        <button type="button" class="btn-ghost" id="print-module">🖨️ Modul ausdrucken</button>
+        <button type="button" class="btn-ghost" id="clear-module-data">✖️ Eingaben für Modul 5 löschen</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1. Mini-Szenario -->
+  <section class="section">
+    <div class="section-title-small">Schritt 1</div>
+    <h2>Mini-Szenario: „Dein digitales Leben im Karton“</h2>
+
+    <p>
+      Stell dir vor, deine Wohnung brennt nicht komplett ab – aber der Raum mit deinen technischen Geräten ist unbrauchbar.
+      Laptop kaputt, Handy unbrauchbar, eventuell sogar Papierunterlagen beschädigt.
+    </p>
+    <p>
+      Du brauchst: Zugriff auf Geld, Kommunikation, Accounts. Was kannst du aus dem Kopf – was ist weg, wenn deine
+      Geräte weg sind?
+    </p>
+
+    <p><b>Leitfragen:</b></p>
+    <ul>
+      <li>Welche drei Dinge müsstest du heute retten, um dein digitales Leben wieder aufzubauen?</li>
+      <li>Sind diese Informationen nur auf einem Gerät gespeichert?</li>
+      <li>Gibt es jemanden, der dir im echten Notfall helfen könnte – aber nicht weiß, wo er anfangen soll?</li>
+    </ul>
+
+    <p class="label">
+      Mini-Aufgabe: Notiere spontan – ohne nachzuschauen –
+      (1) wo dein wichtigster Seed liegt, (2) wo deine wichtigsten Passwörter gesichert sind,
+      (3) welches Gerät ein „Single Point of Failure“ für dich wäre.
+    </p>
+    <textarea data-storage-key="m5-s1-notizen"></textarea>
+  </section>
+
+  <!-- 2. Drei Ebenen Sicherheit -->
+  <section class="section">
+    <div class="section-title-small">Schritt 2</div>
+    <h2>Drei Ebenen Sicherheit: Gerät – Zugang – Mensch</h2>
+
+    <p>
+      Damit es übersichtlich bleibt, sortierst du dein Sicherheitskonzept in drei Ebenen:
+    </p>
+
+    <h3>2.1 Geräte-Ebene</h3>
+    <ul>
+      <li>Smartphone, Laptop, Hardware-Wallets, USB-Sticks</li>
+      <li>Fragen: Sind sie verschlüsselt? Gibt es PIN/Passwort-Schutz?</li>
+      <li>Kann ein Dieb „einfach loslegen“, wenn er das Gerät findet?</li>
+    </ul>
+
+    <h3>2.2 Zugangs-Ebene</h3>
+    <ul>
+      <li>Passwörter, PINs, 2FA-Apps, E-Mail-Postfach als „Master-Schlüssel“</li>
+      <li>Gibt es ein zentrales E-Mail-Konto, über das man alles zurücksetzen kann?</li>
+      <li>Sind deine Passwörter wirklich unterschiedlich oder nur Varianten?</li>
+    </ul>
+
+    <h3>2.3 Menschliche Ebene</h3>
+    <ul>
+      <li>Du selbst im Stress, Angehörige, Vertrauenspersonen</li>
+      <li>Weiß jemand, dass du überhaupt ein Wallet hast?</li>
+      <li>Gibt es eine saubere Lösung, falls du im Krankenhaus bist oder länger ausfällst?</li>
+    </ul>
+
+    <div class="mentor">
+      <b>Merksatz:</b><br>
+      „Sicherheit ist nicht nur Technik – sondern vor allem Klarheit, wer im Ernstfall was tun kann.“
+    </div>
+
+    <p class="label">
+      Wo fühlst du dich aktuell am verwundbarsten – bei Geräten, Zugängen oder der menschlichen Ebene?
+    </p>
+    <textarea data-storage-key="m5-s2-reflexion"></textarea>
+  </section>
+
+  <!-- 3. Seeds & Wallets -->
+  <section class="section">
+    <div class="section-title-small">Schritt 3</div>
+    <h2>Seeds &amp; Wallets – sicher, aber nicht unauffindbar</h2>
+
+    <h3>3.1 Typische Fehler bei Seeds</h3>
+    <p>
+      Typische Stolperfallen:
+    </p>
+    <ul>
+      <li>Seed nur auf einem Zettel in der Schublade, ohne Schutz.</li>
+      <li>Seed im Passwortmanager, aber ohne zusätzliches physisches Backup.</li>
+      <li>Seed fotografiert und in der Cloud gespeichert.</li>
+      <li>Seed so „clever“ versteckt, dass du ihn selbst nicht mehr findest.</li>
+    </ul>
+
+    <p class="label">
+      Reflexion: „Wenn du in 2 Jahren deinen Seed wiederherstellen musst – ohne deinen heutigen Kopfzustand –
+      würdest du ihn finden und verstehen?“
+    </p>
+    <textarea data-storage-key="m5-s3-seed-reflexion"></textarea>
+
+    <hr class="divider" />
+
+    <h3>3.2 Backup-Strategie: einfach, aber robust</h3>
+    <p>
+      Im Fokus stehen Prinzipien, keine Marken:
+    </p>
+    <ul>
+      <li>Mindestens ein physisches Backup außerhalb deines Hauptwohnsitzes.</li>
+      <li>Klares Format: lesbar, vollständig, nicht kryptisch verstümmelt.</li>
+      <li>Trennung von Seed und Hinweisen (kein Zettel „Ledger Seed für Wallet XY“ direkt daneben).</li>
+    </ul>
+
+    <p class="hint">
+      Typische Bausteine: Papier-Backup (leicht, aber feuergefährdet), Metall-Backup (robust, aber auffälliger),
+      Kombination aus beidem.
+    </p>
+
+    <p class="label">
+      Mini-Aufgabe: „Beschreibe in einem Satz, wie du heute deinen wichtigsten Seed gesichert hast –
+      und was im Brandfall damit passieren würde.“
+    </p>
+    <textarea data-storage-key="m5-s3-mini"></textarea>
+  </section>
+
+  <!-- 4. Passwörter, 2FA & E-Mail -->
+  <section class="section">
+    <div class="section-title-small">Schritt 4</div>
+    <h2>Passwörter, 2FA &amp; E-Mail – dein „Master-Schlüssel“</h2>
+
+    <h3>4.1 E-Mail als Königsklasse</h3>
+    <p>
+      Dein Haupt-E-Mail-Konto ist oft der wahre Root-Zugriff:
+    </p>
+    <ul>
+      <li>Passwort zurücksetzen</li>
+      <li>2FA-Ersatzcodes</li>
+      <li>Konto-Wiederherstellungen</li>
+    </ul>
+
+    <p>
+      Deshalb brauchst du hier ein starkes, einzigartiges Passwort,
+      2FA (idealerweise App-basiert) und ein sauberes Backup der 2FA-Codes an einem sicheren Ort.
+    </p>
+
+    <h3>4.2 Passwort-Strategie</h3>
+    <p>
+      Es geht nicht um eine bestimmte Software, sondern um eine Logik, die du durchhältst:
+    </p>
+    <ul>
+      <li>Keine Wiederverwendung desselben Passworts bei Krypto, E-Mail und Banking.</li>
+      <li>Trennung von Alltagspasswörtern (Foren, Newsletter) und kritischen Passwörtern.</li>
+      <li>Ein System, das du langfristig beibehalten kannst.</li>
+    </ul>
+
+    <p class="label">
+      Mini-Aufgabe: „Notiere für dich drei Konten, bei denen du das Passwort zuerst prüfen/verbessern solltest
+      (z. B. Haupt-E-Mail, mobile Bank, größte Exchange).“
+    </p>
+    <textarea data-storage-key="m5-s4-passwort-check"></textarea>
+
+    <div class="field-row">
+      <div class="field">
+        <div class="label">Haupt-E-Mail – Passwort geprüft/aktualisiert?</div>
+        <input type="text" data-storage-key="m5-s4-mail-status" placeholder="z. B. &quot;geplant&quot; oder Datum">
+      </div>
+      <div class="field">
+        <div class="label">2FA-Status (E-Mail / Bank / Exchange)</div>
+        <input type="text" data-storage-key="m5-s4-2fa-status" placeholder="kurze Notiz zu deinem Stand">
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Notfall-Zugriff -->
+  <section class="section">
+    <div class="section-title-small">Schritt 5</div>
+    <h2>Notfall-Zugriff für vertraute Menschen</h2>
+
+    <p>
+      Modul 5 behandelt auch die Frage: „Was passiert mit deinem Geld, wenn dir etwas passiert?“
+    </p>
+    <p>
+      Ohne juristische Beratung, aber mit praktischen Ideen:
+    </p>
+    <ul>
+      <li>Du definierst eine Person (oder zwei), die im Notfall wissen dürfen, dass es Krypto gibt.</li>
+      <li>Diese Person weiß, wo grob Informationen zu finden sind (Notfallmappe, Kuvert, Ordner).</li>
+      <li>Es geht nicht darum, Seeds komplett weiterzugeben, sondern strukturierte Hinweise bereitzustellen.</li>
+    </ul>
+
+    <p class="label">
+      Mini-Aufgabe: „Wer soll im Notfall wissen, dass du Krypto hast?
+      Wo könnte diese Person einen ersten Hinweis finden?“
+    </p>
+    <textarea data-storage-key="m5-s5-notfallperson"></textarea>
+  </section>
+
+  <!-- 6. Wiederherstellung testen -->
+  <section class="section">
+    <div class="section-title-small">Schritt 6</div>
+    <h2>Wiederherstellung testen – ohne Nervenzusammenbruch</h2>
+
+    <p>
+      Sicherheit ohne Test bleibt Theorie. Daher schlägt das Modul vor:
+    </p>
+    <ul>
+      <li>Eine kleine Test-Wallet mit Mini-Betrag anlegen.</li>
+      <li>Seed notieren, Gerät „verlieren“ (App löschen / Hardware ausschalten).</li>
+      <li>Wallet auf einem zweiten Gerät aus dem Seed wiederherstellen.</li>
+    </ul>
+
+    <p>
+      Du beobachtest, wie lange es dauert, wo Informationen fehlen und an welchen Stellen du nervös wirst.
+    </p>
+
+    <div class="field-row">
+      <div class="field">
+        <div class="label">Geschätzte Zeit für einen vollständigen Restore (in Minuten)</div>
+        <input type="number" min="0" step="1" data-storage-key="m5-s6-restore-minuten">
+      </div>
+    </div>
+
+    <p class="label">Notizen zum Test (was gut lief, was noch fehlt):</p>
+    <textarea data-storage-key="m5-s6-restore-notizen"></textarea>
+  </section>
+
+  <!-- 7. Konkrete Aufgaben -->
+  <section class="section">
+    <div class="section-title-small">Schritt 7</div>
+    <h2>Konkrete Aufgaben in Modul 5</h2>
+
+    <p>
+      To-do-Block für deine Umsetzung:
+    </p>
+
+    <h3>1. Geräte-Check</h3>
+    <p>Alle Geräte, die Zugang zu Krypto/Banksachen haben, auflisten und prüfen:</p>
+    <ul>
+      <li>PIN, Verschlüsselung, Bildschirmsperre, Backup-Status.</li>
+    </ul>
+    <p class="label">Geräte-Übersicht &amp; Maßnahmen:</p>
+    <textarea data-storage-key="m5-s7-geraete"></textarea>
+
+    <hr class="divider" />
+
+    <h3>2. Seed-Backup planen oder verbessern</h3>
+    <p>
+      Entscheide: Papier, Metall, Kombination, zweiter Ort – und was du in den nächsten 14 Tagen konkret änderst.
+    </p>
+    <p class="label">Mein konkreter 14-Tage-Plan für Seed-Backups:</p>
+    <textarea data-storage-key="m5-s7-seed-plan"></textarea>
+
+    <hr class="divider" />
+
+    <h3>3. Haupt-E-Mail absichern</h3>
+    <p>
+      Passwort prüfen/ändern, 2FA aktivieren oder verbessern, Backup-Codes sichern.
+    </p>
+    <p class="label">Was ich bei meiner Haupt-E-Mail konkret ändere:</p>
+    <textarea data-storage-key="m5-s7-mail-plan"></textarea>
+
+    <hr class="divider" />
+
+    <h3>4. Mini-Wiederherstellungstest</h3>
+    <p>
+      Mit einer Test-Wallet den kompletten Restore-Prozess einmal durchspielen.
+    </p>
+    <p class="label">Erkenntnisse aus meinem Mini-Wiederherstellungstest:</p>
+    <textarea data-storage-key="m5-s7-restore-learn"></textarea>
+  </section>
+
+  <!-- Ergebnis -->
+  <section class="section">
+    <div class="section-title-small">Abschluss</div>
+    <h2>Ergebnis von Modul 5 – Zusammenfassung</h2>
+
+    <p>
+      Kurzfassung, mit der du das Modul abschließt:
+    </p>
+    <p>
+      „Ich weiß, auf welchen Geräten mein Geld wirklich von mir abhängt.
+      Meine wichtigsten Seeds und Passwörter sind so gesichert,
+      dass sie ein Feuer oder Geräteverlust realistischer überstehen können –
+      und ich habe mindestens einmal getestet, dass ich sie auch wiederherstellen kann.“
+    </p>
+
+    <p class="label">Eigene Zusammenfassung / persönliche Notizen:</p>
+    <textarea data-storage-key="m5-summary"></textarea>
+  </section>
+
+  <!-- Footer-Navigation -->
+  <div class="footer-nav">
+    <div class="footer-nav-group">
+      <a href="/lp-anfang/pages/krypto/krypto-setup-modul4.html" class="btn-gold" data-internal>← Zurück zu Modul 4</a>
+    </div>
+    <div class="footer-nav-group">
+      <a href="/lp-anfang/pages/krypto/krypto-setup-intro.html" class="btn-ghost" data-internal>Zur Übersicht Krypto-Setup</a>
+      <a href="/lp-anfang/pages/krypto/krypto-setup-modul6.html" class="btn-gold" data-internal>Weiter zu Modul 6 →</a>
+    </div>
+  </div>
+</div>
+
+<script src="/lp-anfang/library/js/menu.js?v=20251109"></script>
+<script src="/lp-anfang/library/js/lang-switcher.js?v=20251109"></script>
+<script src="/lp-anfang/library/js/music-button.js?v=20251109"></script>
+<script src="/lp-anfang/library/js/topbar-autohide.js?v=20251109"></script>
+
+<!-- Lang-Bridge Modul 5 DE ↔ EN -->
+<script>
+(function () {
+  const KEY = 'fsa_lang';
+  const p = location.pathname;
+
+  function counterpart(to){
+    if (p.endsWith('/lp-anfang/pages/krypto/krypto-setup-modul5.html') && to === 'en')
+      return '/lp-anfang/pages/krypto/krypto-setup-modul5-en.html';
+    if (p.endsWith('/lp-anfang/pages/krypto/krypto-setup-modul5-en.html') && to === 'de')
+      return '/lp-anfang/pages/krypto/krypto-setup-modul5.html';
+    return null;
+  }
+
+  function go(lang){
+    const t = counterpart((lang || 'de').toLowerCase());
+    if (t) location.assign(t + location.search + location.hash);
+  }
+
+  try{
+    const pref = localStorage.getItem(KEY) || 'de';
+    const isEN  = /krypto-setup-modul5-en\.html$/.test(p);
+    if ((pref === 'en' && !isEN) || (pref === 'de' && isEN)) go(pref);
+  }catch(e){}
+
+  document.addEventListener('fsa:lang-change', ev => go(ev.detail || 'de'));
+  window.addEventListener('storage', ev => { if (ev.key === KEY) go(ev.newValue); });
+})();
+</script>
+
+<!-- LocalStorage + Drucken -->
+<script>
+(function(){
+  const prefix = document.body.getAttribute('data-storage-prefix') || 'fsa-krypto-setup-m5-de:';
+
+  function saveField(el){
+    const key = el.getAttribute('data-storage-key');
+    if (!key) return;
+    let val = '';
+    if (el.type === 'checkbox'){
+      val = el.checked ? '1' : '0';
+    } else {
+      val = el.value;
+    }
+    try{
+      localStorage.setItem(prefix + key, val);
+    }catch(e){}
+  }
+
+  function loadField(el){
+    const key = el.getAttribute('data-storage-key');
+    if (!key) return;
+    try{
+      const stored = localStorage.getItem(prefix + key);
+      if (stored === null) return;
+      if (el.type === 'checkbox'){
+        el.checked = stored === '1';
+      } else {
+        el.value = stored;
+      }
+    }catch(e){}
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const fields = document.querySelectorAll('[data-storage-key]');
+    fields.forEach(el => {
+      loadField(el);
+      const evt = (el.type === 'checkbox') ? 'change' : 'input';
+      el.addEventListener(evt, () => saveField(el));
+    });
+
+    const clearBtn = document.getElementById('clear-module-data');
+    if (clearBtn){
+      clearBtn.addEventListener('click', function(){
+        if (!confirm('Möchtest du wirklich alle Eingaben in diesem Modul löschen?')) return;
+        try{
+          const keys = Object.keys(localStorage);
+          keys.forEach(k => {
+            if (k.startsWith(prefix)) localStorage.removeItem(k);
+          });
+        }catch(e){}
+        fields.forEach(el => {
+          if (el.type === 'checkbox') el.checked = false;
+          else el.value = '';
+        });
+      });
+    }
+
+    const printBtn = document.getElementById('print-module');
+    if (printBtn){
+      printBtn.addEventListener('click', function(){
+        window.print();
+      });
+    }
+  });
+})();
+</script>
+
+<!-- Cache-Bypass für interne Links -->
+<script>
+(function(){
+  const t = Date.now();
+  document.querySelectorAll('a[data-internal]').forEach(a=>{
+    try{
+      const u = new URL(a.getAttribute('href'), location.href);
+      u.searchParams.set('nocache', t);
+      a.href = u.pathname + u.search + u.hash;
+    }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
