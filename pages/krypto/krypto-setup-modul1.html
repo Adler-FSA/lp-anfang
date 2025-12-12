@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Krypto-Setup – Modul 1: Bestandsaufnahme & Risiko-Profil</title>
+<style>
+  :root{
+    --bg:#020617;
+    --bg-grad1:#020617;
+    --bg-grad2:#020819;
+    --panel:#0b1220;
+    --panel-soft:#0f172a;
+    --panel-alt:#020617;
+    --border:rgba(148,163,184,.35);
+    --border-soft:rgba(148,163,184,.22);
+    --txt:#e5e7eb;
+    --muted:#9ca3af;
+    --gold:#facc6b;
+    --gold-2:#d4af37;
+    --ring:rgba(250,204,21,.25);
+    --danger:#fecaca;
+    --accent:#38bdf8;
+    --shadow:0 18px 45px rgba(15,23,42,.85);
+    --radius:16px;
+  }
+
+  html,body{
+    margin:0;
+    padding:0;
+    background:radial-gradient(circle at top, #0b1120 0, #020617 52%, #000 100%);
+    color:var(--txt);
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  }
+
+  #hero{padding-top:88px;} /* Abstand unter fixer Topbar (menu.js) */
+
+  .wrap{
+    max-width:1100px;
+    margin:40px auto 60px;
+    padding:0 20px 40px;
+  }
+
+  .hero{
+    background:radial-gradient(circle at top left,#111827 0,#020617 55%);
+    border-radius:22px;
+    box-shadow:var(--shadow);
+    padding:26px 22px 26px;
+    border:1px solid rgba(148,163,184,.45);
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute;
+    inset:-40%;
+    background:
+      radial-gradient(circle at 0% 0%, rgba(250,204,21,.10), transparent 55%),
+      radial-gradient(circle at 100% 0%, rgba(56,189,248,.12), transparent 55%);
+    opacity:.9;
+    pointer-events:none;
+  }
+  .hero-inner{position:relative}
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:.82rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:8px;
+  }
+  .eyebrow span{
+    padding:4px 10px;
+    border-radius:999px;
+    border:1px solid rgba(148,163,184,.45);
+    background:rgba(15,23,42,.92);
+  }
+  .hero h1{
+    margin:0 0 10px;
+    font-size:clamp(26px,3.1vw,34px);
+    color:var(--gold);
+  }
+  .hero p{
+    margin:6px 0;
+    max-width:800px;
+  }
+  .hero-note{
+    margin-top:16px;
+    font-size:.9rem;
+    padding:10px 12px;
+    border-radius:12px;
+    background:rgba(15,23,42,.95);
+    border:1px dashed rgba(148,163,184,.55);
+    color:var(--muted);
+  }
+
+  /* Hinweis auf Passwort-Setup */
+  .info-lock{
+    margin-top:22px;
+    padding:10px 14px;
+    border-radius:12px;
+    border:1px solid rgba(148,163,184,.45);
+    background:rgba(15,23,42,.92);
+    font-size:.9rem;
+    color:var(--muted);
+  }
+
+  /* Layout: Hauptspalten */
+  .grid{
+    display:grid;
+    grid-template-columns:minmax(0,2fr) minmax(0,1.35fr);
+    gap:22px;
+    margin-top:30px;
+  }
+  @media (max-width:880px){
+    .grid{grid-template-columns:minmax(0,1fr);}
+  }
+
+  .panel{
+    background:var(--panel);
+    border-radius:var(--radius);
+    border:1px solid var(--border);
+    box-shadow:0 18px 40px rgba(15,23,42,.75);
+    padding:20px 18px 18px;
+    position:relative;
+  }
+  .panel h2{
+    margin:0 0 10px;
+    font-size:1.05rem;
+    color:var(--gold);
+  }
+  .panel h3{
+    margin:14px 0 8px;
+    font-size:.98rem;
+    color:#e5e7eb;
+  }
+  .panel p{
+    margin:6px 0;
+    font-size:.94rem;
+    color:var(--txt);
+  }
+  .muted{color:var(--muted);}
+
+  .badge-row{
+    margin-top:4px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    font-size:.78rem;
+  }
+  .badge{
+    padding:3px 9px;
+    border-radius:999px;
+    border:1px solid rgba(148,163,184,.45);
+    background:rgba(15,23,42,.9);
+    color:var(--muted);
+  }
+  .badge.level{
+    border-color:rgba(250,204,21,.48);
+    color:var(--gold);
+  }
+
+  ul.list{
+    margin:6px 0 8px 18px;
+    padding:0;
+    font-size:.94rem;
+    line-height:1.55;
+  }
+
+  .task-box{
+    margin-top:12px;
+    padding:12px 12px 11px;
+    border-radius:14px;
+    border:1px solid rgba(56,189,248,.5);
+    background:linear-gradient(135deg,rgba(15,23,42,.98),rgba(8,47,73,.96));
+    font-size:.9rem;
+  }
+  .task-title{
+    font-weight:600;
+    color:#e0f2fe;
+    margin-bottom:4px;
+  }
+  .task-step{
+    margin:3px 0;
+  }
+
+  .table-like{
+    margin-top:10px;
+    border-radius:14px;
+    border:1px solid var(--border-soft);
+    overflow:hidden;
+    font-size:.9rem;
+  }
+  .table-like-header{
+    display:grid;
+    grid-template-columns:1.1fr 1.4fr 1.3fr;
+    background:rgba(15,23,42,.98);
+    padding:8px 10px;
+    font-weight:600;
+    color:var(--muted);
+  }
+  .table-like-row{
+    display:grid;
+    grid-template-columns:1.1fr 1.4fr 1.3fr;
+    padding:7px 10px;
+    background:rgba(15,23,42,.96);
+    border-top:1px solid rgba(31,41,55,.9);
+  }
+  .table-like-row:nth-child(2n){
+    background:rgba(15,23,42,.9);
+  }
+
+  .callout{
+    margin-top:16px;
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid rgba(248,250,252,.08);
+    background:rgba(15,23,42,.96);
+    font-size:.88rem;
+    color:var(--muted);
+  }
+  .callout strong{color:var(--gold);}
+
+  .quote{
+    margin-top:14px;
+    padding:10px 12px;
+    border-radius:12px;
+    border-left:4px solid var(--accent);
+    background:rgba(15,23,42,.96);
+    font-size:.9rem;
+    font-style:italic;
+  }
+
+  /* Footer-Navigation */
+  footer{
+    margin-top:32px;
+    padding-top:18px;
+    border-top:1px solid rgba(30,64,175,.6);
+  }
+  .footer-nav{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    gap:12px;
+    align-items:center;
+  }
+  .btn-footer{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:10px 20px;
+    border-radius:999px;
+    border:1px solid rgba(234,179,8,.7);
+    background:linear-gradient(135deg,#facc6b,#d4af37);
+    color:#111827;
+    font-weight:700;
+    font-size:.9rem;
+    text-decoration:none;
+    box-shadow:0 16px 30px rgba(15,23,42,.9);
+    white-space:nowrap;
+  }
+  .btn-footer span{margin-left:6px;}
+
+  .footer-note{
+    margin:10px 2px 0;
+    font-size:.8rem;
+    color:var(--muted);
+  }
+
+  @media (max-width:640px){
+    .footer-nav{
+      flex-direction:column;
+      align-items:stretch;
+    }
+    .btn-footer{
+      width:100%;
+      justify-content:center;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="menu-root"></div>
+
+<div class="wrap">
+  <section class="hero" id="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">
+        <span>FSA Akademie · Krypto-Setup</span>
+        <span>Modul 1</span>
+      </div>
+      <h1>Bestandsaufnahme &amp; Risiko-Profil</h1>
+      <p>
+        In diesem Modul räumst du dein finanzielles Bild auf: Was besitzt du, wo liegen deine Konten
+        und wie hoch ist dein Schutzbedarf? Du übersetzt Bauchgefühl in Zahlen – als Grundlage für
+        alle weiteren Schritte im Krypto-Setup.
+      </p>
+      <p class="muted">
+        Ziel: Du weißt, wo dein Geld heute liegt, welche Risiken du trägst und wie viel Schwankung
+        du dir wirklich leisten kannst – ohne dein Leben aus der Bahn zu werfen.
+      </p>
+      <div class="hero-note">
+        Dieses Modul ist bewusst einfach gehalten. Du brauchst keine Fachbegriffe – nur Ehrlichkeit
+        dir selbst gegenüber und etwas Zeit, Dinge aufzuschreiben.
+      </div>
+      <div class="info-lock">
+        Hinweis: Dieses Modul gehört zum geschützten Krypto-Setup. Falls du das Mentor-Passwort
+        noch nicht eingegeben hast, starte am besten über die Setup-Übersicht in der Krypto-Sektion.
+      </div>
+    </div>
+  </section>
+
+  <section class="grid">
+    <!-- Linke Spalte: Inventur & Struktur -->
+    <article class="panel">
+      <h2>Schritt 1 – Inventur deiner Finanzwelt</h2>
+      <p>
+        Bevor du über Wallets, DeFi oder Sicherheit nachdenkst, brauchst du ein klares Bild:
+        <b>Wo liegt heute was?</b> Ohne Inventur ist jedes Setup nur gefühlt „sicher“.
+      </p>
+      <h3>1.1 Konten & Werte sammeln</h3>
+      <p>Schreibe alle Positionen auf – grobe Beträge reichen:</p>
+      <ul class="list">
+        <li>Giro- und Tagesgeldkonten (inkl. Dispo oder Überziehung)</li>
+        <li>Sparpläne, Depots, Bausparverträge, Versicherungen mit Guthaben</li>
+        <li>Bargeld, Edelmetalle, Krypto-Bestände (auch auf Börsen!)</li>
+        <li>Verbindlichkeiten: Kredite, Ratenkäufe, offene Steuern, Privatdarlehen</li>
+      </ul>
+
+      <div class="table-like">
+        <div class="table-like-header">
+          <div>Kategorie</div><div>Beispiel</div><div>Anmerkung</div>
+        </div>
+        <div class="table-like-row">
+          <div>Liquidität</div>
+          <div>Giro, Tagesgeld, Cash</div>
+          <div>Für Miete, Alltag, Notgroschen.</div>
+        </div>
+        <div class="table-like-row">
+          <div>Anlage</div>
+          <div>ETF, Aktien, Krypto, Gold</div>
+          <div>Längerer Horizont, mehr Schwankung.</div>
+        </div>
+        <div class="table-like-row">
+          <div>Verbindlichkeiten</div>
+          <div>Kredit, Raten, Steuer</div>
+          <div>Zinsen &amp; Fristen im Blick behalten.</div>
+        </div>
+      </div>
+
+      <div class="task-box">
+        <div class="task-title">Mini-Aufgabe: Inventur in 20 Minuten</div>
+        <p class="task-step">• Nimm ein Blatt Papier oder eine Notizen-App.</p>
+        <p class="task-step">• Schreibe jede Position mit <b>Bank / Plattform, Art und ca. Betrag</b> auf.</p>
+        <p class="task-step">• Markiere mit einem ⚠️ alles, was du schon länger nicht kontrolliert hast.</p>
+      </div>
+
+      <h3>1.2 Wo liegt die Steuerung?</h3>
+      <p>
+        Notiere zu jeder Position: <b>Wer hat die Kontrolle?</b> Du, eine Bank, ein Broker, ein Arbeitgeber?
+        Genau hier beginnt später die Trennung zwischen zentralem und dezentralem Setup.
+      </p>
+      <ul class="list">
+        <li>„Konto bei Bank X“ → Bank kann sperren, pfänden, limitieren.</li>
+        <li>„Coins auf Börse Y“ → Plattform-Risiko, Zugangsrisiko, KYC.</li>
+        <li>„Wallet auf eigenem Gerät“ → Du bist der Schlüssel, aber auch das Risiko.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Merksatz:</strong> Je zentraler etwas ist, desto einfacher ist der Zugriff für Dritte.
+        Je dezentraler etwas ist, desto mehr Verantwortung liegt bei dir.
+      </div>
+    </article>
+
+    <!-- Rechte Spalte: Risiko-Profil & Schutzbedarf -->
+    <aside class="panel">
+      <h2>Schritt 2 – Dein persönlicher Schutzbedarf</h2>
+      <p>
+        Dein Risiko-Profil hat zwei Seiten: <b>Was du aushältst</b> und <b>was du tragen musst</b>.
+      </p>
+
+      <h3>2.1 Drei Fragen für dein Risiko-Profil</h3>
+      <ul class="list">
+        <li>Wie reagierst du, wenn dein Vermögen kurzfristig −30&nbsp;% im Wert schwankt?</li>
+        <li>Wie lange könntest du ohne Einkommen überbrücken, nur mit Reserven?</li>
+        <li>Welche Zahl wäre für dich ein „Existenz-Schock“, wenn sie plötzlich weg ist?</li>
+      </ul>
+
+      <div class="task-box">
+        <div class="task-title">Mini-Aufgabe: Risiko-Skala</div>
+        <p class="task-step">• Vergib dir selbst eine Zahl von <b>1 (sehr vorsichtig)</b> bis <b>10 (sehr risikofreudig)</b>.</p>
+        <p class="task-step">• Schreibe dazu: „Warum nicht +2 oder −2 Punkte?“</p>
+        <p class="task-step">• Das zwingt dich, deine Grenzen bewusst zu formulieren.</p>
+      </div>
+
+      <h3>2.2 Schutz vor echten Gefahren</h3>
+      <p>
+        Für das Krypto-Setup sind vor allem diese Risiken relevant:
+      </p>
+      <ul class="list">
+        <li>Kontosperrung oder Pfändung bei Banken</li>
+        <li>Plattform-Insolvenz oder Hacks bei Börsen</li>
+        <li>Verlust von Zugangsdaten, Seed Phrase oder Geräten</li>
+        <li>Übergriffige Regulierungen oder plötzliche Verbote</li>
+      </ul>
+
+      <p class="muted">
+        In späteren Modulen baust du dafür konkrete Schutzschichten auf – zentrales Setup,
+        dezentrales Setup und Notfallpläne.
+      </p>
+
+      <h3>2.3 Was ist dein „nicht verhandelbarer“ Bereich?</h3>
+      <p>
+        Definiere einen Betrag oder Anteil, der <b>nicht zum Zocken oder Spekulieren</b> gedacht ist,
+        sondern ausschließlich für Sicherheit und Lebensgrundlage.
+      </p>
+      <ul class="list">
+        <li>z. B. 3–6 Monatsausgaben als Sicherheitsreserve</li>
+        <li>keine kurzfristigen Experimente mit Miete, Versicherungen oder Steuer-Rücklagen</li>
+      </ul>
+
+      <div class="callout">
+        Schreib dir einen Satz auf wie:
+        <br><br>
+        <strong>„Diese X&nbsp;€ fasse ich nur für echte Notfälle an – nicht für Trades, nicht für FOMO.“</strong>
+      </div>
+    </aside>
+  </section>
+
+  <!-- Zweite Reihe Panels: Typische Fehler & Zusammenfassung -->
+  <section class="grid" style="margin-top:26px;">
+    <article class="panel">
+      <h2>Schritt 3 – Typische Fallen in der Bestandsaufnahme</h2>
+      <p>
+        Viele Menschen unterschätzen nicht das Risiko – sondern <b>die Unordnung</b>. Typische Fehler:
+      </p>
+      <ul class="list">
+        <li>Mehrere Konten, aber niemand weiß, welches wofür gedacht ist.</li>
+        <li>Krypto-Accounts auf 3–4 Börsen mit Kleinstbeträgen – aber ohne Übersicht.</li>
+        <li>Passwörter im Kopf, auf Zetteln oder im Browser statt in einem sauberen System.</li>
+        <li>Keine klare Trennung zwischen Geld für heute, für später und für Experimente.</li>
+      </ul>
+
+      <h3>Aufräum-Schritte</h3>
+      <ul class="list">
+        <li>Lege für jedes Konto eine <b>Rolle</b> fest: Alltag, Reserve, Anlage, Experiment.</li>
+        <li>Überlege, welche Börsen oder Konten du schließen oder zusammenführen kannst.</li>
+        <li>Starte eine Passwort-Übersicht (z. B. Passwortmanager) – ohne Details in Kladde-Form.</li>
+      </ul>
+
+      <div class="task-box">
+        <div class="task-title">Mini-Aufgabe: 3 Dinge, die du sofort vereinfachst</div>
+        <p class="task-step">• Notiere <b>drei konkrete Schritte</b>, die du innerhalb der nächsten 7 Tage umsetzt.</p>
+        <p class="task-step">• Beispiel: „Altes Krypto-Konto schließen“, „Tagesgeld als Notgroschen markieren“,
+          „Passwörter in Manager übertragen“.</p>
+      </div>
+    </article>
+
+    <aside class="panel">
+      <h2>Was du aus Modul 1 mitnimmst</h2>
+      <p>
+        Nach diesem Modul solltest du:
+      </p>
+      <ul class="list">
+        <li>eine Liste deiner wichtigsten Konten, Depots und Krypto-Bestände haben,</li>
+        <li>wissen, welche Positionen zentral gesteuert werden und welche du selbst kontrollierst,</li>
+        <li>dein persönliches Risiko-Profil grob benennen können,</li>
+        <li>einen Betrag kennen, der nicht angetastet werden soll.</li>
+      </ul>
+
+      <div class="quote">
+        💬 <b>Mentor:</b> „Souveränität beginnt nicht bei Bitcoin, sondern bei Klarheit. 
+        Wer nicht weiß, wo sein Geld heute liegt, wird auch in Krypto nur raten.“
+      </div>
+
+      <div class="callout" style="margin-top:16px;">
+        In Modul&nbsp;2 baust du auf dieser Bestandsaufnahme auf und richtest ein
+        <strong>strukturiertes, zentrales Setup</strong> ein – mit klaren Konten, Limits
+        und Sicherheitsvorkehrungen.
+      </div>
+    </aside>
+  </section>
+
+  <footer>
+    <div class="footer-nav">
+      <a href="/lp-anfang/pages/krypto/krypto-setup.html" class="btn-footer" data-internal>
+        Zur Modul-Übersicht
+      </a>
+      <a href="/lp-anfang/pages/krypto/krypto-setup-modul2.html" class="btn-footer" data-internal>
+        Weiter zu Modul 2<span>›</span>
+      </a>
+    </div>
+    <p class="footer-note">
+      Dieser Setup-Kurs ergänzt die FSA Akademie und baut auf deinem Wissen zu Geld, Krypto und Sicherheit auf.
+    </p>
+  </footer>
+</div>
+
+<script src="/lp-anfang/library/js/menu.js?v=20251109"></script>
+<script src="/lp-anfang/library/js/lang-switcher.js?v=20251109"></script>
+<script src="/lp-anfang/library/js/music-button.js?v=20251109"></script>
+<script src="/lp-anfang/library/js/topbar-autohide.js?v=20251109"></script>
+
+<!-- Lang-Bridge: Modul 1 DE <-> EN -->
+<script>
+(function () {
+  const KEY = 'fsa_lang';
+  const p = location.pathname;
+
+  function counterpart(to){
+    if (p.endsWith('/lp-anfang/pages/krypto/krypto-setup-modul1.html') && to==='en') {
+      return '/lp-anfang/pages/krypto/krypto-setup-modul1-en.html';
+    }
+    if (p.endsWith('/lp-anfang/pages/krypto/krypto-setup-modul1-en.html') && to==='de') {
+      return '/lp-anfang/pages/krypto/krypto-setup-modul1.html';
+    }
+    return null;
+  }
+
+  function go(lang){
+    const t = counterpart((lang || 'de').toLowerCase());
+    if (t) location.assign(t + location.search + location.hash);
+  }
+
+  try{
+    const pref = localStorage.getItem(KEY) || 'de';
+    const isEN = /krypto-setup-modul1-en\.html$/.test(p);
+    if ((pref === 'en' && !isEN) || (pref === 'de' && isEN)) go(pref);
+  }catch(e){}
+
+  document.addEventListener('fsa:lang-change', ev => go(ev.detail || 'de'));
+  window.addEventListener('storage', ev => { if (ev.key === KEY) go(ev.newValue); });
+})();
+</script>
+
+<!-- Firefox Cache-Bypass für interne Links -->
+<script>
+(function(){
+  const t = Date.now();
+  document.querySelectorAll('a[data-internal]').forEach(a=>{
+    try{
+      const u = new URL(a.getAttribute('href'), location.href);
+      u.searchParams.set('nocache', t);
+      a.href = u.pathname + u.search + u.hash;
+    }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
