@@ -503,6 +503,7 @@
     │   ├── krypto/
     │   │   ├── krypto-glossar.html
     │   │   ├── krypto-glossary.html
+    │   │   ├── krypto-setup-intro.html
     │   │   ├── krypto-welt-index.html
     │   │   ├── krypto-welt-status.html
     │   │   ├── krypto-welt-timeline.html
@@ -604,4 +605,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.12.2025, 06:25)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.12.2025, 07:19)_
