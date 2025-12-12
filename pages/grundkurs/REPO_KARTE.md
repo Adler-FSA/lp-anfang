@@ -508,6 +508,7 @@
     │   │   ├── krypto-setup-modul1.html
     │   │   ├── krypto-setup-modul2-en.html
     │   │   ├── krypto-setup-modul2.html
+    │   │   ├── krypto-setup-modul3.html
     │   │   ├── krypto-welt-index.html
     │   │   ├── krypto-welt-status.html
     │   │   ├── krypto-welt-timeline.html
@@ -609,4 +610,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.12.2025, 12:33)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.12.2025, 13:31)_
