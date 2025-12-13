@@ -1,0 +1,1190 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Affiliate Magazin – Schnellzugriff (LocalStorage)</title>
+<meta name="description" content="Dein persönliches Affiliate-Magazin innerhalb der Akademie – Links lokal speichern, schnell kopieren, öffnen und verwalten (LocalStorage).">
+
+<style>
+  :root{
+    --bg:#050814;
+    --bg2:#020617;
+    --panel:rgba(15,23,42,.92);
+    --panel2:rgba(15,23,42,.82);
+    --text:#e9edf3;
+    --muted:#97a0ad;
+    --gold:#d4af37;
+    --gold2:#f1d070;
+    --accent:#00a36c;
+    --ring:rgba(212,175,55,.22);
+    --shadow:0 18px 60px rgba(0,0,0,.55);
+    --radius:16px;
+    --maxw:980px;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    color:var(--text);
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:
+      radial-gradient(1100px 600px at 20% -10%, rgba(0,163,108,.18), transparent 55%),
+      radial-gradient(900px 520px at 90% 10%, rgba(212,175,55,.18), transparent 60%),
+      linear-gradient(180deg, var(--bg), var(--bg2));
+  }
+
+  a{ color:inherit; }
+
+  header{
+    position:sticky; top:0; z-index:30;
+    backdrop-filter: blur(10px) saturate(140%);
+    background:linear-gradient(180deg, rgba(5,8,20,.85), rgba(5,8,20,.62));
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .topbar{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:14px 18px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px;
+    font-weight:800; letter-spacing:.2px;
+  }
+  .brand .dot{
+    width:10px; height:10px; border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 18px rgba(0,163,108,.6);
+  }
+  .top-actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+
+  .pill{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:10px 12px;
+    border-radius:999px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.12);
+    color:#fff;
+    cursor:pointer;
+    user-select:none;
+  }
+  .pill:hover{ filter:brightness(1.06); transform:translateY(-1px); }
+  .pill svg{ opacity:.9; }
+
+  .langbar{
+    display:flex; gap:8px; align-items:center;
+  }
+  .langbtn{
+    padding:9px 10px;
+    border-radius:999px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.12);
+    color:#fff;
+    cursor:pointer;
+    font-weight:700;
+  }
+  .langbtn.active{
+    border-color:rgba(212,175,55,.55);
+    box-shadow:0 0 0 3px rgba(212,175,55,.12);
+  }
+
+  main{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:22px 18px 90px;
+  }
+
+  .card{
+    background:var(--panel);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:18px;
+    margin:18px 0;
+  }
+
+  .card h1{
+    margin:0 0 8px;
+    font-size:1.25rem;
+  }
+  .sub{
+    margin:0;
+    color:var(--muted);
+    line-height:1.45;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: 1.2fr .8fr;
+    gap:16px;
+  }
+
+  @media (max-width:900px){
+    .grid{ grid-template-columns:1fr; }
+  }
+
+  /* ── Affiliate-Link „Browserleiste“ (aus deiner Referenz) ───────────────── */
+  .affbar{
+    position:fixed; top:-220px; left:0; right:0; z-index:60;
+    backdrop-filter:blur(8px) saturate(140%);
+    background:linear-gradient(180deg, rgba(3,10,8,.92), rgba(3,10,8,.86));
+    border-bottom:1px solid rgba(212,175,55,.28);
+    box-shadow:0 10px 40px rgba(0,0,0,.5), 0 0 28px rgba(0,163,108,.35);
+    transition:top .28s ease;
+  }
+  .affbar.open{ top:0; }
+  .affbar-inner{ max-width:var(--maxw); margin:0 auto; padding:16px 20px; display:grid; gap:10px; }
+  .aff-row{ display:flex; gap:10px; align-items:center; }
+  .aff-title{ display:flex; align-items:center; gap:8px; font-weight:700; color:#fff; }
+  .addr{
+    flex:1; display:flex; align-items:center; gap:10px;
+    background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.18);
+    border-radius:12px; padding:10px 12px;
+  }
+  .addr svg{ opacity:.9; }
+  .addr input{
+    flex:1; background:transparent; border:0; outline:0; color:#fff;
+    font-size:.98rem; font-family:inherit;
+  }
+  .aff-help{ color:var(--muted); font-size:.9rem; margin:0 0 2px; }
+  .aff-error{ color:#ffb4b4; font-size:.9rem; margin:0; display:none; }
+  .aff-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+  .btn-ghost{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:10px 14px; border-radius:10px; background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.18); color:#fff; cursor:pointer;
+  }
+  .btn-ghost:hover{ filter:brightness(1.06); transform:translateY(-1px); }
+
+  /* Toast */
+  .toast{
+    position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
+    background:rgba(0,0,0,.75); border:1px solid rgba(255,255,255,.18);
+    color:#fff; padding:10px 14px; border-radius:10px; font-size:.92rem; z-index:70;
+    box-shadow:0 8px 28px rgba(0,0,0,.4);
+    display:none;
+    max-width:92vw;
+  }
+  .toast.show{ display:block; }
+
+  /* Liste/Editor */
+  .row{
+    display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+  }
+
+  .field{
+    display:flex; flex-direction:column; gap:6px;
+    min-width:220px;
+    flex:1;
+  }
+  .label{
+    font-size:.85rem;
+    color:var(--muted);
+  }
+  .input, .select, .textarea{
+    width:100%;
+    border-radius:12px;
+    padding:11px 12px;
+    background:rgba(0,0,0,.32);
+    border:1px solid rgba(255,255,255,.14);
+    color:#fff;
+    outline:none;
+    font:inherit;
+  }
+  .textarea{ min-height:120px; resize:vertical; }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:11px 14px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.06);
+    color:#fff;
+    cursor:pointer;
+    user-select:none;
+  }
+  .btn:hover{ filter:brightness(1.06); transform:translateY(-1px); }
+  .btn.primary{
+    border-color:rgba(0,163,108,.35);
+    box-shadow:0 0 0 3px rgba(0,163,108,.12);
+  }
+  .btn.danger{
+    border-color:rgba(255,80,80,.35);
+    box-shadow:0 0 0 3px rgba(255,80,80,.10);
+  }
+
+  .list{
+    display:grid;
+    gap:10px;
+    margin-top:12px;
+  }
+  .item{
+    background:var(--panel2);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:14px;
+    padding:12px;
+    display:grid;
+    grid-template-columns: 1fr auto;
+    gap:10px;
+  }
+  .item .meta{
+    display:flex; flex-direction:column; gap:4px;
+    min-width:0;
+  }
+  .name{
+    font-weight:800;
+    display:flex; align-items:center; gap:8px;
+    min-width:0;
+  }
+  .url{
+    color:var(--muted);
+    font-size:.92rem;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .tags{
+    display:flex; gap:8px; flex-wrap:wrap;
+  }
+  .tag{
+    font-size:.78rem;
+    color:#fff;
+    padding:5px 9px;
+    border-radius:999px;
+    border:1px solid rgba(212,175,55,.25);
+    background:rgba(212,175,55,.10);
+  }
+  .item-actions{
+    display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+  }
+
+  .hint{
+    color:var(--muted);
+    font-size:.9rem;
+    margin:10px 0 0;
+    line-height:1.45;
+  }
+  .kbd{
+    display:inline-block;
+    padding:2px 7px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,.16);
+    background:rgba(255,255,255,.06);
+    font-size:.85rem;
+  }
+
+  /* Mobile-Optimierung (Hochkant) */
+  @media (max-width:600px){
+    main{ padding:18px 14px 90px; }
+    .card{ padding:16px; margin-bottom:18px; }
+    .affbar-inner{ padding:14px 14px; }
+    .item{ grid-template-columns:1fr; }
+    .item-actions{ justify-content:flex-start; }
+  }
+</style>
+</head>
+
+<body>
+
+<!-- Affiliate Quickbar -->
+<div class="affbar" id="affbar" aria-hidden="true">
+  <div class="affbar-inner">
+    <div class="aff-row">
+      <div class="aff-title">
+        <!-- Inline SVG: Link -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M10.5 13.5a4 4 0 0 1 0-5.657l1.343-1.343a4 4 0 1 1 5.657 5.657l-1.343 1.343" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M13.5 10.5a4 4 0 0 1 0 5.657l-1.343 1.343a4 4 0 1 1-5.657-5.657l1.343-1.343" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span data-i18n="affbar_title">Affiliate-Schnellzugriff</span>
+      </div>
+
+      <select class="select" id="quickSelect" style="max-width:340px;">
+        <!-- options via JS -->
+      </select>
+
+      <div class="addr" title="URL">
+        <!-- Inline SVG: Globe -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z" stroke="currentColor" stroke-width="2"/>
+          <path d="M2 12h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 2c3 3 4.5 6.5 4.5 10S15 19 12 22c-3-3-4.5-6.5-4.5-10S9 5 12 2Z" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <input id="quickUrl" type="text" value="" spellcheck="false" />
+      </div>
+
+      <div class="aff-actions">
+        <button class="btn-ghost" id="btnCopyQuick" type="button">
+          <!-- Copy -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 9h10v12H9V9Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="copy">Kopieren</span>
+        </button>
+
+        <button class="btn-ghost" id="btnOpenQuick" type="button">
+          <!-- External -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M14 3h7v7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M10 14 21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M21 14v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="open">Öffnen</span>
+        </button>
+
+        <button class="btn-ghost" id="btnCloseAffbar" type="button">
+          <!-- Chevron up -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="m6 15 6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span data-i18n="hide">Ausblenden</span>
+        </button>
+      </div>
+    </div>
+
+    <p class="aff-help" data-i18n="affbar_help">Tipp: <span class="kbd">Alt</span> + <span class="kbd">A</span> öffnet/schließt die Leiste. Deine Links bleiben nur in diesem Browser (LocalStorage).</p>
+    <p class="aff-error" id="affError" data-i18n="affbar_error">Ungültige URL – bitte prüfen.</p>
+  </div>
+</div>
+
+<header>
+  <div class="topbar">
+    <div class="brand">
+      <span class="dot" aria-hidden="true"></span>
+      <span data-i18n="page_title">Affiliate Magazin</span>
+    </div>
+
+    <div class="top-actions">
+      <button class="pill" id="btnToggleAffbar" type="button">
+        <!-- Link icon -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M10.5 13.5a4 4 0 0 1 0-5.657l1.343-1.343a4 4 0 1 1 5.657 5.657l-1.343 1.343" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M13.5 10.5a4 4 0 0 1 0 5.657l-1.343 1.343a4 4 0 1 1-5.657-5.657l1.343-1.343" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span data-i18n="quickbar_toggle">Schnellzugriff</span>
+      </button>
+
+      <div class="langbar" aria-label="language">
+        <button class="langbtn" id="langDE" type="button">DE</button>
+        <button class="langbtn" id="langEN" type="button">EN</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <h1 data-i18n="headline">Deine Affiliate-Links – lokal gespeichert, sofort griffbereit</h1>
+    <p class="sub" data-i18n="intro">
+      Hier pflegst du mehrere Affiliate-Links in einer Liste. Oben öffnest du die Schnellleiste zum Kopieren/Öffnen während Gesprächen.
+      Alles wird im LocalStorage gespeichert (keine Server, keine externen Tools).
+    </p>
+    <p class="hint" data-i18n="intro_hint">
+      Shortcut: <span class="kbd">Alt</span> + <span class="kbd">A</span> (Leiste), <span class="kbd">Alt</span> + <span class="kbd">N</span> (Neuer Eintrag).
+    </p>
+  </section>
+
+  <section class="card grid">
+    <!-- Editor -->
+    <div>
+      <div class="row">
+        <div class="field">
+          <div class="label" data-i18n="lbl_name">Name / Label</div>
+          <input class="input" id="fName" type="text" placeholder="z.B. Trustyfy – Registrierung" />
+        </div>
+
+        <div class="field">
+          <div class="label" data-i18n="lbl_tag">Kategorie (optional)</div>
+          <input class="input" id="fTag" type="text" placeholder="z.B. Wallet, Bank, Exchange" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <div class="field" style="flex:1 1 520px;">
+          <div class="label" data-i18n="lbl_url">Affiliate-URL</div>
+          <input class="input" id="fUrl" type="text" placeholder="https://..." spellcheck="false" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <button class="btn primary" id="btnAdd" type="button">
+          <!-- Plus -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="add">Hinzufügen</span>
+        </button>
+
+        <button class="btn" id="btnUpdate" type="button" disabled>
+          <!-- Edit -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 20h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+          <span data-i18n="save_changes">Änderungen speichern</span>
+        </button>
+
+        <button class="btn danger" id="btnCancelEdit" type="button" disabled>
+          <!-- X -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="cancel">Abbrechen</span>
+        </button>
+      </div>
+
+      <p class="hint" id="editHint" style="margin-top:10px;" data-i18n="editor_hint">
+        Du kannst jeden Eintrag später bearbeiten. Klick dazu in der Liste auf „Bearbeiten“.
+      </p>
+      <p class="hint" id="urlHint" style="display:none; color:#ffb4b4; margin-top:8px;" data-i18n="url_invalid">
+        Ungültige URL – bitte mit http/https beginnen.
+      </p>
+    </div>
+
+    <!-- Tools -->
+    <div>
+      <div class="row">
+        <div class="field" style="min-width:260px;">
+          <div class="label" data-i18n="lbl_search">Suche / Filter</div>
+          <div class="addr" style="margin:0;">
+            <!-- Search -->
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <input id="search" type="text" placeholder="..." />
+          </div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <button class="btn" id="btnExport" type="button">
+          <!-- Download-ish -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="m7 10 5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="export">Export JSON</span>
+        </button>
+
+        <button class="btn" id="btnImport" type="button">
+          <!-- Upload-ish -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 21V9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="m7 14 5-5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 3h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="import">Import JSON</span>
+        </button>
+
+        <button class="btn danger" id="btnReset" type="button">
+          <!-- Trash -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3 6h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M19 6l-1 15a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="reset">Alles löschen</span>
+        </button>
+      </div>
+
+      <p class="hint" data-i18n="tools_hint">
+        Export/Import ist für Backup oder wenn du das Magazin auf ein anderes Gerät übertragen willst.
+      </p>
+
+      <div id="importBox" style="display:none; margin-top:12px;">
+        <div class="label" data-i18n="paste_json">JSON hier einfügen:</div>
+        <textarea class="textarea" id="importText" placeholder='[{"id":"...","name":"...","url":"..."}]'></textarea>
+        <div class="row" style="margin-top:10px;">
+          <button class="btn primary" id="btnApplyImport" type="button">
+            <span data-i18n="apply_import">Import anwenden</span>
+          </button>
+          <button class="btn danger" id="btnCloseImport" type="button">
+            <span data-i18n="close">Schließen</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="row" style="justify-content:space-between;">
+      <div>
+        <div class="label" data-i18n="list_title">Gespeicherte Links</div>
+        <div class="hint"><span data-i18n="count">Anzahl:</span> <span id="count">0</span></div>
+      </div>
+      <button class="btn" id="btnNew" type="button">
+        <!-- Plus -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span data-i18n="new_entry">Neuer Eintrag</span>
+      </button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+    <p class="hint" style="margin-top:14px;" data-i18n="privacy_note">
+      Hinweis: LocalStorage ist browsergebunden. Wenn du Browserdaten löschst, sind die Links weg – nutze Export als Backup.
+    </p>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   Affiliate Magazin – LocalStorage (DE/EN) – Baustein 1
+   Keine externen Ressourcen. Alles lokal im Browser.
+========================================================= */
+
+(function(){
+  const LS_KEY = "fsa_aff_mag_v1";
+  const LS_LANG = "fsa_aff_lang_v1";
+
+  const $ = (id)=>document.getElementById(id);
+
+  const affbar = $("affbar");
+  const btnToggleAffbar = $("btnToggleAffbar");
+  const btnCloseAffbar = $("btnCloseAffbar");
+  const quickSelect = $("quickSelect");
+  const quickUrl = $("quickUrl");
+  const affError = $("affError");
+
+  const fName = $("fName");
+  const fTag  = $("fTag");
+  const fUrl  = $("fUrl");
+
+  const btnAdd = $("btnAdd");
+  const btnUpdate = $("btnUpdate");
+  const btnCancelEdit = $("btnCancelEdit");
+  const urlHint = $("urlHint");
+
+  const listEl = $("list");
+  const countEl = $("count");
+  const search = $("search");
+
+  const btnCopyQuick = $("btnCopyQuick");
+  const btnOpenQuick = $("btnOpenQuick");
+
+  const btnExport = $("btnExport");
+  const btnImport = $("btnImport");
+  const btnReset  = $("btnReset");
+  const importBox = $("importBox");
+  const importText = $("importText");
+  const btnApplyImport = $("btnApplyImport");
+  const btnCloseImport = $("btnCloseImport");
+
+  const btnNew = $("btnNew");
+  const toast = $("toast");
+
+  const langDE = $("langDE");
+  const langEN = $("langEN");
+
+  let state = {
+    items: [],
+    editId: null,
+    lang: "de"
+  };
+
+  // ---------- i18n ----------
+  const I18N = {
+    de: {
+      page_title:"Affiliate Magazin",
+      quickbar_toggle:"Schnellzugriff",
+      affbar_title:"Affiliate-Schnellzugriff",
+      affbar_help:"Tipp: Alt + A öffnet/schließt die Leiste. Deine Links bleiben nur in diesem Browser (LocalStorage).",
+      affbar_error:"Ungültige URL – bitte prüfen.",
+      copy:"Kopieren",
+      open:"Öffnen",
+      hide:"Ausblenden",
+
+      headline:"Deine Affiliate-Links – lokal gespeichert, sofort griffbereit",
+      intro:"Hier pflegst du mehrere Affiliate-Links in einer Liste. Oben öffnest du die Schnellleiste zum Kopieren/Öffnen während Gesprächen. Alles wird im LocalStorage gespeichert (keine Server, keine externen Tools).",
+      intro_hint:"Shortcut: Alt + A (Leiste), Alt + N (Neuer Eintrag).",
+
+      lbl_name:"Name / Label",
+      lbl_tag:"Kategorie (optional)",
+      lbl_url:"Affiliate-URL",
+      add:"Hinzufügen",
+      save_changes:"Änderungen speichern",
+      cancel:"Abbrechen",
+      editor_hint:"Du kannst jeden Eintrag später bearbeiten. Klick dazu in der Liste auf „Bearbeiten“.",
+      url_invalid:"Ungültige URL – bitte mit http/https beginnen.",
+
+      lbl_search:"Suche / Filter",
+      export:"Export JSON",
+      import:"Import JSON",
+      reset:"Alles löschen",
+      tools_hint:"Export/Import ist für Backup oder wenn du das Magazin auf ein anderes Gerät übertragen willst.",
+      paste_json:"JSON hier einfügen:",
+      apply_import:"Import anwenden",
+      close:"Schließen",
+
+      list_title:"Gespeicherte Links",
+      count:"Anzahl:",
+      new_entry:"Neuer Eintrag",
+      privacy_note:"Hinweis: LocalStorage ist browsergebunden. Wenn du Browserdaten löschst, sind die Links weg – nutze Export als Backup.",
+
+      select_placeholder:"– Link wählen –",
+      empty_list:"Noch keine Einträge. Füge oben deinen ersten Affiliate-Link hinzu.",
+      btn_edit:"Bearbeiten",
+      btn_delete:"Löschen",
+      btn_copy:"Kopieren",
+      btn_open:"Öffnen",
+
+      toast_copied:"Link kopiert.",
+      toast_saved:"Gespeichert.",
+      toast_deleted:"Gelöscht.",
+      toast_invalid_url:"Bitte eine gültige URL eingeben (http/https).",
+      toast_import_ok:"Import erfolgreich.",
+      toast_import_fail:"Import fehlgeschlagen (JSON prüfen).",
+      toast_reset_ok:"Alles gelöscht."
+    },
+    en: {
+      page_title:"Affiliate Magazine",
+      quickbar_toggle:"Quick Access",
+      affbar_title:"Affiliate Quick Access",
+      affbar_help:"Tip: Alt + A toggles the bar. Your links stay only in this browser (LocalStorage).",
+      affbar_error:"Invalid URL – please check.",
+      copy:"Copy",
+      open:"Open",
+      hide:"Hide",
+
+      headline:"Your affiliate links – stored locally, instantly accessible",
+      intro:"Maintain multiple affiliate links in a list. Open the quick bar on top to copy/open during conversations. Everything is stored in LocalStorage (no servers, no external tools).",
+      intro_hint:"Shortcuts: Alt + A (bar), Alt + N (new entry).",
+
+      lbl_name:"Name / Label",
+      lbl_tag:"Category (optional)",
+      lbl_url:"Affiliate URL",
+      add:"Add",
+      save_changes:"Save changes",
+      cancel:"Cancel",
+      editor_hint:"You can edit any entry later. Click “Edit” in the list.",
+      url_invalid:"Invalid URL – must start with http/https.",
+
+      lbl_search:"Search / Filter",
+      export:"Export JSON",
+      import:"Import JSON",
+      reset:"Delete all",
+      tools_hint:"Export/Import is for backup or transferring the magazine to another device.",
+      paste_json:"Paste JSON here:",
+      apply_import:"Apply import",
+      close:"Close",
+
+      list_title:"Saved links",
+      count:"Count:",
+      new_entry:"New entry",
+      privacy_note:"Note: LocalStorage is browser-based. If you clear browser data, links are gone — use Export as backup.",
+
+      select_placeholder:"– Select link –",
+      empty_list:"No entries yet. Add your first affiliate link above.",
+      btn_edit:"Edit",
+      btn_delete:"Delete",
+      btn_copy:"Copy",
+      btn_open:"Open",
+
+      toast_copied:"Link copied.",
+      toast_saved:"Saved.",
+      toast_deleted:"Deleted.",
+      toast_invalid_url:"Please enter a valid URL (http/https).",
+      toast_import_ok:"Import successful.",
+      toast_import_fail:"Import failed (check JSON).",
+      toast_reset_ok:"Everything deleted."
+    }
+  };
+
+  function applyI18n(){
+    document.documentElement.lang = state.lang;
+    langDE.classList.toggle("active", state.lang==="de");
+    langEN.classList.toggle("active", state.lang==="en");
+
+    document.querySelectorAll("[data-i18n]").forEach(el=>{
+      const key = el.getAttribute("data-i18n");
+      if(I18N[state.lang] && I18N[state.lang][key]){
+        el.innerHTML = I18N[state.lang][key];
+      }
+    });
+
+    // placeholders
+    fName.placeholder = state.lang==="de" ? "z.B. Trustyfy – Registrierung" : "e.g. Trustyfy – Registration";
+    fTag.placeholder  = state.lang==="de" ? "z.B. Wallet, Bank, Exchange" : "e.g. Wallet, Bank, Exchange";
+    fUrl.placeholder  = "https://...";
+    search.placeholder = state.lang==="de" ? "Name, Kategorie oder URL…" : "Name, category or URL…";
+
+    rebuildQuickSelect();
+    renderList();
+  }
+
+  function setLang(lang){
+    state.lang = lang;
+    localStorage.setItem(LS_LANG, lang);
+    applyI18n();
+  }
+
+  // ---------- Storage ----------
+  function load(){
+    try{
+      const raw = localStorage.getItem(LS_KEY);
+      state.items = raw ? JSON.parse(raw) : [];
+      if(!Array.isArray(state.items)) state.items = [];
+    }catch(e){
+      state.items = [];
+    }
+    const l = localStorage.getItem(LS_LANG);
+    state.lang = (l==="en" || l==="de") ? l : "de";
+  }
+
+  function save(){
+    localStorage.setItem(LS_KEY, JSON.stringify(state.items));
+  }
+
+  // ---------- Helpers ----------
+  function toastShow(msg){
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=>toast.classList.remove("show"), 1600);
+  }
+
+  function isValidUrl(u){
+    if(!u) return false;
+    const s = String(u).trim();
+    if(!/^https?:\/\//i.test(s)) return false;
+    try{ new URL(s); return true; }catch(e){ return false; }
+  }
+
+  function openAffbar(open){
+    const want = (typeof open==="boolean") ? open : !affbar.classList.contains("open");
+    affbar.classList.toggle("open", want);
+    affbar.setAttribute("aria-hidden", want ? "false" : "true");
+  }
+
+  function clearEditor(){
+    fName.value = "";
+    fTag.value = "";
+    fUrl.value = "";
+    state.editId = null;
+
+    btnAdd.disabled = false;
+    btnUpdate.disabled = true;
+    btnCancelEdit.disabled = true;
+    urlHint.style.display = "none";
+  }
+
+  function startEdit(id){
+    const it = state.items.find(x=>x.id===id);
+    if(!it) return;
+    state.editId = id;
+    fName.value = it.name || "";
+    fTag.value = it.tag || "";
+    fUrl.value = it.url || "";
+
+    btnAdd.disabled = true;
+    btnUpdate.disabled = false;
+    btnCancelEdit.disabled = false;
+    urlHint.style.display = "none";
+
+    fName.focus();
+  }
+
+  function upsertItem(mode){
+    const name = fName.value.trim();
+    const tag  = fTag.value.trim();
+    const url  = fUrl.value.trim();
+
+    if(!isValidUrl(url)){
+      urlHint.style.display = "block";
+      toastShow(I18N[state.lang].toast_invalid_url);
+      return;
+    }
+    urlHint.style.display = "none";
+
+    if(mode==="add"){
+      const id = "aff_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,6);
+      state.items.unshift({ id, name: name || url, tag, url, createdAt: Date.now() });
+      save();
+      toastShow(I18N[state.lang].toast_saved);
+      clearEditor();
+      rebuildQuickSelect();
+      renderList();
+      return;
+    }
+
+    if(mode==="update" && state.editId){
+      const idx = state.items.findIndex(x=>x.id===state.editId);
+      if(idx>-1){
+        state.items[idx] = { ...state.items[idx], name: name || url, tag, url, updatedAt: Date.now() };
+        save();
+        toastShow(I18N[state.lang].toast_saved);
+        clearEditor();
+        rebuildQuickSelect();
+        renderList();
+      }
+    }
+  }
+
+  function removeItem(id){
+    state.items = state.items.filter(x=>x.id!==id);
+    save();
+    toastShow(I18N[state.lang].toast_deleted);
+    rebuildQuickSelect();
+    renderList();
+  }
+
+  function filteredItems(){
+    const q = (search.value || "").trim().toLowerCase();
+    if(!q) return state.items;
+    return state.items.filter(it=>{
+      return (
+        (it.name||"").toLowerCase().includes(q) ||
+        (it.tag||"").toLowerCase().includes(q) ||
+        (it.url||"").toLowerCase().includes(q)
+      );
+    });
+  }
+
+  // ---------- UI render ----------
+  function rebuildQuickSelect(){
+    const items = state.items.slice();
+    quickSelect.innerHTML = "";
+
+    const opt0 = document.createElement("option");
+    opt0.value = "";
+    opt0.textContent = I18N[state.lang].select_placeholder;
+    quickSelect.appendChild(opt0);
+
+    items.forEach(it=>{
+      const o = document.createElement("option");
+      o.value = it.id;
+      o.textContent = (it.name || it.url || "").slice(0, 70);
+      quickSelect.appendChild(o);
+    });
+
+    // Keep selected if possible
+    const currentId = quickSelect.dataset.selectedId || "";
+    if(currentId && items.some(x=>x.id===currentId)){
+      quickSelect.value = currentId;
+      const it = items.find(x=>x.id===currentId);
+      quickUrl.value = it ? it.url : "";
+    }else{
+      quickSelect.value = "";
+      quickUrl.value = "";
+    }
+  }
+
+  function renderList(){
+    const items = filteredItems();
+    countEl.textContent = String(items.length);
+
+    listEl.innerHTML = "";
+
+    if(items.length===0){
+      const empty = document.createElement("div");
+      empty.className = "hint";
+      empty.textContent = I18N[state.lang].empty_list;
+      listEl.appendChild(empty);
+      return;
+    }
+
+    items.forEach(it=>{
+      const row = document.createElement("div");
+      row.className = "item";
+
+      const left = document.createElement("div");
+      left.className = "meta";
+
+      const nm = document.createElement("div");
+      nm.className = "name";
+      nm.innerHTML = `
+        <span style="display:inline-flex;align-items:center;gap:8px;min-width:0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="opacity:.9;flex:0 0 auto;">
+            <path d="M10.5 13.5a4 4 0 0 1 0-5.657l1.343-1.343a4 4 0 1 1 5.657 5.657l-1.343 1.343" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M13.5 10.5a4 4 0 0 1 0 5.657l-1.343 1.343a4 4 0 1 1-5.657-5.657l1.343-1.343" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">${escapeHtml(it.name || it.url || "")}</span>
+        </span>
+      `;
+
+      const url = document.createElement("div");
+      url.className = "url";
+      url.textContent = it.url || "";
+
+      left.appendChild(nm);
+      left.appendChild(url);
+
+      if(it.tag){
+        const tags = document.createElement("div");
+        tags.className = "tags";
+        const t = document.createElement("span");
+        t.className = "tag";
+        t.textContent = it.tag;
+        tags.appendChild(t);
+        left.appendChild(tags);
+      }
+
+      const actions = document.createElement("div");
+      actions.className = "item-actions";
+
+      const bCopy = document.createElement("button");
+      bCopy.className = "btn";
+      bCopy.type = "button";
+      bCopy.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M9 9h10v12H9V9Z" stroke="currentColor" stroke-width="2"/>
+          <path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>${I18N[state.lang].btn_copy}</span>
+      `;
+      bCopy.addEventListener("click", ()=>copyToClipboard(it.url));
+
+      const bOpen = document.createElement("button");
+      bOpen.className = "btn";
+      bOpen.type = "button";
+      bOpen.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M14 3h7v7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M10 14 21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M21 14v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>${I18N[state.lang].btn_open}</span>
+      `;
+      bOpen.addEventListener("click", ()=>{
+        if(isValidUrl(it.url)) window.open(it.url, "_blank", "noopener,noreferrer");
+        else toastShow(I18N[state.lang].toast_invalid_url);
+      });
+
+      const bEdit = document.createElement("button");
+      bEdit.className = "btn primary";
+      bEdit.type = "button";
+      bEdit.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 20h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <span>${I18N[state.lang].btn_edit}</span>
+      `;
+      bEdit.addEventListener("click", ()=>startEdit(it.id));
+
+      const bDel = document.createElement("button");
+      bDel.className = "btn danger";
+      bDel.type = "button";
+      bDel.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3 6h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M19 6l-1 15a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>${I18N[state.lang].btn_delete}</span>
+      `;
+      bDel.addEventListener("click", ()=>{
+        // bewusst simpel: keine extra Modal-UI im Baustein 1
+        if(confirm(state.lang==="de" ? "Diesen Eintrag löschen?" : "Delete this entry?")){
+          removeItem(it.id);
+        }
+      });
+
+      actions.appendChild(bCopy);
+      actions.appendChild(bOpen);
+      actions.appendChild(bEdit);
+      actions.appendChild(bDel);
+
+      row.appendChild(left);
+      row.appendChild(actions);
+      listEl.appendChild(row);
+    });
+  }
+
+  function escapeHtml(s){
+    return String(s||"")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  async function copyToClipboard(text){
+    const t = String(text||"").trim();
+    if(!isValidUrl(t)){
+      toastShow(I18N[state.lang].toast_invalid_url);
+      return;
+    }
+    try{
+      await navigator.clipboard.writeText(t);
+      toastShow(I18N[state.lang].toast_copied);
+    }catch(e){
+      // Fallback
+      const tmp = document.createElement("textarea");
+      tmp.value = t;
+      tmp.style.position = "fixed";
+      tmp.style.left = "-9999px";
+      document.body.appendChild(tmp);
+      tmp.select();
+      document.execCommand("copy");
+      document.body.removeChild(tmp);
+      toastShow(I18N[state.lang].toast_copied);
+    }
+  }
+
+  // ---------- Events ----------
+  btnToggleAffbar.addEventListener("click", ()=>openAffbar());
+  btnCloseAffbar.addEventListener("click", ()=>openAffbar(false));
+
+  quickSelect.addEventListener("change", ()=>{
+    const id = quickSelect.value;
+    quickSelect.dataset.selectedId = id;
+    const it = state.items.find(x=>x.id===id);
+    quickUrl.value = it ? it.url : "";
+    affError.style.display = "none";
+  });
+
+  quickUrl.addEventListener("input", ()=>{
+    // manual paste: validate on action
+    affError.style.display = "none";
+  });
+
+  btnCopyQuick.addEventListener("click", ()=>{
+    const u = quickUrl.value.trim();
+    if(!isValidUrl(u)){
+      affError.style.display = "block";
+      toastShow(I18N[state.lang].toast_invalid_url);
+      return;
+    }
+    affError.style.display = "none";
+    copyToClipboard(u);
+  });
+
+  btnOpenQuick.addEventListener("click", ()=>{
+    const u = quickUrl.value.trim();
+    if(!isValidUrl(u)){
+      affError.style.display = "block";
+      toastShow(I18N[state.lang].toast_invalid_url);
+      return;
+    }
+    affError.style.display = "none";
+    window.open(u, "_blank", "noopener,noreferrer");
+  });
+
+  btnAdd.addEventListener("click", ()=>upsertItem("add"));
+  btnUpdate.addEventListener("click", ()=>upsertItem("update"));
+  btnCancelEdit.addEventListener("click", ()=>clearEditor());
+
+  btnNew.addEventListener("click", ()=>{
+    clearEditor();
+    fName.focus();
+  });
+
+  search.addEventListener("input", ()=>renderList());
+
+  btnExport.addEventListener("click", async ()=>{
+    const data = JSON.stringify(state.items, null, 2);
+    await copyToClipboard("https://example.invalid"); // dummy to keep permission warm? nein.
+    // Wir kopieren Export als Text in Clipboard (ohne Download)
+    try{
+      await navigator.clipboard.writeText(data);
+      toastShow((state.lang==="de") ? "Export in Zwischenablage kopiert." : "Export copied to clipboard.");
+    }catch(e){
+      importBox.style.display = "block";
+      importText.value = data;
+      toastShow((state.lang==="de") ? "Export im Feld angezeigt." : "Export shown in the field.");
+    }
+  });
+
+  btnImport.addEventListener("click", ()=>{
+    importBox.style.display = (importBox.style.display==="none") ? "block" : "none";
+    if(importBox.style.display==="block") importText.focus();
+  });
+
+  btnCloseImport.addEventListener("click", ()=>{
+    importBox.style.display = "none";
+  });
+
+  btnApplyImport.addEventListener("click", ()=>{
+    try{
+      const raw = importText.value.trim();
+      const parsed = JSON.parse(raw);
+      if(!Array.isArray(parsed)) throw new Error("not array");
+      // minimal sanitize
+      const cleaned = parsed
+        .filter(x=>x && typeof x === "object")
+        .map(x=>({
+          id: x.id || ("aff_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,6)),
+          name: String(x.name || x.url || "").slice(0,120),
+          tag: String(x.tag || "").slice(0,60),
+          url: String(x.url || "").trim(),
+          createdAt: x.createdAt || Date.now()
+        }))
+        .filter(x=>isValidUrl(x.url));
+
+      state.items = cleaned;
+      save();
+      toastShow(I18N[state.lang].toast_import_ok);
+      importBox.style.display = "none";
+      rebuildQuickSelect();
+      renderList();
+      clearEditor();
+    }catch(e){
+      toastShow(I18N[state.lang].toast_import_fail);
+    }
+  });
+
+  btnReset.addEventListener("click", ()=>{
+    if(confirm(state.lang==="de" ? "Wirklich ALLES löschen?" : "Delete EVERYTHING?")){
+      state.items = [];
+      save();
+      toastShow(I18N[state.lang].toast_reset_ok);
+      rebuildQuickSelect();
+      renderList();
+      clearEditor();
+    }
+  });
+
+  // Language
+  langDE.addEventListener("click", ()=>setLang("de"));
+  langEN.addEventListener("click", ()=>setLang("en"));
+
+  // Hotkeys
+  document.addEventListener("keydown", (e)=>{
+    if(e.altKey && (e.key==="a" || e.key==="A")){
+      e.preventDefault();
+      openAffbar();
+    }
+    if(e.altKey && (e.key==="n" || e.key==="N")){
+      e.preventDefault();
+      clearEditor();
+      fName.focus();
+    }
+    if(e.key==="Escape"){
+      openAffbar(false);
+    }
+  });
+
+  // Init
+  load();
+
+  // If empty, seed with 2 demo entries (nur beim allerersten Start)
+  if(state.items.length===0 && !localStorage.getItem(LS_KEY)){
+    state.items = [
+      { id:"aff_demo_1", name:"Trustyfy – Registrierung", tag:"Bank/Wallet", url:"https://example.com/?ref=DEMO", createdAt: Date.now() },
+      { id:"aff_demo_2", name:"Timecells – Info", tag:"Projekt", url:"https://example.com/timecells", createdAt: Date.now() }
+    ];
+    save();
+  }
+
+  applyI18n();
+  rebuildQuickSelect();
+  renderList();
+  clearEditor();
+})();
+</script>
+
+</body>
+</html>
