@@ -573,6 +573,7 @@
     │   ├── trustyfy/
     │   │   └── fast-track.html
     │   ├── admin-config.json
+    │   ├── affiliate-magazin.html
     │   ├── community.html
     │   ├── mentoren.html
     │   ├── office-network.html
@@ -620,4 +621,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.12.2025, 08:19)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.12.2025, 09:14)_
