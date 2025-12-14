@@ -1,0 +1,111 @@
+name: Trendreport Backfill (Range)
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_year:
+        description: "Start year (YYYY)"
+        required: true
+        default: "2024"
+      end_year:
+        description: "End year (YYYY)"
+        required: true
+        default: "2025"
+      end_month:
+        description: "Optional: limit END year to this month (01-12). Empty = auto (current year -> previous month, past years -> 12)"
+        required: false
+        default: ""
+      mode:
+        description: "missing = generate only missing months, overwrite = regenerate all months"
+        required: true
+        default: "missing"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests feedparser
+
+      - name: Backfill range
+        env:
+          START_YEAR: ${{ github.event.inputs.start_year }}
+          END_YEAR: ${{ github.event.inputs.end_year }}
+          END_MONTH: ${{ github.event.inputs.end_month }}
+          MODE: ${{ github.event.inputs.mode }}
+        run: |
+          set -e
+
+          echo "Backfill START_YEAR=$START_YEAR END_YEAR=$END_YEAR END_MONTH=$END_MONTH MODE=$MODE"
+
+          CURY=$(date -u +%Y)
+          CURM=$(date -u +%m)
+
+          SY=$((10#$START_YEAR))
+          EY=$((10#$END_YEAR))
+
+          if [ "$SY" -gt "$EY" ]; then
+            echo "ERROR: start_year must be <= end_year"
+            exit 1
+          fi
+
+          for y in $(seq $SY $EY); do
+            # Determine last month for this year
+            if [ "$y" -lt "$CURY" ]; then
+              LAST=12
+            elif [ "$y" -eq "$CURY" ]; then
+              LAST=$((10#$CURM - 1))
+              if [ "$LAST" -lt 1 ]; then LAST=1; fi
+            else
+              # future year (shouldn't happen normally) -> cap 12
+              LAST=12
+            fi
+
+            # If this is END year, allow explicit END_MONTH override
+            if [ "$y" -eq "$EY" ] && [ -n "$END_MONTH" ]; then
+              LAST=$((10#$END_MONTH))
+              if [ "$LAST" -lt 1 ]; then LAST=1; fi
+              if [ "$LAST" -gt 12 ]; then LAST=12; fi
+            fi
+
+            echo "Year $y: generating months 01..$(printf "%02d" $LAST)"
+
+            for m in $(seq -w 1 $LAST); do
+              YM="$(printf "%04d" $y)-$m"
+              OUT="pages/trend/data/${YM}.json"
+
+              if [ "$MODE" = "missing" ] && [ -f "$OUT" ]; then
+                echo "SKIP ${YM} (exists)"
+                continue
+              fi
+
+              echo "=== Generate ${YM} ==="
+              MONTH="${YM}" INPUT_MONTH="${YM}" TREND_MONTH="${YM}" FORCE_MONTH="${YM}" \
+                python tools/trendreport/trendreport.py
+            done
+          done
+
+      - name: Commit & Push (if changed)
+        run: |
+          git config user.name "fsa-trend-bot"
+          git config user.email "fsa-trend-bot@users.noreply.github.com"
+          git add pages/trend
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "Trendreport: backfill range"
+          git push
