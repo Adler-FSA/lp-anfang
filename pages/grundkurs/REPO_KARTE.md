@@ -572,6 +572,18 @@
     │   │   └── workshop.html
     │   ├── trend/
     │   │   ├── data/
+    │   │   │   ├── 2024-01.json
+    │   │   │   ├── 2024-02.json
+    │   │   │   ├── 2024-03.json
+    │   │   │   ├── 2024-04.json
+    │   │   │   ├── 2024-05.json
+    │   │   │   ├── 2024-06.json
+    │   │   │   ├── 2024-07.json
+    │   │   │   ├── 2024-08.json
+    │   │   │   ├── 2024-09.json
+    │   │   │   ├── 2024-10.json
+    │   │   │   ├── 2024-11.json
+    │   │   │   ├── 2024-12.json
     │   │   │   ├── 2025-01.json
     │   │   │   ├── 2025-02.json
     │   │   │   ├── 2025-03.json
@@ -583,6 +595,20 @@
     │   │   │   ├── 2025-09.json
     │   │   │   ├── 2025-10.json
     │   │   │   └── 2025-11.json
+    │   │   ├── 2024-01.html
+    │   │   ├── 2024-02.html
+    │   │   ├── 2024-03.html
+    │   │   ├── 2024-04.html
+    │   │   ├── 2024-05.html
+    │   │   ├── 2024-06.html
+    │   │   ├── 2024-07.html
+    │   │   ├── 2024-08.html
+    │   │   ├── 2024-09.html
+    │   │   ├── 2024-10.html
+    │   │   ├── 2024-11.html
+    │   │   ├── 2024-12.html
+    │   │   ├── 2024-rundflug.html
+    │   │   ├── 2024.html
     │   │   ├── 2025-01.html
     │   │   ├── 2025-02.html
     │   │   ├── 2025-03.html
@@ -653,4 +679,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.12.2025, 13:23)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.12.2025, 14:14)_
