@@ -2,9 +2,15 @@ name: Trendreport Monthly
 
 on:
   workflow_dispatch:
+    inputs:
+      month:
+        description: "Optional: force month YYYY-MM (otherwise previous month)"
+        required: false
+        default: ""
   schedule:
     # GitHub cron = UTC. 05:10 UTC ≈ 06:10 Europe/Berlin (Winterzeit).
-    - cron: "10 5 1 * *"
+    # Run on day 2 -> previous month is complete.
+    - cron: "10 5 2 * *"
 
 permissions:
   contents: write
@@ -26,7 +32,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests feedparser
 
-      - name: Generate monthly trendreport
+      - name: Generate trendreport
+        env:
+          TREND_MONTH: ${{ github.event.inputs.month }}
         run: |
           python tools/trendreport/trendreport.py
 
@@ -38,6 +46,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "Trendreport: generate monthly report"
+            git commit -m "Trendreport: generate monthly report + year trend flight"
             git push
           fi
