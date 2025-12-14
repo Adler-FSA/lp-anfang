@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-FSA Trendreport Generator (Monatlich)
+FSA Trendreport Generator (Monatlich + Jahresrundflug)
 - Liest RSS/Atom Quellen
 - Aggregiert Themen-Häufigkeit + simples Sentiment (Lexikon-basiert)
 - Schreibt:
@@ -10,35 +10,42 @@ FSA Trendreport Generator (Monatlich)
   pages/trend/data/YYYY-MM.json
   pages/trend/index.html
   pages/trend/YYYY.html (Jahresübersicht)
+  pages/trend/YYYY-rundflug.html (Jahresabschluss / Trend-Rundflug)
+
 Ohne externe CSS/JS, ohne Icons, nur Inline-SVG.
 """
 
 from __future__ import annotations
 import os, re, json, glob
-from datetime import datetime, timedelta, timezone
-from collections import Counter, defaultdict
+from datetime import datetime, timezone
+from collections import Counter
 
 import requests
 import feedparser
 
 TZ_UTC = timezone.utc
 
+
 def _safe_mkdir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
+
 
 def _read_json(path: str) -> dict:
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
+
 
 def _write_text(path: str, text: str) -> None:
     _safe_mkdir(os.path.dirname(path))
     with open(path, "w", encoding="utf-8") as f:
         f.write(text)
 
+
 def _write_json(path: str, data: dict) -> None:
     _safe_mkdir(os.path.dirname(path))
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+
 
 def _norm(s: str) -> str:
     s = s or ""
@@ -46,11 +53,12 @@ def _norm(s: str) -> str:
     s = re.sub(r"\s+", " ", s)
     return s
 
+
 def _tokens(s: str) -> list[str]:
     s = _norm(s)
-    # keep umlauts, ß; split on non-letter/digit
     parts = re.split(r"[^a-z0-9äöüß]+", s, flags=re.IGNORECASE)
     return [p for p in parts if p]
+
 
 def _sentiment_score(tokens: list[str], lex: dict) -> int:
     pos = set(lex.get("positive", []))
@@ -63,15 +71,15 @@ def _sentiment_score(tokens: list[str], lex: dict) -> int:
             score -= 1
     return score
 
+
 def _fetch_feed(url: str, timeout=20) -> feedparser.FeedParserDict:
-    # Some feeds block default UA; set simple UA
     headers = {"User-Agent": "FSA-Trendreport/1.0 (GitHub Actions)"}
     r = requests.get(url, headers=headers, timeout=timeout)
     r.raise_for_status()
     return feedparser.parse(r.content)
 
+
 def _entry_datetime(entry) -> datetime | None:
-    # Try multiple fields
     for key in ("published_parsed", "updated_parsed"):
         t = getattr(entry, key, None)
         if t:
@@ -81,8 +89,6 @@ def _entry_datetime(entry) -> datetime | None:
                 pass
     return None
 
-def _pick_month(now_utc: datetime) -> tuple[int, int]:
-    return now_utc.year, now_utc.month
 
 def _month_range(year: int, month: int) -> tuple[datetime, datetime]:
     start = datetime(year, month, 1, tzinfo=TZ_UTC)
@@ -92,12 +98,12 @@ def _month_range(year: int, month: int) -> tuple[datetime, datetime]:
         end = datetime(year, month + 1, 1, tzinfo=TZ_UTC)
     return start, end
 
+
 def _clamp(v: float, a: float, b: float) -> float:
     return max(a, min(b, v))
 
+
 def _narrative_from_topics(topic_counts: dict[str, int]) -> list[str]:
-    # rule-based narrative bullets (DE) -> later i18n renders EN too
-    # Decide top 3 topics
     sorted_topics = sorted(topic_counts.items(), key=lambda x: x[1], reverse=True)
     top = [k for k, v in sorted_topics if v > 0][:3]
     bullets = []
@@ -119,13 +125,48 @@ def _narrative_from_topics(topic_counts: dict[str, int]) -> list[str]:
         bullets.append("Kein dominantes Einzelthema – Tonlage verteilt sich auf mehrere Reizfelder.")
     return bullets[:5]
 
+
+def _translate_narrative_de_to_en(lines_de: list[str]) -> list[str]:
+    out = []
+    for line in lines_de:
+        en = line
+        en = en.replace(
+            "Leistbarkeit & Abstiegsangst dominieren (Miete, Nebenkosten, Preise, Abgaben).",
+            "Affordability & downward-mobility fears dominate (rent, utilities, prices, charges)."
+        )
+        en = en.replace(
+            "Steuern/Abgaben werden als direkter Druckpunkt wahrgenommen (Grundsteuer, Beiträge, Gebühren).",
+            "Taxes/charges are perceived as a direct pressure point (property tax, contributions, fees)."
+        )
+        en = en.replace(
+            "Migration wird häufig als Überlastungs- und Gerechtigkeitsthema diskutiert (Kommunen, Wohnraum, Ordnung).",
+            "Migration is often framed as overload & fairness issue (municipalities, housing, order)."
+        )
+        en = en.replace(
+            "Energie/Heizen erzeugt Unmut vor allem durch Kosten, Planungsunsicherheit und wechselnde Regeln.",
+            "Energy/heating sparks frustration mainly due to costs, planning uncertainty and changing rules."
+        )
+        en = en.replace(
+            "Ukraine/Krieg polarisiert: Unterstützung vs. Friedensfokus, spürbare Müdigkeit im Ton.",
+            "Ukraine/war is polarizing: support vs. peace focus, with noticeable fatigue in tone."
+        )
+        en = en.replace(
+            "EU wird oft über konkrete Eingriffe bewertet (Regelungsdruck/Alltagseffekte), weniger über abstrakte Idee.",
+            "The EU is often judged via concrete interventions (regulatory pressure/everyday impacts), less as an abstract idea."
+        )
+        en = en.replace(
+            "Kein dominantes Einzelthema – Tonlage verteilt sich auf mehrere Reizfelder.",
+            "No single dominant topic – tone is spread across multiple trigger fields."
+        )
+        out.append(en)
+    return out
+
+
 def render_month_html(data: dict) -> str:
-    # All texts are embedded with data-i18n, plus minimal dictionary.
     year = data["year"]
     month = data["month"]
     ym = f"{year:04d}-{month:02d}"
 
-    # Inline SVG bars for topic distribution
     topics = data["topics"]
     maxv = max([t["count"] for t in topics] + [1])
     rows_svg = []
@@ -140,14 +181,11 @@ def render_month_html(data: dict) -> str:
         y += 18
 
     sentiment = data["sentiment"]
-    # sentiment normalized -2..+2 roughly
     sent_norm = _clamp(sentiment["avg"], -2.0, 2.0)
-    # map to 0..1
     sent_pos = (sent_norm + 2.0) / 4.0
     knob_x = 20 + int(360 * sent_pos)
 
     narrative_li = "\n".join([f'<li data-i18n="narr_{i}"></li>' for i, _ in enumerate(data["narrative_de"])])
-
     sources_li = "\n".join([f"<li>{s['name']} <span class='muted'>({s['category']}: {s['items']})</span></li>" for s in data["sources_used"]])
 
     return f"""<!doctype html>
@@ -159,18 +197,13 @@ def render_month_html(data: dict) -> str:
   <meta name="description" content="Monatsreport zur öffentlichen Online-Stimmung (Trendbild) – {ym}.">
   <style>
     :root{{
-      --bg:#050814;
-      --bg2:#020617;
-      --panel:rgba(15,23,42,.92);
-      --panel2:rgba(15,23,42,.82);
-      --text:#e9edf3;
-      --muted:#97a0ad;
-      --gold:#d4af37;
-      --gold2:#f1d070;
+      --bg:#050814; --bg2:#020617;
+      --panel:rgba(15,23,42,.92); --panel2:rgba(15,23,42,.82);
+      --text:#e9edf3; --muted:#97a0ad;
+      --gold:#d4af37; --gold2:#f1d070;
       --ring:rgba(212,175,55,.25);
       --shadow:0 12px 35px rgba(0,0,0,.55);
-      --radius:16px;
-      --maxw:980px;
+      --radius:16px; --maxw:980px;
     }}
     *{{box-sizing:border-box}}
     html,body{{height:100%}}
@@ -259,7 +292,6 @@ def render_month_html(data: dict) -> str:
     }}
     .mini{{font-size:12px; color:var(--muted); margin-top:6px}}
     .footnav{{margin-top:14px; display:flex; gap:10px; flex-wrap:wrap}}
-    .footnav a, .footnav button{{text-decoration:none}}
     .note{{
       font-size:12px; color:rgba(233,237,243,.82);
       background:rgba(255,255,255,.04);
@@ -274,7 +306,6 @@ def render_month_html(data: dict) -> str:
     <div class="topbar">
       <div class="brand">
         <div class="logo" aria-hidden="true">
-          <!-- Inline SVG (no external icons) -->
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
             <path d="M12 2l2.4 6.1L21 9.2l-5 4.2L17.3 21 12 17.8 6.7 21 8 13.4 3 9.2l6.6-1.1L12 2z" stroke="rgba(241,208,112,.95)" stroke-width="1.4" />
           </svg>
@@ -379,6 +410,10 @@ def render_month_html(data: dict) -> str:
             <span class="dot" aria-hidden="true"></span>
             <span data-i18n="btn_year">Jahresübersicht</span>
           </a>
+          <a class="btn" href="{year}-rundflug.html">
+            <span class="dot" aria-hidden="true"></span>
+            <span data-i18n="btn_rund">Trend-Rundflug</span>
+          </a>
           <a class="btn" href="index.html">
             <span class="dot" aria-hidden="true"></span>
             <span data-i18n="btn_back">Zur Chronologie</span>
@@ -389,7 +424,6 @@ def render_month_html(data: dict) -> str:
   </div>
 
   <script>
-  // ======= i18n (DE/EN) =======
   const I18N = {{
     de: {{
       h1: "FSA Trendreport",
@@ -411,6 +445,7 @@ def render_month_html(data: dict) -> str:
       sec_sources: "Quellenkorb (Anzahl Items)",
       sec_links: "Weiter",
       btn_year: "Jahresübersicht",
+      btn_rund: "Trend-Rundflug",
       btn_back: "Zur Chronologie",
       {", ".join([f'narr_{i}: {json.dumps(t)}' for i, t in enumerate(data["narrative_de"])])}
     }},
@@ -434,6 +469,7 @@ def render_month_html(data: dict) -> str:
       sec_sources: "Source basket (item counts)",
       sec_links: "Next",
       btn_year: "Year overview",
+      btn_rund: "Trend flight",
       btn_back: "Back to timeline",
       {", ".join([f'narr_{i}: {json.dumps(t)}' for i, t in enumerate(data["narrative_en"])])}
     }}
@@ -468,8 +504,8 @@ def render_month_html(data: dict) -> str:
 </html>
 """
 
+
 def render_index_html(month_pages: list[dict]) -> str:
-    # month_pages: newest first
     items = []
     for m in month_pages:
         ym = m["ym"]
@@ -492,50 +528,27 @@ def render_index_html(month_pages: list[dict]) -> str:
   <title>FSA Trendreport – Chronologie</title>
   <meta name="description" content="Chronologische Übersicht aller FSA Trendreports.">
   <style>
-    :root{{
-      --bg:#050814; --bg2:#020617;
-      --panel:rgba(15,23,42,.92);
-      --text:#e9edf3; --muted:#97a0ad;
-      --gold:#d4af37; --gold2:#f1d070;
-      --shadow:0 12px 35px rgba(0,0,0,.55);
-      --radius:16px; --maxw:980px;
-    }}
+    :root{{--bg:#050814; --bg2:#020617; --panel:rgba(15,23,42,.92);
+      --text:#e9edf3; --muted:#97a0ad; --gold:#d4af37; --gold2:#f1d070;
+      --shadow:0 12px 35px rgba(0,0,0,.55); --radius:16px; --maxw:980px;}}
     *{{box-sizing:border-box}}
-    body{{
-      margin:0; color:var(--text);
+    body{{margin:0; color:var(--text);
       background: radial-gradient(900px 520px at 20% 10%, rgba(212,175,55,.14), transparent 55%),
                   linear-gradient(180deg, var(--bg), var(--bg2));
-      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    }}
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}}
     .wrap{{max-width:var(--maxw); margin:0 auto; padding:26px 18px 70px}}
     .top{{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px}}
     h1{{margin:0; font-size:18px}}
     .muted{{color:var(--muted)}}
-    .btn{{
-      display:inline-flex; align-items:center; gap:10px;
-      border:1px solid rgba(212,175,55,.30);
+    .btn{{display:inline-flex; align-items:center; gap:10px; border:1px solid rgba(212,175,55,.30);
       background:linear-gradient(180deg, rgba(15,23,42,.82), rgba(15,23,42,.62));
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:12px;
-      box-shadow:var(--shadow);
-      cursor:pointer;
-      user-select:none;
-      text-decoration:none;
-    }}
+      color:var(--text); padding:10px 12px; border-radius:12px; box-shadow:var(--shadow);
+      cursor:pointer; user-select:none; text-decoration:none;}}
     .btn .dot{{width:10px; height:10px; border-radius:50%; background:rgba(241,208,112,.65); box-shadow:0 0 0 6px rgba(212,175,55,.14)}}
     .list{{margin-top:14px; display:grid; grid-template-columns:repeat(2,1fr); gap:12px}}
     @media (max-width: 760px){{ .list{{grid-template-columns:1fr}} }}
-    .item{{
-      display:block;
-      background:var(--panel);
-      border:1px solid rgba(212,175,55,.22);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:14px;
-      text-decoration:none;
-      color:var(--text);
-    }}
+    .item{{display:block; background:var(--panel); border:1px solid rgba(212,175,55,.22);
+      border-radius:var(--radius); box-shadow:var(--shadow); padding:14px; text-decoration:none; color:var(--text);}}
     .item:hover{{border-color:rgba(241,208,112,.55)}}
     .ym{{font-size:16px; font-weight:700; letter-spacing:.3px}}
     .meta{{display:flex; gap:14px; flex-wrap:wrap; margin-top:8px}}
@@ -547,7 +560,7 @@ def render_index_html(month_pages: list[dict]) -> str:
     <div class="top">
       <div>
         <h1 data-i18n="h1">FSA Trendreport – Chronologie</h1>
-        <div class="muted" data-i18n="sub">Monatsreports in Reihenfolge (neu → alt). Für Jahresabschluss siehe Jahresseiten.</div>
+        <div class="muted" data-i18n="sub">Monatsreports in Reihenfolge (neu → alt). Jahresabschluss als „Trend-Rundflug“ findest du in den Jahresseiten.</div>
       </div>
       <div style="display:flex; gap:10px; align-items:center;">
         <button class="btn" id="langBtn" type="button"><span class="dot"></span><span id="langLabel">DE</span></button>
@@ -564,12 +577,12 @@ def render_index_html(month_pages: list[dict]) -> str:
     const I18N = {{
       de: {{
         h1:"FSA Trendreport – Chronologie",
-        sub:"Monatsreports in Reihenfolge (neu → alt). Für Jahresabschluss siehe Jahresseiten.",
+        sub:"Monatsreports in Reihenfolge (neu → alt). Jahresabschluss als „Trend-Rundflug“ findest du in den Jahresseiten.",
         back:"Zurück"
       }},
       en: {{
         h1:"FSA Trend Report – Timeline",
-        sub:"Monthly reports in order (new → old). For year wrap-up see the year pages.",
+        sub:"Monthly reports in order (new → old). Year wrap-up (“Trend flight”) is available on the year pages.",
         back:"Back"
       }}
     }};
@@ -593,8 +606,8 @@ def render_index_html(month_pages: list[dict]) -> str:
 </html>
 """
 
+
 def render_year_html(year: int, months: list[dict]) -> str:
-    # months newest first
     cards = []
     for m in months:
         cards.append(f"""
@@ -616,49 +629,26 @@ def render_year_html(year: int, months: list[dict]) -> str:
   <title>FSA Trendreport – Jahresübersicht {year}</title>
   <meta name="description" content="Jahresübersicht der FSA Trendreports {year}.">
   <style>
-    :root{{
-      --bg:#050814; --bg2:#020617;
-      --panel:rgba(15,23,42,.92);
-      --text:#e9edf3; --muted:#97a0ad;
-      --gold:#d4af37; --gold2:#f1d070;
-      --shadow:0 12px 35px rgba(0,0,0,.55);
-      --radius:16px; --maxw:980px;
-    }}
+    :root{{--bg:#050814; --bg2:#020617; --panel:rgba(15,23,42,.92);
+      --text:#e9edf3; --muted:#97a0ad; --gold:#d4af37; --gold2:#f1d070;
+      --shadow:0 12px 35px rgba(0,0,0,.55); --radius:16px; --maxw:980px;}}
     *{{box-sizing:border-box}}
-    body{{
-      margin:0; color:var(--text);
+    body{{margin:0; color:var(--text);
       background: radial-gradient(900px 520px at 20% 10%, rgba(212,175,55,.14), transparent 55%),
                   linear-gradient(180deg, var(--bg), var(--bg2));
-      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    }}
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}}
     .wrap{{max-width:var(--maxw); margin:0 auto; padding:26px 18px 70px}}
     h1{{margin:0; font-size:18px}}
     .muted{{color:var(--muted)}}
-    .btn{{
-      display:inline-flex; align-items:center; gap:10px;
-      border:1px solid rgba(212,175,55,.30);
+    .btn{{display:inline-flex; align-items:center; gap:10px; border:1px solid rgba(212,175,55,.30);
       background:linear-gradient(180deg, rgba(15,23,42,.82), rgba(15,23,42,.62));
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:12px;
-      box-shadow:var(--shadow);
-      cursor:pointer;
-      user-select:none;
-      text-decoration:none;
-    }}
+      color:var(--text); padding:10px 12px; border-radius:12px; box-shadow:var(--shadow);
+      cursor:pointer; user-select:none; text-decoration:none;}}
     .btn .dot{{width:10px; height:10px; border-radius:50%; background:rgba(241,208,112,.65); box-shadow:0 0 0 6px rgba(212,175,55,.14)}}
     .grid{{margin-top:14px; display:grid; grid-template-columns:repeat(2,1fr); gap:12px}}
     @media (max-width: 760px){{ .grid{{grid-template-columns:1fr}} }}
-    .item{{
-      display:block;
-      background:var(--panel);
-      border:1px solid rgba(212,175,55,.22);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:14px;
-      text-decoration:none;
-      color:var(--text);
-    }}
+    .item{{display:block; background:var(--panel); border:1px solid rgba(212,175,55,.22);
+      border-radius:var(--radius); box-shadow:var(--shadow); padding:14px; text-decoration:none; color:var(--text);}}
     .item:hover{{border-color:rgba(241,208,112,.55)}}
     .ym{{font-size:16px; font-weight:700}}
     .line{{margin-top:6px; font-size:12px}}
@@ -670,10 +660,11 @@ def render_year_html(year: int, months: list[dict]) -> str:
     <div class="top">
       <div>
         <h1 data-i18n="h1">FSA Trendreport – Jahresübersicht {year}</h1>
-        <div class="muted" data-i18n="sub">Zusammenfassung via Monatswerte (neu → alt). Für Details in den Monatsreport klicken.</div>
+        <div class="muted" data-i18n="sub">Zusammenfassung via Monatswerte (neu → alt). Für Jahresabschluss siehe „Trend-Rundflug“.</div>
       </div>
       <div style="display:flex; gap:10px; align-items:center;">
         <button class="btn" id="langBtn" type="button"><span class="dot"></span><span id="langLabel">DE</span></button>
+        <a class="btn" href="{year}-rundflug.html"><span class="dot"></span><span data-i18n="rund">Trend-Rundflug</span></a>
         <a class="btn" href="index.html"><span class="dot"></span><span data-i18n="back">Zur Chronologie</span></a>
       </div>
     </div>
@@ -687,12 +678,14 @@ def render_year_html(year: int, months: list[dict]) -> str:
     const I18N = {{
       de: {{
         h1:"FSA Trendreport – Jahresübersicht {year}",
-        sub:"Zusammenfassung via Monatswerte (neu → alt). Für Details in den Monatsreport klicken.",
+        sub:"Zusammenfassung via Monatswerte (neu → alt). Für Jahresabschluss siehe „Trend-Rundflug“.",
+        rund:"Trend-Rundflug",
         back:"Zur Chronologie"
       }},
       en: {{
         h1:"FSA Trend Report – Year Overview {year}",
-        sub:"Summary from monthly values (new → old). Click into a month for details.",
+        sub:"Summary from monthly values (new → old). For the year wrap-up see “Trend flight”.",
+        rund:"Trend flight",
         back:"Back to timeline"
       }}
     }};
@@ -716,6 +709,391 @@ def render_year_html(year: int, months: list[dict]) -> str:
 </html>
 """
 
+
+def render_rundflug_year_html(year: int, months_full: list[dict]) -> str:
+    """
+    months_full: list of month-json dicts sorted ascending by ym (Jan..Dec if available)
+    """
+    # Basic arrays
+    yms = [m["ym"] for m in months_full]
+    sent = [float(m["sentiment"]["avg"]) for m in months_full]
+    items = [int(m["items_total"]) for m in months_full]
+
+    # Aggregate topic totals
+    topic_totals = Counter()
+    topic_labels_de = {}
+    topic_labels_en = {}
+    for m in months_full:
+        for t in m.get("topics", []):
+            topic_totals[t["key"]] += int(t["count"])
+            topic_labels_de[t["key"]] = t.get("label_de", t["key"])
+            topic_labels_en[t["key"]] = t.get("label_en", t["key"])
+
+    top_topics = sorted(topic_totals.items(), key=lambda x: x[1], reverse=True)
+    top_topics = top_topics[:6] if top_topics else []
+
+    # Sentiment swing: biggest abs change month->month
+    swings = []
+    for i in range(1, len(sent)):
+        swings.append((abs(sent[i] - sent[i-1]), i))
+    swings.sort(reverse=True)
+    swing_idxs = [i for _, i in swings[:3]]  # indices into months_full
+
+    # Build sentiment line chart SVG
+    # Normalize to viewbox
+    w, h = 640, 180
+    pad_x, pad_y = 30, 25
+    inner_w, inner_h = w - 2*pad_x, h - 2*pad_y
+    min_s = min(sent + [0.0])
+    max_s = max(sent + [0.0])
+    if min_s == max_s:
+        min_s -= 1.0
+        max_s += 1.0
+
+    def x_at(i: int) -> float:
+        if len(sent) <= 1:
+            return pad_x + inner_w/2
+        return pad_x + (inner_w * (i/(len(sent)-1)))
+
+    def y_at(v: float) -> float:
+        # higher v => higher on chart (smaller y)
+        return pad_y + (inner_h * (1 - ((v - min_s)/(max_s - min_s))))
+
+    pts = [(x_at(i), y_at(v)) for i, v in enumerate(sent)]
+    path = "M " + " L ".join([f"{x:.1f} {y:.1f}" for x, y in pts])
+
+    # dots for swing months
+    dots = []
+    for idx in swing_idxs:
+        x, yv = pts[idx]
+        dots.append(f'<circle cx="{x:.1f}" cy="{yv:.1f}" r="5.2" fill="rgba(241,208,112,.92)" stroke="rgba(255,255,255,.22)" />')
+
+    # Bars for top topics
+    max_tt = max([v for _, v in top_topics] + [1])
+    bar_rows = []
+    y0 = 18
+    for key, val in top_topics:
+        bw = int(420 * (val / max_tt))
+        bar_rows.append(
+            f'<text x="0" y="{y0}" fill="currentColor" font-size="12">{topic_labels_de.get(key,key)}</text>'
+            f'<rect x="200" y="{y0-10}" width="{bw}" height="10" rx="4" fill="rgba(212,175,55,.45)"></rect>'
+            f'<text x="{200+bw+8}" y="{y0}" fill="rgba(233,237,243,.85)" font-size="12">{val}</text>'
+        )
+        y0 += 18
+
+    # Month chapter cards (newest first for reading)
+    months_desc = sorted(months_full, key=lambda m: m["ym"], reverse=True)
+    month_cards = []
+    i18n_dyn_de = {}
+    i18n_dyn_en = {}
+
+    for m in months_desc:
+        ym = m["ym"]
+        keybase = ym.replace("-", "_")
+        i18n_dyn_de[f"m_{keybase}_top"] = f"{m.get('top_topic_de','—')}"
+        # In month json we only store top_topic_de; for EN we derive from topics list top key
+        top_key = m.get("topics", [{}])[0].get("key", "")
+        top_en = topic_labels_en.get(top_key, "—") if top_key else "—"
+        i18n_dyn_en[f"m_{keybase}_top"] = top_en
+
+        i18n_dyn_de[f"m_{keybase}_kpi"] = f"Items {m.get('items_total',0)} · Sent {m.get('sentiment',{}).get('avg',0):.2f}"
+        i18n_dyn_en[f"m_{keybase}_kpi"] = f"Items {m.get('items_total',0)} · Sent {m.get('sentiment',{}).get('avg',0):.2f}"
+
+        narr_de = m.get("narrative_de", [])[:3]
+        narr_en = m.get("narrative_en", [])[:3]
+        for i, line in enumerate(narr_de):
+            i18n_dyn_de[f"m_{keybase}_n{i}"] = line
+        for i, line in enumerate(narr_en):
+            i18n_dyn_en[f"m_{keybase}_n{i}"] = line
+
+        narr_li = "\n".join([f'<li data-i18n="m_{keybase}_n{i}"></li>' for i in range(len(narr_de[:3]))])
+
+        month_cards.append(f"""
+          <a class="mcard" href="{ym}.html">
+            <div class="mhead">
+              <div class="mym">{ym}</div>
+              <div class="mtop"><span class="muted" data-i18n="lbl_top">Top</span>: <span data-i18n="m_{keybase}_top"></span></div>
+            </div>
+            <div class="mkpi muted" data-i18n="m_{keybase}_kpi"></div>
+            <ul class="mlist">{narr_li}</ul>
+          </a>
+        """)
+
+    # Peak blocks
+    peak_blocks = []
+    for idx in swing_idxs:
+        m = months_full[idx]
+        prev = months_full[idx-1] if idx-1 >= 0 else None
+        ym = m["ym"]
+        d = (float(m["sentiment"]["avg"]) - float(prev["sentiment"]["avg"])) if prev else 0.0
+        sign = "+" if d >= 0 else ""
+        peak_blocks.append({
+            "ym": ym,
+            "delta": f"{sign}{d:.2f}",
+            "items": int(m["items_total"]),
+            "top": m.get("top_topic_de","—")
+        })
+
+    # i18n for peaks (deterministic keys)
+    for i, p in enumerate(peak_blocks):
+        i18n_dyn_de[f"peak_{i}_line"] = f"{p['ym']} · Δ Sent {p['delta']} · Items {p['items']} · Top {p['top']}"
+        i18n_dyn_en[f"peak_{i}_line"] = f"{p['ym']} · Δ Sent {p['delta']} · Items {p['items']} · Top {p['top']}"
+
+    peaks_li = "\n".join([f'<li data-i18n="peak_{i}_line"></li>' for i in range(len(peak_blocks))]) or "<li class='muted'>—</li>"
+
+    # Determine completeness
+    months_count = len(months_full)
+    complete = (months_count >= 12)
+
+    return f"""<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FSA Trendreport – Trend-Rundflug {year}</title>
+  <meta name="description" content="Jahresabschluss als Trend-Rundflug: {year}.">
+  <style>
+    :root{{
+      --bg:#050814; --bg2:#020617;
+      --panel:rgba(15,23,42,.92); --panel2:rgba(15,23,42,.82);
+      --text:#e9edf3; --muted:#97a0ad;
+      --gold:#d4af37; --gold2:#f1d070;
+      --shadow:0 12px 35px rgba(0,0,0,.55);
+      --radius:16px; --maxw:1080px;
+    }}
+    *{{box-sizing:border-box}}
+    body{{
+      margin:0; color:var(--text);
+      background: radial-gradient(980px 560px at 18% 8%, rgba(212,175,55,.14), transparent 55%),
+                  radial-gradient(920px 560px at 85% 18%, rgba(241,208,112,.10), transparent 60%),
+                  linear-gradient(180deg, var(--bg), var(--bg2));
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    }}
+    a{{color:inherit; text-decoration:none}}
+    .wrap{{max-width:var(--maxw); margin:0 auto; padding:26px 18px 70px}}
+    .top{{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px}}
+    .muted{{color:var(--muted)}}
+    .btn{{
+      display:inline-flex; align-items:center; gap:10px;
+      border:1px solid rgba(212,175,55,.30);
+      background:linear-gradient(180deg, rgba(15,23,42,.82), rgba(15,23,42,.62));
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      box-shadow:var(--shadow);
+      cursor:pointer;
+      user-select:none;
+      text-decoration:none;
+    }}
+    .btn .dot{{width:10px; height:10px; border-radius:50%; background:rgba(241,208,112,.65); box-shadow:0 0 0 6px rgba(212,175,55,.14)}}
+    h1{{margin:0; font-size:18px}}
+    .hero{{
+      margin-top:14px;
+      background:linear-gradient(180deg, rgba(15,23,42,.92), rgba(15,23,42,.78));
+      border:1px solid rgba(212,175,55,.22);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:16px;
+    }}
+    .hero .line{{margin-top:6px; font-size:12px}}
+    .grid{{display:grid; grid-template-columns:1.2fr .8fr; gap:14px; margin-top:14px}}
+    @media (max-width: 980px){{ .grid{{grid-template-columns:1fr}} }}
+    .card{{
+      background:var(--panel);
+      border:1px solid rgba(212,175,55,.22);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:16px;
+    }}
+    .card h2{{margin:0 0 8px; font-size:15px}}
+    .note{{
+      margin-top:10px;
+      font-size:12px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(212,175,55,.14);
+      border-radius:14px;
+      padding:12px;
+      color:rgba(233,237,243,.85);
+    }}
+    .months{{margin-top:14px; display:grid; grid-template-columns:repeat(2,1fr); gap:12px}}
+    @media (max-width: 860px){{ .months{{grid-template-columns:1fr}} }}
+    .mcard{{
+      display:block;
+      background:var(--panel2);
+      border:1px solid rgba(212,175,55,.16);
+      border-radius:14px;
+      padding:12px;
+    }}
+    .mcard:hover{{border-color:rgba(241,208,112,.55)}}
+    .mhead{{display:flex; justify-content:space-between; align-items:flex-start; gap:10px}}
+    .mym{{font-weight:800; letter-spacing:.3px}}
+    .mtop{{font-size:12px}}
+    .mkpi{{margin-top:6px; font-size:12px}}
+    .mlist{{margin:8px 0 0 18px; padding:0; font-size:12px}}
+    li{{margin:6px 0}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1 data-i18n="h1">FSA Trendreport – Trend-Rundflug {year}</h1>
+        <div class="muted" data-i18n="sub">Jahresabschluss aus Monatsdaten (kuratiert, reproduzierbar, nicht repräsentativ).</div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button class="btn" id="langBtn" type="button"><span class="dot"></span><span id="langLabel">DE</span></button>
+        <a class="btn" href="{year}.html"><span class="dot"></span><span data-i18n="btn_year">Jahresübersicht</span></a>
+        <a class="btn" href="index.html"><span class="dot"></span><span data-i18n="btn_idx">Chronologie</span></a>
+      </div>
+    </div>
+
+    <div class="hero">
+      <div class="muted" data-i18n="hero_a">Was du hier siehst: eine Jahres-Story aus den Monatsreports.</div>
+      <div class="line muted" data-i18n="hero_b">{("Hinweis: Jahr ist noch nicht vollständig (nur " + str(months_count) + " Monate vorhanden).") if not complete else "Hinweis: Vollständiges Jahr (12 Monate vorhanden)."} </div>
+      <div class="note">
+        <strong data-i18n="note_title">Methodik:</strong>
+        <span data-i18n="note_text">Wir werten RSS/Atom-Signale aus, zählen Themen-Keywords und nutzen einen einfachen Lexikon-Ton-Score. Ergebnis ist ein Trendbild, kein „Meinungs-Zensus“.</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2 data-i18n="sec_curve">Jahreskurve – Tonalität (Monatswerte)</h2>
+        <div class="muted" data-i18n="curve_hint">Markierte Punkte = stärkste Ton-Sprünge gegenüber dem Vormonat.</div>
+
+        <div style="margin-top:10px; padding:10px; background:rgba(255,255,255,.03); border:1px solid rgba(212,175,55,.14); border-radius:14px;">
+          <svg width="100%" viewBox="0 0 {w} {h}" role="img" aria-label="Sentiment curve">
+            <rect x="0" y="0" width="{w}" height="{h}" rx="14" fill="rgba(0,0,0,.18)"></rect>
+            <path d="M {pad_x} {pad_y} L {pad_x} {h-pad_y}" stroke="rgba(212,175,55,.20)" stroke-width="1"></path>
+            <path d="M {pad_x} {h-pad_y} L {w-pad_x} {h-pad_y}" stroke="rgba(212,175,55,.20)" stroke-width="1"></path>
+
+            <path d="{path}" fill="none" stroke="rgba(241,208,112,.92)" stroke-width="2.2"></path>
+            {"".join(dots)}
+
+            {"".join([f'<circle cx="{x_at(i):.1f}" cy="{y_at(v):.1f}" r="3.2" fill="rgba(212,175,55,.55)"></circle>' for i,v in enumerate(sent)])}
+          </svg>
+        </div>
+
+        <div class="hr" style="height:1px; background:rgba(212,175,55,.18); margin:12px 0;"></div>
+
+        <h2 data-i18n="sec_peaks">Wendepunkte (Top-Sprünge)</h2>
+        <ul class="muted">{peaks_li}</ul>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="sec_topics">Top-Themen im Jahr</h2>
+        <div class="muted" data-i18n="topics_hint">Summierte Keyword-Treffer über alle vorhandenen Monate.</div>
+
+        <div style="margin-top:10px; padding:10px; background:rgba(255,255,255,.03); border:1px solid rgba(212,175,55,.14); border-radius:14px;">
+          <svg width="100%" viewBox="0 0 660 140" role="img" aria-label="Top topics">
+            <g transform="translate(10,18)" fill="none">
+              {"".join(bar_rows) if bar_rows else '<text x="0" y="18" fill="rgba(233,237,243,.65)" font-size="12">—</text>'}
+            </g>
+          </svg>
+        </div>
+
+        <div class="hr" style="height:1px; background:rgba(212,175,55,.18); margin:12px 0;"></div>
+
+        <h2 data-i18n="sec_months">Kapitel: Monatsreports (neu → alt)</h2>
+        <div class="months">
+          {"".join(month_cards)}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const I18N = {{
+      de: {{
+        h1:"FSA Trendreport – Trend-Rundflug {year}",
+        sub:"Jahresabschluss aus Monatsdaten (kuratiert, reproduzierbar, nicht repräsentativ).",
+        btn_year:"Jahresübersicht",
+        btn_idx:"Chronologie",
+        hero_a:"Was du hier siehst: eine Jahres-Story aus den Monatsreports.",
+        hero_b:{json.dumps(("Hinweis: Jahr ist noch nicht vollständig (nur " + str(months_count) + " Monate vorhanden).") if not complete else "Hinweis: Vollständiges Jahr (12 Monate vorhanden).")},
+        note_title:"Methodik:",
+        note_text:"Wir werten RSS/Atom-Signale aus, zählen Themen-Keywords und nutzen einen einfachen Lexikon-Ton-Score. Ergebnis ist ein Trendbild, kein „Meinungs-Zensus“.",
+        sec_curve:"Jahreskurve – Tonalität (Monatswerte)",
+        curve_hint:"Markierte Punkte = stärkste Ton-Sprünge gegenüber dem Vormonat.",
+        sec_peaks:"Wendepunkte (Top-Sprünge)",
+        sec_topics:"Top-Themen im Jahr",
+        topics_hint:"Summierte Keyword-Treffer über alle vorhandenen Monate.",
+        sec_months:"Kapitel: Monatsreports (neu → alt)",
+        lbl_top:"Top",
+        {json.dumps("DUMMY")} : {json.dumps("DUMMY")}
+      }},
+      en: {{
+        h1:"FSA Trend Report – Trend flight {year}",
+        sub:"Year wrap-up from monthly data (curated, reproducible, not representative).",
+        btn_year:"Year overview",
+        btn_idx:"Timeline",
+        hero_a:"What you see here: a year story derived from the monthly reports.",
+        hero_b:{json.dumps(("Note: year is not complete yet (only " + str(months_count) + " months available).") if not complete else "Note: complete year (12 months available).")},
+        note_title:"Method:",
+        note_text:"We evaluate RSS/Atom signals, count topic keywords and use a simple lexicon tone score. The result is a trend view, not a population-wide opinion census.",
+        sec_curve:"Year curve – tone (monthly values)",
+        curve_hint:"Marked dots = strongest tone swings vs. the previous month.",
+        sec_peaks:"Turning points (top swings)",
+        sec_topics:"Top topics of the year",
+        topics_hint:"Summed keyword hits across all available months.",
+        sec_months:"Chapters: monthly reports (new → old)",
+        lbl_top:"Top",
+        {json.dumps("DUMMY")} : {json.dumps("DUMMY")}
+      }}
+    }};
+
+    // inject dynamic keys (months/peaks)
+    Object.assign(I18N.de, {json.dumps(i18n_dyn_de, ensure_ascii=False)});
+    Object.assign(I18N.en, {json.dumps(i18n_dyn_en, ensure_ascii=False)});
+
+    // remove dummy
+    delete I18N.de["DUMMY"]; delete I18N.en["DUMMY"];
+
+    function getLang() {{
+      return (localStorage.getItem("fsa_lang") || document.documentElement.lang || "de").startsWith("en") ? "en" : "de";
+    }}
+    function setLang(lang) {{
+      const L = lang === "en" ? "en" : "de";
+      localStorage.setItem("fsa_lang", L);
+      document.documentElement.lang = L;
+      document.querySelectorAll("[data-i18n]").forEach(el => {{
+        const k = el.getAttribute("data-i18n");
+        if (I18N[L][k] !== undefined) el.textContent = I18N[L][k];
+      }});
+      document.getElementById("langLabel").textContent = L.toUpperCase();
+    }}
+    document.getElementById("langBtn").addEventListener("click", () => setLang(getLang()==="de" ? "en":"de"));
+    setLang(getLang());
+  </script>
+
+  <!-- DATA_BLOB_JSON
+  {json.dumps({"year": year, "months": yms, "sent": sent, "items": items}, ensure_ascii=False)}
+  DATA_BLOB_JSON -->
+</body>
+</html>
+"""
+
+
+def _target_month_from_env_or_previous(now_utc: datetime) -> tuple[int, int]:
+    """
+    Default: previous month (so report is "complete").
+    Override with env TREND_MONTH=YYYY-MM (workflow_dispatch / manual).
+    """
+    forced = (os.getenv("TREND_MONTH") or "").strip()
+    if re.match(r"^\d{4}-\d{2}$", forced):
+        y = int(forced[:4])
+        m = int(forced[5:7])
+        if 1 <= m <= 12:
+            return y, m
+
+    y = now_utc.year
+    m = now_utc.month - 1
+    if m == 0:
+        m = 12
+        y -= 1
+    return y, m
+
+
 def main():
     repo_root = os.getenv("GITHUB_WORKSPACE", os.getcwd())
     sources_path = os.path.join(repo_root, "tools", "trendreport", "sources.json")
@@ -725,7 +1103,7 @@ def main():
     lex = _read_json(lex_path)
 
     now_utc = datetime.now(TZ_UTC)
-    year, month = _pick_month(now_utc)
+    year, month = _target_month_from_env_or_previous(now_utc)
     start, end = _month_range(year, month)
 
     items_total = 0
@@ -747,11 +1125,12 @@ def main():
             cnt = 0
             for entry in feed.entries:
                 dt = _entry_datetime(entry)
-                # If feed doesn't include dates, accept it (counts for "current noise"), but score lower by not counting sentiment?
-                # Here: if no dt, still include it (simple), but it will not be excluded.
                 if dt is not None:
                     if not (start <= dt < end):
                         continue
+                else:
+                    # no date -> skip, damit Monatsreport wirklich Monatsreport bleibt
+                    continue
 
                 title = getattr(entry, "title", "") or ""
                 summary = getattr(entry, "summary", "") or ""
@@ -762,7 +1141,6 @@ def main():
                 sentiment_sum += sc
                 sentiment_n += 1
 
-                # topics by keyword presence
                 text_norm = _norm(text)
                 for t in topics:
                     if any(k in text_norm for k in t["keywords"]):
@@ -772,13 +1150,11 @@ def main():
                 items_total += 1
 
             sources_used.append({"name": name, "category": cat, "items": cnt})
-        except Exception as e:
-            # keep going; record source failure as 0
+        except Exception:
             sources_used.append({"name": f"{name} (FAILED)", "category": cat, "items": 0})
 
     sent_avg = (sentiment_sum / sentiment_n) if sentiment_n else 0.0
 
-    # Prepare topic list sorted by count
     topic_list = []
     for key, tdef in topic_defs.items():
         topic_list.append({
@@ -792,26 +1168,7 @@ def main():
     top_topic_de = topic_list[0]["label_de"] if topic_list else "—"
 
     narrative_de = _narrative_from_topics({k: int(v) for k, v in topic_counts.items()})
-    # Simple EN mapping by replacing from topic keys in bullets is messy; keep curated translations:
-    narrative_en = []
-    for line in narrative_de:
-        # minimal translation rules (keeps it deterministic)
-        en = line
-        en = en.replace("Leistbarkeit & Abstiegsangst dominieren (Miete, Nebenkosten, Preise, Abgaben).",
-                        "Affordability & downward-mobility fears dominate (rent, utilities, prices, charges).")
-        en = en.replace("Steuern/Abgaben werden als direkter Druckpunkt wahrgenommen (Grundsteuer, Beiträge, Gebühren).",
-                        "Taxes/charges are perceived as a direct pressure point (property tax, contributions, fees).")
-        en = en.replace("Migration wird häufig als Überlastungs- und Gerechtigkeitsthema diskutiert (Kommunen, Wohnraum, Ordnung).",
-                        "Migration is often framed as overload & fairness issue (municipalities, housing, order).")
-        en = en.replace("Energie/Heizen erzeugt Unmut vor allem durch Kosten, Planungsunsicherheit und wechselnde Regeln.",
-                        "Energy/heating sparks frustration mainly due to costs, planning uncertainty and changing rules.")
-        en = en.replace("Ukraine/Krieg polarisiert: Unterstützung vs. Friedensfokus, spürbare Müdigkeit im Ton.",
-                        "Ukraine/war is polarizing: support vs. peace focus, with noticeable fatigue in tone.")
-        en = en.replace("EU wird oft über konkrete Eingriffe bewertet (Regelungsdruck/Alltagseffekte), weniger über abstrakte Idee.",
-                        "The EU is often judged via concrete interventions (regulatory pressure/everyday impacts), less as an abstract idea.")
-        en = en.replace("Kein dominantes Einzelthema – Tonlage verteilt sich auf mehrere Reizfelder.",
-                        "No single dominant topic – tone is spread across multiple trigger fields.")
-        narrative_en.append(en)
+    narrative_en = _translate_narrative_de_to_en(narrative_de)
 
     ym = f"{year:04d}-{month:02d}"
     out_dir = os.path.join(repo_root, "pages", "trend")
@@ -820,17 +1177,13 @@ def main():
     _safe_mkdir(data_dir)
 
     data = {
-        "version": 1,
+        "version": 2,
         "year": year,
         "month": month,
         "ym": ym,
         "generated_at": now_utc.strftime("%Y-%m-%d %H:%M:%S"),
         "items_total": int(items_total),
-        "sentiment": {
-            "sum": int(sentiment_sum),
-            "n": int(sentiment_n),
-            "avg": float(sent_avg)
-        },
+        "sentiment": {"sum": int(sentiment_sum), "n": int(sentiment_n), "avg": float(sent_avg)},
         "topics": topic_list,
         "top_topic_de": top_topic_de,
         "narrative_de": narrative_de,
@@ -838,17 +1191,18 @@ def main():
         "sources_used": sources_used
     }
 
-    # Write JSON data
     _write_json(os.path.join(data_dir, f"{ym}.json"), data)
+    _write_text(os.path.join(out_dir, f"{ym}.html"), render_month_html(data))
 
-    # Write month html
-    month_html = render_month_html(data)
-    _write_text(os.path.join(out_dir, f"{ym}.html"), month_html)
-
-    # Build index from existing JSONs
-    json_files = sorted(glob.glob(os.path.join(data_dir, "*.json")), reverse=True)
+    # Build index + year pages + rundflug pages from all JSONs
+    json_files = sorted(glob.glob(os.path.join(data_dir, "*.json")))
     month_pages = []
+    months_by_year: dict[int, list[dict]] = {}
+
     for jp in json_files:
+        base = os.path.basename(jp)
+        if not re.match(r"^\d{4}-\d{2}\.json$", base):
+            continue
         d = _read_json(jp)
         month_pages.append({
             "ym": d["ym"],
@@ -856,16 +1210,23 @@ def main():
             "sent_avg": d["sentiment"]["avg"],
             "top_topic_de": d.get("top_topic_de", "—")
         })
+        y = int(d["ym"][:4])
+        months_by_year.setdefault(y, []).append(d)
 
+    # index newest first
+    month_pages.sort(key=lambda m: m["ym"], reverse=True)
     _write_text(os.path.join(out_dir, "index.html"), render_index_html(month_pages))
 
-    # Build year pages for each year found
-    years = sorted({int(os.path.basename(p)[:4]) for p in json_files if re.match(r"^\d{4}-\d{2}\.json$", os.path.basename(p))})
-    for y in years:
-        months_y = [m for m in month_pages if int(m["ym"][:4]) == y]
-        _write_text(os.path.join(out_dir, f"{y}.html"), render_year_html(y, months_y))
+    # year pages + rundflug
+    for y in sorted(months_by_year.keys()):
+        # year page wants newest first list
+        months_list = sorted([m for m in month_pages if int(m["ym"][:4]) == y], key=lambda m: m["ym"], reverse=True)
+        _write_text(os.path.join(out_dir, f"{y}.html"), render_year_html(y, months_list))
 
-    print(f"Generated: {ym}")
+        months_full = sorted(months_by_year[y], key=lambda d: d["ym"])
+        _write_text(os.path.join(out_dir, f"{y}-rundflug.html"), render_rundflug_year_html(y, months_full))
+
+    print(f"Generated month: {ym} (previous month logic)")
 
 if __name__ == "__main__":
     main()
