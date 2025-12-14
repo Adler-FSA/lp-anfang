@@ -570,6 +570,33 @@
     │   │   ├── timecells-tipp.html
     │   │   ├── timecells-tools.html
     │   │   └── workshop.html
+    │   ├── trend/
+    │   │   ├── data/
+    │   │   │   ├── 2025-01.json
+    │   │   │   ├── 2025-02.json
+    │   │   │   ├── 2025-03.json
+    │   │   │   ├── 2025-04.json
+    │   │   │   ├── 2025-05.json
+    │   │   │   ├── 2025-06.json
+    │   │   │   ├── 2025-07.json
+    │   │   │   ├── 2025-08.json
+    │   │   │   ├── 2025-09.json
+    │   │   │   ├── 2025-10.json
+    │   │   │   └── 2025-11.json
+    │   │   ├── 2025-01.html
+    │   │   ├── 2025-02.html
+    │   │   ├── 2025-03.html
+    │   │   ├── 2025-04.html
+    │   │   ├── 2025-05.html
+    │   │   ├── 2025-06.html
+    │   │   ├── 2025-07.html
+    │   │   ├── 2025-08.html
+    │   │   ├── 2025-09.html
+    │   │   ├── 2025-10.html
+    │   │   ├── 2025-11.html
+    │   │   ├── 2025-rundflug.html
+    │   │   ├── 2025.html
+    │   │   └── index.html
     │   ├── trustyfy/
     │   │   └── fast-track.html
     │   ├── admin-config.json
@@ -626,4 +653,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.12.2025, 12:29)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.12.2025, 13:23)_
