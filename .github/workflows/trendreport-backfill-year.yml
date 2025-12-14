@@ -1,0 +1,82 @@
+name: Trendreport Backfill (Year)
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "Year to backfill (YYYY)"
+        required: true
+        default: "2025"
+      to_month:
+        description: "Optional: last month to generate (01-12). Empty = auto (current year -> previous month, past years -> 12)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests feedparser
+
+      - name: Backfill year months
+        env:
+          YEAR: ${{ github.event.inputs.year }}
+          TO_MONTH: ${{ github.event.inputs.to_month }}
+        run: |
+          set -e
+
+          echo "Backfill YEAR=$YEAR TO_MONTH=$TO_MONTH"
+
+          # Auto last-month logic:
+          # - if same year as runner (UTC), only generate up to previous month (month complete).
+          # - if past year, generate full 12 months.
+          if [ -z "$TO_MONTH" ]; then
+            CURY=$(date -u +%Y)
+            CURM=$(date -u +%m)
+
+            if [ "$YEAR" = "$CURY" ]; then
+              LAST=$((10#$CURM - 1))
+              if [ "$LAST" -lt 1 ]; then LAST=1; fi
+            else
+              LAST=12
+            fi
+          else
+            LAST=$((10#$TO_MONTH))
+          fi
+
+          echo "Generating months 01..$(printf "%02d" $LAST) for $YEAR"
+
+          for m in $(seq -w 1 $LAST); do
+            YM="${YEAR}-${m}"
+            echo "=== Generate ${YM} ==="
+
+            # Set multiple env names to match whatever the script expects (safe-compat).
+            MONTH="${YM}" INPUT_MONTH="${YM}" TREND_MONTH="${YM}" FORCE_MONTH="${YM}" \
+              python tools/trendreport/trendreport.py
+          done
+
+      - name: Commit & Push (if changed)
+        run: |
+          git config user.name "fsa-trend-bot"
+          git config user.email "fsa-trend-bot@users.noreply.github.com"
+          git add pages/trend
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "Trendreport: backfill year months"
+          git push
