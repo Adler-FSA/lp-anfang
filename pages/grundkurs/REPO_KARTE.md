@@ -597,6 +597,11 @@
     │   ├── step1-en.html
     │   ├── step2-en.html
     │   └── step3-en.html
+    ├── tools/
+    │   └── trendreport/
+    │       ├── lexicon_de.json
+    │       ├── sources.json
+    │       └── trendreport.py
     ├── README.md
     ├── admin.html
     ├── akademie-rundflug.html
@@ -621,4 +626,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.12.2025, 11:12)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.12.2025, 12:29)_
