@@ -594,7 +594,8 @@
     │   │   │   ├── 2025-08.json
     │   │   │   ├── 2025-09.json
     │   │   │   ├── 2025-10.json
-    │   │   │   └── 2025-11.json
+    │   │   │   ├── 2025-11.json
+    │   │   │   └── manifest.json
     │   │   ├── 2024-01.html
     │   │   ├── 2024-02.html
     │   │   ├── 2024-03.html
@@ -680,4 +681,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.12.2025, 15:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.12.2025, 16:17)_
