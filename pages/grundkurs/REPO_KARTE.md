@@ -622,6 +622,7 @@
     │   │   ├── 2025-11.html
     │   │   ├── 2025-rundflug.html
     │   │   ├── 2025.html
+    │   │   ├── dashboard.html
     │   │   └── index.html
     │   ├── trustyfy/
     │   │   └── fast-track.html
@@ -679,4 +680,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.12.2025, 14:14)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.12.2025, 15:13)_
