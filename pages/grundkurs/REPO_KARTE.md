@@ -570,61 +570,6 @@
     │   │   ├── timecells-tipp.html
     │   │   ├── timecells-tools.html
     │   │   └── workshop.html
-    │   ├── trend/
-    │   │   ├── data/
-    │   │   │   ├── 2024-01.json
-    │   │   │   ├── 2024-02.json
-    │   │   │   ├── 2024-03.json
-    │   │   │   ├── 2024-04.json
-    │   │   │   ├── 2024-05.json
-    │   │   │   ├── 2024-06.json
-    │   │   │   ├── 2024-07.json
-    │   │   │   ├── 2024-08.json
-    │   │   │   ├── 2024-09.json
-    │   │   │   ├── 2024-10.json
-    │   │   │   ├── 2024-11.json
-    │   │   │   ├── 2024-12.json
-    │   │   │   ├── 2025-01.json
-    │   │   │   ├── 2025-02.json
-    │   │   │   ├── 2025-03.json
-    │   │   │   ├── 2025-04.json
-    │   │   │   ├── 2025-05.json
-    │   │   │   ├── 2025-06.json
-    │   │   │   ├── 2025-07.json
-    │   │   │   ├── 2025-08.json
-    │   │   │   ├── 2025-09.json
-    │   │   │   ├── 2025-10.json
-    │   │   │   ├── 2025-11.json
-    │   │   │   └── manifest.json
-    │   │   ├── 2024-01.html
-    │   │   ├── 2024-02.html
-    │   │   ├── 2024-03.html
-    │   │   ├── 2024-04.html
-    │   │   ├── 2024-05.html
-    │   │   ├── 2024-06.html
-    │   │   ├── 2024-07.html
-    │   │   ├── 2024-08.html
-    │   │   ├── 2024-09.html
-    │   │   ├── 2024-10.html
-    │   │   ├── 2024-11.html
-    │   │   ├── 2024-12.html
-    │   │   ├── 2024-rundflug.html
-    │   │   ├── 2024.html
-    │   │   ├── 2025-01.html
-    │   │   ├── 2025-02.html
-    │   │   ├── 2025-03.html
-    │   │   ├── 2025-04.html
-    │   │   ├── 2025-05.html
-    │   │   ├── 2025-06.html
-    │   │   ├── 2025-07.html
-    │   │   ├── 2025-08.html
-    │   │   ├── 2025-09.html
-    │   │   ├── 2025-10.html
-    │   │   ├── 2025-11.html
-    │   │   ├── 2025-rundflug.html
-    │   │   ├── 2025.html
-    │   │   ├── dashboard.html
-    │   │   └── index.html
     │   ├── trustyfy/
     │   │   └── fast-track.html
     │   ├── admin-config.json
@@ -652,11 +597,6 @@
     │   ├── step1-en.html
     │   ├── step2-en.html
     │   └── step3-en.html
-    ├── tools/
-    │   └── trendreport/
-    │       ├── lexicon_de.json
-    │       ├── sources.json
-    │       └── trendreport.py
     ├── README.md
     ├── admin.html
     ├── akademie-rundflug.html
@@ -681,4 +621,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.12.2025, 21:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.12.2025, 22:13)_
