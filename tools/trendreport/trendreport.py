@@ -1,764 +1,818 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""
-FSA Trendreport Generator – v5 (Dashboard-ready)
-- Strikter Monatsfilter (Anti-Fake-Backfill): nur Items mit Datum im Zielmonat werden gezählt
-- Schreibt:
-  pages/trend/data/YYYY-MM.json  (inkl. items[] + quality + topic_counts)
-  pages/trend/data/manifest.json (Auto-Index: years, months_by_year, summary)
-  pages/trend/YYYY-MM.html       (KPI + Charts + Quellen + Item-Karten)
-  pages/trend/index.html         (Chronologie)
-  pages/trend/YYYY.html          (Jahresübersicht)
-  pages/trend/YYYY-rundflug.html (Jahresstory)
-- Keine externen Ressourcen, nur Inline CSS/JS + Inline SVG
-"""
-
-from __future__ import annotations
 import os
 import re
 import json
-import glob
-from datetime import datetime, timezone
-from collections import Counter, defaultdict
-from typing import Any, Dict, List, Optional, Tuple
+import math
+import time
+import html
+import argparse
+import datetime as dt
+from pathlib import Path
 
-import requests
 import feedparser
+import requests
 
-TZ_UTC = timezone.utc
+ROOT = Path(__file__).resolve().parents[2]  # .../lp-anfang
+TOOLS_DIR = ROOT / "tools" / "trendreport"
+PAGES_DIR = ROOT / "pages" / "trend"
+DATA_DIR = PAGES_DIR / "data"
 
-REPO_ROOT = os.getenv("GITHUB_WORKSPACE", os.getcwd())
-TOOLS_DIR = os.path.join(REPO_ROOT, "tools", "trendreport")
-PAGES_DIR = os.path.join(REPO_ROOT, "pages", "trend")
-DATA_DIR = os.path.join(PAGES_DIR, "data")
+SOURCES_FILE = TOOLS_DIR / "sources.json"
+LEXICON_FILE = TOOLS_DIR / "lexicon_de.json"
 
-SOURCES_PATH = os.path.join(TOOLS_DIR, "sources.json")
-LEX_PATH = os.path.join(TOOLS_DIR, "lexicon_de.json")
+UA = "FSA-TrendBot/1.0 (+github-actions)"
 
-UA = "FSA-Trendreport/5.0 (GitHub Actions)"
-TIMEOUT = 20
+def utc_now_iso():
+  return dt.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
+def month_range(year: int, month: int):
+  start = dt.datetime(year, month, 1, 0, 0, 0)
+  if month == 12:
+    end = dt.datetime(year + 1, 1, 1, 0, 0, 0)
+  else:
+    end = dt.datetime(year, month + 1, 1, 0, 0, 0)
+  return start, end
 
-# -------------------- utils --------------------
+def halfyear_of_month(month: int) -> str:
+  return "H1" if 1 <= month <= 6 else "H2"
 
-def _safe_mkdir(path: str) -> None:
-    os.makedirs(path, exist_ok=True)
+def safe_text(x: str) -> str:
+  return re.sub(r"\s+", " ", (x or "").strip())
 
-def _read_json(path: str) -> dict:
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+def parse_entry_date(entry):
+  # Try best-effort to get a date; if missing -> None (anti fake backfill)
+  for key in ("published_parsed", "updated_parsed"):
+    if getattr(entry, key, None):
+      tt = getattr(entry, key)
+      try:
+        return dt.datetime(tt.tm_year, tt.tm_mon, tt.tm_mday, tt.tm_hour, tt.tm_min, tt.tm_sec)
+      except Exception:
+        pass
+  # Some feeds may expose "published" string; we don't parse that to avoid fake/backfill ambiguity
+  return None
 
-def _write_text(path: str, text: str) -> None:
-    _safe_mkdir(os.path.dirname(path))
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(text)
+def load_json(path: Path):
+  with open(path, "r", encoding="utf-8") as f:
+    return json.load(f)
 
-def _write_json(path: str, data: dict) -> None:
-    _safe_mkdir(os.path.dirname(path))
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+def write_json(path: Path, data):
+  path.parent.mkdir(parents=True, exist_ok=True)
+  with open(path, "w", encoding="utf-8") as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
 
-def _strip_html(s: str) -> str:
-    s = s or ""
-    s = re.sub(r"<[^>]+>", " ", s)
-    s = re.sub(r"\s+", " ", s).strip()
-    return s
+def http_get(url: str):
+  headers = {"User-Agent": UA}
+  return requests.get(url, headers=headers, timeout=25)
 
-def _norm(s: str) -> str:
-    s = (s or "").lower().strip()
-    s = re.sub(r"\s+", " ", s)
-    return s
+def fetch_feed(url: str):
+  r = http_get(url)
+  r.raise_for_status()
+  return feedparser.parse(r.text)
 
-def _tokens(s: str) -> List[str]:
-    s = _norm(s)
-    parts = re.split(r"[^a-z0-9äöüß]+", s, flags=re.IGNORECASE)
-    return [p for p in parts if len(p) >= 3]
+def build_topic_matchers(topics):
+  # Precompile regex patterns (word boundary-ish)
+  compiled = []
+  for t in topics:
+    kws = t.get("keywords", [])
+    patterns = []
+    for kw in kws:
+      kw = kw.strip().lower()
+      if not kw:
+        continue
+      # Escape and use loose boundaries (works for DE/EN mixed)
+      pat = re.compile(r"(?<!\w)" + re.escape(kw) + r"(?!\w)", re.IGNORECASE)
+      patterns.append(pat)
+    compiled.append((t["key"], patterns))
+  return compiled
 
-def _month_range(year: int, month: int) -> Tuple[datetime, datetime]:
-    start = datetime(year, month, 1, tzinfo=TZ_UTC)
-    if month == 12:
-        end = datetime(year + 1, 1, 1, tzinfo=TZ_UTC)
+def sentiment_score(text: str, sent_lex):
+  txt = (text or "").lower()
+  pos = sent_lex.get("positive", [])
+  neg = sent_lex.get("negative", [])
+  p = sum(1 for w in pos if re.search(r"(?<!\w)" + re.escape(w) + r"(?!\w)", txt))
+  n = sum(1 for w in neg if re.search(r"(?<!\w)" + re.escape(w) + r"(?!\w)", txt))
+  return p - n
+
+def analyze_period(year: int, month: int, sources, lexicon):
+  start, end = month_range(year, month)
+  ym = f"{year:04d}-{month:02d}"
+
+  topics = lexicon["topics"]
+  sent_lex = lexicon.get("sentiment_lexicon", {})
+  matchers = build_topic_matchers(topics)
+
+  topics_count = {t["key"]: 0 for t in topics}
+  items = []
+  sources_used = []
+
+  for src in sources:
+    name = src.get("name", "Unknown")
+    url = src.get("url")
+    category = src.get("category", "misc")
+    dropped = 0
+    kept = 0
+    failed = False
+
+    if not url:
+      sources_used.append({"name": name, "category": category, "items": 0, "dropped": 0, "failed": True})
+      continue
+
+    try:
+      feed = fetch_feed(url)
+      for e in feed.entries[:250]:
+        d = parse_entry_date(e)
+        if d is None:
+          dropped += 1
+          continue
+        if not (start <= d < end):
+          dropped += 1
+          continue
+
+        title = safe_text(getattr(e, "title", ""))
+        link = safe_text(getattr(e, "link", ""))
+        summary = safe_text(getattr(e, "summary", ""))
+
+        blob = (title + " " + summary).lower()
+
+        matched = []
+        for key, pats in matchers:
+          for p in pats:
+            if p.search(blob):
+              matched.append(key)
+              break
+
+        # If nothing matches, we still keep it as "observed item"
+        score = sentiment_score(blob, sent_lex)
+
+        for k in set(matched):
+          topics_count[k] += 1
+
+        items.append({
+          "date": d.strftime("%Y-%m-%d"),
+          "title": title[:240],
+          "snippet": summary[:360],
+          "link": link,
+          "source": name,
+          "category": category,
+          "sentiment": score,
+          "topics": matched
+        })
+        kept += 1
+
+    except Exception:
+      failed = True
+
+    sources_used.append({
+      "name": f"{name}{' (FAILED)' if failed else ''}",
+      "category": category,
+      "items": kept if not failed else 0,
+      "dropped": dropped,
+      "failed": failed
+    })
+
+  # KPIs
+  n = len(items)
+  ssum = sum(i["sentiment"] for i in items) if n else 0
+  avg = (ssum / n) if n else 0.0
+
+  # Top topic label (DE/EN)
+  top_key = max(topics_count.keys(), key=lambda k: topics_count[k]) if topics_count else None
+  top_topic_de = ""
+  top_topic_en = ""
+  for t in topics:
+    if t["key"] == top_key:
+      top_topic_de = t["label_de"]
+      top_topic_en = t["label_en"]
+      break
+
+  # Narrative (simple & reproducible)
+  narrative_de = []
+  narrative_en = []
+  if n == 0:
+    narrative_de.append("Keine verwertbaren Items im Zielmonat (Datum fehlte oder Quellen lieferten keine passenden Einträge).")
+    narrative_en.append("No usable items in the target month (missing dates or sources provided no matching entries).")
+  else:
+    narrative_de.append(f"Dominantes Thema im Monat: {top_topic_de} (Keyword-Treffer).")
+    narrative_en.append(f"Dominant topic this month: {top_topic_en} (keyword hits).")
+    if avg > 0.5:
+      narrative_de.append("Tonalität wirkt insgesamt eher positiv (Lexikon-Score).")
+      narrative_en.append("Overall tone appears rather positive (lexicon score).")
+    elif avg < -0.5:
+      narrative_de.append("Tonalität wirkt insgesamt eher negativ (Lexikon-Score).")
+      narrative_en.append("Overall tone appears rather negative (lexicon score).")
     else:
-        end = datetime(year, month + 1, 1, tzinfo=TZ_UTC)
-    return start, end
+      narrative_de.append("Tonalität wirkt insgesamt gemischt/neutral (Lexikon-Score).")
+      narrative_en.append("Overall tone appears mixed/neutral (lexicon score).")
 
-def _entry_datetime(entry) -> Optional[datetime]:
-    # feedparser time.struct_time
-    for key in ("published_parsed", "updated_parsed"):
-        t = getattr(entry, key, None)
-        if t:
-            try:
-                return datetime(*t[:6], tzinfo=TZ_UTC)
-            except Exception:
-                pass
+  report = {
+    "version": 3,
+    "period": {
+      "type": "month",
+      "year": year,
+      "month": month,
+      "ym": ym
+    },
+    "generated_at": utc_now_iso(),
+    "items_total": n,
+    "sentiment": {"sum": ssum, "n": n, "avg": round(avg, 4)},
+    "topics": [
+      {
+        "key": t["key"],
+        "label_de": t["label_de"],
+        "label_en": t["label_en"],
+        "count": int(topics_count[t["key"]])
+      } for t in topics
+    ],
+    "top_topic_de": top_topic_de,
+    "top_topic_en": top_topic_en,
+    "narrative_de": narrative_de,
+    "narrative_en": narrative_en,
+    "sources_used": sources_used,
+    "items": sorted(items, key=lambda x: x["date"], reverse=True)[:120]
+  }
 
-    # string fallback
-    for key in ("published", "updated"):
-        s = getattr(entry, key, None)
-        if isinstance(s, str) and s.strip():
-            try:
-                import email.utils
-                d = email.utils.parsedate_to_datetime(s)
-                if d.tzinfo:
-                    d = d.astimezone(TZ_UTC)
-                return d.replace(tzinfo=TZ_UTC)
-            except Exception:
-                return None
+  return report
+
+def aggregate_reports(reports, period_type: str, year: int, tag: str):
+  # reports = list of monthly report dicts in this aggregation
+  if not reports:
     return None
 
-def _target_month_from_env_or_previous(now_utc: datetime) -> Tuple[int, int]:
-    forced = (os.getenv("TREND_MONTH") or "").strip()
-    if re.match(r"^\d{4}-\d{2}$", forced):
-        y = int(forced[:4])
-        m = int(forced[5:7])
-        if 1 <= m <= 12:
-            return y, m
-    # default previous month
-    y = now_utc.year
-    m = now_utc.month - 1
-    if m == 0:
-        m = 12
-        y -= 1
-    return y, m
+  topics_keys = [t["key"] for t in reports[0]["topics"]]
+  topics_labels = {t["key"]: (t["label_de"], t["label_en"]) for t in reports[0]["topics"]}
 
-def _sentiment_score(tokens: List[str], lex: dict) -> int:
-    pos = set(lex.get("positive", []))
-    neg = set(lex.get("negative", []))
-    score = 0
-    for t in tokens:
-        if t in pos:
-            score += 1
-        if t in neg:
-            score -= 1
-    return score
+  total_items = sum(r["items_total"] for r in reports)
+  ssum = sum(r["sentiment"]["sum"] for r in reports)
+  sn = sum(r["sentiment"]["n"] for r in reports)
+  avg = (ssum / sn) if sn else 0.0
 
+  topics_sum = {k: 0 for k in topics_keys}
+  for r in reports:
+    for t in r["topics"]:
+      topics_sum[t["key"]] += int(t["count"])
 
-# -------------------- fetch --------------------
+  top_key = max(topics_sum.keys(), key=lambda k: topics_sum[k]) if topics_sum else None
+  top_de, top_en = topics_labels.get(top_key, ("", ""))
 
-def _fetch_feed(url: str) -> feedparser.FeedParserDict:
-    headers = {"User-Agent": UA, "Accept": "application/rss+xml,application/atom+xml,text/xml;q=0.9,*/*;q=0.8"}
-    r = requests.get(url, headers=headers, timeout=TIMEOUT)
-    r.raise_for_status()
-    return feedparser.parse(r.content)
+  narrative_de = [
+    f"Aggregration ({tag}): {len(reports)} Monatsreports zusammengefasst.",
+    f"Top-Thema: {top_de} (Summe Keyword-Treffer)."
+  ]
+  narrative_en = [
+    f"Aggregation ({tag}): {len(reports)} monthly reports combined.",
+    f"Top topic: {top_en} (sum of keyword hits)."
+  ]
 
+  agg = {
+    "version": 3,
+    "period": {"type": period_type, "year": year, "tag": tag},
+    "generated_at": utc_now_iso(),
+    "months_included": [r["period"]["ym"] for r in reports],
+    "items_total": int(total_items),
+    "sentiment": {"sum": float(ssum), "n": int(sn), "avg": round(float(avg), 4)},
+    "topics": [
+      {
+        "key": k,
+        "label_de": topics_labels[k][0],
+        "label_en": topics_labels[k][1],
+        "count": int(topics_sum[k])
+      } for k in topics_keys
+    ],
+    "top_topic_de": top_de,
+    "top_topic_en": top_en,
+    "narrative_de": narrative_de,
+    "narrative_en": narrative_en
+  }
+  return agg
 
-# -------------------- html renderers --------------------
+def load_all_month_reports():
+  if not DATA_DIR.exists():
+    return []
+  out = []
+  for p in sorted(DATA_DIR.glob("????-??.json")):
+    try:
+      out.append(load_json(p))
+    except Exception:
+      pass
+  return out
 
-def _html_base(title: str, body: str, extra_js: str = "") -> str:
-    return f"""<!doctype html>
+def write_manifest(month_reports):
+  years = {}
+  for r in month_reports:
+    y = int(r["period"]["year"])
+    ym = r["period"]["ym"]
+    years.setdefault(y, {"months": [], "halfyears": [], "year": str(y)})
+    years[y]["months"].append(ym)
+
+  # halfyears available based on months present
+  for y, obj in years.items():
+    hset = set()
+    for ym in obj["months"]:
+      m = int(ym.split("-")[1])
+      hset.add(f"{y}-{halfyear_of_month(m)}")
+    obj["halfyears"] = sorted(list(hset))
+
+  manifest = {
+    "version": 3,
+    "generated_at": utc_now_iso(),
+    "years": {str(k): v for k, v in sorted(years.items())}
+  }
+  write_json(DATA_DIR / "manifest.json", manifest)
+
+def html_shell(title: str, body: str, extra_js: str = ""):
+  # No external assets; inline CSS/JS only
+  return f"""<!doctype html>
 <html lang="de">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>{title}</title>
-  <meta name="description" content="FSA Trendreport – Monats- und Jahresübersichten, reproduzierbar, nicht repräsentativ.">
+  <title>{html.escape(title)}</title>
   <style>
     :root{{
-      --bg:#050814; --bg2:#020617;
-      --panel:rgba(15,23,42,.92); --panel2:rgba(15,23,42,.82);
-      --text:#e9edf3; --muted:#97a0ad;
-      --gold:#d4af37; --gold2:#f1d070;
+      --bg:#050814;
+      --panel:rgba(15,23,42,.92);
+      --panel2:rgba(15,23,42,.82);
+      --text:#e9edf3;
+      --muted:#97a0ad;
+      --gold:#d4af37;
+      --gold2:#f1d070;
       --ring:rgba(212,175,55,.25);
-      --shadow:0 12px 35px rgba(0,0,0,.55);
-      --radius:16px; --maxw:980px;
+      --radius:16px;
+      --shadow:0 12px 40px rgba(0,0,0,.55);
+      --maxw:1100px;
     }}
-    *{{box-sizing:border-box}}
+    html,body{{height:100%;}}
     body{{
       margin:0;
-      background: radial-gradient(900px 520px at 20% 10%, rgba(212,175,55,.14), transparent 55%),
-                  radial-gradient(780px 520px at 80% 20%, rgba(241,208,112,.10), transparent 60%),
-                  linear-gradient(180deg, var(--bg), var(--bg2));
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       color:var(--text);
-      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(212,175,55,.12), transparent 55%),
+        radial-gradient(900px 500px at 80% 20%, rgba(120,180,255,.10), transparent 60%),
+        linear-gradient(180deg, #020617 0%, #050814 60%, #020617 100%);
     }}
-    a{{color:var(--gold2); text-decoration:none}}
-    a:hover{{text-decoration:underline}}
-    .wrap{{max-width:var(--maxw); margin:0 auto; padding:26px 18px 70px}}
-    .top{{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px}}
-    h1{{margin:0; font-size:18px}}
-    .muted{{color:var(--muted)}}
+    .wrap{{max-width:var(--maxw); margin:0 auto; padding:28px 18px 44px;}}
+    .topbar{{display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-bottom:14px;}}
+    .brand{{display:flex; align-items:center; gap:10px;}}
+    .badge{{width:34px;height:34px;border-radius:10px;background:rgba(212,175,55,.10); border:1px solid var(--ring); display:grid; place-items:center; box-shadow:var(--shadow);}}
+    .badge svg{{width:18px;height:18px; fill:var(--gold2);}}
+    h1{{font-size:22px; margin:0; letter-spacing:.2px;}}
+    .sub{{color:var(--muted); font-size:13px; margin-top:4px;}}
+    .btnrow{{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}}
     .btn{{
       display:inline-flex; align-items:center; gap:10px;
-      border:1px solid rgba(212,175,55,.30);
-      background:linear-gradient(180deg, rgba(15,23,42,.82), rgba(15,23,42,.62));
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:12px;
-      box-shadow:var(--shadow);
-      cursor:pointer;
-      user-select:none;
-      text-decoration:none;
+      padding:10px 14px; border-radius:999px;
+      background:rgba(15,23,42,.65);
+      border:1px solid rgba(212,175,55,.25);
+      color:var(--text); text-decoration:none;
+      box-shadow:0 8px 22px rgba(0,0,0,.35);
     }}
-    .btn .dot{{width:10px; height:10px; border-radius:50%; background:rgba(241,208,112,.65); box-shadow:0 0 0 6px rgba(212,175,55,.14)}}
+    .btn .dot{{width:10px;height:10px;border-radius:50%; background:rgba(212,175,55,.9); box-shadow:0 0 0 4px rgba(212,175,55,.12);}}
+    .grid{{display:grid; grid-template-columns:1.15fr .85fr; gap:14px; align-items:start;}}
+    @media (max-width: 980px){{ .grid{{grid-template-columns:1fr;}} }}
     .card{{
-      margin-top:14px;
-      background:var(--panel);
-      border:1px solid rgba(212,175,55,.22);
+      background:linear-gradient(180deg, rgba(15,23,42,.92), rgba(15,23,42,.82));
+      border:1px solid rgba(212,175,55,.18);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       padding:16px;
     }}
-    .card h2{{margin:0 0 8px; font-size:15px}}
-    .kpi{{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:10px}}
-    @media (max-width: 760px){{ .kpi{{grid-template-columns:1fr 1fr}} }}
-    @media (max-width: 520px){{ .kpi{{grid-template-columns:1fr}} }}
-    .kpi .box{{
-      background:var(--panel2);
-      border:1px solid rgba(212,175,55,.18);
-      border-radius:14px;
-      padding:12px;
-      min-height:74px;
-    }}
-    .kpi .v{{font-size:22px; margin:2px 0 2px}}
-    .kpi .l{{font-size:12px; color:var(--muted)}}
-    .chartBox{{
-      margin-top:10px;
-      padding:10px;
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(212,175,55,.14);
-      border-radius:14px;
-    }}
-    table{{width:100%; border-collapse:collapse; font-size:12px}}
-    th,td{{padding:8px 8px; border-bottom:1px solid rgba(212,175,55,.12); text-align:left; vertical-align:top}}
-    th{{color:rgba(233,237,243,.90)}}
-    .cards{{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:10px}}
-    @media (max-width: 900px){{ .cards{{grid-template-columns:1fr}} }}
-    .item{{
-      background:var(--panel2);
-      border:1px solid rgba(212,175,55,.16);
-      border-radius:14px;
-      padding:12px;
-    }}
-    .item .t{{font-weight:700; font-size:13px; line-height:1.25}}
-    .item .m{{margin-top:6px; font-size:12px; color:rgba(233,237,243,.84); line-height:1.35}}
-    .item .meta{{margin-top:8px; display:flex; gap:10px; flex-wrap:wrap; font-size:11px; color:var(--muted)}}
+    .kpis{{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; margin-top:10px;}}
+    @media (max-width: 740px){{ .kpis{{grid-template-columns:1fr;}} }}
+    .kpi{{padding:12px; border-radius:14px; border:1px solid rgba(212,175,55,.14); background:rgba(2,6,23,.35);}}
+    .kpi .v{{font-size:18px; font-weight:700;}}
+    .kpi .l{{font-size:12px; color:var(--muted); margin-top:4px;}}
+    .mini{{color:var(--muted); font-size:12px;}}
+    canvas{{width:100%; height:180px; background:rgba(2,6,23,.25); border:1px solid rgba(212,175,55,.12); border-radius:14px;}}
+    .list{{margin:0; padding-left:18px; color:var(--muted);}}
+    .hr{{height:1px; background:rgba(212,175,55,.10); margin:14px 0;}}
+    .note{{font-size:12px; color:var(--muted); line-height:1.35;}}
   </style>
 </head>
 <body>
   <div class="wrap">
     {body}
   </div>
-
   <script>
-    const I18N = {{
-      de: {{
-        btn_lang:"DE",
-        btn_dash:"Dashboard",
-        btn_idx:"Chronologie",
-        btn_year:"Jahresübersicht",
-        btn_flight:"Trend-Rundflug",
-        lbl_items:"Items (Monat)",
-        lbl_sent:"Tonalität (Score)",
-        lbl_top:"Top-Thema",
-        lbl_src:"Quellen OK/Total",
-        sec_topics:"Themenverteilung (Monat)",
-        sec_sources:"Quellen (Monat)",
-        sec_items:"Beobachtete Beiträge (Monat)",
-        sec_note:"Hinweis",
-        note:"Dieses Trendbild basiert auf öffentlich zugänglichen Online-Signalen (RSS/Atom) und ist nicht repräsentativ. Datenqualität wird ausgewiesen."
-      }},
-      en: {{
-        btn_lang:"EN",
-        btn_dash:"Dashboard",
-        btn_idx:"Timeline",
-        btn_year:"Year overview",
-        btn_flight:"Trend flight",
-        lbl_items:"Items (month)",
-        lbl_sent:"Tone (score)",
-        lbl_top:"Top topic",
-        lbl_src:"Sources OK/Total",
-        sec_topics:"Topic distribution (month)",
-        sec_sources:"Sources (month)",
-        sec_items:"Observed items (month)",
-        sec_note:"Note",
-        note:"This trend view uses publicly available online signals (RSS/Atom) and is not representative. Data quality is shown."
+    (function(){{
+      const root = document.documentElement;
+      let lang = localStorage.getItem('fsa_trend_lang') || 'de';
+      function apply(){{
+        document.querySelectorAll('[data-i18n]').forEach(el=>{{
+          const key = el.getAttribute('data-i18n');
+          const de = el.getAttribute('data-de') || '';
+          const en = el.getAttribute('data-en') || '';
+          el.textContent = (lang === 'en') ? en : de;
+        }});
+        document.querySelectorAll('[data-i18n-href]').forEach(el=>{{
+          const de = el.getAttribute('data-href-de') || '#';
+          const en = el.getAttribute('data-href-en') || '#';
+          el.setAttribute('href', (lang === 'en') ? en : de);
+        }});
+        const b = document.getElementById('langBtn');
+        if(b) b.textContent = (lang === 'en') ? 'EN' : 'DE';
       }}
-    }};
-
-    function getLang() {{
-      return (localStorage.getItem("fsa_lang") || document.documentElement.lang || "de").startsWith("en") ? "en" : "de";
-    }}
-    function setLang(lang) {{
-      const L = lang === "en" ? "en" : "de";
-      localStorage.setItem("fsa_lang", L);
-      document.documentElement.lang = L;
-      document.querySelectorAll("[data-i18n]").forEach(el => {{
-        const k = el.getAttribute("data-i18n");
-        if (I18N[L][k] !== undefined) el.textContent = I18N[L][k];
-      }});
-      const lbl = document.getElementById("langLabel");
-      if (lbl) lbl.textContent = L.toUpperCase();
-    }}
-    const lb = document.getElementById("langBtn");
-    if (lb) lb.addEventListener("click", () => setLang(getLang() === "de" ? "en" : "de"));
-    setLang(getLang());
+      window.__setLang = function(next){{
+        lang = next;
+        localStorage.setItem('fsa_trend_lang', lang);
+        apply();
+      }}
+      apply();
+    }})();
   </script>
   {extra_js}
 </body>
 </html>
 """
 
-def _svg_bar_topics(topics: List[dict]) -> str:
-    # Simple inline SVG bar chart
-    w, h = 660, 160
-    padL, padR, padT = 200, 20, 18
-    innerW = w - padL - padR
-    rows = topics[:7]
-    maxv = max([t.get("count", 0) for t in rows] + [1])
-    y = 18
-    parts = []
-    for t in rows:
-        cnt = int(t.get("count", 0))
-        bw = int(innerW * (cnt / maxv)) if maxv else 0
-        label = t.get("label_de") or t.get("key")
-        parts.append(
-            f'<text x="0" y="{y}" fill="currentColor" font-size="12">{label}</text>'
-            f'<rect x="{padL}" y="{y-10}" width="{bw}" height="10" rx="4" fill="rgba(212,175,55,.45)"></rect>'
-            f'<text x="{padL+bw+8}" y="{y}" fill="rgba(233,237,243,.85)" font-size="12">{cnt}</text>'
-        )
-        y += 18
-    return f"""
-      <svg width="100%" viewBox="0 0 {w} {h}" role="img" aria-label="Topics">
-        <rect x="0" y="0" width="{w}" height="{h}" rx="14" fill="rgba(0,0,0,.18)"></rect>
-        <g transform="translate(12,14)" fill="none">
-          {''.join(parts) if parts else '<text x="0" y="18" fill="rgba(233,237,243,.65)" font-size="12">—</text>'}
-        </g>
-      </svg>
-    """
+def draw_bar_chart_js(canvas_id: str, labels: list, values: list):
+  # simple canvas bar chart (no external libs)
+  return f"""
+  <script>
+  (function(){{
+    const c = document.getElementById({json.dumps(canvas_id)});
+    if(!c) return;
+    const ctx = c.getContext('2d');
+    const labels = {json.dumps(labels)};
+    const values = {json.dumps(values)};
+    const w = c.width = c.clientWidth * (window.devicePixelRatio||1);
+    const h = c.height = 180 * (window.devicePixelRatio||1);
+    ctx.clearRect(0,0,w,h);
 
-def render_month_html(data: dict) -> str:
-    ym = data["ym"]
-    year = data["year"]
-    items = data.get("items", [])[:24]
+    const pad = 18*(window.devicePixelRatio||1);
+    const maxV = Math.max(1, ...values);
+    const barW = (w - pad*2) / Math.max(1, values.length);
+    const baseY = h - pad;
 
-    item_cards = []
-    for it in items:
-        title = (it.get("title") or "").replace("<", "&lt;").replace(">", "&gt;")
-        link = it.get("link") or ""
-        snippet = (it.get("snippet") or "").replace("<", "&lt;").replace(">", "&gt;")
-        src = it.get("source") or ""
-        pub = it.get("published") or ""
-        topics = ", ".join(it.get("topics") or [])
-        item_cards.append(f"""
-          <div class="item">
-            <div class="t">{f'<a href="{link}" target="_blank" rel="noopener noreferrer">{title}</a>' if link else title}</div>
-            <div class="m">{snippet}</div>
-            <div class="meta">
-              <span>{src}</span><span>{pub}</span>{f'<span>Topics: {topics}</span>' if topics else ''}
-            </div>
+    // grid
+    ctx.globalAlpha = 0.25;
+    ctx.strokeStyle = '#d4af37';
+    ctx.lineWidth = 1*(window.devicePixelRatio||1);
+    for(let i=0;i<4;i++) {{
+      const y = pad + i*((h-pad*2)/3);
+      ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(w-pad,y); ctx.stroke();
+    }}
+    ctx.globalAlpha = 1;
+
+    // bars
+    for(let i=0;i<values.length;i++) {{
+      const v = values[i];
+      const bh = (v/maxV) * (h - pad*2);
+      const x = pad + i*barW + barW*0.12;
+      const y = baseY - bh;
+      const bw = barW*0.76;
+
+      ctx.fillStyle = 'rgba(212,175,55,.55)';
+      ctx.fillRect(x,y,bw,bh);
+      ctx.strokeStyle = 'rgba(212,175,55,.85)';
+      ctx.strokeRect(x,y,bw,bh);
+    }}
+
+    // labels (few only)
+    ctx.fillStyle = 'rgba(233,237,243,.75)';
+    ctx.font = `${{11*(window.devicePixelRatio||1)}}px system-ui, -apple-system, Segoe UI, Arial`;
+    const showEvery = Math.ceil(values.length/7);
+    for(let i=0;i<labels.length;i++) {{
+      if(i%showEvery!==0) continue;
+      const x = pad + i*barW + barW*0.12;
+      ctx.fillText(labels[i].slice(0,10), x, h - 5*(window.devicePixelRatio||1));
+    }}
+  }})();
+  </script>
+  """
+
+def render_index_page():
+  body = f"""
+  <div class="topbar">
+    <div class="brand">
+      <div class="badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 2l2.2 6.3H21l-5.4 3.9 2.1 6.4L12 15.7 6.3 18.6l2.1-6.4L3 8.3h6.8L12 2z"/></svg>
+      </div>
+      <div>
+        <h1 data-i18n data-de="FSA Trendbarometer" data-en="FSA Trend Barometer"></h1>
+        <div class="sub" data-i18n
+          data-de="Hauptsicht: Jahr & Halbjahr (H1/H2). Monate bleiben als Detail-Archiv."
+          data-en="Primary view: year & half-year (H1/H2). Months remain as detail archive."></div>
+      </div>
+    </div>
+    <div class="btnrow">
+      <a class="btn" href="./dashboard.html"><span class="dot"></span><span data-i18n data-de="Dashboard" data-en="Dashboard"></span></a>
+      <a class="btn" href="./chronologie.html"><span class="dot"></span><span data-i18n data-de="Chronologie" data-en="Chronology"></span></a>
+      <button class="btn" id="langBtn" onclick="__setLang((localStorage.getItem('fsa_trend_lang')||'de')==='de'?'en':'de')"><span class="dot"></span>DE</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="mini" data-i18n
+        data-de="Was es ist: reproduzierbares Online-Signal-Barometer (RSS/Atom)."
+        data-en="What it is: reproducible online-signal barometer (RSS/Atom)."></div>
+      <div class="hr"></div>
+      <div class="note" data-i18n
+        data-de="Wichtig: Das ist keine repräsentative 'Volksmeinung'. Es zeigt nur das, was die ausgewählten Quellen im Zeitraum publizieren – inkl. transparenter Quellen-Qualität (OK/Dropped/Failed)."
+        data-en="Important: this is not a representative 'public opinion'. It only reflects what selected sources publish in the period—plus transparent source quality (OK/Dropped/Failed)."></div>
+      <div class="hr"></div>
+      <div id="yearsBox" class="note" data-i18n
+        data-de="Lade verfügbare Jahre..."
+        data-en="Loading available years..."></div>
+    </div>
+
+    <div class="card">
+      <div class="mini" data-i18n data-de="Schnellstart" data-en="Quick start"></div>
+      <div class="hr"></div>
+      <div class="note" data-i18n
+        data-de="1) Öffne Dashboard → wähle Jahr → H1/H2 → Charts & Tabellen."
+        data-en="1) Open Dashboard → select year → H1/H2 → charts & tables."></div>
+      <div class="note" style="margin-top:10px;" data-i18n
+        data-de="2) Wenn du mehr Inhalte willst: Quellen stabilisieren (RSS mit Datum) – dann füllt sich das Barometer automatisch."
+        data-en="2) If you want more content: stabilize sources (RSS with dates)—then the barometer fills automatically."></div>
+    </div>
+  </div>
+
+  <script>
+  (async function(){{
+    const box = document.getElementById('yearsBox');
+    try {{
+      const r = await fetch('./data/manifest.json?nocache=' + Date.now());
+      if(!r.ok) throw new Error('manifest');
+      const mf = await r.json();
+      const years = Object.keys(mf.years||{{}}).sort().reverse();
+      if(!years.length) {{
+        box.textContent = (localStorage.getItem('fsa_trend_lang')==='en')
+          ? 'No years available yet.'
+          : 'Noch keine Jahre verfügbar.';
+        return;
+      }}
+      const lang = localStorage.getItem('fsa_trend_lang') || 'de';
+      let html = '';
+      years.forEach(y=>{{
+        const info = mf.years[y];
+        const half = (info.halfyears||[]).sort();
+        html += `<div style="margin:10px 0; padding:12px; border:1px solid rgba(212,175,55,.14); border-radius:14px; background:rgba(2,6,23,.25);">
+          <div style="font-weight:700; color:rgba(233,237,243,.92); margin-bottom:6px;">${{y}}</div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a class="btn" href="./${{y}}.html?nocache=${{Date.now()}}"><span class="dot"></span>${{lang==='en'?'Year overview':'Jahresübersicht'}}</a>
+            ${(half||[]).map(h=>{{
+              const tag = h.endsWith('H1') ? (lang==='en'?'Half-year H1':'Halbjahr H1') : (lang==='en'?'Half-year H2':'Halbjahr H2');
+              return `<a class="btn" href="./${{y}}-${{h.endsWith('H1')?'h1':'h2'}}.html?nocache=${{Date.now()}}"><span class="dot"></span>${{tag}}</a>`;
+            }}).join('')}
           </div>
-        """)
+          <div style="margin-top:8px; color:rgba(151,160,173,.95); font-size:12px;">
+            ${(lang==='en'?'Months in archive: ':'Monate im Archiv: ')}${{(info.months||[]).length}}
+          </div>
+        </div>`;
+      }});
+      box.innerHTML = html;
+    }} catch(e) {{
+      box.textContent = (localStorage.getItem('fsa_trend_lang')==='en')
+        ? 'Could not load manifest.'
+        : 'Manifest konnte nicht geladen werden.';
+    }}
+  }})();
+  </script>
+  """
+  return html_shell("FSA Trendbarometer", body)
 
-    q = data.get("quality", {})
-    sources_ok = q.get("sources_ok", 0)
-    sources_total = q.get("sources_total", 0)
-
-    body = f"""
-      <div class="top">
-        <div>
-          <h1>FSA Trendreport · {ym}</h1>
-          <div class="muted">Generated: {data.get("generated_at","")} (UTC)</div>
-        </div>
-        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-          <button class="btn" id="langBtn" type="button"><span class="dot"></span><span id="langLabel">DE</span></button>
-          <a class="btn" href="dashboard.html"><span class="dot"></span><span data-i18n="btn_dash">Dashboard</span></a>
-          <a class="btn" href="index.html"><span class="dot"></span><span data-i18n="btn_idx">Chronologie</span></a>
-          <a class="btn" href="{year}.html"><span class="dot"></span><span data-i18n="btn_year">Jahresübersicht</span></a>
-          <a class="btn" href="{year}-rundflug.html"><span class="dot"></span><span data-i18n="btn_flight">Trend-Rundflug</span></a>
-        </div>
+def render_simple_aggregate_page(title, subtitle, agg_json_path, back_link="./index.html"):
+  body = f"""
+  <div class="topbar">
+    <div class="brand">
+      <div class="badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M3 12h18v2H3v-2zm0-7h18v2H3V5zm0 14h18v2H3v-2z"/></svg>
       </div>
-
-      <div class="card">
-        <h2>KPIs</h2>
-        <div class="kpi">
-          <div class="box"><div class="v">{data.get("items_total",0)}</div><div class="l" data-i18n="lbl_items">Items (Monat)</div></div>
-          <div class="box"><div class="v">{data.get("sentiment",{}).get("avg",0):.2f}</div><div class="l" data-i18n="lbl_sent">Tonalität (Score)</div></div>
-          <div class="box"><div class="v">{data.get("top_topic_de","—")}</div><div class="l" data-i18n="lbl_top">Top-Thema</div></div>
-          <div class="box"><div class="v">{sources_ok}/{sources_total}</div><div class="l" data-i18n="lbl_src">Quellen OK/Total</div></div>
-        </div>
+      <div>
+        <h1>{html.escape(title)}</h1>
+        <div class="sub">{html.escape(subtitle)}</div>
       </div>
+    </div>
+    <div class="btnrow">
+      <a class="btn" href="{back_link}"><span class="dot"></span><span data-i18n data-de="Zurück" data-en="Back"></span></a>
+      <a class="btn" href="./dashboard.html"><span class="dot"></span><span data-i18n data-de="Dashboard" data-en="Dashboard"></span></a>
+      <button class="btn" id="langBtn" onclick="__setLang((localStorage.getItem('fsa_trend_lang')||'de')==='de'?'en':'de')"><span class="dot"></span>DE</button>
+    </div>
+  </div>
 
-      <div class="card">
-        <h2 data-i18n="sec_topics">Themenverteilung (Monat)</h2>
-        <div class="chartBox">{_svg_bar_topics(data.get("topics", []))}</div>
+  <div class="grid">
+    <div class="card">
+      <div class="mini" data-i18n
+        data-de="KPIs (Aggregation)"
+        data-en="KPIs (aggregation)"></div>
+      <div class="kpis">
+        <div class="kpi"><div class="v" id="k_items">—</div><div class="l" data-i18n data-de="Items (Summe)" data-en="Items (sum)"></div></div>
+        <div class="kpi"><div class="v" id="k_sent">—</div><div class="l" data-i18n data-de="Tonalität (avg)" data-en="Tone (avg)"></div></div>
+        <div class="kpi"><div class="v" id="k_top">—</div><div class="l" data-i18n data-de="Top-Thema" data-en="Top topic"></div></div>
       </div>
+      <div class="hr"></div>
+      <canvas id="bars"></canvas>
+      <div class="note" style="margin-top:10px;" id="narr"></div>
+    </div>
 
-      <div class="card">
-        <h2 data-i18n="sec_sources">Quellen (Monat)</h2>
-        <div class="chartBox">
-          <table>
-            <thead><tr><th>Source</th><th>Cat</th><th>Items</th><th>Dropped</th><th>Failed</th></tr></thead>
-            <tbody>
-              {''.join([f"<tr><td>{(s.get('name') or '')}</td><td>{(s.get('category') or '')}</td><td>{s.get('items',0)}</td><td>{s.get('dropped_out_of_month',0)+s.get('dropped_undated',0)}</td><td>{'YES' if s.get('failed') else 'NO'}</td></tr>" for s in data.get("sources_used",[])])}
-            </tbody>
-          </table>
-        </div>
+    <div class="card">
+      <div class="mini" data-i18n data-de="Hinweis" data-en="Note"></div>
+      <div class="hr"></div>
+      <div class="note" data-i18n
+        data-de="Diese Seite fasst Monatsdaten zusammen. Wenn Quellen keine Historie liefern (oder Datumsfelder fehlen), bleiben Zeiträume dünn – das ist Absicht (Anti-Fake-Backfill)."
+        data-en="This page aggregates monthly data. If sources provide no history (or dates are missing), periods stay thin—by design (anti-fake backfill)."></div>
+      <div class="hr"></div>
+      <a class="btn" href="./chronologie.html"><span class="dot"></span><span data-i18n data-de="Chronologie öffnen" data-en="Open chronology"></span></a>
+    </div>
+  </div>
+
+  <script>
+  (async function(){{
+    const lang = localStorage.getItem('fsa_trend_lang') || 'de';
+    const r = await fetch('{agg_json_path}?nocache=' + Date.now());
+    const d = await r.json();
+
+    document.getElementById('k_items').textContent = d.items_total ?? '0';
+    document.getElementById('k_sent').textContent = (d.sentiment && typeof d.sentiment.avg === 'number') ? d.sentiment.avg.toFixed(2) : '0.00';
+    document.getElementById('k_top').textContent = (lang==='en') ? (d.top_topic_en||'—') : (d.top_topic_de||'—');
+
+    const narr = (lang==='en' ? (d.narrative_en||[]) : (d.narrative_de||[])).join(' • ');
+    document.getElementById('narr').textContent = narr || '—';
+
+    const topics = d.topics || [];
+    const labels = topics.map(t => (lang==='en' ? t.label_en : t.label_de));
+    const values = topics.map(t => t.count || 0);
+
+    // draw bars
+    const c = document.getElementById('bars');
+    const ctx = c.getContext('2d');
+    const w = c.width = c.clientWidth * (window.devicePixelRatio||1);
+    const h = c.height = 180 * (window.devicePixelRatio||1);
+    ctx.clearRect(0,0,w,h);
+    const pad = 18*(window.devicePixelRatio||1);
+    const maxV = Math.max(1, ...values);
+    const barW = (w - pad*2) / Math.max(1, values.length);
+    const baseY = h - pad;
+
+    ctx.globalAlpha = 0.25;
+    ctx.strokeStyle = '#d4af37';
+    ctx.lineWidth = 1*(window.devicePixelRatio||1);
+    for(let i=0;i<4;i++) {{
+      const y = pad + i*((h-pad*2)/3);
+      ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(w-pad,y); ctx.stroke();
+    }}
+    ctx.globalAlpha = 1;
+
+    for(let i=0;i<values.length;i++) {{
+      const v = values[i];
+      const bh = (v/maxV) * (h - pad*2);
+      const x = pad + i*barW + barW*0.12;
+      const y = baseY - bh;
+      const bw = barW*0.76;
+
+      ctx.fillStyle = 'rgba(212,175,55,.55)';
+      ctx.fillRect(x,y,bw,bh);
+      ctx.strokeStyle = 'rgba(212,175,55,.85)';
+      ctx.strokeRect(x,y,bw,bh);
+    }}
+
+    ctx.fillStyle = 'rgba(233,237,243,.75)';
+    ctx.font = `${{11*(window.devicePixelRatio||1)}}px system-ui, -apple-system, Segoe UI, Arial`;
+    const showEvery = Math.ceil(values.length/7);
+    for(let i=0;i<labels.length;i++) {{
+      if(i%showEvery!==0) continue;
+      const x = pad + i*barW + barW*0.12;
+      ctx.fillText(labels[i].slice(0,10), x, h - 5*(window.devicePixelRatio||1));
+    }}
+  }})();
+  </script>
+  """
+  return html_shell(title, body)
+
+def render_chronologie_page():
+  body = f"""
+  <div class="topbar">
+    <div class="brand">
+      <div class="badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M7 2h2v2h6V2h2v2h3v18H4V4h3V2zm13 6H6v12h14V8z"/></svg>
       </div>
-
-      <div class="card">
-        <h2 data-i18n="sec_items">Beobachtete Beiträge (Monat)</h2>
-        <div class="cards">
-          {''.join(item_cards) if item_cards else '<div class="muted">—</div>'}
-        </div>
+      <div>
+        <h1 data-i18n data-de="FSA Trendbarometer – Chronologie" data-en="FSA Trend Barometer – Chronology"></h1>
+        <div class="sub" data-i18n data-de="Monate (Detail-Archiv). Hauptsicht bleibt Jahr/Halbjahr." data-en="Months (detail archive). Primary view remains year/half-year."></div>
       </div>
+    </div>
+    <div class="btnrow">
+      <a class="btn" href="./index.html"><span class="dot"></span><span data-i18n data-de="Start" data-en="Home"></span></a>
+      <a class="btn" href="./dashboard.html"><span class="dot"></span><span data-i18n data-de="Dashboard" data-en="Dashboard"></span></a>
+      <button class="btn" id="langBtn" onclick="__setLang((localStorage.getItem('fsa_trend_lang')||'de')==='de'?'en':'de')"><span class="dot"></span>DE</button>
+    </div>
+  </div>
 
-      <div class="card">
-        <h2 data-i18n="sec_note">Hinweis</h2>
-        <div class="muted" data-i18n="note">Dieses Trendbild basiert auf öffentlich zugänglichen Online-Signalen (RSS/Atom) und ist nicht repräsentativ. Datenqualität wird ausgewiesen.</div>
-      </div>
+  <div class="card">
+    <div id="list" class="note" data-i18n data-de="Lade..." data-en="Loading..."></div>
+  </div>
 
-      <!-- DATA_BLOB_JSON
-      {json.dumps(data, ensure_ascii=False)}
-      DATA_BLOB_JSON -->
-    """
-    return _html_base(f"FSA Trendreport – {ym}", body)
+  <script>
+  (async function(){{
+    const el = document.getElementById('list');
+    const lang = localStorage.getItem('fsa_trend_lang') || 'de';
+    const r = await fetch('./data/manifest.json?nocache=' + Date.now());
+    const mf = await r.json();
+    const years = Object.keys(mf.years||{{}}).sort().reverse();
+    let html = '';
+    years.forEach(y=>{{
+      const months = (mf.years[y].months||[]).slice().sort().reverse();
+      html += `<div style="margin:10px 0; padding:12px; border:1px solid rgba(212,175,55,.14); border-radius:14px; background:rgba(2,6,23,.25);">
+        <div style="font-weight:700; margin-bottom:6px;">${{y}}</div>
+        <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px;">` +
+        months.map(m=>`<a class="btn" href="./${{m}}.html?nocache=${{Date.now()}}"><span class="dot"></span>${{m}}</a>`).join('') +
+        `</div>
+      </div>`;
+    }});
+    el.innerHTML = html || ((lang==='en')?'No months available.':'Keine Monate verfügbar.');
+  }})();
+  </script>
+  """
+  return html_shell("FSA Trendbarometer – Chronologie", body)
 
-def render_index_html(manifest: dict) -> str:
-    months = manifest.get("months", [])  # newest -> oldest
-    rows = []
-    for ym in months:
-        s = (manifest.get("summary") or {}).get(ym, {})
-        rows.append(f"""
-          <a class="btn" style="display:flex; justify-content:space-between; width:100%; margin-top:10px; text-decoration:none;" href="{ym}.html">
-            <span><span class="dot"></span> {ym}</span>
-            <span class="muted">Items {s.get("items_total",0)} · Sent {float(s.get("sent_avg",0)):.2f} · Top {s.get("top_topic_de","—")}</span>
-          </a>
-        """)
+def main():
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--month", default="", help="YYYY-MM (optional)")
+  args = parser.parse_args()
 
-    body = f"""
-      <div class="top">
-        <div>
-          <h1>FSA Trendreport – Chronologie</h1>
-          <div class="muted">Neu → Alt · Dashboard verfügbar</div>
-        </div>
-        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-          <button class="btn" id="langBtn" type="button"><span class="dot"></span><span id="langLabel">DE</span></button>
-          <a class="btn" href="dashboard.html"><span class="dot"></span><span data-i18n="btn_dash">Dashboard</span></a>
-        </div>
-      </div>
-      <div class="card">
-        <h2>Monatsreports</h2>
-        {''.join(rows) if rows else '<div class="muted">Noch keine Reports vorhanden.</div>'}
-      </div>
-    """
-    return _html_base("FSA Trendreport – Chronologie", body)
+  sources = load_json(SOURCES_FILE)
+  lexicon = load_json(LEXICON_FILE)
 
-def render_year_html(year: int, manifest: dict) -> str:
-    months = (manifest.get("months_by_year") or {}).get(str(year), [])
-    # months stored newest -> oldest in manifest, keep it
-    rows = []
-    for ym in months:
-        s = (manifest.get("summary") or {}).get(ym, {})
-        rows.append(f"""
-          <a class="btn" style="display:flex; justify-content:space-between; width:100%; margin-top:10px; text-decoration:none;" href="{ym}.html">
-            <span><span class="dot"></span> {ym}</span>
-            <span class="muted">Items {s.get("items_total",0)} · Sent {float(s.get("sent_avg",0)):.2f} · Top {s.get("top_topic_de","—")}</span>
-          </a>
-        """)
+  DATA_DIR.mkdir(parents=True, exist_ok=True)
+  PAGES_DIR.mkdir(parents=True, exist_ok=True)
 
-    body = f"""
-      <div class="top">
-        <div>
-          <h1>FSA Trendreport – Jahresübersicht {year}</h1>
-          <div class="muted">Jahresseite basiert auf Monatsdaten (nicht repräsentativ).</div>
-        </div>
-        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-          <button class="btn" id="langBtn" type="button"><span class="dot"></span><span id="langLabel">DE</span></button>
-          <a class="btn" href="dashboard.html"><span class="dot"></span><span data-i18n="btn_dash">Dashboard</span></a>
-          <a class="btn" href="{year}-rundflug.html"><span class="dot"></span><span data-i18n="btn_flight">Trend-Rundflug</span></a>
-          <a class="btn" href="index.html"><span class="dot"></span><span data-i18n="btn_idx">Chronologie</span></a>
-        </div>
-      </div>
-      <div class="card">
-        <h2>Monate</h2>
-        {''.join(rows) if rows else '<div class="muted">Noch keine Monatsdaten für dieses Jahr.</div>'}
-      </div>
-    """
-    return _html_base(f"FSA Trendreport – Jahresübersicht {year}", body)
+  # Decide target month
+  if args.month and re.match(r"^\d{4}-\d{2}$", args.month):
+    y, m = map(int, args.month.split("-"))
+  else:
+    # previous month (UTC)
+    now = dt.datetime.utcnow()
+    y, m = now.year, now.month
+    m -= 1
+    if m == 0:
+      y -= 1
+      m = 12
 
-def render_rundflug_html(year: int, manifest: dict) -> str:
-    months = (manifest.get("months_by_year") or {}).get(str(year), [])
-    months_count = len(months)
+  # Build month report + save JSON
+  month_report = analyze_period(y, m, sources, lexicon)
+  write_json(DATA_DIR / f"{y:04d}-{m:02d}.json", month_report)
 
-    # build a simple story from top topics
-    topic_sum = Counter()
-    for ym in months:
-        s = (manifest.get("summary") or {}).get(ym, {})
-        tc = s.get("topic_counts") or {}
-        for k,v in tc.items():
-            topic_sum[k] += int(v)
+  # Load all month reports (for year/halfyear aggregation)
+  all_months = load_all_month_reports()
+  write_manifest(all_months)
 
-    top = topic_sum.most_common(4)
-    top_lines = "".join([f"<li>{k}: {v}</li>" for k,v in top]) if top else "<li>—</li>"
+  # Aggregate per year and half-year for every year present
+  by_year = {}
+  for r in all_months:
+    yr = int(r["period"]["year"])
+    by_year.setdefault(yr, []).append(r)
 
-    body = f"""
-      <div class="top">
-        <div>
-          <h1>FSA Trendreport – Trend-Rundflug {year}</h1>
-          <div class="muted">Jahresstory aus Monatsdaten · vorhandene Monate: {months_count}</div>
-        </div>
-        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-          <button class="btn" id="langBtn" type="button"><span class="dot"></span><span id="langLabel">DE</span></button>
-          <a class="btn" href="dashboard.html"><span class="dot"></span><span data-i18n="btn_dash">Dashboard</span></a>
-          <a class="btn" href="{year}.html"><span class="dot"></span><span data-i18n="btn_year">Jahresübersicht</span></a>
-          <a class="btn" href="index.html"><span class="dot"></span><span data-i18n="btn_idx">Chronologie</span></a>
-        </div>
-      </div>
+  for yr, reps in by_year.items():
+    reps_sorted = sorted(reps, key=lambda x: x["period"]["ym"])
+    # Year
+    agg_year = aggregate_reports(reps_sorted, "year", yr, str(yr))
+    if agg_year:
+      write_json(DATA_DIR / f"{yr}.json", agg_year)
+      # Year page
+      year_html = render_simple_aggregate_page(
+        title=f"FSA Trendbarometer – Jahresübersicht {yr}",
+        subtitle="Aggregation über Monatsdaten (nicht repräsentativ).",
+        agg_json_path=f"./data/{yr}.json",
+        back_link="./index.html"
+      )
+      (PAGES_DIR / f"{yr}.html").write_text(year_html, encoding="utf-8")
 
-      <div class="card">
-        <h2>Top-Themen (Summe über Monate)</h2>
-        <ul class="muted">{top_lines}</ul>
-        <div class="muted" style="margin-top:10px;">
-          Hinweis: Wenn Quellen keine Historie liefern, bleiben Monate dünn/leer – das ist Absicht (Anti-Fake-Backfill).
-        </div>
-      </div>
+    # Half-years
+    h1 = [r for r in reps_sorted if int(r["period"]["ym"].split("-")[1]) <= 6]
+    h2 = [r for r in reps_sorted if int(r["period"]["ym"].split("-")[1]) >= 7]
+    agg_h1 = aggregate_reports(h1, "halfyear", yr, f"{yr}-H1")
+    agg_h2 = aggregate_reports(h2, "halfyear", yr, f"{yr}-H2")
+    if agg_h1:
+      write_json(DATA_DIR / f"{yr}-h1.json", agg_h1)
+      h1_html = render_simple_aggregate_page(
+        title=f"FSA Trendbarometer – Halbjahr H1 {yr}",
+        subtitle="Jan–Jun (Aggregation über Monatsdaten).",
+        agg_json_path=f"./data/{yr}-h1.json",
+        back_link=f"./{yr}.html"
+      )
+      (PAGES_DIR / f"{yr}-h1.html").write_text(h1_html, encoding="utf-8")
+    if agg_h2:
+      write_json(DATA_DIR / f"{yr}-h2.json", agg_h2)
+      h2_html = render_simple_aggregate_page(
+        title=f"FSA Trendbarometer – Halbjahr H2 {yr}",
+        subtitle="Jul–Dez (Aggregation über Monatsdaten).",
+        agg_json_path=f"./data/{yr}-h2.json",
+        back_link=f"./{yr}.html"
+      )
+      (PAGES_DIR / f"{yr}-h2.html").write_text(h2_html, encoding="utf-8")
 
-      <div class="card">
-        <h2>Kapitel (neu → alt)</h2>
-        {''.join([f'<a class="btn" style="display:flex; justify-content:space-between; width:100%; margin-top:10px; text-decoration:none;" href="{ym}.html"><span><span class="dot"></span> {ym}</span><span class="muted">Öffnen</span></a>' for ym in months]) if months else '<div class="muted">—</div>'}
-      </div>
-    """
-    return _html_base(f"FSA Trendreport – Trend-Rundflug {year}", body)
+  # Write core pages
+  (PAGES_DIR / "index.html").write_text(render_index_page(), encoding="utf-8")
+  (PAGES_DIR / "chronologie.html").write_text(render_chronologie_page(), encoding="utf-8")
 
+  # NOTE: dashboard.html is maintained as a static file in repo (optional).
+  # If present, it will read manifest.json + aggregate json files.
 
-# -------------------- manifest builder --------------------
-
-def build_manifest() -> dict:
-    files = sorted(glob.glob(os.path.join(DATA_DIR, "*.json")))
-    ym_list = []
-    summary = {}
-    topic_keys = []
-    topic_labels_de = {}
-
-    for fp in files:
-        base = os.path.basename(fp)
-        if base == "manifest.json":
-            continue
-        if not re.match(r"^\d{4}-\d{2}\.json$", base):
-            continue
-        d = _read_json(fp)
-        ym = d.get("ym") or base.replace(".json","")
-        ym_list.append(ym)
-
-        # topic counts per key
-        tc = {}
-        for t in d.get("topics", []):
-            tc[t.get("key")] = int(t.get("count", 0))
-            if t.get("key") and (t.get("label_de")):
-                topic_labels_de[t.get("key")] = t.get("label_de")
-
-        if not topic_keys:
-            topic_keys = [t.get("key") for t in d.get("topics", []) if t.get("key")]
-
-        q = d.get("quality", {})
-        summary[ym] = {
-            "items_total": int(d.get("items_total", 0)),
-            "sent_avg": float(d.get("sentiment", {}).get("avg", 0.0)),
-            "top_topic_de": d.get("top_topic_de", "—"),
-            "topic_counts": tc,
-            "quality": {
-                "sources_ok": int(q.get("sources_ok", 0)),
-                "sources_total": int(q.get("sources_total", 0)),
-                "sources_failed": int(q.get("sources_failed", 0)),
-                "dropped_total": int(q.get("dropped_total", 0)),
-                "note": q.get("note","")
-            }
-        }
-
-    # newest -> oldest
-    ym_list = sorted(set(ym_list), reverse=True)
-
-    months_by_year = defaultdict(list)
-    years = set()
-    for ym in ym_list:
-        y = int(ym[:4])
-        years.add(y)
-        months_by_year[str(y)].append(ym)
-
-    return {
-        "version": 1,
-        "generated_at": datetime.now(TZ_UTC).strftime("%Y-%m-%d %H:%M:%S"),
-        "years": sorted(list(years)),
-        "months": ym_list,
-        "months_by_year": dict(months_by_year),
-        "summary": summary,
-        "topic_keys": topic_keys,
-        "topic_labels_de": topic_labels_de
-    }
-
-
-# -------------------- main --------------------
-
-def main() -> None:
-    _safe_mkdir(PAGES_DIR)
-    _safe_mkdir(DATA_DIR)
-
-    cfg = _read_json(SOURCES_PATH)
-    lex = _read_json(LEX_PATH)
-
-    now_utc = datetime.now(TZ_UTC)
-    year, month = _target_month_from_env_or_previous(now_utc)
-    start, end = _month_range(year, month)
-    ym = f"{year:04d}-{month:02d}"
-
-    topics_cfg = lex.get("topics", [])
-    topic_defs = {t["key"]: t for t in topics_cfg}
-
-    # aggregation
-    items_total = 0
-    sentiment_sum = 0
-    sentiment_n = 0
-    topic_counts = Counter()
-
-    items_out: List[dict] = []
-    sources_used: List[dict] = []
-
-    sources_total = 0
-    sources_ok = 0
-    sources_failed = 0
-    dropped_out_of_month_total = 0
-    dropped_undated_total = 0
-
-    for src in cfg.get("sources", []):
-        url = src.get("url")
-        name = src.get("name", url)
-        cat = src.get("category", "misc")
-
-        sources_total += 1
-        src_items = 0
-        dropped_out = 0
-        dropped_undated = 0
-        failed = False
-
-        try:
-            feed = _fetch_feed(url)
-            for entry in feed.entries:
-                dt_entry = _entry_datetime(entry)
-                if dt_entry is None:
-                    dropped_undated += 1
-                    continue
-                if not (start <= dt_entry < end):
-                    dropped_out += 1
-                    continue
-
-                title = getattr(entry, "title", "") or ""
-                summary_raw = getattr(entry, "summary", "") or getattr(entry, "description", "") or ""
-                summary = _strip_html(summary_raw)
-                link = getattr(entry, "link", "") or ""
-
-                text = f"{title} {summary}"
-                toks = _tokens(text)
-
-                sc = _sentiment_score(toks, lex)
-                sentiment_sum += sc
-                sentiment_n += 1
-
-                # topic hits list
-                text_norm = _norm(text)
-                hit_topics = []
-                for t in topics_cfg:
-                    kws = t.get("keywords", [])
-                    if any(_norm(k) in text_norm for k in kws):
-                        topic_counts[t["key"]] += 1
-                        hit_topics.append(t["key"])
-
-                items_out.append({
-                    "source": name,
-                    "category": cat,
-                    "published": dt_entry.strftime("%Y-%m-%d %H:%M:%S"),
-                    "title": title,
-                    "link": link,
-                    "snippet": (summary[:220] + "…") if len(summary) > 220 else summary,
-                    "sent": sc,
-                    "topics": hit_topics
-                })
-
-                src_items += 1
-                items_total += 1
-
-            if src_items > 0:
-                sources_ok += 1
-
-        except Exception:
-            failed = True
-            sources_failed += 1
-
-        dropped_out_of_month_total += dropped_out
-        dropped_undated_total += dropped_undated
-
-        sources_used.append({
-            "name": f"{name} (FAILED)" if failed else name,
-            "category": cat,
-            "items": src_items,
-            "dropped_out_of_month": dropped_out,
-            "dropped_undated": dropped_undated,
-            "failed": failed
-        })
-
-    sent_avg = (sentiment_sum / sentiment_n) if sentiment_n else 0.0
-
-    # build topics output fixed order
-    topic_list = []
-    for key, tdef in topic_defs.items():
-        topic_list.append({
-            "key": key,
-            "label_de": tdef.get("de", key),
-            "label_en": tdef.get("en", key),
-            "count": int(topic_counts.get(key, 0))
-        })
-    topic_list.sort(key=lambda x: x["count"], reverse=True)
-
-    # top topic (if all zero -> "—")
-    top_topic_de = "—"
-    if topic_list and topic_list[0]["count"] > 0:
-        top_topic_de = topic_list[0]["label_de"]
-
-    # quality note
-    note = "OK"
-    if items_total < 15 or sources_ok < 2:
-        note = "DÜNN"
-    if items_total < 5 or sources_ok < 1:
-        note = "SEHR DÜNN"
-
-    data = {
-        "version": 5,
-        "year": year,
-        "month": month,
-        "ym": ym,
-        "generated_at": now_utc.strftime("%Y-%m-%d %H:%M:%S"),
-        "items_total": int(items_total),
-        "sentiment": {"sum": int(sentiment_sum), "n": int(sentiment_n), "avg": float(sent_avg)},
-        "topics": topic_list,
-        "top_topic_de": top_topic_de,
-        "items": items_out[:80],
-        "quality": {
-            "sources_ok": int(sources_ok),
-            "sources_total": int(sources_total),
-            "sources_failed": int(sources_failed),
-            "dropped_out_of_month": int(dropped_out_of_month_total),
-            "dropped_undated": int(dropped_undated_total),
-            "dropped_total": int(dropped_out_of_month_total + dropped_undated_total),
-            "note": note
-        },
-        "sources_used": sources_used
-    }
-
-    # write month json + html
-    _write_json(os.path.join(DATA_DIR, f"{ym}.json"), data)
-    _write_text(os.path.join(PAGES_DIR, f"{ym}.html"), render_month_html(data))
-
-    # rebuild manifest + index/year/rundflug pages
-    manifest = build_manifest()
-    _write_json(os.path.join(DATA_DIR, "manifest.json"), manifest)
-    _write_text(os.path.join(PAGES_DIR, "index.html"), render_index_html(manifest))
-
-    for y in manifest.get("years", []):
-        _write_text(os.path.join(PAGES_DIR, f"{y}.html"), render_year_html(int(y), manifest))
-        _write_text(os.path.join(PAGES_DIR, f"{y}-rundflug.html"), render_rundflug_html(int(y), manifest))
-
-    print(f"Generated {ym} | items={items_total} | sources_ok={sources_ok}/{sources_total} | note={note}")
-
+  print("OK:", utc_now_iso(), "generated", f"{y:04d}-{m:02d}")
 
 if __name__ == "__main__":
-    main()
+  main()
