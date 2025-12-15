@@ -573,7 +573,11 @@
     │   ├── trustyfy/
     │   │   └── fast-track.html
     │   ├── wefi/
-    │   │   └── wefi-hoersaal.html
+    │   │   ├── wefi-aufklaerung.html
+    │   │   ├── wefi-glossar.html
+    │   │   ├── wefi-hoersaal.html
+    │   │   ├── wefi-video.html
+    │   │   └── wefi-zoom.html
     │   ├── admin-config.json
     │   ├── affiliate-magazin.html
     │   ├── community.html
@@ -623,4 +627,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.12.2025, 15:19)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.12.2025, 16:23)_
