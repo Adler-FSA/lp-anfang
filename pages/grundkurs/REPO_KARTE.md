@@ -572,6 +572,8 @@
     │   │   └── workshop.html
     │   ├── trustyfy/
     │   │   └── fast-track.html
+    │   ├── wefi/
+    │   │   └── wefi-hoersaal.html
     │   ├── admin-config.json
     │   ├── affiliate-magazin.html
     │   ├── community.html
@@ -621,4 +623,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.12.2025, 14:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.12.2025, 15:19)_
