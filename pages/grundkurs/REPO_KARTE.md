@@ -580,6 +580,7 @@
     │   │   ├── wefi-aufklaerung.html
     │   │   ├── wefi-glossar.html
     │   │   ├── wefi-hoersaal.html
+    │   │   ├── wefi-landing.html
     │   │   ├── wefi-video.html
     │   │   └── wefi-zoom.html
     │   ├── admin-config.json
@@ -631,4 +632,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.12.2025, 13:35)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.12.2025, 14:19)_
