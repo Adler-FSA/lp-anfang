@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <a class="door" href="/lp-anfang/grundkurs.html">📘 Grundkurs</a>
         <a class="door" href="/lp-anfang/office.html">📂 Office</a>
         <a class="door" href="/lp-anfang/campus.html">🎓 Campus</a>
+        <a class="door" href="/lp-anfang/hoersaal.html">🏛️ Hörsaal</a>
       </nav>
 
       <!-- Zusatzbereich für Sprach- & Musikbuttons -->
