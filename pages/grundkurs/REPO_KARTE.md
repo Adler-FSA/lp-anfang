@@ -466,7 +466,9 @@
     │       │   ├── onboarding.mp4
     │       │   └── vorwort.mp4
     │       ├── wefi/
-    │       │   └── freiheit.mp4
+    │       │   ├── freiheit.mp4
+    │       │   ├── registrieren.mp4
+    │       │   └── wefi-basis.mp4
     │       ├── adlerflug.mp4
     │       └── playlist-01.json
     ├── pages/
@@ -629,4 +631,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.12.2025, 12:34)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.12.2025, 13:35)_
