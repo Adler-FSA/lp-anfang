@@ -228,7 +228,7 @@
     .vtitle{margin:0; font-size:16px; letter-spacing:.1px}
     .vdesc{margin:6px 0 0; color:var(--muted); font-size:13px; line-height:1.65}
 
-    /* ===== KEY CHANGE 1 (Glas-Optik): Video ist bis zum Play unsichtbar ===== */
+    /* Glas-Optik: Video bis Play unsichtbar */
     .vframe{
       position:relative;
       border-radius:16px;
@@ -243,8 +243,6 @@
       display:block;
       background:transparent;
       object-fit:cover;
-
-      /* GLAS: bis Play unsichtbar, damit Treppe durchscheint */
       opacity:0;
       pointer-events:none;
       transition:opacity .22s ease;
@@ -259,8 +257,6 @@
       inset:0;
       display:grid;
       place-items:center;
-
-      /* GLAS: so wenig Abdunklung wie möglich */
       background:transparent;
       border:0;
       padding:0;
@@ -818,20 +814,14 @@
         });
       }
 
-      /* ===== KEY CHANGE 2 (Mobile Play Fix): robust tap handlers + iOS-safe play ===== */
-      const isIOS = (() => {
-        const ua = navigator.userAgent || "";
-        const iOS = /iPad|iPhone|iPod/.test(ua);
-        const iPadOS13Plus = (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-        return iOS || iPadOS13Plus;
-      })();
-
+      // Mobile Play + Sound Fix:
+      // - No click-handler on <video> (otherwise iOS controls trigger pause)
+      // - Start unmuted, user can toggle sound freely
       document.querySelectorAll("[data-playframe]").forEach(frame=>{
         const v = frame.querySelector("video");
         const overlay = frame.querySelector(".playOverlay");
         if(!v || !overlay) return;
 
-        // Ensure inline on iOS
         v.setAttribute("playsinline", "");
         v.setAttribute("webkit-playsinline", "");
 
@@ -839,46 +829,28 @@
         const hideOverlay = () => { overlay.style.display = "none"; frame.classList.add("is-playing"); };
 
         const start = () => {
-          // Controls only after intent
           v.setAttribute("controls", "");
+          v.muted = false;
+          v.volume = 1;
 
-          // iOS reliability: first start muted, user can unmute in controls
-          if(isIOS) v.muted = true;
-
-          // make video visible only when starting (glassy background before)
           frame.classList.add("is-playing");
 
-          // play (no await = more reliable on mobile gesture)
           const p = v.play();
           if(p && typeof p.then === "function"){
             p.then(()=>{ hideOverlay(); })
              .catch(()=>{ showOverlay(); });
           }else{
-            // older browsers
             hideOverlay();
           }
         };
 
-        const toggle = () => {
-          if(v.paused || v.ended){
-            start();
-          }else{
-            v.pause();
-          }
-        };
-
-        // Tap on overlay (mobile + desktop)
         overlay.addEventListener("click", (e)=>{ e.preventDefault(); start(); });
         overlay.addEventListener("touchend", (e)=>{ e.preventDefault(); start(); }, {passive:false});
-
-        // Tap on video itself
-        v.addEventListener("click", ()=>{ toggle(); });
 
         v.addEventListener("play", hideOverlay);
         v.addEventListener("pause", showOverlay);
         v.addEventListener("ended", showOverlay);
 
-        // initial state: glass look
         showOverlay();
       });
 
