@@ -71,7 +71,8 @@
     │   │   │   ├── timecells-bg.jpg
     │   │   │   ├── timecells-index-bg.jpg
     │   │   │   ├── timecells-tipp.jpg
-    │   │   │   └── timecells-tools-bg.jpg
+    │   │   │   ├── timecells-tools-bg.jpg
+    │   │   │   └── wefi-basi-bg.jpg
     │   │   ├── icons/
     │   │   │   ├── bank.png
     │   │   │   ├── book.png
@@ -632,4 +633,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.12.2025, 14:19)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.12.2025, 15:19)_
