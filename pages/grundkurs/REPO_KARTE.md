@@ -72,7 +72,7 @@
     │   │   │   ├── timecells-index-bg.jpg
     │   │   │   ├── timecells-tipp.jpg
     │   │   │   ├── timecells-tools-bg.jpg
-    │   │   │   └── wefi-basi-bg.jpg
+    │   │   │   └── wefi-basis-bg.jpg
     │   │   ├── icons/
     │   │   │   ├── bank.png
     │   │   │   ├── book.png
@@ -180,7 +180,9 @@
     │   │   ├── timecells/
     │   │   │   └── onboarding/
     │   │   ├── README.txt
-    │   │   └── index.json
+    │   │   ├── index.json
+    │   │   ├── wefi-preis-2025.jpg
+    │   │   └── wefi-start.jpg
     │   ├── js/
     │   │   ├── shared/
     │   │   │   ├── campus-core.js
@@ -339,12 +341,18 @@
     │   │   │   └── track-99.mp3
     │   │   └── playlist-01.json
     │   ├── pdf/
+    │   │   ├── Dr. John Sachtouras Comp Plan Präsi Afill.pdf
     │   │   ├── FSA-Office-Firmenkontakte.pdf
     │   │   ├── FSA-Office-Privatkontakte.pdf
     │   │   ├── FSA-Office-Seed-Backup.pdf
     │   │   ├── FSA-Office-Sicherung.pdf
     │   │   ├── FSA-Office-Ziele.pdf
+    │   │   ├── PSP-Lizenz für WeFi .pdf
+    │   │   ├── Salepoint für Reg. Benutzer_Einlader.pdf
+    │   │   ├── Terms & Coidition Übersetzung in Deutsch.pdf
     │   │   ├── Trustyfy_Gespraechsleitfaden_Firmen_v2.pdf
+    │   │   ├── WEFI Präsentation Deutsch.pdf
+    │   │   ├── WeFi DE_03.12.25.pdf
     │   │   ├── fsa_trustyfy_leitfaden_angestellte.pdf
     │   │   ├── fsa_trustyfy_leitfaden_familie.pdf
     │   │   ├── fsa_trustyfy_leitfaden_sensible_gruppen.pdf
@@ -633,4 +641,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.12.2025, 15:19)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.12.2025, 16:22)_
