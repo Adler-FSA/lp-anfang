@@ -465,6 +465,8 @@
     │       │   ├── einladung.mp4
     │       │   ├── onboarding.mp4
     │       │   └── vorwort.mp4
+    │       ├── wefi/
+    │       │   └── freiheit.mp4
     │       ├── adlerflug.mp4
     │       └── playlist-01.json
     ├── pages/
@@ -627,4 +629,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.12.2025, 11:15)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.12.2025, 12:34)_
