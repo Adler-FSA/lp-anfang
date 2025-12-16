@@ -631,6 +631,7 @@
     ├── grundkurs-pruefung.html
     ├── grundkurs-sicherheit.html
     ├── grundkurs.html
+    ├── hoersaal.html
     ├── index.html
     ├── krypto-en.html
     ├── krypto-test.html
@@ -641,4 +642,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.12.2025, 20:18)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.12.2025, 21:16)_
