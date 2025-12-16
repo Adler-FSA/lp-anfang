@@ -228,21 +228,30 @@
     .vtitle{margin:0; font-size:16px; letter-spacing:.1px}
     .vdesc{margin:6px 0 0; color:var(--muted); font-size:13px; line-height:1.65}
 
-    /* ===== KEY CHANGE: transparent video background + centered play overlay ===== */
+    /* ===== KEY CHANGE 1 (Glas-Optik): Video ist bis zum Play unsichtbar ===== */
     .vframe{
       position:relative;
       border-radius:16px;
       border:1px solid rgba(236,245,255,.12);
       overflow:hidden;
-      background:transparent; /* was #000 */
+      background:transparent;
       box-shadow:0 0 22px rgba(45,224,255,.10), 0 18px 46px rgba(0,0,0,.45);
       aspect-ratio:16/9;
     }
     .vframe video{
       width:100%; height:100%;
       display:block;
-      background:transparent; /* helps if browser respects it */
+      background:transparent;
       object-fit:cover;
+
+      /* GLAS: bis Play unsichtbar, damit Treppe durchscheint */
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .22s ease;
+    }
+    .vframe.is-playing video{
+      opacity:1;
+      pointer-events:auto;
     }
 
     .playOverlay{
@@ -250,7 +259,9 @@
       inset:0;
       display:grid;
       place-items:center;
-      background:linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.18));
+
+      /* GLAS: so wenig Abdunklung wie möglich */
+      background:transparent;
       border:0;
       padding:0;
       cursor:pointer;
@@ -485,7 +496,7 @@
                 </div>
               </div>
               <div class="vframe" data-playframe>
-                <video class="wefiVid" preload="metadata" playsinline>
+                <video class="wefiVid" preload="metadata" playsinline webkit-playsinline>
                   <source src="../../library/videos/wefi/freiheit.mp4" type="video/mp4">
                   Dein Browser unterstützt MP4 nicht.
                 </video>
@@ -508,7 +519,7 @@
                 </div>
               </div>
               <div class="vframe" data-playframe>
-                <video class="wefiVid" preload="metadata" playsinline>
+                <video class="wefiVid" preload="metadata" playsinline webkit-playsinline>
                   <source src="../../library/videos/wefi/wefi-basis.mp4" type="video/mp4">
                   Dein Browser unterstützt MP4 nicht.
                 </video>
@@ -531,7 +542,7 @@
                 </div>
               </div>
               <div class="vframe" data-playframe>
-                <video class="wefiVid" preload="metadata" playsinline>
+                <video class="wefiVid" preload="metadata" playsinline webkit-playsinline>
                   <source src="../../library/videos/wefi/registrieren.mp4" type="video/mp4">
                   Dein Browser unterstützt MP4 nicht.
                 </video>
@@ -807,37 +818,68 @@
         });
       }
 
-      // Center play overlay logic (keeps play button centered + makes black frame irrelevant)
+      /* ===== KEY CHANGE 2 (Mobile Play Fix): robust tap handlers + iOS-safe play ===== */
+      const isIOS = (() => {
+        const ua = navigator.userAgent || "";
+        const iOS = /iPad|iPhone|iPod/.test(ua);
+        const iPadOS13Plus = (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+        return iOS || iPadOS13Plus;
+      })();
+
       document.querySelectorAll("[data-playframe]").forEach(frame=>{
         const v = frame.querySelector("video");
         const overlay = frame.querySelector(".playOverlay");
         if(!v || !overlay) return;
 
-        const sync = ()=>{
-          overlay.style.display = (v.paused || v.ended) ? "grid" : "none";
+        // Ensure inline on iOS
+        v.setAttribute("playsinline", "");
+        v.setAttribute("webkit-playsinline", "");
+
+        const showOverlay = () => { overlay.style.display = "grid"; frame.classList.remove("is-playing"); };
+        const hideOverlay = () => { overlay.style.display = "none"; frame.classList.add("is-playing"); };
+
+        const start = () => {
+          // Controls only after intent
+          v.setAttribute("controls", "");
+
+          // iOS reliability: first start muted, user can unmute in controls
+          if(isIOS) v.muted = true;
+
+          // make video visible only when starting (glassy background before)
+          frame.classList.add("is-playing");
+
+          // play (no await = more reliable on mobile gesture)
+          const p = v.play();
+          if(p && typeof p.then === "function"){
+            p.then(()=>{ hideOverlay(); })
+             .catch(()=>{ showOverlay(); });
+          }else{
+            // older browsers
+            hideOverlay();
+          }
         };
 
-        overlay.addEventListener("click", async ()=>{
-          try{
-            v.setAttribute("controls", "");
-            await v.play();
-          }catch(e){}
-          sync();
-        });
-
-        v.addEventListener("click", ()=>{
-          if(v.paused){
-            v.setAttribute("controls", "");
-            v.play().catch(()=>{});
+        const toggle = () => {
+          if(v.paused || v.ended){
+            start();
           }else{
             v.pause();
           }
-        });
+        };
 
-        v.addEventListener("play", sync);
-        v.addEventListener("pause", sync);
-        v.addEventListener("ended", sync);
-        sync();
+        // Tap on overlay (mobile + desktop)
+        overlay.addEventListener("click", (e)=>{ e.preventDefault(); start(); });
+        overlay.addEventListener("touchend", (e)=>{ e.preventDefault(); start(); }, {passive:false});
+
+        // Tap on video itself
+        v.addEventListener("click", ()=>{ toggle(); });
+
+        v.addEventListener("play", hideOverlay);
+        v.addEventListener("pause", showOverlay);
+        v.addEventListener("ended", showOverlay);
+
+        // initial state: glass look
+        showOverlay();
       });
 
       if ("scrollRestoration" in history) history.scrollRestoration = "manual";
