@@ -497,6 +497,7 @@
     │   │   ├── insider.html
     │   │   ├── kontakt.html
     │   │   ├── philosophie.html
+    │   │   ├── presse-01.html
     │   │   ├── presse.html
     │   │   └── start-level-2.html
     │   ├── grundkurs/
@@ -644,4 +645,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 18.12.2025, 21:14)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 18.12.2025, 22:15)_
