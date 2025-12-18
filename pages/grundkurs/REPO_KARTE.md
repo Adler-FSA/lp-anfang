@@ -599,6 +599,7 @@
     │   ├── office-network.html
     │   ├── office-tools.html
     │   ├── office.html
+    │   ├── presse.html
     │   ├── social.html
     │   ├── souveraenitaet.html
     │   └── timecells.html
@@ -642,4 +643,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 18.12.2025, 10:17)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 18.12.2025, 11:15)_
