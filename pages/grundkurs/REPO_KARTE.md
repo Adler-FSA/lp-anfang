@@ -497,6 +497,7 @@
     │   │   ├── insider.html
     │   │   ├── kontakt.html
     │   │   ├── philosophie.html
+    │   │   ├── presse.html
     │   │   └── start-level-2.html
     │   ├── grundkurs/
     │   │   ├── REPO_KARTE.md
@@ -643,4 +644,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 18.12.2025, 14:17)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 18.12.2025, 16:22)_
