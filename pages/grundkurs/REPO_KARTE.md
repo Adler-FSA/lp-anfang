@@ -590,6 +590,7 @@
     │   ├── trustyfy/
     │   │   └── fast-track.html
     │   ├── wefi/
+    │   │   ├── deobank-quellen.html
     │   │   ├── wefi-aufklaerung.html
     │   │   ├── wefi-glossar.html
     │   │   ├── wefi-hoersaal.html
@@ -647,4 +648,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.12.2025, 20:17)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.12.2025, 21:14)_
