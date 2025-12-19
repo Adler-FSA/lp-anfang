@@ -626,6 +626,7 @@
           ok_open: "Zugang ok – du wirst weitergeleitet…",
 
           saved_ready: "Zugang gespeichert – künftig kannst du direkt öffnen (ohne erneute Eingabe).",
+          saved_auto: "Zugang gespeichert – automatische Weiterleitung…",
 
           foot_1: "Disclaimer: Alle Inhalte dienen der Bildung. Keine Empfehlung, keine Anlageberatung. Krypto kann komplex sein, Verluste sind jederzeit möglich.",
           foot_2: "Hinweis: Passwörter sind clientseitig umgesetzt (GitHub Pages). Sie dienen als Zugangshürde/Prozess — nicht als “Sicherheitsmaßnahme” im technischen Sinn."
@@ -671,6 +672,7 @@
           ok_open: "Access ok — redirecting…",
 
           saved_ready: "Access saved — next time you can open directly (no re-entry).",
+          saved_auto: "Access saved — auto redirect…",
 
           foot_1: "Disclaimer: All content is for education. No recommendations, no investment advice. Crypto can be complex and losses are always possible.",
           foot_2: "Note: Passwords are client-side (GitHub Pages). They are a process gate — not a technical security measure."
@@ -680,7 +682,7 @@
       const $ = (sel, root=document) => root.querySelector(sel);
       const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
-      // LocalStorage keys (bleiben drin)
+      // LocalStorage keys
       const LS_UNLOCKS = "fsa_hoersaal_unlocks_v1";
       const LS_LAST = "fsa_hoersaal_lastdoor_v1";
 
@@ -765,6 +767,15 @@
         window.location.href = url;
       }
 
+      function findDoorByKey(keyNorm){
+        const doors = $$("article.door[data-key][data-target]");
+        for(const d of doors){
+          const k = normalize(d.getAttribute("data-key"));
+          if(k === keyNorm) return d;
+        }
+        return null;
+      }
+
       function applySavedHints(){
         const dict = getDict();
         const unlocks = loadUnlocks();
@@ -773,7 +784,7 @@
           const hint = $(".hint", doorEl);
           if(!hint) return;
 
-          // If already unlocked, show a soft hint (no auto-redirect)
+          // If already unlocked, show a soft hint (no UI changes otherwise)
           if(unlocks[key] === true){
             hint.classList.remove("error");
             hint.classList.add("ok");
@@ -799,11 +810,12 @@
 
         const unlocks = loadUnlocks();
 
-        // WICHTIG: Keine automatische Weiterleitung mehr beim Seitenbesuch.
-        // Wenn Tür bereits gespeichert & Feld leer -> nur Hinweis, keine Weiterleitung.
+        // If already unlocked and user didn't type anything: allow direct open
         if(unlocks[key] === true && !val){
+          localStorage.setItem(LS_LAST, key);
           hint.classList.add("ok");
-          hint.textContent = dict.saved_ready;
+          hint.textContent = dict.saved_auto;
+          redirectToTarget(target);
           return;
         }
 
@@ -820,7 +832,7 @@
           return;
         }
 
-        // correct -> store unlock + last door (bleibt drin)
+        // correct -> store unlock + last door
         unlocks[key] = true;
         saveUnlocks(unlocks);
         localStorage.setItem(LS_LAST, key);
@@ -848,7 +860,26 @@
       // Apply saved hints once at start
       applySavedHints();
 
-      // AUTO-WEITERLEITUNG BEIM SEITENBESUCH: AUSGEBAUT (entfernt)
+      // Auto-redirect to last unlocked door (good for "Home Screen" / Favorites use-case)
+      (function autoJumpIfPossible(){
+        const unlocks = loadUnlocks();
+        const last = normalize(localStorage.getItem(LS_LAST));
+        if(!last || unlocks[last] !== true) return;
+
+        const doorEl = findDoorByKey(last);
+        if(!doorEl) return;
+
+        let cancelled = false;
+        const cancel = () => { cancelled = true; };
+        window.addEventListener("pointerdown", cancel, { once:true, capture:true });
+        window.addEventListener("keydown", cancel, { once:true, capture:true });
+
+        const target = doorEl.getAttribute("data-target");
+        setTimeout(()=>{
+          if(cancelled) return;
+          redirectToTarget(target);
+        }, 450);
+      })();
 
     })();
   </script>
