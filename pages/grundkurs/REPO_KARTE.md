@@ -345,23 +345,23 @@
     │   │   │   └── track-99.mp3
     │   │   └── playlist-01.json
     │   ├── pdf/
-    │   │   ├── Dr. John Sachtouras Comp Plan Präsi Afill.pdf
     │   │   ├── FSA-Office-Firmenkontakte.pdf
     │   │   ├── FSA-Office-Privatkontakte.pdf
     │   │   ├── FSA-Office-Seed-Backup.pdf
     │   │   ├── FSA-Office-Sicherung.pdf
     │   │   ├── FSA-Office-Ziele.pdf
-    │   │   ├── PSP-Lizenz für WeFi.pdf
     │   │   ├── Salepoint für Reg. Benutzer_Einlader.pdf
-    │   │   ├── Terms & Coidition Übersetzung in Deutsch.pdf
     │   │   ├── Trustyfy_Gespraechsleitfaden_Firmen_v2.pdf
-    │   │   ├── WEFI Präsentation Deutsch.pdf
     │   │   ├── WeFi DE_03.12.25.pdf
     │   │   ├── fsa_trustyfy_leitfaden_angestellte.pdf
     │   │   ├── fsa_trustyfy_leitfaden_familie.pdf
     │   │   ├── fsa_trustyfy_leitfaden_sensible_gruppen.pdf
     │   │   ├── fsa_trustyfy_leitfaden_vertriebspartner_v4.pdf
-    │   │   └── trustyfy-schritt-fuer-schritt-11112025.pdf
+    │   │   ├── trustyfy-schritt-fuer-schritt-11112025.pdf
+    │   │   ├── wefi-lizenz.pdf
+    │   │   ├── wefi-passives-einkommen.pdf
+    │   │   ├── wefi-praesentation-deutsch.pdf
+    │   │   └── wefi-terms-agb-deutsch.pdf
     │   ├── sets/
     │   │   ├── playlist-01.json
     │   │   ├── sample-01.json
@@ -653,4 +653,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.12.2025, 16:18)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.12.2025, 17:13)_
