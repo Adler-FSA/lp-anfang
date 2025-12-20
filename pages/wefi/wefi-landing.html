@@ -271,8 +271,8 @@
       object-fit:cover;
       background:transparent;
 
-      /* WICHTIG: "Glas" sichtbar im Standby (iOS zeigt sonst schwarz) */
-      opacity:0;
+      /* FIX: Poster/Standbild muss sichtbar sein */
+      opacity:1;
       transition: opacity .22s ease;
       position:relative;
       z-index:0;
@@ -510,10 +510,9 @@
       </div>
     </section>
 
-    <!-- ===== VIDEOS: jetzt 3 einzelne schwebende Cards mit 3cm Abstand ===== -->
+    <!-- ===== VIDEOS ===== -->
     <section id="videos">
       <div class="wrap">
-        <!-- Intro-Card bleibt -->
         <div class="card floating">
           <h3 style="margin:0 0 10px; font-size:18px" data-i18n="vids.h">Deine 3 Videos – in der richtigen Reihenfolge</h3>
           <p class="lead" style="margin:0" data-i18n="vids.p">
@@ -576,7 +575,7 @@
               </div>
             </div>
             <div class="vframe" data-playframe>
-              <video class="wefiVid" preload="metadata" playsinline poster="../../library/images/wefi-start.jpg">
+              <video class="wefiVid" preload="metadata" playsinline poster="../../library/images/wefi-video-03.jpg">
                 <source src="../../library/videos/wefi/registrieren.mp4" type="video/mp4">
                 Dein Browser unterstützt MP4 nicht.
               </video>
@@ -591,7 +590,6 @@
             </div>
           </div>
 
-          <!-- NEW: Video 4 -->
           <div class="card floating">
             <div class="vhead">
               <div>
@@ -638,7 +636,6 @@
                 <img src="../../library/images/wefi-preis-2025.jpg" alt="WeFi Preis 2025" loading="lazy">
               </div>
 
-              <!-- NEW: additional image -->
               <div class="awardImg">
                 <img src="../../library/images/most%20innovative%20web3%20project.jpeg" alt="WeFi – Most Innovative Web3 Project" loading="lazy">
               </div>
@@ -681,7 +678,6 @@
                 </div>
               </div>
 
-              <!-- NEW: Bitget article -->
               <div class="card soft" style="margin:0">
                 <div class="kicker" data-i18n="press2.kicker">Bitget · Artikel (extern)</div>
 
@@ -945,13 +941,12 @@
         });
       }
 
-      /* ===== Video logic: iOS Ton-Fix (kein Click-Toggle auf video, sonst pausiert beim Lautsprecher) ===== */
+      /* ===== Video logic: iOS Ton-Fix ===== */
       document.querySelectorAll("[data-playframe]").forEach(frame=>{
         const v = frame.querySelector("video");
         const overlay = frame.querySelector(".playOverlay");
         if(!v || !overlay) return;
 
-        // iOS inline flags
         v.setAttribute("playsinline", "");
         v.setAttribute("webkit-playsinline", "");
 
@@ -959,21 +954,17 @@
           const playing = !v.paused && !v.ended;
           frame.classList.toggle("is-playing", playing);
           overlay.style.display = playing ? "none" : "grid";
-          // controls sollen verfügbar sein, sobald einmal gestartet wurde
-          // (lautstärke/unmute/seek)
         };
 
         overlay.addEventListener("click", async ()=>{
           try{
             v.setAttribute("controls", "");
-            v.muted = false;     // wichtig: user gesture -> sound allowed
+            v.muted = false;
             v.volume = 1.0;
             await v.play();
           }catch(e){}
           setUI();
         });
-
-        // KEIN v.click-toggle! (das war der Grund, warum beim Lautsprecher das Video wieder stoppt)
 
         v.addEventListener("play", setUI);
         v.addEventListener("pause", setUI);
