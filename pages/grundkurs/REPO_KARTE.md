@@ -348,7 +348,7 @@
     │   │   ├── FSA-Office-Seed-Backup.pdf
     │   │   ├── FSA-Office-Sicherung.pdf
     │   │   ├── FSA-Office-Ziele.pdf
-    │   │   ├── PSP-Lizenz für WeFi .pdf
+    │   │   ├── PSP-Lizenz für WeFi.pdf
     │   │   ├── Salepoint für Reg. Benutzer_Einlader.pdf
     │   │   ├── Terms & Coidition Übersetzung in Deutsch.pdf
     │   │   ├── Trustyfy_Gespraechsleitfaden_Firmen_v2.pdf
@@ -650,4 +650,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.12.2025, 11:12)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.12.2025, 12:29)_
