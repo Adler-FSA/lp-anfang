@@ -183,7 +183,10 @@
     │   │   ├── index.json
     │   │   ├── most innovative web3 project.jpeg
     │   │   ├── wefi-preis-2025.jpg
-    │   │   └── wefi-start.jpg
+    │   │   ├── wefi-start.jpg
+    │   │   ├── wefi-video-01.jpg
+    │   │   ├── wefi-video-02.jpg
+    │   │   └── wefi-video-04.jpg
     │   ├── js/
     │   │   ├── shared/
     │   │   │   ├── campus-core.js
@@ -650,4 +653,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.12.2025, 13:23)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.12.2025, 14:13)_
