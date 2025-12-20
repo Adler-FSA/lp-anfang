@@ -181,6 +181,7 @@
     │   │   │   └── onboarding/
     │   │   ├── README.txt
     │   │   ├── index.json
+    │   │   ├── most innovative web3 project.jpeg
     │   │   ├── wefi-preis-2025.jpg
     │   │   └── wefi-start.jpg
     │   ├── js/
@@ -477,7 +478,8 @@
     │       ├── wefi/
     │       │   ├── freiheit.mp4
     │       │   ├── registrieren.mp4
-    │       │   └── wefi-basis.mp4
+    │       │   ├── wefi-basis.mp4
+    │       │   └── werte erhalten so geht es.mp4
     │       ├── adlerflug.mp4
     │       └── playlist-01.json
     ├── pages/
@@ -648,4 +650,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.12.2025, 09:15)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.12.2025, 10:15)_
