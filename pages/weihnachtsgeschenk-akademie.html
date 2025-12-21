@@ -701,11 +701,6 @@
 
       // WICHTIG: Canonical Link (ohne ?nocache), damit WhatsApp/Telegram sauber die OG-Tags ziehen
       const CANONICAL_URL = 'https://adler-fsa.github.io/lp-anfang/pages/weihnachtsgeschenk-akademie.html';
-      const shareUrl = CANONICAL_URL;
-
-      // Text OHNE "Akademie" (wie gefordert)
-      const shareText = 'Ein Geschenk, das bleibt. Weihnachtsgruß: Ein stiller Schlüssel – zu Klarheit, Richtung und finanzieller Souveränität.';
-      const copyPayload = shareText + ' ' + shareUrl;
 
       function showToast(msg){
         toast.textContent = msg;
@@ -713,29 +708,32 @@
         setTimeout(()=>toast.classList.remove('show'), 1600);
       }
 
+      async function copyUrlOnly(){
+        try{
+          if(navigator.clipboard && navigator.clipboard.writeText){
+            await navigator.clipboard.writeText(CANONICAL_URL);
+            showToast('Link kopiert');
+            return true;
+          }
+        }catch(e){}
+        try{
+          window.prompt('Link kopieren:', CANONICAL_URL);
+          return true;
+        }catch(e){}
+        return false;
+      }
+
       shareBtn.addEventListener('click', async () => {
-        const title = document.title;
         try{
           if(navigator.share){
-            // FIX: url MUSS mitgegeben werden, sonst landet in WhatsApp/Telegram oft nur Text ohne Link
-            await navigator.share({ title, text: shareText, url: shareUrl });
-          }else if(navigator.clipboard && navigator.clipboard.writeText){
-            await navigator.clipboard.writeText(copyPayload);
-            showToast('Text + Link kopiert');
-          }else{
-            window.prompt('Text + Link kopieren:', copyPayload);
+            // iOS FIX: NUR url übergeben -> "Kopieren" im Share-Sheet kopiert dann wirklich die URL
+            await navigator.share({ url: CANONICAL_URL });
+            return;
           }
         }catch(err){
-          // Fallback: immer sicher Text+Link kopieren
-          try{
-            if(navigator.clipboard && navigator.clipboard.writeText){
-              await navigator.clipboard.writeText(copyPayload);
-              showToast('Text + Link kopiert');
-            }else{
-              window.prompt('Text + Link kopieren:', copyPayload);
-            }
-          }catch(e){}
+          // Fallback weiter unten
         }
+        await copyUrlOnly();
       });
     })();
   </script>
