@@ -188,7 +188,9 @@
     │   │   ├── wefi-video-01.jpg
     │   │   ├── wefi-video-02.jpg
     │   │   ├── wefi-video-04.jpg
-    │   │   └── weihnachtsgeschenk-akademie.jpeg
+    │   │   ├── weihnachtsgeschenk-akademie.jpeg
+    │   │   ├── weihnachtsgruss-geschenk.jpg
+    │   │   └── weihnachtsgruss-motiv-3.jpg
     │   ├── js/
     │   │   ├── shared/
     │   │   │   ├── campus-core.js
@@ -658,4 +660,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.12.2025, 09:15)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.12.2025, 10:15)_
