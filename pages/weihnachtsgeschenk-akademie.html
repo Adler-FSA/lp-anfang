@@ -12,15 +12,17 @@
   <meta property="og:title" content="Ein Geschenk, das bleibt – FSA Akademie" />
   <meta property="og:description" content="Weihnachtsgruß: Ein stiller Schlüssel – zu Klarheit, Richtung und finanzieller Souveränität." />
 
-  <!-- FIX: WhatsApp Chat ist empfindlich -> breiteres Motiv + Cache-Bust über og:url -->
-  <meta property="og:image" content="https://adler-fsa.github.io/lp-anfang/library/images/weihnachtsgeschenk-akademie.jpeg" />
-  <meta property="og:image:alt" content="Weihnachtsmotiv – Buch, Kerzenlicht und Schlüssel" />
-  <meta property="og:url" content="https://adler-fsa.github.io/lp-anfang/pages/weihnachtsgeschenk-akademie.html?v=4" />
+  <!-- FIX: WhatsApp Preview Image (leicht + share-optimiert) -->
+  <meta property="og:image" content="https://adler-fsa.github.io/lp-anfang/library/images/weihnachtsgruss-geschenk-min.jpeg" />
+  <meta property="og:image:alt" content="Weihnachtsgruß – Geschenk Motiv" />
+  <meta property="og:image:type" content="image/jpeg" />
+
+  <meta property="og:url" content="https://adler-fsa.github.io/lp-anfang/pages/weihnachtsgeschenk-akademie.html" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Ein Geschenk, das bleibt – FSA Akademie" />
   <meta name="twitter:description" content="Weihnachtsgruß: Ein stiller Schlüssel – zu Klarheit, Richtung und finanzieller Souveränität." />
-  <meta name="twitter:image" content="https://adler-fsa.github.io/lp-anfang/library/images/weihnachtsgeschenk-akademie.jpeg" />
+  <meta name="twitter:image" content="https://adler-fsa.github.io/lp-anfang/library/images/weihnachtsgruss-geschenk-min.jpeg" />
 
   <style>
     :root{
@@ -226,7 +228,6 @@
     .article p:last-child{margin-bottom:0}
     .hl{color:var(--gold2); font-weight:900}
 
-    /* Float-Medien */
     figure.float{
       margin:10px 0 14px;
       border:1px solid rgba(148,163,184,.18);
@@ -280,7 +281,6 @@
 
     .clear{clear:both;height:1px}
 
-    /* Geschenk-CTA */
     .ctaWrap{
       margin-top:16px;
       display:flex;
@@ -339,7 +339,6 @@
     }
     .giftLabel svg{width:18px;height:18px; fill: var(--gold2); filter: drop-shadow(0 0 10px rgba(212,175,55,.35));}
 
-    /* Share Button (floating) */
     .shareBtn{
       position:fixed;
       right:18px;
@@ -695,12 +694,15 @@
       try{ saved = localStorage.getItem('fsa_lang') || 'de'; }catch(e){}
       setLang(saved);
 
-      // Share
       const shareBtn = document.getElementById('shareBtn');
       const toast = document.getElementById('toast');
 
-      // FIX: WhatsApp cached harte -> v=4 muss identisch zu og:url sein
-      const SHARE_URL = 'https://adler-fsa.github.io/lp-anfang/pages/weihnachtsgeschenk-akademie.html?v=4';
+      const CANONICAL_URL = 'https://adler-fsa.github.io/lp-anfang/pages/weihnachtsgeschenk-akademie.html';
+      const shareUrl = CANONICAL_URL;
+
+      // Text OHNE "Akademie"
+      const shareText = 'Ein Geschenk, das bleibt. Weihnachtsgruß: Ein stiller Schlüssel – zu Klarheit, Richtung und finanzieller Souveränität.';
+      const copyPayload = shareText + ' ' + shareUrl;
 
       function showToast(msg){
         toast.textContent = msg;
@@ -708,31 +710,26 @@
         setTimeout(()=>toast.classList.remove('show'), 1600);
       }
 
-      async function copyUrl(){
-        try{
-          if(navigator.clipboard && navigator.clipboard.writeText){
-            await navigator.clipboard.writeText(SHARE_URL);
-            showToast('Link kopiert');
-            return true;
-          }
-        }catch(e){}
-        try{
-          window.prompt('Link kopieren:', SHARE_URL);
-          return true;
-        }catch(e){}
-        return false;
-      }
-
       shareBtn.addEventListener('click', async () => {
+        const title = document.title;
         try{
-          // Wichtig für WhatsApp Chat Preview: nur URL teilen
           if(navigator.share){
-            await navigator.share({ url: SHARE_URL });
-            return;
+            await navigator.share({ title, text: shareText, url: shareUrl });
+          }else if(navigator.clipboard && navigator.clipboard.writeText){
+            await navigator.clipboard.writeText(copyPayload);
+            showToast('Text + Link kopiert');
+          }else{
+            window.prompt('Text + Link kopieren:', copyPayload);
           }
-          await copyUrl();
         }catch(err){
-          await copyUrl();
+          try{
+            if(navigator.clipboard && navigator.clipboard.writeText){
+              await navigator.clipboard.writeText(copyPayload);
+              showToast('Text + Link kopiert');
+            }else{
+              window.prompt('Text + Link kopieren:', copyPayload);
+            }
+          }catch(e){}
         }
       });
     })();
