@@ -180,6 +180,7 @@
     │   │   ├── timecells/
     │   │   │   └── onboarding/
     │   │   ├── README.txt
+    │   │   ├── frohe-weihnachten.jpg
     │   │   ├── index.json
     │   │   ├── most innovative web3 project.jpeg
     │   │   ├── wefi-preis-2025.jpg
@@ -653,4 +654,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.12.2025, 07:15)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.12.2025, 08:20)_
