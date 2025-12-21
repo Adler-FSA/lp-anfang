@@ -187,7 +187,8 @@
     │   │   ├── wefi-start.jpg
     │   │   ├── wefi-video-01.jpg
     │   │   ├── wefi-video-02.jpg
-    │   │   └── wefi-video-04.jpg
+    │   │   ├── wefi-video-04.jpg
+    │   │   └── weihnachtsgeschenk-akademie.jpeg
     │   ├── js/
     │   │   ├── shared/
     │   │   │   ├── campus-core.js
@@ -613,7 +614,10 @@
     │   ├── presse.html
     │   ├── social.html
     │   ├── souveraenitaet.html
-    │   └── timecells.html
+    │   ├── timecells.html
+    │   ├── weihnachtsgeschenk-akademie-share-1.html
+    │   ├── weihnachtsgeschenk-akademie-share-2.html
+    │   └── weihnachtsgeschenk-akademie.html
     ├── shows/
     │   ├── bastai.json
     │   ├── blockhaeuser.json
@@ -654,4 +658,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.12.2025, 08:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.12.2025, 09:15)_
