@@ -4,20 +4,20 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Ein Geschenk, das bleibt – FSA Akademie</title>
-  <meta name="description" content="Ein Weihnachtsgruß: Ein stiller Schlüssel – zu Klarheit, Richtung und finanzieller Souveränität." />
+  <meta name="description" content="Weihnachtsgruß: Ein stiller Schlüssel – zu Klarheit, Richtung und finanzieller Souveränität." />
   <meta name="theme-color" content="#070b14" />
 
   <!-- Social Preview (WhatsApp/Telegram/Facebook/Twitter) – Adler-Bild -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Ein Geschenk, das bleibt – FSA Akademie" />
-  <meta property="og:description" content="Ein Weihnachtsgruß: Ein stiller Schlüssel – zu Klarheit, Richtung und finanzieller Souveränität." />
+  <meta property="og:description" content="Weihnachtsgruß: Ein stiller Schlüssel – zu Klarheit, Richtung und finanzieller Souveränität." />
   <meta property="og:image" content="https://adler-fsa.github.io/lp-anfang/library/images/frohe-weihnachten.jpg" />
   <meta property="og:image:alt" content="Frohe Weihnachten – Adler Motiv" />
   <meta property="og:url" content="https://adler-fsa.github.io/lp-anfang/pages/weihnachtsgeschenk-akademie.html" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Ein Geschenk, das bleibt – FSA Akademie" />
-  <meta name="twitter:description" content="Ein Weihnachtsgruß: Ein stiller Schlüssel – zu Klarheit, Richtung und finanzieller Souveränität." />
+  <meta name="twitter:description" content="Weihnachtsgruß: Ein stiller Schlüssel – zu Klarheit, Richtung und finanzieller Souveränität." />
   <meta name="twitter:image" content="https://adler-fsa.github.io/lp-anfang/library/images/frohe-weihnachten.jpg" />
 
   <style>
@@ -698,7 +698,14 @@
       // Share
       const shareBtn = document.getElementById('shareBtn');
       const toast = document.getElementById('toast');
-      const shareUrl = window.location.href;
+
+      // WICHTIG: Canonical Link (ohne ?nocache), damit WhatsApp/Telegram sauber die OG-Tags ziehen
+      const CANONICAL_URL = 'https://adler-fsa.github.io/lp-anfang/pages/weihnachtsgeschenk-akademie.html';
+      const shareUrl = CANONICAL_URL;
+
+      // Text OHNE "Akademie" (wie gefordert)
+      const shareText = 'Ein Geschenk, das bleibt. Weihnachtsgruß: Ein stiller Schlüssel – zu Klarheit, Richtung und finanzieller Souveränität.';
+      const copyPayload = shareText + ' ' + shareUrl;
 
       function showToast(msg){
         toast.textContent = msg;
@@ -708,23 +715,24 @@
 
       shareBtn.addEventListener('click', async () => {
         const title = document.title;
-        const baseText = 'Ein Geschenk, das bleibt. Weihnachtsgruß: Ein stiller Schlüssel – zu Klarheit, Richtung und finanzieller Souveränität.';
-        const shareText = baseText + ' ' + shareUrl;
-
         try{
           if(navigator.share){
-            await navigator.share({ title, text: shareText });
+            // FIX: url MUSS mitgegeben werden, sonst landet in WhatsApp/Telegram oft nur Text ohne Link
+            await navigator.share({ title, text: shareText, url: shareUrl });
           }else if(navigator.clipboard && navigator.clipboard.writeText){
-            await navigator.clipboard.writeText(shareUrl);
-            showToast('Link kopiert');
+            await navigator.clipboard.writeText(copyPayload);
+            showToast('Text + Link kopiert');
           }else{
-            window.prompt('Link kopieren:', shareUrl);
+            window.prompt('Text + Link kopieren:', copyPayload);
           }
         }catch(err){
+          // Fallback: immer sicher Text+Link kopieren
           try{
             if(navigator.clipboard && navigator.clipboard.writeText){
-              await navigator.clipboard.writeText(shareUrl);
-              showToast('Link kopiert');
+              await navigator.clipboard.writeText(copyPayload);
+              showToast('Text + Link kopiert');
+            }else{
+              window.prompt('Text + Link kopieren:', copyPayload);
             }
           }catch(e){}
         }
