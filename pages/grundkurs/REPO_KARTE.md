@@ -486,6 +486,8 @@
     │       ├── wefi/
     │       │   ├── freiheit.mp4
     │       │   ├── registrieren.mp4
+    │       │   ├── so-kaufst-du-ito.mp4
+    │       │   ├── wefi-anmeldung.mp4
     │       │   ├── wefi-basis.mp4
     │       │   └── werte erhalten so geht es.mp4
     │       ├── adlerflug.mp4
@@ -662,4 +664,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.12.2025, 07:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.12.2025, 08:23)_
