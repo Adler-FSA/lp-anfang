@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title data-i18n="meta.title">WeFi – Proof & Kurs</title>
+  <meta name="description" content="WeFi Proof (SolidProof) und Live-Kurs (CoinMarketCap) – DE/EN." />
+
+  <style>
+    :root{
+      --bg0:#05070c;
+      --bg1:#070a12;
+      --panel:rgba(10,14,26,.74);
+      --panel2:rgba(10,14,26,.58);
+      --stroke:rgba(236,245,255,.12);
+      --stroke2:rgba(236,245,255,.08);
+
+      --txt:#eaf2ff;
+      --muted:rgba(234,242,255,.76);
+
+      --c1:#2de0ff;
+      --c2:#7b5cff;
+      --c3:#00f0b5;
+
+      --r:18px;
+      --shadow:0 26px 60px rgba(0,0,0,.55);
+      --glow:0 0 26px rgba(45,224,255,.18), 0 0 34px rgba(123,92,255,.14), 0 26px 60px rgba(0,0,0,.55);
+      --max:1180px;
+
+      --sec:72px;
+      --hero-top:92px;
+      --gap:22px;
+      --gap-lg:34px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      overflow-x:hidden;
+      background:var(--bg0);
+    }
+
+    .bg{
+      position:fixed; inset:0;
+      z-index:-2;
+      background:
+        radial-gradient(1200px 800px at 18% 12%, rgba(45,224,255,.18), transparent 58%),
+        radial-gradient(1000px 700px at 84% 22%, rgba(123,92,255,.18), transparent 60%),
+        radial-gradient(900px 700px at 50% 88%, rgba(0,240,181,.10), transparent 62%),
+        linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.62)),
+        url("../../library/images/backgrounds/wefi-basis-bg.jpg");
+      background-size:cover;
+      background-position:center;
+      filter:saturate(1.08) contrast(1.04);
+    }
+    .bg::after{
+      content:"";
+      position:absolute; inset:0;
+      background:linear-gradient(180deg, rgba(3,6,12,.35), rgba(3,6,12,.72));
+      pointer-events:none;
+    }
+
+    main{position:relative; z-index:1}
+    .wrap{max-width:var(--max); margin:0 auto; padding:0 22px}
+    section{padding:var(--sec) 0}
+    #heroSec{padding:var(--hero-top) 0 var(--sec)}
+
+    /* Topbar */
+    .topbar{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background:linear-gradient(180deg, rgba(6,10,18,.78), rgba(6,10,18,.52));
+      border-bottom:1px solid rgba(236,245,255,.10);
+    }
+    .topbar .inner{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:14px 22px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+    .brand{display:flex; align-items:center; gap:12px; min-width:220px}
+    .logo{
+      width:36px; height:36px; border-radius:12px;
+      display:grid; place-items:center;
+      background:radial-gradient(circle at 30% 25%, rgba(45,224,255,.35), rgba(123,92,255,.18));
+      border:1px solid rgba(236,245,255,.14);
+      box-shadow:0 0 22px rgba(45,224,255,.16);
+    }
+    .brand h1{margin:0; font-size:14px; line-height:1.1; letter-spacing:.2px}
+    .brand .sub{display:block; margin-top:2px; font-size:12px; color:var(--muted); font-weight:600}
+
+    .actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+
+    .lang{
+      display:flex; gap:8px;
+      padding:6px;
+      border:1px solid rgba(236,245,255,.12);
+      border-radius:999px;
+      background:rgba(0,0,0,.18);
+    }
+    .btn-sm{
+      all:unset;
+      cursor:pointer;
+      padding:8px 12px;
+      border-radius:999px;
+      font-weight:800;
+      font-size:12px;
+      letter-spacing:.2px;
+      color:var(--txt);
+      opacity:.85;
+    }
+    .btn-sm.active{
+      opacity:1;
+      background:linear-gradient(90deg, rgba(45,224,255,.22), rgba(123,92,255,.20));
+      border:1px solid rgba(236,245,255,.14);
+    }
+
+    .btn{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:11px 14px;
+      border-radius:999px;
+      border:1px solid rgba(236,245,255,.14);
+      background:rgba(0,0,0,.18);
+      color:var(--txt);
+      text-decoration:none;
+      font-weight:800;
+      font-size:12.5px;
+      letter-spacing:.2px;
+      box-shadow:0 10px 28px rgba(0,0,0,.30);
+      cursor:pointer;
+    }
+    .btn:hover{filter:brightness(1.05)}
+    .btn.primary{
+      background:linear-gradient(90deg, rgba(45,224,255,.22), rgba(123,92,255,.22));
+      border:1px solid rgba(236,245,255,.18);
+      box-shadow:var(--glow);
+    }
+
+    /* Cards */
+    @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+    @keyframes pulse{0%{box-shadow:var(--shadow)}50%{box-shadow:0 0 34px rgba(45,224,255,.22), 0 0 40px rgba(123,92,255,.16), 0 26px 60px rgba(0,0,0,.55)}100%{box-shadow:var(--shadow)}}
+    .floating{animation:float 12s ease-in-out infinite, pulse 12s ease-in-out infinite; will-change:transform,box-shadow}
+
+    .card{
+      background:linear-gradient(180deg, var(--panel), var(--panel2));
+      border:1px solid var(--stroke);
+      border-radius:var(--r);
+      padding:22px;
+      box-shadow:var(--glow);
+      backdrop-filter: blur(6px);
+    }
+    .card.soft{
+      border-color:var(--stroke2);
+      box-shadow:0 0 24px rgba(45,224,255,.10), 0 0 26px rgba(123,92,255,.08), 0 18px 46px rgba(0,0,0,.48);
+    }
+
+    .kicker{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 12px;
+      border-radius:999px;
+      border:1px solid rgba(236,245,255,.14);
+      background:rgba(0,0,0,.16);
+      color:var(--muted);
+      font-weight:800;
+      font-size:12px;
+      letter-spacing:.2px;
+    }
+    .title{
+      margin:12px 0 10px;
+      font-size:34px;
+      line-height:1.05;
+      letter-spacing:-.6px;
+    }
+    @media (max-width:520px){ .title{font-size:28px} }
+    .title .grad{
+      background:linear-gradient(90deg, var(--c1), var(--c2));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+    .lead{margin:0; color:var(--muted); font-size:15px; line-height:1.75}
+
+    .grid{display:grid; gap:var(--gap-lg)}
+    .cols-2{grid-template-columns:1fr 1fr}
+    @media (max-width:980px){ .cols-2{grid-template-columns:1fr} }
+
+    .frame{
+      border-radius:16px;
+      border:1px solid rgba(236,245,255,.12);
+      overflow:hidden;
+      background:rgba(0,0,0,.10);
+      box-shadow:0 0 22px rgba(45,224,255,.10), 0 18px 46px rgba(0,0,0,.45);
+    }
+
+    .embed{
+      width:100%;
+      height:520px;
+      border:0;
+      display:block;
+      background:#000;
+    }
+    @media (max-width:980px){
+      .embed{height:460px}
+    }
+
+    .note{
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(236,245,255,.12);
+      background:rgba(0,0,0,.14);
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:14px;
+    }
+
+    /* CMC widget container styling */
+    .cmcWrap{
+      padding:16px;
+    }
+    .cmcHint{
+      margin-top:10px;
+      color:rgba(234,242,255,.70);
+      font-size:12.5px;
+      line-height:1.6;
+    }
+
+    /* Footer */
+    footer{padding:34px 0 70px}
+    .foot{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:space-between;
+      align-items:center;
+      border-top:1px solid rgba(236,245,255,.10);
+      padding-top:18px;
+      color:rgba(234,242,255,.68);
+      font-size:12.5px;
+    }
+    .foot .links{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+    .foot a{
+      color:rgba(234,242,255,.88);
+      text-decoration:none;
+      font-weight:800;
+      border:1px solid rgba(236,245,255,.12);
+      padding:9px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.12);
+    }
+    .foot a:hover{filter:brightness(1.06)}
+
+    svg.ico{width:16px;height:16px; display:block}
+  </style>
+</head>
+
+<body>
+  <div class="bg" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="rgba(255,255,255,.95)" d="M3 6h2.6l2.2 9.2L10.4 6h3.2l2.6 9.2L18.4 6H21l-3.6 12h-2.9L12 10.2 9.5 18H6.6L3 6z"/>
+          </svg>
+        </div>
+        <div>
+          <h1 data-i18n="brand.title">WeFi · Proof & Kurs</h1>
+          <span class="sub" data-i18n="brand.sub">SolidProof + CoinMarketCap – schnell geprüft</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <div class="lang" role="group" aria-label="Language">
+          <button class="btn-sm" id="btnDE" type="button">DE</button>
+          <button class="btn-sm" id="btnEN" type="button">EN</button>
+        </div>
+
+        <a class="btn" href="./wefi-landing.html">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M10 6l-6 6 6 6 1.4-1.4L7.8 13H20v-2H7.8l3.6-3.6L10 6z"/>
+          </svg>
+          <span data-i18n="btn.back">Zur Landingpage</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="heroSec">
+      <div class="wrap">
+        <div class="card floating">
+          <span class="kicker" data-i18n="hero.kicker">Check · Proof · Price</span>
+          <h2 class="title">
+            <span data-i18n="hero.h1a">Zwei Links.</span><br>
+            <span class="grad" data-i18n="hero.h1b">Zwei Fakten-Blöcke.</span><br>
+            <span data-i18n="hero.h1c">Ohne Umwege.</span>
+          </h2>
+          <p class="lead" data-i18n="hero.p">
+            Hier siehst du den SolidProof-Projektlink und den CoinMarketCap-Kurs (Widget) direkt auf einer Seite.
+          </p>
+
+          <div class="note" data-i18n="hero.note">
+            Hinweis: Externe Inhalte können von den Anbietern eingeschränkt werden (z. B. iFrame-Sperre). Dann nutzt du einfach den „Öffnen“-Button.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="content">
+      <div class="wrap grid cols-2">
+        <!-- SolidProof -->
+        <div class="card floating">
+          <h3 style="margin:0 0 10px; font-size:18px" data-i18n="sp.h">SolidProof – Projekt</h3>
+          <p class="lead" style="margin:0" data-i18n="sp.p">
+            Projektseite zur schnellen Prüfung (Audit/Checks/Infos) – direkt beim Anbieter.
+          </p>
+
+          <div class="row">
+            <a class="btn primary" href="https://app.solidproof.io/projects/wefico" target="_blank" rel="noopener">
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="currentColor" d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42 9.3-9.29H14V3z"/>
+                <path fill="currentColor" d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7z"/>
+              </svg>
+              <span data-i18n="sp.btn">SolidProof öffnen</span>
+            </a>
+          </div>
+
+          <div class="note" data-i18n="sp.note">
+            Wenn die Einbettung blockiert ist, ist das normal: manche Plattformen erlauben kein iFrame. Dann bitte über „Öffnen“.
+          </div>
+
+          <div class="frame" style="margin-top:14px">
+            <iframe
+              class="embed"
+              src="https://app.solidproof.io/projects/wefico"
+              title="SolidProof Project"
+              loading="lazy"
+              referrerpolicy="no-referrer"
+              sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox">
+            </iframe>
+          </div>
+        </div>
+
+        <!-- CoinMarketCap -->
+        <div class="card floating">
+          <h3 style="margin:0 0 10px; font-size:18px" data-i18n="cmc.h">CoinMarketCap – WFI Kurs</h3>
+          <p class="lead" style="margin:0" data-i18n="cmc.p">
+            Live-Kurs als Widget. Das ist die saubere Lösung ohne eigenes Backend.
+          </p>
+
+          <div class="row">
+            <a class="btn primary" href="https://coinmarketcap.com/currencies/wfi/" target="_blank" rel="noopener">
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="currentColor" d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42 9.3-9.29H14V3z"/>
+                <path fill="currentColor" d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7z"/>
+              </svg>
+              <span data-i18n="cmc.btn">CoinMarketCap öffnen</span>
+            </a>
+          </div>
+
+          <div class="frame cmcWrap" style="margin-top:14px">
+            <!-- CoinMarketCap Widget Container -->
+            <div
+              class="coinmarketcap-currency-widget"
+              data-currency="wfi"
+              data-base="USD"
+              data-secondary=""
+              data-ticker="true"
+              data-rank="true"
+              data-marketcap="true"
+              data-volume="true"
+              data-statsticker="true"
+              data-stats="USD">
+            </div>
+
+            <div class="cmcHint" data-i18n="cmc.hint">
+              Wenn das Widget einmal nicht lädt: Seite neu laden oder direkt über „CoinMarketCap öffnen“ gehen.
+            </div>
+          </div>
+
+          <div class="note" data-i18n="cmc.note">
+            Technisch kommt der Live-Kurs hier über das offizielle CoinMarketCap-Widget-Script (extern). Ohne Script wäre ein API-Key/Proxy nötig.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap">
+        <div class="foot">
+          <div class="links" aria-label="WeFi pages">
+            <a href="./wefi-hoersaal.html" data-i18n="foot.hoersaal">Hörsaal</a>
+            <a href="./wefi-aufklaerung.html" data-i18n="foot.education">Aufklärung</a>
+            <a href="./wefi-glossar.html" data-i18n="foot.glossary">Glossar</a>
+            <a href="./wefi-landing.html" data-i18n="foot.landing">Landingpage</a>
+          </div>
+
+          <div style="opacity:.9">
+            <span data-i18n="foot.txt">WeFi Proof & Kurs · Stand: 2025-12 · Lokal, ohne Tracking.</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- CoinMarketCap Widget Script (extern, nötig für Live-Daten) -->
+  <script type="text/javascript" src="https://files.coinmarketcap.com/static/widget/currency.js"></script>
+
+  <script>
+    const I18N = {
+      de: {
+        "meta.title":"WeFi – Proof & Kurs",
+        "brand.title":"WeFi · Proof & Kurs",
+        "brand.sub":"SolidProof + CoinMarketCap – schnell geprüft",
+        "btn.back":"Zur Landingpage",
+
+        "hero.kicker":"Check · Proof · Price",
+        "hero.h1a":"Zwei Links.",
+        "hero.h1b":"Zwei Fakten-Blöcke.",
+        "hero.h1c":"Ohne Umwege.",
+        "hero.p":"Hier siehst du den SolidProof-Projektlink und den CoinMarketCap-Kurs (Widget) direkt auf einer Seite.",
+        "hero.note":"Hinweis: Externe Inhalte können von den Anbietern eingeschränkt werden (z. B. iFrame-Sperre). Dann nutzt du einfach den „Öffnen“-Button.",
+
+        "sp.h":"SolidProof – Projekt",
+        "sp.p":"Projektseite zur schnellen Prüfung (Audit/Checks/Infos) – direkt beim Anbieter.",
+        "sp.btn":"SolidProof öffnen",
+        "sp.note":"Wenn die Einbettung blockiert ist, ist das normal: manche Plattformen erlauben kein iFrame. Dann bitte über „Öffnen“.",
+
+        "cmc.h":"CoinMarketCap – WFI Kurs",
+        "cmc.p":"Live-Kurs als Widget. Das ist die saubere Lösung ohne eigenes Backend.",
+        "cmc.btn":"CoinMarketCap öffnen",
+        "cmc.hint":"Wenn das Widget einmal nicht lädt: Seite neu laden oder direkt über „CoinMarketCap öffnen“ gehen.",
+        "cmc.note":"Technisch kommt der Live-Kurs hier über das offizielle CoinMarketCap-Widget-Script (extern). Ohne Script wäre ein API-Key/Proxy nötig.",
+
+        "foot.hoersaal":"Hörsaal",
+        "foot.education":"Aufklärung",
+        "foot.glossary":"Glossar",
+        "foot.landing":"Landingpage",
+        "foot.txt":"WeFi Proof & Kurs · Stand: 2025-12 · Lokal, ohne Tracking."
+      },
+      en: {
+        "meta.title":"WeFi – Proof & Price",
+        "brand.title":"WeFi · Proof & Price",
+        "brand.sub":"SolidProof + CoinMarketCap — quick check",
+        "btn.back":"Back to landing page",
+
+        "hero.kicker":"Check · Proof · Price",
+        "hero.h1a":"Two links.",
+        "hero.h1b":"Two fact blocks.",
+        "hero.h1c":"No detours.",
+        "hero.p":"Here you can view the SolidProof project link and the CoinMarketCap price (widget) on one page.",
+        "hero.note":"Note: External content may be restricted by providers (e.g., iFrame blocked). In that case, use the “Open” button.",
+
+        "sp.h":"SolidProof — Project",
+        "sp.p":"Project page for quick verification (audit/checks/info) — directly at the provider.",
+        "sp.btn":"Open SolidProof",
+        "sp.note":"If embedding is blocked, that’s normal: some platforms do not allow iFrames. Please use “Open”.",
+
+        "cmc.h":"CoinMarketCap — WFI Price",
+        "cmc.p":"Live price via widget. This is the clean approach without a backend.",
+        "cmc.btn":"Open CoinMarketCap",
+        "cmc.hint":"If the widget doesn’t load: reload the page or use “Open CoinMarketCap”.",
+        "cmc.note":"Technically, the live price comes from CoinMarketCap’s official widget script (external). Without it you’d need an API key/proxy.",
+
+        "foot.hoersaal":"Lecture hall",
+        "foot.education":"Education",
+        "foot.glossary":"Glossary",
+        "foot.landing":"Landing page",
+        "foot.txt":"WeFi Proof & Price · Status: 2025-12 · Local, no tracking."
+      }
+    };
+
+    function setLang(lang){
+      const L = (lang === "en") ? "en" : "de";
+      document.documentElement.lang = L;
+
+      document.getElementById("btnDE").classList.toggle("active", L==="de");
+      document.getElementById("btnEN").classList.toggle("active", L==="en");
+
+      document.querySelectorAll("[data-i18n]").forEach(el=>{
+        const key = el.getAttribute("data-i18n");
+        if(I18N[L] && I18N[L][key] != null){
+          el.textContent = I18N[L][key];
+        }
+      });
+
+      localStorage.setItem("fsa_lang", L);
+    }
+
+    (function(){
+      const stored = localStorage.getItem("fsa_lang") || "de";
+      setLang(stored);
+
+      document.getElementById("btnDE").addEventListener("click", ()=>setLang("de"));
+      document.getElementById("btnEN").addEventListener("click", ()=>setLang("en"));
+
+      if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+      window.scrollTo(0,0);
+    })();
+  </script>
+</body>
+</html>
