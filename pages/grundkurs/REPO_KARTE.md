@@ -183,6 +183,8 @@
     │   │   ├── frohe-weihnachten.jpg
     │   │   ├── index.json
     │   │   ├── most innovative web3 project.jpeg
+    │   │   ├── so-kaufst-du-ito-video06.jpeg
+    │   │   ├── wefi-anmeldung-video05.jpeg
     │   │   ├── wefi-preis-2025.jpg
     │   │   ├── wefi-start.jpg
     │   │   ├── wefi-video-01.jpg
@@ -664,4 +666,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.12.2025, 08:23)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.12.2025, 09:23)_
