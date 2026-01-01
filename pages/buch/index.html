@@ -90,7 +90,6 @@
       gap:14px;
     }
 
-    /* responsive */
     @media (max-width: 1100px){
       .grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
@@ -111,6 +110,7 @@
       overflow:hidden;
       box-shadow: 0 18px 42px rgba(0,0,0,.40);
       transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+      cursor:pointer;
     }
     .card:hover{
       transform: translateY(-2px);
@@ -131,7 +131,7 @@
     .imgbox img{
       width:100%;
       height:100%;
-      object-fit: contain; /* WICHTIG: ganzes Bild, kein Ausschnitt */
+      object-fit: contain; /* ganzes Bild */
       border-radius:12px;
       background: rgba(255,255,255,.02);
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
@@ -152,6 +152,7 @@
       border:1px solid rgba(255,255,255,.10);
       color: var(--gold2);
       backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
     }
 
     .meta{
@@ -168,6 +169,67 @@
       font-size:12px;
       color:var(--muted);
       line-height:1.35;
+    }
+
+    /* Lightbox */
+    .lb{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background: rgba(0,0,0,.72);
+      z-index:9999;
+      padding:16px;
+    }
+    .lb.open{ display:flex; }
+    .lb-inner{
+      width:min(980px, 100%);
+      max-height: min(92vh, 100%);
+      background: rgba(2,6,23,.85);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;
+      box-shadow: 0 32px 80px rgba(0,0,0,.65);
+      overflow:hidden;
+    }
+    .lb-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px 12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .lb-title{
+      font-size:13px;
+      color: var(--muted);
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .lb-close{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.35);
+      color: var(--text);
+      border-radius:12px;
+      padding:8px 10px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .lb-body{
+      padding:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(0,0,0,.10);
+    }
+    .lb-body img{
+      width:100%;
+      height:auto;
+      max-height: 78vh;
+      object-fit: contain;
+      border-radius:12px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
     }
   </style>
 </head>
@@ -208,15 +270,54 @@
     </div>
   </div>
 
+  <!-- Lightbox -->
+  <div class="lb" id="lb" aria-hidden="true">
+    <div class="lb-inner" role="dialog" aria-modal="true" aria-label="Bildvorschau">
+      <div class="lb-top">
+        <div class="lb-title" id="lbTitle">Vorschau</div>
+        <button class="lb-close" id="lbClose" type="button">Schließen</button>
+      </div>
+      <div class="lb-body">
+        <img id="lbImg" alt="Vorschau" />
+      </div>
+    </div>
+  </div>
+
   <script>
     // Basis-Pfade (relativ zu: /lp-anfang/pages/buch/index.html)
     const IMG_BASE = "../../library/buch/images/";
     const PAGE_BASE = "./";
 
-    function cardHTML(item){
-      const a = document.createElement("a");
-      a.className = "card";
-      a.href = item.href;
+    // Lightbox
+    const lb = document.getElementById("lb");
+    const lbImg = document.getElementById("lbImg");
+    const lbTitle = document.getElementById("lbTitle");
+    const lbClose = document.getElementById("lbClose");
+
+    function openLB(title, imgFile){
+      lbTitle.textContent = title;
+      lbImg.src = IMG_BASE + imgFile;
+      lb.classList.add("open");
+      lb.setAttribute("aria-hidden", "false");
+    }
+    function closeLB(){
+      lb.classList.remove("open");
+      lb.setAttribute("aria-hidden", "true");
+      lbImg.src = "";
+    }
+    lbClose.addEventListener("click", closeLB);
+    lb.addEventListener("click", (e) => { if(e.target === lb) closeLB(); });
+    document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeLB(); });
+
+    function makeCard(item){
+      const el = document.createElement(item.type === "page" ? "a" : "div");
+      el.className = "card";
+
+      if(item.type === "page"){
+        el.href = item.href;
+      } else {
+        el.addEventListener("click", () => openLB(item.title, item.img));
+      }
 
       const imgbox = document.createElement("div");
       imgbox.className = "imgbox";
@@ -246,81 +347,60 @@
       meta.appendChild(h3);
       meta.appendChild(p);
 
-      a.appendChild(imgbox);
-      a.appendChild(meta);
+      el.appendChild(imgbox);
+      el.appendChild(meta);
 
-      return a;
+      return el;
     }
 
     function render(gridId, items){
       const grid = document.getElementById(gridId);
       grid.innerHTML = "";
-      items.forEach(it => grid.appendChild(cardHTML(it)));
+      items.forEach(it => grid.appendChild(makeCard(it)));
     }
 
-    // Buchstart
+    // Buchstart (keine eigenen HTML-Seiten -> Lightbox)
     const startItems = [
-      {
-        badge: "Buch",
-        title: "Buch – Cover (Front)",
-        sub: "Start / Cover",
-        img: "buch-cover-front-de.jpg",
-        href: PAGE_BASE + "cover-front.html",
-        alt: "Buch – Cover (Front)"
-      },
-      {
-        badge: "Buch",
-        title: "Buch – Inhaltsverzeichnis",
-        sub: "Übersicht",
-        img: "buch-inhaltsverzeichnis-de.jpg",
-        href: PAGE_BASE + "inhaltsverzeichnis.html",
-        alt: "Buch – Inhaltsverzeichnis"
-      }
+      { type:"image", badge:"Buch", title:"Buch – Cover (Front)", sub:"", img:"buch-cover-front-de.jpg" },
+      { type:"image", badge:"Buch", title:"Buch – Inhaltsverzeichnis", sub:"", img:"buch-inhaltsverzeichnis-de.jpg" }
     ];
 
-    // Kapitel 1–18 (WICHTIG: Trenner direkt hinter Kapitel 18, damit Bonus 19–22 4er-Reihe bleibt)
+    // Kapitel 1–18 + Trenner direkt nach Kapitel 18 (Trenner keine eigene HTML-Seite -> Lightbox)
     const chapterItems = [
-      { badge:"Kapitel 01", title:"Kapitel 1: Der unsichtbare Vertrag", sub:"", img:"kapitel-01-der-unsichtbare-vertrag-de.jpg", href: PAGE_BASE+"kapitel-01-der-unsichtbare-vertrag.html" },
-      { badge:"Kapitel 02", title:"Kapitel 2: Abhängigkeit als Design", sub:"", img:"kapitel-02-abhaengigkeit-als-design-de.jpg", href: PAGE_BASE+"kapitel-02-abhaengigkeit-als-design.html" },
-      { badge:"Kapitel 03", title:"Kapitel 3: Fremdbestimmung – die leise Form der Kontrolle", sub:"", img:"kapitel-03-fremdbestimmung-die-leise-form-der-kontrolle-de.jpg", href: PAGE_BASE+"kapitel-03-fremdbestimmung-die-leise-form-der-kontrolle.html" },
-      { badge:"Kapitel 04", title:"Kapitel 4: Zensur, Framing und die schmale Debatte", sub:"", img:"kapitel-04-zensur-framing-und-die-schmale-debatte-de.jpg", href: PAGE_BASE+"kapitel-04-zensur-framing-und-die-schmale-debatte.html" },
-      { badge:"Kapitel 05", title:"Kapitel 5: Die unsichtbaren Schalter", sub:"", img:"kapitel-05-die-unsichtbaren-schalter-de.jpg", href: PAGE_BASE+"kapitel-05-die-unsichtbaren-schalter.html" },
-      { badge:"Kapitel 06", title:"Kapitel 6: Souveränität ist nicht Egoismus", sub:"", img:"kapitel-06-souveraenitaet-ist-nicht-egoismus-de.jpg", href: PAGE_BASE+"kapitel-06-souveraenitaet-ist-nicht-egoismus.html" },
-      { badge:"Kapitel 07", title:"Kapitel 7: Freiheit braucht Eigentum", sub:"", img:"kapitel-07-freiheit-braucht-eigentum-de.jpg", href: PAGE_BASE+"kapitel-07-freiheit-braucht-eigentum.html" },
-      { badge:"Kapitel 08", title:"Kapitel 8: Korruption und Ausbeutung sind oft Nebenprodukte von Monopolen", sub:"", img:"kapitel-08-korruption-und-ausbeutung-sind-oft-nebenprodukte-von-monopolen-de.jpg", href: PAGE_BASE+"kapitel-08-korruption-und-ausbeutung-sind-oft-nebenprodukte-von-monopolen.html" },
-      { badge:"Kapitel 09", title:"Kapitel 9: Der Hebel", sub:"", img:"kapitel-09-der-hebel-de.jpg", href: PAGE_BASE+"kapitel-09-der-hebel.html" },
-      { badge:"Kapitel 10", title:"Kapitel 10: Dezentralität als Anti-Willkür", sub:"", img:"kapitel-10-dezentralitaet-als-anti-willkuer-de.jpg", href: PAGE_BASE+"kapitel-10-dezentralitaet-als-anti-willkuer.html" },
-      { badge:"Kapitel 11", title:"Kapitel 11: Peer-to-Peer ist eine Kultur", sub:"", img:"kapitel-11-peer-to-peer-ist-eine-kultur-de.jpg", href: PAGE_BASE+"kapitel-11-peer-to-peer-ist-eine-kultur.html" },
-      { badge:"Kapitel 12", title:"Kapitel 12: Vertrauen neu denken", sub:"", img:"kapitel-12-vertrauen-neu-denken-de.jpg", href: PAGE_BASE+"kapitel-12-vertrauen-neu-denken.html" },
-      { badge:"Kapitel 13", title:"Kapitel 13: Risiken, Schattenseiten und Gegenargumente", sub:"", img:"kapitel-13-risiken-schattenseiten-und-gegenargumente-de.jpg", href: PAGE_BASE+"kapitel-13-risiken-schattenseiten-und-gegenargumente.html" },
-      { badge:"Kapitel 14", title:"Kapitel 14: Das Souveränitäts-Protokoll", sub:"", img:"kapitel-14-das-souveraenitaets-protokoll-de.jpg", href: PAGE_BASE+"kapitel-14-das-souveraenitaets-protokoll.html" },
-      { badge:"Kapitel 15", title:"Kapitel 15: Das finanzielle Fundament", sub:"", img:"kapitel-15-das-finanzielle-fundament-de.jpg", href: PAGE_BASE+"kapitel-15-das-finanzielle-fundament.html" },
-      { badge:"Kapitel 16", title:"Kapitel 16: Digitale Selbstverteidigung", sub:"", img:"kapitel-16-digitale-selbstverteidigung-de.jpg", href: PAGE_BASE+"kapitel-16-digitale-selbstverteidigung.html" },
-      { badge:"Kapitel 17", title:"Kapitel 17: Lokale Resilienz", sub:"", img:"kapitel-17-lokale-resilienz-de.jpg", href: PAGE_BASE+"kapitel-17-lokale-resilienz.html" },
-      { badge:"Kapitel 18", title:"Kapitel 18: Die Zukunft wird direkter", sub:"", img:"kapitel-18-die-zukunft-wird-direkter-de.jpg", href: PAGE_BASE+"kapitel-18-die-zukunft-wird-direkter.html" },
+      { type:"page", badge:"Kapitel 01", title:"Kapitel 1: Der unsichtbare Vertrag", img:"kapitel-01-der-unsichtbare-vertrag-de.jpg", href: PAGE_BASE+"kapitel-01-der-unsichtbare-vertrag.html" },
+      { type:"page", badge:"Kapitel 02", title:"Kapitel 2: Abhängigkeit als Design", img:"kapitel-02-abhaengigkeit-als-design-de.jpg", href: PAGE_BASE+"kapitel-02-abhaengigkeit-als-design.html" },
+      { type:"page", badge:"Kapitel 03", title:"Kapitel 3: Fremdbestimmung – die leise Form der Kontrolle", img:"kapitel-03-fremdbestimmung-die-leise-form-der-kontrolle-de.jpg", href: PAGE_BASE+"kapitel-03-fremdbestimmung-die-leise-form-der-kontrolle.html" },
+      { type:"page", badge:"Kapitel 04", title:"Kapitel 4: Zensur, Framing und die schmale Debatte", img:"kapitel-04-zensur-framing-und-die-schmale-debatte-de.jpg", href: PAGE_BASE+"kapitel-04-zensur-framing-und-die-schmale-debatte.html" },
+      { type:"page", badge:"Kapitel 05", title:"Kapitel 5: Die unsichtbaren Schalter", img:"kapitel-05-die-unsichtbaren-schalter-de.jpg", href: PAGE_BASE+"kapitel-05-die-unsichtbaren-schalter.html" },
+      { type:"page", badge:"Kapitel 06", title:"Kapitel 6: Souveränität ist nicht Egoismus", img:"kapitel-06-souveraenitaet-ist-nicht-egoismus-de.jpg", href: PAGE_BASE+"kapitel-06-souveraenitaet-ist-nicht-egoismus.html" },
+      { type:"page", badge:"Kapitel 07", title:"Kapitel 7: Freiheit braucht Eigentum", img:"kapitel-07-freiheit-braucht-eigentum-de.jpg", href: PAGE_BASE+"kapitel-07-freiheit-braucht-eigentum.html" },
+      { type:"page", badge:"Kapitel 08", title:"Kapitel 8: Korruption und Ausbeutung sind oft Nebenprodukte von Monopolen", img:"kapitel-08-korruption-und-ausbeutung-sind-oft-nebenprodukte-von-monopolen-de.jpg", href: PAGE_BASE+"kapitel-08-korruption-und-ausbeutung-sind-oft-nebenprodukte-von-monopolen.html" },
+      { type:"page", badge:"Kapitel 09", title:"Kapitel 9: Der Hebel", img:"kapitel-09-der-hebel-de.jpg", href: PAGE_BASE+"kapitel-09-der-hebel.html" },
+      { type:"page", badge:"Kapitel 10", title:"Kapitel 10: Dezentralität als Anti-Willkür", img:"kapitel-10-dezentralitaet-als-anti-willkuer-de.jpg", href: PAGE_BASE+"kapitel-10-dezentralitaet-als-anti-willkuer.html" },
+      { type:"page", badge:"Kapitel 11", title:"Kapitel 11: Peer-to-Peer ist eine Kultur", img:"kapitel-11-peer-to-peer-ist-eine-kultur-de.jpg", href: PAGE_BASE+"kapitel-11-peer-to-peer-ist-eine-kultur.html" },
+      { type:"page", badge:"Kapitel 12", title:"Kapitel 12: Vertrauen neu denken", img:"kapitel-12-vertrauen-neu-denken-de.jpg", href: PAGE_BASE+"kapitel-12-vertrauen-neu-denken.html" },
+      { type:"page", badge:"Kapitel 13", title:"Kapitel 13: Risiken, Schattenseiten und Gegenargumente", img:"kapitel-13-risiken-schattenseiten-und-gegenargumente-de.jpg", href: PAGE_BASE+"kapitel-13-risiken-schattenseiten-und-gegenargumente.html" },
+      { type:"page", badge:"Kapitel 14", title:"Kapitel 14: Das Souveränitäts-Protokoll", img:"kapitel-14-das-souveraenitaets-protokoll-de.jpg", href: PAGE_BASE+"kapitel-14-das-souveraenitaets-protokoll.html" },
+      { type:"page", badge:"Kapitel 15", title:"Kapitel 15: Das finanzielle Fundament", img:"kapitel-15-das-finanzielle-fundament-de.jpg", href: PAGE_BASE+"kapitel-15-das-finanzielle-fundament.html" },
+      { type:"page", badge:"Kapitel 16", title:"Kapitel 16: Digitale Selbstverteidigung", img:"kapitel-16-digitale-selbstverteidigung-de.jpg", href: PAGE_BASE+"kapitel-16-digitale-selbstverteidigung.html" },
+      { type:"page", badge:"Kapitel 17", title:"Kapitel 17: Lokale Resilienz", img:"kapitel-17-lokale-resilienz-de.jpg", href: PAGE_BASE+"kapitel-17-lokale-resilienz.html" },
+      { type:"page", badge:"Kapitel 18", title:"Kapitel 18: Die Zukunft wird direkter", img:"kapitel-18-die-zukunft-wird-direkter-de.jpg", href: PAGE_BASE+"kapitel-18-die-zukunft-wird-direkter.html" },
 
-      // <-- HIER: Trenner direkt nach Kapitel 18 (damit Bonus 19–22 als 4er-Reihe passt)
-      { badge:"Trenner", title:"Buch – Trenner (Bonus)", sub:"", img:"buch-trenner-bonus-de.jpg", href: PAGE_BASE+"trenner-bonus.html" }
+      // Trenner direkt nach Kapitel 18 -> KEINE HTML-Seite, nur Lightbox
+      { type:"image", badge:"Trenner", title:"Buch – Trenner (Bonus)", img:"buch-trenner-bonus-de.jpg" }
     ];
 
-    // Bonus 19–22 (4 Karten nebeneinander)
+    // Bonus 19–22 (alle 4 sind Bonus)
     const bonusItems = [
-      { badge:"Bonus 1", title:"Kapitel 19 (Bonus 1): Unterwanderung – wenn Demokratie zur Fassade wird", sub:"", img:"kapitel-19-bonus-unterwanderung-wenn-demokratie-zur-fassade-wird-de.jpg", href: PAGE_BASE+"kapitel-19-bonus-unterwanderung-wenn-demokratie-zur-fassade-wird.html" },
-      { badge:"Bonus 2", title:"Kapitel 20 (Bonus 2): Rechtsrahmen hinterfragen – Völkerrecht, Menschenrechte, Handelsrecht und die Schattenzone der Zuständigkeiten", sub:"", img:"kapitel-20-bonus-rechtsrahmen-hinterfragen-voelkerrecht-menschenrechte-handelsrecht-und-die-schattenzone-der-zustaendigkeiten-de.jpg", href: PAGE_BASE+"kapitel-20-bonus-rechtsrahmen-hinterfragen-schattenzone-der-zustaendigkeiten.html" },
-      { badge:"Kapitel 21", title:"Kapitel 21: Die Rückeroberung der Kontrolle", sub:"", img:"kapitel-21-die-rueckeroberung-der-kontrolle-de.jpg", href: PAGE_BASE+"kapitel-21-die-rueckeroberung-der-kontrolle.html" },
-      { badge:"Kapitel 22", title:"Kapitel 22: Der unsichtbare Druck – Es allen recht machen wollen", sub:"", img:"kapitel-22-der-unsichtbare-druck-es-allen-recht-machen-wollen-de.jpg", href: PAGE_BASE+"kapitel-22-der-unsichtbare-druck-es-allen-recht-machen-wollen.html" }
+      { type:"page", badge:"Bonus 19", title:"Kapitel 19 (Bonus 1): Unterwanderung – wenn Demokratie zur Fassade wird", img:"kapitel-19-bonus-unterwanderung-wenn-demokratie-zur-fassade-wird-de.jpg", href: PAGE_BASE+"kapitel-19-bonus-unterwanderung-wenn-demokratie-zur-fassade-wird.html" },
+      { type:"page", badge:"Bonus 20", title:"Kapitel 20 (Bonus 2): Rechtsrahmen hinterfragen – Völkerrecht, Menschenrechte, Handelsrecht und die Schattenzone der Zuständigkeiten", img:"kapitel-20-bonus-rechtsrahmen-hinterfragen-voelkerrecht-menschenrechte-handelsrecht-und-die-schattenzone-der-zustaendigkeiten-de.jpg", href: PAGE_BASE+"kapitel-20-bonus-rechtsrahmen-hinterfragen-schattenzone-der-zustaendigkeiten.html" },
+      { type:"page", badge:"Bonus 21", title:"Kapitel 21: Die Rückeroberung der Kontrolle", img:"kapitel-21-die-rueckeroberung-der-kontrolle-de.jpg", href: PAGE_BASE+"kapitel-21-die-rueckeroberung-der-kontrolle.html" },
+      { type:"page", badge:"Bonus 22", title:"Kapitel 22: Der unsichtbare Druck – Es allen recht machen wollen", img:"kapitel-22-der-unsichtbare-druck-es-allen-recht-machen-wollen-de.jpg", href: PAGE_BASE+"kapitel-22-der-unsichtbare-druck-es-allen-recht-machen-wollen.html" }
     ];
 
-    // Buchende
+    // Buchende (keine eigene HTML-Seite -> Lightbox)
     const endItems = [
-      {
-        badge: "Buch",
-        title: "Buch – Cover (Back)",
-        sub: "Rückseite",
-        img: "buch-cover-back-de.jpg",
-        href: PAGE_BASE + "cover-back.html",
-        alt: "Buch – Cover (Back)"
-      }
+      { type:"image", badge:"Buch", title:"Buch – Cover (Back)", sub:"", img:"buch-cover-back-de.jpg" }
     ];
 
     render("grid-start", startItems);
