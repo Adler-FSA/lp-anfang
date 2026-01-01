@@ -531,6 +531,9 @@
     │   │   ├── akademie-trustyfy-ueberblick.html
     │   │   ├── fsa-akademie-flyer.html
     │   │   └── verdienst-rechner.html
+    │   ├── buch/
+    │   │   ├── index.html
+    │   │   └── template-kapitel.html
     │   ├── campus/
     │   │   └── page.json
     │   ├── footer/
@@ -694,4 +697,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.01.2026, 14:15)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.01.2026, 15:16)_
