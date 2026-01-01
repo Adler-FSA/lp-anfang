@@ -535,6 +535,8 @@
     │   │   └── verdienst-rechner.html
     │   ├── buch/
     │   │   ├── index.html
+    │   │   ├── kapitel-01-der-unsichtbare-vertrag.html
+    │   │   ├── kapitel-02-abhaengigkeit-als-design.html
     │   │   └── template-kapitel.html
     │   ├── campus/
     │   │   └── page.json
@@ -699,4 +701,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.01.2026, 19:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.01.2026, 20:18)_
