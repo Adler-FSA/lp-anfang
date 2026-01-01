@@ -59,6 +59,8 @@
     │   │       ├── buch-cover-front-de.jpg
     │   │       ├── buch-inhaltsverzeichnis-de.jpg
     │   │       ├── buch-trenner-bonus-de.jpg
+    │   │       ├── buch-vorwort-01-de.jpg
+    │   │       ├── buch-vorwort-02-de.jpg
     │   │       ├── kapitel-01-der-unsichtbare-vertrag-de.jpg
     │   │       ├── kapitel-02-abhaengigkeit-als-design-de.jpg
     │   │       ├── kapitel-03-fremdbestimmung-die-leise-form-der-kontrolle-de.jpg
@@ -697,4 +699,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.01.2026, 16:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.01.2026, 17:16)_
