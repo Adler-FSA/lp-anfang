@@ -53,6 +53,34 @@
     │       ├── slide-37.jpg
     │       └── slide-38.jpg
     ├── library/
+    │   ├── buch/
+    │   │   └── images/
+    │   │       ├── buch-cover-back-de.jpg
+    │   │       ├── buch-cover-front-de.jpg
+    │   │       ├── buch-inhaltsverzeichnis-de.jpg
+    │   │       ├── buch-trenner-bonus-de.jpg
+    │   │       ├── kapitel-01-der-unsichtbare-vertrag-de.jpg
+    │   │       ├── kapitel-02-abhaengigkeit-als-design-de.jpg
+    │   │       ├── kapitel-03-fremdbestimmung-die-leise-form-der-kontrolle-de.jpg
+    │   │       ├── kapitel-04-zensur-framing-und-die-schmale-debatte-de.jpg
+    │   │       ├── kapitel-05-die-unsichtbaren-schalter-de.jpg
+    │   │       ├── kapitel-06-souveraenitaet-ist-nicht-egoismus-de.jpg
+    │   │       ├── kapitel-07-freiheit-braucht-eigentum-de.jpg
+    │   │       ├── kapitel-08-korruption-und-ausbeutung-sind-oft-nebenprodukte-von-monopolen-de.jpg
+    │   │       ├── kapitel-09-der-hebel-de.jpg
+    │   │       ├── kapitel-10-dezentralitaet-als-anti-willkuer-de.jpg
+    │   │       ├── kapitel-11-peer-to-peer-ist-eine-kultur-de.jpg
+    │   │       ├── kapitel-12-vertrauen-neu-denken-de.jpg
+    │   │       ├── kapitel-13-risiken-schattenseiten-und-gegenargumente-de.jpg
+    │   │       ├── kapitel-14-das-souveraenitaets-protokoll-de.jpg
+    │   │       ├── kapitel-15-das-finanzielle-fundament-de.jpg
+    │   │       ├── kapitel-16-digitale-selbstverteidigung-de.jpg
+    │   │       ├── kapitel-17-lokale-resilienz-de.jpg
+    │   │       ├── kapitel-18-die-zukunft-wird-direkter-de.jpg
+    │   │       ├── kapitel-19-bonus-unterwanderung-wenn-demokratie-zur-fassade-wird-de.jpg
+    │   │       ├── kapitel-20-bonus-rechtsrahmen-hinterfragen-voelkerrecht-menschenrechte-handelsrecht-und-die-schattenzone-der-zustaendigkeiten-de.jpg
+    │   │       ├── kapitel-21-die-rueckeroberung-der-kontrolle-de.jpg
+    │   │       └── kapitel-22-der-unsichtbare-druck-es-allen-recht-machen-wollen-de.jpg
     │   ├── images/
     │   │   ├── backgrounds/
     │   │   │   ├── hoersaal-timecells-bg-2.jpg
@@ -666,4 +694,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.01.2026, 12:32)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.01.2026, 13:30)_
