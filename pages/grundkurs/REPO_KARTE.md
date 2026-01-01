@@ -537,6 +537,7 @@
     │   │   ├── index.html
     │   │   ├── kapitel-01-der-unsichtbare-vertrag.html
     │   │   ├── kapitel-02-abhaengigkeit-als-design.html
+    │   │   ├── kapitel-03-fremdbestimmung-die-leise-form-der-kontrolle.html
     │   │   └── template-kapitel.html
     │   ├── campus/
     │   │   └── page.json
@@ -701,4 +702,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.01.2026, 20:18)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.01.2026, 21:15)_
