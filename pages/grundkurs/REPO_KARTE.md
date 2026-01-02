@@ -538,6 +538,9 @@
     │   │   ├── kapitel-01-der-unsichtbare-vertrag.html
     │   │   ├── kapitel-02-abhaengigkeit-als-design.html
     │   │   ├── kapitel-03-fremdbestimmung-die-leise-form-der-kontrolle.html
+    │   │   ├── kapitel-04-zensur-framing-und-die-schmale-debatte.html
+    │   │   ├── kapitel-05-die-unsichtbaren-schalter.html
+    │   │   ├── kapitel-06-souveraenitaet-ist-nicht-egoismus.html
     │   │   └── template-kapitel.html
     │   ├── campus/
     │   │   └── page.json
@@ -702,4 +705,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.01.2026, 06:26)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.01.2026, 07:20)_
