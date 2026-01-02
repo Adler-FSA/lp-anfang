@@ -541,6 +541,14 @@
     │   │   ├── kapitel-04-zensur-framing-und-die-schmale-debatte.html
     │   │   ├── kapitel-05-die-unsichtbaren-schalter.html
     │   │   ├── kapitel-06-souveraenitaet-ist-nicht-egoismus.html
+    │   │   ├── kapitel-07-freiheit-braucht-eigentum.html
+    │   │   ├── kapitel-08-korruption-und-ausbeutung-sind-oft-nebenprodukte-von-monopolen.html
+    │   │   ├── kapitel-09-der-hebel.html
+    │   │   ├── kapitel-10-dezentralitaet-als-anti-willkuer.html
+    │   │   ├── kapitel-11-peer-to-peer-ist-eine-kultur.html
+    │   │   ├── kapitel-12-vertrauen-neu-denken.html
+    │   │   ├── kapitel-13-risiken-und-gegenargumente.html
+    │   │   ├── kapitel-14-das-souveraenitaets-protokoll.html
     │   │   └── template-kapitel.html
     │   ├── campus/
     │   │   └── page.json
@@ -705,4 +713,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.01.2026, 07:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.01.2026, 08:22)_
