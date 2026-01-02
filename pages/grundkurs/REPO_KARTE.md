@@ -556,6 +556,7 @@
     │   │   ├── kapitel-19-bonus-unterwanderung-wenn-demokratie-zur-fassade-wird.html
     │   │   ├── kapitel-20-bonus-rechtsrahmen-hinterfragen-schattenzone-der-zustaendigkeiten.html
     │   │   ├── kapitel-21-die-rueckeroberung-der-kontrolle.html
+    │   │   ├── kapitel-22-der-unsichtbare-druck-es-allen-recht-machen-wollen.html
     │   │   ├── kapitel-22-der-unsichtbare-vertrag-2-0
     │   │   ├── lesespuren-und-vertiefung.html
     │   │   └── template-kapitel.html
@@ -723,4 +724,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.01.2026, 12:31)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.01.2026, 13:29)_
