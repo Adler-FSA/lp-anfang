@@ -74,6 +74,7 @@
       align-items:center;
       justify-content:space-between;
       gap:12px;
+      flex-wrap:wrap;
     }
     .section-title{
       margin:0;
@@ -111,6 +112,7 @@
       box-shadow: 0 18px 42px rgba(0,0,0,.40);
       transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
       cursor:pointer;
+      position:relative;
     }
     .card:hover{
       transform: translateY(-2px);
@@ -131,7 +133,7 @@
     .imgbox img{
       width:100%;
       height:100%;
-      object-fit: contain; /* ganzes Bild */
+      object-fit: contain;
       border-radius:12px;
       background: rgba(255,255,255,.02);
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
@@ -153,6 +155,26 @@
       color: var(--gold2);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
+      max-width: calc(100% - 20px);
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .badge .locksvg{
+      width:14px;
+      height:14px;
+      display:none;
+      flex:0 0 auto;
+      opacity:.95;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.35));
+    }
+
+    .card.is-locked .badge{
+      border-color: rgba(212,175,55,.18);
+    }
+    .card.is-locked .badge .locksvg{
+      display:inline-block;
     }
 
     .meta{
@@ -169,6 +191,87 @@
       font-size:12px;
       color:var(--muted);
       line-height:1.35;
+    }
+
+    /* Zugang / Passwortblock */
+    .access{
+      padding:16px;
+      display:flex;
+      gap:14px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+      justify-content:space-between;
+    }
+    .access-left{
+      flex: 1 1 420px;
+      min-width: 280px;
+    }
+    .access-title{
+      margin:0 0 6px 0;
+      color: var(--gold2);
+      font-weight: 900;
+      letter-spacing:.2px;
+      font-size: 15px;
+    }
+    .access-sub{
+      margin:0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .access-right{
+      flex: 0 0 420px;
+      max-width: 100%;
+      min-width: 280px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      padding:12px;
+      box-shadow: 0 14px 34px rgba(0,0,0,.30);
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .input{
+      flex: 1 1 220px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      border-radius:12px;
+      padding:10px 12px;
+      font-weight:700;
+      outline:none;
+    }
+    .btn{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.28);
+      color: var(--text);
+      border-radius:12px;
+      padding:10px 12px;
+      font-weight:900;
+      letter-spacing:.2px;
+      cursor:pointer;
+      transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+      user-select:none;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(212,175,55,.35);
+      box-shadow: 0 0 0 1px rgba(212,175,55,.12), 0 18px 40px rgba(0,0,0,.45);
+      color: var(--gold2);
+    }
+    .status{
+      margin-top:10px;
+      font-size:12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .status strong{
+      color: var(--gold2);
     }
 
     /* Lightbox */
@@ -231,6 +334,57 @@
       border-radius:12px;
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
     }
+
+    /* Passwort-Modal */
+    .pw{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background: rgba(0,0,0,.72);
+      z-index:10000;
+      padding:16px;
+    }
+    .pw.open{ display:flex; }
+    .pw-card{
+      width:min(640px, 100%);
+      background: rgba(2,6,23,.92);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;
+      box-shadow: 0 32px 80px rgba(0,0,0,.65);
+      overflow:hidden;
+    }
+    .pw-head{
+      padding:12px 14px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .pw-title{
+      margin:0;
+      font-size:14px;
+      color: var(--gold2);
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .pw-body{
+      padding:14px;
+    }
+    .pw-hint{
+      margin:0 0 10px 0;
+      color: var(--muted);
+      font-size:13px;
+      line-height:1.55;
+    }
+    .pw-err{
+      margin-top:10px;
+      color:#ffb4b4;
+      font-size:12px;
+      display:none;
+    }
   </style>
 </head>
 
@@ -246,6 +400,33 @@
         <h2 class="section-title">Buchstart</h2>
       </div>
       <div class="grid" id="grid-start"></div>
+    </div>
+
+    <!-- Passwort / Zugang (zwischen Buchstart und Kapiteln) -->
+    <div class="section" id="sec-access">
+      <div class="section-head">
+        <h2 class="section-title">Zugang zum Buchinhalt</h2>
+      </div>
+      <div class="access">
+        <div class="access-left">
+          <div class="access-title">Kapitel freischalten</div>
+          <p class="access-sub">
+            Der Buchstart ist frei (Leseprobe/Vorwort). Ab Kapitel 1 ist der Zugriff gesperrt, bis das Passwort eingegeben wurde.
+            Nach einmaliger Eingabe sind alle Kapitel bis zum Buchende direkt freigeschaltet.
+          </p>
+        </div>
+
+        <div class="access-right">
+          <div class="row">
+            <input class="input" id="bookPw" type="password" placeholder="Passwort eingeben…" autocomplete="current-password" />
+            <button class="btn" id="btnUnlock" type="button">Freischalten</button>
+            <button class="btn" id="btnLock" type="button" style="display:none;">Sperren</button>
+          </div>
+          <div class="status" id="accessStatus">
+            Status: <strong>Gesperrt</strong>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="section" id="sec-chapters">
@@ -283,10 +464,32 @@
     </div>
   </div>
 
+  <!-- Passwort-Modal (wenn gesperrtes Kapitel angeklickt wird) -->
+  <div class="pw" id="pwModal" aria-hidden="true">
+    <div class="pw-card" role="dialog" aria-modal="true" aria-label="Passwort erforderlich">
+      <div class="pw-head">
+        <p class="pw-title">Passwort erforderlich</p>
+        <button class="lb-close" id="pwClose" type="button">Schließen</button>
+      </div>
+      <div class="pw-body">
+        <p class="pw-hint">Dieses Kapitel ist gesperrt. Bitte Passwort eingeben, um den Buchinhalt freizuschalten.</p>
+        <div class="row">
+          <input class="input" id="pwModalInput" type="password" placeholder="Passwort eingeben…" autocomplete="current-password" />
+          <button class="btn" id="pwModalUnlock" type="button">Freischalten</button>
+        </div>
+        <div class="pw-err" id="pwErr">Passwort falsch.</div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Basis-Pfade (relativ zu: /lp-anfang/pages/buch/index.html)
     const IMG_BASE = "../../library/buch/images/";
     const PAGE_BASE = "./";
+
+    // Passwort (Bezahlschranke später)
+    const BOOK_PASSWORD = "FSA-BUCH-2026";
+    const ACCESS_KEY = "fsa_book_access";
 
     // Lightbox
     const lb = document.getElementById("lb");
@@ -307,16 +510,139 @@
     }
     lbClose.addEventListener("click", closeLB);
     lb.addEventListener("click", (e) => { if(e.target === lb) closeLB(); });
-    document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeLB(); });
+    document.addEventListener("keydown", (e) => { if(e.key === "Escape") { closeLB(); closePWModal(); } });
+
+    // Access UI
+    const bookPw = document.getElementById("bookPw");
+    const btnUnlock = document.getElementById("btnUnlock");
+    const btnLock = document.getElementById("btnLock");
+    const accessStatus = document.getElementById("accessStatus");
+
+    function isUnlocked(){
+      return localStorage.getItem(ACCESS_KEY) === "1";
+    }
+    function setUnlocked(val){
+      localStorage.setItem(ACCESS_KEY, val ? "1" : "0");
+      updateAccessUI();
+      updateLockedBadges();
+    }
+    function updateAccessUI(){
+      const ok = isUnlocked();
+      accessStatus.innerHTML = ok ? 'Status: <strong>Freigeschaltet</strong>' : 'Status: <strong>Gesperrt</strong>';
+      btnLock.style.display = ok ? "inline-flex" : "none";
+    }
+
+    btnUnlock.addEventListener("click", () => {
+      const val = (bookPw.value || "").trim();
+      if(val && val === BOOK_PASSWORD){
+        setUnlocked(true);
+        bookPw.value = "";
+      }else{
+        setUnlocked(false);
+      }
+    });
+
+    btnLock.addEventListener("click", () => {
+      setUnlocked(false);
+    });
+
+    bookPw.addEventListener("keydown", (e) => {
+      if(e.key === "Enter") btnUnlock.click();
+    });
+
+    // Passwort-Modal (bei Klick auf gesperrte Inhalte)
+    const pwModal = document.getElementById("pwModal");
+    const pwClose = document.getElementById("pwClose");
+    const pwModalInput = document.getElementById("pwModalInput");
+    const pwModalUnlock = document.getElementById("pwModalUnlock");
+    const pwErr = document.getElementById("pwErr");
+
+    let pendingHref = null;   // wohin nach Unlock navigieren
+    let pendingImg = null;    // oder Lightbox-Bild öffnen
+    let pendingTitle = null;
+
+    function openPWModal(){
+      pwErr.style.display = "none";
+      pwModal.classList.add("open");
+      pwModal.setAttribute("aria-hidden","false");
+      pwModalInput.value = "";
+      setTimeout(() => pwModalInput.focus(), 40);
+    }
+    function closePWModal(){
+      pwModal.classList.remove("open");
+      pwModal.setAttribute("aria-hidden","true");
+      pwModalInput.value = "";
+      pwErr.style.display = "none";
+      pendingHref = null;
+      pendingImg = null;
+      pendingTitle = null;
+    }
+    pwClose.addEventListener("click", closePWModal);
+    pwModal.addEventListener("click", (e) => { if(e.target === pwModal) closePWModal(); });
+
+    function doUnlockFromModal(){
+      const val = (pwModalInput.value || "").trim();
+      if(val && val === BOOK_PASSWORD){
+        setUnlocked(true);
+        closePWModal();
+
+        // nach Freischaltung: Aktion fortsetzen
+        if(pendingHref){
+          window.location.href = pendingHref;
+        }else if(pendingImg){
+          openLB(pendingTitle || "Vorschau", pendingImg);
+        }
+      }else{
+        pwErr.style.display = "block";
+      }
+    }
+    pwModalUnlock.addEventListener("click", doUnlockFromModal);
+    pwModalInput.addEventListener("keydown", (e) => {
+      if(e.key === "Enter") doUnlockFromModal();
+    });
+
+    function makeLockSVG(){
+      const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+      svg.setAttribute("class","locksvg");
+      svg.setAttribute("viewBox","0 0 24 24");
+      svg.setAttribute("aria-hidden","true");
+      const p = document.createElementNS("http://www.w3.org/2000/svg","path");
+      p.setAttribute("fill","currentColor");
+      p.setAttribute("d","M17 9h-1V7a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2Zm-7-2a2 2 0 0 1 4 0v2h-4V7Zm7 12H7v-8h10v8Z");
+      svg.appendChild(p);
+      return svg;
+    }
 
     function makeCard(item){
       const el = document.createElement(item.type === "page" ? "a" : "div");
       el.className = "card";
 
+      // Lock state
+      if(item.locked){
+        el.classList.add("is-locked");
+      }
+
       if(item.type === "page"){
         el.href = item.href;
+
+        el.addEventListener("click", (e) => {
+          if(item.locked && !isUnlocked()){
+            e.preventDefault();
+            pendingHref = item.href;
+            openPWModal();
+          }
+        });
+
       } else {
-        el.addEventListener("click", () => openLB(item.title, item.img));
+        el.addEventListener("click", () => {
+          if(item.locked && !isUnlocked()){
+            pendingImg = item.img;
+            pendingTitle = item.title;
+            openPWModal();
+            return;
+          }
+          openLB(item.title, item.img);
+        });
       }
 
       const imgbox = document.createElement("div");
@@ -325,6 +651,9 @@
       const badge = document.createElement("div");
       badge.className = "badge";
       badge.textContent = item.badge || "";
+
+      // lock icon in badge (only visible when locked)
+      badge.appendChild(makeLockSVG());
 
       const img = document.createElement("img");
       img.src = IMG_BASE + item.img;
@@ -359,58 +688,81 @@
       items.forEach(it => grid.appendChild(makeCard(it)));
     }
 
-    // Buchstart (keine eigenen HTML-Seiten -> Lightbox)
+    function updateLockedBadges(){
+      // wenn freigeschaltet: locked class entfernen (optisch), sonst wieder setzen
+      const unlocked = isUnlocked();
+      document.querySelectorAll(".card").forEach(card => {
+        if(card.dataset.locked === "1"){
+          card.classList.toggle("is-locked", !unlocked);
+        }
+      });
+    }
+
+    // Buchstart (frei)
     const startItems = [
-      { type:"image", badge:"Buch", title:"Buch – Cover (Front)", sub:"", img:"buch-cover-front-de.jpg" },
-      { type:"image", badge:"Buch", title:"Buch – Inhaltsverzeichnis", sub:"", img:"buch-inhaltsverzeichnis-de.jpg" },
-
-      /* NEU: Vorwort 01/02 als Lightbox (keine HTML-Seiten) */
-      { type:"image", badge:"Buch", title:"Buch – Vorwort (Seite 1)", sub:"", img:"buch-vorwort-01-de.jpg" },
-      { type:"image", badge:"Buch", title:"Buch – Vorwort (Seite 2)", sub:"", img:"buch-vorwort-02-de.jpg" }
+      { type:"image", badge:"Buch", title:"Buch – Cover (Front)", sub:"", img:"buch-cover-front-de.jpg", locked:false },
+      { type:"image", badge:"Buch", title:"Buch – Inhaltsverzeichnis", sub:"", img:"buch-inhaltsverzeichnis-de.jpg", locked:false },
+      { type:"image", badge:"Buch", title:"Buch – Vorwort (Seite 1)", sub:"", img:"buch-vorwort-01-de.jpg", locked:false },
+      { type:"image", badge:"Buch", title:"Buch – Vorwort (Seite 2)", sub:"", img:"buch-vorwort-02-de.jpg", locked:false }
     ];
 
-    // Kapitel 1–18 + Trenner direkt nach Kapitel 18 (Trenner keine eigene HTML-Seite -> Lightbox)
+    // Ab Kapitel 1: gesperrt bis Passwort
     const chapterItems = [
-      { type:"page", badge:"Kapitel 01", title:"Kapitel 1: Der unsichtbare Vertrag", img:"kapitel-01-der-unsichtbare-vertrag-de.jpg", href: PAGE_BASE+"kapitel-01-der-unsichtbare-vertrag.html" },
-      { type:"page", badge:"Kapitel 02", title:"Kapitel 2: Abhängigkeit als Design", img:"kapitel-02-abhaengigkeit-als-design-de.jpg", href: PAGE_BASE+"kapitel-02-abhaengigkeit-als-design.html" },
-      { type:"page", badge:"Kapitel 03", title:"Kapitel 3: Fremdbestimmung – die leise Form der Kontrolle", img:"kapitel-03-fremdbestimmung-die-leise-form-der-kontrolle-de.jpg", href: PAGE_BASE+"kapitel-03-fremdbestimmung-die-leise-form-der-kontrolle.html" },
-      { type:"page", badge:"Kapitel 04", title:"Kapitel 4: Zensur, Framing und die schmale Debatte", img:"kapitel-04-zensur-framing-und-die-schmale-debatte-de.jpg", href: PAGE_BASE+"kapitel-04-zensur-framing-und-die-schmale-debatte.html" },
-      { type:"page", badge:"Kapitel 05", title:"Kapitel 5: Die unsichtbaren Schalter", img:"kapitel-05-die-unsichtbaren-schalter-de.jpg", href: PAGE_BASE+"kapitel-05-die-unsichtbaren-schalter.html" },
-      { type:"page", badge:"Kapitel 06", title:"Kapitel 6: Souveränität ist nicht Egoismus", img:"kapitel-06-souveraenitaet-ist-nicht-egoismus-de.jpg", href: PAGE_BASE+"kapitel-06-souveraenitaet-ist-nicht-egoismus.html" },
-      { type:"page", badge:"Kapitel 07", title:"Kapitel 7: Freiheit braucht Eigentum", img:"kapitel-07-freiheit-braucht-eigentum-de.jpg", href: PAGE_BASE+"kapitel-07-freiheit-braucht-eigentum.html" },
-      { type:"page", badge:"Kapitel 08", title:"Kapitel 8: Korruption und Ausbeutung sind oft Nebenprodukte von Monopolen", img:"kapitel-08-korruption-und-ausbeutung-sind-oft-nebenprodukte-von-monopolen-de.jpg", href: PAGE_BASE+"kapitel-08-korruption-und-ausbeutung-sind-oft-nebenprodukte-von-monopolen.html" },
-      { type:"page", badge:"Kapitel 09", title:"Kapitel 9: Der Hebel", img:"kapitel-09-der-hebel-de.jpg", href: PAGE_BASE+"kapitel-09-der-hebel.html" },
-      { type:"page", badge:"Kapitel 10", title:"Kapitel 10: Dezentralität als Anti-Willkür", img:"kapitel-10-dezentralitaet-als-anti-willkuer-de.jpg", href: PAGE_BASE+"kapitel-10-dezentralitaet-als-anti-willkuer.html" },
-      { type:"page", badge:"Kapitel 11", title:"Kapitel 11: Peer-to-Peer ist eine Kultur", img:"kapitel-11-peer-to-peer-ist-eine-kultur-de.jpg", href: PAGE_BASE+"kapitel-11-peer-to-peer-ist-eine-kultur.html" },
-      { type:"page", badge:"Kapitel 12", title:"Kapitel 12: Vertrauen neu denken", img:"kapitel-12-vertrauen-neu-denken-de.jpg", href: PAGE_BASE+"kapitel-12-vertrauen-neu-denken.html" },
-      { type:"page", badge:"Kapitel 13", title:"Kapitel 13: Risiken, Schattenseiten und Gegenargumente", img:"kapitel-13-risiken-schattenseiten-und-gegenargumente-de.jpg", href: PAGE_BASE+"kapitel-13-risiken-schattenseiten-und-gegenargumente.html" },
-      { type:"page", badge:"Kapitel 14", title:"Kapitel 14: Das Souveränitäts-Protokoll", img:"kapitel-14-das-souveraenitaets-protokoll-de.jpg", href: PAGE_BASE+"kapitel-14-das-souveraenitaets-protokoll.html" },
-      { type:"page", badge:"Kapitel 15", title:"Kapitel 15: Das finanzielle Fundament", img:"kapitel-15-das-finanzielle-fundament-de.jpg", href: PAGE_BASE+"kapitel-15-das-finanzielle-fundament.html" },
-      { type:"page", badge:"Kapitel 16", title:"Kapitel 16: Digitale Selbstverteidigung", img:"kapitel-16-digitale-selbstverteidigung-de.jpg", href: PAGE_BASE+"kapitel-16-digitale-selbstverteidigung.html" },
-      { type:"page", badge:"Kapitel 17", title:"Kapitel 17: Lokale Resilienz", img:"kapitel-17-lokale-resilienz-de.jpg", href: PAGE_BASE+"kapitel-17-lokale-resilienz.html" },
-      { type:"page", badge:"Kapitel 18", title:"Kapitel 18: Die Zukunft wird direkter", img:"kapitel-18-die-zukunft-wird-direkter-de.jpg", href: PAGE_BASE+"kapitel-18-die-zukunft-wird-direkter.html" },
-
-      // Trenner direkt nach Kapitel 18 -> KEINE HTML-Seite, nur Lightbox
-      { type:"image", badge:"Trenner", title:"Buch – Trenner (Bonus)", img:"buch-trenner-bonus-de.jpg" }
+      { type:"page", badge:"Kapitel 01", title:"Kapitel 1: Der unsichtbare Vertrag", img:"kapitel-01-der-unsichtbare-vertrag-de.jpg", href: PAGE_BASE+"kapitel-01-der-unsichtbare-vertrag.html", locked:true },
+      { type:"page", badge:"Kapitel 02", title:"Kapitel 2: Abhängigkeit als Design", img:"kapitel-02-abhaengigkeit-als-design-de.jpg", href: PAGE_BASE+"kapitel-02-abhaengigkeit-als-design.html", locked:true },
+      { type:"page", badge:"Kapitel 03", title:"Kapitel 3: Fremdbestimmung – die leise Form der Kontrolle", img:"kapitel-03-fremdbestimmung-die-leise-form-der-kontrolle-de.jpg", href: PAGE_BASE+"kapitel-03-fremdbestimmung-die-leise-form-der-kontrolle.html", locked:true },
+      { type:"page", badge:"Kapitel 04", title:"Kapitel 4: Zensur, Framing und die schmale Debatte", img:"kapitel-04-zensur-framing-und-die-schmale-debatte-de.jpg", href: PAGE_BASE+"kapitel-04-zensur-framing-und-die-schmale-debatte.html", locked:true },
+      { type:"page", badge:"Kapitel 05", title:"Kapitel 5: Die unsichtbaren Schalter", img:"kapitel-05-die-unsichtbaren-schalter-de.jpg", href: PAGE_BASE+"kapitel-05-die-unsichtbaren-schalter.html", locked:true },
+      { type:"page", badge:"Kapitel 06", title:"Kapitel 6: Souveränität ist nicht Egoismus", img:"kapitel-06-souveraenitaet-ist-nicht-egoismus-de.jpg", href: PAGE_BASE+"kapitel-06-souveraenitaet-ist-nicht-egoismus.html", locked:true },
+      { type:"page", badge:"Kapitel 07", title:"Kapitel 7: Freiheit braucht Eigentum", img:"kapitel-07-freiheit-braucht-eigentum-de.jpg", href: PAGE_BASE+"kapitel-07-freiheit-braucht-eigentum.html", locked:true },
+      { type:"page", badge:"Kapitel 08", title:"Kapitel 8: Korruption und Ausbeutung sind oft Nebenprodukte von Monopolen", img:"kapitel-08-korruption-und-ausbeutung-sind-oft-nebenprodukte-von-monopolen-de.jpg", href: PAGE_BASE+"kapitel-08-korruption-und-ausbeutung-sind-oft-nebenprodukte-von-monopolen.html", locked:true },
+      { type:"page", badge:"Kapitel 09", title:"Kapitel 9: Der Hebel", img:"kapitel-09-der-hebel-de.jpg", href: PAGE_BASE+"kapitel-09-der-hebel.html", locked:true },
+      { type:"page", badge:"Kapitel 10", title:"Kapitel 10: Dezentralität als Anti-Willkür", img:"kapitel-10-dezentralitaet-als-anti-willkuer-de.jpg", href: PAGE_BASE+"kapitel-10-dezentralitaet-als-anti-willkuer.html", locked:true },
+      { type:"page", badge:"Kapitel 11", title:"Kapitel 11: Peer-to-Peer ist eine Kultur", img:"kapitel-11-peer-to-peer-ist-eine-kultur-de.jpg", href: PAGE_BASE+"kapitel-11-peer-to-peer-ist-eine-kultur.html", locked:true },
+      { type:"page", badge:"Kapitel 12", title:"Kapitel 12: Vertrauen neu denken", img:"kapitel-12-vertrauen-neu-denken-de.jpg", href: PAGE_BASE+"kapitel-12-vertrauen-neu-denken.html", locked:true },
+      { type:"page", badge:"Kapitel 13", title:"Kapitel 13: Risiken, Schattenseiten und Gegenargumente", img:"kapitel-13-risiken-schattenseiten-und-gegenargumente-de.jpg", href: PAGE_BASE+"kapitel-13-risiken-schattenseiten-und-gegenargumente.html", locked:true },
+      { type:"page", badge:"Kapitel 14", title:"Kapitel 14: Das Souveränitäts-Protokoll", img:"kapitel-14-das-souveraenitaets-protokoll-de.jpg", href: PAGE_BASE+"kapitel-14-das-souveraenitaets-protokoll.html", locked:true },
+      { type:"page", badge:"Kapitel 15", title:"Kapitel 15: Das finanzielle Fundament", img:"kapitel-15-das-finanzielle-fundament-de.jpg", href: PAGE_BASE+"kapitel-15-das-finanzielle-fundament.html", locked:true },
+      { type:"page", badge:"Kapitel 16", title:"Kapitel 16: Digitale Selbstverteidigung", img:"kapitel-16-digitale-selbstverteidigung-de.jpg", href: PAGE_BASE+"kapitel-16-digitale-selbstverteidigung.html", locked:true },
+      { type:"page", badge:"Kapitel 17", title:"Kapitel 17: Lokale Resilienz", img:"kapitel-17-lokale-resilienz-de.jpg", href: PAGE_BASE+"kapitel-17-lokale-resilienz.html", locked:true },
+      { type:"page", badge:"Kapitel 18", title:"Kapitel 18: Die Zukunft wird direkter", img:"kapitel-18-die-zukunft-wird-direkter-de.jpg", href: PAGE_BASE+"kapitel-18-die-zukunft-wird-direkter.html", locked:true },
+      { type:"image", badge:"Trenner", title:"Buch – Trenner (Bonus)", img:"buch-trenner-bonus-de.jpg", locked:true }
     ];
 
-    // Bonus 19–22 (alle 4 sind Bonus)
+    // Bonus 19–22 (Bonus 1–4) -> jetzt einheitlich
     const bonusItems = [
-      { type:"page", badge:"Bonus 19", title:"Kapitel 19 (Bonus 1): Unterwanderung – wenn Demokratie zur Fassade wird", img:"kapitel-19-bonus-unterwanderung-wenn-demokratie-zur-fassade-wird-de.jpg", href: PAGE_BASE+"kapitel-19-bonus-unterwanderung-wenn-demokratie-zur-fassade-wird.html" },
-      { type:"page", badge:"Bonus 20", title:"Kapitel 20 (Bonus 2): Rechtsrahmen hinterfragen – Völkerrecht, Menschenrechte, Handelsrecht und die Schattenzone der Zuständigkeiten", img:"kapitel-20-bonus-rechtsrahmen-hinterfragen-voelkerrecht-menschenrechte-handelsrecht-und-die-schattenzone-der-zustaendigkeiten-de.jpg", href: PAGE_BASE+"kapitel-20-bonus-rechtsrahmen-hinterfragen-schattenzone-der-zustaendigkeiten.html" },
-      { type:"page", badge:"Bonus 21", title:"Kapitel 21: Die Rückeroberung der Kontrolle", img:"kapitel-21-die-rueckeroberung-der-kontrolle-de.jpg", href: PAGE_BASE+"kapitel-21-die-rueckeroberung-der-kontrolle.html" },
-      { type:"page", badge:"Bonus 22", title:"Kapitel 22: Der unsichtbare Druck – Es allen recht machen wollen", img:"kapitel-22-der-unsichtbare-druck-es-allen-recht-machen-wollen-de.jpg", href: PAGE_BASE+"kapitel-22-der-unsichtbare-druck-es-allen-recht-machen-wollen.html" }
+      { type:"page", badge:"Bonus 1", title:"Kapitel 19 (Bonus 1): Unterwanderung – wenn Demokratie zur Fassade wird", img:"kapitel-19-bonus-unterwanderung-wenn-demokratie-zur-fassade-wird-de.jpg", href: PAGE_BASE+"kapitel-19-bonus-unterwanderung-wenn-demokratie-zur-fassade-wird.html", locked:true },
+      { type:"page", badge:"Bonus 2", title:"Kapitel 20 (Bonus 2): Rechtsrahmen hinterfragen – Völkerrecht, Menschenrechte, Handelsrecht und die Schattenzone der Zuständigkeiten", img:"kapitel-20-bonus-rechtsrahmen-hinterfragen-voelkerrecht-menschenrechte-handelsrecht-und-die-schattenzone-der-zustaendigkeiten-de.jpg", href: PAGE_BASE+"kapitel-20-bonus-rechtsrahmen-hinterfragen-schattenzone-der-zustaendigkeiten.html", locked:true },
+      { type:"page", badge:"Bonus 3", title:"Kapitel 21 (Bonus 3): Die Rückeroberung der Kontrolle", img:"kapitel-21-die-rueckeroberung-der-kontrolle-de.jpg", href: PAGE_BASE+"kapitel-21-die-rueckeroberung-der-kontrolle.html", locked:true },
+      { type:"page", badge:"Bonus 4", title:"Kapitel 22 (Bonus 4): Der unsichtbare Druck – Es allen recht machen wollen", img:"kapitel-22-der-unsichtbare-druck-es-allen-recht-machen-wollen-de.jpg", href: PAGE_BASE+"kapitel-22-der-unsichtbare-druck-es-allen-recht-machen-wollen.html", locked:true }
     ];
 
-    // Buchende (keine eigene HTML-Seite -> Lightbox)
+    // Buchende (gesperrt)
     const endItems = [
-      { type:"image", badge:"Buch", title:"Buch – Cover (Back)", sub:"", img:"buch-cover-back-de.jpg" }
+      { type:"image", badge:"Buch", title:"Buch – Cover (Back)", sub:"", img:"buch-cover-back-de.jpg", locked:true }
     ];
 
+    // Render
     render("grid-start", startItems);
     render("grid-chapters", chapterItems);
     render("grid-bonus", bonusItems);
     render("grid-end", endItems);
+
+    // Mark locked cards for UI toggling
+    document.querySelectorAll(".card").forEach((card, idx) => {
+      // wir setzen das Flag anhand der Arrays (sicher)
+      // (Quick: wenn card aktuell is-locked hatte, dann dataset.locked=1)
+      if(card.classList.contains("is-locked")) card.dataset.locked = "1";
+    });
+
+    // Initial UI
+    updateAccessUI();
+    updateLockedBadges();
+
+    // Beim Laden: wenn schon freigeschaltet, Button "Sperren" zeigen
+    if(isUnlocked()){
+      btnLock.style.display = "inline-flex";
+    }
   </script>
 </body>
 </html>
