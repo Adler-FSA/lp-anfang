@@ -553,6 +553,8 @@
     │   │   ├── kapitel-16-digitale-selbstverteidigung.html
     │   │   ├── kapitel-17-lokale-resilienz.html
     │   │   ├── kapitel-18-die-zukunft-wird-direkter.html
+    │   │   ├── kapitel-19-bonus-unterwanderung-wenn-demokratie-zur-fassade-wird.html
+    │   │   ├── kapitel-20-bonus-rechtsrahmen-hinterfragen-schattenzone-der-zustaendigkeiten.html
     │   │   └── template-kapitel.html
     │   ├── campus/
     │   │   └── page.json
@@ -717,4 +719,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.01.2026, 09:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.01.2026, 10:17)_
