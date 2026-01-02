@@ -549,6 +549,10 @@
     │   │   ├── kapitel-12-vertrauen-neu-denken.html
     │   │   ├── kapitel-13-risiken-und-gegenargumente.html
     │   │   ├── kapitel-14-das-souveraenitaets-protokoll.html
+    │   │   ├── kapitel-15-das-finanzielle-fundament.html
+    │   │   ├── kapitel-16-digitale-selbstverteidigung.html
+    │   │   ├── kapitel-17-lokale-resilienz.html
+    │   │   ├── kapitel-18-die-zukunft-wird-direkter.html
     │   │   └── template-kapitel.html
     │   ├── campus/
     │   │   └── page.json
@@ -713,4 +717,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.01.2026, 08:22)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.01.2026, 09:20)_
