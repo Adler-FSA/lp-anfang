@@ -555,6 +555,7 @@
     │   │   ├── kapitel-18-die-zukunft-wird-direkter.html
     │   │   ├── kapitel-19-bonus-unterwanderung-wenn-demokratie-zur-fassade-wird.html
     │   │   ├── kapitel-20-bonus-rechtsrahmen-hinterfragen-schattenzone-der-zustaendigkeiten.html
+    │   │   ├── kapitel-21-die-rueckeroberung-der-kontrolle.html
     │   │   └── template-kapitel.html
     │   ├── campus/
     │   │   └── page.json
@@ -719,4 +720,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.01.2026, 10:17)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.01.2026, 11:14)_
