@@ -14,7 +14,7 @@
     --shadow:0 26px 50px rgba(0,0,0,.55);
     --glow:0 0 26px rgba(212,175,55,.35), 0 10px 28px rgba(0,0,0,.55);
     --maxw:1000px;
-    --topbar-pad:120px; /* Fallback, wird per JS gesetzt */
+    --topbar-pad:120px; /* Fallback */
   }
   html,body{
     height:100%;margin:0;padding:0;
@@ -52,15 +52,7 @@
   .btn-back:hover{background:rgba(212,175,55,.25);box-shadow:0 0 22px rgba(212,175,55,.45);}
   .hidden{display:none!important}
 
-  /* 🔽 NEU: robuste Topbar-Klasse (wir hängen die per JS an das echte Menü-Element) */
-  .fsa-topbar{
-    position:fixed;left:0;right:0;top:0;z-index:9999;
-    transition:transform .24s ease;
-    will-change:transform;
-  }
-  .fsa-topbar.fsa-hide{ transform:translateY(-110%); }
-
-  /* 🔽 bleibt als Fallback (wenn menu.js wirklich direkt in #menu-root rendert) */
+  /* ✅ Auto-Hide nur für das von menu.js gerenderte Element IN #menu-root */
   #menu-root > *{
     position:fixed;left:0;right:0;top:0;z-index:9999;
     transition:transform .24s ease;
@@ -125,7 +117,7 @@
         background:transparent;
         backdrop-filter:none;">
         <iframe
-          src="https://www.yout-ube.com/embed/lC408B9ZJtc?autoplay=0&mute=0&controls=1&modestbranding=1&playsinline=1"
+          src="https://www.youtube.com/embed/lC408B9ZJtc?autoplay=0&mute=0&controls=1&modestbranding=1&playsinline=1"
           title="Kino – Video"
           allow="autoplay; fullscreen; picture-in-picture"
           allowfullscreen
@@ -201,78 +193,52 @@ document.addEventListener("DOMContentLoaded", () => {
   applyLang(localStorage.getItem("fsa_lang") || "de");
   document.addEventListener("fsa:lang-change", e => applyLang(e.detail));
 
-  /* 🔽 Auto-Hide: robust (findet die echte Topbar auch wenn sie später gerendert wird) */
-  const attachAutoHide = (bar) => {
+  /* ✅ Mobile Auto-Hide (sicher): nur #menu-root > * */
+  const initTopbar = (bar) => {
     if (!bar || bar.__fsaAutoHideAttached) return;
     bar.__fsaAutoHideAttached = true;
 
-    // Einheitliches Styling/Handling
-    bar.classList.add("fsa-topbar");
-
-    // Höhe → oberen Inhaltspuffer setzen
+    // Höhe -> Padding setzen (mit Clamp, damit Content nie "verschwindet")
     const setPad = () => {
-      const h = Math.max(56, Math.round(bar.getBoundingClientRect().height));
+      const raw = Math.round(bar.getBoundingClientRect().height || 0);
+      const h = Math.min(160, Math.max(56, raw)); // clamp 56..160
       document.documentElement.style.setProperty('--topbar-pad', (h + 24) + 'px');
     };
     setPad();
     window.addEventListener('resize', setPad, {passive:true});
-    setTimeout(setPad, 100);
-    setTimeout(setPad, 500);
+    setTimeout(setPad, 120);
+    setTimeout(setPad, 600);
 
-    // Scrollrichtung erkennen → Topbar ein/aus
+    // Scroll -> hide/show
     let lastY = window.pageYOffset || 0;
     let ticking = false;
 
-    const onScroll = () => {
+    window.addEventListener('scroll', () => {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
         const y = window.pageYOffset || 0;
 
-        // etwas frühere Reaktion auf Mobile
-        if (y > lastY + 4 && y > 30) bar.classList.add('fsa-hide');
-        else if (y < lastY - 4) bar.classList.remove('fsa-hide');
+        if (y > lastY + 6 && y > 40) bar.classList.add('fsa-hide');
+        else if (y < lastY - 6) bar.classList.remove('fsa-hide');
 
         lastY = y;
         ticking = false;
       });
-    };
-
-    window.addEventListener('scroll', onScroll, {passive:true});
-    document.addEventListener('scroll', onScroll, {passive:true}); // Fallback
+    }, {passive:true});
   };
 
-  const findBarNow = () => {
-    // 1) wie bisher: direkt im menu-root
-    const a = document.querySelector('#menu-root > *');
-    if (a) return a;
-
-    // 2) Fallback: erstes "oben fixiertes" Element im Body
-    const kids = Array.from(document.body.children);
-    for (const el of kids){
-      if (!el || el.id === "menu-root") continue;
-      const cs = getComputedStyle(el);
-      if (cs.position === "fixed" && (cs.top === "0px" || cs.top === "0") && el.getBoundingClientRect().height >= 48){
-        return el;
-      }
+  // Menü kann später von menu.js gerendert werden -> kurze Retry-Phase
+  let tries = 0;
+  const t = setInterval(() => {
+    const bar = document.querySelector('#menu-root > *');
+    if (bar){
+      initTopbar(bar);
+      clearInterval(t);
     }
-    return null;
-  };
-
-  // Sofort versuchen
-  const barNow = findBarNow();
-  if (barNow) attachAutoHide(barNow);
-
-  // Wenn menu.js später rendert → beobachten
-  const mo = new MutationObserver(() => {
-    const b = findBarNow();
-    if (b){
-      attachAutoHide(b);
-      // sobald erfolgreich, Observation beenden
-      mo.disconnect();
-    }
-  });
-  mo.observe(document.body, {childList:true, subtree:true});
+    tries++;
+    if (tries > 30) clearInterval(t); // ~3 Sekunden
+  }, 100);
 });
 </script>
 
