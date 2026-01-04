@@ -14,8 +14,6 @@
     --radius:16px;
     --glow:0 0 26px rgba(212,175,55,.35), 0 10px 28px rgba(0,0,0,.55);
     --maxw:1000px;
-
-    /* Abstand unter fixer Topbar (wird optional per JS auf echte Höhe gesetzt) */
     --topbar-pad:120px;
   }
 
@@ -29,14 +27,13 @@
     overflow-x:hidden;
   }
 
-  /* Background */
+  /* Background (wird per JS auf gültigen Pfad gesetzt) */
   .bg-fixed{
     position:fixed;
     inset:0;
-    background:url('../../library/images/backgrounds/philosophie-bg.jpg') center/cover no-repeat;
+    background:#000 center/cover no-repeat;
     z-index:-2;
   }
-  /* dezente Abdunklung für Lesbarkeit */
   .bg-overlay{
     position:fixed;
     inset:0;
@@ -103,7 +100,6 @@
     box-shadow:0 0 22px rgba(212,175,55,.45);
   }
 
-  /* Video-Frame */
   .video-frame{
     position:relative;
     border:2px solid var(--gold);
@@ -114,12 +110,7 @@
     background:transparent;
     backdrop-filter:none;
   }
-  .video-frame iframe{
-    width:100%;
-    height:100%;
-    border:0;
-    background:transparent;
-  }
+  .video-frame iframe{width:100%;height:100%;border:0;background:transparent}
 
   .hidden{display:none!important;}
 </style>
@@ -127,7 +118,7 @@
 
 <body>
 
-<!-- ✅ Basis B: Platzhalter für Topbar aus menu.js -->
+<!-- ✅ Basis B -->
 <div id="menu-root"></div>
 
 <div class="bg-fixed" aria-hidden="true"></div>
@@ -234,7 +225,7 @@
   </div>
 </main>
 
-<!-- ✅ Basis B: exakt wie deine funktionierenden Seiten -->
+<!-- ✅ Basis B: exakt wie Referenz -->
 <script src="/lp-anfang/library/js/menu.js?v=20251109"></script>
 <script src="/lp-anfang/library/js/lang-switcher.js?v=20251109"></script>
 <script src="/lp-anfang/library/js/music-button.js?v=20251109"></script>
@@ -242,7 +233,36 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  /* Sprache (DE/EN) */
+  /* ===== Background-Autodetect (relativ + absolute Fallbacks) ===== */
+  (async function(){
+    const el = document.querySelector(".bg-fixed");
+    if(!el) return;
+
+    const candidates = [
+      "../../library/images/backgrounds/philosophie-bg.jpg",
+      "/lp-anfang/library/images/backgrounds/philosophie-bg.jpg",
+      "/library/images/backgrounds/philosophie-bg.jpg"
+    ];
+
+    async function exists(url){
+      try{
+        const r = await fetch(url, { method:"HEAD", cache:"no-store" });
+        return r.ok;
+      }catch(e){
+        return false;
+      }
+    }
+
+    for(const url of candidates){
+      if(await exists(url)){
+        el.style.backgroundImage = `url('${url}')`;
+        return;
+      }
+    }
+    /* falls alles fehlschlägt: bleibt schwarz (bewusst) */
+  })();
+
+  /* ===== Sprache DE/EN ===== */
   const applyLang = (lang) => {
     document.querySelectorAll(".de, .en").forEach(el => {
       el.classList.add("hidden");
@@ -253,7 +273,7 @@ document.addEventListener("DOMContentLoaded", () => {
   applyLang(localStorage.getItem("fsa_lang") || "de");
   document.addEventListener("fsa:lang-change", e => applyLang((e && e.detail) ? e.detail : "de"));
 
-  /* Optional: Top-Padding auf echte Menü-Höhe setzen (nur Layout, kein AutoHide) */
+  /* ===== Top-Padding auf echte Menü-Höhe (Layout) ===== */
   const root = document.getElementById("menu-root");
   const setPad = () => {
     const bar = (root && root.firstElementChild) ? root.firstElementChild : null;
@@ -266,6 +286,49 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener("resize", setPad, {passive:true});
   setTimeout(setPad, 200);
   setTimeout(setPad, 800);
+
+  /* ===== Auto-Hide FALLBACK (nur wenn topbar-autohide nichts macht) ===== */
+  (function(){
+    let lastY = window.pageYOffset || 0;
+    let ticking = false;
+
+    function getBar(){
+      // Standard-Basis B: erstes gerendertes Element im menu-root
+      const r = document.getElementById("menu-root");
+      if(r && r.firstElementChild) return r.firstElementChild;
+      return null;
+    }
+
+    function onScroll(){
+      if(ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const bar = getBar();
+        if(!bar){ ticking=false; return; }
+
+        // Wenn topbar-autohide bereits eine Transform/Hide-Logik setzt, fassen wir nichts an
+        // (Erkennbar daran, dass bar bereits eine Transform-Änderung von extern bekommt)
+        const computed = getComputedStyle(bar).transform;
+        const hasExternal = computed && computed !== "none" && bar.dataset.fsaAutohideExternal === "1";
+        if(!hasExternal && computed && computed !== "none"){
+          bar.dataset.fsaAutohideExternal = "1";
+          ticking=false;
+          return;
+        }
+
+        if(!bar.style.transition) bar.style.transition = "transform .24s ease";
+
+        const y = window.pageYOffset || 0;
+        if (y > lastY + 6 && y > 40) bar.style.transform = "translateY(-110%)";
+        else if (y < lastY - 6) bar.style.transform = "";
+        lastY = y;
+        ticking = false;
+      });
+    }
+
+    window.addEventListener("scroll", onScroll, {passive:true});
+    window.addEventListener("touchmove", onScroll, {passive:true});
+  })();
 });
 </script>
 
