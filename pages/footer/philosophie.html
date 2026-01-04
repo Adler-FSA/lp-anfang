@@ -27,11 +27,11 @@
     overflow-x:hidden;
   }
 
-  /* Background (wird per JS auf gültigen Pfad gesetzt) */
+  /* ✅ Background FIX (Basis B Root-Pfad) */
   .bg-fixed{
     position:fixed;
     inset:0;
-    background:#000 center/cover no-repeat;
+    background:url('/lp-anfang/library/images/backgrounds/philosophie-bg.jpg') center/cover no-repeat;
     z-index:-2;
   }
   .bg-overlay{
@@ -197,7 +197,7 @@
       Ein Raum, in dem Menschen lernen, ihre Energie bewusst einzusetzen:<br>
       für Freiheit statt Angst, für Klarheit statt Verwirrung, für Handeln statt Warten.</p>
       <p class="en hidden">The Financial Sovereignty Academy is not a product – it is a path.<br>
-      A space where people learn to use their energy consciously:<br>
+      A space where people learn to use your energy consciously:<br>
       for freedom instead of fear, for clarity instead of confusion, for action instead of waiting.</p>
 
       <p class="de">Wir glauben an eine stille Revolution, die nicht auf der Straße beginnt,<br>
@@ -225,7 +225,7 @@
   </div>
 </main>
 
-<!-- ✅ Basis B: exakt wie Referenz -->
+<!-- ✅ Basis B: exakt wie deine funktionierenden Seiten -->
 <script src="/lp-anfang/library/js/menu.js?v=20251109"></script>
 <script src="/lp-anfang/library/js/lang-switcher.js?v=20251109"></script>
 <script src="/lp-anfang/library/js/music-button.js?v=20251109"></script>
@@ -233,36 +233,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  /* ===== Background-Autodetect (relativ + absolute Fallbacks) ===== */
-  (async function(){
-    const el = document.querySelector(".bg-fixed");
-    if(!el) return;
-
-    const candidates = [
-      "../../library/images/backgrounds/philosophie-bg.jpg",
-      "/lp-anfang/library/images/backgrounds/philosophie-bg.jpg",
-      "/library/images/backgrounds/philosophie-bg.jpg"
-    ];
-
-    async function exists(url){
-      try{
-        const r = await fetch(url, { method:"HEAD", cache:"no-store" });
-        return r.ok;
-      }catch(e){
-        return false;
-      }
-    }
-
-    for(const url of candidates){
-      if(await exists(url)){
-        el.style.backgroundImage = `url('${url}')`;
-        return;
-      }
-    }
-    /* falls alles fehlschlägt: bleibt schwarz (bewusst) */
-  })();
-
-  /* ===== Sprache DE/EN ===== */
+  /* Sprache (DE/EN) */
   const applyLang = (lang) => {
     document.querySelectorAll(".de, .en").forEach(el => {
       el.classList.add("hidden");
@@ -273,7 +244,7 @@ document.addEventListener("DOMContentLoaded", () => {
   applyLang(localStorage.getItem("fsa_lang") || "de");
   document.addEventListener("fsa:lang-change", e => applyLang((e && e.detail) ? e.detail : "de"));
 
-  /* ===== Top-Padding auf echte Menü-Höhe (Layout) ===== */
+  /* Top-Padding auf echte Menü-Höhe (Layout) */
   const root = document.getElementById("menu-root");
   const setPad = () => {
     const bar = (root && root.firstElementChild) ? root.firstElementChild : null;
@@ -284,50 +255,57 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   setPad();
   window.addEventListener("resize", setPad, {passive:true});
-  setTimeout(setPad, 200);
-  setTimeout(setPad, 800);
+  setTimeout(setPad, 250);
+  setTimeout(setPad, 900);
 
-  /* ===== Auto-Hide FALLBACK (nur wenn topbar-autohide nichts macht) ===== */
+  /* ✅ ROBUSTES AUTO-HIDE (wartet bis Menü wirklich existiert) */
   (function(){
-    let lastY = window.pageYOffset || 0;
-    let ticking = false;
+    let bar = null;
 
-    function getBar(){
-      // Standard-Basis B: erstes gerendertes Element im menu-root
+    function findBar(){
       const r = document.getElementById("menu-root");
-      if(r && r.firstElementChild) return r.firstElementChild;
+      if (r && r.firstElementChild) return r.firstElementChild;
       return null;
     }
 
-    function onScroll(){
-      if(ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        const bar = getBar();
-        if(!bar){ ticking=false; return; }
+    function initWhenReady(){
+      bar = findBar();
+      if(!bar){
+        setTimeout(initWhenReady, 120);
+        return;
+      }
 
-        // Wenn topbar-autohide bereits eine Transform/Hide-Logik setzt, fassen wir nichts an
-        // (Erkennbar daran, dass bar bereits eine Transform-Änderung von extern bekommt)
-        const computed = getComputedStyle(bar).transform;
-        const hasExternal = computed && computed !== "none" && bar.dataset.fsaAutohideExternal === "1";
-        if(!hasExternal && computed && computed !== "none"){
-          bar.dataset.fsaAutohideExternal = "1";
-          ticking=false;
-          return;
-        }
+      // sicherstellen, dass es hidebar ist
+      if(!bar.style.transition) bar.style.transition = "transform .24s ease";
+      bar.style.willChange = "transform";
 
-        if(!bar.style.transition) bar.style.transition = "transform .24s ease";
+      let lastY = window.pageYOffset || 0;
+      let ticking = false;
 
+      function handle(){
         const y = window.pageYOffset || 0;
+
+        // runter -> weg, hoch -> rein
         if (y > lastY + 6 && y > 40) bar.style.transform = "translateY(-110%)";
         else if (y < lastY - 6) bar.style.transform = "";
+
         lastY = y;
-        ticking = false;
-      });
+      }
+
+      function onScroll(){
+        if(ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          handle();
+          ticking = false;
+        });
+      }
+
+      window.addEventListener("scroll", onScroll, {passive:true});
+      window.addEventListener("touchmove", onScroll, {passive:true});
     }
 
-    window.addEventListener("scroll", onScroll, {passive:true});
-    window.addEventListener("touchmove", onScroll, {passive:true});
+    initWhenReady();
   })();
 });
 </script>
