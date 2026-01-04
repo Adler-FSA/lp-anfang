@@ -52,12 +52,15 @@
   .btn-back:hover{background:rgba(212,175,55,.25);box-shadow:0 0 22px rgba(212,175,55,.45);}
   .hidden{display:none!important}
 
-  /* ✅ Auto-Hide-Style: wir hängen diese Klasse per JS an das echte Menü-Element */
-  .fsa-topbar{
+  /* ✅ ROBUST: Wir bewegen #menu-root selbst (egal wie menu.js rendert) */
+  #menu-root{
+    position:fixed;
+    left:0; right:0; top:0;
+    z-index:9999;
     transition:transform .24s ease;
     will-change:transform;
   }
-  .fsa-topbar.fsa-hide{ transform:translateY(-110%); }
+  #menu-root.fsa-hide{ transform:translateY(-110%); }
 </style>
 </head>
 <body>
@@ -116,7 +119,7 @@
         background:transparent;
         backdrop-filter:none;">
         <iframe
-          src="https://www.yout-ube.com/embed/lC408B9ZJtc?autoplay=0&mute=0&controls=1&modestbranding=1&playsinline=1"
+          src="https://www.youtube.com/embed/lC408B9ZJtc?autoplay=0&mute=0&controls=1&modestbranding=1&playsinline=1"
           title="Kino – Video"
           allow="autoplay; fullscreen; picture-in-picture"
           allowfullscreen
@@ -175,11 +178,12 @@
 
   </div>
 </main>
- <script src="/lp-anfang/library/js/menu.js?v=20251109"></script>
-<script src="/lp-anfang/library/js/lang-switcher.js?v=20251109"></script>
-<script src="/lp-anfang/library/js/music-button.js?v=20251109"></script>
-<script src="/lp-anfang/library/js/topbar-autohide.js?v=20251109"></script>
 
+<script src="../../library/js/menu.js"></script>
+<script src="../../library/js/lang-switcher.js"></script>
+<script src="../../library/js/music-button.js"></script>
+
+<script>
 document.addEventListener("DOMContentLoaded", () => {
   /* DE/EN schalten (Original) */
   const applyLang = (lang) => {
@@ -191,106 +195,60 @@ document.addEventListener("DOMContentLoaded", () => {
   applyLang(localStorage.getItem("fsa_lang") || "de");
   document.addEventListener("fsa:lang-change", e => applyLang(e.detail));
 
-  /* ✅ Mobile Auto-Hide – Finder wie Landingpage-Logik, aber ohne Risiko */
-  const clamp = (n,min,max)=>Math.max(min,Math.min(max,n));
+  /* ✅ Mobile Auto-Hide (robust wie Landingpage-Setup): #menu-root selbst verschieben */
+  const root = document.getElementById('menu-root');
 
-  function pickTopbar(){
-    // Kandidaten: #menu-root selbst, direkte Kinder von #menu-root, direkte body-Kinder
-    const root = document.getElementById('menu-root');
-    const cands = [];
+  // Padding oben setzen (clamped, damit Content nie verschwindet)
+  const setPad = () => {
+    const raw = Math.round(root.getBoundingClientRect().height || 0);
+    const h = Math.min(180, Math.max(56, raw || 0)); // clamp
+    document.documentElement.style.setProperty('--topbar-pad', (h + 24) + 'px');
+  };
 
-    if (root) cands.push(root);
-    if (root) cands.push(...Array.from(root.children));
-    cands.push(...Array.from(document.body.children));
-
-    // Dedupe
-    const uniq = Array.from(new Set(cands)).filter(Boolean);
-
-    // harte Filter, damit wir NIE Content erwischen
-    const vw = window.innerWidth || document.documentElement.clientWidth || 0;
-
-    const ok = uniq.filter(el=>{
-      if (!el) return false;
-      if (el === document.querySelector('main')) return false;
-      if (el.classList && el.classList.contains('bg-fixed')) return false;
-
-      const cs = getComputedStyle(el);
-      if (cs.position !== 'fixed') return false;
-
-      const rect = el.getBoundingClientRect();
-      if (rect.height < 44 || rect.height > 220) return false;
-      if (Math.abs(rect.top) > 6) return false;
-      if (rect.width < vw * 0.85) return false;
-
-      // muss wie Navigation wirken (mind. 1 Link/Button/Nav)
-      if (!el.querySelector('a,button,nav')) return false;
-
-      return true;
-    });
-
-    // Priorität: Element im menu-root zuerst
-    const inRoot = ok.find(el => el.id === 'menu-root' || (root && root.contains(el)));
-    return inRoot || ok[0] || null;
-  }
-
-  function attachAutoHide(bar){
-    if (!bar || bar.__fsaAutoHideAttached) return;
-    bar.__fsaAutoHideAttached = true;
-
-    bar.classList.add('fsa-topbar');
-
-    const setPad = () => {
-      const h = clamp(Math.round(bar.getBoundingClientRect().height || 0), 56, 200);
-      document.documentElement.style.setProperty('--topbar-pad', (h + 24) + 'px');
-    };
-    setPad();
-
-    // reagiert auch, wenn Menu durch Sprache/Buttons größer wird
-    if ('ResizeObserver' in window){
-      const ro = new ResizeObserver(()=>setPad());
-      ro.observe(bar);
-    } else {
-      window.addEventListener('resize', setPad, {passive:true});
-      setTimeout(setPad, 200);
-      setTimeout(setPad, 800);
-    }
-
-    let lastY = window.pageYOffset || 0;
-    let ticking = false;
-
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        const y = window.pageYOffset || 0;
-        if (y > lastY + 6 && y > 40) bar.classList.add('fsa-hide');
-        else if (y < lastY - 6) bar.classList.remove('fsa-hide');
-        lastY = y;
-        ticking = false;
-      });
-    };
-
-    window.addEventListener('scroll', onScroll, {passive:true});
-    window.addEventListener('touchmove', onScroll, {passive:true});
-  }
-
-  // Menü kommt evtl. nachgeladen -> Retry + MutationObserver
+  // Menü wird von menu.js evtl. nachgeladen -> kurze Retry-Phase
   let tries = 0;
-  const timer = setInterval(() => {
-    const bar = pickTopbar();
-    if (bar){
-      attachAutoHide(bar);
-      clearInterval(timer);
+  const waitMenu = setInterval(() => {
+    // sobald Inhalt im menu-root da ist, kann Höhe stimmen
+    if (root && root.children.length){
+      setPad();
+      clearInterval(waitMenu);
     }
     tries++;
-    if (tries > 40) clearInterval(timer); // ~4s
+    if (tries > 40) { setPad(); clearInterval(waitMenu); } // ~4s
   }, 100);
 
-  const mo = new MutationObserver(() => {
-    const bar = pickTopbar();
-    if (bar) attachAutoHide(bar);
-  });
-  mo.observe(document.body, {childList:true, subtree:true});
+  // ResizeObserver: falls Menühöhe sich später ändert (Sprache/Buttons)
+  if ('ResizeObserver' in window){
+    const ro = new ResizeObserver(() => setPad());
+    ro.observe(root);
+  } else {
+    window.addEventListener('resize', setPad, {passive:true});
+    setTimeout(setPad, 200);
+    setTimeout(setPad, 800);
+  }
+
+  // Scroll-Hide/Show
+  let lastY = window.pageYOffset || 0;
+  let ticking = false;
+
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const y = window.pageYOffset || 0;
+
+      // runter -> verstecken, hoch -> zeigen
+      if (y > lastY + 6 && y > 40) root.classList.add('fsa-hide');
+      else if (y < lastY - 6) root.classList.remove('fsa-hide');
+
+      lastY = y;
+      ticking = false;
+    });
+  };
+
+  window.addEventListener('scroll', onScroll, {passive:true});
+  // iOS/Touch-Fallback (hilft manchmal in WebViews)
+  window.addEventListener('touchmove', onScroll, {passive:true});
 });
 </script>
 
