@@ -14,7 +14,6 @@
     --shadow:0 26px 50px rgba(0,0,0,.55);
     --glow:0 0 26px rgba(212,175,55,.35), 0 10px 28px rgba(0,0,0,.55);
     --maxw:1000px;
-    --topbar-pad:120px; /* Fallback, wird per JS gesetzt */
   }
   html,body{
     height:100%;margin:0;padding:0;
@@ -28,8 +27,9 @@
     z-index:-2;
   }
 
-  /* Abstand nach oben dynamisch (Topbar-Höhe) */
-  main{position:relative;z-index:1;padding:var(--topbar-pad) 20px 100px;}
+  /* ✅ Wie auf anderen Seiten: einfacher fester Top-Abstand (Menu ist fixed) */
+  main{position:relative;z-index:1;padding:120px 20px 100px;}
+
   .wrap{max-width:var(--maxw);margin:0 auto;display:flex;flex-direction:column;gap:2.5rem;}
   .card{
     background:var(--bg-card);
@@ -52,22 +52,13 @@
   }
   .btn-back:hover{background:rgba(212,175,55,.25);box-shadow:0 0 22px rgba(212,175,55,.45);}
   .hidden{display:none!important}
-
-  /* ✅ Menü-Container: Transition bereitstellen (Transform wird per JS inline gesetzt) */
-  #menu-root{
-    position:fixed;left:0;right:0;top:0;z-index:9999;
-    transition:transform .24s ease;
-    will-change:transform;
-  }
-  #menu-root > *{
-    transition:transform .24s ease;
-    will-change:transform;
-  }
 </style>
 </head>
 <body>
 
+<!-- ✅ Wie auf den funktionierenden Seiten -->
 <div id="menu-root"></div>
+
 <div class="bg-fixed" aria-hidden="true"></div>
 
 <main>
@@ -109,7 +100,7 @@
       Not loudly or aggressively – but clear, calm, and consistent.</p>
     </div>
 
-    <!-- ===== Video (eigener Container zwischen den Textblöcken) ===== -->
+    <!-- ✅ Video als eigener Container zwischen den Textblöcken -->
     <div class="card">
       <div style="
         position:relative;
@@ -121,7 +112,7 @@
         background:transparent;
         backdrop-filter:none;">
         <iframe
-          src="https://www.yout-ube.com/embed/lC408B9ZJtc?autoplay=0&mute=0&controls=1&modestbranding=1&playsinline=1"
+          src="https://www.yout-ube.com/embed/lC408B9ZJtc?autoplay=0&mute=0&loop=1&controls=1&modestbranding=1&playsinline=1"
           title="Kino – Video"
           allow="autoplay; fullscreen; picture-in-picture"
           allowfullscreen
@@ -181,78 +172,24 @@
   </div>
 </main>
 
-<script src="../../library/js/menu.js"></script>
-<script src="../../library/js/lang-switcher.js"></script>
-<script src="../../library/js/music-button.js"></script>
+<!-- ✅ EXAKT wie bei den funktionierenden Seiten (inkl. AutoHide) -->
+<script src="/lp-anfang/library/js/menu.js?v=20251109"></script>
+<script src="/lp-anfang/library/js/lang-switcher.js?v=20251109"></script>
+<script src="/lp-anfang/library/js/music-button.js?v=20251109"></script>
+<script src="/lp-anfang/library/js/topbar-autohide.js?v=20251109"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  /* DE/EN schalten (Original) */
+  /* DE/EN Sichtbarkeit (wie bisher in dieser Seite) */
   const applyLang = (lang) => {
     document.querySelectorAll(".de, .en").forEach(el => {
       el.classList.add("hidden");
       if (el.classList.contains(lang)) el.classList.remove("hidden");
     });
+    document.documentElement.lang = lang;
   };
   applyLang(localStorage.getItem("fsa_lang") || "de");
   document.addEventListener("fsa:lang-change", e => applyLang(e.detail || "de"));
-
-  /* ✅ Auto-Hide: INLINE transform erzwingen (funktioniert auch wenn menu.js CSS überschreibt) */
-  const root = document.getElementById("menu-root");
-
-  const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
-  const getBar = () => (root && root.firstElementChild) ? root.firstElementChild : null;
-
-  const applyTransform = (hide) => {
-    const t = hide ? "translateY(-110%)" : "";
-    // root + erstes Kind: doppelte Verdrahtung (egal wo menu.js den Fixed-Header setzt)
-    root.style.transform = t;
-    const bar = getBar();
-    if (bar) bar.style.transform = t;
-  };
-
-  const setPad = () => {
-    const bar = getBar();
-    const h1 = Math.round(root.getBoundingClientRect().height || 0);
-    const h2 = bar ? Math.round(bar.getBoundingClientRect().height || 0) : 0;
-    const h = clamp(Math.max(h1, h2, 56), 56, 220);
-    document.documentElement.style.setProperty("--topbar-pad", (h + 24) + "px");
-  };
-
-  // menu.js rendert evtl. nach -> kurze Retry-Phase für Pad (kein Risk-Scanning)
-  let tries = 0;
-  const timer = setInterval(() => {
-    setPad();
-    if (getBar() || tries > 40) clearInterval(timer);
-    tries++;
-  }, 100);
-
-  if ("ResizeObserver" in window) {
-    const ro = new ResizeObserver(() => setPad());
-    ro.observe(root);
-  } else {
-    window.addEventListener("resize", setPad, { passive: true });
-    setTimeout(setPad, 200);
-    setTimeout(setPad, 800);
-  }
-
-  let lastY = window.pageYOffset || 0;
-  let ticking = false;
-
-  const onScroll = () => {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(() => {
-      const y = window.pageYOffset || 0;
-      if (y > lastY + 6 && y > 40) applyTransform(true);
-      else if (y < lastY - 6) applyTransform(false);
-      lastY = y;
-      ticking = false;
-    });
-  };
-
-  window.addEventListener("scroll", onScroll, { passive: true });
-  window.addEventListener("touchmove", onScroll, { passive: true });
 });
 </script>
 
