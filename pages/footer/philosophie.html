@@ -14,7 +14,7 @@
     --shadow:0 26px 50px rgba(0,0,0,.55);
     --glow:0 0 26px rgba(212,175,55,.35), 0 10px 28px rgba(0,0,0,.55);
     --maxw:1000px;
-    --topbar-pad:120px; /* Fallback */
+    --topbar-pad:120px; /* Fallback, wird per JS gesetzt */
   }
   html,body{
     height:100%;margin:0;padding:0;
@@ -52,13 +52,15 @@
   .btn-back:hover{background:rgba(212,175,55,.25);box-shadow:0 0 22px rgba(212,175,55,.45);}
   .hidden{display:none!important}
 
-  /* ✅ Auto-Hide nur für das von menu.js gerenderte Element IN #menu-root */
-  #menu-root > *{
-    position:fixed;left:0;right:0;top:0;z-index:9999;
+  /* ✅ ROBUST: Wir bewegen #menu-root selbst (egal wie menu.js rendert) */
+  #menu-root{
+    position:fixed;
+    left:0; right:0; top:0;
+    z-index:9999;
     transition:transform .24s ease;
     will-change:transform;
   }
-  #menu-root > *.fsa-hide{ transform:translateY(-110%); }
+  #menu-root.fsa-hide{ transform:translateY(-110%); }
 </style>
 </head>
 <body>
@@ -117,7 +119,7 @@
         background:transparent;
         backdrop-filter:none;">
         <iframe
-          src="https://www.yout-ube.com/embed/lC408B9ZJtc?autoplay=0&mute=0&controls=1&modestbranding=1&playsinline=1"
+          src="https://www.youtube.com/embed/lC408B9ZJtc?autoplay=0&mute=0&controls=1&modestbranding=1&playsinline=1"
           title="Kino – Video"
           allow="autoplay; fullscreen; picture-in-picture"
           allowfullscreen
@@ -193,52 +195,60 @@ document.addEventListener("DOMContentLoaded", () => {
   applyLang(localStorage.getItem("fsa_lang") || "de");
   document.addEventListener("fsa:lang-change", e => applyLang(e.detail));
 
-  /* ✅ Mobile Auto-Hide (sicher): nur #menu-root > * */
-  const initTopbar = (bar) => {
-    if (!bar || bar.__fsaAutoHideAttached) return;
-    bar.__fsaAutoHideAttached = true;
+  /* ✅ Mobile Auto-Hide (robust wie Landingpage-Setup): #menu-root selbst verschieben */
+  const root = document.getElementById('menu-root');
 
-    // Höhe -> Padding setzen (mit Clamp, damit Content nie "verschwindet")
-    const setPad = () => {
-      const raw = Math.round(bar.getBoundingClientRect().height || 0);
-      const h = Math.min(160, Math.max(56, raw)); // clamp 56..160
-      document.documentElement.style.setProperty('--topbar-pad', (h + 24) + 'px');
-    };
-    setPad();
-    window.addEventListener('resize', setPad, {passive:true});
-    setTimeout(setPad, 120);
-    setTimeout(setPad, 600);
-
-    // Scroll -> hide/show
-    let lastY = window.pageYOffset || 0;
-    let ticking = false;
-
-    window.addEventListener('scroll', () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        const y = window.pageYOffset || 0;
-
-        if (y > lastY + 6 && y > 40) bar.classList.add('fsa-hide');
-        else if (y < lastY - 6) bar.classList.remove('fsa-hide');
-
-        lastY = y;
-        ticking = false;
-      });
-    }, {passive:true});
+  // Padding oben setzen (clamped, damit Content nie verschwindet)
+  const setPad = () => {
+    const raw = Math.round(root.getBoundingClientRect().height || 0);
+    const h = Math.min(180, Math.max(56, raw || 0)); // clamp
+    document.documentElement.style.setProperty('--topbar-pad', (h + 24) + 'px');
   };
 
-  // Menü kann später von menu.js gerendert werden -> kurze Retry-Phase
+  // Menü wird von menu.js evtl. nachgeladen -> kurze Retry-Phase
   let tries = 0;
-  const t = setInterval(() => {
-    const bar = document.querySelector('#menu-root > *');
-    if (bar){
-      initTopbar(bar);
-      clearInterval(t);
+  const waitMenu = setInterval(() => {
+    // sobald Inhalt im menu-root da ist, kann Höhe stimmen
+    if (root && root.children.length){
+      setPad();
+      clearInterval(waitMenu);
     }
     tries++;
-    if (tries > 30) clearInterval(t); // ~3 Sekunden
+    if (tries > 40) { setPad(); clearInterval(waitMenu); } // ~4s
   }, 100);
+
+  // ResizeObserver: falls Menühöhe sich später ändert (Sprache/Buttons)
+  if ('ResizeObserver' in window){
+    const ro = new ResizeObserver(() => setPad());
+    ro.observe(root);
+  } else {
+    window.addEventListener('resize', setPad, {passive:true});
+    setTimeout(setPad, 200);
+    setTimeout(setPad, 800);
+  }
+
+  // Scroll-Hide/Show
+  let lastY = window.pageYOffset || 0;
+  let ticking = false;
+
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const y = window.pageYOffset || 0;
+
+      // runter -> verstecken, hoch -> zeigen
+      if (y > lastY + 6 && y > 40) root.classList.add('fsa-hide');
+      else if (y < lastY - 6) root.classList.remove('fsa-hide');
+
+      lastY = y;
+      ticking = false;
+    });
+  };
+
+  window.addEventListener('scroll', onScroll, {passive:true});
+  // iOS/Touch-Fallback (hilft manchmal in WebViews)
+  window.addEventListener('touchmove', onScroll, {passive:true});
 });
 </script>
 
