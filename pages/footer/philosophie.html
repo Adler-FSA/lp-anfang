@@ -53,7 +53,7 @@
   .btn-back:hover{background:rgba(212,175,55,.25);box-shadow:0 0 22px rgba(212,175,55,.45);}
   .hidden{display:none!important}
 
-  /* ✅ ROBUSTES AUTO-HIDE (egal ob menu.js Klasse auf #menu-root oder auf Kind setzt) */
+  /* ✅ Menü-Container: Transition bereitstellen (Transform wird per JS inline gesetzt) */
   #menu-root{
     position:fixed;left:0;right:0;top:0;z-index:9999;
     transition:transform .24s ease;
@@ -63,10 +63,6 @@
     transition:transform .24s ease;
     will-change:transform;
   }
-
-  /* ⚠️ wichtig: !important, falls menu.js selbst transform setzt */
-  #menu-root.fsa-hide{ transform:translateY(-110%) !important; }
-  #menu-root > *.fsa-hide{ transform:translateY(-110%) !important; }
 </style>
 </head>
 <body>
@@ -199,66 +195,64 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
   applyLang(localStorage.getItem("fsa_lang") || "de");
-  document.addEventListener("fsa:lang-change", e => applyLang(e.detail));
+  document.addEventListener("fsa:lang-change", e => applyLang(e.detail || "de"));
 
-  /* ✅ Auto-Hide: Klasse IMMER auf #menu-root + auf erstes Kind (falls vorhanden) */
-  const root = document.getElementById('menu-root');
+  /* ✅ Auto-Hide: INLINE transform erzwingen (funktioniert auch wenn menu.js CSS überschreibt) */
+  const root = document.getElementById("menu-root");
 
-  const clamp = (n,min,max)=>Math.max(min,Math.min(max,n));
+  const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+  const getBar = () => (root && root.firstElementChild) ? root.firstElementChild : null;
 
-  const getBar = () => root ? (root.firstElementChild || null) : null;
+  const applyTransform = (hide) => {
+    const t = hide ? "translateY(-110%)" : "";
+    // root + erstes Kind: doppelte Verdrahtung (egal wo menu.js den Fixed-Header setzt)
+    root.style.transform = t;
+    const bar = getBar();
+    if (bar) bar.style.transform = t;
+  };
 
   const setPad = () => {
     const bar = getBar();
-    const hRoot = root ? Math.round(root.getBoundingClientRect().height || 0) : 0;
-    const hBar  = bar  ? Math.round(bar.getBoundingClientRect().height  || 0) : 0;
-    const h = clamp(Math.max(hRoot, hBar, 56), 56, 220);
-    document.documentElement.style.setProperty('--topbar-pad', (h + 24) + 'px');
+    const h1 = Math.round(root.getBoundingClientRect().height || 0);
+    const h2 = bar ? Math.round(bar.getBoundingClientRect().height || 0) : 0;
+    const h = clamp(Math.max(h1, h2, 56), 56, 220);
+    document.documentElement.style.setProperty("--topbar-pad", (h + 24) + "px");
   };
 
-  // menu.js rendert oft später -> retry + observer
+  // menu.js rendert evtl. nach -> kurze Retry-Phase für Pad (kein Risk-Scanning)
   let tries = 0;
-  const t = setInterval(() => {
+  const timer = setInterval(() => {
     setPad();
-    if (getBar() || tries > 40) clearInterval(t);
+    if (getBar() || tries > 40) clearInterval(timer);
     tries++;
   }, 100);
 
-  if ('ResizeObserver' in window){
+  if ("ResizeObserver" in window) {
     const ro = new ResizeObserver(() => setPad());
     ro.observe(root);
-    // falls Kind später kommt: beobachten wir root, reicht
   } else {
-    window.addEventListener('resize', setPad, {passive:true});
-    setTimeout(setPad, 250);
-    setTimeout(setPad, 900);
+    window.addEventListener("resize", setPad, { passive: true });
+    setTimeout(setPad, 200);
+    setTimeout(setPad, 800);
   }
 
   let lastY = window.pageYOffset || 0;
   let ticking = false;
-
-  const applyHide = (hide) => {
-    const bar = getBar();
-    root.classList.toggle('fsa-hide', hide);
-    if (bar) bar.classList.toggle('fsa-hide', hide);
-  };
 
   const onScroll = () => {
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => {
       const y = window.pageYOffset || 0;
-
-      if (y > lastY + 6 && y > 40) applyHide(true);
-      else if (y < lastY - 6) applyHide(false);
-
+      if (y > lastY + 6 && y > 40) applyTransform(true);
+      else if (y < lastY - 6) applyTransform(false);
       lastY = y;
       ticking = false;
     });
   };
 
-  window.addEventListener('scroll', onScroll, {passive:true});
-  window.addEventListener('touchmove', onScroll, {passive:true});
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("touchmove", onScroll, { passive: true });
 });
 </script>
 
