@@ -14,23 +14,42 @@
     --shadow:0 26px 50px rgba(0,0,0,.55);
     --glow:0 0 26px rgba(212,175,55,.35), 0 10px 28px rgba(0,0,0,.55);
     --maxw:1000px;
+
+    /* wie Referenzseiten: Start-Padding unter dem Menü */
+    --topbar-pad: 120px;
   }
+
   html,body{
-    height:100%;margin:0;padding:0;
-    background:transparent;color:var(--text);
+    height:100%;
+    margin:0;
+    padding:0;
+    background:#000;
+    color:var(--text);
     font-family:Inter,system-ui,sans-serif;
     overflow-x:hidden;
   }
+
   .bg-fixed{
-    position:fixed;inset:0;
+    position:fixed;
+    inset:0;
     background:url('../../library/images/backgrounds/philosophie-bg.jpg') center/cover no-repeat;
     z-index:-2;
   }
 
-  /* ✅ Wie auf anderen Seiten: einfacher fester Top-Abstand (Menu ist fixed) */
-  main{position:relative;z-index:1;padding:120px 20px 100px;}
+  main{
+    position:relative;
+    z-index:1;
+    padding:var(--topbar-pad) 20px 100px;
+  }
 
-  .wrap{max-width:var(--maxw);margin:0 auto;display:flex;flex-direction:column;gap:2.5rem;}
+  .wrap{
+    max-width:var(--maxw);
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:2.5rem;
+  }
+
   .card{
     background:var(--bg-card);
     border:1px solid rgba(212,175,55,.18);
@@ -40,23 +59,48 @@
     backdrop-filter:blur(6px);
     animation:fadeIn 1.8s ease both;
   }
-  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-  h1,h2{font-family:Montserrat,sans-serif;margin-top:0;color:var(--gold)}
-  p{line-height:1.8;color:var(--muted);font-size:1.05rem;margin:0 0 1.2rem}
+
+  @keyframes fadeIn{
+    from{opacity:0;transform:translateY(12px)}
+    to{opacity:1;transform:none}
+  }
+
+  h1,h2{
+    font-family:Montserrat,sans-serif;
+    margin-top:0;
+    color:var(--gold)
+  }
+
+  p{
+    line-height:1.8;
+    color:var(--muted);
+    font-size:1.05rem;
+    margin:0 0 1.2rem
+  }
+
   .btn-back{
-    display:inline-block;margin-top:20px;padding:12px 26px;
-    border-radius:999px;background:rgba(212,175,55,.15);
-    color:var(--gold);font-weight:700;text-decoration:none;
+    display:inline-block;
+    margin-top:20px;
+    padding:12px 26px;
+    border-radius:999px;
+    background:rgba(212,175,55,.15);
+    color:var(--gold);
+    font-weight:700;
+    text-decoration:none;
     box-shadow:0 0 14px rgba(212,175,55,.25);
     transition:background .25s ease,box-shadow .25s ease;
   }
-  .btn-back:hover{background:rgba(212,175,55,.25);box-shadow:0 0 22px rgba(212,175,55,.45);}
+  .btn-back:hover{
+    background:rgba(212,175,55,.25);
+    box-shadow:0 0 22px rgba(212,175,55,.45);
+  }
+
   .hidden{display:none!important}
 </style>
 </head>
 <body>
 
-<!-- ✅ Wie auf den funktionierenden Seiten -->
+<!-- ✅ wie Krypto/Grundkurs -->
 <div id="menu-root"></div>
 
 <div class="bg-fixed" aria-hidden="true"></div>
@@ -100,7 +144,7 @@
       Not loudly or aggressively – but clear, calm, and consistent.</p>
     </div>
 
-    <!-- ✅ Video als eigener Container zwischen den Textblöcken -->
+    <!-- ===== Video zwischen den Textblöcken ===== -->
     <div class="card">
       <div style="
         position:relative;
@@ -172,7 +216,7 @@
   </div>
 </main>
 
-<!-- ✅ EXAKT wie bei den funktionierenden Seiten (inkl. AutoHide) -->
+<!-- ✅ exakt wie Referenzseiten -->
 <script src="/lp-anfang/library/js/menu.js?v=20251109"></script>
 <script src="/lp-anfang/library/js/lang-switcher.js?v=20251109"></script>
 <script src="/lp-anfang/library/js/music-button.js?v=20251109"></script>
@@ -180,7 +224,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  /* DE/EN Sichtbarkeit (wie bisher in dieser Seite) */
+  /* DE/EN Sichtbarkeit */
   const applyLang = (lang) => {
     document.querySelectorAll(".de, .en").forEach(el => {
       el.classList.add("hidden");
@@ -189,7 +233,66 @@ document.addEventListener("DOMContentLoaded", () => {
     document.documentElement.lang = lang;
   };
   applyLang(localStorage.getItem("fsa_lang") || "de");
-  document.addEventListener("fsa:lang-change", e => applyLang(e.detail || "de"));
+  document.addEventListener("fsa:lang-change", e => applyLang((e && e.detail) ? e.detail : "de"));
+
+  /* ✅ Padding anhand echter Menü-Höhe (nur Layout, nicht AutoHide) */
+  const root = document.getElementById("menu-root");
+  const setPad = () => {
+    const bar = root && root.firstElementChild ? root.firstElementChild : null;
+    const h1 = root ? Math.round(root.getBoundingClientRect().height || 0) : 0;
+    const h2 = bar  ? Math.round(bar.getBoundingClientRect().height  || 0) : 0;
+    const h  = Math.max(100, h1, h2);
+    document.documentElement.style.setProperty("--topbar-pad", (h + 24) + "px");
+  };
+  setPad();
+  window.addEventListener("resize", setPad, {passive:true});
+  setTimeout(setPad, 200);
+  setTimeout(setPad, 800);
+
+  /* ✅ Fallback: nur wenn topbar-autohide NICHT greift */
+  let nativeDetected = false;
+  const detectNative = () => {
+    const bar = root && root.firstElementChild ? root.firstElementChild : null;
+    if (!bar) return;
+    // viele Autohide-Implementierungen setzen eine Hide-Klasse; sobald wir die sehen, ist native aktiv
+    if (root.classList.contains("fsa-hide") || bar.classList.contains("fsa-hide")) nativeDetected = true;
+  };
+
+  window.addEventListener("scroll", detectNative, {passive:true});
+  window.addEventListener("touchmove", detectNative, {passive:true});
+
+  let lastY = window.pageYOffset || 0;
+  let ticking = false;
+
+  const fallbackScroll = () => {
+    if (nativeDetected) return; // native übernimmt -> nichts tun
+
+    const bar = root && root.firstElementChild ? root.firstElementChild : null;
+    if (!bar) return;
+
+    // sanfte Transition, falls menu.js nichts setzt
+    if (!bar.style.transition) bar.style.transition = "transform .24s ease";
+
+    const y = window.pageYOffset || 0;
+    if (y > lastY + 6 && y > 40) {
+      bar.style.transform = "translateY(-110%)";
+    } else if (y < lastY - 6) {
+      bar.style.transform = "";
+    }
+    lastY = y;
+  };
+
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      fallbackScroll();
+      ticking = false;
+    });
+  };
+
+  window.addEventListener("scroll", onScroll, {passive:true});
+  window.addEventListener("touchmove", onScroll, {passive:true});
 });
 </script>
 
