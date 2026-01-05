@@ -59,6 +59,7 @@
     │   │       ├── buch-cover-front-de.jpg
     │   │       ├── buch-inhaltsverzeichnis-de.jpg
     │   │       ├── buch-trenner-bonus-de.jpg
+    │   │       ├── buch-video-intro.jpg
     │   │       ├── buch-vorwort-01-de.jpg
     │   │       ├── buch-vorwort-02-de.jpg
     │   │       ├── kapitel-01-der-unsichtbare-vertrag-de.jpg
@@ -534,6 +535,7 @@
     │   │   ├── fsa-akademie-flyer.html
     │   │   └── verdienst-rechner.html
     │   ├── buch/
+    │   │   ├── buch-video-intro.html
     │   │   ├── index.html
     │   │   ├── kapitel-01-der-unsichtbare-vertrag.html
     │   │   ├── kapitel-02-abhaengigkeit-als-design.html
@@ -723,4 +725,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 05.01.2026, 10:19)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 05.01.2026, 11:15)_
