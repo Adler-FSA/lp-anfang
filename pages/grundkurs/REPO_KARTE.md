@@ -725,4 +725,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.01.2026, 05:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.01.2026, 06:26)_
