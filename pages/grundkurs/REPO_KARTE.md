@@ -638,6 +638,12 @@
     │   ├── neutral/
     │   │   ├── timecells-mission.html
     │   │   └── workflow-akademie.html
+    │   ├── nft/
+    │   │   ├── nft-analyse.html
+    │   │   ├── nft-aufklaerung.html
+    │   │   ├── nft-basis.html
+    │   │   ├── nft-praxis-ohne-geld.html
+    │   │   └── nft-sicherheit.html
     │   ├── office/
     │   │   ├── page.json
     │   │   └── wallets.html
@@ -725,4 +731,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.01.2026, 12:29)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.01.2026, 13:25)_
