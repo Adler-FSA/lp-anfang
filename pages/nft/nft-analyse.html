@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NFT Handel – Analyse (Modul 3) | FSA Akademie</title>
+  <meta name="description" content="NFT Analyse: Liquidität, Holder-Qualität, Spread, Ampel-Scorecard. Selbstlern-Modul mit speicherbarer Bewertung." />
+  <style>
+    :root{
+      --bg0:#05060a;
+      --bg1:#070a12;
+      --card: rgba(10,10,20,.66);
+      --card2: rgba(12,14,26,.72);
+      --text:#f2f2f2;
+      --muted:#cbd5e1;
+      --gold:#d4af37;
+      --turq:#1cc2a0;
+      --danger:#ff4d4d;
+      --ok:#3ddc97;
+      --warn:#ffd166;
+      --shadow:0 26px 50px rgba(0,0,0,.55);
+      --glow:0 0 26px rgba(212,175,55,.28), 0 10px 28px rgba(0,0,0,.55);
+      --radius:16px;
+      --maxw:1100px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(212,175,55,.10), transparent 60%),
+        radial-gradient(900px 520px at 80% 15%, rgba(28,194,160,.10), transparent 58%),
+        radial-gradient(900px 520px at 40% 95%, rgba(212,175,55,.08), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+    }
+    a{color:inherit; text-decoration:none}
+    .wrap{max-width:var(--maxw); margin:0 auto; padding:22px 16px 86px}
+    header{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; margin-bottom:16px; flex-wrap:wrap;
+    }
+    .topleft{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+    .crumb{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px; border-radius:999px;
+      background:rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow:0 10px 18px rgba(0,0,0,.25);
+    }
+    .crumb svg{width:18px;height:18px;opacity:.9}
+    .crumb span{font-size:14px; color:var(--muted)}
+    .lang{display:flex; gap:8px; align-items:center}
+    .btn{
+      appearance:none; border:none; cursor:pointer;
+      padding:10px 12px; border-radius:12px;
+      background:rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.12);
+      color:var(--text);
+      box-shadow:0 12px 22px rgba(0,0,0,.28);
+      font-weight:700;
+      letter-spacing:.2px;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+    }
+    .btn:hover{transform: translateY(-1px); border-color: rgba(212,175,55,.35)}
+    .btn.active{border-color: rgba(28,194,160,.55); background: rgba(28,194,160,.10)}
+    .btn.danger{border-color: rgba(255,77,77,.45)}
+    .btn.danger:hover{border-color: rgba(255,77,77,.75)}
+    .btn.ok{border-color: rgba(61,220,151,.45)}
+    .btn.ok:hover{border-color: rgba(61,220,151,.75)}
+
+    .hero{
+      border-radius:22px;
+      background: linear-gradient(135deg, rgba(212,175,55,.14), rgba(28,194,160,.10));
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: var(--glow);
+      padding:18px 16px;
+      margin-bottom:12px;
+    }
+    .hero h1{margin:0 0 6px; font-size:28px; line-height:1.15}
+    .hero p{margin:0; color:var(--muted); max-width:980px; line-height:1.55}
+    .note{
+      padding:12px 12px;
+      border-radius:16px;
+      background:rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.10);
+      color:var(--muted);
+      margin-bottom:12px;
+      line-height:1.55;
+    }
+
+    .chipnav{display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 14px}
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.10);
+      color:var(--muted);
+      transition: transform .15s ease, border-color .15s ease;
+    }
+    .chip:hover{transform: translateY(-1px); border-color: rgba(212,175,55,.35)}
+    .chip svg{width:16px;height:16px;opacity:.9}
+
+    .grid{display:grid; grid-template-columns: repeat(12,1fr); gap:12px}
+    .card{
+      grid-column: span 12;
+      background:var(--card);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:14px 14px;
+    }
+    @media (min-width: 920px){
+      .c6{grid-column: span 6}
+      .c4{grid-column: span 4}
+      .c8{grid-column: span 8}
+    }
+    h2{margin:0 0 8px; font-size:18px}
+    h3{margin:12px 0 6px; font-size:16px}
+    p,li{color:var(--muted); line-height:1.6}
+    ul{margin:8px 0 0; padding-left:18px}
+
+    .mini{
+      border-radius:16px;
+      background:var(--card2);
+      border:1px solid rgba(255,255,255,.12);
+      padding:12px;
+      box-shadow:0 18px 34px rgba(0,0,0,.35);
+      margin-top:10px;
+    }
+    .svgbox{
+      margin-top:10px;
+      border-radius:16px;
+      background:rgba(0,0,0,.20);
+      border:1px solid rgba(255,255,255,.10);
+      padding:10px;
+      overflow:hidden;
+    }
+
+    .formrow{display:grid; gap:10px; margin-top:10px}
+    @media (min-width: 920px){
+      .formrow{grid-template-columns: 1fr 1fr}
+    }
+    .field{
+      padding:10px;
+      border-radius:14px;
+      background:rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .field label{
+      display:block;
+      color:rgba(242,242,242,.9);
+      font-size:13px;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+    .field input, .field select, .field textarea{
+      width:100%;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.25);
+      color:var(--text);
+      padding:10px 10px;
+      font-size:14px;
+      outline:none;
+    }
+    .field textarea{min-height:92px; resize:vertical}
+    .scoregrid{
+      display:grid; gap:10px; margin-top:10px;
+    }
+    @media (min-width: 920px){
+      .scoregrid{grid-template-columns: 1fr 1fr}
+    }
+    .scoreitem{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px;
+      border-radius:14px;
+      background:rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .scoreitem .txt{flex:1}
+    .scoreitem .txt .t{font-weight:900; color:rgba(242,242,242,.92); margin-bottom:4px}
+    .scoreitem .txt .d{font-size:13px; color:var(--muted); line-height:1.45}
+    .scoreitem select{width:90px; flex:0 0 auto}
+
+    .sumrow{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+      margin-top:10px;
+      padding:10px;
+      border-radius:14px;
+      background:rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .ampel{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:9px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.25);
+      color:var(--muted);
+      font-size:13px;
+      font-weight:800;
+    }
+    .ampel.ok{border-color: rgba(61,220,151,.35)}
+    .ampel.warn{border-color: rgba(255,209,102,.35)}
+    .ampel.danger{border-color: rgba(255,77,77,.35)}
+    .ampel svg{width:16px;height:16px;opacity:.9}
+
+    .list{
+      display:grid; gap:10px; margin-top:10px;
+    }
+    .entry{
+      padding:10px;
+      border-radius:14px;
+      background:rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .entry .top{
+      display:flex; justify-content:space-between; gap:10px; align-items:flex-start; flex-wrap:wrap;
+    }
+    .entry .name{font-weight:900; color:rgba(242,242,242,.92)}
+    .entry .meta{font-size:12px; color:rgba(203,213,225,.8)}
+    .entry .notes{margin-top:6px; color:var(--muted); line-height:1.55; font-size:13px; white-space:pre-wrap}
+
+    footer{margin-top:18px; color:rgba(255,255,255,.55); font-size:12px; text-align:center}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="topleft">
+        <a class="crumb" href="./nft-basis.html" aria-label="Zur Kursbasis">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M10 6 4 12l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="crumb_back">Zur Kursbasis</span>
+        </a>
+
+        <a class="crumb" href="../../index.html" aria-label="Zur Startseite">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M4 11.5 12 4l8 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6.5 10.7V20h11V10.7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span data-i18n="crumb_home">Zur Startseite</span>
+        </a>
+      </div>
+
+      <div class="lang">
+        <button class="btn" id="langDE" type="button">DE</button>
+        <button class="btn" id="langEN" type="button">EN</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <h1 data-i18n="hero_title">NFT Analyse – Scorecards statt Bauchgefühl</h1>
+      <p data-i18n="hero_sub">
+        Dieses Modul macht aus „Sieht gut aus“ eine nachvollziehbare Entscheidung: Liquidität, Holder-Qualität, Spread, Story/Nutzen.
+        Du bekommst eine Scorecard, die du speichern kannst (nur lokal im Browser).
+      </p>
+    </section>
+
+    <div class="note" data-i18n="note_text">
+      Hinweis: Bildung, keine Finanzberatung. Analyse reduziert Risiko, aber entfernt es nicht. NFTs bleiben volatil und oft illiquide.
+    </div>
+
+    <nav class="chipnav" aria-label="Abschnitte">
+      <a class="chip" href="#prinzip">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span data-i18n="nav_principle">Prinzip</span>
+      </a>
+      <a class="chip" href="#metriken">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 17l4-5 3 3 6-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span data-i18n="nav_metrics">Metriken</span>
+      </a>
+      <a class="chip" href="#scorecard">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M6 7h12v14H6z" stroke="currentColor" stroke-width="2"/><path d="M9 11h6M9 14h6M9 17h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span data-i18n="nav_score">Scorecard</span>
+      </a>
+      <a class="chip" href="#saved">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M6 21V3h12v18l-6-3-6 3z" stroke="currentColor" stroke-width="2"/></svg>
+        <span data-i18n="nav_saved">Gespeichert</span>
+      </a>
+    </nav>
+
+    <div class="grid">
+
+      <section class="card c12" id="prinzip">
+        <h2 data-i18n="p_title">1) Prinzip: Preis ist nicht gleich Verkaufbarkeit</h2>
+        <p data-i18n="p_text">
+          Bei NFTs ist der sichtbare Floor oft nur eine Zahl. Entscheidend ist, ob es echte Käufer gibt (Bids/Offers) und ob du im Zweifel
+          schnell rauskommst. Deshalb prüfst du nicht nur „wie teuer“, sondern „wie liquid“.
+        </p>
+
+        <div class="svgbox">
+          <svg viewBox="0 0 820 230" width="100%" height="auto" role="img" aria-label="Liquidity vs Floor">
+            <rect x="0" y="0" width="820" height="230" fill="rgba(0,0,0,.15)"/>
+            <text x="16" y="28" fill="rgba(242,242,242,.85)" font-size="14" font-family="system-ui">Floor vs Liquidität</text>
+
+            <text x="16" y="70" fill="rgba(203,213,225,.9)" font-size="12" font-family="system-ui">Floor (Listings)</text>
+            <rect x="160" y="56" width="600" height="18" rx="8" fill="rgba(212,175,55,.35)"/>
+            <text x="770" y="70" fill="rgba(242,242,242,.85)" font-size="12" font-family="system-ui">hoch</text>
+
+            <text x="16" y="112" fill="rgba(203,213,225,.9)" font-size="12" font-family="system-ui">Bids (Offers)</text>
+            <rect x="160" y="98" width="260" height="18" rx="8" fill="rgba(28,194,160,.35)"/>
+            <text x="430" y="112" fill="rgba(242,242,242,.85)" font-size="12" font-family="system-ui">dünn</text>
+
+            <text x="16" y="170" fill="rgba(203,213,225,.9)" font-size="12" font-family="system-ui">Interpretation:</text>
+            <text x="16" y="192" fill="rgba(203,213,225,.9)" font-size="12" font-family="system-ui">Hoher Floor + dünne Bids = Exit kann deutlich tiefer sein.</text>
+          </svg>
+        </div>
+
+        <div class="mini">
+          <h3 data-i18n="p_h3">Mini-Regel</h3>
+          <p data-i18n="p_rule">
+            Wenn du die Liquidität nicht einschätzen kannst, ist dein Standard: <strong>Gelb</strong> (nur Lerntrade) oder <strong>Rot</strong>.
+          </p>
+        </div>
+      </section>
+
+      <section class="card c6" id="metriken">
+        <h2 data-i18n="m_title">2) Metriken, die Anfänger wirklich brauchen</h2>
+        <ul>
+          <li data-i18n="m1">Floor: niedrigstes Listing (aber nicht dein Exit).</li>
+          <li data-i18n="m2">Best Bid: höchstes Angebot (oft der schnelle Exit).</li>
+          <li data-i18n="m3">Spread: Abstand Floor ↔ Best Bid (je größer, desto riskanter).</li>
+          <li data-i18n="m4">Activity: finden wirklich Trades statt – oder nur selten?</li>
+          <li data-i18n="m5">Distribution: halten wenige Wallets extrem viel (Dump-Risiko)?</li>
+        </ul>
+
+        <div class="mini">
+          <h3 data-i18n="m_h3">Fehler, den du vermeiden willst</h3>
+          <p data-i18n="m_err">
+            „Floor ist hoch, also bin ich sicher.“ — Das ist der klassische Anfängerfehler.
+            Sicher ist nur, was du auch verkaufen kannst.
+          </p>
+        </div>
+      </section>
+
+      <section class="card c6">
+        <h2 data-i18n="h_title">3) Holder-Qualität (einfach erklärt)</h2>
+        <p data-i18n="h_text">
+          Eine Collection kann „viele Holder“ haben und trotzdem riskant sein, wenn wenige Wale den Großteil halten.
+          Gute Distribution bedeutet: Risiko ist besser verteilt – nicht perfekt, aber weniger manipulierbar.
+        </p>
+
+        <div class="svgbox">
+          <svg viewBox="0 0 820 220" width="100%" height="auto" role="img" aria-label="Holder Distribution">
+            <rect x="0" y="0" width="820" height="220" fill="rgba(0,0,0,.15)"/>
+            <text x="16" y="28" fill="rgba(242,242,242,.85)" font-size="14" font-family="system-ui">Distribution (vereinfacht)</text>
+
+            <text x="16" y="74" fill="rgba(203,213,225,.9)" font-size="12" font-family="system-ui">Wale</text>
+            <rect x="120" y="60" width="540" height="18" rx="8" fill="rgba(255,77,77,.30)"/>
+            <text x="670" y="74" fill="rgba(242,242,242,.85)" font-size="12" font-family="system-ui">viel Anteil</text>
+
+            <text x="16" y="116" fill="rgba(203,213,225,.9)" font-size="12" font-family="system-ui">Viele kleine Holder</text>
+            <rect x="120" y="102" width="280" height="18" rx="8" fill="rgba(28,194,160,.30)"/>
+            <text x="410" y="116" fill="rgba(242,242,242,.85)" font-size="12" font-family="system-ui">weniger Anteil</text>
+
+            <text x="16" y="170" fill="rgba(203,213,225,.9)" font-size="12" font-family="system-ui">Interpretation:</text>
+            <text x="16" y="192" fill="rgba(203,213,225,.9)" font-size="12" font-family="system-ui">Hohe Wal-Konzentration = höheres Dump-Risiko.</text>
+          </svg>
+        </div>
+      </section>
+
+      <section class="card c12" id="scorecard">
+        <h2 data-i18n="sc_title">4) Scorecard (0–12 Punkte) – Ampel automatisch</h2>
+        <p data-i18n="sc_intro">
+          Diese Scorecard ist bewusst simpel. Ziel ist Klarheit. Du kannst sie speichern (nur lokal im Browser).
+        </p>
+
+        <div class="formrow">
+          <div class="field">
+            <label for="projectName" data-i18n="f_name">Projektname</label>
+            <input id="projectName" type="text" placeholder="z.B. Collection XYZ" />
+          </div>
+          <div class="field">
+            <label for="category" data-i18n="f_cat">Kategorie</label>
+            <select id="category">
+              <option value="art">Art</option>
+              <option value="pfp">PFP/Collectibles</option>
+              <option value="gaming">Gaming</option>
+              <option value="membership">Membership</option>
+              <option value="ticketing">Ticketing/RWA</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="scoregrid" id="scoreGrid"></div>
+
+        <div class="sumrow">
+          <div class="ampel" id="ampelPill">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 2l8 4v6c0 5-3.5 9.5-8 10-4.5-.5-8-5-8-10V6l8-4z" stroke="currentColor" stroke-width="2" opacity=".9"/>
+              <path d="M9.5 12l1.8 1.8L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span data-i18n="ampel_label">Ampel:</span>
+            <strong id="ampelText">—</strong>
+          </div>
+          <div class="ampel" id="scorePill">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M4 19V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7 17l4-5 3 3 6-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span data-i18n="score_label">Score:</span>
+            <strong id="scoreText">0/12</strong>
+          </div>
+
+          <button class="btn ok" id="saveBtn" type="button" data-i18n="save_btn">Bewertung speichern</button>
+          <button class="btn danger" id="clearBtn" type="button" data-i18n="clear_btn">Eingaben löschen</button>
+        </div>
+
+        <div class="field" style="margin-top:10px">
+          <label for="notes" data-i18n="f_notes">Notizen (Warum diese Ampel?)</label>
+          <textarea id="notes" placeholder="Was spricht dafür? Was spricht dagegen? Was ist das Risiko?"></textarea>
+        </div>
+      </section>
+
+      <section class="card c12" id="saved">
+        <h2 data-i18n="saved_title">5) Gespeicherte Bewertungen (lokal)</h2>
+        <p data-i18n="saved_sub">Du kannst hier mehrere Projekte vergleichen. Alles bleibt in deinem Browser.</p>
+
+        <div class="sumrow">
+          <button class="btn" id="exportBtn" type="button" data-i18n="export_btn">Export (Text kopieren)</button>
+          <button class="btn danger" id="wipeBtn" type="button" data-i18n="wipe_btn">Alles löschen</button>
+        </div>
+
+        <div class="list" id="savedList"></div>
+      </section>
+
+    </div>
+
+    <footer>
+      <span data-i18n="footer_text">FSA Akademie – Lernen mit Realitätssinn, ohne Hype. Keine Finanzberatung.</span>
+    </footer>
+  </div>
+
+  <script>
+    const STORAGE_LANG = "fsa_lang";
+    const STORAGE_SAVED = "nft_analysis_saved_v1";
+
+    const I18N = {
+      crumb_back:{de:"Zur Kursbasis",en:"Back to course base"},
+      crumb_home:{de:"Zur Startseite",en:"Back to home"},
+      hero_title:{de:"NFT Analyse – Scorecards statt Bauchgefühl",en:"NFT Analysis — scorecards instead of gut feeling"},
+      hero_sub:{de:"Dieses Modul macht aus „Sieht gut aus“ eine nachvollziehbare Entscheidung: Liquidität, Holder-Qualität, Spread, Story/Nutzen. Du bekommst eine Scorecard, die du speichern kannst (nur lokal im Browser).",
+                en:"This module turns 'looks good' into a traceable decision: liquidity, holder quality, spread, utility/story. You get a scorecard you can save (local browser only)."},
+      note_text:{de:"Hinweis: Bildung, keine Finanzberatung. Analyse reduziert Risiko, aber entfernt es nicht. NFTs bleiben volatil und oft illiquide.",
+                 en:"Note: educational only, not financial advice. Analysis reduces risk but does not remove it. NFTs remain volatile and often illiquid."},
+
+      nav_principle:{de:"Prinzip",en:"Principle"},
+      nav_metrics:{de:"Metriken",en:"Metrics"},
+      nav_score:{de:"Scorecard",en:"Scorecard"},
+      nav_saved:{de:"Gespeichert",en:"Saved"},
+
+      p_title:{de:"1) Prinzip: Preis ist nicht gleich Verkaufbarkeit",en:"1) Principle: price is not the same as sellability"},
+      p_text:{de:"Bei NFTs ist der sichtbare Floor oft nur eine Zahl. Entscheidend ist, ob es echte Käufer gibt (Bids/Offers) und ob du im Zweifel schnell rauskommst. Deshalb prüfst du nicht nur „wie teuer“, sondern „wie liquid“.",
+              en:"With NFTs, the visible floor is often just a number. What matters is real buyers (bids/offers) and whether you can exit quickly if needed. So you check not only 'how expensive' but 'how liquid'."},
+      p_h3:{de:"Mini-Regel",en:"Mini rule"},
+      p_rule:{de:"Wenn du die Liquidität nicht einschätzen kannst, ist dein Standard: <strong>Gelb</strong> (nur Lerntrade) oder <strong>Rot</strong>.",
+              en:"If you can't assess liquidity, your default is: <strong>Yellow</strong> (learning trade only) or <strong>Red</strong>."},
+
+      m_title:{de:"2) Metriken, die Anfänger wirklich brauchen",en:"2) Metrics beginners really need"},
+      m1:{de:"Floor: niedrigstes Listing (aber nicht dein Exit).",en:"Floor: lowest listing (but not your exit)."},
+      m2:{de:"Best Bid: höchstes Angebot (oft der schnelle Exit).",en:"Best bid: highest offer (often the quick exit)."},
+      m3:{de:"Spread: Abstand Floor ↔ Best Bid (je größer, desto riskanter).",en:"Spread: gap floor ↔ best bid (bigger = riskier)."},
+      m4:{de:"Activity: finden wirklich Trades statt – oder nur selten?",en:"Activity: are trades happening — or rarely?"},
+      m5:{de:"Distribution: halten wenige Wallets extrem viel (Dump-Risiko)?",en:"Distribution: do a few wallets hold a lot (dump risk)?"},
+
+      m_h3:{de:"Fehler, den du vermeiden willst",en:"Mistake you want to avoid"},
+      m_err:{de:"„Floor ist hoch, also bin ich sicher.“ — Das ist der klassische Anfängerfehler. Sicher ist nur, was du auch verkaufen kannst.",
+             en:"'Floor is high, so I'm safe.' — classic beginner mistake. Only what you can sell is 'safe'."},
+
+      h_title:{de:"3) Holder-Qualität (einfach erklärt)",en:"3) Holder quality (simple)"},
+      h_text:{de:"Eine Collection kann „viele Holder“ haben und trotzdem riskant sein, wenn wenige Wale den Großteil halten. Gute Distribution bedeutet: Risiko ist besser verteilt – nicht perfekt, aber weniger manipulierbar.",
+              en:"A collection can have 'many holders' and still be risky if a few whales hold most of it. Better distribution means risk is spread — not perfect, but less manipulable."},
+
+      sc_title:{de:"4) Scorecard (0–12 Punkte) – Ampel automatisch",en:"4) Scorecard (0–12 points) — traffic light automatically"},
+      sc_intro:{de:"Diese Scorecard ist bewusst simpel. Ziel ist Klarheit. Du kannst sie speichern (nur lokal im Browser).",
+                en:"This scorecard is intentionally simple. The goal is clarity. You can save it (local browser only)."},
+      f_name:{de:"Projektname",en:"Project name"},
+      f_cat:{de:"Kategorie",en:"Category"},
+      f_notes:{de:"Notizen (Warum diese Ampel?)",en:"Notes (why this traffic light?)"},
+
+      ampel_label:{de:"Ampel:",en:"Traffic light:"},
+      score_label:{de:"Score:",en:"Score:"},
+      save_btn:{de:"Bewertung speichern",en:"Save evaluation"},
+      clear_btn:{de:"Eingaben löschen",en:"Clear inputs"},
+
+      saved_title:{de:"5) Gespeicherte Bewertungen (lokal)",en:"5) Saved evaluations (local)"},
+      saved_sub:{de:"Du kannst hier mehrere Projekte vergleichen. Alles bleibt in deinem Browser.",
+                 en:"You can compare multiple projects here. Everything stays in your browser."},
+      export_btn:{de:"Export (Text kopieren)",en:"Export (copy text)"},
+      wipe_btn:{de:"Alles löschen",en:"Delete all"},
+
+      footer_text:{de:"FSA Akademie – Lernen mit Realitätssinn, ohne Hype. Keine Finanzberatung.",
+                  en:"FSA Academy — learn with realism, without hype. No financial advice."},
+
+      ampel_green:{de:"GRÜN (relativ)",en:"GREEN (relative)"},
+      ampel_yellow:{de:"GELB (Lerntrade)",en:"YELLOW (learning trade)"},
+      ampel_red:{de:"ROT (lassen)",en:"RED (skip)"},
+      need_name:{de:"Bitte gib einen Projektnamen ein.",en:"Please enter a project name."},
+      saved_ok:{de:"Gespeichert.",en:"Saved."},
+      copied:{de:"Export wurde kopiert.",en:"Export copied."},
+      copy_fail:{de:"Kopieren nicht möglich. Bitte manuell markieren.",en:"Copy not available. Please select manually."},
+      confirm_wipe:{de:"Wirklich alles löschen?",en:"Really delete everything?"},
+      empty_saved:{de:"Noch keine gespeicherten Bewertungen.",en:"No saved evaluations yet."}
+    };
+
+    const CRITERIA = [
+      {
+        key:"fit",
+        title:{de:"Kategorie-Fit",en:"Category fit"},
+        desc:{de:"Versteht das Projekt seine Kategorie (Art/PFP/Gaming/Membership/Ticketing)?",en:"Does the project match its category (art/PFP/gaming/membership/ticketing)?"}
+      },
+      {
+        key:"liq",
+        title:{de:"Nachfrage & Liquidität",en:"Demand & liquidity"},
+        desc:{de:"Gibt es echte Aktivität und Bids/Offers? Wie groß ist der Spread?",en:"Real activity and bids/offers? How large is the spread?"}
+      },
+      {
+        key:"story",
+        title:{de:"Nutzen / Story",en:"Utility / story"},
+        desc:{de:"Gibt es einen klaren Grund zu halten (Utility oder Kultur)?",en:"A clear reason to hold (utility or culture)?"}
+      },
+      {
+        key:"dist",
+        title:{de:"Distribution",en:"Distribution"},
+        desc:{de:"Wale/Konzentration: können wenige Wallets stark beeinflussen?",en:"Whales/concentration: can few wallets influence strongly?"}
+      },
+      {
+        key:"trust",
+        title:{de:"Transparenz / Vertrauen",en:"Transparency / trust"},
+        desc:{de:"Lieferung, Kommunikation, klare Regeln, kein Nebel.",en:"Delivery, communication, clear rules, no fog."}
+      },
+      {
+        key:"friction",
+        title:{de:"Handelsfriktion",en:"Trading friction"},
+        desc:{de:"Fees/Gas/Spread: macht Trading überhaupt Sinn oder frisst es Rendite?",en:"Fees/gas/spread: does trading make sense or eat returns?"}
+      }
+    ];
+
+    const $ = (s, r=document) => r.querySelector(s);
+
+    function setLang(lang){
+      localStorage.setItem(STORAGE_LANG, lang);
+      $("#langDE").classList.toggle("active", lang==="de");
+      $("#langEN").classList.toggle("active", lang==="en");
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll("[data-i18n]").forEach(el=>{
+        const key = el.getAttribute("data-i18n");
+        const val = I18N[key] ? I18N[key][lang] : null;
+        if(val !== null && val !== undefined) el.innerHTML = val;
+      });
+
+      document.title = (lang==="de")
+        ? "NFT Handel – Analyse (Modul 3) | FSA Akademie"
+        : "NFT Trading – Analysis (Module 3) | FSA Academy";
+
+      renderCriteria(lang);
+      updateAmpel(lang);
+      renderSaved(lang);
+    }
+
+    function renderCriteria(lang){
+      const grid = $("#scoreGrid");
+      grid.innerHTML = "";
+      CRITERIA.forEach(c=>{
+        const row = document.createElement("div");
+        row.className = "scoreitem";
+
+        const txt = document.createElement("div");
+        txt.className = "txt";
+
+        const t = document.createElement("div");
+        t.className = "t";
+        t.textContent = c.title[lang];
+
+        const d = document.createElement("div");
+        d.className = "d";
+        d.textContent = c.desc[lang];
+
+        txt.appendChild(t);
+        txt.appendChild(d);
+
+        const sel = document.createElement("select");
+        sel.id = "sc_" + c.key;
+        [
+          {v:"0",label: lang==="de" ? "0 (schwach)" : "0 (weak)"},
+          {v:"1",label: lang==="de" ? "1 (okay)" : "1 (ok)"},
+          {v:"2",label: lang==="de" ? "2 (stark)" : "2 (strong)"}
+        ].forEach(o=>{
+          const op = document.createElement("option");
+          op.value = o.v;
+          op.textContent = o.label;
+          sel.appendChild(op);
+        });
+
+        sel.addEventListener("change", ()=>updateAmpel(lang));
+
+        row.appendChild(txt);
+        row.appendChild(sel);
+        grid.appendChild(row);
+      });
+    }
+
+    function getScore(){
+      let s = 0;
+      CRITERIA.forEach(c=>{
+        const v = Number($("#sc_"+c.key)?.value || 0);
+        s += v;
+      });
+      return s;
+    }
+
+    function updateAmpel(lang){
+      const score = getScore();
+      $("#scoreText").textContent = score + "/12";
+
+      const pill = $("#ampelPill");
+      pill.classList.remove("ok","warn","danger");
+      let label = "—";
+
+      if(score >= 10){
+        pill.classList.add("ok");
+        label = I18N.ampel_green[lang];
+      } else if(score >= 6){
+        pill.classList.add("warn");
+        label = I18N.ampel_yellow[lang];
+      } else {
+        pill.classList.add("danger");
+        label = I18N.ampel_red[lang];
+      }
+      $("#ampelText").textContent = label;
+    }
+
+    function readSaved(){
+      try{ return JSON.parse(localStorage.getItem(STORAGE_SAVED) || "[]"); }
+      catch(e){ return []; }
+    }
+    function writeSaved(arr){
+      localStorage.setItem(STORAGE_SAVED, JSON.stringify(arr));
+    }
+
+    function renderSaved(lang){
+      const list = $("#savedList");
+      const arr = readSaved();
+      if(!arr.length){
+        list.innerHTML = `<div class="entry"><div class="name">${I18N.empty_saved[lang]}</div></div>`;
+        return;
+      }
+      list.innerHTML = "";
+      arr.slice().reverse().forEach(item=>{
+        const e = document.createElement("div");
+        e.className = "entry";
+
+        const top = document.createElement("div");
+        top.className = "top";
+
+        const left = document.createElement("div");
+        left.innerHTML = `<div class="name">${escapeHtml(item.name)}</div><div class="meta">${escapeHtml(item.category)} • ${escapeHtml(item.ampel)} • ${escapeHtml(item.score)}/12 • ${new Date(item.ts).toLocaleString()}</div>`;
+
+        const right = document.createElement("div");
+        const del = document.createElement("button");
+        del.className = "btn danger";
+        del.type = "button";
+        del.textContent = (lang==="de") ? "Löschen" : "Delete";
+        del.addEventListener("click", ()=>{
+          const all = readSaved().filter(x=>x.id !== item.id);
+          writeSaved(all);
+          renderSaved(lang);
+        });
+
+        right.appendChild(del);
+        top.appendChild(left);
+        top.appendChild(right);
+
+        const notes = document.createElement("div");
+        notes.className = "notes";
+        notes.textContent = item.notes || "";
+
+        e.appendChild(top);
+        e.appendChild(notes);
+        list.appendChild(e);
+      });
+    }
+
+    function escapeHtml(s){
+      return String(s ?? "").replace(/[&<>"']/g, (c)=>({
+        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+      }[c]));
+    }
+
+    function save(lang){
+      const name = $("#projectName").value.trim();
+      if(!name){
+        alert(I18N.need_name[lang]);
+        return;
+      }
+      const category = $("#category").value;
+      const score = getScore();
+      const ampel = $("#ampelText").textContent;
+      const notes = $("#notes").value.trim();
+
+      const details = {};
+      CRITERIA.forEach(c=>{
+        details[c.key] = Number($("#sc_"+c.key).value || 0);
+      });
+
+      const obj = {
+        id: "id_" + Math.random().toString(16).slice(2) + "_" + Date.now(),
+        ts: Date.now(),
+        name,
+        category,
+        score,
+        ampel,
+        notes,
+        details
+      };
+
+      const arr = readSaved();
+      arr.push(obj);
+      writeSaved(arr);
+
+      $("#notes").value = "";
+      $("#projectName").value = "";
+      CRITERIA.forEach(c=>{ $("#sc_"+c.key).value = "0"; });
+      updateAmpel(lang);
+      renderSaved(lang);
+
+      $("#savedList").scrollIntoView({behavior:"smooth", block:"start"});
+    }
+
+    function clearInputs(lang){
+      $("#notes").value = "";
+      $("#projectName").value = "";
+      CRITERIA.forEach(c=>{ $("#sc_"+c.key).value = "0"; });
+      updateAmpel(lang);
+    }
+
+    function exportSaved(lang){
+      const arr = readSaved();
+      const lines = [];
+      lines.push(lang==="de" ? "NFT Analyse Export" : "NFT Analysis Export");
+      lines.push("—");
+      arr.forEach((x, idx)=>{
+        lines.push(`#${idx+1} ${x.name} | ${x.category} | ${x.ampel} | ${x.score}/12 | ${new Date(x.ts).toLocaleString()}`);
+        if(x.notes) lines.push(x.notes);
+        lines.push("—");
+      });
+      const text = lines.join("\n");
+
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(()=>alert(I18N.copied[lang])).catch(()=>alert(I18N.copy_fail[lang]));
+      } else {
+        alert(I18N.copy_fail[lang]);
+      }
+    }
+
+    function wipeAll(lang){
+      if(confirm(I18N.confirm_wipe[lang])){
+        localStorage.removeItem(STORAGE_SAVED);
+        renderSaved(lang);
+      }
+    }
+
+    $("#langDE").addEventListener("click", ()=>setLang("de"));
+    $("#langEN").addEventListener("click", ()=>setLang("en"));
+    $("#saveBtn").addEventListener("click", ()=>save(localStorage.getItem(STORAGE_LANG) || "de"));
+    $("#clearBtn").addEventListener("click", ()=>clearInputs(localStorage.getItem(STORAGE_LANG) || "de"));
+    $("#exportBtn").addEventListener("click", ()=>exportSaved(localStorage.getItem(STORAGE_LANG) || "de"));
+    $("#wipeBtn").addEventListener("click", ()=>wipeAll(localStorage.getItem(STORAGE_LANG) || "de"));
+
+    setLang(localStorage.getItem(STORAGE_LANG) || "de");
+  </script>
+</body>
+</html>
