@@ -642,6 +642,7 @@
     │   │   ├── nft-analyse.html
     │   │   ├── nft-aufklaerung.html
     │   │   ├── nft-basis.html
+    │   │   ├── nft-kurs.html
     │   │   ├── nft-praxis-ohne-geld.html
     │   │   └── nft-sicherheit.html
     │   ├── office/
@@ -731,4 +732,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.01.2026, 13:25)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.01.2026, 14:14)_
