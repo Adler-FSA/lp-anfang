@@ -647,6 +647,8 @@
     │   │   ├── nft-kurs.html
     │   │   ├── nft-modul-1-orientierung.html
     │   │   ├── nft-modul-2-maerkte.html
+    │   │   ├── nft-modul-3-mechanik.html
+    │   │   ├── nft-modul-4-beispiel-transaktionen.html
     │   │   ├── nft-praxis-ohne-geld.html
     │   │   ├── nft-sicherheit.html
     │   │   └── nft-trends.html
@@ -737,4 +739,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.01.2026, 12:31)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.01.2026, 13:27)_
