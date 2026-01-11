@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title data-i18n="title">NFT Grundkurs – Modul 5: Betrugsradar (Deep Dive)</title>
+<style>
+  :root{
+    --text:#f2f2f2;
+    --muted:rgba(203,213,225,.86);
+    --gold:#d4af37;
+    --turq:#1cc2a0;
+    --red:#ff4d4d;
+    --card:rgba(0,0,0,.20);
+    --stroke:rgba(255,255,255,.10);
+    --radius:18px;
+    --maxw:1100px;
+    --shadow:0 22px 46px rgba(0,0,0,.55);
+  }
+  html,body{height:100%;margin:0;background:#05070b;color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  .bg{
+    position:fixed;inset:0;z-index:-2;
+    background:
+      radial-gradient(1200px 700px at 15% 10%, rgba(212,175,55,.18), transparent 55%),
+      radial-gradient(1100px 700px at 85% 18%, rgba(28,194,160,.14), transparent 55%),
+      radial-gradient(900px 700px at 55% 85%, rgba(80,120,255,.12), transparent 55%),
+      linear-gradient(180deg, rgba(3,5,9,.96), rgba(5,7,11,.98));
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:18px 16px 70px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 2px 14px}
+  .nav{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:10px 12px;border-radius:999px;
+    border:1px solid var(--stroke);
+    background:rgba(0,0,0,.18);
+    box-shadow:0 10px 18px rgba(0,0,0,.25);
+  }
+  .btn:hover{border-color:rgba(212,175,55,.35)}
+  .btn svg{width:18px;height:18px;opacity:.9}
+  .lang{
+    display:flex;gap:8px;align-items:center;
+    padding:6px;border-radius:999px;border:1px solid var(--stroke);
+    background:rgba(0,0,0,.18);
+  }
+  .lang button{
+    border:0;cursor:pointer;
+    padding:8px 12px;border-radius:999px;
+    background:transparent;color:var(--text);
+    font-weight:900;letter-spacing:.06em;
+  }
+  .lang button.active{
+    background:rgba(212,175,55,.18);
+    border:1px solid rgba(212,175,55,.35);
+    box-shadow:0 0 18px rgba(212,175,55,.16);
+  }
+
+  .hero{
+    border-radius:var(--radius);
+    border:1px solid rgba(212,175,55,.20);
+    background:linear-gradient(135deg, rgba(212,175,55,.14), rgba(28,194,160,.08));
+    box-shadow:0 0 26px rgba(212,175,55,.25), 0 12px 28px rgba(0,0,0,.55);
+    padding:18px;
+  }
+  .hero h1{margin:0 0 6px;font-size:26px}
+  .hero p{margin:0;color:var(--muted);line-height:1.65}
+  .pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .pill{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:9px 12px;border-radius:999px;
+    border:1px solid var(--stroke);
+    background:rgba(0,0,0,.16);
+    font-size:13px;color:rgba(242,242,242,.92);
+  }
+  .pill svg{width:16px;height:16px;opacity:.9}
+  .pill.bad{border-color:rgba(255,77,77,.35);background:rgba(255,77,77,.08)}
+  .pill.ok{border-color:rgba(28,194,160,.35);background:rgba(28,194,160,.08)}
+  .pill.warn{border-color:rgba(212,175,55,.35);background:rgba(212,175,55,.10)}
+
+  .grid{display:grid;grid-template-columns:1.12fr .88fr;gap:14px;margin-top:14px}
+  @media(max-width:980px){.grid{grid-template-columns:1fr}}
+  .card{
+    border-radius:var(--radius);
+    border:1px solid var(--stroke);
+    background:linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,.12));
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .inner{padding:16px}
+  .stepbar{
+    display:flex;align-items:center;gap:10px;
+    font-weight:900;letter-spacing:.14em;text-transform:uppercase;
+    font-size:12px;color:rgba(242,242,242,.78);
+    margin-bottom:10px;
+  }
+  .dot{width:10px;height:10px;border-radius:999px;background:rgba(212,175,55,.85);box-shadow:0 0 14px rgba(212,175,55,.25)}
+  h2{margin:0 0 8px;font-size:18px}
+  h3{margin:14px 0 6px;font-size:16px}
+  p{margin:8px 0;color:var(--muted);line-height:1.65}
+  ul{margin:8px 0 0;padding-left:18px;color:rgba(242,242,242,.90);line-height:1.62}
+  li{margin:6px 0}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:760px){.two{grid-template-columns:1fr}}
+
+  .box{border-radius:16px;border:1px solid var(--stroke);background:rgba(0,0,0,.16);padding:12px;margin-top:10px}
+  .head{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.2px;margin-bottom:6px;color:rgba(242,242,242,.92)}
+  .head svg{width:18px;height:18px;opacity:.9}
+  .risk{border-color:rgba(255,77,77,.28)!important;background:rgba(255,77,77,.08)!important}
+  .call{border-color:rgba(28,194,160,.28)!important;background:rgba(28,194,160,.10)!important}
+  .warn{border-color:rgba(212,175,55,.28)!important;background:rgba(212,175,55,.10)!important}
+
+  .accordion{margin-top:10px}
+  .accBtn{
+    width:100%;text-align:left;cursor:pointer;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:12px;border-radius:16px;border:1px solid var(--stroke);
+    background:rgba(0,0,0,.16);
+    font-weight:900;color:rgba(242,242,242,.92);
+  }
+  .accBtn:hover{border-color:rgba(212,175,55,.35)}
+  .accBtn svg{width:18px;height:18px;opacity:.9;flex:0 0 auto}
+  .accPanel{
+    border:1px solid var(--stroke);
+    border-top:0;
+    border-radius:0 0 16px 16px;
+    background:rgba(0,0,0,.14);
+    padding:12px;
+    display:none;
+  }
+  .accPanel.open{display:block}
+
+  .meter{margin-top:10px}
+  .barRow{display:flex;align-items:center;gap:10px;margin:10px 0}
+  .lbl{width:180px;max-width:44%;font-size:12px;color:rgba(203,213,225,.88)}
+  .track{flex:1;height:10px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+  .fill{height:100%;width:55%;border-radius:999px;background:rgba(212,175,55,.75)}
+  .fill.red{background:rgba(255,77,77,.75)}
+  .fill.green{background:rgba(28,194,160,.75)}
+  .hint{font-size:12px;color:rgba(203,213,225,.70);margin-top:6px}
+
+  .checklist{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px}
+  .checkItem{
+    display:flex;align-items:flex-start;gap:10px;
+    padding:10px 12px;border-radius:14px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(0,0,0,.14);
+  }
+  .checkItem input{margin-top:3px;accent-color:var(--gold)}
+  .checkItem span{color:rgba(242,242,242,.90);line-height:1.55}
+
+  .miniGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  @media(max-width:760px){.miniGrid{grid-template-columns:1fr}}
+
+  .footer{text-align:center;color:rgba(203,213,225,.55);font-size:12px;padding:18px 0 0}
+  .k{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid var(--stroke);background:rgba(0,0,0,.14);color:rgba(242,242,242,.85)}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="nav">
+      <a class="btn" href="nft-kurs.html">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span data-i18n="back">Zur Kursübersicht</span>
+      </a>
+      <a class="btn" href="nft-basis.html">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3 11l9-8 9 8v10a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2V11z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span data-i18n="toBase">Zur NFT Basis</span>
+      </a>
+      <a class="btn" href="nft-modul-4-beispiel-transaktionen.html">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span data-i18n="prev">Modul 4</span>
+      </a>
+      <a class="btn" href="nft-modul-6-analyse-ampel.html">
+        <span data-i18n="next">Modul 6</span>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="lang" aria-label="Language switch">
+      <button id="btnDE" class="active" type="button">DE</button>
+      <button id="btnEN" type="button">EN</button>
+    </div>
+  </div>
+
+  <section class="hero">
+    <h1 data-i18n="h1">Modul 5: Betrugsradar (NFT) – Deep Dive</h1>
+    <p data-i18n="intro">
+      Wichtig: Auf der Basis-Seite gibt es bereits ein allgemeines Betrugsradar. Hier gehen wir tiefer in NFT-spezifische Fallen:
+      Fake-Mints, Approvals, Signaturen, Lookalike-Collections, Drainer-Sites, „Support“-Scams.
+    </p>
+
+    <div class="pills">
+      <span class="pill bad">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span data-i18n="pill1">DM + Link + „Mint jetzt“ = Standard-Falle.</span>
+      </span>
+      <span class="pill warn">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 17h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          <path d="M10.3 4.6 2.8 18a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 4.6a2 2 0 0 0-3.4 0z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <span data-i18n="pill2">Approval/Unlimited = „Schlüssel“ für spätere Leerung.</span>
+      </span>
+      <span class="pill ok">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span data-i18n="pill3">Ziel: Du erkennst den Scam, bevor du ins Wallet kommst.</span>
+      </span>
+    </div>
+  </section>
+
+  <div class="grid">
+    <section class="card">
+      <div class="inner">
+        <div class="stepbar"><span class="dot"></span><span data-i18n="s1_tag">Scam-Muster</span></div>
+        <h2 data-i18n="s1_h">Die 6 häufigsten NFT-Fallen (mit Stop-Punkt)</h2>
+        <p data-i18n="s1_p">Jede Falle hat einen klaren Stop-Punkt. Wenn du den siehst, ist es vorbei: abbrechen, schließen, später prüfen.</p>
+
+        <div class="accordion">
+          <button class="accBtn" type="button" data-acc="m1">
+            <span data-i18n="m1_t">1) Fake Mint / Airdrop</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="accPanel" id="m1">
+            <div class="two">
+              <div class="box">
+                <div class="head">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l7 7-7 13L5 9l7-7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                  <span data-i18n="m1_h1">Wie es klingt</span>
+                </div>
+                <p data-i18n="m1_p1">„Du bist ausgewählt“, „Whitelist“, „Mint kostenlos – nur Gas zahlen“. Oft mit Countdown & Hype-Kommentaren.</p>
+                <div class="head" style="margin-top:10px">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 17h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+                  <span data-i18n="m1_stop">Stop-Punkt</span>
+                </div>
+                <p data-i18n="m1_stop_p">Wenn du vorher „Approve/Permission/Unlimited“ siehst oder etwas „connect to claim“ aus DM: abbrechen.</p>
+              </div>
+              <div class="box risk">
+                <div class="head">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                  <span data-i18n="m1_h2">Warum es gefährlich ist</span>
+                </div>
+                <ul>
+                  <li data-i18n="m1_l1">Drainer-Site: du unterschreibst Zugriff statt Mint.</li>
+                  <li data-i18n="m1_l2">Lookalike-Domain: optisch gleich, technisch anders.</li>
+                  <li data-i18n="m1_l3">Nach dem ersten Klick kommt „nur noch kurz verifizieren“.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <button class="accBtn" type="button" data-acc="m2">
+            <span data-i18n="m2_t">2) „Set approval for all“ / Unlimited Approval</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="accPanel" id="m2">
+            <div class="two">
+              <div class="box">
+                <div class="head">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 9h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                  <span data-i18n="m2_h1">Woran du es erkennst</span>
+                </div>
+                <p data-i18n="m2_p1">Im Wallet steht „Approve“, „SetApprovalForAll“, „Operator“ oder „Unlimited“. Oft „damit es schneller geht“.</p>
+                <div class="head" style="margin-top:10px">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 17h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+                  <span data-i18n="m2_stop">Stop-Punkt</span>
+                </div>
+                <p data-i18n="m2_stop_p">Wenn du es nicht 100% erklären kannst: niemals bestätigen.</p>
+              </div>
+              <div class="box risk">
+                <div class="head">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                  <span data-i18n="m2_h2">Folge</span>
+                </div>
+                <p data-i18n="m2_p2">Das ist wie ein Schlüssel: später kann jemand deine NFTs bewegen, ohne dass du erneut „kaufst“.</p>
+                <div class="box warn" style="margin-top:10px">
+                  <div class="head">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span data-i18n="m2_fix">Sichere Alternative</span>
+                  </div>
+                  <p data-i18n="m2_fix_p">Nur minimal (für genau diesen Vorgang) – und später wieder entziehen.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button class="accBtn" type="button" data-acc="m3">
+            <span data-i18n="m3_t">3) Support-Scam (Discord/Telegram/DM)</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="accPanel" id="m3">
+            <div class="two">
+              <div class="box">
+                <div class="head">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 4h16v12H7l-3 3V4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                  <span data-i18n="m3_h1">Wie es läuft</span>
+                </div>
+                <ul>
+                  <li data-i18n="m3_l1">„Ich bin Admin/Support“ (meist per DM).</li>
+                  <li data-i18n="m3_l2">„Du musst dein Wallet verifizieren“ / „Fehler beheben“.</li>
+                  <li data-i18n="m3_l3">Dann kommt Link + „nur kurz signieren“.</li>
+                </ul>
+                <div class="head" style="margin-top:10px">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 17h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+                  <span data-i18n="m3_stop">Stop-Punkt</span>
+                </div>
+                <p data-i18n="m3_stop_p">Echte Hilfe fragt nie nach Seed, Screenshots, Remote-Zugriff oder „Signatur zur Reparatur“.</p>
+              </div>
+              <div class="box risk">
+                <div class="head">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                  <span data-i18n="m3_h2">Totalverlust-Pfade</span>
+                </div>
+                <ul>
+                  <li data-i18n="m3_b1">Seed/Private Key preisgegeben.</li>
+                  <li data-i18n="m3_b2">Remote-Zugriff installiert.</li>
+                  <li data-i18n="m3_b3">Drainer-Signatur bestätigt.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <button class="accBtn" type="button" data-acc="m4">
+            <span data-i18n="m4_t">4) Lookalike-Collections & „Verified“-Tricks</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="accPanel" id="m4">
+            <div class="two">
+              <div class="box">
+                <div class="head">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 7h10v10H7z" stroke="currentColor" stroke-width="2"/><path d="M9 9h6v6H9z" stroke="currentColor" stroke-width="2"/></svg>
+                  <span data-i18n="m4_h1">Woran du es merkst</span>
+                </div>
+                <ul>
+                  <li data-i18n="m4_l1">Name/Logo fast gleich, aber minimal anders.</li>
+                  <li data-i18n="m4_l2">Floor/Volume wirkt „echt“, aber Käufer fehlen.</li>
+                  <li data-i18n="m4_l3">Verlinkung kommt aus Ads/DM statt offizieller Quelle.</li>
+                </ul>
+                <div class="head" style="margin-top:10px">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 17h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+                  <span data-i18n="m4_stop">Stop-Punkt</span>
+                </div>
+                <p data-i18n="m4_stop_p">Wenn du Contract/Collection nicht sauber verifizieren kannst: nicht kaufen, nicht listen, nicht verbinden.</p>
+              </div>
+              <div class="box warn">
+                <div class="head">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span data-i18n="m4_fix">Sichere Routine</span>
+                </div>
+                <ul>
+                  <li data-i18n="m4_f1">Nur offizielle Links (Website/Profil) – bookmarken.</li>
+                  <li data-i18n="m4_f2">Contract-Adresse in Ruhe gegenprüfen.</li>
+                  <li data-i18n="m4_f3">Bei Zweifel: 24h warten.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <button class="accBtn" type="button" data-acc="m5">
+            <span data-i18n="m5_t">5) „Gas ist hoch“ / Stress-Klick (zweiter Schritt)</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="accPanel" id="m5">
+            <div class="two">
+              <div class="box">
+                <div class="head">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 5l5-3 5 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 13a6 6 0 1 0 12 0c0-1.8-.8-3.4-2-4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                  <span data-i18n="m5_h1">Was passiert</span>
+                </div>
+                <p data-i18n="m5_p1">Du siehst hohe Fees, wirst nervös und klickst schnell – und bestätigst dabei einen zweiten Schritt (Approval) aus Stress.</p>
+                <div class="head" style="margin-top:10px">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 17h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+                  <span data-i18n="m5_stop">Stop-Punkt</span>
+                </div>
+                <p data-i18n="m5_stop_p">Wenn du Stress fühlst: Pause. Kein Klick unter Druck. Gas kann warten.</p>
+              </div>
+              <div class="box call">
+                <div class="head">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span data-i18n="m5_fix">Saubere Reaktion</span>
+                </div>
+                <ul>
+                  <li data-i18n="m5_f1">Transaktion schließen – später neu starten.</li>
+                  <li data-i18n="m5_f2">Vor erneutem Versuch: Action-Type & To bewusst lesen.</li>
+                  <li data-i18n="m5_f3">Wenn erneut Approval auftaucht: extra check.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <button class="accBtn" type="button" data-acc="m6">
+            <span data-i18n="m6_t">6) „Dein NFT steckt fest“ – Phishing über Angst</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="accPanel" id="m6">
+            <div class="two">
+              <div class="box">
+                <div class="head">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3a7 7 0 0 1 7 7v3l2 2H3l2-2v-3a7 7 0 0 1 7-7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 19a3 3 0 0 0 6 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                  <span data-i18n="m6_h1">Der Trigger</span>
+                </div>
+                <p data-i18n="m6_p1">Du siehst „Frozen“, „Stuck“, „Claim needed“ – und bekommst einen Link „Fix now“. Das ist oft Angst-Phishing.</p>
+                <div class="head" style="margin-top:10px">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 17h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+                  <span data-i18n="m6_stop">Stop-Punkt</span>
+                </div>
+                <p data-i18n="m6_stop_p">Nie über fremden Link „fixen“. Erst in Ruhe prüfen, nur über offizielle Seiten.</p>
+              </div>
+              <div class="box warn">
+                <div class="head">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span data-i18n="m6_fix">Sichere Schritte</span>
+                </div>
+                <ul>
+                  <li data-i18n="m6_f1">Screenshots + Links sichern (Beweise).</li>
+                  <li data-i18n="m6_f2">Approvals prüfen/entziehen, wenn du aus Versehen verbunden warst.</li>
+                  <li data-i18n="m6_f3">Neues Wallet für künftige NFTs erwägen, wenn du unsicher bist.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="box warn">
+          <div class="head">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 17h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+            <span data-i18n="meter_t">Radar-Skala: je mehr Rot, desto STOP</span>
+          </div>
+          <div class="meter" aria-label="risk meter">
+            <div class="barRow">
+              <div class="lbl" data-i18n="r1">DM-Link / Zeitdruck</div>
+              <div class="track"><div class="fill red" style="width:92%"></div></div>
+            </div>
+            <div class="barRow">
+              <div class="lbl" data-i18n="r2">Approval/Unlimited</div>
+              <div class="track"><div class="fill red" style="width:96%"></div></div>
+            </div>
+            <div class="barRow">
+              <div class="lbl" data-i18n="r3">Lookalike-Domain</div>
+              <div class="track"><div class="fill red" style="width:78%"></div></div>
+            </div>
+            <div class="barRow">
+              <div class="lbl" data-i18n="r4">Offizielle Quelle</div>
+              <div class="track"><div class="fill green" style="width:55%"></div></div>
+            </div>
+            <div class="barRow">
+              <div class="lbl" data-i18n="r5">Du verstehst alles</div>
+              <div class="track"><div class="fill green" style="width:68%"></div></div>
+            </div>
+            <div class="hint" data-i18n="meter_hint">Hinweis: Grün heißt nicht „sicher“, es heißt nur: du hast geprüft. Rot heißt: sofort stoppen.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="card">
+      <div class="inner">
+        <div class="stepbar"><span class="dot"></span><span data-i18n="s2_tag">Notfall</span></div>
+        <h2 data-i18n="s2_h">Wenn du unsicher bist oder schon geklickt hast</h2>
+        <p data-i18n="s2_p">Keine Panik. Ruhig bleiben. Ziel: Schaden begrenzen, Beweise sichern, Routine aufbauen.</p>
+
+        <div class="miniGrid">
+          <div class="box risk">
+            <div class="head">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 17h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+              <span data-i18n="n1_t">Sofort STOP</span>
+            </div>
+            <ul>
+              <li data-i18n="n1_1">Keine weiteren Signaturen/Transaktionen.</li>
+              <li data-i18n="n1_2">Keine Chats/„Support“-Links mehr öffnen.</li>
+              <li data-i18n="n1_3">Tab schließen, Browser neu starten.</li>
+            </ul>
+          </div>
+
+          <div class="box warn">
+            <div class="head">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 21V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 3h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              <span data-i18n="n2_t">Beweise sichern</span>
+            </div>
+            <ul>
+              <li data-i18n="n2_1">Screenshots: Seite, Wallet-Popup, Tx-Hash.</li>
+              <li data-i18n="n2_2">Links/DM-Namen notieren.</li>
+              <li data-i18n="n2_3">Zeitpunkt & Betrag dokumentieren.</li>
+            </ul>
+          </div>
+
+          <div class="box call">
+            <div class="head">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span data-i18n="n3_t">Schutzmaßnahme</span>
+            </div>
+            <ul>
+              <li data-i18n="n3_1">Approvals prüfen & entziehen (Routine).</li>
+              <li data-i18n="n3_2">NFTs/Token ggf. auf frisches Wallet sichern.</li>
+              <li data-i18n="n3_3">Künftig: „Nur Bookmark“-Regel.</li>
+            </ul>
+          </div>
+
+          <div class="box">
+            <div class="head">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M4 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              <span data-i18n="n4_t">Mini-Training (10 Minuten)</span>
+            </div>
+            <p data-i18n="n4_p">Lies 3 Wallet-Popups (nur Übung) und sag laut: Action-Type, To, Betrag. Ziel: du erkennst Approvals sofort.</p>
+          </div>
+        </div>
+
+        <div class="box warn">
+          <div class="head">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 17h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+            <span data-i18n="bridge_t">Brücke zu Modul 6 (Analyse & Ampel)</span>
+          </div>
+          <p data-i18n="bridge_p">Modul 6 zeigt dir, wie du Projekte nüchtern analysierst: Liquidität, Floor vs Bids, Holder, Distribution – damit du nicht nur „Scam“ meidest, sondern Qualität erkennst.</p>
+        </div>
+
+        <div class="checklist" aria-label="quick checklist">
+          <label class="checkItem"><input type="checkbox" /><span data-i18n="q1">Keine DM-Links. Nur Bookmark.</span></label>
+          <label class="checkItem"><input type="checkbox" /><span data-i18n="q2">Approval/Unlimited = Extra-Stop.</span></label>
+          <label class="checkItem"><input type="checkbox" /><span data-i18n="q3">Wenn Druck: Pause & später.</span></label>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="footer">
+    <span class="k">FSA Akademie – NFT Grundkurs. <span data-i18n="footer_note">Keine Finanzberatung.</span></span>
+  </div>
+</div>
+
+<script>
+(function(){
+  const dict = {
+    de:{
+      title:"NFT Grundkurs – Modul 5: Betrugsradar (Deep Dive)",
+      back:"Zur Kursübersicht", toBase:"Zur NFT Basis", prev:"Modul 4", next:"Modul 6",
+      h1:"Modul 5: Betrugsradar (NFT) – Deep Dive",
+      intro:"Wichtig: Auf der Basis-Seite gibt es bereits ein allgemeines Betrugsradar. Hier gehen wir tiefer in NFT-spezifische Fallen: Fake-Mints, Approvals, Signaturen, Lookalike-Collections, Drainer-Sites, „Support“-Scams.",
+      pill1:"DM + Link + „Mint jetzt“ = Standard-Falle.",
+      pill2:"Approval/Unlimited = „Schlüssel“ für spätere Leerung.",
+      pill3:"Ziel: Du erkennst den Scam, bevor du ins Wallet kommst.",
+
+      s1_tag:"Scam-Muster",
+      s1_h:"Die 6 häufigsten NFT-Fallen (mit Stop-Punkt)",
+      s1_p:"Jede Falle hat einen klaren Stop-Punkt. Wenn du den siehst, ist es vorbei: abbrechen, schließen, später prüfen.",
+
+      m1_t:"1) Fake Mint / Airdrop",
+      m1_h1:"Wie es klingt",
+      m1_p1:"„Du bist ausgewählt“, „Whitelist“, „Mint kostenlos – nur Gas zahlen“. Oft mit Countdown & Hype-Kommentaren.",
+      m1_stop:"Stop-Punkt",
+      m1_stop_p:"Wenn du vorher „Approve/Permission/Unlimited“ siehst oder etwas „connect to claim“ aus DM: abbrechen.",
+      m1_h2:"Warum es gefährlich ist",
+      m1_l1:"Drainer-Site: du unterschreibst Zugriff statt Mint.",
+      m1_l2:"Lookalike-Domain: optisch gleich, technisch anders.",
+      m1_l3:"Nach dem ersten Klick kommt „nur noch kurz verifizieren“.",
+
+      m2_t:"2) „Set approval for all“ / Unlimited Approval",
+      m2_h1:"Woran du es erkennst",
+      m2_p1:"Im Wallet steht „Approve“, „SetApprovalForAll“, „Operator“ oder „Unlimited“. Oft „damit es schneller geht“.",
+      m2_stop:"Stop-Punkt",
+      m2_stop_p:"Wenn du es nicht 100% erklären kannst: niemals bestätigen.",
+      m2_h2:"Folge",
+      m2_p2:"Das ist wie ein Schlüssel: später kann jemand deine NFTs bewegen, ohne dass du erneut „kaufst“.",
+      m2_fix:"Sichere Alternative",
+      m2_fix_p:"Nur minimal (für genau diesen Vorgang) – und später wieder entziehen.",
+
+      m3_t:"3) Support-Scam (Discord/Telegram/DM)",
+      m3_h1:"Wie es läuft",
+      m3_l1:"„Ich bin Admin/Support“ (meist per DM).",
+      m3_l2:"„Du musst dein Wallet verifizieren“ / „Fehler beheben“.",
+      m3_l3:"Dann kommt Link + „nur kurz signieren“.",
+      m3_stop:"Stop-Punkt",
+      m3_stop_p:"Echte Hilfe fragt nie nach Seed, Screenshots, Remote-Zugriff oder „Signatur zur Reparatur“.",
+      m3_h2:"Totalverlust-Pfade",
+      m3_b1:"Seed/Private Key preisgegeben.",
+      m3_b2:"Remote-Zugriff installiert.",
+      m3_b3:"Drainer-Signatur bestätigt.",
+
+      m4_t:"4) Lookalike-Collections & „Verified“-Tricks",
+      m4_h1:"Woran du es merkst",
+      m4_l1:"Name/Logo fast gleich, aber minimal anders.",
+      m4_l2:"Floor/Volume wirkt „echt“, aber Käufer fehlen.",
+      m4_l3:"Verlinkung kommt aus Ads/DM statt offizieller Quelle.",
+      m4_stop:"Stop-Punkt",
+      m4_stop_p:"Wenn du Contract/Collection nicht sauber verifizieren kannst: nicht kaufen, nicht listen, nicht verbinden.",
+      m4_fix:"Sichere Routine",
+      m4_f1:"Nur offizielle Links (Website/Profil) – bookmarken.",
+      m4_f2:"Contract-Adresse in Ruhe gegenprüfen.",
+      m4_f3:"Bei Zweifel: 24h warten.",
+
+      m5_t:"5) „Gas ist hoch“ / Stress-Klick (zweiter Schritt)",
+      m5_h1:"Was passiert",
+      m5_p1:"Du siehst hohe Fees, wirst nervös und klickst schnell – und bestätigst dabei einen zweiten Schritt (Approval) aus Stress.",
+      m5_stop:"Stop-Punkt",
+      m5_stop_p:"Wenn du Stress fühlst: Pause. Kein Klick unter Druck. Gas kann warten.",
+      m5_fix:"Saubere Reaktion",
+      m5_f1:"Transaktion schließen – später neu starten.",
+      m5_f2:"Vor erneutem Versuch: Action-Type & To bewusst lesen.",
+      m5_f3:"Wenn erneut Approval auftaucht: extra check.",
+
+      m6_t:"6) „Dein NFT steckt fest“ – Phishing über Angst",
+      m6_h1:"Der Trigger",
+      m6_p1:"Du siehst „Frozen“, „Stuck“, „Claim needed“ – und bekommst einen Link „Fix now“. Das ist oft Angst-Phishing.",
+      m6_stop:"Stop-Punkt",
+      m6_stop_p:"Nie über fremden Link „fixen“. Erst in Ruhe prüfen, nur über offizielle Seiten.",
+      m6_fix:"Sichere Schritte",
+      m6_f1:"Screenshots + Links sichern (Beweise).",
+      m6_f2:"Approvals prüfen/entziehen, wenn du aus Versehen verbunden warst.",
+      m6_f3:"Neues Wallet für künftige NFTs erwägen, wenn du unsicher bist.",
+
+      meter_t:"Radar-Skala: je mehr Rot, desto STOP",
+      r1:"DM-Link / Zeitdruck",
+      r2:"Approval/Unlimited",
+      r3:"Lookalike-Domain",
+      r4:"Offizielle Quelle",
+      r5:"Du verstehst alles",
+      meter_hint:"Hinweis: Grün heißt nicht „sicher“, es heißt nur: du hast geprüft. Rot heißt: sofort stoppen.",
+
+      s2_tag:"Notfall",
+      s2_h:"Wenn du unsicher bist oder schon geklickt hast",
+      s2_p:"Keine Panik. Ruhig bleiben. Ziel: Schaden begrenzen, Beweise sichern, Routine aufbauen.",
+      n1_t:"Sofort STOP",
+      n1_1:"Keine weiteren Signaturen/Transaktionen.",
+      n1_2:"Keine Chats/„Support“-Links mehr öffnen.",
+      n1_3:"Tab schließen, Browser neu starten.",
+      n2_t:"Beweise sichern",
+      n2_1:"Screenshots: Seite, Wallet-Popup, Tx-Hash.",
+      n2_2:"Links/DM-Namen notieren.",
+      n2_3:"Zeitpunkt & Betrag dokumentieren.",
+      n3_t:"Schutzmaßnahme",
+      n3_1:"Approvals prüfen & entziehen (Routine).",
+      n3_2:"NFTs/Token ggf. auf frisches Wallet sichern.",
+      n3_3:"Künftig: „Nur Bookmark“-Regel.",
+      n4_t:"Mini-Training (10 Minuten)",
+      n4_p:"Lies 3 Wallet-Popups (nur Übung) und sag laut: Action-Type, To, Betrag. Ziel: du erkennst Approvals sofort.",
+
+      bridge_t:"Brücke zu Modul 6 (Analyse & Ampel)",
+      bridge_p:"Modul 6 zeigt dir, wie du Projekte nüchtern analysierst: Liquidität, Floor vs Bids, Holder, Distribution – damit du nicht nur „Scam“ meidest, sondern Qualität erkennst.",
+      q1:"Keine DM-Links. Nur Bookmark.",
+      q2:"Approval/Unlimited = Extra-Stop.",
+      q3:"Wenn Druck: Pause & später.",
+      footer_note:"Keine Finanzberatung."
+    },
+    en:{
+      title:"NFT Course – Module 5: Scam radar (deep dive)",
+      back:"Back to course overview", toBase:"Back to NFT base", prev:"Module 4", next:"Module 6",
+      h1:"Module 5: NFT scam radar — deep dive",
+      intro:"Important: the base page already has a general scam radar. Here we go deeper into NFT-specific traps: fake mints, approvals, signatures, lookalike collections, drainer sites, “support” scams.",
+      pill1:"DM + link + “mint now” = standard trap.",
+      pill2:"Approval/unlimited = the “key” for later draining.",
+      pill3:"Goal: you spot the scam before you even reach the wallet.",
+
+      s1_tag:"Scam patterns",
+      s1_h:"The 6 most common NFT traps (with stop point)",
+      s1_p:"Each trap has a clear stop point. If you see it: cancel, close, verify later.",
+
+      m1_t:"1) Fake mint / airdrop",
+      m1_h1:"How it sounds",
+      m1_p1:"“You’re selected”, “whitelist”, “free mint — only pay gas”. Often with countdown & hype comments.",
+      m1_stop:"Stop point",
+      m1_stop_p:"If you see “approve/permission/unlimited” first, or anything “connect to claim” from a DM: cancel.",
+      m1_h2:"Why it’s dangerous",
+      m1_l1:"Drainer site: you sign access instead of a mint.",
+      m1_l2:"Lookalike domain: looks the same, works differently.",
+      m1_l3:"After the first click comes “just verify quickly”.",
+
+      m2_t:"2) “Set approval for all” / unlimited approval",
+      m2_h1:"How to recognize it",
+      m2_p1:"Wallet shows “approve”, “setApprovalForAll”, “operator” or “unlimited”. Often “to make it faster”.",
+      m2_stop:"Stop point",
+      m2_stop_p:"If you can’t explain it 100%: never confirm.",
+      m2_h2:"Consequence",
+      m2_p2:"It’s like a key: later someone can move your NFTs without you “buying” again.",
+      m2_fix:"Safer alternative",
+      m2_fix_p:"Only minimal (for this exact action) — and revoke later.",
+
+      m3_t:"3) Support scam (Discord/Telegram/DM)",
+      m3_h1:"How it works",
+      m3_l1:"“I’m admin/support” (usually via DM).",
+      m3_l2:"“You must verify your wallet” / “fix an error”.",
+      m3_l3:"Then a link + “just sign quickly”.",
+      m3_stop:"Stop point",
+      m3_stop_p:"Real help never asks for seed, screenshots, remote access, or a “repair signature”.",
+      m3_h2:"Total-loss paths",
+      m3_b1:"Seed/private key exposed.",
+      m3_b2:"Remote access installed.",
+      m3_b3:"Drainer signature confirmed.",
+
+      m4_t:"4) Lookalike collections & “verified” tricks",
+      m4_h1:"How you notice it",
+      m4_l1:"Name/logo almost the same, slightly different.",
+      m4_l2:"Floor/volume looks “real”, but buyers are missing.",
+      m4_l3:"Links come from ads/DM instead of official sources.",
+      m4_stop:"Stop point",
+      m4_stop_p:"If you can’t verify the contract/collection cleanly: don’t buy, don’t list, don’t connect.",
+      m4_fix:"Safe routine",
+      m4_f1:"Only official links (website/profile) — bookmark them.",
+      m4_f2:"Double-check the contract address calmly.",
+      m4_f3:"If unsure: wait 24 hours.",
+
+      m5_t:"5) “Gas is high” / stress click (second step)",
+      m5_h1:"What happens",
+      m5_p1:"You see high fees, get nervous and click fast — confirming a second step (approval) out of stress.",
+      m5_stop:"Stop point",
+      m5_stop_p:"If you feel pressure: pause. No clicking under stress. Gas can wait.",
+      m5_fix:"Clean reaction",
+      m5_f1:"Close the transaction — restart later.",
+      m5_f2:"Before retry: read action type & To consciously.",
+      m5_f3:"If approval shows up again: extra check.",
+
+      m6_t:"6) “Your NFT is stuck” — fear phishing",
+      m6_h1:"The trigger",
+      m6_p1:"You see “frozen”, “stuck”, “claim needed” — then a link “fix now”. Often fear-based phishing.",
+      m6_stop:"Stop point",
+      m6_stop_p:"Never “fix” via a random link. Verify calmly, only via official sites.",
+      m6_fix:"Safe steps",
+      m6_f1:"Save screenshots + links (evidence).",
+      m6_f2:"Check/revoke approvals if you accidentally connected.",
+      m6_f3:"Consider a fresh wallet for future NFTs if unsure.",
+
+      meter_t:"Radar scale: more red = STOP",
+      r1:"DM link / time pressure",
+      r2:"Approval/unlimited",
+      r3:"Lookalike domain",
+      r4:"Official source",
+      r5:"You understand everything",
+      meter_hint:"Note: green doesn’t mean “safe”, it means you verified. Red means: stop immediately.",
+
+      s2_tag:"Emergency",
+      s2_h:"If you’re unsure or already clicked",
+      s2_p:"No panic. Stay calm. Goal: limit damage, save evidence, build routine.",
+      n1_t:"Immediate stop",
+      n1_1:"No more signatures/transactions.",
+      n1_2:"Don’t open any more chats/“support” links.",
+      n1_3:"Close tab, restart browser.",
+      n2_t:"Save evidence",
+      n2_1:"Screenshots: page, wallet popup, tx hash.",
+      n2_2:"Note links/DM names.",
+      n2_3:"Document time & amount.",
+      n3_t:"Protection step",
+      n3_1:"Check & revoke approvals (routine).",
+      n3_2:"Move NFTs/tokens to a fresh wallet if needed.",
+      n3_3:"From now on: “bookmark only” rule.",
+      n4_t:"Mini training (10 minutes)",
+      n4_p:"Read 3 wallet popups (practice) and say out loud: action type, To, amount. Goal: you spot approvals instantly.",
+
+      bridge_t:"Bridge to Module 6 (analysis & traffic light)",
+      bridge_p:"Module 6 shows how to analyze projects soberly: liquidity, floor vs bids, holders, distribution — so you don’t just avoid scams, you recognize quality.",
+      q1:"No DM links. Bookmark only.",
+      q2:"Approval/unlimited = extra stop.",
+      q3:"If pressured: pause & later.",
+      footer_note:"Not financial advice."
+    }
+  };
+
+  const btnDE = document.getElementById('btnDE');
+  const btnEN = document.getElementById('btnEN');
+
+  function setLang(lang){
+    localStorage.setItem('fsa_lang', lang);
+    btnDE.classList.toggle('active', lang==='de');
+    btnEN.classList.toggle('active', lang==='en');
+    document.documentElement.lang = lang;
+
+    const map = dict[lang] || dict.de;
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const k = el.getAttribute('data-i18n');
+      if(map[k] !== undefined) el.textContent = map[k];
+    });
+    document.title = map.title || document.title;
+  }
+
+  btnDE.addEventListener('click', ()=>setLang('de'));
+  btnEN.addEventListener('click', ()=>setLang('en'));
+  setLang(localStorage.getItem('fsa_lang') === 'en' ? 'en' : 'de');
+
+  // Accordion
+  function closeAll(){
+    document.querySelectorAll('.accPanel').forEach(p=>p.classList.remove('open'));
+  }
+  document.querySelectorAll('.accBtn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.getAttribute('data-acc');
+      const panel = document.getElementById(id);
+      const isOpen = panel.classList.contains('open');
+      closeAll();
+      if(!isOpen) panel.classList.add('open');
+    });
+  });
+})();
+</script>
+</body>
+</html>
