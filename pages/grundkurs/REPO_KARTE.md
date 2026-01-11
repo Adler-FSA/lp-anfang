@@ -645,6 +645,8 @@
     │   │   ├── nft-betrugsradar.html
     │   │   ├── nft-glossar.html
     │   │   ├── nft-kurs.html
+    │   │   ├── nft-modul-1-orientierung.html
+    │   │   ├── nft-modul-2-maerkte.html
     │   │   ├── nft-praxis-ohne-geld.html
     │   │   ├── nft-sicherheit.html
     │   │   └── nft-trends.html
@@ -735,4 +737,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.01.2026, 11:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.01.2026, 12:31)_
