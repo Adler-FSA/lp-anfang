@@ -643,9 +643,11 @@
     │   │   ├── nft-aufklaerung.html
     │   │   ├── nft-basis.html
     │   │   ├── nft-betrugsradar.html
+    │   │   ├── nft-glossar.html
     │   │   ├── nft-kurs.html
     │   │   ├── nft-praxis-ohne-geld.html
-    │   │   └── nft-sicherheit.html
+    │   │   ├── nft-sicherheit.html
+    │   │   └── nft-trends.html
     │   ├── office/
     │   │   ├── page.json
     │   │   └── wallets.html
@@ -733,4 +735,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.01.2026, 09:16)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.01.2026, 10:16)_
