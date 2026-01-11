@@ -3,515 +3,433 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NFT – Modul 6: Analyse & Ampel</title>
-  <meta name="description" content="NFT Grundkurs – Modul 6: Analyse & Ampel (DE/EN). Liquidity, Floor vs Bids, Holder, Distribution, Volumen – Ampel-Logik + Mini-Rechnung." />
+  <title data-i18n="title">Modul 6: Analyse & Ampel – Grundkurs NFT Handel</title>
+  <meta name="description" content="NFT Analyse & Ampel: Liquidität, Floor vs Bids, Holder/Distribution – und eine klare Grün/Gelb/Rot-Routine." />
   <style>
     :root{
-      --text:#f2f2f2;
-      --muted: rgba(203,213,225,.86);
-      --muted2: rgba(203,213,225,.68);
-      --gold:#d4af37;
-      --turq:#1cc2a0;
-      --red:#ff5c5c;
-
-      --bg0:#070913;
-      --card: rgba(12,14,26,.68);
-      --card2: rgba(10,12,22,.60);
+      --bg0:#070a10;
+      --bg1:#0b1020;
+      --card: rgba(12, 14, 22, .62);
+      --card2: rgba(10, 12, 20, .48);
       --stroke: rgba(255,255,255,.10);
-      --stroke2: rgba(212,175,55,.22);
+      --stroke2: rgba(255,255,255,.14);
 
-      --radius: 18px;
-      --shadow: 0 26px 60px rgba(0,0,0,.55);
-      --glow: 0 0 26px rgba(212,175,55,.20), 0 18px 40px rgba(0,0,0,.55);
+      --text: rgba(242,242,242,.96);
+      --muted: rgba(203,213,225,.88);
 
-      --maxw: 1140px;
+      --gold:#d4af37;
+      --gold2:#b88a2a;
+      --turq:#1cc2a0;
+      --red:#ff4d4d;
+
+      --shadow: 0 26px 70px rgba(0,0,0,.55);
+      --glow: 0 0 26px rgba(212,175,55,.22), 0 18px 50px rgba(0,0,0,.55);
+
+      --r16:16px;
+      --r20:20px;
+      --maxw: 1180px;
     }
 
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+    *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0;
-      color:var(--text);
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color: var(--text);
       background:
-        radial-gradient(1100px 520px at 20% 10%, rgba(212,175,55,.16), transparent 60%),
-        radial-gradient(900px 520px at 70% 15%, rgba(28,194,160,.14), transparent 62%),
-        radial-gradient(1200px 700px at 40% 110%, rgba(255,92,92,.08), transparent 62%),
-        linear-gradient(180deg, #060814 0%, #04040c 100%);
+        radial-gradient(1200px 800px at 18% 8%, rgba(212,175,55,.18), transparent 55%),
+        radial-gradient(900px 700px at 82% 18%, rgba(28,194,160,.16), transparent 60%),
+        radial-gradient(1200px 900px at 50% 120%, rgba(13,19,35,.90), rgba(7,10,16,.96)),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
       overflow-x:hidden;
     }
 
-    .bg{
-      position:fixed; inset:0;
-      background:
-        radial-gradient(900px 520px at 65% 25%, rgba(28,194,160,.08), transparent 62%),
-        radial-gradient(1000px 520px at 35% 35%, rgba(212,175,55,.08), transparent 60%);
-      filter: blur(0px);
-      pointer-events:none;
-      opacity:.9;
-    }
-
     .wrap{
-      position:relative;
-      max-width:var(--maxw);
-      margin:0 auto;
-      padding: 18px 16px 90px;
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 18px 16px 60px;
     }
 
-    /* Header nav (identisch zu anderen Modulen) */
+    /* Topbar */
     .topbar{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      margin-top: 6px;
       margin-bottom: 12px;
     }
-    .topLeft{
+
+    .navLeft, .navRight{
       display:flex;
       align-items:center;
       gap:10px;
       flex-wrap:wrap;
     }
+
     .btn{
       display:inline-flex;
       align-items:center;
       gap:10px;
-      padding:10px 14px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.16);
-      color: rgba(242,242,242,.92);
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
       text-decoration:none;
-      font-weight:700;
-      letter-spacing:.01em;
-      box-shadow: 0 14px 28px rgba(0,0,0,.32);
+      box-shadow: 0 10px 24px rgba(0,0,0,.25);
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
+      font-weight: 700;
+      letter-spacing: .01em;
+      white-space:nowrap;
     }
-    .btn:hover{ border-color: rgba(212,175,55,.22); }
-    .btn svg{ width:18px; height:18px; opacity:.92; }
+    .btn:hover{transform: translateY(-1px); border-color: rgba(212,175,55,.30); background: rgba(0,0,0,.28)}
+    .btn svg{width:18px;height:18px;opacity:.92}
 
-    .pager{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
+    .btn.ghost{
+      background: rgba(0,0,0,.14);
+      border-color: rgba(255,255,255,.10);
+      font-weight: 800;
     }
-    .btnGhost{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      padding:10px 14px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.10);
-      color: rgba(242,242,242,.92);
-      text-decoration:none;
-      font-weight:800;
-      letter-spacing:.01em;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+
+    .btn.mod{
+      border-color: rgba(212,175,55,.20);
+      background: rgba(212,175,55,.08);
     }
-    .btnGhost:hover{ border-color: rgba(212,175,55,.22); }
-    .btnGhost svg{ width:18px; height:18px; opacity:.9; }
 
     .lang{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding:6px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.16);
-      box-shadow: 0 14px 28px rgba(0,0,0,.32);
+      display:inline-flex;
+      border: 1px solid rgba(28,194,160,.25);
+      border-radius: 999px;
+      overflow:hidden;
+      background: rgba(0,0,0,.22);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
     }
     .lang button{
       border:0;
-      border-radius:999px;
-      padding:8px 12px;
-      font-weight:900;
-      cursor:pointer;
+      padding: 10px 12px;
       background: transparent;
-      color: rgba(242,242,242,.82);
+      color: rgba(242,242,242,.85);
+      font-weight: 900;
       letter-spacing:.02em;
+      cursor:pointer;
+      min-width: 46px;
     }
     .lang button.active{
-      background: rgba(212,175,55,.18);
-      color: rgba(242,242,242,.95);
-      box-shadow: 0 0 0 1px rgba(212,175,55,.22) inset;
+      background: rgba(28,194,160,.18);
+      color: rgba(242,242,242,.96);
     }
 
-    /* Hero */
+    /* Header card */
     .hero{
-      border-radius: 22px;
-      border:1px solid rgba(212,175,55,.20);
+      border-radius: var(--r20);
+      border: 1px solid rgba(212,175,55,.22);
       background:
-        radial-gradient(900px 360px at 18% 30%, rgba(212,175,55,.14), transparent 62%),
-        radial-gradient(900px 360px at 70% 20%, rgba(28,194,160,.12), transparent 62%),
-        rgba(0,0,0,.14);
-      box-shadow: var(--shadow);
-      padding: 18px 18px 14px;
+        radial-gradient(1000px 450px at 10% 10%, rgba(212,175,55,.18), transparent 55%),
+        radial-gradient(900px 520px at 80% 20%, rgba(28,194,160,.16), transparent 60%),
+        rgba(0,0,0,.28);
+      box-shadow: var(--glow);
+      padding: 18px 18px 16px;
+      margin: 10px 0 14px;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
     }
     .hero h1{
-      margin:0 0 8px 0;
-      font-size: 28px;
+      margin:0;
+      font-size: 30px;
       letter-spacing:.01em;
     }
     .hero p{
-      margin:0 0 12px 0;
+      margin: 8px 0 0;
       color: var(--muted);
       line-height:1.62;
-      max-width: 920px;
+      max-width: 960px;
     }
+
     .pills{
       display:flex;
-      flex-wrap:wrap;
       gap:10px;
-      margin-top:10px;
+      flex-wrap:wrap;
+      margin-top: 12px;
     }
     .pill{
       display:inline-flex;
       align-items:center;
-      gap:10px;
-      padding:8px 12px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.16);
-      color: rgba(242,242,242,.88);
-      font-weight:800;
-      font-size: 13px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      gap:8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing:.04em;
+      text-transform: uppercase;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.22);
     }
-    .pill svg{ width:16px; height:16px; opacity:.95; }
-    .pill.ok{ border-color: rgba(28,194,160,.28); background: rgba(28,194,160,.10); }
-    .pill.warn{ border-color: rgba(212,175,55,.28); background: rgba(212,175,55,.10); }
-    .pill.bad{ border-color: rgba(255,92,92,.28); background: rgba(255,92,92,.10); }
+    .pill svg{width:16px;height:16px;opacity:.92}
+    .pill.ok{border-color: rgba(28,194,160,.28); background: rgba(28,194,160,.10)}
+    .pill.warn{border-color: rgba(212,175,55,.26); background: rgba(212,175,55,.10)}
+    .pill.bad{border-color: rgba(255,77,77,.26); background: rgba(255,77,77,.10)}
 
-    /* Layout cards */
+    /* Content grid */
     .grid{
       display:grid;
-      grid-template-columns: 1.25fr .95fr;
-      gap:14px;
-      margin-top:14px;
+      grid-template-columns: 1.35fr .85fr;
+      gap: 14px;
+      align-items:start;
     }
     @media (max-width: 980px){
-      .grid{ grid-template-columns:1fr; }
+      .grid{grid-template-columns: 1fr;}
     }
 
     .card{
-      border-radius: var(--radius);
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(7,9,18,.32);
-      box-shadow: 0 18px 40px rgba(0,0,0,.45);
-      overflow:hidden;
-    }
-    .inner{
-      padding: 16px;
+      border-radius: var(--r20);
+      border: 1px solid var(--stroke);
+      background: var(--card);
+      box-shadow: var(--shadow);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      background:
-        radial-gradient(820px 260px at 10% 10%, rgba(212,175,55,.10), transparent 62%),
-        rgba(0,0,0,.18);
+      overflow:hidden;
     }
-    .stepbar{
+    .inner{padding: 16px;}
+    .sectionTag{
       display:flex;
       align-items:center;
       gap:10px;
-      font-weight:900;
+      margin-bottom: 10px;
+      font-weight: 900;
       letter-spacing:.14em;
-      text-transform:uppercase;
-      font-size:12px;
+      text-transform: uppercase;
+      font-size: 12px;
       color: rgba(242,242,242,.72);
-      margin-bottom:10px;
     }
     .dot{
       width:10px; height:10px; border-radius:999px;
-      background: rgba(212,175,55,.90);
-      box-shadow: 0 0 0 4px rgba(212,175,55,.12);
+      background: rgba(212,175,55,.85);
+      box-shadow: 0 0 0 4px rgba(212,175,55,.14);
+      flex: 0 0 auto;
     }
-    h2{
-      margin: 0 0 8px 0;
+    .card h2{
+      margin: 0 0 8px;
       font-size: 18px;
-      letter-spacing:.01em;
     }
-    h3{
-      margin: 14px 0 8px 0;
+    .card h3{
+      margin: 14px 0 8px;
       font-size: 16px;
-      color: rgba(242,242,242,.92);
     }
-    p{
-      margin: 8px 0;
-      color: var(--muted);
-      line-height:1.62;
+    .muted{color: var(--muted); line-height:1.62}
+    .hr{
+      height:1px;
+      background: rgba(255,255,255,.08);
+      margin: 14px 0;
     }
-    ul{
-      margin: 8px 0;
-      padding-left: 18px;
-      color: rgba(242,242,242,.90);
-      line-height:1.6;
-    }
-    li{ margin: 6px 0; }
 
     .two{
       display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
       margin-top: 10px;
     }
-    @media (max-width: 980px){
-      .two{ grid-template-columns:1fr; }
+    @media (max-width: 620px){
+      .two{grid-template-columns: 1fr;}
     }
-
-    .box{
-      border-radius: 16px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.18);
-      padding: 12px;
-    }
-    .head{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight:900;
-      letter-spacing:.02em;
-      margin-bottom:6px;
-    }
-    .head svg{ width:18px; height:18px; opacity:.92; }
 
     .mini{
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.10);
+      border-radius: var(--r16);
+      border: 1px solid rgba(255,255,255,.10);
       background: rgba(0,0,0,.18);
       padding: 12px;
-      margin-top: 10px;
     }
     .miniHead{
       display:flex;
       align-items:center;
       gap:10px;
-      font-weight:900;
-      letter-spacing:.02em;
-      margin-bottom:6px;
+      font-weight: 900;
       color: rgba(242,242,242,.92);
+      margin-bottom: 6px;
     }
-    .miniHead svg{ width:18px; height:18px; opacity:.92; }
+    .miniHead svg{width:18px;height:18px;opacity:.92}
+    ul{margin: 8px 0 0; padding-left: 18px; color: rgba(242,242,242,.90); line-height:1.6}
+    li{margin: 6px 0}
 
-    .hr{
-      height:1px;
-      background: rgba(255,255,255,.10);
-      margin: 12px 0;
+    /* Ampel panel */
+    .panel{
+      border-radius: var(--r20);
+      border: 1px solid rgba(212,175,55,.18);
+      background: rgba(0,0,0,.22);
+      box-shadow: 0 18px 60px rgba(0,0,0,.45);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      overflow:hidden;
     }
-
-    /* Ampel check (rechts) */
-    .ampelTop{
+    .panel .inner{padding: 16px}
+    .panelTitle{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-bottom:10px;
-    }
-    .ampelBadge{
-      display:inline-flex;
-      align-items:center;
       gap:10px;
-      padding:10px 12px;
-      border-radius: 14px;
-      border:1px solid rgba(255,255,255,.10);
+    }
+    .badge{
+      font-weight: 1000;
+      letter-spacing:.10em;
+      text-transform: uppercase;
+      font-size: 12px;
+      border: 1px solid rgba(255,255,255,.12);
       background: rgba(0,0,0,.18);
-    }
-    .ampelBadge strong{
-      display:block;
-      font-size: 13px;
-      letter-spacing:.02em;
-      opacity:.92;
-    }
-    .ampelBadge span{
-      display:block;
-      font-size:12px;
-      color: var(--muted2);
-      margin-top:2px;
-      line-height:1.45;
+      border-radius: 999px;
+      padding: 8px 10px;
+      color: rgba(242,242,242,.84);
     }
 
-    .ampelScore{
-      width: 100%;
-      border-radius: 16px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.18);
-      padding: 12px;
-    }
     .scoreRow{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:10px;
-      margin-bottom: 10px;
+      gap: 10px;
+      margin-top: 10px;
     }
-    .meter{
+    .bar{
       height: 10px;
       border-radius: 999px;
-      background: rgba(255,255,255,.08);
+      background: rgba(255,255,255,.10);
       overflow:hidden;
-      border: 1px solid rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.10);
+      flex: 1 1 auto;
     }
-    .meter > div{
+    .fill{
       height:100%;
-      width: 0%;
-      background: rgba(28,194,160,.78);
-      transition: width .25s ease, background .25s ease;
-    }
-    .scoreLabel{
-      font-weight: 1000;
-      letter-spacing:.06em;
-      text-transform:uppercase;
-      font-size: 12px;
-      color: rgba(242,242,242,.84);
+      width: 50%;
+      border-radius: 999px;
+      background: rgba(212,175,55,.85);
     }
     .scoreText{
-      font-weight: 900;
-      font-size: 13px;
-      color: rgba(242,242,242,.92);
+      min-width: 92px;
+      text-align:right;
+      font-weight: 1000;
+      letter-spacing:.06em;
+      font-size: 12px;
+      color: rgba(242,242,242,.86);
     }
 
-    .crit{
-      margin-top: 10px;
-      display:grid;
-      gap: 10px;
+    .q{
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding-top: 12px;
+      margin-top: 12px;
     }
-    .critItem{
-      border-radius: 16px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.16);
-      padding: 10px;
-    }
-    .critTitle{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .critTitle strong{
+    .q h4{
+      margin: 0 0 8px;
       font-size: 13px;
-      letter-spacing:.02em;
-    }
-    .statePill{
-      font-size: 11px;
-      font-weight: 1000;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.18);
-      color: rgba(242,242,242,.86);
+      letter-spacing:.10em;
+      text-transform: uppercase;
+      color: rgba(242,242,242,.74);
     }
     .choices{
       display:flex;
       gap: 8px;
       flex-wrap:wrap;
     }
-    .choice{
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.16);
-      color: rgba(242,242,242,.90);
+    .chip{
       border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      color: rgba(242,242,242,.92);
       padding: 8px 10px;
       font-weight: 900;
       cursor:pointer;
-      font-size: 12px;
-      letter-spacing:.01em;
+      user-select:none;
     }
-    .choice.active{ border-color: rgba(212,175,55,.22); box-shadow: 0 0 0 1px rgba(212,175,55,.18) inset; }
-    .help{
-      margin-top:8px;
-      color: var(--muted2);
-      font-size: 12px;
-      line-height:1.5;
+    .chip.active{
+      border-color: rgba(212,175,55,.32);
+      background: rgba(212,175,55,.10);
+    }
+
+    .advice{
+      margin-top: 12px;
+      border-radius: var(--r16);
+      border: 1px dashed rgba(255,255,255,.14);
+      padding: 12px;
+      background: rgba(0,0,0,.18);
+      color: rgba(242,242,242,.86);
+      line-height: 1.6;
     }
 
     /* Mini calc */
     .calc{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top: 10px;
-    }
-    .calc label{
-      font-size: 12px;
-      color: var(--muted2);
-      display:block;
-      margin-bottom: 6px;
-      letter-spacing:.02em;
-      font-weight: 900;
-      text-transform:uppercase;
-    }
-    .calc input{
-      width:100%;
-      padding:10px 12px;
-      border-radius: 14px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
-      color: rgba(242,242,242,.92);
-      outline:none;
-      font-weight: 900;
-    }
-    .calc input:focus{ border-color: rgba(212,175,55,.22); }
-    .calcFull{ grid-column: 1 / -1; }
-    .result{
-      margin-top: 10px;
-      padding: 12px;
-      border-radius: 16px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.18);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap: 10px;
-      flex-wrap:wrap;
-    }
-    .result strong{
-      font-size: 13px;
-      letter-spacing:.06em;
-      text-transform:uppercase;
-      color: rgba(242,242,242,.84);
-    }
-    .result span{
-      font-weight: 1000;
-      font-size: 14px;
-      color: rgba(242,242,242,.95);
-    }
-
-    /* SVG figure */
-    .svgwrap{
-      border-radius: 16px;
-      border:1px solid rgba(255,255,255,.10);
+      margin-top: 12px;
+      border-radius: var(--r16);
+      border: 1px solid rgba(255,255,255,.10);
       background: rgba(0,0,0,.16);
       padding: 12px;
-      margin-top: 10px;
-      overflow:hidden;
     }
-    .svgwrap .cap{
+    .calcGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top: 10px;
+    }
+    @media (max-width: 520px){ .calcGrid{grid-template-columns: 1fr;} }
+
+    label{
+      display:block;
+      font-size: 12px;
+      letter-spacing:.08em;
+      text-transform: uppercase;
+      color: rgba(242,242,242,.72);
+      margin-bottom: 6px;
+      font-weight: 900;
+    }
+    input{
+      width:100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.20);
+      color: rgba(242,242,242,.95);
+      outline:none;
+    }
+    input:focus{
+      border-color: rgba(28,194,160,.30);
+      box-shadow: 0 0 0 4px rgba(28,194,160,.12);
+    }
+    .calcOut{
+      margin-top: 10px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:10px;
-      margin-bottom:8px;
-      color: rgba(242,242,242,.78);
-      font-weight: 1000;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      font-size: 12px;
+      gap: 10px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding-top: 10px;
     }
-    .foot{
+    .calcOut strong{
+      font-size: 16px;
+      letter-spacing:.02em;
+    }
+    .hint{
+      color: rgba(203,213,225,.82);
+      font-size: 13px;
+      line-height:1.55;
+      margin-top: 8px;
+    }
+
+    /* Simple chart */
+    .svgWrap{
+      margin-top: 12px;
+      border-radius: var(--r16);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.16);
+      padding: 12px;
+    }
+    .svgWrap .cap{
+      font-weight: 1000;
+      letter-spacing:.12em;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: rgba(242,242,242,.74);
+      margin-bottom: 10px;
+    }
+
+    footer{
       margin-top: 18px;
       text-align:center;
       color: rgba(203,213,225,.55);
@@ -522,647 +440,619 @@
 </head>
 
 <body>
-  <div class="bg" aria-hidden="true"></div>
-
   <div class="wrap">
-    <!-- Header / Navigation (wie Modul 1–5) -->
     <div class="topbar">
-      <div class="topLeft">
-        <a class="btn" href="./nft-kurs.html" id="lnkCourse">
+      <div class="navLeft">
+        <a class="btn ghost" href="nft-kurs.html" data-i18n="nav_course">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          <span data-i18n="nav_course">Zur Kursübersicht</span>
+          Zur Kursübersicht
         </a>
 
-        <a class="btn" href="./nft-basis.html" id="lnkBase">
+        <a class="btn ghost" href="nft-basis.html" data-i18n="nav_base">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M3 10.5l9-7 9 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M7.5 10v9h9v-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3 11l9-8 9 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 10v10h14V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          <span data-i18n="nav_base">Zur NFT Basis</span>
+          Zur NFT Basis
         </a>
 
-        <div class="pager" aria-label="Modul Navigation">
-          <a class="btnGhost" href="./nft-modul-5-betrugsradar-deep-dive.html" id="lnkPrev">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span data-i18n="nav_prev">Modul 5</span>
-          </a>
-          <a class="btnGhost" href="./nft-modul-7-strategien-regeln.html" id="lnkNext">
-            <span data-i18n="nav_next">Modul 7</span>
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </a>
-        </div>
+        <!-- Prev/Next identical style -->
+        <a class="btn mod" href="nft-modul-5-betrugsradar.html" data-i18n="nav_prev">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Modul 5
+        </a>
+
+        <a class="btn mod" href="nft-modul-7-strategien-regeln.html" data-i18n="nav_next">
+          Modul 7
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
       </div>
 
-      <div class="lang" aria-label="Sprache">
-        <button type="button" class="active" id="btnDE">DE</button>
-        <button type="button" id="btnEN">EN</button>
+      <div class="navRight">
+        <div class="lang" role="group" aria-label="Language">
+          <button id="btnDE" class="active" type="button">DE</button>
+          <button id="btnEN" type="button">EN</button>
+        </div>
       </div>
     </div>
 
-    <!-- Hero -->
     <header class="hero">
       <h1 data-i18n="h1">Modul 6: Analyse & Ampel</h1>
       <p data-i18n="sub">
         Du lernst, wie du eine NFT-Collection nüchtern prüfst: Liquidität, Floor vs Bids, Holder, Volumen, Distribution – und wie du daraus eine klare Ampel ableitest.
       </p>
-
-      <div class="pills">
-        <div class="pill ok">
+      <div class="pills" aria-label="Key rules">
+        <span class="pill ok">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <span data-i18n="pill1">Ziel: Klarheit statt Hype</span>
-        </div>
-        <div class="pill bad">
+        </span>
+        <span class="pill bad">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M12 9v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             <path d="M12 17h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-            <path d="M10.4 4.6l-7.5 13A2 2 0 0 0 4.6 20h14.8a2 2 0 0 0 1.7-2.9l-7.5-13a2 2 0 0 0-3.2 0z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10.3 3.6l-8 14A2 2 0 004.1 20h15.8a2 2 0 001.8-2.9l-8-14a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="2" fill="none"/>
           </svg>
           <span data-i18n="pill2">Stop: Kein Einstieg ohne Exit-Idee</span>
-        </div>
-        <div class="pill warn">
+        </span>
+        <span class="pill warn">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M12 2l3 7h7l-5.6 4 2.1 7L12 16.8 5.5 20l2.1-7L2 9h7l3-7z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M12 3v18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7 8h10M7 16h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
           <span data-i18n="pill3">Regel: Erst Ampel, dann Aktion</span>
-        </div>
+        </span>
       </div>
     </header>
 
     <div class="grid">
-      <!-- LEFT -->
+      <!-- LEFT: Content -->
       <section class="card">
         <div class="inner">
-          <div class="stepbar"><span class="dot"></span><span data-i18n="s1_tag">GRUNDLOGIK</span></div>
+          <div class="sectionTag"><span class="dot"></span><span data-i18n="s1_tag">Grundlogik</span></div>
           <h2 data-i18n="s1_h">Warum Analyse bei NFTs anders ist als „Coin-Analyse“</h2>
-          <p data-i18n="s1_p1">
-            Ein NFT ist kein „Wertpapier“ mit Umsatzkennzahlen. Preis entsteht primär aus Marktmechanik (Listings/Bids), Liquidität, Aufmerksamkeit und Vertrauen.
-            Deine Aufgabe ist nicht „das nächste 100x“ zu finden, sondern zu erkennen: <b>Kann ich wieder raus?</b> – und zu welchen Kosten/Risiken.
+          <p class="muted" data-i18n="s1_p">
+            Ein NFT ist kein „Wertpapier“ mit klassischen Kennzahlen. Der Preis entsteht primär aus Markttechnik (Listings/Bids),
+            Liquidität, Aufmerksamkeit und Vertrauen. Die wichtigste Frage lautet nicht „wird es steigen?“, sondern:
+            <strong>Kann ich wieder raus?</strong> – und zu welchen Kosten/Risiken.
           </p>
 
           <div class="two">
-            <div class="box">
-              <div class="head">
+            <div class="mini">
+              <div class="miniHead">
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M4 19V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M8 17V9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M12 19V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M16 16v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M20 19V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M8 19V9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M12 19V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M16 19V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M20 19V10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
                 <span data-i18n="s1_b1_t">Drei Fragen, die wirklich zählen</span>
               </div>
               <ul>
-                <li data-i18n="s1_b1_1"><b>Liquidität:</b> Gibt es echte Käufer – heute, nicht „irgendwann“?</li>
-                <li data-i18n="s1_b1_2"><b>Market Structure:</b> Wie weit sind Bids vom Floor entfernt?</li>
-                <li data-i18n="s1_b1_3"><b>Distribution:</b> Wie konzentriert ist Besitz (Top-Wallets)?</li>
+                <li data-i18n="s1_b1_l1"><strong>Liquidität:</strong> Gibt es echte Käufer – heute, nicht „irgendwann“?</li>
+                <li data-i18n="s1_b1_l2"><strong>Market Structure:</strong> Wie weit sind Bids vom Floor entfernt?</li>
+                <li data-i18n="s1_b1_l3"><strong>Distribution:</strong> Wie konzentriert ist Besitz (Top-Wallets)?</li>
               </ul>
             </div>
 
-            <div class="box">
-              <div class="head">
+            <div class="mini">
+              <div class="miniHead">
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M12 3v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M12 13h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M12 21a9 9 0 1 1 0-18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M12 17h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M10.3 3.6l-8 14A2 2 0 004.1 20h15.8a2 2 0 001.8-2.9l-8-14a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="2" fill="none"/>
                 </svg>
                 <span data-i18n="s1_b2_t">Typische Denkfalle</span>
               </div>
-              <p data-i18n="s1_b2_p">
-                „Sieht billig aus“ ist keine Analyse. Ein Floor kann sinken, obwohl das Projekt „cool“ ist – und ein steigender Floor kann fake sein
-                (Wash-Trading / koordinierte Käufe). Deshalb brauchst du eine Ampel – wie ein Pilot vor dem Start.
+              <p class="muted" data-i18n="s1_b2_p">
+                „Sieht billig aus“ ist keine Analyse. Ein Floor kann sinken, obwohl das Projekt „cool“ ist – und ein steigender Floor
+                kann fake sein (Wash-Trading/koordinierte Käufe). Deshalb brauchst du eine Ampel – wie ein Pilot vor dem Start.
               </p>
             </div>
           </div>
 
           <div class="hr"></div>
 
-          <div class="stepbar"><span class="dot"></span><span data-i18n="s2_tag">MECHANIK</span></div>
+          <div class="sectionTag"><span class="dot"></span><span data-i18n="s2_tag">Mechanik</span></div>
           <h2 data-i18n="s2_h">Floor vs Bids: Der Abstand verrät die Wahrheit</h2>
-          <p data-i18n="s2_p1">
-            Der <b>Floor</b> ist der günstigste „Sofort-kaufen“-Preis (Listing). <b>Bids</b> sind „Ich kaufe, wenn jemand verkauft“-Gebote.
-            Wenn Bids weit unter dem Floor liegen, ist dein Exit oft teurer als du denkst.
+          <p class="muted" data-i18n="s2_p">
+            Der <strong>Floor</strong> ist der günstigste „Sofort-kaufen“-Preis (Listing). <strong>Bids</strong> sind Kaufangebote.
+            Wenn Bids weit unter dem Floor liegen, ist dein Exit oft teurer als du denkst – und du verkaufst nur mit großem Abschlag.
           </p>
 
-          <div class="svgwrap" aria-label="Grafik Exit-Spanne">
-            <div class="cap">
-              <span data-i18n="g_cap">GRAFIK: EXIT-SPANNE</span>
-              <span style="color:rgba(203,213,225,.70); font-weight:900;" data-i18n="g_hint">Je größer der Abstand, desto mehr Risiko</span>
-            </div>
-            <svg viewBox="0 0 900 220" width="100%" height="220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Exit Spanne Diagramm">
-              <defs>
-                <linearGradient id="gradA" x1="0" x2="1">
-                  <stop offset="0" stop-color="rgba(28,194,160,.85)"/>
-                  <stop offset="1" stop-color="rgba(212,175,55,.85)"/>
-                </linearGradient>
-                <linearGradient id="gradB" x1="0" x2="1">
-                  <stop offset="0" stop-color="rgba(212,175,55,.85)"/>
-                  <stop offset="1" stop-color="rgba(255,92,92,.85)"/>
-                </linearGradient>
-              </defs>
+          <div class="svgWrap" aria-label="Exit span graphic">
+            <div class="cap" data-i18n="g_cap">Grafik: Exit-Spanne</div>
+            <svg viewBox="0 0 900 130" width="100%" height="130" role="img" aria-label="Exit span chart">
+              <rect x="0" y="0" width="900" height="130" fill="rgba(0,0,0,0)"></rect>
 
-              <rect x="0" y="0" width="900" height="220" rx="16" fill="rgba(0,0,0,.10)"/>
-              <text x="18" y="36" fill="rgba(242,242,242,.90)" font-size="14" font-weight="900">Floor (Listing)</text>
-              <text x="18" y="62" fill="rgba(203,213,225,.70)" font-size="12">Sofort-kaufen Preis</text>
+              <text x="0" y="18" fill="rgba(203,213,225,.85)" font-size="12" font-weight="800" letter-spacing=".12em">BIDS</text>
+              <text x="820" y="18" fill="rgba(203,213,225,.85)" font-size="12" font-weight="800" letter-spacing=".12em">FLOOR</text>
 
-              <text x="18" y="120" fill="rgba(242,242,242,.90)" font-size="14" font-weight="900">Best Bid</text>
-              <text x="18" y="146" fill="rgba(203,213,225,.70)" font-size="12">Realistischer Exit (wenn du schnell raus willst)</text>
+              <rect x="0" y="34" width="900" height="16" rx="8" fill="rgba(255,255,255,.10)"></rect>
+              <rect x="40" y="34" width="260" height="16" rx="8" fill="rgba(28,194,160,.70)"></rect>
+              <rect x="310" y="34" width="200" height="16" rx="8" fill="rgba(212,175,55,.75)"></rect>
+              <rect x="520" y="34" width="340" height="16" rx="8" fill="rgba(255,77,77,.70)"></rect>
 
-              <!-- good case -->
-              <text x="360" y="26" fill="rgba(203,213,225,.75)" font-size="12" font-weight="900">Fall A: kleiner Spread (OK)</text>
-              <rect x="360" y="40" width="500" height="18" rx="9" fill="rgba(255,255,255,.08)"/>
-              <rect x="360" y="40" width="410" height="18" rx="9" fill="url(#gradA)"/>
-              <text x="360" y="84" fill="rgba(203,213,225,.70)" font-size="12">Bids nah am Floor → Exit möglich</text>
+              <text x="40" y="74" fill="rgba(242,242,242,.86)" font-size="12" font-weight="900">kleiner Abstand</text>
+              <text x="330" y="74" fill="rgba(242,242,242,.86)" font-size="12" font-weight="900">mittel</text>
+              <text x="540" y="74" fill="rgba(242,242,242,.86)" font-size="12" font-weight="900">groß</text>
 
-              <!-- bad case -->
-              <text x="360" y="128" fill="rgba(203,213,225,.75)" font-size="12" font-weight="900">Fall B: großer Spread (WARN/STOP)</text>
-              <rect x="360" y="142" width="500" height="18" rx="9" fill="rgba(255,255,255,.08)"/>
-              <rect x="360" y="142" width="230" height="18" rx="9" fill="url(#gradB)"/>
-              <text x="360" y="186" fill="rgba(203,213,225,.70)" font-size="12">Bids weit weg → du verkaufst viel tiefer oder wartest „ewig“</text>
+              <text x="0" y="110" fill="rgba(203,213,225,.78)" font-size="12" font-weight="800" letter-spacing=".10em" data-i18n="g_note">
+                Je größer der Abstand, desto mehr Risiko: Exit nur mit Abschlag (und Gebühren).
+              </text>
             </svg>
           </div>
 
-          <div class="mini">
-            <div class="miniHead">
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M7 7h10M7 12h10M7 17h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <path d="M5 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-              <span data-i18n="mini_rules_t">Mentor-Regel (nüchtern)</span>
-            </div>
-            <p data-i18n="mini_rules_p">
-              Wenn du nur über den Floor redest, redest du über Wunschdenken. Für Entscheidungen zählt: <b>Best Bid</b> (Exit) + Gebühren + Gas.
-            </p>
-          </div>
+          <div class="hr"></div>
 
+          <div class="sectionTag"><span class="dot"></span><span data-i18n="s3_tag">Mentor-Hinweis</span></div>
           <div class="mini">
             <div class="miniHead">
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <path d="M12 3v18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 3l10 6-10 6L2 9l10-6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M6 12v6c0 1 3 3 6 3s6-2 6-3v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
-              <span data-i18n="case_t">Fallbeispiel: „Floor steigt – trotzdem Verlust“</span>
+              <span data-i18n="m_t">Mentor-Tipp: „Nicht kaufen – zuerst Exit erklären“</span>
             </div>
-            <p data-i18n="case_p">
-              Du kaufst bei 1.00. Der Floor klettert auf 1.20 – du fühlst dich „richtig“. Aber die besten Bids stehen nur bei 0.95.
-              Wenn du schnell raus willst, verkaufst du realistisch nahe 0.95 – und zahlst Market-Fee + Royalties + Gas. Ergebnis: Minus, trotz „steigendem Floor“.
+            <p class="muted" data-i18n="m_p">
+              Wenn du in 30 Sekunden nicht erklären kannst, <strong>wie</strong> du wieder verkaufst (Bids? Listings? Nachfrage?),
+              dann ist es kein Investment, sondern Hoffnung. Hoffnung ist keine Strategie.
             </p>
           </div>
         </div>
       </section>
 
-      <!-- RIGHT -->
-      <aside class="card">
+      <!-- RIGHT: Ampel -->
+      <aside class="panel">
         <div class="inner">
-          <div class="stepbar"><span class="dot"></span><span data-i18n="r_tag">AMPEL-CHECK</span></div>
-
-          <div class="ampelTop">
-            <div class="ampelBadge">
-              <div>
-                <strong data-i18n="r_b1_t">90 Sekunden: Grün / Gelb / Rot</strong>
-                <span data-i18n="r_b1_p">Bewerte die Collection in kurzen Punkten. Ergebnis ist kein „Orakel“, aber Schutz vor Bauchgefühl.</span>
-              </div>
-            </div>
-            <div class="ampelBadge">
-              <div>
-                <strong data-i18n="r_b2_t">Regel</strong>
-                <span data-i18n="r_b2_p">Gelb heißt: du prüfst. Rot heißt: du stoppst.</span>
-              </div>
-            </div>
+          <div class="panelTitle">
+            <div class="sectionTag" style="margin:0"><span class="dot"></span><span data-i18n="a_tag">Ampel-Check</span></div>
+            <span class="badge" id="ampelBadge">GELB</span>
           </div>
 
-          <div class="ampelScore" aria-label="Ampel Score">
-            <div class="scoreRow">
-              <div class="scoreLabel" data-i18n="score_label">Ampel-Score</div>
-              <div class="scoreText" id="scoreText">—</div>
-            </div>
-            <div class="meter" aria-hidden="true"><div id="meterFill"></div></div>
-            <div class="help" id="scoreHint" data-i18n="score_hint">
-              Setze für jeden Punkt „Gut / Mittel / Schlecht“. Daraus wird eine klare Ampel mit Handlungsvorschlag.
-            </div>
+          <p class="muted" data-i18n="a_p">
+            90 Sekunden: Grün / Gelb / Rot. Ergebnis ist keine „Wahrheit“, aber ein sauberer Schutz vor Bauchgefühl.
+          </p>
 
-            <div class="crit" id="critList">
-              <!-- items injected -->
-            </div>
-          </div>
-
-          <div class="mini">
+          <div class="mini" style="margin-top:10px">
             <div class="miniHead">
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M4 7h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <path d="M4 12h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <path d="M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <path d="M16 11l3 3 4-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 2v20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M7 7h10M7 12h10M7 17h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span data-i18n="a_rule_t">Regel</span>
+            </div>
+            <p class="muted" data-i18n="a_rule_p">Gelb heißt: du prüfst. Rot heißt: du stoppst.</p>
+
+            <div class="scoreRow" aria-label="Ampel score bar">
+              <div class="bar"><div class="fill" id="scoreFill"></div></div>
+              <div class="scoreText" id="scoreText">GELB • 5/10</div>
+            </div>
+          </div>
+
+          <div class="q">
+            <h4 data-i18n="q1_t">Sales & Käufer-Breite</h4>
+            <div class="choices" data-q="q1">
+              <div class="chip active" data-v="2" data-i18n="gut">Gut</div>
+              <div class="chip" data-v="1" data-i18n="mittel">Mittel</div>
+              <div class="chip" data-v="0" data-i18n="schlecht">Schlecht</div>
+            </div>
+            <p class="hint" data-i18n="q1_h">Gibt es echte Nachfrage? Oder nur Listings ohne Käufer?</p>
+          </div>
+
+          <div class="q">
+            <h4 data-i18n="q2_t">Floor vs Best Bid (Spread)</h4>
+            <div class="choices" data-q="q2">
+              <div class="chip active" data-v="2" data-i18n="gut">Gut</div>
+              <div class="chip" data-v="1" data-i18n="mittel">Mittel</div>
+              <div class="chip" data-v="0" data-i18n="schlecht">Schlecht</div>
+            </div>
+            <p class="hint" data-i18n="q2_h">Wie weit ist der realistische Exit vom Floor entfernt?</p>
+          </div>
+
+          <div class="q">
+            <h4 data-i18n="q3_t">Holder & Distribution</h4>
+            <div class="choices" data-q="q3">
+              <div class="chip active" data-v="1" data-i18n="mittel">Mittel</div>
+              <div class="chip" data-v="2" data-i18n="gut">Gut</div>
+              <div class="chip" data-v="0" data-i18n="schlecht">Schlecht</div>
+            </div>
+            <p class="hint" data-i18n="q3_h">Ist Besitz verteilt – oder hängt alles an wenigen Wallets?</p>
+          </div>
+
+          <div class="advice" id="adviceBox">
+            <strong data-i18n="adv_h">Gelb heißt:</strong>
+            <span data-i18n="adv_p">
+              Es gibt Warnzeichen. Wenn du trotzdem handelst, dann nur klein, mit Stop/Exit und ohne Zeitdruck.
+            </span>
+          </div>
+
+          <div class="calc" aria-label="Mini calculation">
+            <div class="miniHead" style="margin-bottom:6px">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 4h10v4H7V4z" stroke="currentColor" stroke-width="2"/>
+                <path d="M7 10h10v10H7V10z" stroke="currentColor" stroke-width="2"/>
+                <path d="M9 13h6M9 16h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
               <span data-i18n="calc_t">Mini-Rechnung (realistisch)</span>
             </div>
-            <p data-i18n="calc_p">
+            <p class="muted" data-i18n="calc_p">
               Kleine Rechnung hilft gegen Selbstbetrug: Was bleibt nach Marketplace-Fee, Royalties und Gas wirklich übrig?
             </p>
 
-            <div class="calc">
+            <div class="calcGrid">
               <div>
-                <label data-i18n="c_buy_l">Kaufpreis</label>
+                <label for="buy" data-i18n="buy">Kaufpreis</label>
                 <input id="buy" inputmode="decimal" placeholder="z.B. 1.00" value="1.00" />
               </div>
               <div>
-                <label data-i18n="c_sell_l">Verkaufspreis (Exit)</label>
+                <label for="sell" data-i18n="sell">Verkaufspreis</label>
                 <input id="sell" inputmode="decimal" placeholder="z.B. 1.20" value="1.20" />
               </div>
-
               <div>
-                <label data-i18n="c_fee_l">Marketplace-Fee (%)</label>
-                <input id="mfee" inputmode="decimal" placeholder="z.B. 2.5" value="2.5" />
+                <label for="fee" data-i18n="fee">Marketplace-Fee (%)</label>
+                <input id="fee" inputmode="decimal" placeholder="z.B. 2.5" value="2.5" />
               </div>
               <div>
-                <label data-i18n="c_roy_l">Royalties (%)</label>
+                <label for="roy" data-i18n="roy">Royalties (%)</label>
                 <input id="roy" inputmode="decimal" placeholder="z.B. 5" value="5" />
               </div>
-
-              <div class="calcFull">
-                <label data-i18n="c_gas_l">Gas / Fees (fix)</label>
-                <input id="gas" inputmode="decimal" placeholder="z.B. 0.02" value="0.02" />
+              <div>
+                <label for="gas" data-i18n="gas">Gas (gesamt)</label>
+                <input id="gas" inputmode="decimal" placeholder="z.B. 0.03" value="0.03" />
+              </div>
+              <div>
+                <label for="unit" data-i18n="unit">Einheit</label>
+                <input id="unit" placeholder="ETH" value="ETH" />
               </div>
             </div>
 
-            <div class="result" role="status" aria-live="polite">
-              <strong data-i18n="c_res_l">Netto-Ergebnis</strong>
-              <span id="netOut">—</span>
+            <div class="calcOut">
+              <div>
+                <div class="muted" data-i18n="net">Netto-Ergebnis</div>
+                <strong id="netOut">+0.12 ETH</strong>
+              </div>
+              <div class="scoreText" id="netPct">+12%</div>
             </div>
-
-            <div class="help" data-i18n="calc_hint">
-              Hinweis: Das ist ein vereinfachtes Modell. Ziel ist nicht Perfektion – sondern dass du Gebühren/Gas im Kopf hast, bevor du handelst.
+            <div class="hint" data-i18n="calc_hint">
+              Hinweis: Das ist eine grobe Näherung. Ziel ist nicht Perfektion – sondern ein realistischer Blick auf Exit + Kosten.
             </div>
-          </div>
-
-          <div class="mini">
-            <div class="miniHead">
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M12 8v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <path d="M12 16h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                <path d="M10.4 4.6l-7.5 13A2 2 0 0 0 4.6 20h14.8a2 2 0 0 0 1.7-2.9l-7.5-13a2 2 0 0 0-3.2 0z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span data-i18n="danger_t">Gefährliche Handlungen (Totalverlust)</span>
-            </div>
-            <ul>
-              <li data-i18n="danger_1">Du kaufst ohne Exit-Realität (Bids ignoriert) → du „sitzt fest“.</li>
-              <li data-i18n="danger_2">Du folgst Hype ohne Quellen/Beweise → du wirst Liquidität für andere.</li>
-              <li data-i18n="danger_3">Du handelst unter Zeitdruck (FOMO) → du überspringst Checks & Gebühren.</li>
-              <li data-i18n="danger_4">Du nimmst „Floor“ als Sicherheit → Spread frisst alles.</li>
-            </ul>
           </div>
 
         </div>
       </aside>
     </div>
 
-    <div class="foot" data-i18n="foot">FSA Akademie – Grundkurs NFT Handel. Keine Finanzberatung.</div>
+    <footer data-i18n="foot">FSA Akademie – Grundkurs NFT Handel. Keine Finanzberatung.</footer>
   </div>
 
   <script>
     (function(){
-      const $ = (s, el=document)=>el.querySelector(s);
-      const $$ = (s, el=document)=>Array.from(el.querySelectorAll(s));
+      const $ = (q)=>document.querySelector(q);
+      const $$ = (q)=>Array.from(document.querySelectorAll(q));
 
-      // ---- Links: identische Verdrahtung wie Modul 1–5 (du kannst Dateinamen bei Bedarf anpassen)
-      const LINKS = {
-        course: './nft-kurs.html',
-        base: './nft-basis.html',
-        prev: './nft-modul-5-betrugsradar-deep-dive.html',
-        next: './nft-modul-7-strategien-regeln.html'
-      };
-      $('#lnkCourse').setAttribute('href', LINKS.course);
-      $('#lnkBase').setAttribute('href', LINKS.base);
-      $('#lnkPrev').setAttribute('href', LINKS.prev);
-      $('#lnkNext').setAttribute('href', LINKS.next);
-
-      // ---- i18n
-      const I18N = {
+      // -------------------------
+      // i18n
+      // -------------------------
+      const dict = {
         de: {
-          nav_course:"Zur Kursübersicht",
-          nav_base:"Zur NFT Basis",
-          nav_prev:"Modul 5",
-          nav_next:"Modul 7",
+          title: "Modul 6: Analyse & Ampel – Grundkurs NFT Handel",
+          nav_course: "Zur Kursübersicht",
+          nav_base: "Zur NFT Basis",
+          nav_prev: "Modul 5",
+          nav_next: "Modul 7",
 
-          h1:"Modul 6: Analyse & Ampel",
-          sub:"Du lernst, wie du eine NFT-Collection nüchtern prüfst: Liquidität, Floor vs Bids, Holder, Volumen, Distribution – und wie du daraus eine klare Ampel ableitest.",
-          pill1:"Ziel: Klarheit statt Hype",
-          pill2:"Stop: Kein Einstieg ohne Exit-Idee",
-          pill3:"Regel: Erst Ampel, dann Aktion",
+          h1: "Modul 6: Analyse & Ampel",
+          sub: "Du lernst, wie du eine NFT-Collection nüchtern prüfst: Liquidität, Floor vs Bids, Holder, Volumen, Distribution – und wie du daraus eine klare Ampel ableitest.",
 
-          s1_tag:"GRUNDLOGIK",
-          s1_h:"Warum Analyse bei NFTs anders ist als „Coin-Analyse“",
-          s1_p1:"Ein NFT ist kein „Wertpapier“ mit Umsatzkennzahlen. Preis entsteht primär aus Marktmechanik (Listings/Bids), Liquidität, Aufmerksamkeit und Vertrauen. Deine Aufgabe ist nicht „das nächste 100x“ zu finden, sondern zu erkennen: <b>Kann ich wieder raus?</b> – und zu welchen Kosten/Risiken.",
-          s1_b1_t:"Drei Fragen, die wirklich zählen",
-          s1_b1_1:"<b>Liquidität:</b> Gibt es echte Käufer – heute, nicht „irgendwann“?",
-          s1_b1_2:"<b>Market Structure:</b> Wie weit sind Bids vom Floor entfernt?",
-          s1_b1_3:"<b>Distribution:</b> Wie konzentriert ist Besitz (Top-Wallets)?",
-          s1_b2_t:"Typische Denkfalle",
-          s1_b2_p:"„Sieht billig aus“ ist keine Analyse. Ein Floor kann sinken, obwohl das Projekt „cool“ ist – und ein steigender Floor kann fake sein (Wash-Trading / koordinierte Käufe). Deshalb brauchst du eine Ampel – wie ein Pilot vor dem Start.",
+          pill1: "Ziel: Klarheit statt Hype",
+          pill2: "Stop: Kein Einstieg ohne Exit-Idee",
+          pill3: "Regel: Erst Ampel, dann Aktion",
 
-          s2_tag:"MECHANIK",
-          s2_h:"Floor vs Bids: Der Abstand verrät die Wahrheit",
-          s2_p1:"Der <b>Floor</b> ist der günstigste „Sofort-kaufen“-Preis (Listing). <b>Bids</b> sind „Ich kaufe, wenn jemand verkauft“-Gebote. Wenn Bids weit unter dem Floor liegen, ist dein Exit oft teurer als du denkst.",
+          s1_tag: "Grundlogik",
+          s1_h: "Warum Analyse bei NFTs anders ist als „Coin-Analyse“",
+          s1_p: "Ein NFT ist kein „Wertpapier“ mit klassischen Kennzahlen. Der Preis entsteht primär aus Markttechnik (Listings/Bids), Liquidität, Aufmerksamkeit und Vertrauen. Die wichtigste Frage lautet nicht „wird es steigen?“, sondern: <strong>Kann ich wieder raus?</strong> – und zu welchen Kosten/Risiken.",
 
-          g_cap:"GRAFIK: EXIT-SPANNE",
-          g_hint:"Je größer der Abstand, desto mehr Risiko",
+          s1_b1_t: "Drei Fragen, die wirklich zählen",
+          s1_b1_l1: "<strong>Liquidität:</strong> Gibt es echte Käufer – heute, nicht „irgendwann“?",
+          s1_b1_l2: "<strong>Market Structure:</strong> Wie weit sind Bids vom Floor entfernt?",
+          s1_b1_l3: "<strong>Distribution:</strong> Wie konzentriert ist Besitz (Top-Wallets)?",
 
-          mini_rules_t:"Mentor-Regel (nüchtern)",
-          mini_rules_p:"Wenn du nur über den Floor redest, redest du über Wunschdenken. Für Entscheidungen zählt: <b>Best Bid</b> (Exit) + Gebühren + Gas.",
+          s1_b2_t: "Typische Denkfalle",
+          s1_b2_p: "„Sieht billig aus“ ist keine Analyse. Ein Floor kann sinken, obwohl das Projekt „cool“ ist – und ein steigender Floor kann fake sein (Wash-Trading/koordinierte Käufe). Deshalb brauchst du eine Ampel – wie ein Pilot vor dem Start.",
 
-          case_t:"Fallbeispiel: „Floor steigt – trotzdem Verlust“",
-          case_p:"Du kaufst bei 1.00. Der Floor klettert auf 1.20 – du fühlst dich „richtig“. Aber die besten Bids stehen nur bei 0.95. Wenn du schnell raus willst, verkaufst du realistisch nahe 0.95 – und zahlst Market-Fee + Royalties + Gas. Ergebnis: Minus, trotz „steigendem Floor“.",
+          s2_tag: "Mechanik",
+          s2_h: "Floor vs Bids: Der Abstand verrät die Wahrheit",
+          s2_p: "Der <strong>Floor</strong> ist der günstigste „Sofort-kaufen“-Preis (Listing). <strong>Bids</strong> sind Kaufangebote. Wenn Bids weit unter dem Floor liegen, ist dein Exit oft teurer als du denkst – und du verkaufst nur mit großem Abschlag.",
+          g_cap: "Grafik: Exit-Spanne",
+          g_note: "Je größer der Abstand, desto mehr Risiko: Exit nur mit Abschlag (und Gebühren).",
 
-          r_tag:"AMPEL-CHECK",
-          r_b1_t:"90 Sekunden: Grün / Gelb / Rot",
-          r_b1_p:"Bewerte die Collection in kurzen Punkten. Ergebnis ist kein „Orakel“, aber Schutz vor Bauchgefühl.",
-          r_b2_t:"Regel",
-          r_b2_p:"Gelb heißt: du prüfst. Rot heißt: du stoppst.",
+          s3_tag: "Mentor-Hinweis",
+          m_t: "Mentor-Tipp: „Nicht kaufen – zuerst Exit erklären“",
+          m_p: "Wenn du in 30 Sekunden nicht erklären kannst, <strong>wie</strong> du wieder verkaufst (Bids? Listings? Nachfrage?), dann ist es kein Investment, sondern Hoffnung. Hoffnung ist keine Strategie.",
 
-          score_label:"Ampel-Score",
-          score_hint:"Setze für jeden Punkt „Gut / Mittel / Schlecht“. Daraus wird eine klare Ampel mit Handlungsvorschlag.",
+          a_tag: "Ampel-Check",
+          a_p: "90 Sekunden: Grün / Gelb / Rot. Ergebnis ist keine „Wahrheit“, aber ein sauberer Schutz vor Bauchgefühl.",
+          a_rule_t: "Regel",
+          a_rule_p: "Gelb heißt: du prüfst. Rot heißt: du stoppst.",
 
-          calc_t:"Mini-Rechnung (realistisch)",
-          calc_p:"Kleine Rechnung hilft gegen Selbstbetrug: Was bleibt nach Marketplace-Fee, Royalties und Gas wirklich übrig?",
-          c_buy_l:"Kaufpreis",
-          c_sell_l:"Verkaufspreis (Exit)",
-          c_fee_l:"Marketplace-Fee (%)",
-          c_roy_l:"Royalties (%)",
-          c_gas_l:"Gas / Fees (fix)",
-          c_res_l:"Netto-Ergebnis",
-          calc_hint:"Hinweis: Das ist ein vereinfachtes Modell. Ziel ist nicht Perfektion – sondern dass du Gebühren/Gas im Kopf hast, bevor du handelst.",
+          q1_t: "Sales & Käufer-Breite",
+          q1_h: "Gibt es echte Nachfrage? Oder nur Listings ohne Käufer?",
+          q2_t: "Floor vs Best Bid (Spread)",
+          q2_h: "Wie weit ist der realistische Exit vom Floor entfernt?",
+          q3_t: "Holder & Distribution",
+          q3_h: "Ist Besitz verteilt – oder hängt alles an wenigen Wallets?",
 
-          danger_t:"Gefährliche Handlungen (Totalverlust)",
-          danger_1:"Du kaufst ohne Exit-Realität (Bids ignoriert) → du „sitzt fest“.",
-          danger_2:"Du folgst Hype ohne Quellen/Beweise → du wirst Liquidität für andere.",
-          danger_3:"Du handelst unter Zeitdruck (FOMO) → du überspringst Checks & Gebühren.",
-          danger_4:"Du nimmst „Floor“ als Sicherheit → Spread frisst alles.",
+          gut: "Gut",
+          mittel: "Mittel",
+          schlecht: "Schlecht",
 
-          foot:"FSA Akademie – Grundkurs NFT Handel. Keine Finanzberatung."
+          adv_h: "Gelb heißt:",
+          adv_p: "Es gibt Warnzeichen. Wenn du trotzdem handelst, dann nur klein, mit Stop/Exit und ohne Zeitdruck.",
+
+          calc_t: "Mini-Rechnung (realistisch)",
+          calc_p: "Kleine Rechnung hilft gegen Selbstbetrug: Was bleibt nach Marketplace-Fee, Royalties und Gas wirklich übrig?",
+          buy: "Kaufpreis",
+          sell: "Verkaufspreis",
+          fee: "Marketplace-Fee (%)",
+          roy: "Royalties (%)",
+          gas: "Gas (gesamt)",
+          unit: "Einheit",
+          net: "Netto-Ergebnis",
+          calc_hint: "Hinweis: Das ist eine grobe Näherung. Ziel ist nicht Perfektion – sondern ein realistischer Blick auf Exit + Kosten.",
+          foot: "FSA Akademie – Grundkurs NFT Handel. Keine Finanzberatung."
         },
-
         en: {
-          nav_course:"Back to course overview",
-          nav_base:"Back to NFT base",
-          nav_prev:"Module 5",
-          nav_next:"Module 7",
+          title: "Module 6: Analysis & Traffic Light – NFT Trading Course",
+          nav_course: "Back to course overview",
+          nav_base: "Back to NFT base",
+          nav_prev: "Module 5",
+          nav_next: "Module 7",
 
-          h1:"Module 6: Analysis & Traffic Light",
-          sub:"Learn how to evaluate an NFT collection soberly: liquidity, floor vs bids, holders, volume, distribution — and how to turn that into a clear traffic-light decision.",
-          pill1:"Goal: clarity over hype",
-          pill2:"Stop: no entry without an exit idea",
-          pill3:"Rule: traffic light first, action second",
+          h1: "Module 6: Analysis & Traffic Light",
+          sub: "Learn how to review an NFT collection calmly: liquidity, floor vs bids, holders, volume, distribution — and turn it into a clear traffic-light decision.",
 
-          s1_tag:"FOUNDATION",
-          s1_h:"Why NFT analysis is different from “coin analysis”",
-          s1_p1:"An NFT is not a security with revenue metrics. Price is driven mainly by market mechanics (listings/bids), liquidity, attention and trust. Your job is not to find the next 100x — it is to answer: <b>Can I exit?</b> and at what cost/risk.",
-          s1_b1_t:"Three questions that actually matter",
-          s1_b1_1:"<b>Liquidity:</b> are there real buyers — today, not “someday”?",
-          s1_b1_2:"<b>Market structure:</b> how far are bids from the floor?",
-          s1_b1_3:"<b>Distribution:</b> how concentrated is ownership (top wallets)?",
-          s1_b2_t:"Common mental trap",
-          s1_b2_p:"“Looks cheap” is not analysis. A floor can drop even if the project looks cool — and a rising floor can be fake (wash trading / coordinated buys). That’s why you use a traffic light like a pilot before takeoff.",
+          pill1: "Goal: clarity over hype",
+          pill2: "Stop: no entry without an exit idea",
+          pill3: "Rule: traffic light first, action second",
 
-          s2_tag:"MECHANICS",
-          s2_h:"Floor vs bids: the gap reveals the truth",
-          s2_p1:"The <b>floor</b> is the cheapest buy-now listing. <b>Bids</b> are offers: “I buy if someone sells.” If bids sit far below the floor, your realistic exit is often worse than you think.",
+          s1_tag: "Core logic",
+          s1_h: "Why NFT analysis is different from “coin analysis”",
+          s1_p: "An NFT is not a traditional asset with classic fundamentals. Price is driven by market mechanics (listings/bids), liquidity, attention and trust. The key question is not “will it go up?”, but: <strong>Can I exit?</strong> — and at what cost/risk.",
 
-          g_cap:"CHART: EXIT SPREAD",
-          g_hint:"The bigger the gap, the higher the risk",
+          s1_b1_t: "Three questions that actually matter",
+          s1_b1_l1: "<strong>Liquidity:</strong> are there real buyers — today, not “someday”?",
+          s1_b1_l2: "<strong>Market structure:</strong> how far are bids from the floor?",
+          s1_b1_l3: "<strong>Distribution:</strong> is ownership concentrated (top wallets)?",
 
-          mini_rules_t:"Mentor rule (sober)",
-          mini_rules_p:"If you only talk about the floor, you talk about wishful thinking. Decisions should use: <b>best bid</b> (exit) + fees + gas.",
+          s1_b2_t: "Common trap",
+          s1_b2_p: "“Looks cheap” is not analysis. A floor can drop even if the project feels “cool” — and a rising floor can be fake (wash trading/coordinated buys). Use a traffic light like a pilot’s pre-flight check.",
 
-          case_t:"Case: “Floor up — still a loss”",
-          case_p:"You buy at 1.00. The floor moves to 1.20 — you feel right. But best bids sit at 0.95. If you need a fast exit, you sell near 0.95 and pay market fee + royalties + gas. Result: negative, despite the “higher floor”.",
+          s2_tag: "Mechanics",
+          s2_h: "Floor vs bids: the gap tells the truth",
+          s2_p: "<strong>Floor</strong> is the cheapest instant-buy listing. <strong>Bids</strong> are offers. If bids sit far below the floor, your exit will likely require a discount — plus fees.",
+          g_cap: "Chart: exit gap",
+          g_note: "The bigger the gap, the higher the risk: exit only with discount (and fees).",
 
-          r_tag:"TRAFFIC LIGHT CHECK",
-          r_b1_t:"90 seconds: Green / Yellow / Red",
-          r_b1_p:"Rate the collection in short points. This isn’t an oracle — it protects you from pure gut feeling.",
-          r_b2_t:"Rule",
-          r_b2_p:"Yellow means: verify. Red means: stop.",
+          s3_tag: "Mentor note",
+          m_t: "Mentor tip: “Don’t buy — explain the exit first”",
+          m_p: "If you can’t explain in 30 seconds <strong>how</strong> you’ll sell (bids? listings? demand?), it’s not a plan — it’s hope.",
 
-          score_label:"Traffic-light score",
-          score_hint:"Set each point to Good / Medium / Bad. You get a clear traffic light with an action suggestion.",
+          a_tag: "Traffic-light check",
+          a_p: "90 seconds: Green / Yellow / Red. Not ‘truth’ — but protection against gut decisions.",
+          a_rule_t: "Rule",
+          a_rule_p: "Yellow means: review. Red means: stop.",
 
-          calc_t:"Mini calculation (realistic)",
-          calc_p:"A small calc fights self-deception: what remains after marketplace fee, royalties and gas?",
-          c_buy_l:"Buy price",
-          c_sell_l:"Sell price (exit)",
-          c_fee_l:"Marketplace fee (%)",
-          c_roy_l:"Royalties (%)",
-          c_gas_l:"Gas / fixed fees",
-          c_res_l:"Net result",
-          calc_hint:"Note: simplified model. Goal is not perfection — it’s remembering fees/gas before you trade.",
+          q1_t: "Sales & buyer breadth",
+          q1_h: "Is there real demand — or just listings with no buyers?",
+          q2_t: "Floor vs best bid (spread)",
+          q2_h: "How far is the realistic exit from the floor?",
+          q3_t: "Holders & distribution",
+          q3_h: "Is ownership spread out — or controlled by a few wallets?",
 
-          danger_t:"High-risk actions (can lead to total loss)",
-          danger_1:"You buy without exit reality (ignoring bids) → you get stuck.",
-          danger_2:"You follow hype without sources/proof → you become liquidity for others.",
-          danger_3:"You act under time pressure (FOMO) → you skip checks & fees.",
-          danger_4:"You treat “floor” as safety → the spread eats you.",
+          gut: "Good",
+          mittel: "Medium",
+          schlecht: "Bad",
 
-          foot:"FSA Academy — NFT trading course. No financial advice."
+          adv_h: "Yellow means:",
+          adv_p: "There are warning signs. If you still trade, go small, define an exit/stop, and avoid time pressure.",
+
+          calc_t: "Mini calculation (realistic)",
+          calc_p: "A quick check against self-deception: what remains after marketplace fee, royalties and gas?",
+          buy: "Buy price",
+          sell: "Sell price",
+          fee: "Marketplace fee (%)",
+          roy: "Royalties (%)",
+          gas: "Gas (total)",
+          unit: "Unit",
+          net: "Net result",
+          calc_hint: "Note: rough estimate. The goal isn’t perfection — it’s a realistic view on exit + costs.",
+          foot: "FSA Academy – NFT Trading Course. No financial advice."
         }
       };
 
-      function setLang(lang){
-        document.documentElement.setAttribute('lang', lang);
-        $('#btnDE').classList.toggle('active', lang==='de');
-        $('#btnEN').classList.toggle('active', lang==='en');
-        localStorage.setItem('fsa_lang', lang);
+      function applyLang(lang){
+        document.documentElement.lang = lang === "en" ? "en" : "de";
+        const map = dict[lang] || dict.de;
 
-        $$('[data-i18n]').forEach(el=>{
-          const key = el.getAttribute('data-i18n');
-          const val = (I18N[lang] && I18N[lang][key]) ? I18N[lang][key] : null;
-          if(val !== null) el.innerHTML = val;
+        $$("[data-i18n]").forEach(el=>{
+          const key = el.getAttribute("data-i18n");
+          if(!map[key]) return;
+          // allow HTML in a few long text nodes
+          const allowHtml = ["s1_p","s1_b1_l1","s1_b1_l2","s1_b1_l3","m_p"].includes(key);
+          if(allowHtml) el.innerHTML = map[key];
+          else el.textContent = map[key];
         });
 
-        // update criteria titles/hints (dynamic)
-        renderCriteria(lang);
-        updateScoreUI();
+        $("#btnDE").classList.toggle("active", lang==="de");
+        $("#btnEN").classList.toggle("active", lang==="en");
+
+        // update title too
+        document.title = map.title || document.title;
+
+        // refresh advice text according to score & lang
+        updateAmpel(true);
         updateCalc();
       }
 
-      $('#btnDE').addEventListener('click', ()=>setLang('de'));
-      $('#btnEN').addEventListener('click', ()=>setLang('en'));
+      const langLS = localStorage.getItem("fsa_lang");
+      let currentLang = (langLS === "en") ? "en" : "de";
+      $("#btnDE").addEventListener("click", ()=>{ currentLang="de"; localStorage.setItem("fsa_lang","de"); applyLang("de"); });
+      $("#btnEN").addEventListener("click", ()=>{ currentLang="en"; localStorage.setItem("fsa_lang","en"); applyLang("en"); });
 
-      // ---- Ampel criteria
-      const CRIT_DEF = {
-        liquidity: {
-          de:{ t:"Sales & Käufer-Breite", h:"Gibt es echte Nachfrage? Oder nur Listings ohne Käufer?" },
-          en:{ t:"Sales & buyer breadth", h:"Is there real demand — or just listings with no buyers?" }
-        },
-        spread: {
-          de:{ t:"Floor vs Best Bid (Spread)", h:"Wie weit ist der realistische Exit vom Floor entfernt?" },
-          en:{ t:"Floor vs best bid (spread)", h:"How far is the realistic exit from the floor?" }
-        },
-        holders: {
-          de:{ t:"Holder & Distribution", h:"Wenige Wallets kontrollieren viel? Top-Holder Risiko?" },
-          en:{ t:"Holders & distribution", h:"Do a few wallets control a lot? Top-holder risk?" }
-        },
-        volume: {
-          de:{ t:"Volumen & Natürlichkeit", h:"Wirkt die Aktivität echt — oder nach Wash-Trading?" },
-          en:{ t:"Volume & naturalness", h:"Does activity look organic — or like wash trading?" }
-        },
-        exit: {
-          de:{ t:"Exit-Realität", h:"Kannst du heute verkaufen, ohne riesigen Abschlag?" },
-          en:{ t:"Exit reality", h:"Can you sell today without a huge discount?" }
-        }
-      };
-
-      // 2 = good, 1 = medium, 0 = bad
-      const critState = { liquidity:1, spread:1, holders:1, volume:1, exit:1 };
-
-      function stateName(lang, v){
-        if(lang==='en'){
-          return v===2 ? "Good" : (v===1 ? "Medium" : "Bad");
-        }
-        return v===2 ? "Gut" : (v===1 ? "Mittel" : "Schlecht");
+      // -------------------------
+      // Ampel logic
+      // -------------------------
+      function activeValue(group){
+        const a = group.querySelector(".chip.active");
+        return a ? Number(a.getAttribute("data-v")||"0") : 0;
       }
 
-      function renderCriteria(lang){
-        const host = $('#critList');
-        host.innerHTML = '';
-        Object.keys(CRIT_DEF).forEach(key=>{
-          const row = document.createElement('div');
-          row.className = 'critItem';
-          row.dataset.key = key;
+      function setActiveChip(group, chip){
+        group.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));
+        chip.classList.add("active");
+      }
 
-          const title = document.createElement('div');
-          title.className = 'critTitle';
-
-          const left = document.createElement('strong');
-          left.textContent = CRIT_DEF[key][lang].t;
-
-          const pill = document.createElement('span');
-          pill.className = 'statePill';
-          pill.textContent = stateName(lang, critState[key]);
-
-          title.appendChild(left);
-          title.appendChild(pill);
-
-          const choices = document.createElement('div');
-          choices.className = 'choices';
-
-          const mkBtn = (label, val) => {
-            const b = document.createElement('button');
-            b.type = 'button';
-            b.className = 'choice' + (critState[key]===val ? ' active' : '');
-            b.textContent = label;
-            b.addEventListener('click', ()=>{
-              critState[key] = val;
-              renderCriteria(lang);
-              updateScoreUI();
-            });
-            return b;
-          };
-
-          const labels = (lang==='en')
-            ? [{t:"Good", v:2},{t:"Medium", v:1},{t:"Bad", v:0}]
-            : [{t:"Gut", v:2},{t:"Mittel", v:1},{t:"Schlecht", v:0}];
-
-          labels.forEach(o=>choices.appendChild(mkBtn(o.t, o.v)));
-
-          const help = document.createElement('div');
-          help.className = 'help';
-          help.textContent = CRIT_DEF[key][lang].h;
-
-          row.appendChild(title);
-          row.appendChild(choices);
-          row.appendChild(help);
-
-          host.appendChild(row);
+      $$(".choices").forEach(group=>{
+        group.addEventListener("click", (e)=>{
+          const chip = e.target.closest(".chip");
+          if(!chip) return;
+          setActiveChip(group, chip);
+          updateAmpel(false);
         });
-      }
-
-      function updateScoreUI(){
-        const lang = document.documentElement.getAttribute('lang') || 'de';
-        const total = Object.keys(critState).reduce((a,k)=>a+critState[k],0); // 0..10
-        const max = Object.keys(critState).length * 2; // 10
-        const pct = Math.round((total/max)*100);
-
-        let color = 'rgba(28,194,160,.78)';
-        let label = lang==='en' ? 'GREEN' : 'GRÜN';
-        let hint = lang==='en'
-          ? 'Green: structure looks healthy. Still: define entry/exit and keep size small.'
-          : 'Grün: Struktur wirkt gesund. Trotzdem: Entry/Exit definieren und klein bleiben.';
-
-        // thresholds
-        if(total <= 3){
-          color = 'rgba(255,92,92,.82)';
-          label = lang==='en' ? 'RED' : 'ROT';
-          hint = lang==='en'
-            ? 'Red: too many risk flags. Do not enter. If already in: plan a controlled exit.'
-            : 'Rot: zu viele Warnzeichen. Nicht einsteigen. Wenn schon drin: Exit nüchtern planen.';
-        } else if(total <= 7){
-          color = 'rgba(212,175,55,.82)';
-          label = lang==='en' ? 'YELLOW' : 'GELB';
-          hint = lang==='en'
-            ? 'Yellow: warnings exist. Only act if you can explain your exit and the risks.'
-            : 'Gelb: es gibt Warnzeichen. Nur handeln, wenn du Exit & Risiken erklären kannst.';
-        }
-
-        $('#meterFill').style.width = pct + '%';
-        $('#meterFill').style.background = color;
-
-        $('#scoreText').textContent = `${label} • ${total}/${max}`;
-        $('#scoreHint').textContent = hint;
-      }
-
-      // ---- Mini calc
-      function n(v){
-        const x = String(v||'').replace(',', '.').trim();
-        const num = Number(x);
-        return Number.isFinite(num) ? num : 0;
-      }
-      function updateCalc(){
-        const buy = n($('#buy').value);
-        const sell = n($('#sell').value);
-        const mfee = n($('#mfee').value)/100;
-        const roy = n($('#roy').value)/100;
-        const gas = n($('#gas').value);
-
-        const proceeds = sell * (1 - mfee - roy) - gas;
-        const net = proceeds - buy;
-
-        const lang = document.documentElement.getAttribute('lang') || 'de';
-        const sign = net >= 0 ? '+' : '';
-        const pretty = (x) => {
-          const s = (Math.round(x*10000)/10000).toFixed(4);
-          return (lang==='de') ? s.replace('.', ',') : s;
-        };
-
-        let label = `${sign}${pretty(net)}`;
-        if(lang==='de') label += ' (Netto)';
-        else label += ' (net)';
-
-        $('#netOut').textContent = label;
-
-        // subtle hint color via inline style (no extra classes needed)
-        if(net >= 0){
-          $('#netOut').style.color = 'rgba(28,194,160,.92)';
-        } else {
-          $('#netOut').style.color = 'rgba(255,92,92,.92)';
-        }
-      }
-
-      ['buy','sell','mfee','roy','gas'].forEach(id=>{
-        const el = document.getElementById(id);
-        el.addEventListener('input', updateCalc);
-        el.addEventListener('change', updateCalc);
       });
 
-      // init language
-      const stored = localStorage.getItem('fsa_lang');
-      const lang = (stored === 'en' || stored === 'de') ? stored : 'de';
-      setLang(lang);
+      function scoreToState(score){
+        // score is 0..10 (we map to 0..10)
+        // green: >=8, yellow: 4..7, red: 0..3
+        if(score >= 8) return "green";
+        if(score >= 4) return "yellow";
+        return "red";
+      }
+
+      function updateAmpel(force){
+        const v1 = activeValue(document.querySelector('[data-q="q1"]'));
+        const v2 = activeValue(document.querySelector('[data-q="q2"]'));
+        const v3 = activeValue(document.querySelector('[data-q="q3"]'));
+
+        // each v is 0..2 => total 0..6, convert to 0..10
+        const raw = v1 + v2 + v3; // 0..6
+        const score10 = Math.round((raw/6)*10); // 0..10
+        const state = scoreToState(score10);
+
+        const fill = $("#scoreFill");
+        const badge = $("#ampelBadge");
+        const txt = $("#scoreText");
+
+        fill.style.width = Math.max(6, Math.min(100, (score10/10)*100)) + "%";
+
+        let labelDE = "GELB";
+        let labelEN = "YELLOW";
+        let labelNow = (currentLang === "en") ? labelEN : labelDE;
+
+        if(state==="green"){
+          labelDE = "GRÜN"; labelEN = "GREEN";
+          fill.style.background = "rgba(28,194,160,.85)";
+          badge.style.borderColor = "rgba(28,194,160,.32)";
+          badge.style.background = "rgba(28,194,160,.14)";
+        } else if(state==="yellow"){
+          labelDE = "GELB"; labelEN = "YELLOW";
+          fill.style.background = "rgba(212,175,55,.85)";
+          badge.style.borderColor = "rgba(212,175,55,.32)";
+          badge.style.background = "rgba(212,175,55,.14)";
+        } else {
+          labelDE = "ROT"; labelEN = "RED";
+          fill.style.background = "rgba(255,77,77,.85)";
+          badge.style.borderColor = "rgba(255,77,77,.32)";
+          badge.style.background = "rgba(255,77,77,.14)";
+        }
+
+        labelNow = (currentLang === "en") ? labelEN : labelDE;
+        badge.textContent = labelNow;
+
+        const scoreLine = (currentLang === "en")
+          ? (labelEN + " • " + score10 + "/10")
+          : (labelDE + " • " + score10 + "/10");
+
+        txt.textContent = scoreLine;
+
+        // Advice
+        const advP = document.querySelector('[data-i18n="adv_p"]');
+        const advH = document.querySelector('[data-i18n="adv_h"]');
+
+        if(currentLang === "en"){
+          if(state==="green"){
+            advH.textContent = "Green means:";
+            advP.textContent = "Basics look healthy. You may proceed — but still define an exit, keep size reasonable, and avoid rushed clicks.";
+          } else if(state==="yellow"){
+            advH.textContent = "Yellow means:";
+            advP.textContent = "There are warning signs. If you still trade, go small, define an exit/stop, and avoid time pressure.";
+          } else {
+            advH.textContent = "Red means:";
+            advP.textContent = "Stop. Don’t enter. First fix the reasons: liquidity, spread, distribution, or missing demand.";
+          }
+        } else {
+          if(state==="green"){
+            advH.textContent = "Grün heißt:";
+            advP.textContent = "Basis wirkt gesund. Du kannst weitergehen – aber nur mit Exit-Plan, sinnvoller Größe und ohne Stress-Klicks.";
+          } else if(state==="yellow"){
+            advH.textContent = "Gelb heißt:";
+            advP.textContent = "Es gibt Warnzeichen. Wenn du trotzdem handelst, dann nur klein, mit Stop/Exit und ohne Zeitdruck.";
+          } else {
+            advH.textContent = "Rot heißt:";
+            advP.textContent = "Stop. Nicht einsteigen. Erst die Ursachen klären: Liquidität, Spread, Distribution oder fehlende Nachfrage.";
+          }
+        }
+      }
+
+      // -------------------------
+      // Mini calculation
+      // -------------------------
+      function toNum(v){
+        if(typeof v !== "string") v = String(v ?? "");
+        v = v.replace(",", ".").replace(/[^0-9.\-]/g,"");
+        const n = Number(v);
+        return isFinite(n) ? n : 0;
+      }
+
+      function updateCalc(){
+        const buy = toNum($("#buy").value);
+        const sell = toNum($("#sell").value);
+        const fee = toNum($("#fee").value) / 100;
+        const roy = toNum($("#roy").value) / 100;
+        const gas = toNum($("#gas").value);
+        const unit = ($("#unit").value || (currentLang==="en" ? "ETH" : "ETH")).trim() || "ETH";
+
+        const proceeds = sell * (1 - fee - roy);
+        const net = proceeds - buy - gas;
+        const pct = buy > 0 ? (net / buy) * 100 : 0;
+
+        const sign = net >= 0 ? "+" : "−";
+        const absNet = Math.abs(net);
+
+        $("#netOut").textContent = sign + absNet.toFixed(2) + " " + unit;
+
+        const pctStr = (pct >= 0 ? "+" : "−") + Math.abs(pct).toFixed(0) + "%";
+        $("#netPct").textContent = pctStr;
+      }
+
+      ["buy","sell","fee","roy","gas","unit"].forEach(id=>{
+        const el = document.getElementById(id);
+        el.addEventListener("input", updateCalc);
+      });
+
+      // init
+      applyLang(currentLang);
+      updateAmpel(true);
+      updateCalc();
     })();
   </script>
 </body>
