@@ -1,0 +1,1382 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title data-i18n="title">NFT Grundkurs – Modul 6: Analyse & Ampel</title>
+  <meta name="description" content="NFT Analyse & Ampel-Check: Liquidität, Floor vs Bids, Holder, Volumen, Distribution. DE/EN, ohne externe Ressourcen." />
+
+  <style>
+    :root{
+      --bg0:#06070b;
+      --bg1:#0b1220;
+      --card: rgba(10, 12, 18, .62);
+      --card2: rgba(10, 12, 18, .48);
+      --stroke: rgba(255,255,255,.10);
+      --stroke2: rgba(255,255,255,.14);
+      --text: rgba(242,242,242,.96);
+      --muted: rgba(203,213,225,.86);
+      --muted2: rgba(203,213,225,.65);
+      --gold: #d4af37;
+      --gold2: rgba(212,175,55,.35);
+      --turq: #1cc2a0;
+      --turq2: rgba(28,194,160,.22);
+      --red: #ff4d4d;
+      --red2: rgba(255,77,77,.16);
+      --yellow: #f6c453;
+      --shadow: 0 26px 55px rgba(0,0,0,.55);
+      --glow: 0 0 26px rgba(212,175,55,.22), 0 10px 28px rgba(0,0,0,.55);
+      --radius: 18px;
+      --maxw: 1120px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 700px at 20% 10%, rgba(212,175,55,.18), transparent 55%),
+        radial-gradient(900px 700px at 80% 20%, rgba(28,194,160,.16), transparent 55%),
+        radial-gradient(900px 800px at 50% 120%, rgba(80,120,255,.10), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+    }
+
+    .wrap{ max-width: var(--maxw); margin: 0 auto; padding: 22px 16px 60px; }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .leftLinks{
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,255,255,.12);
+      color: var(--text);
+      text-decoration:none;
+      box-shadow: 0 10px 26px rgba(0,0,0,.30);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      font-weight: 650;
+      letter-spacing: .2px;
+      font-size: 13px;
+    }
+    .btn:hover{ border-color: rgba(255,255,255,.22); }
+
+    .btn svg{ width:18px; height:18px; opacity:.9; }
+
+    .lang{
+      display:flex; gap:8px;
+      padding:6px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.20);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .lang button{
+      cursor:pointer;
+      border:none;
+      padding:8px 10px;
+      border-radius: 999px;
+      background: transparent;
+      color: rgba(242,242,242,.85);
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: .5px;
+    }
+    .lang button.active{
+      background: rgba(28,194,160,.14);
+      color: rgba(242,242,242,.95);
+      box-shadow: 0 0 0 1px rgba(28,194,160,.25) inset;
+    }
+
+    .hero{
+      border-radius: var(--radius);
+      background: linear-gradient(90deg, rgba(212,175,55,.10), rgba(28,194,160,.10));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .heroInner{
+      padding: 18px 18px 16px;
+      background:
+        radial-gradient(800px 280px at 20% 0%, rgba(212,175,55,.18), transparent 60%),
+        radial-gradient(900px 280px at 90% 0%, rgba(28,194,160,.16), transparent 60%),
+        rgba(0,0,0,.22);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    h1{ margin:0 0 6px; font-size: 28px; letter-spacing: .2px; }
+    .sub{ color: var(--muted); margin:0; line-height: 1.55; }
+
+    .pills{ display:flex; gap:8px; flex-wrap:wrap; margin-top: 12px; }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      color: rgba(242,242,242,.90);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .pill svg{ width:16px; height:16px; opacity:.95; }
+    .pill.warn{ border-color: rgba(255,77,77,.28); background: rgba(255,77,77,.08); }
+    .pill.ok{ border-color: rgba(28,194,160,.28); background: rgba(28,194,160,.08); }
+    .pill.gold{ border-color: rgba(212,175,55,.30); background: rgba(212,175,55,.10); }
+
+    .grid{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 12px;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      border-radius: var(--radius);
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .inner{ padding: 16px; }
+    .card h2{ margin:0 0 6px; font-size: 18px; }
+    .card h3{ margin: 14px 0 6px; font-size: 15px; }
+    p{ margin: 8px 0; color: var(--muted); line-height: 1.62; }
+    ul{ margin: 8px 0 0; padding-left: 18px; color: rgba(242,242,242,.90); line-height: 1.6; }
+    li{ margin: 6px 0; color: rgba(242,242,242,.90); }
+
+    .stepbar{
+      display:flex; align-items:center; gap:10px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: rgba(242,242,242,.78);
+      margin-bottom: 8px;
+    }
+    .dot{
+      width:10px; height:10px; border-radius: 999px;
+      background: rgba(212,175,55,.85);
+      box-shadow: 0 0 0 4px rgba(212,175,55,.14);
+      flex: 0 0 auto;
+    }
+
+    .hr{ height:1px; background: rgba(255,255,255,.10); margin: 14px 0; }
+
+    .two{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 760px){
+      .two{ grid-template-columns: 1fr; }
+    }
+
+    .mini{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      padding: 12px;
+    }
+    .miniHead{
+      display:flex; align-items:center; gap:10px;
+      font-weight: 900;
+      color: rgba(242,242,242,.92);
+      margin-bottom: 6px;
+    }
+    .miniHead svg{ width:18px; height:18px; opacity:.9; }
+    .small{ font-size: 13px; color: rgba(203,213,225,.86); line-height: 1.55; }
+
+    .call{
+      border-radius: 16px;
+      border: 1px solid rgba(28,194,160,.28);
+      background: rgba(28,194,160,.10);
+      padding: 12px;
+      margin-top: 12px;
+    }
+    .call .miniHead{ margin-bottom: 4px; }
+
+    .warnbox{
+      border-radius: 16px;
+      border: 1px solid rgba(255,77,77,.28);
+      background: rgba(255,77,77,.10);
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .figure{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.16);
+      padding: 12px;
+      margin-top: 10px;
+      overflow:hidden;
+    }
+    .figureTitle{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      margin-bottom: 10px;
+    }
+    .figureTitle strong{ font-size: 13px; letter-spacing:.06em; text-transform: uppercase; color: rgba(242,242,242,.82); }
+    .figureTitle span{ font-size: 12px; color: rgba(203,213,225,.72); }
+
+    .ampelHeader{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+      flex-wrap:wrap;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      font-weight: 900;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .badge svg{ width:16px; height:16px; }
+    .badge.green{ border-color: rgba(28,194,160,.35); background: rgba(28,194,160,.12); }
+    .badge.yellow{ border-color: rgba(246,196,83,.35); background: rgba(246,196,83,.12); }
+    .badge.red{ border-color: rgba(255,77,77,.35); background: rgba(255,77,77,.12); }
+
+    .ampelGrid{
+      margin-top: 10px;
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 12px;
+    }
+    @media (max-width: 980px){
+      .ampelGrid{ grid-template-columns: 1fr; }
+    }
+
+    .q{
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.16);
+      margin-top: 10px;
+    }
+    .qTop{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+      flex-wrap: wrap;
+    }
+    .qTop strong{ font-size: 14px; }
+    .qTop span{ font-size: 12px; color: rgba(203,213,225,.72); }
+
+    .choices{
+      display:flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .chip{
+      cursor:pointer;
+      user-select:none;
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      font-weight: 850;
+      font-size: 12px;
+      color: rgba(242,242,242,.88);
+    }
+    .chip svg{ width:14px; height:14px; opacity:.9; }
+    .chip[data-v="good"].active{ border-color: rgba(28,194,160,.36); background: rgba(28,194,160,.14); }
+    .chip[data-v="ok"].active{ border-color: rgba(246,196,83,.36); background: rgba(246,196,83,.14); }
+    .chip[data-v="bad"].active{ border-color: rgba(255,77,77,.36); background: rgba(255,77,77,.14); }
+
+    .scoreBox{
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      padding: 14px;
+    }
+    .scoreRow{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .scoreRow strong{ font-size: 14px; }
+    .bar{
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.10);
+      margin-top: 10px;
+    }
+    .bar > i{
+      display:block;
+      height:100%;
+      width: 0%;
+      background: linear-gradient(90deg, rgba(255,77,77,.85), rgba(246,196,83,.85), rgba(28,194,160,.85));
+      border-radius: 999px;
+      transition: width .25s ease;
+    }
+    .hint{
+      margin-top: 10px;
+      border-radius: 14px;
+      border: 1px dashed rgba(255,255,255,.18);
+      background: rgba(0,0,0,.14);
+      padding: 10px 12px;
+      color: rgba(203,213,225,.86);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .calc{
+      margin-top: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.16);
+      padding: 12px;
+    }
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    @media (max-width: 680px){
+      .row{ grid-template-columns: 1fr; }
+    }
+    label{
+      display:block;
+      font-size: 12px;
+      color: rgba(203,213,225,.78);
+      margin-bottom: 6px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    input{
+      width:100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      color: rgba(242,242,242,.92);
+      outline: none;
+      font-weight: 750;
+    }
+    input::placeholder{ color: rgba(203,213,225,.55); font-weight: 650; }
+    .calcOut{
+      margin-top: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(212,175,55,.28);
+      background: rgba(212,175,55,.10);
+      padding: 10px 12px;
+      color: rgba(242,242,242,.92);
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .footer{
+      margin-top: 16px;
+      text-align:center;
+      color: rgba(203,213,225,.55);
+      font-size: 12px;
+    }
+
+    /* accessibility */
+    .sr-only{
+      position:absolute !important;
+      width:1px !important;
+      height:1px !important;
+      padding:0 !important;
+      margin:-1px !important;
+      overflow:hidden !important;
+      clip:rect(0,0,0,0) !important;
+      white-space:nowrap !important;
+      border:0 !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="leftLinks">
+        <a class="btn" href="./nft-kurs.html" aria-label="Zurück zum Kurs">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span data-i18n="back_course">Zurück zum Kurs</span>
+        </a>
+
+        <a class="btn" href="./nft-basis.html" aria-label="Zur NFT Basis">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3 11.5L12 4l9 7.5V20a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 20v-8.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M9.5 21.5V14h5v7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="back_base">Zur NFT Basis</span>
+        </a>
+      </div>
+
+      <div class="lang" role="group" aria-label="Language switch">
+        <button id="btnDE" type="button">DE</button>
+        <button id="btnEN" type="button">EN</button>
+      </div>
+    </div>
+
+    <header class="hero">
+      <div class="heroInner">
+        <h1 data-i18n="h1">Modul 6: Analyse & Ampel</h1>
+        <p class="sub" data-i18n="sub">
+          Du lernst, wie du eine NFT-Collection nüchtern prüfst: Liquidität, Floor vs Bids, Holder, Volumen, Distribution – und wie du daraus eine klare Ampel ableitest.
+        </p>
+
+        <div class="pills">
+          <span class="pill gold">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 2l2.6 6.4L21 9l-4.9 4.2L17.6 20 12 16.8 6.4 20l1.5-6.8L3 9l6.4-.6L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
+            <span data-i18n="pill_goal">Ziel: Klarheit statt Hype</span>
+          </span>
+
+          <span class="pill warn">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M12 17h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+              <path d="M10.3 4.5h3.4L22 20H2L10.3 4.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
+            <span data-i18n="pill_warn">Stop: Kein Einstieg ohne Exit-Idee</span>
+          </span>
+
+          <span class="pill ok">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span data-i18n="pill_rule">Regel: Erst Ampel, dann Aktion</span>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT: main learning -->
+      <section class="card">
+        <div class="inner">
+          <div class="stepbar"><span class="dot"></span><span data-i18n="s1_tag">Grundlogik</span></div>
+          <h2 data-i18n="s1_h">Warum Analyse bei NFTs anders ist als „Coin-Analyse“</h2>
+          <p data-i18n="s1_p">
+            Ein NFT ist kein „Wertpapier“ mit Kennzahlen wie Umsatz oder Gewinn. Der Preis entsteht hauptsächlich aus Marktmechanik (Listings/Bids), Liquidität, Aufmerksamkeit und Vertrauen.
+            Deine Aufgabe ist nicht „das nächste 100x zu finden“, sondern zu erkennen: <b>Kann ich wieder raus?</b> und <b>zu welchen Kosten/Risiken?</b>
+          </p>
+
+          <div class="two">
+            <div class="mini">
+              <div class="miniHead">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 20V10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M7 20V4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M17 20v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span data-i18n="s1_box1_t">Drei Fragen, die wirklich zählen</span>
+              </div>
+              <ul>
+                <li data-i18n="s1_box1_1"><b>Liquidität:</b> Gibt es echte Käufer – heute, nicht „irgendwann“?</li>
+                <li data-i18n="s1_box1_2"><b>Market Structure:</b> Wie weit sind Bids vom Floor entfernt?</li>
+                <li data-i18n="s1_box1_3"><b>Distribution:</b> Wie konzentriert ist Besitz (Top-Wallets)?</li>
+              </ul>
+            </div>
+
+            <div class="mini">
+              <div class="miniHead">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 3v18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M7 7l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span data-i18n="s1_box2_t">Typische Denkfalle</span>
+              </div>
+              <p class="small" data-i18n="s1_box2_p">
+                „Sieht billig aus“ ist keine Analyse. Ein Floor kann sinken, obwohl das Projekt „cool“ ist. Und ein steigender Floor kann fake sein (Wash-Trading / koordinierte Käufe).
+                Deshalb brauchst du eine Ampel – wie ein Pilot vor dem Start.
+              </p>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="stepbar"><span class="dot"></span><span data-i18n="s2_tag">Mechanik</span></div>
+          <h2 data-i18n="s2_h">Floor vs Bids: Der Abstand verrät die Wahrheit</h2>
+          <p data-i18n="s2_p">
+            Der Floor ist der günstigste „Sofort-kaufen“-Preis (Listing). Bids sind „Ich kaufe, wenn jemand verkauft“-Gebote.
+            Wenn Bids weit unter Floor liegen, ist dein Exit oft teurer als du denkst.
+          </p>
+
+          <div class="figure" aria-label="Floor vs Bids Grafik">
+            <div class="figureTitle">
+              <strong data-i18n="fig1_t">Grafik: Exit-Spanne</strong>
+              <span data-i18n="fig1_s">Je größer der Abstand, desto mehr Risiko</span>
+            </div>
+
+            <svg viewBox="0 0 900 220" width="100%" height="220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Floor vs Bids">
+              <rect x="0" y="0" width="900" height="220" rx="16" fill="rgba(0,0,0,.10)"/>
+              <text x="22" y="34" fill="rgba(203,213,225,.85)" font-size="14" font-family="Inter,system-ui,sans-serif" data-i18n="fig1_l1">Floor (Listings)</text>
+              <text x="22" y="64" fill="rgba(203,213,225,.85)" font-size="14" font-family="Inter,system-ui,sans-serif" data-i18n="fig1_l2">Best Bid</text>
+              <text x="22" y="94" fill="rgba(203,213,225,.85)" font-size="14" font-family="Inter,system-ui,sans-serif" data-i18n="fig1_l3">Spread</text>
+
+              <rect x="180" y="22" width="640" height="18" rx="9" fill="rgba(212,175,55,.55)"/>
+              <rect x="180" y="52" width="420" height="18" rx="9" fill="rgba(28,194,160,.55)"/>
+              <rect x="180" y="82" width="220" height="18" rx="9" fill="rgba(255,77,77,.45)"/>
+
+              <text x="835" y="36" fill="rgba(242,242,242,.92)" font-size="12" font-family="Inter,system-ui,sans-serif" text-anchor="end">1.00</text>
+              <text x="615" y="66" fill="rgba(242,242,242,.92)" font-size="12" font-family="Inter,system-ui,sans-serif" text-anchor="end">0.65</text>
+              <text x="405" y="96" fill="rgba(242,242,242,.92)" font-size="12" font-family="Inter,system-ui,sans-serif" text-anchor="end">0.35</text>
+
+              <text x="22" y="150" fill="rgba(203,213,225,.72)" font-size="13" font-family="Inter,system-ui,sans-serif" data-i18n="fig1_note">
+                Interpretation: Wenn du schnell verkaufen musst, landest du oft beim Bid – nicht beim Floor.
+              </text>
+              <text x="22" y="178" fill="rgba(203,213,225,.72)" font-size="13" font-family="Inter,system-ui,sans-serif" data-i18n="fig1_note2">
+                Ampel-Regel: Spread klein = besser. Spread groß = Stop oder nur mit Plan.
+              </text>
+            </svg>
+          </div>
+
+          <div class="call">
+            <div class="miniHead">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 12c2-6 14-6 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M6 12c2-3 10-3 12 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 12v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span data-i18n="mentor_t">Mentor-Tipp</span>
+            </div>
+            <p class="small" data-i18n="mentor_p">
+              Stell dir vor, du müsstest morgen verkaufen. Wenn dir dabei schon mulmig wird (weil du nur am Floor „denken kannst“), ist es keine Position – sondern ein Wunsch.
+            </p>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="stepbar"><span class="dot"></span><span data-i18n="s3_tag">Echte Aktivität</span></div>
+          <h2 data-i18n="s3_h">Volumen, Sales & Wash-Trading: „Bewegung“ ist nicht automatisch echt</h2>
+          <p data-i18n="s3_p">
+            NFTs können künstlich „aktiv“ wirken: wenige Wallets kaufen/verkaufen untereinander, um Volumen zu erzeugen. Deine Analyse prüft deshalb nicht nur „ob“ etwas passiert,
+            sondern <b>wie</b> es passiert: viele Käufer vs wenige, natürliche Preisspanne vs stufige Muster.
+          </p>
+
+          <div class="two">
+            <div class="mini">
+              <div class="miniHead">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M4 19h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M7 16V9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M12 16V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M17 16v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span data-i18n="s3_box1_t">Gute Signale</span>
+              </div>
+              <ul>
+                <li data-i18n="s3_box1_1">Viele einzelne Käufer/Verkäufer (nicht nur 2–3 Wallets).</li>
+                <li data-i18n="s3_box1_2">Bids steigen mit – nicht nur der Floor.</li>
+                <li data-i18n="s3_box1_3">Preisbewegung wirkt „organisch“, nicht wie Treppenstufen.</li>
+              </ul>
+            </div>
+
+            <div class="mini">
+              <div class="miniHead">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M12 17h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M10.3 4.5h3.4L22 20H2L10.3 4.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+                <span data-i18n="s3_box2_t">Rote Muster</span>
+              </div>
+              <ul>
+                <li data-i18n="s3_box2_1">Volumen hoch, aber kaum neue Wallets kommen dazu.</li>
+                <li data-i18n="s3_box2_2">Trades im Kreis (ähnliche Beträge, kurze Abstände).</li>
+                <li data-i18n="s3_box2_3">Floor steigt, aber Best Bid bleibt „tot“.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="stepbar"><span class="dot"></span><span data-i18n="s4_tag">Distribution</span></div>
+          <h2 data-i18n="s4_h">Holder-Verteilung: Wenn wenige entscheiden, kann der Boden wegbrechen</h2>
+          <p data-i18n="s4_p">
+            Eine Collection kann gesund aussehen, bis eine Top-Wallet verkauft. Je konzentrierter der Besitz, desto höher die „Dump-Gefahr“.
+            Du brauchst kein perfektes Projekt – aber du willst wissen, ob du in einem Raum stehst, in dem 3 Leute den Lichtschalter halten.
+          </p>
+
+          <div class="figure" aria-label="Holder Distribution Grafik">
+            <div class="figureTitle">
+              <strong data-i18n="fig2_t">Grafik: Besitz-Konzentration</strong>
+              <span data-i18n="fig2_s">Je höher Top10%, desto empfindlicher</span>
+            </div>
+
+            <svg viewBox="0 0 900 240" width="100%" height="240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Distribution">
+              <rect x="0" y="0" width="900" height="240" rx="16" fill="rgba(0,0,0,.10)"/>
+              <!-- pie-like ring -->
+              <circle cx="160" cy="130" r="62" stroke="rgba(255,255,255,.12)" stroke-width="18" fill="none"/>
+              <path d="M160 68 A62 62 0 1 1 104 162" stroke="rgba(255,77,77,.62)" stroke-width="18" fill="none" stroke-linecap="round"/>
+              <path d="M104 162 A62 62 0 0 1 160 192" stroke="rgba(246,196,83,.62)" stroke-width="18" fill="none" stroke-linecap="round"/>
+              <path d="M160 192 A62 62 0 0 1 160 68" stroke="rgba(28,194,160,.60)" stroke-width="18" fill="none" stroke-linecap="round"/>
+
+              <text x="245" y="90" fill="rgba(242,242,242,.92)" font-size="16" font-family="Inter,system-ui,sans-serif" font-weight="800" data-i18n="fig2_l1">Top Wallets</text>
+              <text x="245" y="114" fill="rgba(203,213,225,.78)" font-size="13" font-family="Inter,system-ui,sans-serif" data-i18n="fig2_l2">Beispiel-Logik: Top10 halten 55%</text>
+
+              <rect x="245" y="140" width="18" height="10" rx="5" fill="rgba(255,77,77,.62)"/>
+              <text x="270" y="149" fill="rgba(203,213,225,.85)" font-size="13" font-family="Inter,system-ui,sans-serif" data-i18n="fig2_k1">Konzentriert (Risiko)</text>
+
+              <rect x="245" y="162" width="18" height="10" rx="5" fill="rgba(246,196,83,.62)"/>
+              <text x="270" y="171" fill="rgba(203,213,225,.85)" font-size="13" font-family="Inter,system-ui,sans-serif" data-i18n="fig2_k2">Mittel (beobachten)</text>
+
+              <rect x="245" y="184" width="18" height="10" rx="5" fill="rgba(28,194,160,.60)"/>
+              <text x="270" y="193" fill="rgba(203,213,225,.85)" font-size="13" font-family="Inter,system-ui,sans-serif" data-i18n="fig2_k3">Breit (robuster)</text>
+
+              <text x="22" y="220" fill="rgba(203,213,225,.72)" font-size="13" font-family="Inter,system-ui,sans-serif" data-i18n="fig2_note">
+                Ampel-Regel: Hohe Konzentration + schwache Bids = Exit-Risiko.
+              </text>
+            </svg>
+          </div>
+
+          <div class="warnbox">
+            <div class="miniHead">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 9v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 17h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                <path d="M10.3 4.5h3.4L22 20H2L10.3 4.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+              <span data-i18n="danger_t">Gefährliche Handlungen (Analyse-Falle → Totalverlust)</span>
+            </div>
+            <ul>
+              <li data-i18n="danger_1">Du kaufst „weil’s steigt“, ohne zu prüfen, ob Bids mitsteigen (Exit fehlt).</li>
+              <li data-i18n="danger_2">Du ignorierst Fees/Royalties/Gas und rechnest Profit „im Kopf“ zu schön.</li>
+              <li data-i18n="danger_3">Du gehst „all in“ in eine Collection mit wenigen Holdern + hohem Spread.</li>
+            </ul>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="stepbar"><span class="dot"></span><span data-i18n="s5_tag">Fallbeispiel</span></div>
+          <h2 data-i18n="case_h">Fallbeispiel: „Sieht stark aus“ – und kippt trotzdem</h2>
+          <p data-i18n="case_p">
+            Situation: Eine Collection trendet. Floor springt von 0.8 auf 1.2. In Social Media feiern alle „Moon“.
+            Du schaust genauer hin: Best Bid bleibt bei 0.55, Sales passieren immer wieder zwischen denselben Wallets, Top-Holder halten 60%.
+            Dann reicht ein größerer Verkauf – der Floor fällt in Minuten unter 0.9. Wer ohne Plan gekauft hat, wird gezwungen, in die Bids zu verkaufen.
+          </p>
+
+          <div class="two">
+            <div class="mini">
+              <div class="miniHead">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span data-i18n="case_learn_t">Lernpunkt</span>
+              </div>
+              <p class="small" data-i18n="case_learn_p">
+                Stärke ist nicht „Preis“. Stärke ist: <b>viele echte Käufer</b>, <b>enge Spreads</b>, <b>robuste Distribution</b>.
+                Alles andere ist Show – und Show endet, wenn Geld raus will.
+              </p>
+            </div>
+
+            <div class="mini">
+              <div class="miniHead">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span data-i18n="case_action_t">So handelst du sauber</span>
+              </div>
+              <ul>
+                <li data-i18n="case_action_1">Erst Ampel grün/gelb → dann Einstieg klein, nicht groß.</li>
+                <li data-i18n="case_action_2">Exit vorher definieren: Verkauf über Bid oder Listing? Welche Kosten?</li>
+                <li data-i18n="case_action_3">Wenn Spread/Holder kippen: nicht diskutieren – reduzieren.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: Ampel tool -->
+      <aside class="card">
+        <div class="inner">
+          <div class="ampelHeader">
+            <div>
+              <div class="stepbar"><span class="dot"></span><span data-i18n="a_tag">Ampel-Check</span></div>
+              <h2 data-i18n="a_h">90 Sekunden: Grün / Gelb / Rot</h2>
+              <p data-i18n="a_p">
+                Bewerte die Collection in kurzen Punkten. Das Ergebnis ist keine „Wahrheit“, aber ein sauberer Schutz vor Bauchgefühl.
+              </p>
+            </div>
+
+            <div id="ampelBadge" class="badge yellow" aria-live="polite">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 2v20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M7 7h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M7 12h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M7 17h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span id="ampelLabel" data-i18n="a_badge">Gelb – prüfen</span>
+            </div>
+          </div>
+
+          <div class="ampelGrid">
+            <div>
+              <div class="q" data-q="spread">
+                <div class="qTop">
+                  <strong data-i18n="q1_t">Floor vs Best Bid (Spread)</strong>
+                  <span data-i18n="q1_s">Exit-Realität</span>
+                </div>
+                <div class="choices" role="group" aria-label="Spread">
+                  <span class="chip" data-v="good" data-i18n="good">Gut</span>
+                  <span class="chip" data-v="ok" data-i18n="ok">Mittel</span>
+                  <span class="chip" data-v="bad" data-i18n="bad">Schlecht</span>
+                </div>
+              </div>
+
+              <div class="q" data-q="liquidity">
+                <div class="qTop">
+                  <strong data-i18n="q2_t">Sales & Käufer-Breite</strong>
+                  <span data-i18n="q2_s">Echte Nachfrage</span>
+                </div>
+                <div class="choices" role="group" aria-label="Liquidity">
+                  <span class="chip" data-v="good" data-i18n="good">Gut</span>
+                  <span class="chip" data-v="ok" data-i18n="ok">Mittel</span>
+                  <span class="chip" data-v="bad" data-i18n="bad">Schlecht</span>
+                </div>
+              </div>
+
+              <div class="q" data-q="holders">
+                <div class="qTop">
+                  <strong data-i18n="q3_t">Holder-Konzentration</strong>
+                  <span data-i18n="q3_s">Dump-Gefahr</span>
+                </div>
+                <div class="choices" role="group" aria-label="Holders">
+                  <span class="chip" data-v="good" data-i18n="good">Gut</span>
+                  <span class="chip" data-v="ok" data-i18n="ok">Mittel</span>
+                  <span class="chip" data-v="bad" data-i18n="bad">Schlecht</span>
+                </div>
+              </div>
+
+              <div class="q" data-q="volume">
+                <div class="qTop">
+                  <strong data-i18n="q4_t">Volumen-Muster</strong>
+                  <span data-i18n="q4_s">Wash-Trading?</span>
+                </div>
+                <div class="choices" role="group" aria-label="Volume Pattern">
+                  <span class="chip" data-v="good" data-i18n="good">Gut</span>
+                  <span class="chip" data-v="ok" data-i18n="ok">Mittel</span>
+                  <span class="chip" data-v="bad" data-i18n="bad">Schlecht</span>
+                </div>
+              </div>
+
+              <div class="q" data-q="costs">
+                <div class="qTop">
+                  <strong data-i18n="q5_t">Kosten-Klarheit</strong>
+                  <span data-i18n="q5_s">Fees/Royalties/Gas</span>
+                </div>
+                <div class="choices" role="group" aria-label="Costs Clarity">
+                  <span class="chip" data-v="good" data-i18n="good">Gut</span>
+                  <span class="chip" data-v="ok" data-i18n="ok">Mittel</span>
+                  <span class="chip" data-v="bad" data-i18n="bad">Schlecht</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="scoreBox">
+              <div class="scoreRow">
+                <strong data-i18n="score_t">Ampel-Score</strong>
+                <span id="scoreVal">—</span>
+              </div>
+              <div class="bar" aria-label="Score bar"><i id="scoreBar"></i></div>
+
+              <div id="scoreHint" class="hint" data-i18n="hint_default">
+                Tipp: Wenn du bei zwei Punkten „Schlecht“ hast, ist das fast immer Rot – egal wie laut der Hype ist.
+              </div>
+
+              <div class="calc">
+                <div class="miniHead" style="margin-bottom:8px;">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 2h10v4H7V2Z" stroke="currentColor" stroke-width="2" />
+                    <path d="M6 6h12v16H6V6Z" stroke="currentColor" stroke-width="2" />
+                    <path d="M8.5 10h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M8.5 14h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M8.5 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <span data-i18n="calc_t">Mini-Rechnung (realistisch)</span>
+                </div>
+
+                <p class="small" data-i18n="calc_p">
+                  Kleine Rechnung hilft gegen Selbstbetrug: Was bleibt nach Marketplace-Fee, Royalties und Gas wirklich übrig?
+                </p>
+
+                <div class="row">
+                  <div>
+                    <label for="buy" data-i18n="buy_l">Kaufpreis</label>
+                    <input id="buy" inputmode="decimal" placeholder="z.B. 1.00" />
+                  </div>
+                  <div>
+                    <label for="sell" data-i18n="sell_l">Verkaufspreis</label>
+                    <input id="sell" inputmode="decimal" placeholder="z.B. 1.20" />
+                  </div>
+                  <div>
+                    <label for="fee" data-i18n="fee_l">Marketplace-Fee (%)</label>
+                    <input id="fee" inputmode="decimal" placeholder="z.B. 2.5" />
+                  </div>
+                  <div>
+                    <label for="roy" data-i18n="roy_l">Royalties (%)</label>
+                    <input id="roy" inputmode="decimal" placeholder="z.B. 5" />
+                  </div>
+                  <div>
+                    <label for="gas" data-i18n="gas_l">Gas/Fees (fix)</label>
+                    <input id="gas" inputmode="decimal" placeholder="z.B. 0.02" />
+                  </div>
+                  <div>
+                    <label for="slip" data-i18n="slip_l">Bid-Abschlag (%)</label>
+                    <input id="slip" inputmode="decimal" placeholder="z.B. 10" />
+                  </div>
+                </div>
+
+                <div id="calcOut" class="calcOut" data-i18n="calc_out">
+                  Ergebnis: —
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="mini">
+            <div class="miniHead">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 20l-7-8h4V4h6v8h4l-7 8Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+              <span data-i18n="rules_t">3 klare Ampel-Regeln</span>
+            </div>
+            <ul>
+              <li data-i18n="rules_1"><b>Rot:</b> Kein Einstieg. Nicht „trotzdem“. Punkt.</li>
+              <li data-i18n="rules_2"><b>Gelb:</b> Nur klein + nur mit Exit-Plan + nur wenn du’s erklären kannst.</li>
+              <li data-i18n="rules_3"><b>Grün:</b> Heißt nicht „Gewinn“ – heißt: Mechanik ist nicht gegen dich.</li>
+            </ul>
+          </div>
+
+          <div class="footer" data-i18n="footer">
+            FSA Akademie – NFT Modul 6. Keine Finanzberatung.
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const i18n = {
+    de: {
+      title: "NFT Grundkurs – Modul 6: Analyse & Ampel",
+      back_course: "Zurück zum Kurs",
+      back_base: "Zur NFT Basis",
+
+      h1: "Modul 6: Analyse & Ampel",
+      sub: "Du lernst, wie du eine NFT-Collection nüchtern prüfst: Liquidität, Floor vs Bids, Holder, Volumen, Distribution – und wie du daraus eine klare Ampel ableitest.",
+
+      pill_goal: "Ziel: Klarheit statt Hype",
+      pill_warn: "Stop: Kein Einstieg ohne Exit-Idee",
+      pill_rule: "Regel: Erst Ampel, dann Aktion",
+
+      s1_tag: "Grundlogik",
+      s1_h: "Warum Analyse bei NFTs anders ist als „Coin-Analyse“",
+      s1_p: "Ein NFT ist kein „Wertpapier“ mit Kennzahlen wie Umsatz oder Gewinn. Der Preis entsteht hauptsächlich aus Marktmechanik (Listings/Bids), Liquidität, Aufmerksamkeit und Vertrauen. Deine Aufgabe ist nicht „das nächste 100x zu finden“, sondern zu erkennen: <b>Kann ich wieder raus?</b> und <b>zu welchen Kosten/Risiken?</b>",
+
+      s1_box1_t: "Drei Fragen, die wirklich zählen",
+      s1_box1_1: "<b>Liquidität:</b> Gibt es echte Käufer – heute, nicht „irgendwann“?",
+      s1_box1_2: "<b>Market Structure:</b> Wie weit sind Bids vom Floor entfernt?",
+      s1_box1_3: "<b>Distribution:</b> Wie konzentriert ist Besitz (Top-Wallets)?",
+
+      s1_box2_t: "Typische Denkfalle",
+      s1_box2_p: "„Sieht billig aus“ ist keine Analyse. Ein Floor kann sinken, obwohl das Projekt „cool“ ist. Und ein steigender Floor kann fake sein (Wash-Trading / koordinierte Käufe). Deshalb brauchst du eine Ampel – wie ein Pilot vor dem Start.",
+
+      s2_tag: "Mechanik",
+      s2_h: "Floor vs Bids: Der Abstand verrät die Wahrheit",
+      s2_p: "Der Floor ist der günstigste „Sofort-kaufen“-Preis (Listing). Bids sind „Ich kaufe, wenn jemand verkauft“-Gebote. Wenn Bids weit unter Floor liegen, ist dein Exit oft teurer als du denkst.",
+
+      fig1_t: "Grafik: Exit-Spanne",
+      fig1_s: "Je größer der Abstand, desto mehr Risiko",
+      fig1_l1: "Floor (Listings)",
+      fig1_l2: "Best Bid",
+      fig1_l3: "Spread",
+      fig1_note: "Interpretation: Wenn du schnell verkaufen musst, landest du oft beim Bid – nicht beim Floor.",
+      fig1_note2: "Ampel-Regel: Spread klein = besser. Spread groß = Stop oder nur mit Plan.",
+
+      mentor_t: "Mentor-Tipp",
+      mentor_p: "Stell dir vor, du müsstest morgen verkaufen. Wenn dir dabei schon mulmig wird (weil du nur am Floor „denken kannst“), ist es keine Position – sondern ein Wunsch.",
+
+      s3_tag: "Echte Aktivität",
+      s3_h: "Volumen, Sales & Wash-Trading: „Bewegung“ ist nicht automatisch echt",
+      s3_p: "NFTs können künstlich „aktiv“ wirken: wenige Wallets kaufen/verkaufen untereinander, um Volumen zu erzeugen. Deine Analyse prüft deshalb nicht nur „ob“ etwas passiert, sondern <b>wie</b> es passiert: viele Käufer vs wenige, natürliche Preisspanne vs stufige Muster.",
+
+      s3_box1_t: "Gute Signale",
+      s3_box1_1: "Viele einzelne Käufer/Verkäufer (nicht nur 2–3 Wallets).",
+      s3_box1_2: "Bids steigen mit – nicht nur der Floor.",
+      s3_box1_3: "Preisbewegung wirkt „organisch“, nicht wie Treppenstufen.",
+
+      s3_box2_t: "Rote Muster",
+      s3_box2_1: "Volumen hoch, aber kaum neue Wallets kommen dazu.",
+      s3_box2_2: "Trades im Kreis (ähnliche Beträge, kurze Abstände).",
+      s3_box2_3: "Floor steigt, aber Best Bid bleibt „tot“.",
+
+      s4_tag: "Distribution",
+      s4_h: "Holder-Verteilung: Wenn wenige entscheiden, kann der Boden wegbrechen",
+      s4_p: "Eine Collection kann gesund aussehen, bis eine Top-Wallet verkauft. Je konzentrierter der Besitz, desto höher die „Dump-Gefahr“. Du brauchst kein perfektes Projekt – aber du willst wissen, ob du in einem Raum stehst, in dem 3 Leute den Lichtschalter halten.",
+
+      fig2_t: "Grafik: Besitz-Konzentration",
+      fig2_s: "Je höher Top10%, desto empfindlicher",
+      fig2_l1: "Top Wallets",
+      fig2_l2: "Beispiel-Logik: Top10 halten 55%",
+      fig2_k1: "Konzentriert (Risiko)",
+      fig2_k2: "Mittel (beobachten)",
+      fig2_k3: "Breit (robuster)",
+      fig2_note: "Ampel-Regel: Hohe Konzentration + schwache Bids = Exit-Risiko.",
+
+      danger_t: "Gefährliche Handlungen (Analyse-Falle → Totalverlust)",
+      danger_1: "Du kaufst „weil’s steigt“, ohne zu prüfen, ob Bids mitsteigen (Exit fehlt).",
+      danger_2: "Du ignorierst Fees/Royalties/Gas und rechnest Profit „im Kopf“ zu schön.",
+      danger_3: "Du gehst „all in“ in eine Collection mit wenigen Holdern + hohem Spread.",
+
+      s5_tag: "Fallbeispiel",
+      case_h: "Fallbeispiel: „Sieht stark aus“ – und kippt trotzdem",
+      case_p: "Situation: Eine Collection trendet. Floor springt von 0.8 auf 1.2. In Social Media feiern alle „Moon“. Du schaust genauer hin: Best Bid bleibt bei 0.55, Sales passieren immer wieder zwischen denselben Wallets, Top-Holder halten 60%. Dann reicht ein größerer Verkauf – der Floor fällt in Minuten unter 0.9. Wer ohne Plan gekauft hat, wird gezwungen, in die Bids zu verkaufen.",
+
+      case_learn_t: "Lernpunkt",
+      case_learn_p: "Stärke ist nicht „Preis“. Stärke ist: <b>viele echte Käufer</b>, <b>enge Spreads</b>, <b>robuste Distribution</b>. Alles andere ist Show – und Show endet, wenn Geld raus will.",
+
+      case_action_t: "So handelst du sauber",
+      case_action_1: "Erst Ampel grün/gelb → dann Einstieg klein, nicht groß.",
+      case_action_2: "Exit vorher definieren: Verkauf über Bid oder Listing? Welche Kosten?",
+      case_action_3: "Wenn Spread/Holder kippen: nicht diskutieren – reduzieren.",
+
+      a_tag: "Ampel-Check",
+      a_h: "90 Sekunden: Grün / Gelb / Rot",
+      a_p: "Bewerte die Collection in kurzen Punkten. Das Ergebnis ist keine „Wahrheit“, aber ein sauberer Schutz vor Bauchgefühl.",
+      a_badge: "Gelb – prüfen",
+
+      q1_t: "Floor vs Best Bid (Spread)",
+      q1_s: "Exit-Realität",
+      q2_t: "Sales & Käufer-Breite",
+      q2_s: "Echte Nachfrage",
+      q3_t: "Holder-Konzentration",
+      q3_s: "Dump-Gefahr",
+      q4_t: "Volumen-Muster",
+      q4_s: "Wash-Trading?",
+      q5_t: "Kosten-Klarheit",
+      q5_s: "Fees/Royalties/Gas",
+
+      good: "Gut",
+      ok: "Mittel",
+      bad: "Schlecht",
+
+      score_t: "Ampel-Score",
+      hint_default: "Tipp: Wenn du bei zwei Punkten „Schlecht“ hast, ist das fast immer Rot – egal wie laut der Hype ist.",
+
+      calc_t: "Mini-Rechnung (realistisch)",
+      calc_p: "Kleine Rechnung hilft gegen Selbstbetrug: Was bleibt nach Marketplace-Fee, Royalties und Gas wirklich übrig?",
+      buy_l: "Kaufpreis",
+      sell_l: "Verkaufspreis",
+      fee_l: "Marketplace-Fee (%)",
+      roy_l: "Royalties (%)",
+      gas_l: "Gas/Fees (fix)",
+      slip_l: "Bid-Abschlag (%)",
+      calc_out: "Ergebnis: —",
+
+      rules_t: "3 klare Ampel-Regeln",
+      rules_1: "<b>Rot:</b> Kein Einstieg. Nicht „trotzdem“. Punkt.",
+      rules_2: "<b>Gelb:</b> Nur klein + nur mit Exit-Plan + nur wenn du’s erklären kannst.",
+      rules_3: "<b>Grün:</b> Heißt nicht „Gewinn“ – heißt: Mechanik ist nicht gegen dich.",
+
+      footer: "FSA Akademie – NFT Modul 6. Keine Finanzberatung.",
+
+      badge_green: "Grün – robust",
+      badge_yellow: "Gelb – prüfen",
+      badge_red: "Rot – stoppen",
+
+      hint_green: "Grün heißt: Marktmechanik wirkt gesund. Trotzdem: klein starten, Exit vorher definieren, nicht verlieben.",
+      hint_yellow: "Gelb heißt: Es gibt Warnzeichen. Wenn du trotzdem handelst, dann nur klein, mit Stop/Exit und ohne Zeitdruck.",
+      hint_red: "Rot heißt: Mechanik ist gegen dich. Kein Einstieg. Wenn du schon drin bist: Risiko reduzieren, Exit priorisieren."
+    },
+
+    en: {
+      title: "NFT Course – Module 6: Analysis & Traffic Light",
+      back_course: "Back to course",
+      back_base: "Back to NFT base",
+
+      h1: "Module 6: Analysis & Traffic Light",
+      sub: "Learn how to evaluate an NFT collection with clarity: liquidity, floor vs bids, holders, volume, distribution – and turn that into a clear traffic light decision.",
+
+      pill_goal: "Goal: clarity over hype",
+      pill_warn: "Stop: no entry without an exit idea",
+      pill_rule: "Rule: traffic light first, action second",
+
+      s1_tag: "Core logic",
+      s1_h: "Why NFT analysis is different from “coin analysis”",
+      s1_p: "An NFT is not a business with classic metrics. Price is mostly driven by market mechanics (listings/bids), liquidity, attention and trust. Your job is not to find “the next 100x”, but to know: <b>Can I exit?</b> and <b>at what cost/risk?</b>",
+
+      s1_box1_t: "The 3 questions that matter",
+      s1_box1_1: "<b>Liquidity:</b> Are there real buyers today – not “someday”?",
+      s1_box1_2: "<b>Market structure:</b> How far are bids from the floor?",
+      s1_box1_3: "<b>Distribution:</b> How concentrated is ownership (top wallets)?",
+
+      s1_box2_t: "Common trap",
+      s1_box2_p: "“Looks cheap” is not analysis. A floor can drop even if the project looks cool. And a rising floor can be fake (wash trading / coordinated buys). You need a traffic light – like a pilot before takeoff.",
+
+      s2_tag: "Mechanics",
+      s2_h: "Floor vs bids: the gap tells the truth",
+      s2_p: "Floor is the cheapest “buy now” listing. Bids are “I’ll buy if someone sells” offers. If bids are far below the floor, your exit is often worse than you expect.",
+
+      fig1_t: "Chart: exit gap",
+      fig1_s: "The larger the gap, the higher the risk",
+      fig1_l1: "Floor (listings)",
+      fig1_l2: "Best bid",
+      fig1_l3: "Spread",
+      fig1_note: "Interpretation: If you must sell fast, you often land on the bid – not the floor.",
+      fig1_note2: "Traffic light rule: small spread = better. Large spread = stop or only with a plan.",
+
+      mentor_t: "Mentor tip",
+      mentor_p: "Imagine you must sell tomorrow. If that already feels uncomfortable (because you only think in floor prices), it’s not a position – it’s a wish.",
+
+      s3_tag: "Real activity",
+      s3_h: "Volume, sales & wash trading: movement isn’t automatically real",
+      s3_p: "NFTs can look active because a few wallets trade between each other to create volume. So you don’t only check “what happens”, but <b>how</b>: many buyers vs few, organic ranges vs staircase patterns.",
+
+      s3_box1_t: "Good signals",
+      s3_box1_1: "Many unique buyers/sellers (not just 2–3 wallets).",
+      s3_box1_2: "Bids rise too – not only the floor.",
+      s3_box1_3: "Moves look organic, not like steps.",
+
+      s3_box2_t: "Red patterns",
+      s3_box2_1: "High volume but hardly any new wallets.",
+      s3_box2_2: "Circular trades (similar amounts, short intervals).",
+      s3_box2_3: "Floor rises but best bid stays dead.",
+
+      s4_tag: "Distribution",
+      s4_h: "Holder distribution: when few decide, the floor can vanish",
+      s4_p: "A collection can look fine until a top wallet sells. The more concentrated ownership is, the higher the dump risk. You don’t need perfection – you need to know who holds the light switch.",
+
+      fig2_t: "Chart: ownership concentration",
+      fig2_s: "Higher top10% = more fragile",
+      fig2_l1: "Top wallets",
+      fig2_l2: "Example logic: top10 hold 55%",
+      fig2_k1: "Concentrated (risk)",
+      fig2_k2: "Medium (watch)",
+      fig2_k3: "Broad (robust)",
+      fig2_note: "Traffic light rule: high concentration + weak bids = exit risk.",
+
+      danger_t: "Dangerous actions (analysis trap → total loss)",
+      danger_1: "You buy “because it’s pumping” without checking if bids follow (no exit).",
+      danger_2: "You ignore fees/royalties/gas and mentally overestimate profit.",
+      danger_3: "You go all-in into a collection with few holders and a high spread.",
+
+      s5_tag: "Case study",
+      case_h: "Case: “Looks strong” – and still collapses",
+      case_p: "Situation: A collection trends. Floor jumps from 0.8 to 1.2. Social media screams “moon”. You look deeper: best bid stays at 0.55, trades repeat between the same wallets, top holders own 60%. One larger sell hits – the floor drops under 0.9 within minutes. Anyone who bought without a plan is forced to dump into bids.",
+
+      case_learn_t: "Lesson",
+      case_learn_p: "Strength is not price. Strength is <b>many real buyers</b>, <b>tight spreads</b>, <b>robust distribution</b>. Everything else is a show – and shows end when money wants to exit.",
+
+      case_action_t: "Clean approach",
+      case_action_1: "Traffic light green/yellow first → then enter small, not big.",
+      case_action_2: "Define exit upfront: sell via bids or listings? What costs apply?",
+      case_action_3: "If spread/holders deteriorate: don’t debate – reduce.",
+
+      a_tag: "Traffic light",
+      a_h: "90 seconds: Green / Yellow / Red",
+      a_p: "Rate the collection quickly. The result isn’t “truth” – it’s protection against impulse decisions.",
+      a_badge: "Yellow – review",
+
+      q1_t: "Floor vs best bid (spread)",
+      q1_s: "Exit reality",
+      q2_t: "Sales & buyer breadth",
+      q2_s: "Real demand",
+      q3_t: "Holder concentration",
+      q3_s: "Dump risk",
+      q4_t: "Volume pattern",
+      q4_s: "Wash trading?",
+      q5_t: "Cost clarity",
+      q5_s: "Fees/royalties/gas",
+
+      good: "Good",
+      ok: "Medium",
+      bad: "Bad",
+
+      score_t: "Traffic light score",
+      hint_default: "Tip: if you have two “Bad” points, it’s almost always Red – no matter how loud the hype is.",
+
+      calc_t: "Mini calculation (realistic)",
+      calc_p: "A quick calculation fights self-deception: what’s left after marketplace fee, royalties and gas?",
+      buy_l: "Buy price",
+      sell_l: "Sell price",
+      fee_l: "Marketplace fee (%)",
+      roy_l: "Royalties (%)",
+      gas_l: "Gas/fees (fixed)",
+      slip_l: "Bid discount (%)",
+      calc_out: "Result: —",
+
+      rules_t: "3 clear rules",
+      rules_1: "<b>Red:</b> no entry. Not “anyway”.",
+      rules_2: "<b>Yellow:</b> only small, with an exit plan and no time pressure.",
+      rules_3: "<b>Green:</b> doesn’t mean profit – it means mechanics aren’t against you.",
+
+      footer: "FSA Academy – NFT module 6. No financial advice.",
+
+      badge_green: "Green – robust",
+      badge_yellow: "Yellow – review",
+      badge_red: "Red – stop",
+
+      hint_green: "Green means mechanics look healthy. Still: start small, define exit first, don’t get emotionally attached.",
+      hint_yellow: "Yellow means warning signs exist. If you trade anyway: only small, with exit/stop, and no time pressure.",
+      hint_red: "Red means mechanics are against you. No entry. If you’re already in: reduce risk and prioritize exit."
+    }
+  };
+
+  function qs(sel, el=document){ return el.querySelector(sel); }
+  function qsa(sel, el=document){ return Array.from(el.querySelectorAll(sel)); }
+
+  // language
+  const btnDE = qs('#btnDE');
+  const btnEN = qs('#btnEN');
+
+  function applyLang(lang){
+    const dict = i18n[lang] || i18n.de;
+    document.documentElement.lang = lang === 'en' ? 'en' : 'de';
+
+    qsa('[data-i18n]').forEach(node=>{
+      const key = node.getAttribute('data-i18n');
+      if(!key) return;
+      const val = dict[key];
+      if(typeof val !== 'string') return;
+      node.innerHTML = val;
+    });
+
+    btnDE.classList.toggle('active', lang === 'de');
+    btnEN.classList.toggle('active', lang === 'en');
+  }
+
+  function setLang(lang){
+    localStorage.setItem('fsa_lang', lang);
+    applyLang(lang);
+    refreshBadgeText();
+    updateHintText();
+    updateCalc();
+  }
+
+  btnDE.addEventListener('click', ()=>setLang('de'));
+  btnEN.addEventListener('click', ()=>setLang('en'));
+
+  const initialLang = (localStorage.getItem('fsa_lang') || 'de').toLowerCase().startsWith('en') ? 'en' : 'de';
+  applyLang(initialLang);
+  btnDE.classList.toggle('active', initialLang === 'de');
+  btnEN.classList.toggle('active', initialLang === 'en');
+
+  // Ampel scoring
+  const weights = {
+    spread: 22,
+    liquidity: 22,
+    holders: 20,
+    volume: 18,
+    costs: 18
+  };
+
+  const values = { good: 2, ok: 1, bad: 0 }; // points per item
+  const selections = { spread:null, liquidity:null, holders:null, volume:null, costs:null };
+
+  function pick(qKey, v){
+    selections[qKey] = v;
+
+    const box = qs(`.q[data-q="${qKey}"]`);
+    qsa('.chip', box).forEach(ch => {
+      ch.classList.toggle('active', ch.getAttribute('data-v') === v);
+      ch.setAttribute('aria-pressed', ch.getAttribute('data-v') === v ? 'true':'false');
+    });
+
+    updateScore();
+  }
+
+  qsa('.q').forEach(q=>{
+    const qKey = q.getAttribute('data-q');
+    qsa('.chip', q).forEach(ch=>{
+      ch.setAttribute('role','button');
+      ch.setAttribute('tabindex','0');
+      ch.addEventListener('click', ()=> pick(qKey, ch.getAttribute('data-v')));
+      ch.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          pick(qKey, ch.getAttribute('data-v'));
+        }
+      });
+    });
+  });
+
+  function clamp(n,min,max){ return Math.max(min, Math.min(max,n)); }
+
+  function calcScore(){
+    let totalW = 0;
+    let scored = 0;
+    let missing = 0;
+
+    Object.keys(weights).forEach(k=>{
+      totalW += weights[k];
+      const sel = selections[k];
+      if(!sel){
+        missing++;
+        return;
+      }
+      scored += weights[k] * (values[sel] / 2);
+    });
+
+    const pct = totalW ? Math.round((scored / totalW) * 100) : 0;
+    return { pct, missing };
+  }
+
+  function getAmpel(pct, hardRed){
+    // hard red trigger: 2+ bad selections => red
+    if(hardRed) return 'red';
+    if(pct >= 72) return 'green';
+    if(pct >= 45) return 'yellow';
+    return 'red';
+  }
+
+  function refreshBadgeText(state){
+    const lang = (localStorage.getItem('fsa_lang') || 'de').toLowerCase().startsWith('en') ? 'en':'de';
+    const dict = i18n[lang];
+
+    const badge = qs('#ampelBadge');
+    const label = qs('#ampelLabel');
+    if(!state){
+      // read current by class
+      if(badge.classList.contains('green')) state = 'green';
+      else if(badge.classList.contains('red')) state = 'red';
+      else state = 'yellow';
+    }
+    if(state === 'green') label.textContent = dict.badge_green;
+    if(state === 'yellow') label.textContent = dict.badge_yellow;
+    if(state === 'red') label.textContent = dict.badge_red;
+  }
+
+  function updateHintText(state){
+    const lang = (localStorage.getItem('fsa_lang') || 'de').toLowerCase().startsWith('en') ? 'en':'de';
+    const dict = i18n[lang];
+    const hint = qs('#scoreHint');
+    if(!state){
+      const badge = qs('#ampelBadge');
+      if(badge.classList.contains('green')) state = 'green';
+      else if(badge.classList.contains('red')) state = 'red';
+      else state = 'yellow';
+    }
+    if(state === 'green') hint.textContent = dict.hint_green;
+    else if(state === 'red') hint.textContent = dict.hint_red;
+    else hint.textContent = dict.hint_yellow;
+  }
+
+  function updateScore(){
+    const { pct, missing } = calcScore();
+
+    const scoreVal = qs('#scoreVal');
+    const bar = qs('#scoreBar');
+    const badge = qs('#ampelBadge');
+
+    // hard red rule: 2+ bad
+    const badCount = Object.values(selections).filter(v=>v==='bad').length;
+    const hardRed = badCount >= 2;
+
+    let display = '—';
+    let w = 0;
+
+    if(missing === Object.keys(weights).length){
+      display = '—';
+      w = 0;
+      badge.classList.remove('green','red','yellow');
+      badge.classList.add('yellow');
+      refreshBadgeText('yellow');
+      updateHintText('yellow');
+    } else {
+      display = pct + '%';
+      w = clamp(pct, 0, 100);
+
+      const state = getAmpel(pct, hardRed);
+      badge.classList.remove('green','red','yellow');
+      badge.classList.add(state);
+      refreshBadgeText(state);
+      updateHintText(state);
+    }
+
+    scoreVal.textContent = display;
+    bar.style.width = w + '%';
+  }
+
+  // preset a default to avoid empty feeling (optional: none) -> keep none, user chooses
+  updateScore();
+
+  // calculator
+  function num(v){
+    if(v == null) return 0;
+    const s = String(v).replace(',', '.').trim();
+    const n = parseFloat(s);
+    return isFinite(n) ? n : 0;
+  }
+
+  function updateCalc(){
+    const lang = (localStorage.getItem('fsa_lang') || 'de').toLowerCase().startsWith('en') ? 'en':'de';
+
+    const buy = num(qs('#buy').value);
+    const sell = num(qs('#sell').value);
+    const fee = num(qs('#fee').value) / 100;
+    const roy = num(qs('#roy').value) / 100;
+    const gas = num(qs('#gas').value);
+    const slip = num(qs('#slip').value) / 100;
+
+    // simulate if you must sell into bids: reduce sell by slip
+    const effectiveSell = sell * (1 - slip);
+
+    // fees applied on sell
+    const feesOnSell = effectiveSell * (fee + roy);
+    const net = effectiveSell - feesOnSell - gas - buy;
+    const pct = buy > 0 ? (net / buy) * 100 : 0;
+
+    const out = qs('#calcOut');
+    if(buy <= 0 || sell <= 0){
+      out.textContent = (lang === 'en') ? "Result: —" : "Ergebnis: —";
+      return;
+    }
+
+    const sign = net >= 0 ? '+' : '';
+    const netStr = sign + net.toFixed(4);
+    const pctStr = (buy > 0) ? (sign + pct.toFixed(1) + '%') : '—';
+
+    if(lang === 'en'){
+      out.textContent = `Result: Net ${netStr} (approx. ${pctStr}) after fees/royalties/gas and bid discount.`;
+    } else {
+      out.textContent = `Ergebnis: Netto ${netStr} (ca. ${pctStr}) nach Fees/Royalties/Gas und Bid-Abschlag.`;
+    }
+  }
+
+  ['buy','sell','fee','roy','gas','slip'].forEach(id=>{
+    qs('#'+id).addEventListener('input', updateCalc);
+  });
+
+})();
+</script>
+</body>
+</html>
