@@ -650,6 +650,7 @@
     │   │   ├── nft-modul-3-mechanik.html
     │   │   ├── nft-modul-4-beispiel-transaktionen.html
     │   │   ├── nft-modul-5-betrugsradar.html
+    │   │   ├── nft-modul-6-analyse-ampel.html
     │   │   ├── nft-praxis-ohne-geld.html
     │   │   ├── nft-sicherheit.html
     │   │   └── nft-trends.html
@@ -740,4 +741,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.01.2026, 15:15)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.01.2026, 16:18)_
