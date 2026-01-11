@@ -652,6 +652,7 @@
     │   │   ├── nft-modul-5-betrugsradar.html
     │   │   ├── nft-modul-6-analyse-ampel.html
     │   │   ├── nft-modul-7-strategien-regeln.html
+    │   │   ├── nft-modul-8-praxisplan-abschluss.html
     │   │   ├── nft-praxis-ohne-geld.html
     │   │   ├── nft-sicherheit.html
     │   │   └── nft-trends.html
@@ -742,4 +743,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.01.2026, 19:12)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.01.2026, 20:17)_
