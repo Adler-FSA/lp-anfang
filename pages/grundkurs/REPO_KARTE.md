@@ -572,6 +572,7 @@
     │   │   ├── presse-01.html
     │   │   ├── presse-02.html
     │   │   ├── presse-03.html
+    │   │   ├── presse-04.html
     │   │   ├── presse-index.html
     │   │   ├── presse.html
     │   │   └── start-level-2.html
@@ -744,4 +745,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.01.2026, 09:27)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.01.2026, 10:20)_
