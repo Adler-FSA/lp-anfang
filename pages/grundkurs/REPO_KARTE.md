@@ -383,6 +383,15 @@
     │   │   │   └── track-99.mp3
     │   │   └── playlist-01.json
     │   ├── pdf/
+    │   │   ├── FSA-CLUB_D00_Basisbeschreibung.pdf
+    │   │   ├── FSA-CLUB_D01.pdf
+    │   │   ├── FSA-CLUB_D02.pdf
+    │   │   ├── FSA-CLUB_D03.pdf
+    │   │   ├── FSA-CLUB_D04.pdf
+    │   │   ├── FSA-CLUB_D05.pdf
+    │   │   ├── FSA-CLUB_D06.pdf
+    │   │   ├── FSA-CLUB_D07.pdf
+    │   │   ├── FSA-CLUB_Dokumente_Gesamtpaket_v3_Basis_01-07.pdf
     │   │   ├── FSA-Office-Firmenkontakte.pdf
     │   │   ├── FSA-Office-Privatkontakte.pdf
     │   │   ├── FSA-Office-Seed-Backup.pdf
@@ -750,4 +759,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.01.2026, 11:16)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.01.2026, 12:36)_
