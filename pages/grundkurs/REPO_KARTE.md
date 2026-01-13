@@ -563,6 +563,10 @@
     │   │   └── template-kapitel.html
     │   ├── campus/
     │   │   └── page.json
+    │   ├── club/
+    │   │   ├── dokument-01-mitgliederantrag.html
+    │   │   ├── dokumente.html
+    │   │   └── index.html
     │   ├── footer/
     │   │   ├── community.html
     │   │   ├── impressum.html
@@ -746,4 +750,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.01.2026, 09:23)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.01.2026, 10:18)_
