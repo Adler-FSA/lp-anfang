@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title data-i18n="page_title">Krypto – Downloads & Organisation</title>
+  <style>
+    :root{
+      --gold:#d4af37;
+      --turq:#1cc2a0;
+      --txt:#e9e9e9;
+      --muted:#b9c2cf;
+      --panel:rgba(10,10,18,.72);
+      --panel2:rgba(0,0,0,.62);
+      --line:rgba(212,175,55,.28);
+      --soft:rgba(212,175,55,.22);
+      --glow:0 0 22px rgba(212,175,55,.45), 0 14px 34px rgba(0,0,0,.55);
+      --shadow:0 24px 48px rgba(0,0,0,.55);
+      --radius:16px;
+      --maxw:1100px;
+      --topbarH:72px;
+    }
+
+    html,body{
+      margin:0;
+      color:var(--txt);
+      background:#000;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      overflow-x:hidden;
+    }
+
+    /* Background */
+    .bg{
+      position:fixed; inset:0; z-index:-2;
+      background:
+        radial-gradient(1200px 700px at 15% 10%, rgba(212,175,55,.18), transparent 60%),
+        radial-gradient(900px 600px at 85% 20%, rgba(28,194,160,.12), transparent 60%),
+        radial-gradient(900px 700px at 60% 85%, rgba(94,168,255,.10), transparent 60%),
+        linear-gradient(180deg, #02030a 0%, #000 55%, #000 100%);
+    }
+    .stars{
+      position:fixed; inset:-50px; z-index:-1;
+      background-image:
+        radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,.25) 40%, transparent 41%),
+        radial-gradient(1px 1px at 70% 10%, rgba(255,255,255,.20) 40%, transparent 41%),
+        radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,.18) 40%, transparent 41%),
+        radial-gradient(1px 1px at 85% 65%, rgba(255,255,255,.20) 40%, transparent 41%),
+        radial-gradient(1px 1px at 10% 70%, rgba(255,255,255,.16) 40%, transparent 41%);
+      background-size: 420px 420px, 520px 520px, 620px 620px, 720px 720px, 820px 820px;
+      opacity:.55;
+      filter: blur(.1px);
+    }
+
+    /* Topbar (global menu) */
+    .topbar{
+      position:fixed; top:0; left:0; right:0;
+      height:var(--topbarH);
+      z-index:50;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 14px;
+      background:linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.55));
+      border-bottom:1px solid rgba(212,175,55,.20);
+      backdrop-filter: blur(10px);
+    }
+    .brand{
+      display:flex; gap:10px; align-items:center;
+      min-width:240px;
+    }
+    .logo{
+      width:40px; height:40px; flex:0 0 auto;
+      border-radius:12px;
+      background:rgba(212,175,55,.10);
+      border:1px solid rgba(212,175,55,.25);
+      box-shadow:0 0 18px rgba(212,175,55,.22);
+      display:grid; place-items:center;
+    }
+    .brand .t{
+      line-height:1.1;
+    }
+    .brand .t .h{
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+    .brand .t .s{
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .top-actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border-radius:12px;
+      padding:10px 12px;
+      border:1px solid rgba(212,175,55,.28);
+      background:rgba(0,0,0,.40);
+      color:var(--txt);
+      text-decoration:none;
+      cursor:pointer;
+      box-shadow:0 0 14px rgba(212,175,55,.12);
+      transition:transform .15s ease, border-color .15s ease, background .15s ease;
+      user-select:none;
+      font-weight:650;
+      font-size:13px;
+    }
+    .btn:hover{ transform: translateY(-1px); border-color: rgba(212,175,55,.45); background:rgba(0,0,0,.55); }
+    .btn:active{ transform: translateY(0); }
+
+    .lang{
+      display:flex;
+      gap:6px;
+      align-items:center;
+      padding:6px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.22);
+      background:rgba(0,0,0,.35);
+    }
+    .lang button{
+      border:1px solid rgba(212,175,55,.18);
+      background:transparent;
+      color:var(--txt);
+      padding:8px 10px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:750;
+      font-size:12px;
+    }
+    .lang button.active{
+      background:rgba(212,175,55,.14);
+      border-color: rgba(212,175,55,.45);
+      box-shadow:0 0 18px rgba(212,175,55,.18);
+    }
+
+    /* Mobile menu */
+    .navwrap{
+      position:relative;
+    }
+    .burger{
+      width:44px; height:44px;
+      display:grid; place-items:center;
+      border-radius:12px;
+      border:1px solid rgba(212,175,55,.28);
+      background:rgba(0,0,0,.40);
+      cursor:pointer;
+    }
+    .drawer{
+      position:absolute;
+      right:0;
+      top:52px;
+      width:min(320px, calc(100vw - 24px));
+      background:rgba(0,0,0,.82);
+      border:1px solid rgba(212,175,55,.22);
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      padding:10px;
+      display:none;
+      backdrop-filter: blur(12px);
+    }
+    .drawer.open{ display:block; }
+    .drawer a{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 10px;
+      border-radius:12px;
+      text-decoration:none;
+      color:var(--txt);
+      border:1px solid transparent;
+    }
+    .drawer a:hover{
+      border-color: rgba(212,175,55,.25);
+      background:rgba(212,175,55,.08);
+    }
+    .drawer .cap{
+      color:var(--muted);
+      font-size:12px;
+      padding:8px 10px 6px;
+    }
+
+    /* Content */
+    main{
+      padding-top:calc(var(--topbarH) + 18px);
+      padding-bottom:70px;
+    }
+    .wrap{
+      width:min(var(--maxw), calc(100% - 28px));
+      margin:0 auto;
+    }
+
+    .hero{
+      background:var(--panel);
+      border:1px solid rgba(212,175,55,.22);
+      border-radius:var(--radius);
+      box-shadow:var(--glow);
+      padding:18px;
+      position:relative;
+      overflow:hidden;
+    }
+    .hero:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:linear-gradient(120deg, rgba(212,175,55,.10), transparent 35%, rgba(28,194,160,.08));
+      pointer-events:none;
+    }
+    .hero h1{
+      margin:0 0 8px 0;
+      font-size:22px;
+      letter-spacing:.2px;
+    }
+    .hero p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.45;
+      font-size:14px;
+      max-width: 980px;
+    }
+
+    .grid{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+
+    .section{
+      margin-top:16px;
+      padding:14px;
+      background:var(--panel2);
+      border:1px solid rgba(212,175,55,.18);
+      border-radius:var(--radius);
+      box-shadow:0 0 18px rgba(212,175,55,.10);
+    }
+    .section h2{
+      margin:0 0 6px 0;
+      font-size:16px;
+    }
+    .section .sub{
+      margin:0 0 10px 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .cards{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+
+    .card{
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.18);
+      background:rgba(0,0,0,.42);
+      padding:12px;
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:10px;
+      align-items:center;
+    }
+    .card .meta .title{
+      font-weight:800;
+      margin:0;
+      font-size:14px;
+    }
+    .card .meta .desc{
+      margin:4px 0 0 0;
+      color:var(--muted);
+      font-size:12.8px;
+      line-height:1.35;
+    }
+    .dl{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(212,175,55,.20);
+      color:rgba(233,233,233,.92);
+      background:rgba(212,175,55,.10);
+      font-size:12px;
+      font-weight:750;
+      white-space:nowrap;
+    }
+
+    .footer{
+      margin-top:18px;
+      padding:14px;
+      border-radius:var(--radius);
+      border:1px solid rgba(212,175,55,.18);
+      background:rgba(0,0,0,.55);
+      color:var(--muted);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .footer a{ color:var(--txt); text-decoration:none; border-bottom:1px solid rgba(212,175,55,.35); }
+    .footer a:hover{ border-bottom-color: rgba(212,175,55,.75); }
+
+    /* Inline SVG */
+    .svg{ width:18px; height:18px; display:inline-block; }
+    .svgBig{ width:20px; height:20px; display:inline-block; }
+
+    @media (max-width:700px){
+      .brand{ min-width:unset; }
+      .card{ grid-template-columns: 1fr; }
+      .dl{ justify-content:flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="stars"></div>
+
+  <!-- TOPBAR / GLOBAL MENU -->
+  <header class="topbar" role="banner">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <!-- Inline-SVG Adler-Style Placeholder -->
+        <svg class="svgBig" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3c3 3 6 3 9 4-2 2-4 4-5 7-1 3-2 5-4 7-2-2-3-4-4-7-1-3-3-5-5-7 3-1 6-1 9-4Z"
+                stroke="rgba(212,175,55,.95)" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M7 10c2 1 4 1 5 0M12 10c2 1 4 1 5 0" stroke="rgba(28,194,160,.85)" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="t">
+        <div class="h">FSA Krypto</div>
+        <div class="s" data-i18n="top_sub">Downloads & Organisation</div>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <div class="lang" aria-label="Language">
+        <button id="langDE" class="active" type="button">DE</button>
+        <button id="langEN" type="button">EN</button>
+      </div>
+
+      <a class="btn" id="backKryptoTop" href="krypto.html" data-i18n="btn_back_krypto">
+        <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M14 6 8 12l6 6" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Zurück zu Krypto
+      </a>
+
+      <div class="navwrap">
+        <div class="burger" id="burgerBtn" title="Menu" aria-label="Menu" role="button" tabindex="0">
+          <svg class="svgBig" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 7h14M5 12h14M5 17h14" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <nav class="drawer" id="drawer" aria-label="Global navigation">
+          <div class="cap" data-i18n="nav_caption">Navigation</div>
+          <a href="../pages/office-network.html" data-link>
+            <span data-i18n="nav_office">Office Network</span>
+            <span class="pill">FSA</span>
+          </a>
+          <a href="krypto.html" data-link>
+            <span data-i18n="nav_krypto">Krypto</span>
+            <span class="pill">DE/EN</span>
+          </a>
+          <a href="../index.html" data-link>
+            <span data-i18n="nav_start">Start</span>
+            <span class="pill">Home</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <section class="hero">
+        <h1 data-i18n="hero_title">Organisation & Downloads – dein Fundament</h1>
+        <p data-i18n="hero_text">
+          Die Fähigkeit, langfristig den Überblick zu behalten, wird bei uns ganz am Anfang gesetzt.
+          Diese Downloads sind dein Werkzeugkasten: Basis-Checklisten, Sicherungs-Vorlagen, Projekt-Checks und Struktur,
+          damit du mit jedem Projekt sauber organisiert bleibst – und Risiken begrenzt.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2 data-i18n="sec_core_title">Kern: Basis & Sicherung</h2>
+        <p class="sub" data-i18n="sec_core_sub">
+          Starte immer mit den Grundlagen: Ziele, Dokumentation, Sicherung. Ohne Basis kein Fundament – ohne Fundament keine Stabilität.
+        </p>
+
+        <div class="cards">
+          <!-- 1) Start-Checkliste -->
+          <div class="card">
+            <div class="meta">
+              <p class="title" data-i18n="pdf_start_title">FSA Checkliste – Ersteinrichtung für den Start</p>
+              <p class="desc" data-i18n="pdf_start_desc">Dein Einstieg: Schrittfolge, Grundregeln, Kontrollen. Ideal als Startpunkt.</p>
+            </div>
+            <div class="dl">
+              <span class="pill">PDF</span>
+              <a class="btn" data-file href="../library/pdf/FSA-Checkliste%20Ersteinrichtung%20f%C3%BCr%20den%20Start.pdf" download>
+                <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 3v10m0 0 4-4m-4 4-4-4" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5 17v3h14v-3" stroke="rgba(212,175,55,.65)" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span data-i18n="btn_download">Download</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- 2) Ziele -->
+          <div class="card">
+            <div class="meta">
+              <p class="title" data-i18n="pdf_goals_title">FSA Office – Ziele</p>
+              <p class="desc" data-i18n="pdf_goals_desc">Klarheit schaffen: Warum machst du das? Was ist dein Rahmen? Was sind No-Gos?</p>
+            </div>
+            <div class="dl">
+              <span class="pill">PDF</span>
+              <a class="btn" data-file href="../library/pdf/FSA-Office-Ziele.pdf" download>
+                <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 3v10m0 0 4-4m-4 4-4-4" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5 17v3h14v-3" stroke="rgba(212,175,55,.65)" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span data-i18n="btn_download">Download</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- 3) Office Sicherung -->
+          <div class="card">
+            <div class="meta">
+              <p class="title" data-i18n="pdf_office_sec_title">FSA Office – Sicherung</p>
+              <p class="desc" data-i18n="pdf_office_sec_desc">Zentrale Vorlage für saubere Dokumentation: Passwörter, Zugänge, Sicherheitsnotizen.</p>
+            </div>
+            <div class="dl">
+              <span class="pill">PDF</span>
+              <a class="btn" data-file href="../library/pdf/FSA-Office-Sicherung.pdf" download>
+                <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 3v10m0 0 4-4m-4 4-4-4" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5 17v3h14v-3" stroke="rgba(212,175,55,.65)" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span data-i18n="btn_download">Download</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- 4) Seed Backup -->
+          <div class="card">
+            <div class="meta">
+              <p class="title" data-i18n="pdf_seed_title">FSA Office – Seed Backup</p>
+              <p class="desc" data-i18n="pdf_seed_desc">Seed-Phrase Sicherung: analog, getrennt, sauber beschriftet. Kein Screenshot, keine Cloud.</p>
+            </div>
+            <div class="dl">
+              <span class="pill">PDF</span>
+              <a class="btn" data-file href="../library/pdf/FSA-Office-Seed-Backup.pdf" download>
+                <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 3v10m0 0 4-4m-4 4-4-4" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5 17v3h14v-3" stroke="rgba(212,175,55,.65)" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span data-i18n="btn_download">Download</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 data-i18n="sec_security_title">Sicherheit: Prüfung & Wallet-Struktur</h2>
+        <p class="sub" data-i18n="sec_security_sub">
+          Wenn du Projekte testest, brauchst du Regeln: Fragen stellen, Red Flags erkennen, Wallets trennen – Schadensradius begrenzen.
+        </p>
+
+        <div class="cards">
+          <!-- 5) Projektcheck -->
+          <div class="card">
+            <div class="meta">
+              <p class="title" data-i18n="pdf_projcheck_title">FSA Projektcheck</p>
+              <p class="desc" data-i18n="pdf_projcheck_desc">Fragen & Red Flags: kurz prüfen, bevor du Geld, Daten oder Signaturen abgibst.</p>
+            </div>
+            <div class="dl">
+              <span class="pill">PDF</span>
+              <a class="btn" data-file href="../library/pdf/FSA-Projektcheck.pdf" download>
+                <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 3v10m0 0 4-4m-4 4-4-4" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5 17v3h14v-3" stroke="rgba(212,175,55,.65)" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span data-i18n="btn_download">Download</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- 6) Wallet-Trennung-Hardware -->
+          <div class="card">
+            <div class="meta">
+              <p class="title" data-i18n="pdf_walletsep_title">FSA Wallet-Trennung & Hardware</p>
+              <p class="desc" data-i18n="pdf_walletsep_desc">Stufe 3: pro Projekt Wallets trennen + professionell sichern bis zur Hardware-Wallet.</p>
+            </div>
+            <div class="dl">
+              <span class="pill">PDF</span>
+              <a class="btn" data-file href="../library/pdf/FSA-Wallet-Trennung-Hardware.pdf" download>
+                <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 3v10m0 0 4-4m-4 4-4-4" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5 17v3h14v-3" stroke="rgba(212,175,55,.65)" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span data-i18n="btn_download">Download</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 data-i18n="sec_contacts_title">Organisation: Kontakte</h2>
+        <p class="sub" data-i18n="sec_contacts_sub">
+          Halte deine wichtigsten Kontakte sauber getrennt und dokumentiert (privat vs. Firmen/Service).
+        </p>
+
+        <div class="cards">
+          <!-- 7) Privatkontakte -->
+          <div class="card">
+            <div class="meta">
+              <p class="title" data-i18n="pdf_priv_title">FSA Office – Privatkontakte</p>
+              <p class="desc" data-i18n="pdf_priv_desc">Deine privaten Schlüsselkontakte: wer hilft dir wann, wer hat welche Rolle?</p>
+            </div>
+            <div class="dl">
+              <span class="pill">PDF</span>
+              <a class="btn" data-file href="../library/pdf/FSA-Office-Privatkontakte.pdf" download>
+                <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 3v10m0 0 4-4m-4 4-4-4" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5 17v3h14v-3" stroke="rgba(212,175,55,.65)" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span data-i18n="btn_download">Download</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- 8) Firmenkontakte -->
+          <div class="card">
+            <div class="meta">
+              <p class="title" data-i18n="pdf_firm_title">FSA Office – Firmenkontakte</p>
+              <p class="desc" data-i18n="pdf_firm_desc">Service/Support/Partner strukturiert sammeln – inklusive Notizen und Status.</p>
+            </div>
+            <div class="dl">
+              <span class="pill">PDF</span>
+              <a class="btn" data-file href="../library/pdf/FSA-Office-Firmenkontakte.pdf" download>
+                <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 3v10m0 0 4-4m-4 4-4-4" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5 17v3h14v-3" stroke="rgba(212,175,55,.65)" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span data-i18n="btn_download">Download</span>
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <div class="footer">
+        <div>
+          <span data-i18n="footer_hint">Hinweis:</span>
+          <span data-i18n="footer_text">Diese Seite ist deine Download-Übersicht. Dokumentiere pro Projekt sauber – Sicherheit vor Tempo.</span>
+        </div>
+        <div>
+          <a id="backKryptoFooter" href="krypto.html" data-i18n="footer_back">← Zurück zur krypto.html</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function(){
+      // --- Drawer (menu) ---
+      const burger = document.getElementById('burgerBtn');
+      const drawer = document.getElementById('drawer');
+      function toggleDrawer(force){
+        const open = (typeof force === "boolean") ? force : !drawer.classList.contains('open');
+        drawer.classList.toggle('open', open);
+      }
+      burger.addEventListener('click', ()=>toggleDrawer());
+      burger.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' ') toggleDrawer(); });
+      document.addEventListener('click', (e)=>{
+        if(!drawer.contains(e.target) && !burger.contains(e.target)) toggleDrawer(false);
+      });
+
+      // --- i18n ---
+      const dict = {
+        de: {
+          page_title: "Krypto – Downloads & Organisation",
+          top_sub: "Downloads & Organisation",
+          btn_back_krypto: "Zurück zu Krypto",
+          nav_caption: "Navigation",
+          nav_office: "Office Network",
+          nav_krypto: "Krypto",
+          nav_start: "Start",
+          hero_title: "Organisation & Downloads – dein Fundament",
+          hero_text: "Die Fähigkeit, langfristig den Überblick zu behalten, wird bei uns ganz am Anfang gesetzt. Diese Downloads sind dein Werkzeugkasten: Basis-Checklisten, Sicherungs-Vorlagen, Projekt-Checks und Struktur, damit du mit jedem Projekt sauber organisiert bleibst – und Risiken begrenzt.",
+          sec_core_title: "Kern: Basis & Sicherung",
+          sec_core_sub: "Starte immer mit den Grundlagen: Ziele, Dokumentation, Sicherung. Ohne Basis kein Fundament – ohne Fundament keine Stabilität.",
+          sec_security_title: "Sicherheit: Prüfung & Wallet-Struktur",
+          sec_security_sub: "Wenn du Projekte testest, brauchst du Regeln: Fragen stellen, Red Flags erkennen, Wallets trennen – Schadensradius begrenzen.",
+          sec_contacts_title: "Organisation: Kontakte",
+          sec_contacts_sub: "Halte deine wichtigsten Kontakte sauber getrennt und dokumentiert (privat vs. Firmen/Service).",
+          pdf_start_title: "FSA Checkliste – Ersteinrichtung für den Start",
+          pdf_start_desc: "Dein Einstieg: Schrittfolge, Grundregeln, Kontrollen. Ideal als Startpunkt.",
+          pdf_goals_title: "FSA Office – Ziele",
+          pdf_goals_desc: "Klarheit schaffen: Warum machst du das? Was ist dein Rahmen? Was sind No-Gos?",
+          pdf_office_sec_title: "FSA Office – Sicherung",
+          pdf_office_sec_desc: "Zentrale Vorlage für saubere Dokumentation: Passwörter, Zugänge, Sicherheitsnotizen.",
+          pdf_seed_title: "FSA Office – Seed Backup",
+          pdf_seed_desc: "Seed-Phrase Sicherung: analog, getrennt, sauber beschriftet. Kein Screenshot, keine Cloud.",
+          pdf_projcheck_title: "FSA Projektcheck",
+          pdf_projcheck_desc: "Fragen & Red Flags: kurz prüfen, bevor du Geld, Daten oder Signaturen abgibst.",
+          pdf_walletsep_title: "FSA Wallet-Trennung & Hardware",
+          pdf_walletsep_desc: "Stufe 3: pro Projekt Wallets trennen + professionell sichern bis zur Hardware-Wallet.",
+          pdf_priv_title: "FSA Office – Privatkontakte",
+          pdf_priv_desc: "Deine privaten Schlüsselkontakte: wer hilft dir wann, wer hat welche Rolle?",
+          pdf_firm_title: "FSA Office – Firmenkontakte",
+          pdf_firm_desc: "Service/Support/Partner strukturiert sammeln – inklusive Notizen und Status.",
+          btn_download: "Download",
+          footer_hint: "Hinweis:",
+          footer_text: "Diese Seite ist deine Download-Übersicht. Dokumentiere pro Projekt sauber – Sicherheit vor Tempo.",
+          footer_back: "← Zurück zur krypto.html"
+        },
+        en: {
+          page_title: "Crypto – Downloads & Organization",
+          top_sub: "Downloads & Organization",
+          btn_back_krypto: "Back to Crypto",
+          nav_caption: "Navigation",
+          nav_office: "Office Network",
+          nav_krypto: "Crypto",
+          nav_start: "Home",
+          hero_title: "Organization & downloads – your foundation",
+          hero_text: "The ability to keep a clear long-term overview is set right at the beginning. These downloads are your toolbox: base checklists, backup templates, project checks and structure — so every new project stays organized and risks stay contained.",
+          sec_core_title: "Core: base & backups",
+          sec_core_sub: "Always start with fundamentals: goals, documentation, backups. No base means no stability.",
+          sec_security_title: "Security: review & wallet structure",
+          sec_security_sub: "When you test projects, you need rules: ask the right questions, spot red flags, separate wallets — limit the blast radius.",
+          sec_contacts_title: "Organization: contacts",
+          sec_contacts_sub: "Keep your key contacts clearly separated and documented (private vs. business/service).",
+          pdf_start_title: "FSA Checklist – first setup for your start",
+          pdf_start_desc: "Your entry point: steps, rules, controls. Ideal as a starting checklist.",
+          pdf_goals_title: "FSA Office – goals",
+          pdf_goals_desc: "Create clarity: why are you doing this? What is your framework? What are your no-gos?",
+          pdf_office_sec_title: "FSA Office – security documentation",
+          pdf_office_sec_desc: "Central template for documentation: passwords, access, security notes.",
+          pdf_seed_title: "FSA Office – seed backup",
+          pdf_seed_desc: "Seed phrase backup: analog, separated, clearly labeled. No screenshots, no cloud.",
+          pdf_projcheck_title: "FSA Project Check",
+          pdf_projcheck_desc: "Questions & red flags: a quick review before you give money, data or signatures.",
+          pdf_walletsep_title: "FSA Wallet Separation & Hardware",
+          pdf_walletsep_desc: "Level 3: separate wallets per project + professional securing up to hardware wallets.",
+          pdf_priv_title: "FSA Office – private contacts",
+          pdf_priv_desc: "Your private key contacts: who helps you, when, and in what role?",
+          pdf_firm_title: "FSA Office – business contacts",
+          pdf_firm_desc: "Collect service/support/partners with notes and status tracking.",
+          btn_download: "Download",
+          footer_hint: "Note:",
+          footer_text: "This is your download overview. Document each project cleanly — security before speed.",
+          footer_back: "← Back to krypto.html"
+        }
+      };
+
+      const langDE = document.getElementById('langDE');
+      const langEN = document.getElementById('langEN');
+
+      function setLang(lang){
+        localStorage.setItem('fsa_lang', lang);
+        document.documentElement.lang = lang;
+        langDE.classList.toggle('active', lang === 'de');
+        langEN.classList.toggle('active', lang === 'en');
+
+        document.querySelectorAll('[data-i18n]').forEach(el=>{
+          const key = el.getAttribute('data-i18n');
+          const val = (dict[lang] && dict[lang][key]) ? dict[lang][key] : null;
+          if(val !== null){
+            el.textContent = val;
+          }
+        });
+
+        // title needs special handling because <title> isn't always in querySelectorAll
+        const titleEl = document.querySelector('title[data-i18n="page_title"]');
+        if(titleEl) titleEl.textContent = dict[lang].page_title;
+      }
+
+      langDE.addEventListener('click', ()=>setLang('de'));
+      langEN.addEventListener('click', ()=>setLang('en'));
+
+      // Default language
+      const saved = localStorage.getItem('fsa_lang') || 'de';
+      setLang(saved === 'en' ? 'en' : 'de');
+
+      // --- Cache-bypass for internal links (Firefox/Pages) ---
+      function stamp(){
+        const d = new Date();
+        const p = (n)=>String(n).padStart(2,'0');
+        return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+      }
+      const nocache = stamp();
+
+      function addNoCache(a){
+        const href = a.getAttribute('href');
+        if(!href) return;
+        // only relative links
+        if(/^https?:\/\//i.test(href) || href.startsWith('mailto:') || href.startsWith('#')) return;
+
+        // keep existing query if present
+        const hasQ = href.includes('?');
+        const sep = hasQ ? '&' : '?';
+        // avoid double
+        if(/([?&])nocache=/.test(href)) return;
+
+        a.setAttribute('href', href + sep + 'nocache=' + encodeURIComponent(nocache));
+      }
+
+      // apply to key links
+      addNoCache(document.getElementById('backKryptoTop'));
+      addNoCache(document.getElementById('backKryptoFooter'));
+      document.querySelectorAll('a[data-link], a[data-file]').forEach(addNoCache);
+
+      // Optional: load global menu script if present (does not break if missing)
+      const s = document.createElement('script');
+      s.src = '../js/menu.js?nocache=' + encodeURIComponent(nocache);
+      s.defer = true;
+      s.onerror = function(){ /* silently ignore */ };
+      document.body.appendChild(s);
+    })();
+  </script>
+</body>
+</html>
