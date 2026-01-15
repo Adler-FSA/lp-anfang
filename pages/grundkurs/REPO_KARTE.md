@@ -13,45 +13,46 @@
     │   ├── slideshow.js
     │   └── videobg.js
     ├── krypto/
-    │   └── images/
-    │       ├── slide-01.jpg
-    │       ├── slide-02.jpg
-    │       ├── slide-03.jpg
-    │       ├── slide-04.jpg
-    │       ├── slide-05.jpg
-    │       ├── slide-06.jpg
-    │       ├── slide-07.jpg
-    │       ├── slide-08.jpg
-    │       ├── slide-09.jpg
-    │       ├── slide-10.jpg
-    │       ├── slide-11.jpg
-    │       ├── slide-12.jpg
-    │       ├── slide-13.jpg
-    │       ├── slide-14.jpg
-    │       ├── slide-15.jpg
-    │       ├── slide-16.jpg
-    │       ├── slide-17.jpg
-    │       ├── slide-18.jpg
-    │       ├── slide-19.jpg
-    │       ├── slide-20.jpg
-    │       ├── slide-21.jpg
-    │       ├── slide-22.jpg
-    │       ├── slide-23.jpg
-    │       ├── slide-24.jpg
-    │       ├── slide-25.jpg
-    │       ├── slide-26.jpg
-    │       ├── slide-27.jpg
-    │       ├── slide-28.jpg
-    │       ├── slide-29.jpg
-    │       ├── slide-30.jpg
-    │       ├── slide-31.jpg
-    │       ├── slide-32.jpg
-    │       ├── slide-33.jpg
-    │       ├── slide-34.jpg
-    │       ├── slide-35.jpg
-    │       ├── slide-36.jpg
-    │       ├── slide-37.jpg
-    │       └── slide-38.jpg
+    │   ├── images/
+    │   │   ├── slide-01.jpg
+    │   │   ├── slide-02.jpg
+    │   │   ├── slide-03.jpg
+    │   │   ├── slide-04.jpg
+    │   │   ├── slide-05.jpg
+    │   │   ├── slide-06.jpg
+    │   │   ├── slide-07.jpg
+    │   │   ├── slide-08.jpg
+    │   │   ├── slide-09.jpg
+    │   │   ├── slide-10.jpg
+    │   │   ├── slide-11.jpg
+    │   │   ├── slide-12.jpg
+    │   │   ├── slide-13.jpg
+    │   │   ├── slide-14.jpg
+    │   │   ├── slide-15.jpg
+    │   │   ├── slide-16.jpg
+    │   │   ├── slide-17.jpg
+    │   │   ├── slide-18.jpg
+    │   │   ├── slide-19.jpg
+    │   │   ├── slide-20.jpg
+    │   │   ├── slide-21.jpg
+    │   │   ├── slide-22.jpg
+    │   │   ├── slide-23.jpg
+    │   │   ├── slide-24.jpg
+    │   │   ├── slide-25.jpg
+    │   │   ├── slide-26.jpg
+    │   │   ├── slide-27.jpg
+    │   │   ├── slide-28.jpg
+    │   │   ├── slide-29.jpg
+    │   │   ├── slide-30.jpg
+    │   │   ├── slide-31.jpg
+    │   │   ├── slide-32.jpg
+    │   │   ├── slide-33.jpg
+    │   │   ├── slide-34.jpg
+    │   │   ├── slide-35.jpg
+    │   │   ├── slide-36.jpg
+    │   │   ├── slide-37.jpg
+    │   │   └── slide-38.jpg
+    │   └── krypto-downloads.html
     ├── library/
     │   ├── buch/
     │   │   └── images/
@@ -398,6 +399,8 @@
     │   │   ├── FSA-Office-Seed-Backup.pdf
     │   │   ├── FSA-Office-Sicherung.pdf
     │   │   ├── FSA-Office-Ziele.pdf
+    │   │   ├── FSA-Projektcheck.pdf
+    │   │   ├── FSA-Wallet-Trennung-Hardware.pdf
     │   │   ├── Salepoint für Reg. Benutzer_Einlader.pdf
     │   │   ├── Trustyfy_Gespraechsleitfaden_Firmen_v2.pdf
     │   │   ├── WeFi DE_03.12.25.pdf
@@ -760,4 +763,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.01.2026, 10:18)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.01.2026, 11:15)_
