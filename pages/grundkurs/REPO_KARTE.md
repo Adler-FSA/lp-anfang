@@ -537,6 +537,7 @@
     │       │   ├── wefi-basis.mp4
     │       │   └── werte erhalten so geht es.mp4
     │       ├── adlerflug.mp4
+    │       ├── buch-akademie-setup.mp4
     │       └── playlist-01.json
     ├── pages/
     │   ├── akademie/
@@ -763,4 +764,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.01.2026, 09:21)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.01.2026, 10:18)_
