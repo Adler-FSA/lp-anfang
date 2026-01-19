@@ -582,9 +582,11 @@
     │   │   ├── dokument-01-mitgliederantrag.html
     │   │   ├── dokumente.html
     │   │   ├── events.html
+    │   │   ├── faq.html
     │   │   ├── index.html
     │   │   ├── portfolio.html
     │   │   ├── preise.html
+    │   │   ├── start.html
     │   │   └── tool.html
     │   ├── footer/
     │   │   ├── community.html
@@ -769,4 +771,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.01.2026, 06:31)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.01.2026, 07:24)_
