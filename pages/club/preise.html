@@ -1,0 +1,899 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Preise – Club & Produkte</title>
+  <style>
+    :root{
+      --gold:#d4af37;
+      --txt:#e9e9e9;
+      --muted:#cbd5e1;
+      --panel:rgba(0,0,0,.72);
+      --panel2:rgba(10,10,20,.62);
+      --shadow:0 26px 50px rgba(0,0,0,.55);
+      --glow:0 0 22px rgba(212,175,55,.55), 0 10px 28px rgba(0,0,0,.55);
+      --radius:18px;
+      --maxw:1100px;
+    }
+
+    html,body{
+      margin:0;
+      background:#000;
+      color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      overflow-x:hidden;
+    }
+
+    .bg-fixed{
+      position:fixed; inset:0;
+      background:
+        radial-gradient(1200px 700px at 26% 10%, rgba(212,175,55,.18), transparent 60%),
+        radial-gradient(1000px 700px at 74% 35%, rgba(28,194,160,.10), transparent 60%),
+        linear-gradient(180deg, #05060a 0%, #000 60%, #03040a 100%);
+      z-index:-2;
+    }
+    .bg-grid{
+      position:fixed; inset:0;
+      background-image:
+        linear-gradient(rgba(212,175,55,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212,175,55,.06) 1px, transparent 1px);
+      background-size:44px 44px;
+      mask-image: radial-gradient(70% 55% at 50% 20%, #000 55%, transparent 100%);
+      opacity:.35;
+      z-index:-1;
+      pointer-events:none;
+    }
+
+    /* Offset below fixed topbar from menu.js */
+    #hero{ padding-top:88px; }
+
+    .wrap{
+      max-width:var(--maxw);
+      margin:34px auto 70px;
+      padding:0 18px;
+    }
+
+    .topline{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .crumb{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.55);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      text-decoration:none;
+      color:var(--txt);
+    }
+    .crumb:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.35) inset, var(--glow); }
+
+    .langbox{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.55);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+    }
+    .langbox .lbl{
+      font-size:12px; letter-spacing:.04em; text-transform:uppercase;
+      color:var(--muted);
+    }
+    .langbtn{
+      border:0;
+      background:rgba(212,175,55,.14);
+      color:var(--txt);
+      padding:8px 10px;
+      border-radius:999px;
+      cursor:pointer;
+      box-shadow:0 0 0 1px rgba(212,175,55,.22) inset;
+      font-weight:900;
+    }
+    .langbtn[aria-pressed="true"]{
+      background:rgba(212,175,55,.28);
+      box-shadow:0 0 0 1px rgba(212,175,55,.38) inset, 0 0 18px rgba(212,175,55,.22);
+    }
+
+    .hero{
+      background:linear-gradient(180deg, rgba(0,0,0,.72), rgba(0,0,0,.55));
+      border-radius:var(--radius);
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(212,175,55,.18);
+      position:relative;
+      overflow:hidden;
+    }
+    .hero::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:radial-gradient(900px 320px at 20% 10%, rgba(212,175,55,.22), transparent 55%);
+      pointer-events:none;
+    }
+
+    .h1{
+      margin:0 0 10px;
+      font-size:28px;
+      letter-spacing:.2px;
+      position:relative;
+    }
+    .sub{
+      margin:0 0 14px;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+      position:relative;
+    }
+
+    .cta-row{
+      display:flex; flex-wrap:wrap; gap:12px;
+      margin-top:10px;
+      position:relative;
+    }
+    .btn{
+      display:inline-flex; align-items:center; gap:10px;
+      text-decoration:none;
+      color:var(--txt);
+      border-radius:14px;
+      padding:12px 14px;
+      background:rgba(212,175,55,.20);
+      box-shadow:0 0 0 1px rgba(212,175,55,.30) inset;
+      font-weight:900;
+    }
+    .btn:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.45) inset, var(--glow); }
+    .btn.secondary{
+      background:rgba(0,0,0,.35);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      font-weight:800;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(12, 1fr);
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .card{
+      grid-column:span 12;
+      background:var(--panel);
+      border-radius:var(--radius);
+      padding:18px 16px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(212,175,55,.16);
+      opacity:0;
+      transform:translateY(10px);
+      animation:fadeIn .55s ease forwards;
+    }
+    .card:nth-child(1){ animation-delay:.06s; }
+    .card:nth-child(2){ animation-delay:.12s; }
+    .card:nth-child(3){ animation-delay:.18s; }
+    .card:nth-child(4){ animation-delay:.24s; }
+
+    @keyframes fadeIn{ to{ opacity:1; transform:translateY(0); } }
+
+    .card h2{
+      margin:0 0 10px;
+      font-size:18px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .card p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+    }
+
+    .plans{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:12px;
+      margin-top:12px;
+    }
+    .plan{
+      grid-column:span 12;
+      border-radius:16px;
+      background:rgba(0,0,0,.35);
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      padding:14px 14px;
+    }
+    .plan .tag{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(212,175,55,.14);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      font-weight:1000;
+    }
+    .plan .val{
+      margin-top:10px;
+      font-size:28px;
+      font-weight:1100;
+      letter-spacing:.2px;
+    }
+    .plan .note{
+      margin-top:6px;
+      color:var(--muted);
+      line-height:1.45;
+      font-size:13.5px;
+    }
+    .plan ul{
+      margin:12px 0 0;
+      padding:0;
+      list-style:none;
+      display:grid;
+      gap:10px;
+    }
+    .plan li{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px 12px;
+      border-radius:14px;
+      background:rgba(0,0,0,.32);
+      box-shadow:0 0 0 1px rgba(212,175,55,.10) inset;
+    }
+    .tick{
+      width:18px; height:18px; flex:0 0 18px;
+      margin-top:2px;
+      filter:drop-shadow(0 0 10px rgba(212,175,55,.25));
+    }
+
+    .table{
+      margin-top:12px;
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid rgba(212,175,55,.14);
+      box-shadow:var(--shadow);
+      background:rgba(0,0,0,.35);
+    }
+    .row{
+      display:grid;
+      grid-template-columns: 1.2fr .7fr .7fr;
+      gap:0;
+      border-top:1px solid rgba(212,175,55,.10);
+    }
+    .row:first-child{ border-top:0; }
+    .cell{
+      padding:12px 12px;
+      color:var(--txt);
+      font-size:14px;
+    }
+    .head .cell{
+      background:rgba(212,175,55,.12);
+      font-weight:1100;
+    }
+    .cell small{ color:var(--muted); display:block; margin-top:3px; }
+
+    .links{
+      display:grid;
+      grid-template-columns:repeat(12, 1fr);
+      gap:14px;
+      margin-top:14px;
+    }
+    .tile{
+      grid-column:span 12;
+      text-decoration:none;
+      color:var(--txt);
+      background:var(--panel2);
+      border-radius:var(--radius);
+      padding:14px 14px;
+      border:1px solid rgba(212,175,55,.14);
+      box-shadow:var(--shadow);
+      display:flex; align-items:flex-start; gap:12px;
+      opacity:0;
+      transform:translateY(10px);
+      animation:fadeIn .55s ease forwards;
+      animation-delay:.30s;
+    }
+    .tile:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.24) inset, var(--glow); }
+    .tile .ticon{
+      width:34px; height:34px; flex:0 0 34px;
+      border-radius:12px;
+      background:rgba(212,175,55,.16);
+      display:grid; place-items:center;
+      box-shadow:0 0 0 1px rgba(212,175,55,.20) inset;
+    }
+    .tile h3{ margin:0 0 6px; font-size:16px; }
+    .tile p{ margin:0; color:var(--muted); line-height:1.5; }
+
+    .footer{
+      margin-top:18px;
+      padding:14px 16px;
+      border-radius:var(--radius);
+      background:rgba(0,0,0,.55);
+      border:1px solid rgba(212,175,55,.14);
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .footer a{
+      color:var(--txt);
+      text-decoration:none;
+      box-shadow:0 0 0 1px rgba(212,175,55,.14) inset;
+      padding:8px 10px;
+      border-radius:999px;
+      background:rgba(212,175,55,.10);
+    }
+    .footer a:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.32) inset, var(--glow); }
+
+    @media (min-width: 900px){
+      .h1{ font-size:34px; }
+      .plan{ grid-column:span 4; }
+    }
+  </style>
+
+  <script defer src="../../js/menu.js"></script>
+</head>
+<body>
+  <div class="bg-fixed" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <main id="hero">
+    <div class="wrap">
+
+      <div class="topline">
+        <a class="crumb" href="./index.html" aria-label="Zurück zur Club-Basis">
+          <span aria-hidden="true" style="display:inline-grid;place-items:center;width:18px;height:18px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M15 18l-6-6 6-6" stroke="rgba(212,175,55,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span data-i18n="back_to_base">Zurück zur Club-Basis</span>
+        </a>
+
+        <div class="langbox" role="group" aria-label="Sprache wählen">
+          <span class="lbl" data-i18n="lang_label">Sprache</span>
+          <button class="langbtn" id="btnDE" type="button" aria-pressed="true">DE</button>
+          <button class="langbtn" id="btnEN" type="button" aria-pressed="false">EN</button>
+        </div>
+      </div>
+
+      <section class="hero" aria-label="Preise Hero">
+        <h1 class="h1" data-i18n="pr_headline">Preise – klar, fair, auf einen Blick.</h1>
+        <p class="sub" data-i18n="pr_subline">
+          Drei einfache Ebenen: Nicht-Mitglied, Mitglied, Mitglied + Leadmaschine. Plus: Mitglieder erhalten 20% Rabatt auf Event-Produkte.
+        </p>
+
+        <div class="cta-row">
+          <a class="btn" href="./checkout.html">
+            <span aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M13 2L3 14h8l-1 8 11-14h-8l0-6z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span data-i18n="cta_join">Mitgliedschaft aktivieren</span>
+          </a>
+
+          <a class="btn secondary" href="./events.html">
+            <span aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 3v3M17 3v3" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M4 7h16v14a1 1 0 01-1 1H5a1 1 0 01-1-1V7z" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M4 11h16" stroke="rgba(212,175,55,.65)" stroke-width="2"/>
+              </svg>
+            </span>
+            <span data-i18n="cta_events">Live-Formate ansehen</span>
+          </a>
+
+          <a class="btn secondary" href="./tool.html">
+            <span aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 2l10 6-10 6L2 8l10-6z" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M22 12l-10 6L2 12" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span data-i18n="cta_tool">Leadmaschine ansehen</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="grid" aria-label="Preise Inhalte">
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 13l-7 7-11-11V2h7l11 11z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+                <circle cx="7.5" cy="7.5" r="1.5" fill="rgba(212,175,55,.85)"/>
+              </svg>
+            </span>
+            <span data-i18n="plans_title">Die 3 Preis-Ebenen</span>
+          </h2>
+          <p data-i18n="plans_text">
+            Nicht-Mitglied: Einzelpreise. Mitglied: 60 €/Jahr inkl. Kurse + Online-Buch + 20% Eventrabatt. Mitglied+Leadmaschine: Club + Tool-Upgrade zum vergünstigten Add-on.
+          </p>
+
+          <div class="plans">
+            <div class="plan">
+              <span class="tag" data-i18n="p1_tag">Nicht-Mitglied</span>
+              <div class="val" data-i18n="p1_val">Einzelpreise</div>
+              <div class="note" data-i18n="p1_note">Du nutzt Angebote zu Standardpreisen (ohne Club-Vorteile).</div>
+              <ul>
+                <li>
+                  <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <div><strong data-i18n="p1_b1">Events</strong><br><span data-i18n="p1_b1d">Standardpreise je Paket</span></div>
+                </li>
+                <li>
+                  <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <div><strong data-i18n="p1_b2">Leadmaschine</strong><br><span data-i18n="p1_b2d">150 € / Jahr</span></div>
+                </li>
+              </ul>
+            </div>
+
+            <div class="plan">
+              <span class="tag" data-i18n="p2_tag">Mitglied</span>
+              <div class="val" data-i18n="p2_val">60 € / Jahr</div>
+              <div class="note" data-i18n="p2_note">Kurse + Online-Buch inklusive + 20% Rabatt auf Event-Produkte.</div>
+              <ul>
+                <li>
+                  <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <div><strong data-i18n="p2_b1">Kurse inklusive</strong><br><span data-i18n="p2_b1d">Fundament & Vertiefung</span></div>
+                </li>
+                <li>
+                  <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <div><strong data-i18n="p2_b2">Online-Buch inklusive</strong><br><span data-i18n="p2_b2d">Roter Faden</span></div>
+                </li>
+                <li>
+                  <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <div><strong data-i18n="p2_b3">Eventrabatt</strong><br><span data-i18n="p2_b3d">−20% auf Event-Produkte</span></div>
+                </li>
+              </ul>
+            </div>
+
+            <div class="plan">
+              <span class="tag" data-i18n="p3_tag">Mitglied + Leadmaschine</span>
+              <div class="val" data-i18n="p3_val">120 € / Jahr</div>
+              <div class="note" data-i18n="p3_note">Club (60 €) + Tool-Upgrade als Add-on (+60 €). Ohne Club kostet das Tool 150 €.</div>
+              <ul>
+                <li>
+                  <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <div><strong data-i18n="p3_b1">Vergünstigtes Tool</strong><br><span data-i18n="p3_b1d">+60 € / Jahr statt 150 €</span></div>
+                </li>
+                <li>
+                  <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <div><strong data-i18n="p3_b2">Eventrabatt bleibt</strong><br><span data-i18n="p3_b2d">−20% auf Event-Produkte</span></div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 7h16M4 12h16M4 17h16" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span data-i18n="events_title">Eventpreise – Mitglied vs Nicht-Mitglied</span>
+          </h2>
+          <p data-i18n="events_text">
+            Die Mitgliedspreise sind jeweils 20% unter Standardpreis. (Hinweis: Netto/Brutto-Logik bleibt wie im jeweiligen Paket definiert.)
+          </p>
+
+          <div class="table" role="table" aria-label="Event Preise">
+            <div class="row head" role="row">
+              <div class="cell" role="columnheader" data-i18n="th1">Event-Produkt</div>
+              <div class="cell" role="columnheader" data-i18n="th2">Standard</div>
+              <div class="cell" role="columnheader" data-i18n="th3">Mitglied</div>
+            </div>
+
+            <div class="row" role="row">
+              <div class="cell" role="cell"><strong data-i18n="e1">Paket A – 2 Std</strong><small data-i18n="e1s">netto + MwSt.</small></div>
+              <div class="cell" role="cell" data-i18n="e1p">690 €</div>
+              <div class="cell" role="cell" data-i18n="e1m">552 €</div>
+            </div>
+            <div class="row" role="row">
+              <div class="cell" role="cell"><strong data-i18n="e2">Paket A – 3,5 Std</strong><small data-i18n="e2s">netto + MwSt.</small></div>
+              <div class="cell" role="cell" data-i18n="e2p">1.290 €</div>
+              <div class="cell" role="cell" data-i18n="e2m">1.032 €</div>
+            </div>
+            <div class="row" role="row">
+              <div class="cell" role="cell"><strong data-i18n="e3">Paket A – Extra-Q&A</strong><small data-i18n="e3s">netto + MwSt.</small></div>
+              <div class="cell" role="cell" data-i18n="e3p">290 €</div>
+              <div class="cell" role="cell" data-i18n="e3m">232 €</div>
+            </div>
+
+            <div class="row" role="row">
+              <div class="cell" role="cell"><strong data-i18n="e4">Paket B – 2 Std</strong><small data-i18n="e4s">brutto inkl. MwSt.</small></div>
+              <div class="cell" role="cell" data-i18n="e4p">2.900 €</div>
+              <div class="cell" role="cell" data-i18n="e4m">2.320 €</div>
+            </div>
+            <div class="row" role="row">
+              <div class="cell" role="cell"><strong data-i18n="e5">Paket B – 3,5 Std</strong><small data-i18n="e5s">brutto inkl. MwSt.</small></div>
+              <div class="cell" role="cell" data-i18n="e5p">4.900 €</div>
+              <div class="cell" role="cell" data-i18n="e5m">3.920 €</div>
+            </div>
+            <div class="row" role="row">
+              <div class="cell" role="cell"><strong data-i18n="e6">Paket B – Upgrade &gt;300</strong><small data-i18n="e6s">brutto inkl. MwSt.</small></div>
+              <div class="cell" role="cell" data-i18n="e6p">1.000 €</div>
+              <div class="cell" role="cell" data-i18n="e6m">800 €</div>
+            </div>
+
+            <div class="row" role="row">
+              <div class="cell" role="cell"><strong data-i18n="e7">Paket C – 2 Std</strong><small data-i18n="e7s">netto + MwSt.</small></div>
+              <div class="cell" role="cell" data-i18n="e7p">6.900 €</div>
+              <div class="cell" role="cell" data-i18n="e7m">5.520 €</div>
+            </div>
+            <div class="row" role="row">
+              <div class="cell" role="cell"><strong data-i18n="e8">Paket C – 3,5 Std</strong><small data-i18n="e8s">netto + MwSt.</small></div>
+              <div class="cell" role="cell" data-i18n="e8p">9.900 €</div>
+              <div class="cell" role="cell" data-i18n="e8m">7.920 €</div>
+            </div>
+            <div class="row" role="row">
+              <div class="cell" role="cell"><strong data-i18n="e9">Paket C – Board Pack</strong><small data-i18n="e9s">netto + MwSt.</small></div>
+              <div class="cell" role="cell" data-i18n="e9p">1.500 €</div>
+              <div class="cell" role="cell" data-i18n="e9m">1.200 €</div>
+            </div>
+
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 3v3M17 3v3" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M4 7h16v14a1 1 0 01-1 1H5a1 1 0 01-1-1V7z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M4 11h16" stroke="rgba(212,175,55,.65)" stroke-width="2"/>
+              </svg>
+            </span>
+            <span data-i18n="week_title">Weekend-Setup (Seminarfee)</span>
+          </h2>
+          <p data-i18n="week_text">
+            2 Tage Workshop + Q&A (mit Laptop vor Ort). Die Seminarfee ist ein Event-Produkt – Mitglieder erhalten 20% Rabatt. Hotel/Verpflegung kommen je Termin dazu.
+          </p>
+
+          <div class="table" role="table" aria-label="Weekend Setup Preise">
+            <div class="row head" role="row">
+              <div class="cell" role="columnheader" data-i18n="wth1">Leistung</div>
+              <div class="cell" role="columnheader" data-i18n="wth2">Standard</div>
+              <div class="cell" role="columnheader" data-i18n="wth3">Mitglied</div>
+            </div>
+            <div class="row" role="row">
+              <div class="cell" role="cell"><strong data-i18n="w1">Weekend-Setup (Seminarfee)</strong><small data-i18n="w1s">2 Tage + Q&A</small></div>
+              <div class="cell" role="cell" data-i18n="w1p">499 €</div>
+              <div class="cell" role="cell" data-i18n="w1m">399 €</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 2l10 6-10 6L2 8l10-6z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M22 12l-10 6L2 12" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span data-i18n="tool_title">Leadmaschine – Preislogik</span>
+          </h2>
+          <p data-i18n="tool_text">
+            Ohne Club kostet die Leadmaschine 150 €/Jahr. Als Club-Mitglied bekommst du sie als Add-on für +60 €/Jahr (Club + Tool = 120 €/Jahr).
+          </p>
+        </article>
+
+      </section>
+
+      <section class="links" aria-label="Weiterführende Seiten">
+        <a class="tile" href="./portfolio.html">
+          <div class="ticon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 7h16M4 12h16M4 17h16" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <h3 data-i18n="tile_portfolio_title">Produkt-Portfolio</h3>
+            <p data-i18n="tile_portfolio_desc">Alles in einem Überblick – Club, Tool, Events, Weekend.</p>
+          </div>
+        </a>
+
+        <a class="tile" href="./faq.html">
+          <div class="ticon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 18h.01M9 9a3 3 0 016 0c0 2-3 2-3 5" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              <path d="M12 22a10 10 0 100-20 10 10 0 000 20z" stroke="rgba(212,175,55,.95)" stroke-width="2"/>
+            </svg>
+          </div>
+          <div>
+            <h3 data-i18n="tile_faq_title">FAQ</h3>
+            <p data-i18n="tile_faq_desc">Die wichtigsten Fragen – kurz beantwortet.</p>
+          </div>
+        </a>
+      </section>
+
+      <div class="footer">
+        <span data-i18n="footer_note">Hinweis: Mitglieder erhalten 20% Rabatt auf Event-Produkte.</span>
+        <a href="./checkout.html" data-i18n="footer_cta">Mitgliedschaft aktivieren</a>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    (function(){
+      const dict = {
+        de: {
+          back_to_base: "Zurück zur Club-Basis",
+          lang_label: "Sprache",
+
+          pr_headline: "Preise – klar, fair, auf einen Blick.",
+          pr_subline: "Drei einfache Ebenen: Nicht-Mitglied, Mitglied, Mitglied + Leadmaschine. Plus: Mitglieder erhalten 20% Rabatt auf Event-Produkte.",
+
+          cta_join: "Mitgliedschaft aktivieren",
+          cta_events: "Live-Formate ansehen",
+          cta_tool: "Leadmaschine ansehen",
+
+          plans_title: "Die 3 Preis-Ebenen",
+          plans_text: "Nicht-Mitglied: Einzelpreise. Mitglied: 60 €/Jahr inkl. Kurse + Online-Buch + 20% Eventrabatt. Mitglied+Leadmaschine: Club + Tool-Upgrade zum vergünstigten Add-on.",
+
+          p1_tag: "Nicht-Mitglied",
+          p1_val: "Einzelpreise",
+          p1_note: "Du nutzt Angebote zu Standardpreisen (ohne Club-Vorteile).",
+          p1_b1: "Events",
+          p1_b1d: "Standardpreise je Paket",
+          p1_b2: "Leadmaschine",
+          p1_b2d: "150 € / Jahr",
+
+          p2_tag: "Mitglied",
+          p2_val: "60 € / Jahr",
+          p2_note: "Kurse + Online-Buch inklusive + 20% Rabatt auf Event-Produkte.",
+          p2_b1: "Kurse inklusive",
+          p2_b1d: "Fundament & Vertiefung",
+          p2_b2: "Online-Buch inklusive",
+          p2_b2d: "Roter Faden",
+          p2_b3: "Eventrabatt",
+          p2_b3d: "−20% auf Event-Produkte",
+
+          p3_tag: "Mitglied + Leadmaschine",
+          p3_val: "120 € / Jahr",
+          p3_note: "Club (60 €) + Tool-Upgrade als Add-on (+60 €). Ohne Club kostet das Tool 150 €.",
+          p3_b1: "Vergünstigtes Tool",
+          p3_b1d: "+60 € / Jahr statt 150 €",
+          p3_b2: "Eventrabatt bleibt",
+          p3_b2d: "−20% auf Event-Produkte",
+
+          events_title: "Eventpreise – Mitglied vs Nicht-Mitglied",
+          events_text: "Die Mitgliedspreise sind jeweils 20% unter Standardpreis. (Hinweis: Netto/Brutto-Logik bleibt wie im jeweiligen Paket definiert.)",
+
+          th1: "Event-Produkt",
+          th2: "Standard",
+          th3: "Mitglied",
+
+          e1: "Paket A – 2 Std",
+          e1s: "netto + MwSt.",
+          e1p: "690 €",
+          e1m: "552 €",
+
+          e2: "Paket A – 3,5 Std",
+          e2s: "netto + MwSt.",
+          e2p: "1.290 €",
+          e2m: "1.032 €",
+
+          e3: "Paket A – Extra-Q&A",
+          e3s: "netto + MwSt.",
+          e3p: "290 €",
+          e3m: "232 €",
+
+          e4: "Paket B – 2 Std",
+          e4s: "brutto inkl. MwSt.",
+          e4p: "2.900 €",
+          e4m: "2.320 €",
+
+          e5: "Paket B – 3,5 Std",
+          e5s: "brutto inkl. MwSt.",
+          e5p: "4.900 €",
+          e5m: "3.920 €",
+
+          e6: "Paket B – Upgrade >300",
+          e6s: "brutto inkl. MwSt.",
+          e6p: "1.000 €",
+          e6m: "800 €",
+
+          e7: "Paket C – 2 Std",
+          e7s: "netto + MwSt.",
+          e7p: "6.900 €",
+          e7m: "5.520 €",
+
+          e8: "Paket C – 3,5 Std",
+          e8s: "netto + MwSt.",
+          e8p: "9.900 €",
+          e8m: "7.920 €",
+
+          e9: "Paket C – Board Pack",
+          e9s: "netto + MwSt.",
+          e9p: "1.500 €",
+          e9m: "1.200 €",
+
+          week_title: "Weekend-Setup (Seminarfee)",
+          week_text: "2 Tage Workshop + Q&A (mit Laptop vor Ort). Die Seminarfee ist ein Event-Produkt – Mitglieder erhalten 20% Rabatt. Hotel/Verpflegung kommen je Termin dazu.",
+
+          wth1: "Leistung",
+          wth2: "Standard",
+          wth3: "Mitglied",
+
+          w1: "Weekend-Setup (Seminarfee)",
+          w1s: "2 Tage + Q&A",
+          w1p: "499 €",
+          w1m: "399 €",
+
+          tool_title: "Leadmaschine – Preislogik",
+          tool_text: "Ohne Club kostet die Leadmaschine 150 €/Jahr. Als Club-Mitglied bekommst du sie als Add-on für +60 €/Jahr (Club + Tool = 120 €/Jahr).",
+
+          tile_portfolio_title: "Produkt-Portfolio",
+          tile_portfolio_desc: "Alles in einem Überblick – Club, Tool, Events, Weekend.",
+          tile_faq_title: "FAQ",
+          tile_faq_desc: "Die wichtigsten Fragen – kurz beantwortet.",
+
+          footer_note: "Hinweis: Mitglieder erhalten 20% Rabatt auf Event-Produkte.",
+          footer_cta: "Mitgliedschaft aktivieren"
+        },
+        en: {
+          back_to_base: "Back to Club Hub",
+          lang_label: "Language",
+
+          pr_headline: "Pricing — clear, fair, at a glance.",
+          pr_subline: "Three simple levels: non-member, member, member + Lead Machine. Plus: members get 20% off event products.",
+
+          cta_join: "Activate membership",
+          cta_events: "View live formats",
+          cta_tool: "View Lead Machine",
+
+          plans_title: "The 3 pricing levels",
+          plans_text: "Non-member: individual prices. Member: €60/year incl. courses + online book + 20% event discount. Member+Lead Machine: Club + discounted tool add-on.",
+
+          p1_tag: "Non-member",
+          p1_val: "Individual prices",
+          p1_note: "You use offers at standard prices (without Club benefits).",
+          p1_b1: "Events",
+          p1_b1d: "Standard package pricing",
+          p1_b2: "Lead Machine",
+          p1_b2d: "€150 / year",
+
+          p2_tag: "Member",
+          p2_val: "€60 / year",
+          p2_note: "Courses + online book included + 20% off event products.",
+          p2_b1: "Courses included",
+          p2_b1d: "Foundation & deeper modules",
+          p2_b2: "Online book included",
+          p2_b2d: "Guiding thread",
+          p2_b3: "Event discount",
+          p2_b3d: "−20% on event products",
+
+          p3_tag: "Member + Lead Machine",
+          p3_val: "€120 / year",
+          p3_note: "Club (€60) + tool upgrade as add-on (+€60). Without Club, the tool costs €150.",
+          p3_b1: "Discounted tool",
+          p3_b1d: "+€60/year instead of €150",
+          p3_b2: "Event discount stays",
+          p3_b2d: "−20% on event products",
+
+          events_title: "Event pricing — member vs non-member",
+          events_text: "Member prices are 20% below standard. (Note: net/gross logic remains as defined per package.)",
+
+          th1: "Event product",
+          th2: "Standard",
+          th3: "Member",
+
+          e1: "Package A — 2h",
+          e1s: "net + VAT",
+          e1p: "€690",
+          e1m: "€552",
+
+          e2: "Package A — 3.5h",
+          e2s: "net + VAT",
+          e2p: "€1,290",
+          e2m: "€1,032",
+
+          e3: "Package A — Extra Q&A",
+          e3s: "net + VAT",
+          e3p: "€290",
+          e3m: "€232",
+
+          e4: "Package B — 2h",
+          e4s: "gross incl. VAT",
+          e4p: "€2,900",
+          e4m: "€2,320",
+
+          e5: "Package B — 3.5h",
+          e5s: "gross incl. VAT",
+          e5p: "€4,900",
+          e5m: "€3,920",
+
+          e6: "Package B — Upgrade >300",
+          e6s: "gross incl. VAT",
+          e6p: "€1,000",
+          e6m: "€800",
+
+          e7: "Package C — 2h",
+          e7s: "net + VAT",
+          e7p: "€6,900",
+          e7m: "€5,520",
+
+          e8: "Package C — 3.5h",
+          e8s: "net + VAT",
+          e8p: "€9,900",
+          e8m: "€7,920",
+
+          e9: "Package C — Board Pack",
+          e9s: "net + VAT",
+          e9p: "€1,500",
+          e9m: "€1,200",
+
+          week_title: "Weekend setup (seminar fee)",
+          week_text: "2-day workshop + Q&A (bring your laptop). The seminar fee is an event product — members get 20% off. Hotel/catering are added per date.",
+
+          wth1: "Service",
+          wth2: "Standard",
+          wth3: "Member",
+
+          w1: "Weekend setup (seminar fee)",
+          w1s: "2 days + Q&A",
+          w1p: "€499",
+          w1m: "€399",
+
+          tool_title: "Lead Machine — pricing logic",
+          tool_text: "Without the Club, the Lead Machine costs €150/year. As a Club member you get it as an add-on for +€60/year (Club + tool = €120/year).",
+
+          tile_portfolio_title: "Product portfolio",
+          tile_portfolio_desc: "All in one overview — Club, tool, events, weekend.",
+          tile_faq_title: "FAQ",
+          tile_faq_desc: "Key questions — answered briefly.",
+
+          footer_note: "Note: members receive 20% off event products.",
+          footer_cta: "Activate membership"
+        }
+      };
+
+      const btnDE = document.getElementById("btnDE");
+      const btnEN = document.getElementById("btnEN");
+
+      function applyLang(lang){
+        const map = dict[lang] || dict.de;
+        document.documentElement.lang = lang;
+
+        document.querySelectorAll("[data-i18n]").forEach(el=>{
+          const key = el.getAttribute("data-i18n");
+          if(map[key] !== undefined) el.textContent = map[key];
+        });
+
+        btnDE.setAttribute("aria-pressed", lang === "de" ? "true" : "false");
+        btnEN.setAttribute("aria-pressed", lang === "en" ? "true" : "false");
+
+        try{ localStorage.setItem("fsa_lang", lang); }catch(e){}
+      }
+
+      btnDE.addEventListener("click", ()=>applyLang("de"));
+      btnEN.addEventListener("click", ()=>applyLang("en"));
+
+      let saved = "de";
+      try{ saved = localStorage.getItem("fsa_lang") || "de"; }catch(e){}
+      if(saved !== "de" && saved !== "en") saved = "de";
+      applyLang(saved);
+    })();
+  </script>
+</body>
+</html>
