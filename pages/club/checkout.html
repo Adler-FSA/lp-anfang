@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Checkout – FSA-Club</title>
+
+  <style>
+    :root{
+      --gold:#d4af37;
+      --txt:#e9e9e9;
+      --muted:#cbd5e1;
+      --panel:rgba(0,0,0,.72);
+      --shadow:0 26px 50px rgba(0,0,0,.55);
+      --glow:0 0 22px rgba(212,175,55,.55), 0 10px 28px rgba(0,0,0,.55);
+      --radius:18px;
+      --maxw:1100px;
+    }
+
+    html,body{
+      margin:0;
+      background:#000;
+      color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      overflow-x:hidden;
+    }
+
+    .bg-fixed{
+      position:fixed; inset:0;
+      background:
+        radial-gradient(1200px 700px at 26% 10%, rgba(212,175,55,.18), transparent 60%),
+        radial-gradient(1000px 700px at 74% 35%, rgba(28,194,160,.10), transparent 60%),
+        linear-gradient(180deg, #05060a 0%, #000 60%, #03040a 100%);
+      z-index:-2;
+    }
+    .bg-grid{
+      position:fixed; inset:0;
+      background-image:
+        linear-gradient(rgba(212,175,55,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212,175,55,.06) 1px, transparent 1px);
+      background-size:44px 44px;
+      mask-image: radial-gradient(70% 55% at 50% 20%, #000 55%, transparent 100%);
+      opacity:.35;
+      z-index:-1;
+      pointer-events:none;
+    }
+
+    /* Offset below fixed topbar from menu.js */
+    #hero{ padding-top:88px; }
+
+    .wrap{
+      max-width:var(--maxw);
+      margin:34px auto 70px;
+      padding:0 18px;
+    }
+
+    .topline{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .crumb{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.55);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      text-decoration:none;
+      color:var(--txt);
+    }
+    .crumb:hover{
+      box-shadow:0 0 0 1px rgba(212,175,55,.35) inset, var(--glow);
+    }
+
+    .langbox{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.55);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+    }
+    .langbox .lbl{
+      font-size:12px; letter-spacing:.04em; text-transform:uppercase;
+      color:var(--muted);
+    }
+    .langbtn{
+      border:0;
+      background:rgba(212,175,55,.14);
+      color:var(--txt);
+      padding:8px 10px;
+      border-radius:999px;
+      cursor:pointer;
+      box-shadow:0 0 0 1px rgba(212,175,55,.22) inset;
+      font-weight:900;
+    }
+    .langbtn[aria-pressed="true"]{
+      background:rgba(212,175,55,.28);
+      box-shadow:0 0 0 1px rgba(212,175,55,.38) inset, 0 0 18px rgba(212,175,55,.22);
+    }
+
+    .hero{
+      background:linear-gradient(180deg, rgba(0,0,0,.72), rgba(0,0,0,.55));
+      border-radius:var(--radius);
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(212,175,55,.18);
+      position:relative;
+      overflow:hidden;
+    }
+    .hero::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:radial-gradient(900px 320px at 20% 10%, rgba(212,175,55,.22), transparent 55%);
+      pointer-events:none;
+    }
+
+    .h1{
+      margin:0 0 10px;
+      font-size:28px;
+      letter-spacing:.2px;
+      position:relative;
+    }
+    .sub{
+      margin:0 0 14px;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+      position:relative;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(12, 1fr);
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .card{
+      grid-column:span 12;
+      background:var(--panel);
+      border-radius:var(--radius);
+      padding:18px 16px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(212,175,55,.16);
+      opacity:0;
+      transform:translateY(10px);
+      animation:fadeIn .55s ease forwards;
+    }
+    .card:nth-child(1){ animation-delay:.06s; }
+    .card:nth-child(2){ animation-delay:.12s; }
+    .card:nth-child(3){ animation-delay:.18s; }
+    .card:nth-child(4){ animation-delay:.24s; }
+    .card:nth-child(5){ animation-delay:.30s; }
+
+    @keyframes fadeIn{ to{ opacity:1; transform:translateY(0); } }
+
+    .card h2{
+      margin:0 0 10px;
+      font-size:18px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .card p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+    }
+
+    .list{
+      margin:12px 0 0;
+      padding:0;
+      list-style:none;
+      display:grid;
+      gap:10px;
+    }
+    .list li{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px 12px;
+      border-radius:14px;
+      background:rgba(0,0,0,.32);
+      box-shadow:0 0 0 1px rgba(212,175,55,.10) inset;
+    }
+    .tick{
+      width:18px; height:18px; flex:0 0 18px;
+      margin-top:2px;
+      filter:drop-shadow(0 0 10px rgba(212,175,55,.25));
+    }
+
+    .cta-row{
+      display:flex; flex-wrap:wrap; gap:12px;
+      margin-top:12px;
+    }
+    .btn{
+      display:inline-flex; align-items:center; gap:10px;
+      text-decoration:none;
+      color:var(--txt);
+      border-radius:14px;
+      padding:12px 14px;
+      background:rgba(212,175,55,.20);
+      box-shadow:0 0 0 1px rgba(212,175,55,.30) inset;
+      font-weight:900;
+    }
+    .btn:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.45) inset, var(--glow); }
+    .btn.secondary{
+      background:rgba(0,0,0,.35);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      font-weight:800;
+    }
+
+    .footer{
+      margin-top:18px;
+      padding:14px 16px;
+      border-radius:var(--radius);
+      background:rgba(0,0,0,.55);
+      border:1px solid rgba(212,175,55,.14);
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .footer a{
+      color:var(--txt);
+      text-decoration:none;
+      box-shadow:0 0 0 1px rgba(212,175,55,.14) inset;
+      padding:8px 10px;
+      border-radius:999px;
+      background:rgba(212,175,55,.10);
+    }
+    .footer a:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.32) inset, var(--glow); }
+
+    @media (min-width: 900px){
+      .h1{ font-size:34px; }
+    }
+  </style>
+
+  <script defer src="../../js/menu.js"></script>
+</head>
+<body>
+  <div class="bg-fixed" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <main id="hero">
+    <div class="wrap">
+
+      <div class="topline">
+        <a class="crumb" href="./index.html" aria-label="Zurück zur Club-Basis">
+          <span aria-hidden="true" style="display:inline-grid;place-items:center;width:18px;height:18px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M15 18l-6-6 6-6" stroke="rgba(212,175,55,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span data-i18n="back_to_base">Zurück zur Club-Basis</span>
+        </a>
+
+        <div class="langbox" role="group" aria-label="Sprache wählen">
+          <span class="lbl" data-i18n="lang_label">Sprache</span>
+          <button class="langbtn" id="btnDE" type="button" aria-pressed="true">DE</button>
+          <button class="langbtn" id="btnEN" type="button" aria-pressed="false">EN</button>
+        </div>
+      </div>
+
+      <section class="hero" aria-label="Checkout Hero">
+        <h1 class="h1" data-i18n="h_headline">Mitgliedschaft aktivieren – und dein Setup starten</h1>
+        <p class="sub" data-i18n="h_subline">
+          Nach dem Kauf bekommst du sofort Zugang zu Kursen & Online-Buch und kannst direkt loslegen.
+        </p>
+
+        <div class="cta-row">
+          <a class="btn" href="./club.html" data-i18n="cta_activate">Mitgliedschaft jetzt aktivieren</a>
+          <a class="btn secondary" href="./preise.html" data-i18n="cta_prices">Preise ansehen</a>
+          <a class="btn secondary" href="./start.html" data-i18n="cta_start">Start in 3 Schritten</a>
+        </div>
+      </section>
+
+      <section class="grid" aria-label="Checkout Inhalte">
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 7h16M4 12h16M4 17h16" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span data-i18n="s1_title">Nach dem Kauf – so geht’s weiter</span>
+          </h2>
+
+          <ul class="list">
+            <li>
+              <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div data-i18n="s1_1">Mitgliedschaft wird aktiviert</div>
+            </li>
+            <li>
+              <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div data-i18n="s1_2">Du erhältst Zugang zum Mitgliederbereich</div>
+            </li>
+            <li>
+              <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div data-i18n="s1_3">Du startest mit dem Fundament (Kurse + Online-Buch)</div>
+            </li>
+            <li>
+              <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div data-i18n="s1_4">Optional: Du sicherst dir Tool & Live-Vorteile</div>
+            </li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 2l8 4v6c0 5-3.4 9.4-8 10-4.6-.6-8-5-8-10V6l8-4z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M9 12l2 2 4-4" stroke="rgba(212,175,55,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span data-i18n="s2_title">In deiner Mitgliedschaft enthalten</span>
+          </h2>
+
+          <ul class="list">
+            <li>
+              <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div data-i18n="s2_1">Alle Kurse inklusive</div>
+            </li>
+            <li>
+              <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div data-i18n="s2_2">Online-Buch inklusive</div>
+            </li>
+            <li>
+              <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div data-i18n="s2_3">20% Mitgliedervorteil auf Event-Produkte</div>
+            </li>
+            <li>
+              <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div data-i18n="s2_4">Optional: Leadmaschine als vergünstigtes Add-on</div>
+            </li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 7h10v10H7z" stroke="rgba(212,175,55,.95)" stroke-width="2"/>
+                <path d="M4 4h5M15 4h5M4 20h5M15 20h5" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span data-i18n="s3_title">Optional: Leadmaschine als Upgrade</span>
+          </h2>
+
+          <p data-i18n="s3_text">
+            Wenn du zusätzlich ein Tool für Struktur und Prozesse willst:
+          </p>
+
+          <ul class="list">
+            <li>
+              <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div data-i18n="s3_1">Ohne Club: 150 € / Jahr</div>
+            </li>
+            <li>
+              <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div data-i18n="s3_2">Als Mitglied: +60 € / Jahr</div>
+            </li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 7h16M4 12h16M4 17h16" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span data-i18n="s4_title">Start in 3 Schritten</span>
+          </h2>
+
+          <ul class="list">
+            <li>
+              <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div data-i18n="s4_1">Einloggen & Überblick holen (Fundament öffnen)</div>
+            </li>
+            <li>
+              <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div data-i18n="s4_2">Die ersten Module durchlaufen (Klarheit & Reihenfolge)</div>
+            </li>
+            <li>
+              <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div data-i18n="s4_3">Umsetzung planen (optional Tool & Live nutzen)</div>
+            </li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 2l9 7-9 13L3 9l9-7z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M9 11h6" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span data-i18n="s5_title">Einwand-Schutz</span>
+          </h2>
+
+          <ul class="list">
+            <li>
+              <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div data-i18n="s5_1">„Ich habe wenig Zeit.“ Starte klein – Hauptsache regelmäßig.</div>
+            </li>
+            <li>
+              <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div data-i18n="s5_2">„Ich bin unsicher.“ Der Club ist für Struktur gemacht – du gehst Schritt für Schritt.</div>
+            </li>
+          </ul>
+
+          <p style="margin-top:12px;color:var(--muted);line-height:1.55;" data-i18n="final_text">
+            Du musst nicht alles sofort können. Du musst nur anfangen. Der Club liefert dir den Weg – du gehst ihn in deinem Tempo.
+          </p>
+
+          <div class="cta-row">
+            <a class="btn" href="./club.html" data-i18n="cta_activate2">Mitgliedschaft jetzt aktivieren</a>
+            <a class="btn secondary" href="./index.html" data-i18n="cta_back">Zurück zur Club-Basis</a>
+          </div>
+        </article>
+
+      </section>
+
+      <div class="footer">
+        <span data-i18n="footer_note">Hinweis: Checkout ist ein Info-Text – die Aktivierung erfolgt über den Mitgliederprozess.</span>
+        <a href="./index.html" data-i18n="footer_cta">Zurück zur Club-Basis</a>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    (function(){
+      const dict = {
+        de: {
+          back_to_base:"Zurück zur Club-Basis",
+          lang_label:"Sprache",
+
+          h_headline:"Mitgliedschaft aktivieren – und dein Setup starten",
+          h_subline:"Nach dem Kauf bekommst du sofort Zugang zu Kursen & Online-Buch und kannst direkt loslegen.",
+
+          cta_activate:"Mitgliedschaft jetzt aktivieren",
+          cta_prices:"Preise ansehen",
+          cta_start:"Start in 3 Schritten",
+
+          s1_title:"Nach dem Kauf – so geht’s weiter",
+          s1_1:"Mitgliedschaft wird aktiviert",
+          s1_2:"Du erhältst Zugang zum Mitgliederbereich",
+          s1_3:"Du startest mit dem Fundament (Kurse + Online-Buch)",
+          s1_4:"Optional: Du sicherst dir Tool & Live-Vorteile",
+
+          s2_title:"In deiner Mitgliedschaft enthalten",
+          s2_1:"Alle Kurse inklusive",
+          s2_2:"Online-Buch inklusive",
+          s2_3:"20% Mitgliedervorteil auf Event-Produkte",
+          s2_4:"Optional: Leadmaschine als vergünstigtes Add-on",
+
+          s3_title:"Optional: Leadmaschine als Upgrade",
+          s3_text:"Wenn du zusätzlich ein Tool für Struktur und Prozesse willst:",
+          s3_1:"Ohne Club: 150 € / Jahr",
+          s3_2:"Als Mitglied: +60 € / Jahr",
+
+          s4_title:"Start in 3 Schritten",
+          s4_1:"Einloggen & Überblick holen (Fundament öffnen)",
+          s4_2:"Die ersten Module durchlaufen (Klarheit & Reihenfolge)",
+          s4_3:"Umsetzung planen (optional Tool & Live nutzen)",
+
+          s5_title:"Einwand-Schutz",
+          s5_1:"„Ich habe wenig Zeit.“ Starte klein – Hauptsache regelmäßig.",
+          s5_2:"„Ich bin unsicher.“ Der Club ist für Struktur gemacht – du gehst Schritt für Schritt.",
+
+          final_text:"Du musst nicht alles sofort können. Du musst nur anfangen. Der Club liefert dir den Weg – du gehst ihn in deinem Tempo.",
+
+          cta_activate2:"Mitgliedschaft jetzt aktivieren",
+          cta_back:"Zurück zur Club-Basis",
+
+          footer_note:"Hinweis: Checkout ist ein Info-Text – die Aktivierung erfolgt über den Mitgliederprozess.",
+          footer_cta:"Zurück zur Club-Basis"
+        },
+        en: {
+          back_to_base:"Back to Club Hub",
+          lang_label:"Language",
+
+          h_headline:"Activate membership — and start your setup",
+          h_subline:"After purchase, you get immediate access to courses & the online book and can start right away.",
+
+          cta_activate:"Activate membership now",
+          cta_prices:"View pricing",
+          cta_start:"Start in 3 steps",
+
+          s1_title:"After the purchase — what happens next",
+          s1_1:"Membership is activated",
+          s1_2:"You get access to the members area",
+          s1_3:"You start with the foundation (courses + online book)",
+          s1_4:"Optional: you secure the tool & live benefits",
+
+          s2_title:"Included in your membership",
+          s2_1:"All courses included",
+          s2_2:"Online book included",
+          s2_3:"20% member benefit on event products",
+          s2_4:"Optional: Leadmaschine as a discounted add-on",
+
+          s3_title:"Optional: Leadmaschine upgrade",
+          s3_text:"If you also want a tool for structure and processes:",
+          s3_1:"Without Club: €150 / year",
+          s3_2:"As a member: +€60 / year",
+
+          s4_title:"Start in 3 steps",
+          s4_1:"Log in & get an overview (open the foundation)",
+          s4_2:"Go through the first modules (clarity & order)",
+          s4_3:"Plan implementation (optional tool & live)",
+
+          s5_title:"Objection handling",
+          s5_1:"“I have little time.” Start small — consistency matters.",
+          s5_2:"“I’m unsure.” The Club is built for structure — step by step.",
+
+          final_text:"You don’t have to master everything right away. You just have to start. The Club provides the path — you go at your pace.",
+
+          cta_activate2:"Activate membership now",
+          cta_back:"Back to Club Hub",
+
+          footer_note:"Note: this checkout page is informational — activation happens via the membership process.",
+          footer_cta:"Back to Club Hub"
+        }
+      };
+
+      const btnDE = document.getElementById("btnDE");
+      const btnEN = document.getElementById("btnEN");
+
+      function applyLang(lang){
+        const map = dict[lang] || dict.de;
+        document.documentElement.lang = lang;
+
+        document.querySelectorAll("[data-i18n]").forEach(el=>{
+          const key = el.getAttribute("data-i18n");
+          if(map[key] !== undefined) el.textContent = map[key];
+        });
+
+        btnDE.setAttribute("aria-pressed", lang === "de" ? "true" : "false");
+        btnEN.setAttribute("aria-pressed", lang === "en" ? "true" : "false");
+
+        try{ localStorage.setItem("fsa_lang", lang); }catch(e){}
+      }
+
+      btnDE.addEventListener("click", ()=>applyLang("de"));
+      btnEN.addEventListener("click", ()=>applyLang("en"));
+
+      let saved = "de";
+      try{ saved = localStorage.getItem("fsa_lang") || "de"; }catch(e){}
+      if(saved !== "de" && saved !== "en") saved = "de";
+      applyLang(saved);
+    })();
+  </script>
+</body>
+</html>
