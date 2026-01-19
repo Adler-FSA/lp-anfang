@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hörsaal-Lizenz – FSA-Club</title>
+
+  <style>
+    :root{
+      --gold:#d4af37;
+      --txt:#e9e9e9;
+      --muted:#cbd5e1;
+      --panel:rgba(0,0,0,.72);
+      --shadow:0 26px 50px rgba(0,0,0,.55);
+      --glow:0 0 22px rgba(212,175,55,.55), 0 10px 28px rgba(0,0,0,.55);
+      --radius:18px;
+      --maxw:1100px;
+    }
+
+    html,body{
+      margin:0;
+      background:#000;
+      color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      overflow-x:hidden;
+    }
+
+    .bg-fixed{
+      position:fixed; inset:0;
+      background:
+        radial-gradient(1200px 700px at 26% 10%, rgba(212,175,55,.18), transparent 60%),
+        radial-gradient(1000px 700px at 74% 35%, rgba(28,194,160,.10), transparent 60%),
+        linear-gradient(180deg, #05060a 0%, #000 60%, #03040a 100%);
+      z-index:-2;
+    }
+    .bg-grid{
+      position:fixed; inset:0;
+      background-image:
+        linear-gradient(rgba(212,175,55,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212,175,55,.06) 1px, transparent 1px);
+      background-size:44px 44px;
+      mask-image: radial-gradient(70% 55% at 50% 20%, #000 55%, transparent 100%);
+      opacity:.35;
+      z-index:-1;
+      pointer-events:none;
+    }
+
+    /* Offset below fixed topbar from menu.js */
+    #hero{ padding-top:88px; }
+
+    .wrap{
+      max-width:var(--maxw);
+      margin:34px auto 70px;
+      padding:0 18px;
+    }
+
+    .topline{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .crumb{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.55);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      text-decoration:none;
+      color:var(--txt);
+    }
+    .crumb:hover{
+      box-shadow:0 0 0 1px rgba(212,175,55,.35) inset, var(--glow);
+    }
+
+    .langbox{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.55);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+    }
+    .langbox .lbl{
+      font-size:12px; letter-spacing:.04em; text-transform:uppercase;
+      color:var(--muted);
+    }
+    .langbtn{
+      border:0;
+      background:rgba(212,175,55,.14);
+      color:var(--txt);
+      padding:8px 10px;
+      border-radius:999px;
+      cursor:pointer;
+      box-shadow:0 0 0 1px rgba(212,175,55,.22) inset;
+      font-weight:900;
+    }
+    .langbtn[aria-pressed="true"]{
+      background:rgba(212,175,55,.28);
+      box-shadow:0 0 0 1px rgba(212,175,55,.38) inset, 0 0 18px rgba(212,175,55,.22);
+    }
+
+    .hero{
+      background:linear-gradient(180deg, rgba(0,0,0,.72), rgba(0,0,0,.55));
+      border-radius:var(--radius);
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(212,175,55,.18);
+      position:relative;
+      overflow:hidden;
+    }
+    .hero::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:radial-gradient(900px 320px at 20% 10%, rgba(212,175,55,.22), transparent 55%);
+      pointer-events:none;
+    }
+
+    .h1{
+      margin:0 0 10px;
+      font-size:28px;
+      letter-spacing:.2px;
+      position:relative;
+    }
+    .sub{
+      margin:0 0 14px;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+      position:relative;
+    }
+
+    .cta-row{
+      display:flex; flex-wrap:wrap; gap:12px;
+      margin-top:10px;
+      position:relative;
+    }
+    .btn{
+      display:inline-flex; align-items:center; gap:10px;
+      text-decoration:none;
+      color:var(--txt);
+      border-radius:14px;
+      padding:12px 14px;
+      background:rgba(212,175,55,.20);
+      box-shadow:0 0 0 1px rgba(212,175,55,.30) inset;
+      font-weight:900;
+    }
+    .btn:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.45) inset, var(--glow); }
+    .btn.secondary{
+      background:rgba(0,0,0,.35);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      font-weight:800;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(12, 1fr);
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .card{
+      grid-column:span 12;
+      background:var(--panel);
+      border-radius:var(--radius);
+      padding:18px 16px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(212,175,55,.16);
+      opacity:0;
+      transform:translateY(10px);
+      animation:fadeIn .55s ease forwards;
+    }
+    .card:nth-child(1){ animation-delay:.06s; }
+    .card:nth-child(2){ animation-delay:.12s; }
+    .card:nth-child(3){ animation-delay:.18s; }
+    .card:nth-child(4){ animation-delay:.24s; }
+
+    @keyframes fadeIn{ to{ opacity:1; transform:translateY(0); } }
+
+    .card h2{
+      margin:0 0 10px;
+      font-size:18px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .card p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+    }
+
+    .list{
+      margin:12px 0 0;
+      padding:0;
+      list-style:none;
+      display:grid;
+      gap:10px;
+    }
+    .list li{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px 12px;
+      border-radius:14px;
+      background:rgba(0,0,0,.32);
+      box-shadow:0 0 0 1px rgba(212,175,55,.10) inset;
+    }
+    .tick{
+      width:18px; height:18px; flex:0 0 18px;
+      margin-top:2px;
+      filter:drop-shadow(0 0 10px rgba(212,175,55,.25));
+    }
+
+    .steps{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+    .step{
+      border-radius:14px;
+      background:rgba(0,0,0,.32);
+      box-shadow:0 0 0 1px rgba(212,175,55,.10) inset;
+      padding:12px 12px;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .step .n{
+      width:28px; height:28px; flex:0 0 28px;
+      border-radius:10px;
+      display:grid; place-items:center;
+      background:rgba(212,175,55,.16);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      font-weight:1100;
+    }
+    .step .t{
+      color:var(--muted);
+      line-height:1.55;
+    }
+
+    .pricing{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:12px;
+      margin-top:12px;
+    }
+    .pack{
+      grid-column:span 12;
+      border-radius:16px;
+      background:rgba(0,0,0,.34);
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      padding:14px 14px;
+    }
+    .pack .row{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; flex-wrap:wrap;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(212,175,55,.14);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      font-weight:1100;
+      letter-spacing:.02em;
+    }
+    .price{
+      font-weight:1200;
+      font-size:18px;
+      letter-spacing:.02em;
+    }
+    .small{
+      margin-top:10px;
+      color:var(--muted);
+      line-height:1.55;
+    }
+
+    .footer{
+      margin-top:18px;
+      padding:14px 16px;
+      border-radius:var(--radius);
+      background:rgba(0,0,0,.55);
+      border:1px solid rgba(212,175,55,.14);
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .footer a{
+      color:var(--txt);
+      text-decoration:none;
+      box-shadow:0 0 0 1px rgba(212,175,55,.14) inset;
+      padding:8px 10px;
+      border-radius:999px;
+      background:rgba(212,175,55,.10);
+    }
+    .footer a:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.32) inset, var(--glow); }
+
+    @media (min-width: 900px){
+      .h1{ font-size:34px; }
+      .pack{ grid-column:span 4; }
+    }
+  </style>
+
+  <script defer src="../../js/menu.js"></script>
+</head>
+<body>
+  <div class="bg-fixed" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <main id="hero">
+    <div class="wrap">
+
+      <div class="topline">
+        <a class="crumb" href="./index.html" aria-label="Zurück zur Club-Basis">
+          <span aria-hidden="true" style="display:inline-grid;place-items:center;width:18px;height:18px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M15 18l-6-6 6-6" stroke="rgba(212,175,55,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span data-i18n="back_to_base">Zurück zur Club-Basis</span>
+        </a>
+
+        <div class="langbox" role="group" aria-label="Sprache wählen">
+          <span class="lbl" data-i18n="lang_label">Sprache</span>
+          <button class="langbtn" id="btnDE" type="button" aria-pressed="true">DE</button>
+          <button class="langbtn" id="btnEN" type="button" aria-pressed="false">EN</button>
+        </div>
+      </div>
+
+      <section class="hero" aria-label="Hörsaal Hero">
+        <h1 class="h1" data-i18n="h_headline">Hörsaal-Lizenz – Ausbildung + Präsentation für externe Partner.</h1>
+        <p class="sub" data-i18n="h_subline">
+          Führe Interessenten erst durch ein Fundament – und präsentiere danach dein Projekt strukturiert im Hörsaal.
+        </p>
+
+        <div class="cta-row">
+          <a class="btn" href="./kontakt.html">
+            <span aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M21 8v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M3 8l9 6 9-6" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span data-i18n="cta_btn">Hörsaal anfragen</span>
+          </a>
+          <a class="btn secondary" href="./club.html" data-i18n="cta_about">Was ist der Club?</a>
+          <a class="btn secondary" href="./preise.html" data-i18n="cta_prices">Preise ansehen</a>
+        </div>
+      </section>
+
+      <section class="grid" aria-label="Hörsaal Inhalte">
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 22a10 10 0 100-20 10 10 0 000 20z" stroke="rgba(212,175,55,.95)" stroke-width="2"/>
+                <path d="M12 10v7" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 7h.01" stroke="rgba(212,175,55,.95)" stroke-width="3" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span data-i18n="s1_title">Warum das sinnvoll ist</span>
+          </h2>
+          <p data-i18n="s1_text">
+            Viele Organisationen haben Leads, Mitglieder oder Interessenten – aber kein Ausbildungssystem, das Grundlagen vermittelt.
+            Das Ergebnis: Missverständnisse, hohe Supportlast, unklare Erwartungen.
+          </p>
+
+          <ul class="list">
+            <li>
+              <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div data-i18n="s1_b1">Passwortgeschützter Ausbildungsbereich (Fundament)</div>
+            </li>
+            <li>
+              <svg class="tick" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div data-i18n="s1_b2">Projektbereich zur Präsentation (klar & professionell)</div>
+            </li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 7h10v10H7z" stroke="rgba(212,175,55,.95)" stroke-width="2"/>
+                <path d="M4 4h5M15 4h5M4 20h5M15 20h5" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span data-i18n="s2_title">So läuft es ab</span>
+          </h2>
+
+          <div class="steps">
+            <div class="step"><div class="n">1</div><div class="t" data-i18n="s2_1">Paket wählen</div></div>
+            <div class="step"><div class="n">2</div><div class="t" data-i18n="s2_2">Hörsaal wird eingerichtet</div></div>
+            <div class="step"><div class="n">3</div><div class="t" data-i18n="s2_3">Partner erhält Zugang + Passwort</div></div>
+            <div class="step"><div class="n">4</div><div class="t" data-i18n="s2_4">Interessenten durchlaufen Fundament</div></div>
+            <div class="step"><div class="n">5</div><div class="t" data-i18n="s2_5">Projekt wird im Hörsaal präsentiert</div></div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M6 7h12M6 12h12M6 17h12" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span data-i18n="s3_title">Jahrespakete (netto zzgl. MwSt.)</span>
+          </h2>
+
+          <div class="pricing">
+            <div class="pack">
+              <div class="row">
+                <span class="badge">S</span>
+                <span class="price" data-i18n="p_s">4.900 € / Jahr</span>
+              </div>
+              <div class="small" data-i18n="p_setup">Setup-Fee je Paket</div>
+            </div>
+            <div class="pack">
+              <div class="row">
+                <span class="badge">M</span>
+                <span class="price" data-i18n="p_m">9.900 € / Jahr</span>
+              </div>
+              <div class="small" data-i18n="p_setup2">Setup-Fee je Paket</div>
+            </div>
+            <div class="pack">
+              <div class="row">
+                <span class="badge">L</span>
+                <span class="price" data-i18n="p_l">19.900 € / Jahr</span>
+              </div>
+              <div class="small" data-i18n="p_setup3">Setup-Fee je Paket</div>
+            </div>
+          </div>
+
+          <p class="small" data-i18n="p_optional">
+            Optional: Crossmarketing-Pakete (Magazin/Newsletter/Artikel)
+          </p>
+        </article>
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 2l9 7-9 13L3 9l9-7z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M9 11h6" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span data-i18n="cta_title">CTA</span>
+          </h2>
+          <p data-i18n="cta_text">
+            Wenn du einen Hörsaal für dein Projekt, deinen Club oder deine Organisation nutzen willst, stelle eine Anfrage – wir klären Paket, Setup und Ablauf.
+          </p>
+          <div class="cta-row">
+            <a class="btn" href="./kontakt.html" data-i18n="cta_btn2">Hörsaal anfragen</a>
+            <a class="btn secondary" href="./index.html" data-i18n="cta_back">Zurück zur Club-Basis</a>
+          </div>
+        </article>
+
+      </section>
+
+      <div class="footer">
+        <span data-i18n="footer_note">Hinweis: Preise netto zzgl. MwSt.; Details und Setup nach Absprache.</span>
+        <a href="./index.html" data-i18n="footer_cta">Zurück zur Club-Basis</a>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    (function(){
+      const dict = {
+        de: {
+          back_to_base: "Zurück zur Club-Basis",
+          lang_label: "Sprache",
+
+          h_headline: "Hörsaal-Lizenz – Ausbildung + Präsentation für externe Partner.",
+          h_subline: "Führe Interessenten erst durch ein Fundament – und präsentiere danach dein Projekt strukturiert im Hörsaal.",
+
+          cta_btn: "Hörsaal anfragen",
+          cta_about: "Was ist der Club?",
+          cta_prices: "Preise ansehen",
+
+          s1_title: "Warum das sinnvoll ist",
+          s1_text: "Viele Organisationen haben Leads, Mitglieder oder Interessenten – aber kein Ausbildungssystem, das Grundlagen vermittelt. Das Ergebnis: Missverständnisse, hohe Supportlast, unklare Erwartungen.",
+          s1_b1: "Passwortgeschützter Ausbildungsbereich (Fundament)",
+          s1_b2: "Projektbereich zur Präsentation (klar & professionell)",
+
+          s2_title: "So läuft es ab",
+          s2_1: "Paket wählen",
+          s2_2: "Hörsaal wird eingerichtet",
+          s2_3: "Partner erhält Zugang + Passwort",
+          s2_4: "Interessenten durchlaufen Fundament",
+          s2_5: "Projekt wird im Hörsaal präsentiert",
+
+          s3_title: "Jahrespakete (netto zzgl. MwSt.)",
+          p_s: "4.900 € / Jahr",
+          p_m: "9.900 € / Jahr",
+          p_l: "19.900 € / Jahr",
+          p_setup: "Setup-Fee je Paket",
+          p_setup2: "Setup-Fee je Paket",
+          p_setup3: "Setup-Fee je Paket",
+          p_optional: "Optional: Crossmarketing-Pakete (Magazin/Newsletter/Artikel)",
+
+          cta_title: "CTA",
+          cta_text: "Wenn du einen Hörsaal für dein Projekt, deinen Club oder deine Organisation nutzen willst, stelle eine Anfrage – wir klären Paket, Setup und Ablauf.",
+          cta_btn2: "Hörsaal anfragen",
+          cta_back: "Zurück zur Club-Basis",
+
+          footer_note: "Hinweis: Preise netto zzgl. MwSt.; Details und Setup nach Absprache.",
+          footer_cta: "Zurück zur Club-Basis"
+        },
+        en: {
+          back_to_base: "Back to Club Hub",
+          lang_label: "Language",
+
+          h_headline: "Lecture Hall License — training + presentation for external partners.",
+          h_subline: "Guide prospects through a foundation first — and then present your project in a structured way inside the lecture hall.",
+
+          cta_btn: "Request lecture hall",
+          cta_about: "What is the Club?",
+          cta_prices: "View pricing",
+
+          s1_title: "Why this makes sense",
+          s1_text: "Many organizations have leads, members or prospects — but no education system that teaches the fundamentals. The result: misunderstandings, high support load, unclear expectations.",
+          s1_b1: "Password-protected training area (foundation)",
+          s1_b2: "Project area for presentation (clear & professional)",
+
+          s2_title: "How it works",
+          s2_1: "Choose a package",
+          s2_2: "The lecture hall is set up",
+          s2_3: "Partner receives access + password",
+          s2_4: "Prospects go through the foundation",
+          s2_5: "Project is presented in the lecture hall",
+
+          s3_title: "Annual packages (net, excl. VAT)",
+          p_s: "€4,900 / year",
+          p_m: "€9,900 / year",
+          p_l: "€19,900 / year",
+          p_setup: "Setup fee per package",
+          p_setup2: "Setup fee per package",
+          p_setup3: "Setup fee per package",
+          p_optional: "Optional: cross-marketing packages (magazine/newsletter/article)",
+
+          cta_title: "CTA",
+          cta_text: "If you want to use a lecture hall for your project, club or organization, send a request — we’ll clarify package, setup and process.",
+          cta_btn2: "Request lecture hall",
+          cta_back: "Back to Club Hub",
+
+          footer_note: "Note: prices net, excl. VAT; details and setup upon request.",
+          footer_cta: "Back to Club Hub"
+        }
+      };
+
+      const btnDE = document.getElementById("btnDE");
+      const btnEN = document.getElementById("btnEN");
+
+      function applyLang(lang){
+        const map = dict[lang] || dict.de;
+        document.documentElement.lang = lang;
+
+        document.querySelectorAll("[data-i18n]").forEach(el=>{
+          const key = el.getAttribute("data-i18n");
+          if(map[key] !== undefined) el.textContent = map[key];
+        });
+
+        btnDE.setAttribute("aria-pressed", lang === "de" ? "true" : "false");
+        btnEN.setAttribute("aria-pressed", lang === "en" ? "true" : "false");
+
+        try{ localStorage.setItem("fsa_lang", lang); }catch(e){}
+      }
+
+      btnDE.addEventListener("click", ()=>applyLang("de"));
+      btnEN.addEventListener("click", ()=>applyLang("en"));
+
+      let saved = "de";
+      try{ saved = localStorage.getItem("fsa_lang") || "de"; }catch(e){}
+      if(saved !== "de" && saved !== "en") saved = "de";
+      applyLang(saved);
+    })();
+  </script>
+</body>
+</html>
