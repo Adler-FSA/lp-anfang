@@ -586,9 +586,11 @@
     │   │   ├── einkommensrechner.html
     │   │   ├── events.html
     │   │   ├── faq.html
+    │   │   ├── hoersaal-angebot.html
     │   │   ├── hoersaal.html
     │   │   ├── index.html
     │   │   ├── partner.html
+    │   │   ├── peer-to-peer.html
     │   │   ├── portfolio.html
     │   │   ├── preise.html
     │   │   ├── start.html
@@ -776,4 +778,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.01.2026, 08:26)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.01.2026, 09:29)_
