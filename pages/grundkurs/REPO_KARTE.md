@@ -578,9 +578,14 @@
     │   ├── campus/
     │   │   └── page.json
     │   ├── club/
+    │   │   ├── club.html
     │   │   ├── dokument-01-mitgliederantrag.html
     │   │   ├── dokumente.html
-    │   │   └── index.html
+    │   │   ├── events.html
+    │   │   ├── index.html
+    │   │   ├── portfolio.html
+    │   │   ├── preise.html
+    │   │   └── tool.html
     │   ├── footer/
     │   │   ├── community.html
     │   │   ├── impressum.html
@@ -764,4 +769,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.01.2026, 05:27)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.01.2026, 06:31)_
