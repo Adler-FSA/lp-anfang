@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Akquise – Kurz & Stark</title>
+  <style>
+    :root{
+      --gold:#d4af37;
+      --txt:#e9e9e9;
+      --muted:#cbd5e1;
+      --panel:rgba(0,0,0,.72);
+      --panel2:rgba(10,10,20,.62);
+      --shadow:0 26px 50px rgba(0,0,0,.55);
+      --glow:0 0 22px rgba(212,175,55,.55), 0 10px 28px rgba(0,0,0,.55);
+      --radius:18px;
+      --maxw:1100px;
+    }
+
+    html,body{
+      margin:0;
+      background:#000;
+      color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      overflow-x:hidden;
+    }
+
+    .bg-fixed{
+      position:fixed; inset:0;
+      background:
+        radial-gradient(1200px 700px at 26% 10%, rgba(212,175,55,.18), transparent 60%),
+        radial-gradient(1000px 700px at 74% 35%, rgba(28,194,160,.10), transparent 60%),
+        linear-gradient(180deg, #05060a 0%, #000 60%, #03040a 100%);
+      z-index:-2;
+    }
+    .bg-grid{
+      position:fixed; inset:0;
+      background-image:
+        linear-gradient(rgba(212,175,55,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212,175,55,.06) 1px, transparent 1px);
+      background-size:44px 44px;
+      mask-image: radial-gradient(70% 55% at 50% 20%, #000 55%, transparent 100%);
+      opacity:.35;
+      z-index:-1;
+      pointer-events:none;
+    }
+
+    /* Offset below fixed topbar from menu.js */
+    #hero{ padding-top:88px; }
+
+    .wrap{
+      max-width:var(--maxw);
+      margin:34px auto 70px;
+      padding:0 18px;
+    }
+
+    .topline{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .crumb{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.55);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      text-decoration:none;
+      color:var(--txt);
+    }
+    .crumb:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.35) inset, var(--glow); }
+
+    .langbox{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.55);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+    }
+    .langbox .lbl{
+      font-size:12px; letter-spacing:.04em; text-transform:uppercase;
+      color:var(--muted);
+    }
+    .langbtn{
+      border:0;
+      background:rgba(212,175,55,.14);
+      color:var(--txt);
+      padding:8px 10px;
+      border-radius:999px;
+      cursor:pointer;
+      box-shadow:0 0 0 1px rgba(212,175,55,.22) inset;
+      font-weight:900;
+    }
+    .langbtn[aria-pressed="true"]{
+      background:rgba(212,175,55,.28);
+      box-shadow:0 0 0 1px rgba(212,175,55,.38) inset, 0 0 18px rgba(212,175,55,.22);
+    }
+
+    .hero{
+      background:linear-gradient(180deg, rgba(0,0,0,.72), rgba(0,0,0,.55));
+      border-radius:var(--radius);
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(212,175,55,.18);
+      position:relative;
+      overflow:hidden;
+    }
+    .hero::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:radial-gradient(900px 320px at 20% 10%, rgba(212,175,55,.22), transparent 55%);
+      pointer-events:none;
+    }
+
+    .h1{
+      margin:0 0 10px;
+      font-size:28px;
+      letter-spacing:.2px;
+      position:relative;
+    }
+    .sub{
+      margin:0 0 14px;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+      position:relative;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(12, 1fr);
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .card{
+      grid-column:span 12;
+      background:var(--panel);
+      border-radius:var(--radius);
+      padding:18px 16px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(212,175,55,.16);
+      opacity:0;
+      transform:translateY(10px);
+      animation:fadeIn .55s ease forwards;
+    }
+    .card:nth-child(1){ animation-delay:.06s; }
+    .card:nth-child(2){ animation-delay:.12s; }
+
+    @keyframes fadeIn{ to{ opacity:1; transform:translateY(0); } }
+
+    .card h2{
+      margin:0 0 10px;
+      font-size:18px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .card p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+    }
+
+    .quote{
+      margin-top:12px;
+      border-radius:16px;
+      padding:14px 14px;
+      background:rgba(0,0,0,.36);
+      box-shadow:0 0 0 1px rgba(212,175,55,.16) inset;
+      position:relative;
+    }
+    .quote .q{
+      margin:0;
+      font-size:18px;
+      line-height:1.45;
+      font-weight:1100;
+    }
+    .quote .hint{
+      margin-top:8px;
+      color:var(--muted);
+      line-height:1.5;
+      font-size:13.5px;
+    }
+
+    .bullets{
+      margin-top:12px;
+      display:grid;
+      gap:10px;
+    }
+    .bullet{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:12px 12px;
+      border-radius:16px;
+      background:rgba(0,0,0,.32);
+      box-shadow:0 0 0 1px rgba(212,175,55,.10) inset;
+    }
+    .ico{
+      width:20px; height:20px; flex:0 0 20px;
+      margin-top:2px;
+      filter:drop-shadow(0 0 10px rgba(212,175,55,.22));
+    }
+    .bullet strong{ font-weight:1100; }
+    .bullet span{ color:var(--muted); }
+
+    .cta-row{
+      display:flex; flex-wrap:wrap; gap:12px;
+      margin-top:14px;
+    }
+    .btn{
+      display:inline-flex; align-items:center; gap:10px;
+      text-decoration:none;
+      color:var(--txt);
+      border-radius:14px;
+      padding:12px 14px;
+      background:rgba(212,175,55,.20);
+      box-shadow:0 0 0 1px rgba(212,175,55,.30) inset;
+      font-weight:900;
+    }
+    .btn:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.45) inset, var(--glow); }
+    .btn.secondary{
+      background:rgba(0,0,0,.35);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      font-weight:800;
+    }
+
+    .footer{
+      margin-top:18px;
+      padding:14px 16px;
+      border-radius:var(--radius);
+      background:rgba(0,0,0,.55);
+      border:1px solid rgba(212,175,55,.14);
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .footer a{
+      color:var(--txt);
+      text-decoration:none;
+      box-shadow:0 0 0 1px rgba(212,175,55,.14) inset;
+      padding:8px 10px;
+      border-radius:999px;
+      background:rgba(212,175,55,.10);
+    }
+    .footer a:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.32) inset, var(--glow); }
+
+    @media (min-width: 900px){
+      .h1{ font-size:34px; }
+      .card{ grid-column:span 12; }
+    }
+  </style>
+
+  <script defer src="../../js/menu.js"></script>
+</head>
+<body>
+  <div class="bg-fixed" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <main id="hero">
+    <div class="wrap">
+
+      <div class="topline">
+        <a class="crumb" href="./index.html" aria-label="Zurück zur Club-Basis">
+          <span aria-hidden="true" style="display:inline-grid;place-items:center;width:18px;height:18px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M15 18l-6-6 6-6" stroke="rgba(212,175,55,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span data-i18n="back_to_base">Zurück zur Club-Basis</span>
+        </a>
+
+        <div class="langbox" role="group" aria-label="Sprache wählen">
+          <span class="lbl" data-i18n="lang_label">Sprache</span>
+          <button class="langbtn" id="btnDE" type="button" aria-pressed="true">DE</button>
+          <button class="langbtn" id="btnEN" type="button" aria-pressed="false">EN</button>
+        </div>
+      </div>
+
+      <section class="hero" aria-label="Akquise Hero">
+        <h1 class="h1" data-i18n="a_headline">Akquise-Ansprache (kurz & stark)</h1>
+        <p class="sub" data-i18n="a_subline">
+          Ein kurzer Text, den du 1:1 nutzen kannst — als Einstieg, als Nachricht, oder als gesprochenen Pitch.
+        </p>
+
+        <div class="cta-row">
+          <a class="btn" href="./checkout.html">
+            <span aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M13 2L3 14h8l-1 8 11-14h-8l0-6z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span data-i18n="cta_join">Mitgliedschaft aktivieren</span>
+          </a>
+          <a class="btn secondary" href="./preise.html" data-i18n="cta_prices">Preise ansehen</a>
+          <a class="btn secondary" href="./portfolio.html" data-i18n="cta_portfolio">Produkt-Portfolio</a>
+        </div>
+      </section>
+
+      <section class="grid" aria-label="Akquise Inhalte">
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 13l-7 7-11-11V2h7l11 11z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+                <circle cx="7.5" cy="7.5" r="1.5" fill="rgba(212,175,55,.85)"/>
+              </svg>
+            </span>
+            <span data-i18n="pitch_title">Pitch (1 Satz)</span>
+          </h2>
+
+          <div class="quote">
+            <p class="q" data-i18n="pitch_quote">„Der Club ist der Preisvorteil, der alles bündelt.“</p>
+            <div class="hint" data-i18n="pitch_hint">
+              Nutze diesen Satz als opener — danach kommen nur 3 kurze Bulletpoints.
+            </div>
+          </div>
+
+          <div class="bullets">
+            <div class="bullet">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div>
+                <strong data-i18n="b1_str">60 € / Jahr</strong>
+                <span data-i18n="b1_txt">: Kurse + Onlinebuch inklusive</span>
+              </div>
+            </div>
+
+            <div class="bullet">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div>
+                <strong data-i18n="b2_str">Leadmaschine</strong>
+                <span data-i18n="b2_txt">: statt 150 € nur +60 € (als Mitglied)</span>
+              </div>
+            </div>
+
+            <div class="bullet">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div>
+                <strong data-i18n="b3_str">20% Rabatt</strong>
+                <span data-i18n="b3_txt">: auf Events für Mitglieder</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="quote" style="margin-top:12px;">
+            <p class="q" data-i18n="close_quote">→ Darum lohnt sich Mitgliedschaft oft schon durch einen einzigen Vorteil (Rabatt oder Tool).</p>
+            <div class="hint" data-i18n="close_hint">
+              Kurz, wahr, seriös: kein Hype — nur ein klarer Preisvorteil + Systemzugang.
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 2l10 6-10 6L2 8l10-6z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M22 12l-10 6L2 12" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span data-i18n="next_title">Nächster Schritt</span>
+          </h2>
+          <p data-i18n="next_text">
+            Wenn du willst, gehst du danach direkt in „Preise“ oder „Portfolio“ — damit der Interessent sofort sieht, was er bekommt.
+          </p>
+
+          <div class="cta-row">
+            <a class="btn secondary" href="./preise.html" data-i18n="next_btn1">Preise & Mitgliedervorteil</a>
+            <a class="btn secondary" href="./portfolio.html" data-i18n="next_btn2">Produkt-Portfolio</a>
+            <a class="btn" href="./checkout.html" data-i18n="next_btn3">Jetzt Mitglied werden</a>
+          </div>
+        </article>
+
+      </section>
+
+      <div class="footer">
+        <span data-i18n="footer_note">Hinweis: Der Club ist ein System aus Wissen + Umsetzung. Partner-Modell ist optional.</span>
+        <a href="./index.html" data-i18n="footer_cta">Zurück zur Club-Basis</a>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    (function(){
+      const dict = {
+        de: {
+          back_to_base: "Zurück zur Club-Basis",
+          lang_label: "Sprache",
+
+          a_headline: "Akquise-Ansprache (kurz & stark)",
+          a_subline: "Ein kurzer Text, den du 1:1 nutzen kannst — als Einstieg, als Nachricht, oder als gesprochenen Pitch.",
+
+          cta_join: "Mitgliedschaft aktivieren",
+          cta_prices: "Preise ansehen",
+          cta_portfolio: "Produkt-Portfolio",
+
+          pitch_title: "Pitch (1 Satz)",
+          pitch_quote: "„Der Club ist der Preisvorteil, der alles bündelt.“",
+          pitch_hint: "Nutze diesen Satz als opener — danach kommen nur 3 kurze Bulletpoints.",
+
+          b1_str: "60 € / Jahr",
+          b1_txt: ": Kurse + Onlinebuch inklusive",
+
+          b2_str: "Leadmaschine",
+          b2_txt: ": statt 150 € nur +60 € (als Mitglied)",
+
+          b3_str: "20% Rabatt",
+          b3_txt: ": auf Events für Mitglieder",
+
+          close_quote: "→ Darum lohnt sich Mitgliedschaft oft schon durch einen einzigen Vorteil (Rabatt oder Tool).",
+          close_hint: "Kurz, wahr, seriös: kein Hype — nur ein klarer Preisvorteil + Systemzugang.",
+
+          next_title: "Nächster Schritt",
+          next_text: "Wenn du willst, gehst du danach direkt in „Preise“ oder „Portfolio“ — damit der Interessent sofort sieht, was er bekommt.",
+
+          next_btn1: "Preise & Mitgliedervorteil",
+          next_btn2: "Produkt-Portfolio",
+          next_btn3: "Jetzt Mitglied werden",
+
+          footer_note: "Hinweis: Der Club ist ein System aus Wissen + Umsetzung. Partner-Modell ist optional.",
+          footer_cta: "Zurück zur Club-Basis"
+        },
+        en: {
+          back_to_base: "Back to Club Hub",
+          lang_label: "Language",
+
+          a_headline: "Acquisition pitch (short & strong)",
+          a_subline: "A short script you can use 1:1 — as an opener, as a message, or as a spoken pitch.",
+
+          cta_join: "Activate membership",
+          cta_prices: "View pricing",
+          cta_portfolio: "Product portfolio",
+
+          pitch_title: "Pitch (one sentence)",
+          pitch_quote: "“The Club is the price advantage that bundles everything.”",
+          pitch_hint: "Use this as the opener — then follow with just three short bullets.",
+
+          b1_str: "€60 / year",
+          b1_txt: ": courses + online book included",
+
+          b2_str: "Lead Machine",
+          b2_txt: ": instead of €150 only +€60 (as a member)",
+
+          b3_str: "20% discount",
+          b3_txt: ": on events for members",
+
+          close_quote: "→ That’s why membership often pays off through a single benefit (discount or tool).",
+          close_hint: "Short, true, professional: no hype — just a clear price advantage + system access.",
+
+          next_title: "Next step",
+          next_text: "If you want, send them to “Pricing” or “Portfolio” next — so they immediately see what they get.",
+
+          next_btn1: "Pricing & member benefit",
+          next_btn2: "Product portfolio",
+          next_btn3: "Become a member",
+
+          footer_note: "Note: The Club is a system of knowledge + implementation. Partner model is optional.",
+          footer_cta: "Back to Club Hub"
+        }
+      };
+
+      const btnDE = document.getElementById("btnDE");
+      const btnEN = document.getElementById("btnEN");
+
+      function applyLang(lang){
+        const map = dict[lang] || dict.de;
+        document.documentElement.lang = lang;
+
+        document.querySelectorAll("[data-i18n]").forEach(el=>{
+          const key = el.getAttribute("data-i18n");
+          if(map[key] !== undefined) el.textContent = map[key];
+        });
+
+        btnDE.setAttribute("aria-pressed", lang === "de" ? "true" : "false");
+        btnEN.setAttribute("aria-pressed", lang === "en" ? "true" : "false");
+
+        try{ localStorage.setItem("fsa_lang", lang); }catch(e){}
+      }
+
+      btnDE.addEventListener("click", ()=>applyLang("de"));
+      btnEN.addEventListener("click", ()=>applyLang("en"));
+
+      let saved = "de";
+      try{ saved = localStorage.getItem("fsa_lang") || "de"; }catch(e){}
+      if(saved !== "de" && saved !== "en") saved = "de";
+      applyLang(saved);
+    })();
+  </script>
+</body>
+</html>
