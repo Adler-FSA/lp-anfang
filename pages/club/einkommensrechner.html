@@ -1,0 +1,1154 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Einkommensrechner – FSA-Club</title>
+
+  <style>
+    :root{
+      --gold:#d4af37;
+      --txt:#e9e9e9;
+      --muted:#cbd5e1;
+      --panel:rgba(0,0,0,.72);
+      --shadow:0 26px 50px rgba(0,0,0,.55);
+      --glow:0 0 22px rgba(212,175,55,.55), 0 10px 28px rgba(0,0,0,.55);
+      --radius:18px;
+      --maxw:1100px;
+
+      --line:rgba(212,175,55,.16);
+      --soft:rgba(212,175,55,.14);
+      --soft2:rgba(212,175,55,.22);
+      --chip:rgba(0,0,0,.40);
+    }
+
+    html,body{
+      margin:0;
+      background:#000;
+      color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      overflow-x:hidden;
+    }
+
+    .bg-fixed{
+      position:fixed; inset:0;
+      background:
+        radial-gradient(1200px 700px at 26% 10%, rgba(212,175,55,.18), transparent 60%),
+        radial-gradient(1000px 700px at 74% 35%, rgba(28,194,160,.10), transparent 60%),
+        linear-gradient(180deg, #05060a 0%, #000 60%, #03040a 100%);
+      z-index:-2;
+    }
+    .bg-grid{
+      position:fixed; inset:0;
+      background-image:
+        linear-gradient(rgba(212,175,55,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212,175,55,.06) 1px, transparent 1px);
+      background-size:44px 44px;
+      mask-image: radial-gradient(70% 55% at 50% 20%, #000 55%, transparent 100%);
+      opacity:.35;
+      z-index:-1;
+      pointer-events:none;
+    }
+
+    /* Offset below fixed topbar from menu.js */
+    #hero{ padding-top:88px; }
+
+    .wrap{
+      max-width:var(--maxw);
+      margin:34px auto 70px;
+      padding:0 18px;
+    }
+
+    .topline{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .crumb{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.55);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      text-decoration:none;
+      color:var(--txt);
+    }
+    .crumb:hover{
+      box-shadow:0 0 0 1px rgba(212,175,55,.35) inset, var(--glow);
+    }
+
+    .langbox{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.55);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+    }
+    .langbox .lbl{
+      font-size:12px; letter-spacing:.04em; text-transform:uppercase;
+      color:var(--muted);
+    }
+    .langbtn{
+      border:0;
+      background:rgba(212,175,55,.14);
+      color:var(--txt);
+      padding:8px 10px;
+      border-radius:999px;
+      cursor:pointer;
+      box-shadow:0 0 0 1px rgba(212,175,55,.22) inset;
+      font-weight:900;
+    }
+    .langbtn[aria-pressed="true"]{
+      background:rgba(212,175,55,.28);
+      box-shadow:0 0 0 1px rgba(212,175,55,.38) inset, 0 0 18px rgba(212,175,55,.22);
+    }
+
+    .hero{
+      background:linear-gradient(180deg, rgba(0,0,0,.72), rgba(0,0,0,.55));
+      border-radius:var(--radius);
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(212,175,55,.18);
+      position:relative;
+      overflow:hidden;
+    }
+    .hero::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:radial-gradient(900px 320px at 20% 10%, rgba(212,175,55,.22), transparent 55%);
+      pointer-events:none;
+    }
+
+    .h1{
+      margin:0 0 10px;
+      font-size:28px;
+      letter-spacing:.2px;
+      position:relative;
+    }
+    .sub{
+      margin:0 0 12px;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+      position:relative;
+    }
+
+    .pillrow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:10px;
+      position:relative;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.40);
+      box-shadow:0 0 0 1px rgba(212,175,55,.14) inset;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .pill strong{ color:var(--txt); }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .card{
+      grid-column:span 12;
+      background:var(--panel);
+      border-radius:var(--radius);
+      padding:18px 16px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(212,175,55,.16);
+      opacity:0;
+      transform:translateY(10px);
+      animation:fadeIn .55s ease forwards;
+    }
+    .card:nth-child(1){ animation-delay:.06s; }
+    .card:nth-child(2){ animation-delay:.12s; }
+    .card:nth-child(3){ animation-delay:.18s; }
+    .card:nth-child(4){ animation-delay:.24s; }
+
+    @keyframes fadeIn{ to{ opacity:1; transform:translateY(0); } }
+
+    .card h2{
+      margin:0 0 10px;
+      font-size:18px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .card p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+    }
+
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:12px;
+      align-items:center;
+    }
+
+    .toggle{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      background:rgba(0,0,0,.35);
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+    }
+    .toggle input{ accent-color: var(--gold); transform:scale(1.1); }
+
+    .btn{
+      border:0;
+      cursor:pointer;
+      border-radius:14px;
+      padding:10px 12px;
+      color:var(--txt);
+      background:rgba(212,175,55,.18);
+      box-shadow:0 0 0 1px rgba(212,175,55,.24) inset;
+      font-weight:900;
+    }
+    .btn:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.42) inset, var(--glow); }
+    .btn.secondary{
+      background:rgba(0,0,0,.35);
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      font-weight:800;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1.2fr 1fr 1fr 1fr;
+      gap:10px;
+      align-items:end;
+      margin-top:12px;
+    }
+
+    .field{
+      display:grid;
+      gap:6px;
+    }
+    .label{
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.02em;
+    }
+    .input, .select{
+      width:100%;
+      box-sizing:border-box;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.16);
+      background:rgba(0,0,0,.32);
+      color:var(--txt);
+      outline:none;
+    }
+    .input:focus, .select:focus{
+      border-color:rgba(212,175,55,.35);
+      box-shadow:0 0 0 3px rgba(212,175,55,.10);
+    }
+    .hint{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+    }
+
+    .table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      margin-top:12px;
+      overflow:hidden;
+      border-radius:16px;
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      background:rgba(0,0,0,.25);
+    }
+    .table th, .table td{
+      padding:10px 10px;
+      border-bottom:1px solid rgba(212,175,55,.10);
+      vertical-align:middle;
+      text-align:left;
+    }
+    .table th{
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      background:rgba(212,175,55,.06);
+    }
+    .table tr:last-child td{ border-bottom:0; }
+
+    .prodname{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:900;
+    }
+
+    .chip{
+      display:inline-flex; align-items:center; justify-content:center;
+      min-width:28px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(212,175,55,.10);
+      box-shadow:0 0 0 1px rgba(212,175,55,.14) inset;
+      color:var(--txt);
+      font-weight:900;
+      font-size:12px;
+    }
+
+    .num{
+      width:90px;
+      max-width:100%;
+    }
+
+    .money{
+      font-weight:1200;
+      letter-spacing:.01em;
+    }
+    .money.big{
+      font-size:26px;
+    }
+
+    .split{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+      margin-top:12px;
+    }
+    .kpi{
+      border-radius:16px;
+      background:rgba(0,0,0,.32);
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      padding:14px 14px;
+    }
+    .kpi .t{ color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+    .kpi .v{ margin-top:6px; font-weight:1200; font-size:22px; }
+
+    .examples{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+    details{
+      border-radius:16px;
+      background:rgba(0,0,0,.28);
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      padding:12px 12px;
+    }
+    summary{
+      cursor:pointer;
+      list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:1100;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    .exbody{
+      margin-top:10px;
+      color:var(--muted);
+      line-height:1.55;
+      font-size:14px;
+      white-space:pre-wrap;
+    }
+
+    .footer{
+      margin-top:18px;
+      padding:14px 16px;
+      border-radius:var(--radius);
+      background:rgba(0,0,0,.55);
+      border:1px solid rgba(212,175,55,.14);
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .footer a{
+      color:var(--txt);
+      text-decoration:none;
+      box-shadow:0 0 0 1px rgba(212,175,55,.14) inset;
+      padding:8px 10px;
+      border-radius:999px;
+      background:rgba(212,175,55,.10);
+    }
+    .footer a:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.32) inset, var(--glow); }
+
+    @media (min-width: 900px){
+      .h1{ font-size:34px; }
+      .split{ grid-template-columns: 1fr 1fr 1fr; }
+      .row{ grid-template-columns: 1.2fr 1fr 1fr 1fr; }
+      .num{ width:110px; }
+    }
+  </style>
+
+  <script defer src="../../js/menu.js"></script>
+</head>
+<body>
+  <div class="bg-fixed" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <main id="hero">
+    <div class="wrap">
+
+      <div class="topline">
+        <a class="crumb" href="./index.html" aria-label="Zurück zur Club-Basis">
+          <span aria-hidden="true" style="display:inline-grid;place-items:center;width:18px;height:18px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M15 18l-6-6 6-6" stroke="rgba(212,175,55,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span data-i18n="back_to_base">Zurück zur Club-Basis</span>
+        </a>
+
+        <div class="langbox" role="group" aria-label="Sprache wählen">
+          <span class="lbl" data-i18n="lang_label">Sprache</span>
+          <button class="langbtn" id="btnDE" type="button" aria-pressed="true">DE</button>
+          <button class="langbtn" id="btnEN" type="button" aria-pressed="false">EN</button>
+        </div>
+      </div>
+
+      <section class="hero" aria-label="Einkommensrechner Hero">
+        <h1 class="h1" data-i18n="h_headline">Einkommensrechner – Partner-Modell</h1>
+        <p class="sub" data-i18n="h_subline">
+          Plane dein mögliches Monatseinkommen anhand eines Mix aus 5 Produkten und 3 Ebenen (20% / 15% / 10%).
+        </p>
+
+        <div class="pillrow">
+          <div class="pill">
+            <span aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 2l8 4v6c0 5-3.4 9.4-8 10-4.6-.6-8-5-8-10V6l8-4z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span><strong data-i18n="pill_levels">Ebenen:</strong> 20% / 15% / 10%</span>
+          </div>
+          <div class="pill">
+            <span aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 7h16M4 12h16M4 17h16" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span data-i18n="pill_mix">Mix aus: Club, Leadmaschine, Add-on, Weekend-Ticket, Hörsaal</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M21 16V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" stroke="rgba(212,175,55,.95)" stroke-width="2"/>
+                <path d="M7 10h10M7 14h6" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span data-i18n="s0_title">Modus & Planpreise</span>
+          </h2>
+
+          <div class="controls">
+            <label class="toggle">
+              <input id="avgMode" type="checkbox" checked />
+              <span data-i18n="avg_mode">Jahresprodukte als Monatsdurchschnitt planen (Preis/12)</span>
+            </label>
+
+            <button class="btn secondary" id="btnReset" type="button" data-i18n="btn_reset">Zurücksetzen</button>
+            <button class="btn" id="btnCalc" type="button" data-i18n="btn_calc">Jetzt berechnen</button>
+          </div>
+
+          <div class="row" style="margin-top:14px;">
+            <div class="field">
+              <div class="label" data-i18n="lbl_weekend_price_non">Weekend-Setup Ticket (Nicht-Mitglied) – Preis</div>
+              <input class="input" id="priceWeekendNon" type="number" step="1" min="0" value="499" />
+            </div>
+
+            <div class="field">
+              <div class="label" data-i18n="lbl_weekend_price_mem">Weekend-Setup Ticket (Mitglied) – Preis (20% Rabatt)</div>
+              <input class="input" id="priceWeekendMem" type="number" step="1" min="0" value="399" />
+            </div>
+
+            <div class="field">
+              <div class="label" data-i18n="lbl_hoersaal_pkg">Hörsaal Paket (Jahrespreis)</div>
+              <select class="select" id="hoersaalPkg">
+                <option value="4900" selected>S (4.900 €)</option>
+                <option value="9900">M (9.900 €)</option>
+                <option value="19900">L (19.900 €)</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <div class="label" data-i18n="lbl_note">Hinweis</div>
+              <div class="hint" data-i18n="mode_hint">
+                Planungsrechner: keine Zusagen, nur Rechenbeispiel. Jahresprodukte können als Monatsdurchschnitt geplant werden.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 7h16M4 12h16M4 17h16" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span data-i18n="s1_title">Dein Mix pro Monat (Anzahl Verkäufe)</span>
+          </h2>
+
+          <table class="table" aria-label="Eingaben">
+            <thead>
+              <tr>
+                <th data-i18n="th_product">Produkt</th>
+                <th data-i18n="th_e1">Ebene 1 (20%)</th>
+                <th data-i18n="th_e2">Ebene 2 (15%)</th>
+                <th data-i18n="th_e3">Ebene 3 (10%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="prodname">
+                    <span class="chip">P1</span>
+                    <span data-i18n="p1_name">Club (60 €/Jahr)</span>
+                  </div>
+                </td>
+                <td><input class="input num" id="p1_e1" type="number" min="0" step="1" value="0"></td>
+                <td><input class="input num" id="p1_e2" type="number" min="0" step="1" value="0"></td>
+                <td><input class="input num" id="p1_e3" type="number" min="0" step="1" value="0"></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="prodname">
+                    <span class="chip">P2</span>
+                    <span data-i18n="p2_name">Leadmaschine (ohne Club, 150 €/Jahr)</span>
+                  </div>
+                </td>
+                <td><input class="input num" id="p2_e1" type="number" min="0" step="1" value="0"></td>
+                <td><input class="input num" id="p2_e2" type="number" min="0" step="1" value="0"></td>
+                <td><input class="input num" id="p2_e3" type="number" min="0" step="1" value="0"></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="prodname">
+                    <span class="chip">P3</span>
+                    <span data-i18n="p3_name">Leadmaschine Add-on (als Mitglied, +60 €/Jahr)</span>
+                  </div>
+                </td>
+                <td><input class="input num" id="p3_e1" type="number" min="0" step="1" value="0"></td>
+                <td><input class="input num" id="p3_e2" type="number" min="0" step="1" value="0"></td>
+                <td><input class="input num" id="p3_e3" type="number" min="0" step="1" value="0"></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="prodname">
+                    <span class="chip">P4</span>
+                    <span data-i18n="p4_name">Weekend-Setup Ticket (Preis je nach Mitglied)</span>
+                  </div>
+                  <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+                    <label class="toggle" style="padding:8px 10px; border-radius:999px;">
+                      <input id="weekendIsMember" type="checkbox" checked />
+                      <span data-i18n="weekend_mode">Mitgliedspreis verwenden (20% Rabatt)</span>
+                    </label>
+                  </div>
+                </td>
+                <td><input class="input num" id="p4_e1" type="number" min="0" step="1" value="0"></td>
+                <td><input class="input num" id="p4_e2" type="number" min="0" step="1" value="0"></td>
+                <td><input class="input num" id="p4_e3" type="number" min="0" step="1" value="0"></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="prodname">
+                    <span class="chip">P5</span>
+                    <span data-i18n="p5_name">Hörsaal-Lizenz (Jahrespaket)</span>
+                  </div>
+                </td>
+                <td><input class="input num" id="p5_e1" type="number" min="0" step="1" value="0"></td>
+                <td><input class="input num" id="p5_e2" type="number" min="0" step="1" value="0"></td>
+                <td><input class="input num" id="p5_e3" type="number" min="0" step="1" value="0"></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p class="hint" data-i18n="hint_counts">
+            Trage hier die Anzahl Verkäufe pro Monat ein (dein eigener Verkauf = Ebene 1, Team = Ebene 2/3).
+          </p>
+        </article>
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 2v20M4 8h16M6 16h12" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span data-i18n="s2_title">Ergebnis (Monat)</span>
+          </h2>
+
+          <div class="split">
+            <div class="kpi">
+              <div class="t" data-i18n="kpi_total">Gesamteinnahmen</div>
+              <div class="v money big" id="outTotal">0,00 €</div>
+            </div>
+            <div class="kpi">
+              <div class="t" data-i18n="kpi_e1">Ebene 1 Anteil</div>
+              <div class="v money" id="outE1">0,00 €</div>
+            </div>
+            <div class="kpi">
+              <div class="t" data-i18n="kpi_team">Team (Ebene 2 + 3)</div>
+              <div class="v money" id="outTeam">0,00 €</div>
+            </div>
+          </div>
+
+          <div class="split" style="margin-top:12px;">
+            <div class="kpi">
+              <div class="t" data-i18n="kpi_p1">P1 Club</div>
+              <div class="v money" id="outP1">0,00 €</div>
+            </div>
+            <div class="kpi">
+              <div class="t" data-i18n="kpi_p2">P2 Leadmaschine</div>
+              <div class="v money" id="outP2">0,00 €</div>
+            </div>
+            <div class="kpi">
+              <div class="t" data-i18n="kpi_p3">P3 Add-on</div>
+              <div class="v money" id="outP3">0,00 €</div>
+            </div>
+            <div class="kpi">
+              <div class="t" data-i18n="kpi_p4">P4 Weekend</div>
+              <div class="v money" id="outP4">0,00 €</div>
+            </div>
+            <div class="kpi">
+              <div class="t" data-i18n="kpi_p5">P5 Hörsaal</div>
+              <div class="v money" id="outP5">0,00 €</div>
+            </div>
+          </div>
+
+          <p class="hint" id="outHint" data-i18n="out_hint">
+            Modus: Jahresprodukte als Monatsdurchschnitt geplant.
+          </p>
+        </article>
+
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 12h16" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 4v16" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span data-i18n="s3_title">6 Beispiele (Soll-Zahlen) – als Orientierung</span>
+          </h2>
+
+          <p data-i18n="ex_intro">
+            Das sind Rechenbeispiele als Monatsdurchschnitt (Mix aus allen 5 Produkten). Keine Zusagen, nur Orientierung.
+          </p>
+
+          <div class="examples" id="examples">
+            <details>
+              <summary><span>500 € / Monat</span><span class="chip" data-i18n="ex_open">öffnen</span></summary>
+              <div class="exbody" data-i18n="ex_500">
+P1 Club: 25 / Monat (E1) → 25 × 12 € = 300 €
+P2 Leadmaschine 150: 2 / Monat (E1) → 2 × 30 € = 60 €
+P3 Add-on 60: 3 / Monat (E1) → 3 × 12 € = 36 €
+P4 Weekend (Mitglied 399): 2 Tickets (E1) → 2 × 79,80 € = 159,60 €
+P5 Hörsaal S: 1× pro Jahr (E1, Monatsdurchschnitt) → 980 € / 12 = 81,67 €
+Summe ≈ 637,27 € (Puffer enthalten)
+              </div>
+            </details>
+
+            <details>
+              <summary><span>1.000 € / Monat</span><span class="chip" data-i18n="ex_open">öffnen</span></summary>
+              <div class="exbody" data-i18n="ex_1000">
+P1 Club: 40 / Monat (E1) → 40 × 12 € = 480 €
+P2 Leadmaschine 150: 4 / Monat (E1) → 4 × 30 € = 120 €
+P3 Add-on 60: 8 / Monat (E1) → 8 × 12 € = 96 €
+P4 Weekend (Mitglied 399): 4 Tickets (E1) → 4 × 79,80 € = 319,20 €
+P5 Hörsaal S: 1× pro Halbjahr (E1, Monatsdurchschnitt) → 980 € / 6 = 163,33 €
+Summe ≈ 1.178,53 € (Puffer enthalten)
+              </div>
+            </details>
+
+            <details>
+              <summary><span>1.500 € / Monat</span><span class="chip" data-i18n="ex_open">öffnen</span></summary>
+              <div class="exbody" data-i18n="ex_1500">
+P1 Club: 60 / Monat (E1) → 60 × 12 € = 720 €
+P2 Leadmaschine 150: 6 / Monat (E1) → 6 × 30 € = 180 €
+P3 Add-on 60: 12 / Monat (E1) → 12 × 12 € = 144 €
+P4 Weekend (Mitglied 399): 6 Tickets (E1) → 6 × 79,80 € = 478,80 €
+P5 Hörsaal S: 1× pro Quartal (E1, Monatsdurchschnitt) → 980 € / 3 = 326,67 €
+Summe ≈ 1.849,47 € (Puffer enthalten)
+              </div>
+            </details>
+
+            <details>
+              <summary><span>2.000 € / Monat</span><span class="chip" data-i18n="ex_open">öffnen</span></summary>
+              <div class="exbody" data-i18n="ex_2000">
+Beispiel (mit Hinweis: Hörsaal ist ein starker Hebel):
+P1 Club: 80 / Monat (E1) → 960 €
+P2 Leadmaschine 150: 8 / Monat (E1) → 240 €
+P3 Add-on 60: 15 / Monat (E1) → 180 €
+P4 Weekend (Mitglied 399): 8 Tickets (E1) → 638,40 €
+P5 Hörsaal S: 1× pro Monat (E1) → 980 €
+Summe ≈ 2.998,40 € (Puffer; du kannst Hörsaal seltener planen und über Club/Weekend ausgleichen)
+              </div>
+            </details>
+
+            <details>
+              <summary><span>5.000 € / Monat</span><span class="chip" data-i18n="ex_open">öffnen</span></summary>
+              <div class="exbody" data-i18n="ex_5000">
+P1 Club: 150 / Monat (E1) → 1.800 €
+P2 Leadmaschine 150: 20 / Monat (E1) → 600 €
+P3 Add-on 60: 40 / Monat (E1) → 480 €
+P4 Weekend (Mitglied 399): 15 Tickets (E1) → 1.197 €
+P5 Hörsaal M: 1× pro Quartal (E1, Monatsdurchschnitt) → 1.980 € / 3 = 660 €
+Summe ≈ 4.737 €
+Optionen für Rest:
+- +4 Weekend-Tickets (Mitglied) ≈ +319,20 €
+ODER
+- Team: 30 Club-Verkäufe Ebene 2 → 30 × 9 € = +270 €
+              </div>
+            </details>
+
+            <details>
+              <summary><span>10.000 € / Monat</span><span class="chip" data-i18n="ex_open">öffnen</span></summary>
+              <div class="exbody" data-i18n="ex_10000">
+P1 Club: 250 / Monat (E1) → 3.000 €
+P2 Leadmaschine 150: 40 / Monat (E1) → 1.200 €
+P3 Add-on 60: 80 / Monat (E1) → 960 €
+P4 Weekend (Mitglied 399): 25 Tickets (E1) → 1.995 €
+P5 Hörsaal M: 1× pro Monat (E1) → 1.980 €
+Summe ≈ 9.135 €
+Optionen für Rest:
+- +1× Hörsaal S pro Quartal (Monatsdurchschnitt) ≈ +326,67 €
+  und +7 Weekend-Tickets ≈ +558,60 €
+ODER
+- Team: 100 Club-Verkäufe Ebene 2 → 100 × 9 € = +900 €
+              </div>
+            </details>
+          </div>
+
+          <p class="hint" data-i18n="ex_note">
+            Tipp: Die großen Hebel sind Weekend und Hörsaal. Die Stabilität entsteht über Club + Tool + Renewals.
+          </p>
+        </article>
+
+      </section>
+
+      <div class="footer">
+        <span data-i18n="footer_note">Hinweis: Das ist ein Planungsrechner (Rechenbeispiel) – keine Einkommensgarantie.</span>
+        <a href="./index.html" data-i18n="footer_cta">Zurück zur Club-Basis</a>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    (function(){
+      // ---------- i18n ----------
+      const dict = {
+        de: {
+          back_to_base:"Zurück zur Club-Basis",
+          lang_label:"Sprache",
+
+          h_headline:"Einkommensrechner – Partner-Modell",
+          h_subline:"Plane dein mögliches Monatseinkommen anhand eines Mix aus 5 Produkten und 3 Ebenen (20% / 15% / 10%).",
+
+          pill_levels:"Ebenen:",
+          pill_mix:"Mix aus: Club, Leadmaschine, Add-on, Weekend-Ticket, Hörsaal",
+
+          s0_title:"Modus & Planpreise",
+          avg_mode:"Jahresprodukte als Monatsdurchschnitt planen (Preis/12)",
+          btn_reset:"Zurücksetzen",
+          btn_calc:"Jetzt berechnen",
+
+          lbl_weekend_price_non:"Weekend-Setup Ticket (Nicht-Mitglied) – Preis",
+          lbl_weekend_price_mem:"Weekend-Setup Ticket (Mitglied) – Preis (20% Rabatt)",
+          lbl_hoersaal_pkg:"Hörsaal Paket (Jahrespreis)",
+          lbl_note:"Hinweis",
+          mode_hint:"Planungsrechner: keine Zusagen, nur Rechenbeispiel. Jahresprodukte können als Monatsdurchschnitt geplant werden.",
+
+          s1_title:"Dein Mix pro Monat (Anzahl Verkäufe)",
+          th_product:"Produkt",
+          th_e1:"Ebene 1 (20%)",
+          th_e2:"Ebene 2 (15%)",
+          th_e3:"Ebene 3 (10%)",
+
+          p1_name:"Club (60 €/Jahr)",
+          p2_name:"Leadmaschine (ohne Club, 150 €/Jahr)",
+          p3_name:"Leadmaschine Add-on (als Mitglied, +60 €/Jahr)",
+          p4_name:"Weekend-Setup Ticket (Preis je nach Mitglied)",
+          weekend_mode:"Mitgliedspreis verwenden (20% Rabatt)",
+          p5_name:"Hörsaal-Lizenz (Jahrespaket)",
+
+          hint_counts:"Trage hier die Anzahl Verkäufe pro Monat ein (dein eigener Verkauf = Ebene 1, Team = Ebene 2/3).",
+
+          s2_title:"Ergebnis (Monat)",
+          kpi_total:"Gesamteinnahmen",
+          kpi_e1:"Ebene 1 Anteil",
+          kpi_team:"Team (Ebene 2 + 3)",
+          kpi_p1:"P1 Club",
+          kpi_p2:"P2 Leadmaschine",
+          kpi_p3:"P3 Add-on",
+          kpi_p4:"P4 Weekend",
+          kpi_p5:"P5 Hörsaal",
+          out_hint:"Modus: Jahresprodukte als Monatsdurchschnitt geplant.",
+
+          s3_title:"6 Beispiele (Soll-Zahlen) – als Orientierung",
+          ex_intro:"Das sind Rechenbeispiele als Monatsdurchschnitt (Mix aus allen 5 Produkten). Keine Zusagen, nur Orientierung.",
+          ex_open:"öffnen",
+          ex_note:"Tipp: Die großen Hebel sind Weekend und Hörsaal. Die Stabilität entsteht über Club + Tool + Renewals.",
+
+          ex_500:
+`P1 Club: 25 / Monat (E1) → 25 × 12 € = 300 €
+P2 Leadmaschine 150: 2 / Monat (E1) → 2 × 30 € = 60 €
+P3 Add-on 60: 3 / Monat (E1) → 3 × 12 € = 36 €
+P4 Weekend (Mitglied 399): 2 Tickets (E1) → 2 × 79,80 € = 159,60 €
+P5 Hörsaal S: 1× pro Jahr (E1, Monatsdurchschnitt) → 980 € / 12 = 81,67 €
+Summe ≈ 637,27 € (Puffer enthalten)`,
+
+          ex_1000:
+`P1 Club: 40 / Monat (E1) → 40 × 12 € = 480 €
+P2 Leadmaschine 150: 4 / Monat (E1) → 4 × 30 € = 120 €
+P3 Add-on 60: 8 / Monat (E1) → 8 × 12 € = 96 €
+P4 Weekend (Mitglied 399): 4 Tickets (E1) → 4 × 79,80 € = 319,20 €
+P5 Hörsaal S: 1× pro Halbjahr (E1, Monatsdurchschnitt) → 980 € / 6 = 163,33 €
+Summe ≈ 1.178,53 € (Puffer enthalten)`,
+
+          ex_1500:
+`P1 Club: 60 / Monat (E1) → 60 × 12 € = 720 €
+P2 Leadmaschine 150: 6 / Monat (E1) → 6 × 30 € = 180 €
+P3 Add-on 60: 12 / Monat (E1) → 12 × 12 € = 144 €
+P4 Weekend (Mitglied 399): 6 Tickets (E1) → 6 × 79,80 € = 478,80 €
+P5 Hörsaal S: 1× pro Quartal (E1, Monatsdurchschnitt) → 980 € / 3 = 326,67 €
+Summe ≈ 1.849,47 € (Puffer enthalten)`,
+
+          ex_2000:
+`Beispiel (mit Hinweis: Hörsaal ist ein starker Hebel):
+P1 Club: 80 / Monat (E1) → 960 €
+P2 Leadmaschine 150: 8 / Monat (E1) → 240 €
+P3 Add-on 60: 15 / Monat (E1) → 180 €
+P4 Weekend (Mitglied 399): 8 Tickets (E1) → 638,40 €
+P5 Hörsaal S: 1× pro Monat (E1) → 980 €
+Summe ≈ 2.998,40 € (Puffer; du kannst Hörsaal seltener planen und über Club/Weekend ausgleichen)`,
+
+          ex_5000:
+`P1 Club: 150 / Monat (E1) → 1.800 €
+P2 Leadmaschine 150: 20 / Monat (E1) → 600 €
+P3 Add-on 60: 40 / Monat (E1) → 480 €
+P4 Weekend (Mitglied 399): 15 Tickets (E1) → 1.197 €
+P5 Hörsaal M: 1× pro Quartal (E1, Monatsdurchschnitt) → 1.980 € / 3 = 660 €
+Summe ≈ 4.737 €
+Optionen für Rest:
+- +4 Weekend-Tickets (Mitglied) ≈ +319,20 €
+ODER
+- Team: 30 Club-Verkäufe Ebene 2 → 30 × 9 € = +270 €`,
+
+          ex_10000:
+`P1 Club: 250 / Monat (E1) → 3.000 €
+P2 Leadmaschine 150: 40 / Monat (E1) → 1.200 €
+P3 Add-on 60: 80 / Monat (E1) → 960 €
+P4 Weekend (Mitglied 399): 25 Tickets (E1) → 1.995 €
+P5 Hörsaal M: 1× pro Monat (E1) → 1.980 €
+Summe ≈ 9.135 €
+Optionen für Rest:
+- +1× Hörsaal S pro Quartal (Monatsdurchschnitt) ≈ +326,67 €
+  und +7 Weekend-Tickets ≈ +558,60 €
+ODER
+- Team: 100 Club-Verkäufe Ebene 2 → 100 × 9 € = +900 €`,
+
+          footer_note:"Hinweis: Das ist ein Planungsrechner (Rechenbeispiel) – keine Einkommensgarantie.",
+          footer_cta:"Zurück zur Club-Basis"
+        },
+
+        en: {
+          back_to_base:"Back to Club Hub",
+          lang_label:"Language",
+
+          h_headline:"Income Calculator — Partner Model",
+          h_subline:"Plan a possible monthly income using a mix of 5 products and 3 levels (20% / 15% / 10%).",
+
+          pill_levels:"Levels:",
+          pill_mix:"Mix of: Club, Leadmaschine, Add-on, Weekend ticket, Lecture hall",
+
+          s0_title:"Mode & plan prices",
+          avg_mode:"Plan annual products as monthly average (price/12)",
+          btn_reset:"Reset",
+          btn_calc:"Calculate now",
+
+          lbl_weekend_price_non:"Weekend setup ticket (non-member) — price",
+          lbl_weekend_price_mem:"Weekend setup ticket (member) — price (20% discount)",
+          lbl_hoersaal_pkg:"Lecture hall package (annual price)",
+          lbl_note:"Note",
+          mode_hint:"Planning calculator: no promises, just an example. Annual products can be planned as monthly average.",
+
+          s1_title:"Your monthly mix (number of sales)",
+          th_product:"Product",
+          th_e1:"Level 1 (20%)",
+          th_e2:"Level 2 (15%)",
+          th_e3:"Level 3 (10%)",
+
+          p1_name:"Club (€60/year)",
+          p2_name:"Leadmaschine (without Club, €150/year)",
+          p3_name:"Leadmaschine add-on (as member, +€60/year)",
+          p4_name:"Weekend setup ticket (price depends on membership)",
+          weekend_mode:"Use member price (20% discount)",
+          p5_name:"Lecture hall license (annual package)",
+
+          hint_counts:"Enter the number of sales per month (your own sales = level 1, team = level 2/3).",
+
+          s2_title:"Result (month)",
+          kpi_total:"Total income",
+          kpi_e1:"Level 1 share",
+          kpi_team:"Team (Level 2 + 3)",
+          kpi_p1:"P1 Club",
+          kpi_p2:"P2 Leadmaschine",
+          kpi_p3:"P3 Add-on",
+          kpi_p4:"P4 Weekend",
+          kpi_p5:"P5 Lecture hall",
+          out_hint:"Mode: annual products planned as monthly average.",
+
+          s3_title:"6 examples (target numbers) — for orientation",
+          ex_intro:"These are monthly-average examples (mix of all 5 products). No promises — orientation only.",
+          ex_open:"open",
+          ex_note:"Tip: Weekend and lecture hall are the big levers. Stability comes from Club + tool + renewals.",
+
+          ex_500:
+`P1 Club: 25 / month (L1) → 25 × €12 = €300
+P2 Leadmaschine 150: 2 / month (L1) → 2 × €30 = €60
+P3 Add-on 60: 3 / month (L1) → 3 × €12 = €36
+P4 Weekend (member €399): 2 tickets (L1) → 2 × €79.80 = €159.60
+P5 Lecture hall S: 1× per year (L1, monthly avg) → €980 / 12 = €81.67
+Total ≈ €637.27 (buffer included)`,
+
+          ex_1000:
+`P1 Club: 40 / month (L1) → €480
+P2 Leadmaschine 150: 4 / month (L1) → €120
+P3 Add-on 60: 8 / month (L1) → €96
+P4 Weekend (member €399): 4 tickets (L1) → €319.20
+P5 Lecture hall S: 1× per half-year (L1, monthly avg) → €980 / 6 = €163.33
+Total ≈ €1,178.53 (buffer included)`,
+
+          ex_1500:
+`P1 Club: 60 / month (L1) → €720
+P2 Leadmaschine 150: 6 / month (L1) → €180
+P3 Add-on 60: 12 / month (L1) → €144
+P4 Weekend (member €399): 6 tickets (L1) → €478.80
+P5 Lecture hall S: 1× per quarter (L1, monthly avg) → €980 / 3 = €326.67
+Total ≈ €1,849.47 (buffer included)`,
+
+          ex_2000:
+`Example (note: lecture hall is a strong lever):
+P1 Club: 80 / month (L1) → €960
+P2 Leadmaschine 150: 8 / month (L1) → €240
+P3 Add-on 60: 15 / month (L1) → €180
+P4 Weekend (member €399): 8 tickets (L1) → €638.40
+P5 Lecture hall S: 1× per month (L1) → €980
+Total ≈ €2,998.40 (buffer; you can plan lecture hall less often and balance via Club/Weekend)`,
+
+          ex_5000:
+`P1 Club: 150 / month (L1) → €1,800
+P2 Leadmaschine 150: 20 / month (L1) → €600
+P3 Add-on 60: 40 / month (L1) → €480
+P4 Weekend (member €399): 15 tickets (L1) → €1,197
+P5 Lecture hall M: 1× per quarter (L1, monthly avg) → €1,980 / 3 = €660
+Total ≈ €4,737
+Options for the gap:
+- +4 Weekend tickets (member) ≈ +€319.20
+OR
+- Team: 30 Club sales on Level 2 → 30 × €9 = +€270`,
+
+          ex_10000:
+`P1 Club: 250 / month (L1) → €3,000
+P2 Leadmaschine 150: 40 / month (L1) → €1,200
+P3 Add-on 60: 80 / month (L1) → €960
+P4 Weekend (member €399): 25 tickets (L1) → €1,995
+P5 Lecture hall M: 1× per month (L1) → €1,980
+Total ≈ €9,135
+Options for the gap:
+- +1× Lecture hall S per quarter (monthly avg) ≈ +€326.67
+  and +7 Weekend tickets ≈ +€558.60
+OR
+- Team: 100 Club sales on Level 2 → 100 × €9 = +€900`,
+
+          footer_note:"Note: this is a planning calculator (example) — no income guarantee.",
+          footer_cta:"Back to Club Hub"
+        }
+      };
+
+      const btnDE = document.getElementById("btnDE");
+      const btnEN = document.getElementById("btnEN");
+
+      function applyLang(lang){
+        const map = dict[lang] || dict.de;
+        document.documentElement.lang = lang;
+
+        document.querySelectorAll("[data-i18n]").forEach(el=>{
+          const key = el.getAttribute("data-i18n");
+          if(map[key] !== undefined) el.textContent = map[key];
+        });
+
+        btnDE.setAttribute("aria-pressed", lang === "de" ? "true" : "false");
+        btnEN.setAttribute("aria-pressed", lang === "en" ? "true" : "false");
+
+        try{ localStorage.setItem("fsa_lang", lang); }catch(e){}
+      }
+
+      btnDE.addEventListener("click", ()=>applyLang("de"));
+      btnEN.addEventListener("click", ()=>applyLang("en"));
+
+      let saved = "de";
+      try{ saved = localStorage.getItem("fsa_lang") || "de"; }catch(e){}
+      if(saved !== "de" && saved !== "en") saved = "de";
+      applyLang(saved);
+
+      // ---------- calculator ----------
+      const RATE_E1 = 0.20, RATE_E2 = 0.15, RATE_E3 = 0.10;
+
+      function n(id){
+        const el = document.getElementById(id);
+        const v = parseFloat(el.value);
+        if(Number.isFinite(v) && v >= 0) return v;
+        return 0;
+      }
+
+      function fmtEUR(x){
+        const v = (Number.isFinite(x) ? x : 0);
+        return v.toLocaleString(document.documentElement.lang === "en" ? "en-US" : "de-DE", {
+          style:"currency",
+          currency:"EUR",
+          minimumFractionDigits:2,
+          maximumFractionDigits:2
+        });
+      }
+
+      function calc(){
+        const avgMode = document.getElementById("avgMode").checked;
+
+        // prices
+        const priceClub = 60;       // annual
+        const priceTool = 150;      // annual
+        const priceAddon = 60;      // annual
+        const priceWeekendNon = n("priceWeekendNon");
+        const priceWeekendMem = n("priceWeekendMem");
+        const weekendIsMember = document.getElementById("weekendIsMember").checked;
+        const priceWeekend = weekendIsMember ? priceWeekendMem : priceWeekendNon;
+
+        const hoersaalPrice = parseFloat(document.getElementById("hoersaalPkg").value) || 0; // annual
+
+        // annual products divisor
+        const div = avgMode ? 12 : 1;
+
+        // per-sale earnings by level
+        const earnClub = { e1: (priceClub * RATE_E1) / div, e2: (priceClub * RATE_E2) / div, e3: (priceClub * RATE_E3) / div };
+        const earnTool = { e1: (priceTool * RATE_E1) / div, e2: (priceTool * RATE_E2) / div, e3: (priceTool * RATE_E3) / div };
+        const earnAdd =  { e1: (priceAddon * RATE_E1) / div, e2: (priceAddon * RATE_E2) / div, e3: (priceAddon * RATE_E3) / div };
+
+        // event is not annual
+        const earnWeekend = { e1: (priceWeekend * RATE_E1), e2: (priceWeekend * RATE_E2), e3: (priceWeekend * RATE_E3) };
+
+        // hoersaal annual
+        const earnHoer = { e1: (hoersaalPrice * RATE_E1) / div, e2: (hoersaalPrice * RATE_E2) / div, e3: (hoersaalPrice * RATE_E3) / div };
+
+        // counts
+        const c = {
+          p1: { e1: n("p1_e1"), e2: n("p1_e2"), e3: n("p1_e3") },
+          p2: { e1: n("p2_e1"), e2: n("p2_e2"), e3: n("p2_e3") },
+          p3: { e1: n("p3_e1"), e2: n("p3_e2"), e3: n("p3_e3") },
+          p4: { e1: n("p4_e1"), e2: n("p4_e2"), e3: n("p4_e3") },
+          p5: { e1: n("p5_e1"), e2: n("p5_e2"), e3: n("p5_e3") }
+        };
+
+        function sumProd(counts, earn){
+          const e1 = counts.e1 * earn.e1;
+          const e2 = counts.e2 * earn.e2;
+          const e3 = counts.e3 * earn.e3;
+          return { e1, e2, e3, total: e1+e2+e3 };
+        }
+
+        const r1 = sumProd(c.p1, earnClub);
+        const r2 = sumProd(c.p2, earnTool);
+        const r3 = sumProd(c.p3, earnAdd);
+        const r4 = sumProd(c.p4, earnWeekend);
+        const r5 = sumProd(c.p5, earnHoer);
+
+        const totalE1 = r1.e1 + r2.e1 + r3.e1 + r4.e1 + r5.e1;
+        const totalE2 = r1.e2 + r2.e2 + r3.e2 + r4.e2 + r5.e2;
+        const totalE3 = r1.e3 + r2.e3 + r3.e3 + r4.e3 + r5.e3;
+
+        const total = totalE1 + totalE2 + totalE3;
+        const team = totalE2 + totalE3;
+
+        document.getElementById("outTotal").textContent = fmtEUR(total);
+        document.getElementById("outE1").textContent = fmtEUR(totalE1);
+        document.getElementById("outTeam").textContent = fmtEUR(team);
+
+        document.getElementById("outP1").textContent = fmtEUR(r1.total);
+        document.getElementById("outP2").textContent = fmtEUR(r2.total);
+        document.getElementById("outP3").textContent = fmtEUR(r3.total);
+        document.getElementById("outP4").textContent = fmtEUR(r4.total);
+        document.getElementById("outP5").textContent = fmtEUR(r5.total);
+
+        document.getElementById("outHint").textContent =
+          avgMode
+            ? (document.documentElement.lang === "en" ? "Mode: annual products planned as monthly average." : "Modus: Jahresprodukte als Monatsdurchschnitt geplant.")
+            : (document.documentElement.lang === "en" ? "Mode: annual products counted as full amount per sale." : "Modus: Jahresprodukte werden als voller Betrag pro Verkauf gerechnet.");
+      }
+
+      function resetAll(){
+        const ids = [
+          "p1_e1","p1_e2","p1_e3",
+          "p2_e1","p2_e2","p2_e3",
+          "p3_e1","p3_e2","p3_e3",
+          "p4_e1","p4_e2","p4_e3",
+          "p5_e1","p5_e2","p5_e3"
+        ];
+        ids.forEach(id=>{ const el = document.getElementById(id); if(el) el.value = "0"; });
+        document.getElementById("avgMode").checked = true;
+        document.getElementById("weekendIsMember").checked = true;
+        document.getElementById("priceWeekendNon").value = "499";
+        document.getElementById("priceWeekendMem").value = "399";
+        document.getElementById("hoersaalPkg").value = "4900";
+        calc();
+      }
+
+      document.getElementById("btnCalc").addEventListener("click", calc);
+      document.getElementById("btnReset").addEventListener("click", resetAll);
+
+      // live recalc on input changes (quiet)
+      [
+        "avgMode","weekendIsMember","priceWeekendNon","priceWeekendMem","hoersaalPkg",
+        "p1_e1","p1_e2","p1_e3","p2_e1","p2_e2","p2_e3","p3_e1","p3_e2","p3_e3",
+        "p4_e1","p4_e2","p4_e3","p5_e1","p5_e2","p5_e3"
+      ].forEach(id=>{
+        const el = document.getElementById(id);
+        if(el){
+          el.addEventListener("input", ()=>calc());
+          el.addEventListener("change", ()=>calc());
+        }
+      });
+
+      calc();
+    })();
+  </script>
+</body>
+</html>
