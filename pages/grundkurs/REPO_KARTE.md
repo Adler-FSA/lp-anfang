@@ -593,6 +593,7 @@
     │   │   ├── peer-to-peer.html
     │   │   ├── portfolio.html
     │   │   ├── preise.html
+    │   │   ├── so-verdient-man-geld.html
     │   │   ├── start.html
     │   │   └── tool.html
     │   ├── footer/
@@ -778,4 +779,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.01.2026, 13:42)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.01.2026, 14:25)_
