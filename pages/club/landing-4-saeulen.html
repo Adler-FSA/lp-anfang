@@ -1,0 +1,1085 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>4 Säulen System – FSA Club</title>
+
+  <style>
+    :root{
+      --gold:#d4af37;
+      --txt:#e9e9e9;
+      --muted:#cbd5e1;
+      --panel:rgba(0,0,0,.72);
+      --panel2:rgba(10,10,20,.62);
+      --shadow:0 26px 50px rgba(0,0,0,.55);
+      --glow:0 0 22px rgba(212,175,55,.55), 0 10px 28px rgba(0,0,0,.55);
+      --radius:18px;
+      --maxw:1100px;
+    }
+
+    html,body{
+      margin:0;
+      background:#000;
+      color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      overflow-x:hidden;
+    }
+
+    .bg-fixed{
+      position:fixed; inset:0;
+      background:
+        radial-gradient(1200px 700px at 26% 10%, rgba(212,175,55,.18), transparent 60%),
+        radial-gradient(1000px 700px at 74% 35%, rgba(28,194,160,.10), transparent 60%),
+        linear-gradient(180deg, #05060a 0%, #000 60%, #03040a 100%);
+      z-index:-2;
+    }
+    .bg-grid{
+      position:fixed; inset:0;
+      background-image:
+        linear-gradient(rgba(212,175,55,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212,175,55,.06) 1px, transparent 1px);
+      background-size:44px 44px;
+      mask-image: radial-gradient(70% 55% at 50% 20%, #000 55%, transparent 100%);
+      opacity:.35;
+      z-index:-1;
+      pointer-events:none;
+    }
+
+    /* Offset below fixed topbar from menu.js */
+    #hero{ padding-top:88px; }
+
+    .wrap{
+      max-width:var(--maxw);
+      margin:34px auto 70px;
+      padding:0 18px;
+    }
+
+    .topline{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .crumb{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.55);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      text-decoration:none;
+      color:var(--txt);
+    }
+    .crumb:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.35) inset, var(--glow); }
+
+    .langbox{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.55);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+    }
+    .langbox .lbl{
+      font-size:12px; letter-spacing:.04em; text-transform:uppercase;
+      color:var(--muted);
+    }
+    .langbtn{
+      border:0;
+      background:rgba(212,175,55,.14);
+      color:var(--txt);
+      padding:8px 10px;
+      border-radius:999px;
+      cursor:pointer;
+      box-shadow:0 0 0 1px rgba(212,175,55,.22) inset;
+      font-weight:900;
+    }
+    .langbtn[aria-pressed="true"]{
+      background:rgba(212,175,55,.28);
+      box-shadow:0 0 0 1px rgba(212,175,55,.38) inset, 0 0 18px rgba(212,175,55,.22);
+    }
+
+    .hero{
+      background:linear-gradient(180deg, rgba(0,0,0,.72), rgba(0,0,0,.55));
+      border-radius:var(--radius);
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(212,175,55,.18);
+      position:relative;
+      overflow:hidden;
+    }
+    .hero::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:radial-gradient(900px 320px at 20% 10%, rgba(212,175,55,.22), transparent 55%);
+      pointer-events:none;
+    }
+
+    .h1{
+      margin:0 0 10px;
+      font-size:28px;
+      letter-spacing:.2px;
+      position:relative;
+    }
+    .sub{
+      margin:0 0 14px;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+      position:relative;
+      white-space:pre-line;
+    }
+
+    .cta-row{
+      display:flex; flex-wrap:wrap; gap:12px;
+      margin-top:12px;
+      position:relative;
+    }
+    .btn{
+      display:inline-flex; align-items:center; gap:10px;
+      text-decoration:none;
+      color:var(--txt);
+      border-radius:14px;
+      padding:12px 14px;
+      background:rgba(212,175,55,.20);
+      box-shadow:0 0 0 1px rgba(212,175,55,.30) inset;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    .btn:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.45) inset, var(--glow); }
+    .btn.secondary{
+      background:rgba(0,0,0,.35);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      font-weight:800;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(12, 1fr);
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .card{
+      grid-column:span 12;
+      background:var(--panel);
+      border-radius:var(--radius);
+      padding:18px 16px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(212,175,55,.16);
+      opacity:0;
+      transform:translateY(10px);
+      animation:fadeIn .55s ease forwards;
+    }
+    .card:nth-child(1){ animation-delay:.06s; }
+    .card:nth-child(2){ animation-delay:.12s; }
+
+    @keyframes fadeIn{ to{ opacity:1; transform:translateY(0); } }
+
+    .note{
+      margin-top:14px;
+      padding:14px 14px;
+      border-radius:16px;
+      background:rgba(0,0,0,.35);
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      color:var(--muted);
+      line-height:1.55;
+      white-space:pre-line;
+    }
+    .note strong{ color:var(--txt); font-weight:1100; }
+
+    /* Accordion */
+    .acc{
+      margin-top:10px;
+      display:grid;
+      gap:12px;
+    }
+    details.acc-item{
+      border-radius:var(--radius);
+      background:rgba(0,0,0,.55);
+      border:1px solid rgba(212,175,55,.14);
+      box-shadow:0 0 0 1px rgba(212,175,55,.10) inset;
+      overflow:hidden;
+    }
+    details.acc-item[open]{
+      box-shadow:0 0 0 1px rgba(212,175,55,.26) inset, 0 0 18px rgba(212,175,55,.12);
+    }
+    summary.acc-sum{
+      list-style:none;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:14px 14px;
+      color:var(--txt);
+      font-weight:1100;
+      user-select:none;
+    }
+    summary.acc-sum::-webkit-details-marker{ display:none; }
+    .acc-left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+    .acc-title{
+      font-size:16px;
+      letter-spacing:.2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .acc-ico{
+      width:22px; height:22px; flex:0 0 22px;
+      filter:drop-shadow(0 0 12px rgba(212,175,55,.18));
+    }
+    .acc-arrow{
+      width:20px; height:20px; flex:0 0 20px;
+      transition:transform .22s ease;
+      opacity:.9;
+    }
+    details[open] .acc-arrow{ transform:rotate(180deg); }
+
+    .acc-body{
+      padding:0 14px 14px;
+      color:var(--muted);
+      line-height:1.62;
+      white-space:pre-line;
+      max-width:100ch;
+      animation:accIn .22s ease;
+    }
+    @keyframes accIn{
+      from{ opacity:0; transform:translateY(-4px); }
+      to{ opacity:1; transform:translateY(0); }
+    }
+
+    .acc-body .bul{
+      margin:10px 0 0;
+      padding-left:18px;
+    }
+    .acc-body .bul li{ margin:6px 0; }
+
+    .divider{
+      height:1px;
+      background:rgba(212,175,55,.12);
+      margin:14px 0;
+    }
+
+    .footer{
+      margin-top:18px;
+      padding:14px 16px;
+      border-radius:var(--radius);
+      background:rgba(0,0,0,.55);
+      border:1px solid rgba(212,175,55,.14);
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .footer a{
+      color:var(--txt);
+      text-decoration:none;
+      box-shadow:0 0 0 1px rgba(212,175,55,.14) inset;
+      padding:8px 10px;
+      border-radius:999px;
+      background:rgba(212,175,55,.10);
+    }
+    .footer a:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.32) inset, var(--glow); }
+
+    @media (min-width: 900px){
+      .h1{ font-size:34px; }
+      .card{ padding:20px 18px; }
+      summary.acc-sum{ padding:16px 16px; }
+      .acc-body{ padding:0 16px 16px; }
+      .acc-title{ font-size:17px; }
+    }
+  </style>
+
+  <script defer src="../../js/menu.js"></script>
+</head>
+
+<body>
+  <div class="bg-fixed" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <main id="hero">
+    <div class="wrap">
+
+      <div class="topline">
+        <a class="crumb" href="./index.html" aria-label="Zurück zur Club-Basis">
+          <span aria-hidden="true" style="display:inline-grid;place-items:center;width:18px;height:18px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M15 18l-6-6 6-6" stroke="rgba(212,175,55,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span data-i18n="back_to_base">Zurück zur Club-Basis</span>
+        </a>
+
+        <div class="langbox" role="group" aria-label="Sprache wählen">
+          <span class="lbl" data-i18n="lang_label">Sprache</span>
+          <button class="langbtn" id="btnDE" type="button" aria-pressed="true">DE</button>
+          <button class="langbtn" id="btnEN" type="button" aria-pressed="false">EN</button>
+        </div>
+      </div>
+
+      <section class="hero" aria-label="Landing Hero">
+        <h1 class="h1" data-i18n="h_title">Mehr Kontrolle. Mehr Struktur. Mehr Handlungsfähigkeit.</h1>
+        <p class="sub" data-i18n="h_sub">
+Dieses System verbindet 4 Säulen: Buch, Akademie, Kurse und Club.
+Nicht als „Info-Sammlung“, sondern als Weg: verstehen → umsetzen → schützen → aufbauen.
+
+Wenn du den globalen Trend siehst (Regulierung, Kontrollen, Plattformrisiken),
+dann geht es nicht um Angst — sondern um Vorbereitung.
+        </p>
+
+        <div class="cta-row">
+          <a class="btn" href="./checkout.html">
+            <span aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M13 2L3 14h8l-1 8 11-14h-8l0-6z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span data-i18n="cta_join">Mitgliedschaft aktivieren</span>
+          </a>
+
+          <a class="btn secondary" href="./portfolio.html">
+            <span aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 6h16M4 12h16M4 18h16" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span data-i18n="cta_portfolio">Portfolio ansehen</span>
+          </a>
+
+          <a class="btn secondary" href="./so-verdient-man-geld.html">
+            <span aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 2v20" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M7 7h8a3 3 0 010 6H9a3 3 0 000 6h8" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span data-i18n="cta_svmg">So verdient man Geld</span>
+          </a>
+        </div>
+
+        <div class="note" data-i18n="hero_note">
+<strong>Wichtig für Nichtmitglieder:</strong>
+Hier geht es nicht um „Krypto-Hype“. Es geht um ein souveränes Setup:
+zentral handlungsfähig bleiben, dezentral sichern — und durch Wissen Fehler, Betrug und teure Irrwege vermeiden.
+        </div>
+      </section>
+
+      <section class="grid" aria-label="Landing Inhalt">
+
+        <article class="card" aria-label="Accordion">
+          <h2 style="margin:0 0 8px;display:flex;align-items:center;gap:10px;">
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 2l8 4v6c0 5-3.4 9.4-8 10-4.6-.6-8-5-8-10V6l8-4z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span data-i18n="acc_head">Alles kompakt – zum Aufklappen</span>
+          </h2>
+          <p style="margin:0;color:var(--muted);line-height:1.55;white-space:pre-line;" data-i18n="acc_sub">
+Öffne die Themen nacheinander. So bleibt die Seite kurz — aber der Inhalt vollständig.
+          </p>
+
+          <div class="acc" id="accWrap">
+
+            <!-- 1 -->
+            <details class="acc-item">
+              <summary class="acc-sum">
+                <span class="acc-left">
+                  <svg class="acc-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M20 13l-7 7-11-11V2h7l11 11z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+                    <circle cx="7.5" cy="7.5" r="1.5" fill="rgba(212,175,55,.85)"/>
+                  </svg>
+                  <span class="acc-title" data-i18n="s1_t">Worum geht es hier wirklich?</span>
+                </span>
+                <svg class="acc-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" stroke="rgba(212,175,55,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </summary>
+              <div class="acc-body" data-i18n="s1_b">
+Jeder trifft jeden Tag Entscheidungen — manche kosten viel Geld, andere sparen viel Geld.
+Die FSA ist darauf ausgelegt, souveräne Entscheidungen zu treffen: nicht aus Hype, nicht aus Druck, nicht aus Unwissen — sondern aus Klarheit.
+
+Das Ziel ist Handlungsfähigkeit:
+• zentral: im Alltag funktionieren, zahlen, reagieren können
+• dezentral: langfristig absichern, Eigentum schützen, Redundanz schaffen
+
+Und das Ganze so, dass du typische Anfängerfehler vermeidest — und dich nicht von Betrügern, falschen Versprechen oder Plattformrisiken ausnehmen lässt.
+              </div>
+            </details>
+
+            <!-- 2 -->
+            <details class="acc-item">
+              <summary class="acc-sum">
+                <span class="acc-left">
+                  <svg class="acc-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 2l10 6-10 6L2 8l10-6z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M22 12l-10 6L2 12" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+                  </svg>
+                  <span class="acc-title" data-i18n="s2_t">Die 4 Säulen – warum zusammen stärker</span>
+                </span>
+                <svg class="acc-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" stroke="rgba(212,175,55,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </summary>
+              <div class="acc-body" data-i18n="s2_b">
+Diese vier Säulen sind bewusst kombiniert — weil sie unterschiedliche Funktionen haben:
+
+1) Buch:
+Es setzt den Rahmen. Es erklärt die „Schalter“ — außen (Zugang, Geld, Regeln) und innen (Rolle, Pflicht, Angst).
+Du verstehst, was passiert — statt nur zu reagieren.
+
+2) Akademie:
+Wissenstransfer gegen Fehler. Begriffe, Mechaniken, Risiken, Ordnung.
+Du wirst sicherer — und weniger angreifbar.
+
+3) Kurse:
+Umsetzung mit Struktur. Keine Theorie-Schleife — sondern Schritte.
+Du baust dir ein Fundament.
+
+4) Club:
+Der Systemhebel: Zugang, Preisvorteil, Aufbau, Praxis-Formate, Tools.
+Und: ein Rahmen, der Motivation und Kontinuität erzeugt.
+
+Zusammen ergibt das: verstehen → umsetzen → schützen → aufbauen.
+              </div>
+            </details>
+
+            <!-- 3 -->
+            <details class="acc-item">
+              <summary class="acc-sum">
+                <span class="acc-left">
+                  <svg class="acc-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 2l8 4v6c0 5-3.4 9.4-8 10-4.6-.6-8-5-8-10V6l8-4z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M10 12h7" stroke="rgba(212,175,55,.65)" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M17 12v3" stroke="rgba(212,175,55,.65)" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <span class="acc-title" data-i18n="s3_t">Zentral verdienen – dezentral sichern</span>
+                </span>
+                <svg class="acc-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" stroke="rgba(212,175,55,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </summary>
+              <div class="acc-body" data-i18n="s3_b">
+Viele reden nur über „Krypto“ oder nur über „Sicherheit“. Souveränität braucht beides:
+
+• Zentral verdienen / handlungsfähig bleiben:
+Du brauchst Alltagsfähigkeit, Liquidität, eine klare Struktur, und einen Plan.
+Ohne Plan bist du abhängig — von Banken, Plattformen, Regeln, Launen.
+
+• Dezentral sichern:
+Du baust Schutz, Redundanz und Eigentum auf, das nicht einfach „weggeklickt“ oder blockiert wird.
+Das Setup ist kein Hype — es ist ein Sicherheitskonzept.
+
+Genau hier setzt das FSA-System an: Es macht dich handlungsfähig und schützt dich vor typischen Fehlern — Schritt für Schritt.
+              </div>
+            </details>
+
+            <!-- 4 -->
+            <details class="acc-item">
+              <summary class="acc-sum">
+                <span class="acc-left">
+                  <svg class="acc-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M4 19V5" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M4 19h16" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M7 15l4-4 3 3 5-6" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span class="acc-title" data-i18n="s4_t">Warum jetzt? (Kontosperre, Pfändung, Zensur, Regulierung)</span>
+                </span>
+                <svg class="acc-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" stroke="rgba(212,175,55,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </summary>
+              <div class="acc-body" data-i18n="s4_b">
+„Warum jetzt?“ — weil sich Rahmenbedingungen ändern. Nicht plötzlich, sondern schrittweise. Und oft merkt man es erst, wenn es zu spät ist.
+
+1) Kontosperren / Compliance-Logik:
+Zugänge können eingeschränkt werden, wenn Systeme „auffällig“ finden, was du tust.
+Das kann legitime Gründe haben — oder schlicht Automatismen.
+Das Ergebnis ist gleich: du bist in einem Prozess, nicht mehr in Kontrolle.
+
+2) Pfändung / Zugriff / Blockaden:
+Wenn Geldströme zentral gebündelt sind, entstehen Angriffsflächen.
+Handlungsfähigkeit bedeutet: nicht alles an einer Stelle, nicht alles in einem Zugriff.
+
+3) Zensur / Sichtbarkeit:
+Wer Reichweite aufbauen will, spürt Regeln, Framing, Sperren, Shadow-Bans.
+Souveränität heißt: sich nicht komplett abhängig machen.
+
+4) Regulierung / Plattformrisiken:
+Regeln ändern sich, Anbieter ändern Bedingungen, Märkte drehen.
+Du brauchst ein Setup, das nicht zusammenbricht, wenn eine Plattform „Nein“ sagt.
+
+5) Betrug nimmt zu:
+In unsicheren Zeiten werden Menschen leichter manipulierbar.
+Scams, Fake-Plattformen, falsche Versprechen, Druck-Verkauf — das ist Realität.
+
+Das Ziel ist nicht Angst.
+Das Ziel ist Vorbereitung: Klarheit + Struktur + Schutz + Umsetzung.
+              </div>
+            </details>
+
+            <!-- 5 -->
+            <details class="acc-item">
+              <summary class="acc-sum">
+                <span class="acc-left">
+                  <svg class="acc-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M20 6L9 17l-5-5" stroke="rgba(212,175,55,.95)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span class="acc-title" data-i18n="s5_t">Schutz durch Wissen: Fehler & Betrug vermeiden</span>
+                </span>
+                <svg class="acc-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" stroke="rgba(212,175,55,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </summary>
+              <div class="acc-body" data-i18n="s5_b">
+Die meisten Verluste entstehen nicht durch „Markt“ — sondern durch Fehler.
+Und die meisten Fehler entstehen durch fehlende Struktur.
+
+Typische Beispiele:
+• falsche Signatur / Blind-Approval
+• Seed/Backup chaotisch oder unsicher
+• Fake-Mints, Fake-Support, Impersonation
+• falsche Plattformwahl, falsches Risiko-Verständnis
+• Druckentscheidungen („nur heute“, „letzte Chance“)
+• fehlende Redundanz (alles an einer Stelle)
+
+Die Akademie ist genau dafür da: Wissenstransfer als Schutzschild.
+Nicht „kompliziert“, sondern sauber, Schritt für Schritt, verständlich und praxisnah.
+              </div>
+            </details>
+
+            <!-- 6 -->
+            <details class="acc-item">
+              <summary class="acc-sum">
+                <span class="acc-left">
+                  <svg class="acc-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 3v3M17 3v3" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M4 7h16v14a1 1 0 01-1 1H5a1 1 0 01-1-1V7z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M4 11h16" stroke="rgba(212,175,55,.65)" stroke-width="2"/>
+                  </svg>
+                  <span class="acc-title" data-i18n="s6_t">Der Club als Hebel: sparen + Zugang + Umsetzung</span>
+                </span>
+                <svg class="acc-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" stroke="rgba(212,175,55,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </summary>
+              <div class="acc-body" data-i18n="s6_b">
+Der Club ist nicht nur „Mitgliedschaft“.
+Er ist der Einstieg ins System: Wissen + Struktur + Umsetzung.
+
+Warum das wichtig ist:
+• du sparst Kosten (du kaufst nicht alles einzeln)
+• du bekommst einen roten Faden (du springst nicht wild herum)
+• du bekommst Umsetzung (nicht nur Theorie)
+• du bekommst Praxis-Hebel (Events/Workshops/Tools)
+
+Wenn du sehen willst, wie das mit Sparen und Einkommen zusammenhängt:
+Nutze die Seite „So verdient man Geld“ — dort sind auch die Rechner verlinkt.
+              </div>
+            </details>
+
+            <!-- 7 -->
+            <details class="acc-item">
+              <summary class="acc-sum">
+                <span class="acc-left">
+                  <svg class="acc-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 2l1.2 5.2L18 8l-4.8 1L12 14l-1-5-5-1 5-.8L12 2z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+                  </svg>
+                  <span class="acc-title" data-i18n="s7_t">Passives Einkommenssystem: fair, kumuliert, selbst steuerbar</span>
+                </span>
+                <svg class="acc-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" stroke="rgba(212,175,55,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </summary>
+              <div class="acc-body" data-i18n="s7_b">
+Finanzielle Souveränität bedeutet nicht nur „sichern“ — sondern auch „aufbauen“.
+Deshalb ist das System so gedacht, dass du dir ein Peer-to-Peer Netzwerk aufbauen kannst.
+
+Wichtig dabei:
+• Es geht nur um bezahlte, aktive Mitgliedschaften/Produkte.
+• Es gibt keine „Ratenlogik“ und keine rückwirkenden Effekte.
+• Dein Einfluss ist dein eigener Umsatz (L1) — nicht die Hoffnung auf L2/L3.
+
+Das ist fair und motivierend:
+Wer aktiv wird, kann seinen eigenen Satz/Stufe erhöhen — wie eine Gehaltserhöhung durch eigene Leistung.
+Und genau das stärkt langfristig Souveränität: weniger Abhängigkeit, mehr eigener Handlungsspielraum.
+              </div>
+            </details>
+
+            <!-- 8 -->
+            <details class="acc-item" open>
+              <summary class="acc-sum">
+                <span class="acc-left">
+                  <svg class="acc-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M13 2L3 14h8l-1 8 11-14h-8l0-6z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+                  </svg>
+                  <span class="acc-title" data-i18n="s8_t">Nächster Schritt</span>
+                </span>
+                <svg class="acc-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" stroke="rgba(212,175,55,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </summary>
+              <div class="acc-body" data-i18n="s8_b">
+Wenn du einen klaren Start willst, gibt es drei einfache Schritte:
+
+1) Mitglied werden (Zugang + System)
+2) Portfolio ansehen (Überblick)
+3) Danach: „So verdient man Geld“ öffnen (Ersparnis + Verdienstlogik + Rechner)
+
+Es geht nicht darum, alles sofort zu können.
+Es geht darum, nicht unvorbereitet zu sein.
+              </div>
+            </details>
+
+          </div>
+
+          <div class="divider" aria-hidden="true"></div>
+
+          <div class="cta-row">
+            <a class="btn" href="./checkout.html">
+              <span aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M13 2L3 14h8l-1 8 11-14h-8l0-6z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span data-i18n="cta_join2">Jetzt Mitglied werden</span>
+            </a>
+
+            <a class="btn secondary" href="./so-verdient-man-geld.html">
+              <span aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 2v20" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M7 7h8a3 3 0 010 6H9a3 3 0 000 6h8" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span data-i18n="cta_svmg2">So verdient man Geld</span>
+            </a>
+
+            <a class="btn secondary" href="./portfolio.html">
+              <span aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M4 6h16M4 12h16M4 18h16" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span data-i18n="cta_portfolio2">Portfolio ansehen</span>
+            </a>
+          </div>
+
+        </article>
+
+        <article class="card" aria-label="Hinweis">
+          <h2 style="margin:0 0 8px;display:flex;align-items:center;gap:10px;">
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 22c5.5 0 10-4.5 10-10S17.5 2 12 2 2 6.5 2 12s4.5 10 10 10z" stroke="rgba(212,175,55,.95)" stroke-width="2"/>
+                <path d="M12 7v6" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 16h.01" stroke="rgba(212,175,55,.95)" stroke-width="3" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span data-i18n="n_head">Hinweis</span>
+          </h2>
+          <div class="note" data-i18n="n_text">
+Diese Seite ist eine universelle Ansprache.
+Sie soll informieren, Orientierung geben und zum nächsten Schritt führen — ohne Druck, ohne Hype.
+
+Wenn du sie an jemanden sendest:
+Der Inhalt erklärt das „Warum“ und das System. Der Button „So verdient man Geld“ zeigt danach die Logik + Rechner.
+          </div>
+        </article>
+
+      </section>
+
+      <div class="footer">
+        <span data-i18n="footer_note">Hinweis: Partner-Modell ist optional. Fokus ist Bildung, Struktur und Eigenverantwortung.</span>
+        <a href="./index.html" data-i18n="footer_cta">Zurück zur Club-Basis</a>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    (function(){
+      const dict = {
+        de: {
+          back_to_base: "Zurück zur Club-Basis",
+          lang_label: "Sprache",
+
+          h_title: "Mehr Kontrolle. Mehr Struktur. Mehr Handlungsfähigkeit.",
+          h_sub:
+`Dieses System verbindet 4 Säulen: Buch, Akademie, Kurse und Club.
+Nicht als „Info-Sammlung“, sondern als Weg: verstehen → umsetzen → schützen → aufbauen.
+
+Wenn du den globalen Trend siehst (Regulierung, Kontrollen, Plattformrisiken),
+dann geht es nicht um Angst — sondern um Vorbereitung.`,
+
+          cta_join: "Mitgliedschaft aktivieren",
+          cta_portfolio: "Portfolio ansehen",
+          cta_svmg: "So verdient man Geld",
+
+          hero_note:
+`Wichtig für Nichtmitglieder:
+Hier geht es nicht um „Krypto-Hype“. Es geht um ein souveränes Setup:
+zentral handlungsfähig bleiben, dezentral sichern — und durch Wissen Fehler, Betrug und teure Irrwege vermeiden.`,
+
+          acc_head: "Alles kompakt – zum Aufklappen",
+          acc_sub: "Öffne die Themen nacheinander. So bleibt die Seite kurz — aber der Inhalt vollständig.",
+
+          s1_t: "Worum geht es hier wirklich?",
+          s1_b:
+`Jeder trifft jeden Tag Entscheidungen — manche kosten viel Geld, andere sparen viel Geld.
+Die FSA ist darauf ausgelegt, souveräne Entscheidungen zu treffen: nicht aus Hype, nicht aus Druck, nicht aus Unwissen — sondern aus Klarheit.
+
+Das Ziel ist Handlungsfähigkeit:
+• zentral: im Alltag funktionieren, zahlen, reagieren können
+• dezentral: langfristig absichern, Eigentum schützen, Redundanz schaffen
+
+Und das Ganze so, dass du typische Anfängerfehler vermeidest — und dich nicht von Betrügern, falschen Versprechen oder Plattformrisiken ausnehmen lässt.`,
+
+          s2_t: "Die 4 Säulen – warum zusammen stärker",
+          s2_b:
+`Diese vier Säulen sind bewusst kombiniert — weil sie unterschiedliche Funktionen haben:
+
+1) Buch:
+Es setzt den Rahmen. Es erklärt die „Schalter“ — außen (Zugang, Geld, Regeln) und innen (Rolle, Pflicht, Angst).
+Du verstehst, was passiert — statt nur zu reagieren.
+
+2) Akademie:
+Wissenstransfer gegen Fehler. Begriffe, Mechaniken, Risiken, Ordnung.
+Du wirst sicherer — und weniger angreifbar.
+
+3) Kurse:
+Umsetzung mit Struktur. Keine Theorie-Schleife — sondern Schritte.
+Du baust dir ein Fundament.
+
+4) Club:
+Der Systemhebel: Zugang, Preisvorteil, Aufbau, Praxis-Formate, Tools.
+Und: ein Rahmen, der Motivation und Kontinuität erzeugt.
+
+Zusammen ergibt das: verstehen → umsetzen → schützen → aufbauen.`,
+
+          s3_t: "Zentral verdienen – dezentral sichern",
+          s3_b:
+`Viele reden nur über „Krypto“ oder nur über „Sicherheit“. Souveränität braucht beides:
+
+• Zentral verdienen / handlungsfähig bleiben:
+Du brauchst Alltagsfähigkeit, Liquidität, eine klare Struktur, und einen Plan.
+Ohne Plan bist du abhängig — von Banken, Plattformen, Regeln, Launen.
+
+• Dezentral sichern:
+Du baust Schutz, Redundanz und Eigentum auf, das nicht einfach „weggeklickt“ oder blockiert wird.
+Das Setup ist kein Hype — es ist ein Sicherheitskonzept.
+
+Genau hier setzt das FSA-System an: Es macht dich handlungsfähig und schützt dich vor typischen Fehlern — Schritt für Schritt.`,
+
+          s4_t: "Warum jetzt? (Kontosperre, Pfändung, Zensur, Regulierung)",
+          s4_b:
+`„Warum jetzt?“ — weil sich Rahmenbedingungen ändern. Nicht plötzlich, sondern schrittweise. Und oft merkt man es erst, wenn es zu spät ist.
+
+1) Kontosperren / Compliance-Logik:
+Zugänge können eingeschränkt werden, wenn Systeme „auffällig“ finden, was du tust.
+Das kann legitime Gründe haben — oder schlicht Automatismen.
+Das Ergebnis ist gleich: du bist in einem Prozess, nicht mehr in Kontrolle.
+
+2) Pfändung / Zugriff / Blockaden:
+Wenn Geldströme zentral gebündelt sind, entstehen Angriffsflächen.
+Handlungsfähigkeit bedeutet: nicht alles an einer Stelle, nicht alles in einem Zugriff.
+
+3) Zensur / Sichtbarkeit:
+Wer Reichweite aufbauen will, spürt Regeln, Framing, Sperren, Shadow-Bans.
+Souveränität heißt: sich nicht komplett abhängig machen.
+
+4) Regulierung / Plattformrisiken:
+Regeln ändern sich, Anbieter ändern Bedingungen, Märkte drehen.
+Du brauchst ein Setup, das nicht zusammenbricht, wenn eine Plattform „Nein“ sagt.
+
+5) Betrug nimmt zu:
+In unsicheren Zeiten werden Menschen leichter manipulierbar.
+Scams, Fake-Plattformen, falsche Versprechen, Druck-Verkauf — das ist Realität.
+
+Das Ziel ist nicht Angst.
+Das Ziel ist Vorbereitung: Klarheit + Struktur + Schutz + Umsetzung.`,
+
+          s5_t: "Schutz durch Wissen: Fehler & Betrug vermeiden",
+          s5_b:
+`Die meisten Verluste entstehen nicht durch „Markt“ — sondern durch Fehler.
+Und die meisten Fehler entstehen durch fehlende Struktur.
+
+Typische Beispiele:
+• falsche Signatur / Blind-Approval
+• Seed/Backup chaotisch oder unsicher
+• Fake-Mints, Fake-Support, Impersonation
+• falsche Plattformwahl, falsches Risiko-Verständnis
+• Druckentscheidungen („nur heute“, „letzte Chance“)
+• fehlende Redundanz (alles an einer Stelle)
+
+Die Akademie ist genau dafür da: Wissenstransfer als Schutzschild.
+Nicht „kompliziert“, sondern sauber, Schritt für Schritt, verständlich und praxisnah.`,
+
+          s6_t: "Der Club als Hebel: sparen + Zugang + Umsetzung",
+          s6_b:
+`Der Club ist nicht nur „Mitgliedschaft“.
+Er ist der Einstieg ins System: Wissen + Struktur + Umsetzung.
+
+Warum das wichtig ist:
+• du sparst Kosten (du kaufst nicht alles einzeln)
+• du bekommst einen roten Faden (du springst nicht wild herum)
+• du bekommst Umsetzung (nicht nur Theorie)
+• du bekommst Praxis-Hebel (Events/Workshops/Tools)
+
+Wenn du sehen willst, wie das mit Sparen und Einkommen zusammenhängt:
+Nutze die Seite „So verdient man Geld“ — dort sind auch die Rechner verlinkt.`,
+
+          s7_t: "Passives Einkommenssystem: fair, kumuliert, selbst steuerbar",
+          s7_b:
+`Finanzielle Souveränität bedeutet nicht nur „sichern“ — sondern auch „aufbauen“.
+Deshalb ist das System so gedacht, dass du dir ein Peer-to-Peer Netzwerk aufbauen kannst.
+
+Wichtig dabei:
+• Es geht nur um bezahlte, aktive Mitgliedschaften/Produkte.
+• Es gibt keine „Ratenlogik“ und keine rückwirkenden Effekte.
+• Dein Einfluss ist dein eigener Umsatz (L1) — nicht die Hoffnung auf L2/L3.
+
+Das ist fair und motivierend:
+Wer aktiv wird, kann seinen eigenen Satz/Stufe erhöhen — wie eine Gehaltserhöhung durch eigene Leistung.
+Und genau das stärkt langfristig Souveränität: weniger Abhängigkeit, mehr eigener Handlungsspielraum.`,
+
+          s8_t: "Nächster Schritt",
+          s8_b:
+`Wenn du einen klaren Start willst, gibt es drei einfache Schritte:
+
+1) Mitglied werden (Zugang + System)
+2) Portfolio ansehen (Überblick)
+3) Danach: „So verdient man Geld“ öffnen (Ersparnis + Verdienstlogik + Rechner)
+
+Es geht nicht darum, alles sofort zu können.
+Es geht darum, nicht unvorbereitet zu sein.`,
+
+          cta_join2: "Jetzt Mitglied werden",
+          cta_svmg2: "So verdient man Geld",
+          cta_portfolio2: "Portfolio ansehen",
+
+          n_head: "Hinweis",
+          n_text:
+`Diese Seite ist eine universelle Ansprache.
+Sie soll informieren, Orientierung geben und zum nächsten Schritt führen — ohne Druck, ohne Hype.
+
+Wenn du sie an jemanden sendest:
+Der Inhalt erklärt das „Warum“ und das System. Der Button „So verdient man Geld“ zeigt danach die Logik + Rechner.`,
+
+          footer_note: "Hinweis: Partner-Modell ist optional. Fokus ist Bildung, Struktur und Eigenverantwortung.",
+          footer_cta: "Zurück zur Club-Basis"
+        },
+
+        en: {
+          back_to_base: "Back to Club Hub",
+          lang_label: "Language",
+
+          h_title: "More control. More structure. More ability to act.",
+          h_sub:
+`This system combines 4 pillars: book, academy, courses, and the Club.
+Not as a “content collection”, but as a path: understand → implement → protect → build.
+
+If you look at the global trend (regulation, controls, platform risks),
+this is not about fear — it’s about preparation.`,
+
+          cta_join: "Activate membership",
+          cta_portfolio: "View portfolio",
+          cta_svmg: "How money is made",
+
+          hero_note:
+`Important for non-members:
+This is not “crypto hype”. It’s a sovereign setup:
+stay capable in the centralized world, secure in the decentralized world — and avoid costly mistakes and fraud through knowledge.`,
+
+          acc_head: "Everything compact — expand to read",
+          acc_sub: "Open topics one by one. The page stays compact, but the content is complete.",
+
+          s1_t: "What is this really about?",
+          s1_b:
+`Everyone makes decisions every day — some cost a lot of money, others save a lot of money.
+FSA is designed for sovereign decisions: not out of hype, not out of pressure, not out of ignorance — but out of clarity.
+
+The goal is the ability to act:
+• centralized: function in daily life, pay, react
+• decentralized: secure long-term, protect ownership, build redundancy
+
+And to do it in a way that helps you avoid typical beginner mistakes — and protects you from scammers, false promises, and platform risks.`,
+
+          s2_t: "The 4 pillars — why they are stronger together",
+          s2_b:
+`These four pillars are combined on purpose — because each has a different role:
+
+1) Book:
+It sets the frame. It explains the “switches” — outside (access, money, rules) and inside (role, duty, fear).
+You understand what’s happening instead of only reacting.
+
+2) Academy:
+Knowledge transfer against mistakes. Terms, mechanics, risks, order.
+You become safer — and less vulnerable.
+
+3) Courses:
+Implementation with structure. No endless theory loop — but steps.
+You build a foundation.
+
+4) Club:
+The system lever: access, price advantage, build-up, practical formats, tools.
+And a framework that creates motivation and continuity.
+
+Together: understand → implement → protect → build.`,
+
+          s3_t: "Earn centrally — secure decentral",
+          s3_b:
+`Many people talk only about “crypto” or only about “security”. Sovereignty needs both:
+
+• Earn / stay capable in the centralized world:
+You need day-to-day functionality, liquidity, clear structure, and a plan.
+Without a plan, you depend on banks, platforms, rules, and moods.
+
+• Secure decentral:
+You build protection, redundancy, and ownership that cannot be “clicked away” or easily blocked.
+The setup is not hype — it’s a security concept.
+
+That’s where the FSA system starts: it helps you stay capable and protects you from typical mistakes — step by step.`,
+
+          s4_t: "Why now? (account freezes, seizures, censorship, regulation)",
+          s4_b:
+`“Why now?” — because conditions change. Not suddenly, but gradually. And often people notice it only when it’s too late.
+
+1) Account freezes / compliance logic:
+Access can be restricted when systems flag your activity as “unusual”.
+Sometimes for valid reasons — sometimes by automation.
+The result is the same: you are in a process, not in control.
+
+2) Seizure / access / blocks:
+When money flows are centralized, attack surfaces grow.
+Ability to act means: not everything in one place, not everything under one access.
+
+3) Censorship / visibility:
+Anyone building reach feels rules, framing, blocks, shadow bans.
+Sovereignty means: don’t become fully dependent.
+
+4) Regulation / platform risks:
+Rules change, providers change terms, markets turn.
+You need a setup that doesn’t collapse when one platform says “no”.
+
+5) Fraud increases:
+In uncertain times people are easier to manipulate.
+Scams, fake platforms, false promises, pressure selling — that’s real.
+
+The goal is not fear.
+The goal is preparation: clarity + structure + protection + implementation.`,
+
+          s5_t: "Protection through knowledge: avoid mistakes & fraud",
+          s5_b:
+`Most losses don’t happen because of the “market” — they happen because of mistakes.
+And most mistakes happen because there is no structure.
+
+Typical examples:
+• wrong signature / blind approvals
+• chaotic or unsafe seed/backup handling
+• fake mints, fake support, impersonation
+• wrong platform choice, wrong risk understanding
+• pressure decisions (“only today”, “last chance”)
+• no redundancy (everything in one place)
+
+The Academy exists for exactly this: knowledge transfer as a shield.
+Not “complicated” — but clean, step by step, understandable and practical.`,
+
+          s6_t: "The Club as a lever: save + access + implementation",
+          s6_b:
+`The Club is not just “membership”.
+It’s the entry into the system: knowledge + structure + implementation.
+
+Why that matters:
+• you reduce costs (you don’t buy everything separately)
+• you get a red thread (you don’t jump around randomly)
+• you get implementation (not only theory)
+• you get practical levers (events/workshops/tools)
+
+If you want to see how saving and income connect:
+Use “How money is made” — it also links the calculators.`,
+
+          s7_t: "Passive income system: fair, cumulative, self-directed",
+          s7_b:
+`Financial sovereignty is not only “securing” — it’s also “building”.
+That’s why the system is designed so you can build a peer-to-peer network.
+
+Important:
+• It’s only about paid, active memberships/products.
+• No installment logic and no retroactive effects.
+• Your lever is your own revenue (L1) — not hoping for L2/L3.
+
+That’s fair and motivating:
+If you become active, you can increase your own tier/rate — like a raise through your own work.
+And that strengthens sovereignty long-term: less dependency, more room to act.`,
+
+          s8_t: "Next step",
+          s8_b:
+`If you want a clear start, there are three simple steps:
+
+1) Become a member (access + system)
+2) View the portfolio (overview)
+3) Then open “How money is made” (saving + income logic + calculators)
+
+It’s not about knowing everything immediately.
+It’s about not being unprepared.`,
+
+          cta_join2: "Become a member",
+          cta_svmg2: "How money is made",
+          cta_portfolio2: "View portfolio",
+
+          n_head: "Note",
+          n_text:
+`This page is a universal pitch.
+It is meant to inform, give orientation, and guide to the next step — without pressure, without hype.
+
+If you send it to someone:
+The content explains the “why” and the system. The button “How money is made” then shows the logic + calculators.`,
+
+          footer_note: "Note: the partner model is optional. Focus is education, structure, and personal responsibility.",
+          footer_cta: "Back to Club Hub"
+        }
+      };
+
+      const btnDE = document.getElementById("btnDE");
+      const btnEN = document.getElementById("btnEN");
+
+      function applyLang(lang){
+        const map = dict[lang] || dict.de;
+        const use = (lang === "en") ? "en" : "de";
+        document.documentElement.lang = use;
+
+        document.querySelectorAll("[data-i18n]").forEach(el=>{
+          const key = el.getAttribute("data-i18n");
+          if(map[key] !== undefined) el.textContent = map[key];
+        });
+
+        btnDE.setAttribute("aria-pressed", use === "de" ? "true" : "false");
+        btnEN.setAttribute("aria-pressed", use === "en" ? "true" : "false");
+
+        try{ localStorage.setItem("fsa_lang", use); }catch(e){}
+      }
+
+      btnDE.addEventListener("click", ()=>applyLang("de"));
+      btnEN.addEventListener("click", ()=>applyLang("en"));
+
+      let saved = "de";
+      try{ saved = localStorage.getItem("fsa_lang") || "de"; }catch(e){}
+      if(saved !== "de" && saved !== "en") saved = "de";
+      applyLang(saved);
+    })();
+  </script>
+</body>
+</html>
