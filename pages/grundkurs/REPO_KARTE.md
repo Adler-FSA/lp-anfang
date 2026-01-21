@@ -580,6 +580,7 @@
     │   ├── club/
     │   │   ├── akquise.html
     │   │   ├── checkout.html
+    │   │   ├── club-serioesitaetsanker.html
     │   │   ├── club.html
     │   │   ├── dokument-01-mitgliederantrag.html
     │   │   ├── dokumente.html
@@ -783,4 +784,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.01.2026, 21:23)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.01.2026, 22:19)_
