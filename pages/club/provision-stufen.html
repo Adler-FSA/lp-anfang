@@ -274,6 +274,7 @@
     .table{
       margin-top:12px;
       overflow:auto;
+      -webkit-overflow-scrolling:touch;
       border-radius:16px;
       box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
       background:rgba(0,0,0,.30);
@@ -306,6 +307,83 @@
     .num{
       font-variant-numeric: tabular-nums;
       white-space:nowrap;
+    }
+
+    /* ======= TABLE FIX (MOBILE / iPAD) =======
+       Gleiche Tabelle, gleiche Daten – nur Darstellung umstellen,
+       damit sie ins Bild passt (keine abgeschnittenen Spalten).
+    */
+    .mobileTotals{
+      display:none;
+      margin-top:12px;
+      border-radius:16px;
+      padding:12px 12px;
+      background:rgba(0,0,0,.32);
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+    }
+    .mobileTotals .pillbar{ margin-top:0; }
+
+    @media (max-width: 1020px){
+      .table{
+        overflow:visible; /* kein seitliches Weglaufen, wir stapeln */
+      }
+      table{
+        min-width:0;
+      }
+      thead{
+        display:none;
+      }
+      tfoot{
+        display:none; /* dafür gibt es unten Mobile-Gesamt */
+      }
+
+      tbody{
+        display:block;
+      }
+      tbody tr{
+        display:block;
+        margin:10px 10px;
+        border-radius:16px;
+        background:rgba(0,0,0,.26);
+        box-shadow:0 0 0 1px rgba(212,175,55,.10) inset;
+        overflow:hidden;
+      }
+      tbody td{
+        display:block;
+        padding:10px 12px;
+        border-bottom:1px solid rgba(212,175,55,.10);
+      }
+      tbody td:last-child{
+        border-bottom:0;
+      }
+
+      /* Label vor dem Inhalt */
+      tbody td[data-label]::before{
+        content: attr(data-label);
+        display:block;
+        font-size:11.5px;
+        letter-spacing:.06em;
+        text-transform:uppercase;
+        color:rgba(203,213,225,.85);
+        margin-bottom:8px;
+      }
+
+      /* Inputs auf Mobile breit */
+      tbody td input{
+        width:100%;
+        min-width:0 !important;
+        box-sizing:border-box;
+      }
+
+      /* Zahlen/Provisionen lesbarer */
+      tbody td.num,
+      tbody td.right{
+        text-align:left;
+      }
+
+      .mobileTotals{
+        display:block;
+      }
     }
 
     .progress{
@@ -554,6 +632,19 @@
             </table>
           </div>
 
+          <!-- MOBILE TOTALS (nur sichtbar unter 1020px) -->
+          <div class="mobileTotals" aria-label="Gesamt (Mobile)">
+            <div class="pillbar">
+              <div class="pill"><span data-i18n="mt_totL1">Gesamt L1</span>: <strong class="num" id="mTotL1">–</strong></div>
+              <div class="pill"><span data-i18n="mt_totL1P">L1 Provision</span>: <strong class="num" id="mTotL1P">–</strong></div>
+              <div class="pill"><span data-i18n="mt_totL2">Gesamt L2</span>: <strong class="num" id="mTotL2">–</strong></div>
+              <div class="pill"><span data-i18n="mt_totL2P">L2 Provision</span>: <strong class="num" id="mTotL2P">–</strong></div>
+              <div class="pill"><span data-i18n="mt_totL3">Gesamt L3</span>: <strong class="num" id="mTotL3">–</strong></div>
+              <div class="pill"><span data-i18n="mt_totL3P">L3 Provision</span>: <strong class="num" id="mTotL3P">–</strong></div>
+              <div class="pill"><span data-i18n="mt_totAll">Gesamt Provision</span>: <strong class="num" id="mTotAll">–</strong></div>
+            </div>
+          </div>
+
           <div class="note" data-i18n="note_mid">
             Tipp: Wenn du statt Umsatz lieber „Mengen“ rechnest (z. B. Anzahl Mitglieder), nutze unten den Umsatz-Helfer, um daraus einen Jahresumsatz abzuleiten – und übertrage ihn in die Tabelle.
           </div>
@@ -747,6 +838,24 @@
         });
       }
 
+      // ===== TABLE FIX SUPPORT: data-labels für Mobile-Cards =====
+      function getTableLabels(){
+        // liest aktuelle Header-Texte (nach i18n) aus THEAD
+        const ths = Array.from(document.querySelectorAll("table thead th"));
+        return ths.map(th => (th.textContent || "").trim());
+      }
+      function applyRowDataLabels(){
+        const labels = getTableLabels();
+        // Reihen im TBODY -> jede TD bekommt data-label passend zur Spalte
+        const trs = Array.from(rows.querySelectorAll("tr"));
+        trs.forEach(tr=>{
+          const tds = Array.from(tr.children);
+          tds.forEach((td, idx)=>{
+            if(labels[idx]) td.setAttribute("data-label", labels[idx]);
+          });
+        });
+      }
+
       function buildRows(){
         const n = clampNumber(yearsSel.value);
         rows.innerHTML = "";
@@ -821,28 +930,26 @@
         rows.querySelectorAll("input").forEach(inp=>{
           inp.addEventListener("input", recalc);
         });
+
+        // nach dem Build Labels setzen (für Mobile Card View)
+        applyRowDataLabels();
       }
 
       function calcTieredPayout(revThisPeriod, cumBefore){
-        // Splits revThisPeriod into brackets based on cumBefore.
         let remaining = Math.max(0, revThisPeriod);
         let cum = cumBefore;
         let payout = 0;
 
-        // For transparency, keep breakdown
         const parts = [];
 
         for(const t of TIERS){
           if(remaining <= 0) break;
 
-          // current bracket overlap given cum
           const bracketStart = t.start;
           const bracketEnd = t.end;
 
-          // if cum already beyond bracket, skip
           if(cum >= bracketEnd) continue;
 
-          // if cum below bracketStart, we are still in earlier bracket(s)
           const effectiveStart = Math.max(cum, bracketStart);
           const maxInBracket = (bracketEnd === Infinity) ? remaining : Math.max(0, bracketEnd - effectiveStart);
           const take = Math.min(remaining, maxInBracket);
@@ -875,12 +982,10 @@
         const eff = cumL1 > 0 ? (totalPayout / cumL1) * 100 : 0;
         $("effRate").textContent = (Math.round(eff*100)/100).toString().replace(".", ",") + "%";
 
-        // progress to next threshold
-        const maxForBar = 1500000; // show progress up to 1.5M (then 40% tier is "top")
+        const maxForBar = 1500000;
         const pct = Math.max(0, Math.min(100, (cumL1 / maxForBar) * 100));
         $("barFill").style.width = pct + "%";
 
-        // highlight active tier
         document.querySelectorAll(".tier").forEach(el=>el.classList.remove("active"));
         const idx = TIERS.findIndex(t=>t.rate === cur.rate && t.start === cur.start);
         const active = document.querySelector(`.tier[data-tier-idx="${idx}"]`);
@@ -935,6 +1040,15 @@
         $("totL3P").textContent = fmtEUR(totL3P);
         $("totAll").textContent = fmtEUR(totAll);
 
+        // MOBILE TOTALS spiegeln (ohne IDs zu duplizieren)
+        $("mTotL1").textContent  = fmtEUR(totL1);
+        $("mTotL1P").textContent = fmtEUR(totL1P);
+        $("mTotL2").textContent  = fmtEUR(totL2);
+        $("mTotL2P").textContent = fmtEUR(totL2P);
+        $("mTotL3").textContent  = fmtEUR(totL3);
+        $("mTotL3P").textContent = fmtEUR(totL3P);
+        $("mTotAll").textContent = fmtEUR(totAll);
+
         updateTierStatus(totL1, totL1P);
         recalcHelper();
       }
@@ -974,6 +1088,8 @@
         buildRows();
         recalc();
         applyLang(currentLang);
+        // nach i18n: Labels neu setzen
+        applyRowDataLabels();
       });
 
       ["l2rate","l3rate","feeMember","feeLeadAdd","cntMembers","cntLead","revOther","helperYear"].forEach(id=>{
@@ -1024,6 +1140,14 @@
           t_sum: "Summe Provision",
           totals: "Gesamt",
           mini_paid: "nur bezahlter Umsatz",
+
+          mt_totL1: "Gesamt L1",
+          mt_totL1P: "L1 Provision",
+          mt_totL2: "Gesamt L2",
+          mt_totL2P: "L2 Provision",
+          mt_totL3: "Gesamt L3",
+          mt_totL3P: "L3 Provision",
+          mt_totAll: "Gesamt Provision",
 
           note_mid: "Tipp: Wenn du statt Umsatz lieber „Mengen“ rechnest (z. B. Anzahl Mitglieder), nutze unten den Umsatz-Helfer, um daraus einen Jahresumsatz abzuleiten – und übertrage ihn in die Tabelle.",
 
@@ -1091,6 +1215,14 @@
           totals: "Total",
           mini_paid: "paid revenue only",
 
+          mt_totL1: "Total L1",
+          mt_totL1P: "L1 commission",
+          mt_totL2: "Total L2",
+          mt_totL2P: "L2 commission",
+          mt_totL3: "Total L3",
+          mt_totL3P: "L3 commission",
+          mt_totAll: "Total commission",
+
           note_mid: "Tip: If you prefer to calculate using quantities (e.g., number of members), use the revenue helper below to derive yearly revenue and copy it into the table.",
 
           helper_head: "Revenue helper (optional)",
@@ -1137,6 +1269,9 @@
         $("btnEN").setAttribute("aria-pressed", currentLang === "en" ? "true" : "false");
 
         try{ localStorage.setItem("fsa_lang", currentLang); }catch(e){}
+
+        // nach Sprachwechsel: Labels für Mobile-Card-Table neu setzen (ohne Inputs zu verlieren)
+        applyRowDataLabels();
       }
 
       $("btnDE").addEventListener("click", ()=>applyLang("de"));
