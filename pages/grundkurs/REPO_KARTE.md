@@ -594,6 +594,7 @@
     │   │   ├── portfolio.html
     │   │   ├── preise.html
     │   │   ├── provision-stufen.html
+    │   │   ├── rechner-provision-stufen.html
     │   │   ├── rechner-verdienst.html
     │   │   ├── so-verdient-man-geld.html
     │   │   ├── start.html
@@ -781,4 +782,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.01.2026, 09:27)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.01.2026, 10:23)_
