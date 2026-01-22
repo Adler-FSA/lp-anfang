@@ -601,7 +601,8 @@
     │   │   ├── rechner-verdienst.html
     │   │   ├── so-verdient-man-geld.html
     │   │   ├── start.html
-    │   │   └── tool.html
+    │   │   ├── tool.html
+    │   │   └── vertrieb-4-saeulen.html
     │   ├── footer/
     │   │   ├── community.html
     │   │   ├── impressum.html
@@ -785,4 +786,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.01.2026, 06:27)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.01.2026, 07:23)_
