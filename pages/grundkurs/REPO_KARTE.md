@@ -578,6 +578,7 @@
     │   ├── campus/
     │   │   └── page.json
     │   ├── club/
+    │   │   ├── 4-saeulen-system.html
     │   │   ├── akquise.html
     │   │   ├── checkout.html
     │   │   ├── club-serioesitaetsanker.html
@@ -784,4 +785,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.01.2026, 05:24)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.01.2026, 06:27)_
