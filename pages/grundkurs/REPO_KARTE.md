@@ -610,6 +610,7 @@
     │   │   ├── entwuerfe-anwendungen.html
     │   │   ├── index.html
     │   │   ├── kalkulations-archiv.html
+    │   │   ├── produkt-01-club-mitgliedschaft.html
     │   │   ├── produkt-beschreibungen-und-datenblaetter.html
     │   │   ├── rechner-aus-umsatz-wird-einkommen.html
     │   │   ├── regelwerk.html
@@ -803,4 +804,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.01.2026, 17:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.01.2026, 18:22)_
