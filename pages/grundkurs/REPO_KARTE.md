@@ -594,11 +594,13 @@
     │   │   ├── landing-4-saeulen.html
     │   │   ├── partner.html
     │   │   ├── peer-to-peer.html
+    │   │   ├── planungstool.html
     │   │   ├── portfolio.html
     │   │   ├── preise.html
     │   │   ├── provision-stufen.html
     │   │   ├── rechner-provision-stufen.html
     │   │   ├── rechner-verdienst.html
+    │   │   ├── rechner-worstcase.html
     │   │   ├── so-verdient-man-geld.html
     │   │   ├── start.html
     │   │   ├── tool.html
@@ -786,4 +788,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.01.2026, 08:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.01.2026, 09:16)_
