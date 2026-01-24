@@ -605,6 +605,9 @@
     │   │   ├── start.html
     │   │   ├── tool.html
     │   │   └── vertrieb-4-saeulen.html
+    │   ├── club-admin/
+    │   │   ├── dashboard.html
+    │   │   └── index.html
     │   ├── footer/
     │   │   ├── community.html
     │   │   ├── impressum.html
@@ -788,4 +791,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.01.2026, 11:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.01.2026, 12:30)_
