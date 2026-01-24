@@ -209,6 +209,16 @@
     │   │   │   ├── slide-45.jpg
     │   │   │   ├── slide-47.jpg
     │   │   │   └── slide-48.jpg
+    │   │   ├── produkte/
+    │   │   │   ├── produkt-01-club-mitgliedschaft.jpeg
+    │   │   │   ├── produkt-02-leadmaschine.jpeg
+    │   │   │   ├── produkt-03-live-formate-events.jpeg
+    │   │   │   ├── produkt-04-weekend-setup-2-tage-workshop.jpeg
+    │   │   │   ├── produkt-05-hoersaal-angebot-lizenz.jpeg
+    │   │   │   ├── produkt-06-krypto-setup-kurs.jpeg
+    │   │   │   ├── produkt-07-trading-grundkurs.jpeg
+    │   │   │   ├── produkt-08-nft-basis-orientierung.jpeg
+    │   │   │   └── produkt-09-buch.jpeg
     │   │   ├── timecells/
     │   │   │   └── onboarding/
     │   │   ├── README.txt
@@ -808,4 +818,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.01.2026, 22:15)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.01.2026, 23:15)_
