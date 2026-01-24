@@ -612,6 +612,9 @@
     │   │   ├── kalkulations-archiv.html
     │   │   ├── produkt-01-club-mitgliedschaft.html
     │   │   ├── produkt-beschreibungen-und-datenblaetter.html
+    │   │   ├── produkt-leadmaschine.html
+    │   │   ├── produkt-liveformate.html
+    │   │   ├── produkt-weekend-setup.html
     │   │   ├── rechner-aus-umsatz-wird-einkommen.html
     │   │   ├── regelwerk.html
     │   │   ├── verguetungssystem.html
@@ -804,4 +807,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.01.2026, 18:22)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.01.2026, 19:13)_
