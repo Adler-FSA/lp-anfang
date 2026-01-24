@@ -607,7 +607,16 @@
     │   │   └── vertrieb-4-saeulen.html
     │   ├── club-admin/
     │   │   ├── dashboard.html
-    │   │   └── index.html
+    │   │   ├── entwuerfe-anwendungen.html
+    │   │   ├── index.html
+    │   │   ├── kalkulations-archiv.html
+    │   │   ├── produkt-beschreibungen-und-datenblaetter.html
+    │   │   ├── rechner-aus-umsatz-wird-einkommen.html
+    │   │   ├── regelwerk.html
+    │   │   ├── verguetungssystem.html
+    │   │   ├── vertrieb-und-dokumente.html
+    │   │   ├── weekend-dokumente.html
+    │   │   └── wichtig-archiv.html
     │   ├── footer/
     │   │   ├── community.html
     │   │   ├── impressum.html
@@ -791,4 +800,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.01.2026, 12:30)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.01.2026, 13:27)_
