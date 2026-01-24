@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Weekend-Setup – Anwesenheitsliste (Club Intern)</title>
+<meta name="description" content="Anwesenheitsliste für Seminarstart. Ausfüllbar, localStorage, druckbar." />
+<style>
+  :root{
+    --bg:#020617; --bg2:#020814;
+    --border:rgba(148,163,184,.45);
+    --txt:#e5e7eb; --muted:#9ca3af;
+    --gold:#eab308; --accent:#38bdf8;
+    --shadow:0 18px 45px rgba(15,23,42,.95);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;
+    background:radial-gradient(circle at top,#02081a 0,#020617 40%,#020617 100%);
+    color:var(--txt);
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  #hero{padding-top:88px;}
+  .wrap{max-width:1100px;margin:40px auto 48px;padding:0 20px 40px;}
+  .hero{
+    background:linear-gradient(145deg,rgba(15,23,42,.98),rgba(8,16,32,.98));
+    border-radius:var(--radius);
+    border:1px solid rgba(148,163,184,.55);
+    box-shadow:var(--shadow);
+    padding:26px 22px 22px;
+    margin-bottom:18px;
+    position:relative;overflow:hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute;inset:-40%;
+    background:
+      radial-gradient(circle at 0 0,rgba(56,189,248,.14) 0,transparent 55%),
+      radial-gradient(circle at 100% 0,rgba(234,179,8,.18) 0,transparent 52%);
+    opacity:.9;pointer-events:none;
+  }
+  .hero-inner{position:relative;z-index:1;}
+  h1{margin:0 0 8px;font-size:clamp(24px,3vw,32px);font-weight:900;color:var(--gold);}
+  p{margin:6px 0;font-size:14px;line-height:1.65;color:var(--txt);opacity:.96;}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;}
+  .btn{
+    border-radius:999px;padding:9px 14px;font-size:13px;
+    border:1px solid rgba(148,163,184,.7);
+    background:rgba(15,23,42,.9);color:var(--txt);
+    cursor:pointer;text-decoration:none;
+    display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
+  }
+  .btn:hover{background:rgba(15,23,42,1);}
+  .btn-gold{
+    background:linear-gradient(135deg,#facc15,#eab308);
+    border-color:rgba(250,204,21,.9);
+    color:#111827;font-weight:900;
+    box-shadow:0 0 24px rgba(250,204,21,.55);
+  }
+  .btn-gold:hover{filter:brightness(1.05);}
+  .ico{width:16px;height:16px;display:inline-block}
+
+  .section{
+    background:radial-gradient(circle at top,rgba(15,23,42,.98),rgba(15,23,42,.97));
+    border-radius:var(--radius);
+    border:1px solid rgba(148,163,184,.55);
+    box-shadow:var(--shadow);
+    padding:18px 18px 16px;
+    margin-bottom:14px;
+  }
+  .row{
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    gap:10px;
+  }
+  .col6{grid-column:span 6;}
+  .col4{grid-column:span 4;}
+  .col3{grid-column:span 3;}
+  .col12{grid-column:span 12;}
+  label{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.10em;margin-bottom:4px;}
+  input[type="text"], input[type="number"]{
+    width:100%;min-height:38px;
+    padding:8px 9px;border-radius:10px;
+    border:1px solid rgba(148,163,184,.7);
+    background:rgba(15,23,42,.96);color:var(--txt);
+    font-size:13px;
+  }
+  input:focus{outline:1px solid var(--accent);border-color:var(--accent);box-shadow:0 0 0 1px rgba(56,189,248,.5);}
+
+  .table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    overflow:hidden;
+    border-radius:12px;
+    border:1px solid rgba(148,163,184,.55);
+  }
+  .table th,.table td{
+    border-bottom:1px solid rgba(148,163,184,.25);
+    padding:8px 8px;
+    vertical-align:top;
+    background:rgba(15,23,42,.92);
+    font-size:13px;
+  }
+  .table th{
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.10em;
+    font-size:11px;
+    background:rgba(15,23,42,.98);
+  }
+  .table tr:nth-child(even) td{background:rgba(15,23,42,.86);}
+  .table input{
+    width:100%;
+    min-height:34px;
+    padding:6px 7px;
+    border-radius:8px;
+  }
+
+  @media (max-width:900px){
+    .wrap{padding:0 14px 32px;}
+    .hero{padding:20px 16px;}
+    .col6,.col4,.col3{grid-column:span 12;}
+  }
+
+  @media print{
+    #menu-root,.actions{display:none !important;}
+    body{background:#fff;color:#000;}
+    .hero,.section{box-shadow:none;border-color:#999;background:#fff;}
+    .hero::before{display:none !important;}
+    h1{color:#000;}
+    p,label{color:#000;}
+    input{border-color:#999;background:#fff;color:#000;}
+    .table{border-color:#999;}
+    .table th,.table td{background:#fff;color:#000;border-bottom:1px solid #ccc;}
+  }
+</style>
+</head>
+
+<body data-storage-prefix="fsa-club-weekend-anwesenheit:">
+<div id="menu-root"></div>
+
+<div class="wrap">
+  <section class="hero" id="hero">
+    <div class="hero-inner">
+      <h1>Anwesenheitsliste – Seminarstart</h1>
+      <p>
+        Für Check-in und Dokumentation. Eintragungen bleiben lokal gespeichert und können direkt gedruckt werden.
+      </p>
+      <div class="actions">
+        <a class="btn" href="/lp-anfang/pages/club/weekend-dokumente.html" data-internal>
+          <svg class="ico" viewBox="0 0 24 24" fill="none">
+            <path d="M14.5 5.5L8 12l6.5 6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Zurück
+        </a>
+        <button class="btn btn-gold" type="button" id="printBtn">
+          <svg class="ico" viewBox="0 0 24 24" fill="none">
+            <path d="M7 8V4h10v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7 17h10v3H7z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M6 17H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Drucken
+        </button>
+        <button class="btn" type="button" id="clearBtn">
+          <svg class="ico" viewBox="0 0 24 24" fill="none">
+            <path d="M4 7h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M10 11v7M14 11v7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M6 7l1 14h10l1-14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M9 7V4h6v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Alles löschen
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="row">
+      <div class="col6">
+        <label>Termin / Datum</label>
+        <input type="text" data-storage-key="event-date" placeholder="z. B. 12.–13.04.2026" />
+      </div>
+      <div class="col6">
+        <label>Ort / Location</label>
+        <input type="text" data-storage-key="event-place" placeholder="z. B. Bürgerhaus / Hotel / Stadt" />
+      </div>
+      <div class="col4">
+        <label>Sprecher</label>
+        <input type="text" data-storage-key="event-speaker" />
+      </div>
+      <div class="col4">
+        <label>Team / Orga</label>
+        <input type="text" data-storage-key="event-team" />
+      </div>
+      <div class="col4">
+        <label>Teilnehmer (Soll)</label>
+        <input type="number" data-storage-key="event-target" />
+      </div>
+      <div class="col12">
+        <label>Hinweis (optional)</label>
+        <input type="text" data-storage-key="event-note" placeholder="z. B. Kein Alkohol, Setup-Mappe, WLAN-Zugang ..." />
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <table class="table" aria-label="Anwesenheitsliste">
+      <thead>
+        <tr>
+          <th style="width:46px;">#</th>
+          <th>Name</th>
+          <th>E-Mail / Telefon (optional)</th>
+          <th style="width:140px;">Signatur</th>
+          <th style="width:120px;">Anwesend</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </section>
+</div>
+
+<script>
+/* Passwort-Gate (lokal) */
+(function(){
+  const PASS = 'FSA-CLUB-ADMIN-2026';
+  const KEY  = 'fsa_club_admin_auth';
+  try{
+    if (localStorage.getItem(KEY) !== '1'){
+      const p = prompt('Club Admin Passwort:');
+      if (p === PASS) localStorage.setItem(KEY,'1');
+      else location.href = '/lp-anfang/pages/club/index.html';
+    }
+  }catch(e){
+    location.href = '/lp-anfang/pages/club/index.html';
+  }
+})();
+</script>
+
+<script>
+/* Tabelle dynamisch + localStorage */
+(function(){
+  const prefix = document.body.getAttribute('data-storage-prefix') || 'fsa-club-weekend-anwesenheit:';
+  const ROWS = 60; /* Standard: 60 Zeilen */
+
+  function save(key, val){ try{ localStorage.setItem(prefix + key, val); }catch(e){} }
+  function load(key){ try{ return localStorage.getItem(prefix + key); }catch(e){ return null; } }
+
+  function bind(el, key){
+    const stored = load(key);
+    if (stored !== null){
+      if (el.type === 'checkbox') el.checked = (stored === '1');
+      else el.value = stored;
+    }
+    el.addEventListener(el.type === 'checkbox' ? 'change' : 'input', ()=>{
+      const v = el.type === 'checkbox' ? (el.checked ? '1':'0') : el.value;
+      save(key, v);
+    });
+  }
+
+  function build(){
+    const tb = document.getElementById('rows');
+    let html = '';
+    for (let i=1;i<=ROWS;i++){
+      html += `
+        <tr>
+          <td>${i}</td>
+          <td><input type="text" data-k="r${i}-name" /></td>
+          <td><input type="text" data-k="r${i}-contact" /></td>
+          <td><input type="text" data-k="r${i}-sign" /></td>
+          <td style="text-align:center;">
+            <input type="checkbox" data-k="r${i}-ok" style="width:18px;height:18px;accent-color:var(--gold);" />
+          </td>
+        </tr>`;
+    }
+    tb.innerHTML = html;
+
+    document.querySelectorAll('[data-storage-key]').forEach(el=>{
+      bind(el, el.getAttribute('data-storage-key'));
+    });
+    document.querySelectorAll('[data-k]').forEach(el=>{
+      bind(el, el.getAttribute('data-k'));
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', ()=>{
+    build();
+    document.getElementById('printBtn')?.addEventListener('click', ()=>window.print());
+    document.getElementById('clearBtn')?.addEventListener('click', ()=>{
+      if (!confirm('Möchtest du wirklich alle Eintragungen löschen?')) return;
+      try{
+        Object.keys(localStorage).forEach(k=>{ if (k.startsWith(prefix)) localStorage.removeItem(k); });
+      }catch(e){}
+      location.reload();
+    });
+  });
+})();
+</script>
+
+<script>
+/* nocache */
+(function(){
+  const t = Date.now();
+  document.querySelectorAll('a[data-internal]').forEach(a=>{
+    try{
+      const u = new URL(a.getAttribute('href'), location.href);
+      u.searchParams.set('nocache', t);
+      a.href = u.pathname + u.search + u.hash;
+    }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
