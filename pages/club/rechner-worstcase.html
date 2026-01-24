@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Club – Worstcase Rechner (Planung)</title>
+  <meta name="description" content="Interner Worstcase-Rechner für Club-Planung: Mitgliedschaft, Leadmaschine, Weekend-Setup." />
+  <style>
+    :root{
+      --bg:#050814;
+      --bg2:#020617;
+      --panel:rgba(15,23,42,.90);
+      --panel2:rgba(15,23,42,.78);
+      --txt:#e8edf6;
+      --muted:#b8c3d6;
+      --gold:#d4af37;
+      --goldSoft:rgba(212,175,55,.28);
+      --line:rgba(212,175,55,.35);
+      --shadow:0 24px 60px rgba(0,0,0,.55);
+      --glow:0 0 22px rgba(212,175,55,.25), 0 12px 26px rgba(0,0,0,.55);
+      --radius:18px;
+      --maxw:1100px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--txt);
+      background:
+        radial-gradient(1200px 700px at 20% 15%, rgba(212,175,55,.10), transparent 55%),
+        radial-gradient(900px 500px at 85% 25%, rgba(94,168,255,.10), transparent 60%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    .topbar{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(180deg, rgba(2,6,23,.85), rgba(2,6,23,.55));
+      border-bottom:1px solid rgba(212,175,55,.22);
+    }
+    .topbar-inner{
+      max-width:var(--maxw);
+      margin:0 auto;
+      padding:14px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      min-width:220px;
+    }
+    .mark{
+      width:34px;height:34px;border-radius:10px;
+      display:grid;place-items:center;
+      background: linear-gradient(180deg, rgba(212,175,55,.18), rgba(212,175,55,.06));
+      border:1px solid rgba(212,175,55,.32);
+      box-shadow: 0 0 18px rgba(212,175,55,.15);
+    }
+    .brand h1{
+      margin:0;
+      font-size:14px;
+      letter-spacing:.2px;
+      font-weight:700;
+      color:var(--txt);
+    }
+    .brand p{
+      margin:0;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    .btn{
+      appearance:none; border:1px solid rgba(212,175,55,.35);
+      background: linear-gradient(180deg, rgba(212,175,55,.14), rgba(212,175,55,.06));
+      color:var(--txt);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:650;
+      font-size:13px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+      white-space:nowrap;
+    }
+    .btn:hover{transform: translateY(-1px); border-color: rgba(212,175,55,.55)}
+    .btn:active{transform: translateY(0px)}
+    .btn.secondary{
+      border-color:rgba(232,237,246,.16);
+      background: rgba(15,23,42,.55);
+      box-shadow:none;
+    }
+
+    .wrap{
+      max-width:var(--maxw);
+      margin:22px auto 60px;
+      padding:0 18px;
+    }
+
+    .hero{
+      margin-top:10px;
+      border:1px solid rgba(212,175,55,.20);
+      border-radius:var(--radius);
+      background: linear-gradient(180deg, rgba(15,23,42,.86), rgba(15,23,42,.64));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .hero::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: radial-gradient(800px 240px at 20% 0%, rgba(212,175,55,.22), transparent 60%);
+      pointer-events:none;
+    }
+    .hero-inner{padding:22px 18px 18px; position:relative}
+    .kicker{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(212,175,55,.26);
+      background: rgba(212,175,55,.08);
+      color: var(--muted);
+      font-size:12px;
+      letter-spacing:.2px;
+      margin-bottom:12px;
+    }
+    .hero h2{
+      margin:0 0 8px 0;
+      font-size:28px;
+      line-height:1.15;
+      letter-spacing:.2px;
+    }
+    .hero p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.55;
+      font-size:14px;
+      max-width:900px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap:16px;
+      margin-top:16px;
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr}
+      .brand{min-width:auto}
+    }
+
+    .card{
+      border:1px solid rgba(212,175,55,.18);
+      border-radius:var(--radius);
+      background: linear-gradient(180deg, rgba(15,23,42,.88), rgba(15,23,42,.66));
+      box-shadow: var(--glow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:14px 16px 12px;
+      border-bottom:1px solid rgba(212,175,55,.14);
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+    }
+    .card .hd h3{
+      margin:0;
+      font-size:15px;
+      letter-spacing:.2px;
+    }
+    .card .hd .sub{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+      max-width:680px;
+    }
+    .card .bd{padding:14px 16px 16px}
+
+    .form{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 640px){
+      .form{grid-template-columns:1fr}
+    }
+    label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin:0 0 6px 2px;
+    }
+    input, select{
+      width:100%;
+      padding:12px 12px;
+      border-radius:12px;
+      border:1px solid rgba(232,237,246,.14);
+      background: rgba(2,6,23,.55);
+      color:var(--txt);
+      outline:none;
+      font-size:14px;
+    }
+    input:focus, select:focus{border-color: rgba(212,175,55,.55); box-shadow: 0 0 0 3px rgba(212,175,55,.14)}
+    .help{
+      margin:6px 2px 0;
+      font-size:11px;
+      color:rgba(184,195,214,.88);
+      line-height:1.35;
+    }
+
+    .row{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .results{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+    .metric{
+      padding:14px 14px 12px;
+      border-radius:16px;
+      border:1px solid rgba(212,175,55,.16);
+      background: rgba(2,6,23,.42);
+    }
+    .metric .k{
+      color:var(--muted);
+      font-size:12px;
+      margin:0 0 6px 0;
+    }
+    .metric .v{
+      font-size:22px;
+      font-weight:800;
+      letter-spacing:.2px;
+      margin:0;
+    }
+    .metric .n{
+      margin:6px 0 0 0;
+      color:rgba(184,195,214,.92);
+      font-size:12px;
+      line-height:1.35;
+    }
+
+    .table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      overflow:hidden;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.14);
+      background: rgba(2,6,23,.40);
+    }
+    .table th, .table td{
+      padding:10px 10px;
+      border-bottom:1px solid rgba(232,237,246,.10);
+      font-size:12px;
+      text-align:left;
+      vertical-align:top;
+    }
+    .table th{color:var(--muted); font-weight:750}
+    .table tr:last-child td{border-bottom:none}
+    .mono{font-variant-numeric: tabular-nums}
+    .hint{
+      margin-top:10px;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.16);
+      background: rgba(212,175,55,.06);
+      color:rgba(232,237,246,.96);
+      font-size:12px;
+      line-height:1.45;
+    }
+
+    .foot{
+      margin-top:14px;
+      color:rgba(184,195,214,.75);
+      font-size:11px;
+      line-height:1.45;
+    }
+
+    /* Inline SVG sizing */
+    svg{display:block}
+    .ico{width:18px;height:18px}
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">
+          <!-- Inline SVG (no external icons) -->
+          <svg class="ico" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2.5l2.6 5.4 6 .9-4.3 4.2 1 6-5.3-2.8-5.3 2.8 1-6L3.4 8.8l6-.9L12 2.5z"
+                  stroke="rgba(212,175,55,.95)" stroke-width="1.4" />
+          </svg>
+        </div>
+        <div>
+          <h1 data-i18n="top.title">Club Planung</h1>
+          <p data-i18n="top.subtitle">Worstcase-Rechner (intern)</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn secondary" id="btnReset" type="button" data-i18n="btn.reset">Zurücksetzen</button>
+        <button class="btn" id="btnLang" type="button">DE / EN</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="kicker">
+          <span aria-hidden="true">
+            <svg class="ico" viewBox="0 0 24 24" fill="none">
+              <path d="M4 12h16M12 4v16" stroke="rgba(212,175,55,.95)" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span data-i18n="hero.kicker">Nur für Geschäftsleitung / Planung</span>
+        </div>
+
+        <h2 data-i18n="hero.h2">Worstcase-Planung: Planbarkeit, Skalierbarkeit, Sicherheit</h2>
+        <p data-i18n="hero.p">
+          Dieses Tool ist bewusst konservativ gebaut: Es rechnet ausschließlich mit den drei Bausteinen
+          Mitgliedschaft, Leadmaschine und Weekend-Setup. Du kannst die Annahmen transparent einstellen
+          (Attach-Rates, Schwund, Vertriebssatz). Ergebnis: Brutto-Umsatz, Anteil Vertrieb und Club-Rest
+          – für Jahr 1 und Jahr 2 (mit Bestand/Verlängerung).
+        </p>
+      </div>
+    </section>
+
+    <div class="grid">
+      <!-- INPUTS -->
+      <section class="card">
+        <div class="hd">
+          <div>
+            <h3 data-i18n="in.h3">Eingaben</h3>
+            <div class="sub" data-i18n="in.sub">
+              Worstcase-Logik = einfache, nachvollziehbare Planung. Kein Hype, keine Ketten-Explosion.
+              Du definierst: Mitglieder-Zuwachs, Quoten, Preise und Schwund.
+            </div>
+          </div>
+        </div>
+
+        <div class="bd">
+          <div class="form">
+            <!-- Volumen -->
+            <div>
+              <label for="startMembers" data-i18n="f.startMembers">Start-Mitglieder (Jahr 1)</label>
+              <input id="startMembers" type="number" min="0" step="1" value="0" />
+              <div class="help" data-i18n="h.startMembers">Bestand zu Beginn von Jahr 1.</div>
+            </div>
+
+            <div>
+              <label for="newPerMonthY1" data-i18n="f.newPerMonthY1">Neue Mitglieder pro Monat (Jahr 1)</label>
+              <input id="newPerMonthY1" type="number" min="0" step="1" value="167" />
+              <div class="help" data-i18n="h.newPerMonthY1">167/Monat ≈ 2000 neue Mitglieder im Jahr.</div>
+            </div>
+
+            <div>
+              <label for="churn" data-i18n="f.churn">Schwund/Abgang zum Jahresende</label>
+              <input id="churn" type="number" min="0" max="100" step="0.1" value="20" />
+              <div class="help" data-i18n="h.churn">Beispiel: 20% kündigen / verlängern nicht.</div>
+            </div>
+
+            <div>
+              <label for="newPerMonthY2" data-i18n="f.newPerMonthY2">Neue Mitglieder pro Monat (Jahr 2)</label>
+              <input id="newPerMonthY2" type="number" min="0" step="1" value="167" />
+              <div class="help" data-i18n="h.newPerMonthY2">Konservativ: gleicher Zuwachs wie Jahr 1.</div>
+            </div>
+
+            <!-- Preise -->
+            <div>
+              <label for="priceMembership" data-i18n="f.priceMembership">Mitgliedschaft (€/Jahr)</label>
+              <input id="priceMembership" type="number" min="0" step="1" value="60" />
+              <div class="help" data-i18n="h.priceMembership">Jahresbeitrag pro Mitglied.</div>
+            </div>
+
+            <div>
+              <label for="priceLead" data-i18n="f.priceLead">Leadmaschine Add-on (€/Jahr, nur als Mitglied)</label>
+              <input id="priceLead" type="number" min="0" step="1" value="60" />
+              <div class="help" data-i18n="h.priceLead">Add-on zusätzlich zur Mitgliedschaft.</div>
+            </div>
+
+            <div>
+              <label for="rateLead" data-i18n="f.rateLead">Quote Leadmaschine</label>
+              <input id="rateLead" type="number" min="0" max="100" step="0.1" value="50" />
+              <div class="help" data-i18n="h.rateLead">Beispiel: jedes zweite Mitglied (50%).</div>
+            </div>
+
+            <div>
+              <label for="priceWeekend" data-i18n="f.priceWeekend">Weekend-Setup Ticket (€/Person)</label>
+              <input id="priceWeekend" type="number" min="0" step="1" value="399" />
+              <div class="help" data-i18n="h.priceWeekend">Worstcase: Mitglieder-Preis (ohne Hotel/TP).</div>
+            </div>
+
+            <div>
+              <label for="rateWeekend" data-i18n="f.rateWeekend">Quote Weekend-Setup (pro Jahr)</label>
+              <input id="rateWeekend" type="number" min="0" max="100" step="0.1" value="25" />
+              <div class="help" data-i18n="h.rateWeekend">Beispiel: jedes vierte Mitglied (25%).</div>
+            </div>
+
+            <div>
+              <label for="rateSales" data-i18n="f.rateSales">Vertriebssatz gesamt (alle Produkte)</label>
+              <input id="rateSales" type="number" min="0" max="100" step="0.1" value="45" />
+              <div class="help" data-i18n="h.rateSales">Anteil, der in den Vertrieb geht (z.B. 45%).</div>
+            </div>
+          </div>
+
+          <div class="row">
+            <button class="btn" type="button" id="btnCalc" data-i18n="btn.calc">Berechnen</button>
+            <button class="btn secondary" type="button" id="btnTarget" data-i18n="btn.target">Ziel-Umsatz → benötigte neue Mitglieder</button>
+          </div>
+
+          <div class="hint" id="targetBox" style="display:none;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+              <div>
+                <label for="targetRevenue" data-i18n="f.targetRevenue">Ziel-Brutto-Umsatz (Jahr 1)</label>
+                <input id="targetRevenue" type="number" min="0" step="1000" value="1000000" />
+                <div class="help" data-i18n="h.targetRevenue">Rechnet konservativ: linear, ohne Ketteneffekt.</div>
+              </div>
+              <div>
+                <label for="targetMode" data-i18n="f.targetMode">Ausgabe</label>
+                <select id="targetMode">
+                  <option value="perMonth" data-i18n="opt.perMonth">Benötigte neue Mitglieder pro Monat</option>
+                  <option value="perYear" data-i18n="opt.perYear">Benötigte neue Mitglieder pro Jahr</option>
+                </select>
+                <div class="help" data-i18n="h.targetMode">Auf Basis deiner aktuellen Preise/Quoten.</div>
+              </div>
+            </div>
+            <div class="row" style="margin-top:10px;">
+              <button class="btn" type="button" id="btnSolve" data-i18n="btn.solve">Ziel berechnen</button>
+              <button class="btn secondary" type="button" id="btnCloseTarget" data-i18n="btn.close">Schließen</button>
+            </div>
+          </div>
+
+          <div class="foot" data-i18n="foot.note">
+            Hinweis: Dieses Tool zeigt Brutto-Umsatz aus den drei Bausteinen. Durchlaufende Hotel/Tagungspauschalen
+            sind hier bewusst nicht enthalten (Pass-Through).
+          </div>
+        </div>
+      </section>
+
+      <!-- OUTPUTS -->
+      <section class="card">
+        <div class="hd">
+          <div>
+            <h3 data-i18n="out.h3">Ergebnis</h3>
+            <div class="sub" data-i18n="out.sub">
+              Ausgewiesen werden Brutto-Umsatz, Anteil Vertrieb und Club-Rest (vor Steuern).
+              Zusätzlich: Aufteilung nach Produktlinie.
+            </div>
+          </div>
+        </div>
+
+        <div class="bd">
+          <div class="results">
+            <div class="metric">
+              <p class="k" data-i18n="m.y1">Jahr 1 – Brutto-Umsatz</p>
+              <p class="v mono" id="y1Gross">–</p>
+              <p class="n mono" id="y1Split">–</p>
+            </div>
+
+            <div class="metric">
+              <p class="k" data-i18n="m.y2">Jahr 2 – Brutto-Umsatz</p>
+              <p class="v mono" id="y2Gross">–</p>
+              <p class="n mono" id="y2Split">–</p>
+            </div>
+
+            <table class="table" aria-label="Aufteilung">
+              <thead>
+                <tr>
+                  <th data-i18n="t.col1">Baustein</th>
+                  <th data-i18n="t.col2">Jahr 1</th>
+                  <th data-i18n="t.col3">Jahr 2</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-i18n="t.membership">Mitgliedschaft</td>
+                  <td class="mono" id="y1Membership">–</td>
+                  <td class="mono" id="y2Membership">–</td>
+                </tr>
+                <tr>
+                  <td data-i18n="t.lead">Leadmaschine</td>
+                  <td class="mono" id="y1Lead">–</td>
+                  <td class="mono" id="y2Lead">–</td>
+                </tr>
+                <tr>
+                  <td data-i18n="t.weekend">Weekend-Setup Tickets</td>
+                  <td class="mono" id="y1Weekend">–</td>
+                  <td class="mono" id="y2Weekend">–</td>
+                </tr>
+                <tr>
+                  <td><strong data-i18n="t.total">Summe Brutto</strong></td>
+                  <td class="mono" id="y1Total"><strong>–</strong></td>
+                  <td class="mono" id="y2Total"><strong>–</strong></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="hint" id="solverOut" style="display:none;"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const $ = (id)=>document.getElementById(id);
+
+  // Simple i18n (DE/EN) with data-i18n
+  const dict = {
+    de:{
+      "top.title":"Club Planung",
+      "top.subtitle":"Worstcase-Rechner (intern)",
+      "btn.reset":"Zurücksetzen",
+      "hero.kicker":"Nur für Geschäftsleitung / Planung",
+      "hero.h2":"Worstcase-Planung: Planbarkeit, Skalierbarkeit, Sicherheit",
+      "hero.p":"Dieses Tool ist bewusst konservativ gebaut: Es rechnet ausschließlich mit den drei Bausteinen Mitgliedschaft, Leadmaschine und Weekend-Setup. Du kannst die Annahmen transparent einstellen (Attach-Rates, Schwund, Vertriebssatz). Ergebnis: Brutto-Umsatz, Anteil Vertrieb und Club-Rest – für Jahr 1 und Jahr 2 (mit Bestand/Verlängerung).",
+
+      "in.h3":"Eingaben",
+      "in.sub":"Worstcase-Logik = einfache, nachvollziehbare Planung. Kein Hype, keine Ketten-Explosion. Du definierst: Mitglieder-Zuwachs, Quoten, Preise und Schwund.",
+
+      "f.startMembers":"Start-Mitglieder (Jahr 1)",
+      "h.startMembers":"Bestand zu Beginn von Jahr 1.",
+      "f.newPerMonthY1":"Neue Mitglieder pro Monat (Jahr 1)",
+      "h.newPerMonthY1":"167/Monat ≈ 2000 neue Mitglieder im Jahr.",
+      "f.churn":"Schwund/Abgang zum Jahresende",
+      "h.churn":"Beispiel: 20% kündigen / verlängern nicht.",
+      "f.newPerMonthY2":"Neue Mitglieder pro Monat (Jahr 2)",
+      "h.newPerMonthY2":"Konservativ: gleicher Zuwachs wie Jahr 1.",
+
+      "f.priceMembership":"Mitgliedschaft (€/Jahr)",
+      "h.priceMembership":"Jahresbeitrag pro Mitglied.",
+      "f.priceLead":"Leadmaschine Add-on (€/Jahr, nur als Mitglied)",
+      "h.priceLead":"Add-on zusätzlich zur Mitgliedschaft.",
+      "f.rateLead":"Quote Leadmaschine",
+      "h.rateLead":"Beispiel: jedes zweite Mitglied (50%).",
+      "f.priceWeekend":"Weekend-Setup Ticket (€/Person)",
+      "h.priceWeekend":"Worstcase: Mitglieder-Preis (ohne Hotel/TP).",
+      "f.rateWeekend":"Quote Weekend-Setup (pro Jahr)",
+      "h.rateWeekend":"Beispiel: jedes vierte Mitglied (25%).",
+      "f.rateSales":"Vertriebssatz gesamt (alle Produkte)",
+      "h.rateSales":"Anteil, der in den Vertrieb geht (z.B. 45%).",
+
+      "btn.calc":"Berechnen",
+      "btn.target":"Ziel-Umsatz → benötigte neue Mitglieder",
+      "f.targetRevenue":"Ziel-Brutto-Umsatz (Jahr 1)",
+      "h.targetRevenue":"Rechnet konservativ: linear, ohne Ketteneffekt.",
+      "f.targetMode":"Ausgabe",
+      "opt.perMonth":"Benötigte neue Mitglieder pro Monat",
+      "opt.perYear":"Benötigte neue Mitglieder pro Jahr",
+      "h.targetMode":"Auf Basis deiner aktuellen Preise/Quoten.",
+      "btn.solve":"Ziel berechnen",
+      "btn.close":"Schließen",
+
+      "foot.note":"Hinweis: Dieses Tool zeigt Brutto-Umsatz aus den drei Bausteinen. Durchlaufende Hotel/Tagungspauschalen sind hier bewusst nicht enthalten (Pass-Through).",
+
+      "out.h3":"Ergebnis",
+      "out.sub":"Ausgewiesen werden Brutto-Umsatz, Anteil Vertrieb und Club-Rest (vor Steuern). Zusätzlich: Aufteilung nach Produktlinie.",
+      "m.y1":"Jahr 1 – Brutto-Umsatz",
+      "m.y2":"Jahr 2 – Brutto-Umsatz",
+      "t.col1":"Baustein",
+      "t.col2":"Jahr 1",
+      "t.col3":"Jahr 2",
+      "t.membership":"Mitgliedschaft",
+      "t.lead":"Leadmaschine",
+      "t.weekend":"Weekend-Setup Tickets",
+      "t.total":"Summe Brutto"
+    },
+    en:{
+      "top.title":"Club Planning",
+      "top.subtitle":"Worst-case calculator (internal)",
+      "btn.reset":"Reset",
+      "hero.kicker":"For management / planning only",
+      "hero.h2":"Worst-case planning: predictability, scalability, stability",
+      "hero.p":"This tool is intentionally conservative: it calculates only the three pillars Membership, Lead Machine, and Weekend Setup. You can adjust assumptions transparently (attach rates, churn, sales share). Output: gross revenue, sales share, and club remainder—for year 1 and year 2 (including retained base / renewals).",
+
+      "in.h3":"Inputs",
+      "in.sub":"Worst-case logic = simple, explainable planning. No hype, no chain explosion. You define member growth, rates, prices, and churn.",
+
+      "f.startMembers":"Starting members (Year 1)",
+      "h.startMembers":"Base at the start of Year 1.",
+      "f.newPerMonthY1":"New members per month (Year 1)",
+      "h.newPerMonthY1":"167/month ≈ 2000 new members per year.",
+      "f.churn":"Churn at year end",
+      "h.churn":"Example: 20% cancel / do not renew.",
+      "f.newPerMonthY2":"New members per month (Year 2)",
+      "h.newPerMonthY2":"Conservative: same growth as Year 1.",
+
+      "f.priceMembership":"Membership (€/year)",
+      "h.priceMembership":"Annual fee per member.",
+      "f.priceLead":"Lead Machine add-on (€/year, members only)",
+      "h.priceLead":"Add-on on top of membership.",
+      "f.rateLead":"Lead Machine attach rate",
+      "h.rateLead":"Example: every second member (50%).",
+      "f.priceWeekend":"Weekend Setup ticket (€/person)",
+      "h.priceWeekend":"Worst-case: member price (excluding hotel/day packages).",
+      "f.rateWeekend":"Weekend Setup rate (per year)",
+      "h.rateWeekend":"Example: every fourth member (25%).",
+      "f.rateSales":"Sales share overall (all products)",
+      "h.rateSales":"Share paid out to sales (e.g., 45%).",
+
+      "btn.calc":"Calculate",
+      "btn.target":"Revenue target → required new members",
+      "f.targetRevenue":"Target gross revenue (Year 1)",
+      "h.targetRevenue":"Conservative: linear model, no chain effect.",
+      "f.targetMode":"Output",
+      "opt.perMonth":"Required new members per month",
+      "opt.perYear":"Required new members per year",
+      "h.targetMode":"Based on your current prices/rates.",
+      "btn.solve":"Solve target",
+      "btn.close":"Close",
+
+      "foot.note":"Note: This tool shows gross revenue from the three pillars only. Pass-through hotel/day packages are intentionally excluded.",
+
+      "out.h3":"Results",
+      "out.sub":"Shown: gross revenue, sales share, and club remainder (pre-tax). Also: split by product line.",
+      "m.y1":"Year 1 – Gross revenue",
+      "m.y2":"Year 2 – Gross revenue",
+      "t.col1":"Pillar",
+      "t.col2":"Year 1",
+      "t.col3":"Year 2",
+      "t.membership":"Membership",
+      "t.lead":"Lead Machine",
+      "t.weekend":"Weekend Setup tickets",
+      "t.total":"Total gross"
+    }
+  };
+
+  let lang = "de";
+  function applyI18n(){
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-i18n]").forEach(el=>{
+      const k = el.getAttribute("data-i18n");
+      if(dict[lang] && dict[lang][k]) el.textContent = dict[lang][k];
+    });
+  }
+
+  function euro(n){
+    const x = Number(n);
+    if(!isFinite(x)) return "–";
+    return x.toLocaleString(lang==="de" ? "de-DE" : "en-US", {style:"currency", currency:"EUR", maximumFractionDigits:0});
+  }
+
+  function num(n){
+    const x = Number(n);
+    if(!isFinite(x)) return "–";
+    return x.toLocaleString(lang==="de" ? "de-DE" : "en-US", {maximumFractionDigits:0});
+  }
+
+  function readInputs(){
+    const startMembers = Math.max(0, Number($("startMembers").value||0));
+    const newPerMonthY1 = Math.max(0, Number($("newPerMonthY1").value||0));
+    const newPerMonthY2 = Math.max(0, Number($("newPerMonthY2").value||0));
+    const churn = Math.min(100, Math.max(0, Number($("churn").value||0))) / 100;
+
+    const priceMembership = Math.max(0, Number($("priceMembership").value||0));
+    const priceLead = Math.max(0, Number($("priceLead").value||0));
+    const rateLead = Math.min(100, Math.max(0, Number($("rateLead").value||0))) / 100;
+
+    const priceWeekend = Math.max(0, Number($("priceWeekend").value||0));
+    const rateWeekend = Math.min(100, Math.max(0, Number($("rateWeekend").value||0))) / 100;
+
+    const rateSales = Math.min(100, Math.max(0, Number($("rateSales").value||0))) / 100;
+
+    return {
+      startMembers, newPerMonthY1, newPerMonthY2, churn,
+      priceMembership, priceLead, rateLead,
+      priceWeekend, rateWeekend,
+      rateSales
+    };
+  }
+
+  function calcYear(membersBilled, inp){
+    const membershipRev = membersBilled * inp.priceMembership;
+    const leadUsers = membersBilled * inp.rateLead;
+    const leadRev = leadUsers * inp.priceLead;
+    const weekendBuyers = membersBilled * inp.rateWeekend;
+    const weekendRev = weekendBuyers * inp.priceWeekend;
+
+    const gross = membershipRev + leadRev + weekendRev;
+    const sales = gross * inp.rateSales;
+    const club = gross - sales;
+
+    return {
+      membersBilled,
+      membershipRev, leadRev, weekendRev,
+      gross, sales, club
+    };
+  }
+
+  function calculate(){
+    const inp = readInputs();
+
+    const newY1 = inp.newPerMonthY1 * 12;
+    const membersBilledY1 = inp.startMembers + newY1;
+
+    const y1 = calcYear(membersBilledY1, inp);
+
+    const retained = Math.round((inp.startMembers + newY1) * (1 - inp.churn));
+    const newY2 = inp.newPerMonthY2 * 12;
+    const membersBilledY2 = retained + newY2;
+
+    const y2 = calcYear(membersBilledY2, inp);
+
+    // UI
+    $("y1Gross").textContent = euro(y1.gross);
+    $("y1Split").textContent = (lang==="de"
+      ? `Vertrieb: ${euro(y1.sales)}  |  Club-Rest: ${euro(y1.club)}  |  Abgerechnet: ${num(y1.membersBilled)} Mitglieder`
+      : `Sales: ${euro(y1.sales)}  |  Club remainder: ${euro(y1.club)}  |  Billed: ${num(y1.membersBilled)} members`
+    );
+
+    $("y2Gross").textContent = euro(y2.gross);
+    $("y2Split").textContent = (lang==="de"
+      ? `Vertrieb: ${euro(y2.sales)}  |  Club-Rest: ${euro(y2.club)}  |  Bestand nach Schwund: ${num(retained)}`
+      : `Sales: ${euro(y2.sales)}  |  Club remainder: ${euro(y2.club)}  |  Retained after churn: ${num(retained)}`
+    );
+
+    $("y1Membership").textContent = euro(y1.membershipRev);
+    $("y1Lead").textContent = euro(y1.leadRev);
+    $("y1Weekend").textContent = euro(y1.weekendRev);
+    $("y1Total").textContent = euro(y1.gross);
+
+    $("y2Membership").textContent = euro(y2.membershipRev);
+    $("y2Lead").textContent = euro(y2.leadRev);
+    $("y2Weekend").textContent = euro(y2.weekendRev);
+    $("y2Total").textContent = euro(y2.gross);
+
+    $("solverOut").style.display = "none";
+  }
+
+  function solveTarget(){
+    const inp = readInputs();
+    const target = Math.max(0, Number($("targetRevenue").value||0));
+
+    // Unit revenue per billed member (Year 1) based on current rates/prices:
+    const unit = inp.priceMembership + (inp.rateLead * inp.priceLead) + (inp.rateWeekend * inp.priceWeekend);
+    const neededMembersTotal = unit > 0 ? (target / unit) : Infinity;
+
+    const start = inp.startMembers;
+    const neededNewYear = Math.max(0, neededMembersTotal - start);
+    const neededNewMonth = neededNewYear / 12;
+
+    const mode = $("targetMode").value;
+    const value = (mode === "perYear") ? neededNewYear : neededNewMonth;
+
+    const text = (lang==="de")
+      ? `<strong>Ziel-Rechnung (konservativ, linear):</strong><br>
+         Bei deinen aktuellen Annahmen erzeugt <span class="mono">1 Mitglied</span> im Schnitt <span class="mono">${euro(unit)}</span> Brutto/Jahr (Mitgliedschaft + Quoten Lead/Weekend).<br><br>
+         Für <span class="mono">${euro(target)}</span> Brutto in Jahr 1 brauchst du insgesamt ca. <span class="mono">${num(neededMembersTotal)}</span> abrechnende Mitglieder.<br>
+         Startbestand: <span class="mono">${num(start)}</span> → zusätzlich nötig: <span class="mono">${num(neededNewYear)}</span> neue Mitglieder im Jahr.<br><br>
+         <strong>Ergebnis:</strong> ${mode==="perYear" ? "Neue Mitglieder pro Jahr" : "Neue Mitglieder pro Monat"} ≈ <span class="mono">${num(value)}</span>.`
+      : `<strong>Target (conservative, linear):</strong><br>
+         With your current assumptions, <span class="mono">1 member</span> generates on average <span class="mono">${euro(unit)}</span> gross/year (membership + lead/weekend rates).<br><br>
+         For <span class="mono">${euro(target)}</span> gross in Year 1 you need about <span class="mono">${num(neededMembersTotal)}</span> billed members total.<br>
+         Starting base: <span class="mono">${num(start)}</span> → additional needed: <span class="mono">${num(neededNewYear)}</span> new members/year.<br><br>
+         <strong>Result:</strong> ${mode==="perYear" ? "New members per year" : "New members per month"} ≈ <span class="mono">${num(value)}</span>.`;
+
+    $("solverOut").innerHTML = text;
+    $("solverOut").style.display = "block";
+  }
+
+  // Events
+  $("btnCalc").addEventListener("click", calculate);
+
+  $("btnLang").addEventListener("click", ()=>{
+    lang = (lang === "de") ? "en" : "de";
+    applyI18n();
+    calculate();
+  });
+
+  $("btnReset").addEventListener("click", ()=>{
+    $("startMembers").value = 0;
+    $("newPerMonthY1").value = 167;
+    $("churn").value = 20;
+    $("newPerMonthY2").value = 167;
+
+    $("priceMembership").value = 60;
+    $("priceLead").value = 60;
+    $("rateLead").value = 50;
+    $("priceWeekend").value = 399;
+    $("rateWeekend").value = 25;
+    $("rateSales").value = 45;
+
+    $("targetRevenue").value = 1000000;
+    $("targetMode").value = "perMonth";
+    $("targetBox").style.display = "none";
+    $("solverOut").style.display = "none";
+    calculate();
+  });
+
+  $("btnTarget").addEventListener("click", ()=>{
+    const box = $("targetBox");
+    box.style.display = (box.style.display === "none") ? "block" : "none";
+  });
+  $("btnCloseTarget").addEventListener("click", ()=>{
+    $("targetBox").style.display = "none";
+  });
+  $("btnSolve").addEventListener("click", solveTarget);
+
+  // Init
+  applyI18n();
+  calculate();
+})();
+</script>
+</body>
+</html>
