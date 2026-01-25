@@ -622,6 +622,7 @@
     │   │   ├── kalkulations-archiv.html
     │   │   ├── produkt-01-club-mitgliedschaft.html
     │   │   ├── produkt-06-krypto-setup-kurs.html
+    │   │   ├── produkt-09-buch.html
     │   │   ├── produkt-beschreibungen-und-datenblaetter.html
     │   │   ├── produkt-hoersaal-start-paket.html
     │   │   ├── produkt-leadmaschine.html
@@ -820,4 +821,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.01.2026, 10:17)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.01.2026, 11:13)_
