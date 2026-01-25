@@ -631,6 +631,7 @@
     │   │   ├── regelwerk.html
     │   │   ├── verguetungssystem.html
     │   │   ├── vertrieb-und-dokumente.html
+    │   │   ├── weekend-agenda-druckvorlage.html
     │   │   ├── weekend-anwesenheitsliste.html
     │   │   ├── weekend-dokumente.html
     │   │   ├── weekend-sprecher-packliste.html
@@ -819,4 +820,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.01.2026, 08:21)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.01.2026, 09:16)_
