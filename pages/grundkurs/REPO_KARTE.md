@@ -627,6 +627,7 @@
     │   │   ├── produkt-05-hoersaal-pakete.html
     │   │   ├── produkt-06-krypto-setup-kurs.html
     │   │   ├── produkt-07-trading-grundkurs.html
+    │   │   ├── produkt-08-nft-basis-orientierung.html
     │   │   ├── produkt-09-buch.html
     │   │   ├── produkt-beschreibungen-und-datenblaetter.html
     │   │   ├── produkt-hoersaal-start-paket.html
@@ -826,4 +827,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.01.2026, 14:14)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.01.2026, 15:15)_
