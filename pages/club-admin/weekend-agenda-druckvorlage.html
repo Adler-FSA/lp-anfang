@@ -199,30 +199,26 @@
       padding:12px 12px;
       margin-top:10px;
 
-      /* gegen “krasse” Umbrüche */
       break-inside: avoid;
       page-break-inside: avoid;
     }
-
-    /* FIX: Überschrift sauber ÜBER der Uhrzeit (kein “wildes” Flex-Wrapping) */
     .slotTop{
-      display:block;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:baseline;
+      justify-content:space-between;
       margin-bottom:8px;
     }
     .slotTime{
-      display:block;
       font-weight:950;
       color:rgba(233,238,247,.95);
       letter-spacing:.1px;
-      margin:0;
     }
     .slotTitle{
-      display:block;
       font-weight:950;
       color:rgba(242,211,122,.96);
-      margin:2px 0 0;
     }
-
     .slot ul{
       margin:8px 0 0 18px;
       color:rgba(233,238,247,.92);
@@ -230,17 +226,6 @@
       font-size:14px;
     }
     .slot li{margin:6px 0}
-
-    .foot{
-      margin-top:18px;
-      color:rgba(169,180,199,.75);
-      font-size:12.5px;
-      display:flex;
-      justify-content:space-between;
-      gap:14px;
-      flex-wrap:wrap;
-    }
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
 
     /* =========================
        PRINT PATCH (sauberer Sitz)
@@ -256,10 +241,8 @@
         print-color-adjust: exact;
       }
 
-      /* nichts “internes”/Bedienelemente im Ausdruck */
       .actions, .btn, .btn2 { display:none !important; }
 
-      /* Layout kompakter */
       .wrap{ padding:0 !important; max-width:100% !important; }
       .line{ display:none !important; }
 
@@ -279,7 +262,7 @@
         break-after: avoid-page;
         page-break-after: avoid;
       }
-      .sub,.meta,.dayTitle,.slotTime,.slotTitle,.phLbl,.phVal,.foot{
+      .sub,.meta,.dayTitle,.slotTime,.slotTitle,.phLbl,.phVal{
         color:#111 !important;
       }
       .slot{
@@ -290,19 +273,13 @@
       }
       .slot ul, .slot li{ color:#111 !important; line-height:1.35 !important; }
 
-      /* Eingabe-Panel im Ausdruck nicht (nur die saubere Druckkopf-Zusammenfassung) */
       #formPanel{ display:none !important; }
-
-      /* Preview soll im Druck sichtbar sein */
       #printHead{ display:block !important; }
 
       .phBox{
         background:#fff !important;
         border:1px solid #ddd !important;
       }
-
-      /* Footer optional – bleibt, aber clean */
-      .mono{color:#111 !important;}
     }
   </style>
 </head>
@@ -647,14 +624,9 @@
       </div>
     </section>
 
-    <div class="foot">
-      <div><span class="mono">/pages/club-admin/weekend-setup-ausfuehrliche-agenda.html</span></div>
-      <div><span class="mono">FSA</span></div>
-    </div>
   </div>
 
   <script>
-    // Auth nur still prüfen (keine Popups)
     (function(){
       const KEY = "FSA_CLUB_ADMIN_AUTH";
       try{
@@ -668,7 +640,6 @@
   </script>
 
   <script>
-    // Inputs -> Druckkopf (Preview + Print) + Persistenz
     (function(){
       const LS = "FSA_WEEKEND_AGENDA_HEAD";
       const els = {
@@ -697,21 +668,9 @@
         node.textContent = (v && String(v).trim()) ? String(v).trim() : "—";
       }
 
-      function apply(data){
-        els.date.value = data.date || "";
-        els.city.value = data.city || "";
-        els.location.value = data.location || "";
-        els.room.value = data.room || "";
-        els.address.value = data.address || "";
-        sync();
-      }
-
       function read(){
-        try{
-          return JSON.parse(localStorage.getItem(LS) || "{}");
-        }catch(e){
-          return {};
-        }
+        try{ return JSON.parse(localStorage.getItem(LS) || "{}"); }
+        catch(e){ return {}; }
       }
 
       function write(data){
@@ -745,7 +704,13 @@
         write(d);
       }
 
-      apply(read());
+      const saved = read();
+      els.date.value = saved.date || "";
+      els.city.value = saved.city || "";
+      els.location.value = saved.location || "";
+      els.room.value = saved.room || "";
+      els.address.value = saved.address || "";
+      sync();
 
       ["input","change"].forEach(ev=>{
         els.date.addEventListener(ev, sync);
@@ -758,7 +723,6 @@
   </script>
 
   <script>
-    // Print
     document.getElementById("printBtn").addEventListener("click", ()=> window.print());
   </script>
 </body>
