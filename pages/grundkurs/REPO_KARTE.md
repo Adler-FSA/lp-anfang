@@ -763,6 +763,11 @@
     │   │   └── workshop.html
     │   ├── trustyfy/
     │   │   └── fast-track.html
+    │   ├── vertriebsbibliothek/
+    │   │   ├── index.html
+    │   │   ├── kapitel-01.html
+    │   │   ├── kapitel-02.html
+    │   │   └── kapitel-03.html
     │   ├── wefi/
     │   │   ├── deobank-quellen.html
     │   │   ├── wefi-aufklaerung.html
@@ -827,4 +832,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.01.2026, 17:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.01.2026, 18:22)_
