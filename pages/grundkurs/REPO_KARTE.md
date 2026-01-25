@@ -767,7 +767,37 @@
     │   │   ├── index.html
     │   │   ├── kapitel-01.html
     │   │   ├── kapitel-02.html
-    │   │   └── kapitel-03.html
+    │   │   ├── kapitel-03.html
+    │   │   ├── kapitel-04.html
+    │   │   ├── kapitel-05.html
+    │   │   ├── kapitel-06.html
+    │   │   ├── kapitel-07.html
+    │   │   ├── kapitel-08.html
+    │   │   ├── kapitel-09.html
+    │   │   ├── kapitel-10.html
+    │   │   ├── kapitel-11.html
+    │   │   ├── kapitel-12.html
+    │   │   ├── kapitel-13.html
+    │   │   ├── kapitel-14.html
+    │   │   ├── kapitel-15.html
+    │   │   ├── kapitel-16.html
+    │   │   ├── kapitel-17.html
+    │   │   ├── kapitel-18.html
+    │   │   ├── kapitel-19.html
+    │   │   ├── kapitel-20.html
+    │   │   ├── kapitel-21.html
+    │   │   ├── kapitel-22.html
+    │   │   ├── kapitel-23.html
+    │   │   ├── kapitel-24.html
+    │   │   ├── kapitel-25.html
+    │   │   ├── kapitel-26.html
+    │   │   ├── kapitel-27.html
+    │   │   ├── kapitel-28.html
+    │   │   ├── kapitel-29.html
+    │   │   ├── kapitel-30.html
+    │   │   ├── kapitel-31.html
+    │   │   ├── kapitel-32.html
+    │   │   └── kapitel-33.html
     │   ├── wefi/
     │   │   ├── deobank-quellen.html
     │   │   ├── wefi-aufklaerung.html
@@ -832,4 +862,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.01.2026, 18:22)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.01.2026, 19:13)_
