@@ -622,8 +622,11 @@
     │   │   ├── kalkulations-archiv.html
     │   │   ├── produkt-01-club-mitgliedschaft.html
     │   │   ├── produkt-05-hoersaal-angebot-lizenz.html
+    │   │   ├── produkt-05-hoersaal-crossmarketing.html
+    │   │   ├── produkt-05-hoersaal-onboarding-checkliste.html
     │   │   ├── produkt-05-hoersaal-pakete.html
     │   │   ├── produkt-06-krypto-setup-kurs.html
+    │   │   ├── produkt-07-trading-grundkurs.html
     │   │   ├── produkt-09-buch.html
     │   │   ├── produkt-beschreibungen-und-datenblaetter.html
     │   │   ├── produkt-hoersaal-start-paket.html
@@ -823,4 +826,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.01.2026, 13:28)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.01.2026, 14:14)_
