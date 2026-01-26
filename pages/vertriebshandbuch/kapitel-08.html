@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kapitel 08 – Marktsignale & Nachfrage</title>
+
+  <style>
+    :root{
+      --bg:#050814;
+      --bg2:#020617;
+      --panel:rgba(15,23,42,.88);
+      --panel2:rgba(15,23,42,.72);
+      --txt:#e9eef7;
+      --muted:#a9b4c7;
+      --gold:#d4af37;
+      --gold2:#f2d37a;
+      --line:rgba(212,175,55,.38);
+      --shadow:0 24px 60px rgba(0,0,0,.55);
+      --glow:0 0 26px rgba(212,175,55,.22), 0 12px 30px rgba(0,0,0,.55);
+      --radius:18px;
+      --maxw:1100px;
+    }
+    *{box-sizing:border-box;}
+    html,body{
+      margin:0;
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(212,175,55,.10), transparent 55%),
+        radial-gradient(900px 600px at 80% 30%, rgba(94,168,255,.08), transparent 60%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      overflow-x:hidden;
+    }
+    .wrap{max-width:var(--maxw);margin:0 auto;padding:34px 18px 60px;}
+    .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:6px 0 14px;}
+    .brand{display:flex;flex-direction:column;gap:6px;min-width:min(720px,100%);}
+    .kicker{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 10px;border-radius:999px;
+      border:1px solid rgba(212,175,55,.25);
+      background:rgba(0,0,0,.18);
+      color:var(--gold2);
+      font-size:12px;font-weight:800;letter-spacing:.25px;
+      width:fit-content; white-space:nowrap;
+    }
+    .dot{width:8px;height:8px;border-radius:99px;background:rgba(242,211,122,.9);box-shadow:0 0 12px rgba(212,175,55,.35)}
+    h1{margin:0;font-size:34px;line-height:1.1;font-weight:900}
+    .sub{margin:2px 0 0;color:var(--muted);max-width:95ch;line-height:1.55}
+    .line{height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.85;margin:12px 0 18px;}
+
+    .panel{
+      background:linear-gradient(180deg,var(--panel),var(--panel2));
+      border:1px solid rgba(212,175,55,.22);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(6px);
+      padding:18px 18px;
+      position:relative;
+      overflow:hidden;
+      margin-top:14px;
+    }
+    .panel:before{
+      content:"";
+      position:absolute;inset:-2px;
+      background:radial-gradient(650px 240px at 10% 0%, rgba(212,175,55,.10), transparent 55%);
+      pointer-events:none;
+    }
+    .panel > *{position:relative;z-index:1;}
+
+    h2{margin:0 0 8px;font-size:18px;letter-spacing:.2px;color:var(--gold2)}
+    p{margin:0 0 10px;color:var(--txt);line-height:1.7;font-size:14.5px;opacity:.98}
+    .muted{color:var(--muted);}
+    .hr{height:1px;background:rgba(212,175,55,.22);margin:14px 0}
+
+    /* Anschauung Layout */
+    .vizGrid{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap:12px;
+      align-items:stretch;
+      margin-top:10px;
+    }
+    @media (max-width: 980px){
+      .vizGrid{grid-template-columns:1fr;}
+    }
+    .vizCard{
+      border:1px solid rgba(212,175,55,.22);
+      background:rgba(0,0,0,.14);
+      border-radius:16px;
+      padding:12px;
+      overflow:hidden;
+      min-width:0;
+    }
+    .vizTitle{
+      margin:0 0 10px;
+      font-weight:900;
+      color:var(--txt);
+      font-size:14.5px;
+    }
+    .vizInner{
+      border:1px solid rgba(212,175,55,.16);
+      background:rgba(0,0,0,.14);
+      border-radius:14px;
+      padding:12px;
+      min-width:0;
+      overflow:hidden;
+    }
+
+    /* Tabelle */
+    .miniTableWrap{min-width:0; overflow:hidden;}
+    table.mini{
+      width:100%;
+      border-collapse:collapse;
+      table-layout:auto;
+    }
+    table.mini th, table.mini td{
+      text-align:left;
+      vertical-align:top;
+      padding:10px 10px;
+      border-bottom:1px solid rgba(212,175,55,.18);
+      font-size:13.5px;
+      line-height:1.45;
+      white-space:normal;
+      overflow-wrap:break-word;
+      word-break:break-word;
+    }
+    table.mini th{
+      color:var(--gold2);
+      font-weight:900;
+      border-bottom:1px solid rgba(212,175,55,.26);
+      font-size:13px;
+    }
+    table.mini tr:last-child td{border-bottom:none;}
+
+    /* Notizen */
+    textarea{
+      width:100%;
+      min-height:180px;
+      resize:vertical;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.22);
+      background:rgba(0,0,0,.18);
+      color:var(--txt);
+      outline:none;
+      line-height:1.6;
+      font-size:14px;
+    }
+    textarea:focus{border-color:rgba(212,175,55,.42);box-shadow:0 0 0 3px rgba(212,175,55,.10);}
+
+    .noteRow{
+      display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:10px
+    }
+    .saveHint{font-size:12px;color:var(--muted);}
+    .smallBtn{
+      padding:10px 12px;border-radius:14px;
+      border:1px solid rgba(212,175,55,.28);
+      background:rgba(0,0,0,.22);
+      color:var(--txt);
+      font-weight:900;
+      display:inline-flex;align-items:center;gap:8px;
+      white-space:nowrap;cursor:pointer;
+      text-decoration:none;
+    }
+    .smallBtn:hover{background:rgba(0,0,0,.28);}
+
+    .footerNav{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;}
+    .footerNav .left,.footerNav .mid,.footerNav .right{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .navBtn{
+      padding:10px 12px;border-radius:14px;
+      border:1px solid rgba(212,175,55,.28);
+      background:rgba(0,0,0,.22);
+      color:var(--txt);font-weight:900;text-decoration:none;
+      display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
+    }
+    .navBtn:hover{background:rgba(0,0,0,.28);}
+    .navBtnPrimary{
+      background:linear-gradient(180deg, rgba(212,175,55,.95), rgba(212,175,55,.75));
+      color:#111;border:none;box-shadow:var(--glow);
+    }
+    .navBtnPrimary:hover{filter:brightness(1.03);}
+
+    /* =======================
+       PRINT – Setup wie 01–07
+       ======================= */
+    @page{ margin:14mm; }
+    @media print{
+      html,body{
+        background:#fff !important;color:#000 !important;
+        height:auto !important;overflow:visible !important;
+        -webkit-print-color-adjust: exact;print-color-adjust: exact;
+      }
+      .wrap{padding:0 !important;}
+      .noteRow button{display:none !important;} /* Druckbutton ist NUR im Footer */
+      .footerNav .right{display:flex !important;}
+      .panel{
+        box-shadow:none !important;background:#fff !important;
+        border:1px solid #999 !important;backdrop-filter:none !important;
+      }
+      .panel:before{display:none !important;}
+      .sub,p,textarea,.muted{color:#000 !important;}
+      h1,h2{color:#000 !important;}
+      .line{background:#999 !important;}
+      a{color:#000 !important;text-decoration:none !important;}
+      textarea{border:1px solid #999 !important;background:#fff !important;}
+
+      /* IM DRUCK: EINSPALTIG */
+      .vizGrid{grid-template-columns: 1fr !important;}
+
+      /* Tabellen sauber über Seiten */
+      .miniTableWrap, table.mini{
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+      }
+      table.mini thead{display: table-header-group;}
+      table.mini tr{
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      table.mini th, table.mini td{
+        padding:6px 6px !important;
+        font-size:11.5px !important;
+        line-height:1.35 !important;
+        color:#000 !important;
+        border-bottom:1px solid #ddd !important;
+        word-break: normal !important;
+        overflow-wrap: break-word !important;
+      }
+      table.mini th{font-size:11.5px !important;}
+
+      .vizCard,.vizInner{
+        background:#fff !important;
+        border:1px solid #999 !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="kicker"><span class="dot"></span> Band 2 – Markt, Timing, Nachfrage, Positionierung</div>
+        <div>
+          <h1>Kapitel 08 – Marktsignale &amp; Nachfrage</h1>
+          <div class="sub">Was wir beobachten – ohne zu übertreiben</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="line"></div>
+
+    <section class="panel">
+      <h2>Kernaussage</h2>
+      <p><b>Marktsignale sind keine Garantie</b> – aber sie zeigen Richtung: Mehr Nutzer, mehr Regeln, mehr Risiko = mehr Bedarf an Bildung &amp; Struktur.</p>
+
+      <div class="hr"></div>
+
+      <h2>Worum es bei „Markt“ hier wirklich geht</h2>
+      <p>Viele reden über Markt, aber die meisten meinen entweder „Preis“ oder „Trend“. Für ein seriöses Handbuch ist das zu kurz. Markt bedeutet hier: Nachfrage nach Orientierung und Schutz.</p>
+      <p>Und diese Nachfrage entsteht nicht aus einem einzigen Faktor, sondern aus einer Kombination: Adoption, Regulierung, öffentliche Debatten, Betrugsfälle, Medienberichte, neue Finanzprodukte, institutionelle Beteiligung, aber auch aus alltäglichen Themen wie Datenschutz, Plattformabhängigkeit und digitaler Zugangssicherheit.</p>
+
+      <div class="hr"></div>
+
+      <h2>Marktsignal 1: Mehr Berührung = mehr Einordnung</h2>
+      <p>Wenn ein Thema mehr Menschen berührt, steigt der Bedarf nach Einordnung. Viele sind keine Experten und wollen es auch nicht werden. Sie wollen eine stabile Mindestkompetenz:</p>
+      <p class="muted">„Was ist das? Was muss ich wissen? Was sind die Fallen? Was sind die Grundlagen, damit ich nichts Dummes mache?“</p>
+      <p>Das ist der Bildungsmarkt.</p>
+
+      <div class="hr"></div>
+
+      <h2>Marktsignal 2: Regeln machen es weniger „Wildwest“</h2>
+      <p>Wenn Regeln konkreter werden, wird ein Thema weniger „Wildwest“. In der EU sind regulatorische Rahmenwerke entstanden, die den Markt strukturieren sollen. Das hat zwei Effekte: Anbieter müssen sauberer werden, und Nutzer merken: Das Thema bleibt.</p>
+      <p>Sobald etwas geregelt wird, verschwindet es selten – es wird geordneter. Bildung gewinnt dadurch, weil sie nicht mehr wie „Trendkram“ wirkt, sondern wie Kompetenzaufbau.</p>
+
+      <div class="hr"></div>
+
+      <h2>Marktsignal 3: Risiko macht Unwissen teuer</h2>
+      <p>Sobald Menschen real erleben, dass Unwissen teuer ist, steigt die Bereitschaft, für Schutz zu zahlen. Scam-Fälle, Fake-Signaturen, illiquide Märkte, falsche Setups, Verlust durch Unachtsamkeit – das alles erzeugt nicht nur Angst, sondern auch einen klaren Bedarf:</p>
+      <p class="muted">„Zeig mir, wie ich das sauber mache.“</p>
+
+      <div class="hr"></div>
+
+      <h2>Club-Perspektive</h2>
+      <p>Der Club ist nicht „Marktprodukt“, sondern Stabilitätsraum. Genau in Märkten mit Unsicherheit gewinnen Räume, die nicht emotional treiben, sondern stabilisieren. Für Unternehmen und Vereine ist das besonders relevant: Sie wollen keine Experimente, sondern klare Prozesse, Verantwortlichkeiten, Standards.</p>
+      <p>Wichtig bleibt: Wir benutzen Marktsignale nicht, um zu pushen, sondern um realistisch einzuordnen. „Nachfrage wächst“ heißt nicht „du musst“. Es heißt: Es gibt Menschen, die genau diese Struktur suchen. Und für die kann die FSA eine seriöse Antwort sein.</p>
+
+      <div class="hr"></div>
+
+      <h2>Anschauung</h2>
+      <div class="vizGrid">
+        <div class="vizCard">
+          <div class="vizTitle">Diagramm: Nachfrage-Treiber</div>
+          <div class="vizInner">
+            <!-- Inline-SVG: 4 Treiber -> Bedarf -->
+            <svg viewBox="0 0 980 360" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" aria-label="Nachfrage-Treiber Diagramm">
+              <defs>
+                <linearGradient id="ngOld" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stop-color="rgba(212,175,55,.30)"/>
+                  <stop offset="1" stop-color="rgba(242,211,122,.22)"/>
+                </linearGradient>
+                <linearGradient id="ngBlue" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stop-color="rgba(94,168,255,.22)"/>
+                  <stop offset="1" stop-color="rgba(212,175,55,.18)"/>
+                </linearGradient>
+              </defs>
+
+              <rect x="0" y="0" width="980" height="360" rx="18" fill="rgba(0,0,0,.10)" stroke="rgba(212,175,55,.18)"/>
+
+              <!-- Left cards -->
+              <g font-family="system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+                <g>
+                  <rect x="40" y="40" width="360" height="64" rx="14" fill="rgba(0,0,0,.14)" stroke="rgba(212,175,55,.22)"/>
+                  <text x="62" y="68" font-size="18" fill="rgba(242,211,122,.95)" font-weight="800">Adoption</text>
+                  <text x="62" y="92" font-size="14" fill="rgba(169,180,199,.95)">mehr Nutzer, mehr Berührung</text>
+                </g>
+
+                <g>
+                  <rect x="40" y="118" width="360" height="64" rx="14" fill="rgba(0,0,0,.14)" stroke="rgba(212,175,55,.22)"/>
+                  <text x="62" y="146" font-size="18" fill="rgba(242,211,122,.95)" font-weight="800">Regulierung</text>
+                  <text x="62" y="170" font-size="14" fill="rgba(169,180,199,.95)">klarere Regeln, stabilere Prozesse</text>
+                </g>
+
+                <g>
+                  <rect x="40" y="196" width="360" height="64" rx="14" fill="rgba(0,0,0,.14)" stroke="rgba(212,175,55,.22)"/>
+                  <text x="62" y="224" font-size="18" fill="rgba(242,211,122,.95)" font-weight="800">Fehlerkosten</text>
+                  <text x="62" y="248" font-size="14" fill="rgba(169,180,199,.95)">Scams, falsche Setups, Verluste</text>
+                </g>
+
+                <g>
+                  <rect x="40" y="274" width="360" height="64" rx="14" fill="rgba(0,0,0,.14)" stroke="rgba(212,175,55,.22)"/>
+                  <text x="62" y="302" font-size="18" fill="rgba(242,211,122,.95)" font-weight="800">Komplexität</text>
+                  <text x="62" y="326" font-size="14" fill="rgba(169,180,199,.95)">Plattformen, Zugang, Daten, Abhängigkeit</text>
+                </g>
+
+                <!-- Arrows -->
+                <g stroke="url(#ngOld)" stroke-width="5" stroke-linecap="round" fill="none" opacity=".95">
+                  <path d="M410,72 C520,72 540,72 610,92" />
+                  <path d="M410,150 C520,150 540,150 610,150" />
+                  <path d="M410,228 C520,228 540,228 610,208" />
+                  <path d="M410,306 C520,306 540,306 610,266" />
+                </g>
+                <g fill="rgba(242,211,122,.85)">
+                  <polygon points="610,92 594,84 594,100"/>
+                  <polygon points="610,150 594,142 594,158"/>
+                  <polygon points="610,208 594,200 594,216"/>
+                  <polygon points="610,266 594,258 594,274"/>
+                </g>
+
+                <!-- Right target -->
+                <g>
+                  <rect x="630" y="86" width="310" height="190" rx="18" fill="rgba(0,0,0,.14)" stroke="rgba(212,175,55,.22)"/>
+                  <text x="654" y="122" font-size="18" fill="rgba(242,211,122,.98)" font-weight="900">→ Bedarf</text>
+                  <text x="654" y="152" font-size="15" fill="rgba(169,180,199,.95)">Bildung &amp; Struktur</text>
+                  <text x="654" y="176" font-size="14" fill="rgba(169,180,199,.95)">Orientierung</text>
+                  <text x="654" y="198" font-size="14" fill="rgba(169,180,199,.95)">Schutz / Checks</text>
+                  <text x="654" y="220" font-size="14" fill="rgba(169,180,199,.95)">Prozesse &amp; Standards</text>
+                  <text x="654" y="242" font-size="14" fill="rgba(169,180,199,.95)">ruhige Entscheidung</text>
+                </g>
+
+                <!-- Bottom note -->
+                <text x="630" y="312" font-size="13" fill="rgba(169,180,199,.95)">
+                  Marktsignale zeigen Richtung – nicht Garantie.
+                </text>
+              </g>
+            </svg>
+          </div>
+          <p class="muted" style="margin-top:10px;">Mehr Berührung + mehr Regeln + mehr Risiko + mehr Komplexität → mehr Bedarf an Struktur.</p>
+        </div>
+
+        <div class="vizCard">
+          <div class="vizTitle">Tabelle: Zielgruppen × Bedarf</div>
+          <div class="vizInner miniTableWrap">
+            <table class="mini" aria-label="Zielgruppen Bedarf Tabelle">
+              <thead>
+                <tr>
+                  <th style="width:40%;">Zielgruppe</th>
+                  <th style="width:60%;">Bedarf</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Angestellte</td>
+                  <td>Orientierung, Schutz vor Fehlern, ruhige Entscheidungen</td>
+                </tr>
+                <tr>
+                  <td>Unternehmer</td>
+                  <td>Prozesse, Verantwortlichkeiten, Standards, Risiko-Logik</td>
+                </tr>
+                <tr>
+                  <td>Verein</td>
+                  <td>Saubere Abläufe, klare Regeln, professionelle Sprache</td>
+                </tr>
+                <tr>
+                  <td>Aufbau-Partner</td>
+                  <td>Rollen, Grenzen, seriöse Empfehlung ohne Druck</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="muted" style="margin-top:10px;">„Nachfrage wächst“ heißt: Es gibt Menschen, die Struktur suchen – nicht: „du musst“.</p>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>Notizen &amp; Antworten</h2>
+      <p class="muted">Alles, was du hier einträgst, bleibt nur auf deinem Gerät (LocalStorage).</p>
+
+      <p>1. Welche Marktsignale sehe ich selbst im Alltag?</p>
+      <p>2. Welche Zielgruppe um mich herum hat gerade am meisten Bedarf?</p>
+      <p>3. Welche zwei Risiken will ich mit Struktur reduzieren?</p>
+
+      <textarea id="notes" placeholder="Schreibe hier deine Antworten, Beispiele und nächsten Schritte…"></textarea>
+
+      <div class="noteRow">
+        <div class="saveHint" id="saveHint">Nicht gespeichert.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end;">
+          <button class="smallBtn" type="button" id="clearChapter">Kapitel-Notizen löschen</button>
+          <button class="smallBtn" type="button" id="clearAll">Alle Handbuch-Daten löschen</button>
+        </div>
+      </div>
+
+      <div class="footerNav">
+        <div class="left">
+          <a class="navBtn" href="./index.html" data-internal>← Inhaltsverzeichnis</a>
+        </div>
+
+        <div class="mid">
+          <a class="navBtn" href="./kapitel-07.html" data-internal>← Zurück</a>
+          <a class="navBtn navBtnPrimary" href="./kapitel-09.html" data-internal>Nächstes →</a>
+        </div>
+
+        <div class="right">
+          <!-- NUR 1x DRUCKEN IM FOOTER (ab Kapitel 08) -->
+          <button class="navBtn navBtnPrimary" type="button" id="printBtn">Drucken</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function(){
+      function doPrint(){ window.print(); }
+      document.getElementById("printBtn").addEventListener("click", doPrint);
+    })();
+  </script>
+
+  <script>
+    (function(){
+      const STORAGE_PREFIX = "fsa_vh_";
+      const KEY_NOTES = "fsa_vh_kap08_notes";
+
+      const notesEl = document.getElementById("notes");
+      const hintEl  = document.getElementById("saveHint");
+
+      function setSaved(){ hintEl.textContent = "Gespeichert (lokal)."; }
+      function setUnsaved(){ hintEl.textContent = "Nicht gespeichert."; }
+
+      function safeGet(k){
+        try{ return localStorage.getItem(k); }catch(e){ return null; }
+      }
+      function safeSet(k,v){
+        try{ localStorage.setItem(k, v); }catch(e){}
+      }
+
+      const vNotes = safeGet(KEY_NOTES);
+      if(vNotes !== null){ notesEl.value = vNotes; setSaved(); }
+
+      let tId = null;
+      notesEl.addEventListener("input", function(){
+        setUnsaved();
+        if(tId) clearTimeout(tId);
+        tId = setTimeout(function(){
+          safeSet(KEY_NOTES, notesEl.value || "");
+          setSaved();
+        }, 250);
+      });
+
+      document.getElementById("clearChapter").addEventListener("click", function(){
+        if(!confirm("Kapitel-Notizen wirklich löschen?")) return;
+        try{ localStorage.removeItem(KEY_NOTES); }catch(e){}
+        notesEl.value = "";
+        setUnsaved();
+      });
+
+      document.getElementById("clearAll").addEventListener("click", function(){
+        if(!confirm("ALLE gespeicherten Handbuch-Daten auf diesem Gerät löschen?")) return;
+        try{
+          const keys = [];
+          for(let i=0;i<localStorage.length;i++){
+            const k = localStorage.key(i);
+            if(k && k.startsWith(STORAGE_PREFIX)) keys.push(k);
+          }
+          keys.forEach(k=>localStorage.removeItem(k));
+        }catch(e){}
+        notesEl.value = "";
+        setUnsaved();
+        alert("Daten gelöscht.");
+      });
+    })();
+  </script>
+
+  <script>
+    (function(){
+      const t = Date.now();
+      document.querySelectorAll('a[data-internal]').forEach(a=>{
+        try{
+          const u = new URL(a.getAttribute('href'), location.href);
+          u.searchParams.set('nocache', t);
+          a.href = u.pathname + u.search + u.hash;
+        }catch(e){}
+      });
+    })();
+  </script>
+</body>
+</html>
