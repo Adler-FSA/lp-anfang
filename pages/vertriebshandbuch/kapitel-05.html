@@ -131,6 +131,11 @@
       font-weight:900;
       color:var(--txt);
       font-size:14.5px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
     }
     .vizInner{
       border:1px solid rgba(212,175,55,.16);
@@ -149,7 +154,7 @@
       line-height:1.5;
     }
 
-    /* Checkliste (druckbar) */
+    /* Interaktive Checkliste */
     .checkList{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -158,22 +163,70 @@
     @media (max-width: 980px){
       .checkList{grid-template-columns:1fr;}
     }
-    .checkItem{
-      display:flex;gap:10px;align-items:flex-start;
-      padding:10px 10px;border-radius:14px;
+
+    .ciToggle{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding:10px 10px;
+      border-radius:14px;
       border:1px solid rgba(212,175,55,.18);
       background:rgba(0,0,0,.12);
+      cursor:pointer;
+      user-select:none;
+    }
+    .ciToggle:hover{background:rgba(0,0,0,.16);}
+    .ciToggle:active{transform:translateY(1px);}
+
+    .ciToggle input{
+      position:absolute;
+      opacity:0;
+      pointer-events:none;
     }
     .box{
       width:18px;height:18px;border-radius:4px;
       border:2px solid rgba(242,211,122,.75);
       flex:0 0 auto;
       margin-top:1px;
+      position:relative;
+      box-shadow:0 0 0 2px rgba(0,0,0,.10) inset;
+      background:rgba(0,0,0,.14);
     }
+    /* Checkmark */
+    .ciToggle input:checked + .box{
+      border-color:rgba(212,175,55,.95);
+      background:rgba(212,175,55,.14);
+      box-shadow:0 0 18px rgba(212,175,55,.18);
+    }
+    .ciToggle input:checked + .box:after{
+      content:"";
+      position:absolute;
+      left:5px; top:1px;
+      width:5px; height:10px;
+      border-right:3px solid rgba(242,211,122,.95);
+      border-bottom:3px solid rgba(242,211,122,.95);
+      transform:rotate(45deg);
+    }
+
     .ciText{min-width:0;}
     .ciText b{color:var(--gold2)}
     .ciText div{color:var(--txt);font-weight:800;font-size:14px;line-height:1.4}
     .ciText small{display:block;color:var(--muted);font-weight:700;margin-top:2px;line-height:1.35}
+
+    .scorePill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(212,175,55,.22);
+      background:rgba(0,0,0,.16);
+      color:var(--txt);
+      font-weight:900;
+      font-size:12.5px;
+      white-space:nowrap;
+    }
+    .scorePill span{color:var(--gold2);}
 
     /* Tabelle */
     .miniTableWrap{min-width:0; overflow:hidden;}
@@ -274,11 +327,15 @@
       textarea{border:1px solid #999 !important;background:#fff !important;}
       table.mini th, table.mini td{color:#000 !important;border-bottom:1px solid #ddd !important;}
       .vizCaption{color:#000 !important;}
-      .checkItem{background:#fff !important;border:1px solid #ddd !important;}
-      .box{border-color:#000 !important;}
+      .ciToggle{background:#fff !important;border:1px solid #ddd !important;}
+      .box{border-color:#000 !important;background:#fff !important;box-shadow:none !important;}
+      .ciToggle input:checked + .box{border-color:#000 !important;background:#fff !important;}
+      .ciToggle input:checked + .box:after{border-right-color:#000 !important;border-bottom-color:#000 !important;}
+      .scorePill{border-color:#999 !important;background:#fff !important;color:#000 !important;}
+      .scorePill span{color:#000 !important;}
 
       /* Karten nicht zerreißen */
-      .vizCard, .vizInner, svg{
+      .vizCard, .vizInner{
         break-inside: avoid;
         page-break-inside: avoid;
       }
@@ -356,80 +413,93 @@
       <h2>Anschauung</h2>
 
       <div class="vizGrid">
-        <!-- Grafik 1: Seriositäts-Checkliste -->
+        <!-- Checkliste -->
         <div class="vizCard">
-          <div class="vizTitle">Seriositäts-Checkliste (Ja/Nein)</div>
+          <div class="vizTitle">
+            <span>Seriositäts-Checkliste (Ja/Nein)</span>
+            <span class="scorePill">Markiert: <span id="scoreNow">0</span>/<span id="scoreAll">8</span> Ja</span>
+          </div>
+
           <div class="vizInner">
             <div class="checkList" role="list" aria-label="Seriositäts-Checkliste">
-              <div class="checkItem" role="listitem">
-                <div class="box" aria-hidden="true"></div>
-                <div class="ciText">
+              <label class="ciToggle" role="listitem">
+                <input type="checkbox" data-check="no_promises" />
+                <span class="box" aria-hidden="true"></span>
+                <span class="ciText">
                   <div><b>Keine Versprechen</b> / keine Rendite-Storys</div>
                   <small>Wenn jemand „garantiert“ sagt, ist es nicht sauber.</small>
-                </div>
-              </div>
+                </span>
+              </label>
 
-              <div class="checkItem" role="listitem">
-                <div class="box" aria-hidden="true"></div>
-                <div class="ciText">
+              <label class="ciToggle" role="listitem">
+                <input type="checkbox" data-check="no_advice" />
+                <span class="box" aria-hidden="true"></span>
+                <span class="ciText">
                   <div><b>Keine Beratung</b> (Anlage/Steuer/Recht)</div>
                   <small>Orientierung ja – Entscheidung bleibt bei dir.</small>
-                </div>
-              </div>
+                </span>
+              </label>
 
-              <div class="checkItem" role="listitem">
-                <div class="box" aria-hidden="true"></div>
-                <div class="ciText">
+              <label class="ciToggle" role="listitem">
+                <input type="checkbox" data-check="no_pressure" />
+                <span class="box" aria-hidden="true"></span>
+                <span class="ciText">
                   <div><b>Keine Drucksprache</b> / kein Push</div>
                   <small>„Du musst jetzt“ ist ein Warnsignal.</small>
-                </div>
-              </div>
+                </span>
+              </label>
 
-              <div class="checkItem" role="listitem">
-                <div class="box" aria-hidden="true"></div>
-                <div class="ciText">
+              <label class="ciToggle" role="listitem">
+                <input type="checkbox" data-check="no_aggressive_sales" />
+                <span class="box" aria-hidden="true"></span>
+                <span class="ciText">
                   <div><b>Keine aggressive Verkaufskultur</b></div>
                   <small>Ruhiger Raum statt lauter Bühne.</small>
-                </div>
-              </div>
+                </span>
+              </label>
 
-              <div class="checkItem" role="listitem">
-                <div class="box" aria-hidden="true"></div>
-                <div class="ciText">
+              <label class="ciToggle" role="listitem">
+                <input type="checkbox" data-check="no_income_show" />
+                <span class="box" aria-hidden="true"></span>
+                <span class="ciText">
                   <div><b>Kein Income-Show</b> als „Beweis“</div>
                   <small>Inszenierung ersetzt keine Substanz.</small>
-                </div>
-              </div>
+                </span>
+              </label>
 
-              <div class="checkItem" role="listitem">
-                <div class="box" aria-hidden="true"></div>
-                <div class="ciText">
+              <label class="ciToggle" role="listitem">
+                <input type="checkbox" data-check="no_fear" />
+                <span class="box" aria-hidden="true"></span>
+                <span class="ciText">
                   <div><b>Keine Angst-Manipulation</b></div>
                   <small>„Wenn du das nicht machst…“ ist toxisch.</small>
-                </div>
-              </div>
+                </span>
+              </label>
 
-              <div class="checkItem" role="listitem">
-                <div class="box" aria-hidden="true"></div>
-                <div class="ciText">
+              <label class="ciToggle" role="listitem">
+                <input type="checkbox" data-check="no_overload" />
+                <span class="box" aria-hidden="true"></span>
+                <span class="ciText">
                   <div><b>Keine Überforderung</b> („alles auf einmal“)</div>
                   <small>Sauber heißt: kleiner nächster Schritt.</small>
-                </div>
-              </div>
+                </span>
+              </label>
 
-              <div class="checkItem" role="listitem">
-                <div class="box" aria-hidden="true"></div>
-                <div class="ciText">
+              <label class="ciToggle" role="listitem">
+                <input type="checkbox" data-check="clear_expectation" />
+                <span class="box" aria-hidden="true"></span>
+                <span class="ciText">
                   <div><b>Klare Erwartung:</b> Arbeit, aber machbar</div>
                   <small>Realistisch, wiederholbar, ohne Hype.</small>
-                </div>
-              </div>
+                </span>
+              </label>
             </div>
           </div>
+
           <div class="vizCaption">Check: Je mehr „Ja“ bei Grenzen &amp; Klarheit, desto sauberer wirkt das System.</div>
         </div>
 
-        <!-- Grafik 2: Push-Sprache vs Klarheits-Sprache -->
+        <!-- Tabelle -->
         <div class="vizCard">
           <div class="vizTitle">Push-Sprache vs. Klarheits-Sprache</div>
           <div class="vizInner miniTableWrap">
@@ -560,6 +630,49 @@
         setUnsaved();
         alert("Daten gelöscht.");
       });
+    })();
+  </script>
+
+  <script>
+    (function(){
+      const KEY_CHECK = "fsa_vh_kap05_check";
+      const inputs = Array.from(document.querySelectorAll('input[type="checkbox"][data-check]'));
+      const scoreNow = document.getElementById("scoreNow");
+      const scoreAll = document.getElementById("scoreAll");
+      scoreAll.textContent = String(inputs.length);
+
+      function calcScore(){
+        const n = inputs.reduce((acc,i)=> acc + (i.checked ? 1 : 0), 0);
+        scoreNow.textContent = String(n);
+      }
+
+      function load(){
+        try{
+          const raw = localStorage.getItem(KEY_CHECK);
+          if(!raw) { calcScore(); return; }
+          const obj = JSON.parse(raw);
+          inputs.forEach(i=>{
+            const k = i.getAttribute("data-check");
+            if(Object.prototype.hasOwnProperty.call(obj, k)) i.checked = !!obj[k];
+          });
+        }catch(e){}
+        calcScore();
+      }
+
+      function save(){
+        try{
+          const obj = {};
+          inputs.forEach(i=>{
+            const k = i.getAttribute("data-check");
+            obj[k] = !!i.checked;
+          });
+          localStorage.setItem(KEY_CHECK, JSON.stringify(obj));
+        }catch(e){}
+        calcScore();
+      }
+
+      inputs.forEach(i=> i.addEventListener("change", save));
+      load();
     })();
   </script>
 
