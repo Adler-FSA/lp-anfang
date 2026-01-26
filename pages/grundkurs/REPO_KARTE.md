@@ -226,6 +226,7 @@
     │   │   ├── index.json
     │   │   ├── most innovative web3 project.jpeg
     │   │   ├── so-kaufst-du-ito-video06.jpeg
+    │   │   ├── vertriebshandbuch-cover-index.jpeg
     │   │   ├── wefi-anmeldung-video05.jpeg
     │   │   ├── wefi-preis-2025.jpg
     │   │   ├── wefi-start.jpg
@@ -798,6 +799,9 @@
     │   │   ├── kapitel-31.html
     │   │   ├── kapitel-32.html
     │   │   └── kapitel-33.html
+    │   ├── vertriebshandbuch/
+    │   │   ├── index.html
+    │   │   └── kapitel-01.html
     │   ├── wefi/
     │   │   ├── deobank-quellen.html
     │   │   ├── wefi-aufklaerung.html
@@ -862,4 +866,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.01.2026, 09:29)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.01.2026, 10:21)_
