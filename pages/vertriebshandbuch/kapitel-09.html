@@ -208,9 +208,9 @@
       font-weight:900;
       font-size:12px;
     }
-    .zoneGreen{border-color:rgba(34,197,94,.35);}
-    .zoneYellow{border-color:rgba(212,175,55,.42);}
-    .zoneRed{border-color:rgba(239,68,68,.35);}
+    .zoneGreen{border-color:rgba(34,197,94,.40); background:rgba(34,197,94,.08);}
+    .zoneYellow{border-color:rgba(212,175,55,.55); background:rgba(212,175,55,.08);}
+    .zoneRed{border-color:rgba(239,68,68,.40); background:rgba(239,68,68,.08);}
 
     .resLine{margin-top:10px;color:var(--txt);font-size:14px;line-height:1.55;}
     .resSmall{margin-top:8px;color:var(--muted);font-size:12.8px;line-height:1.55;}
@@ -228,14 +228,23 @@
       border-radius:14px;
       border:1px solid rgba(212,175,55,.12);
       background:rgba(0,0,0,.10);
+      transition:filter .15s ease, border-color .15s ease, background .15s ease;
+    }
+    .guideItem.active{
+      border-color:rgba(212,175,55,.38);
+      background:rgba(0,0,0,.14);
+      filter:brightness(1.06);
     }
     .dot{
       width:10px;height:10px;border-radius:50%;
       margin-top:5px;
-      background:rgba(212,175,55,.9);
-      box-shadow:0 0 0 3px rgba(212,175,55,.12);
+      background:rgba(212,175,55,.55);
+      box-shadow:0 0 0 3px rgba(212,175,55,.10);
       flex:0 0 auto;
     }
+    .guideItem.active[data-zone="green"] .dot{background:rgba(34,197,94,.95); box-shadow:0 0 0 3px rgba(34,197,94,.14);}
+    .guideItem.active[data-zone="yellow"] .dot{background:rgba(212,175,55,.95); box-shadow:0 0 0 3px rgba(212,175,55,.14);}
+    .guideItem.active[data-zone="red"] .dot{background:rgba(239,68,68,.95); box-shadow:0 0 0 3px rgba(239,68,68,.14);}
     .guideText{font-size:13.5px;line-height:1.45;color:var(--txt);}
 
     /* notes */
@@ -481,7 +490,7 @@
 
               <div class="field" style="grid-column:1 / -1;">
                 <label for="euroHour" data-i18n="f3">Wert pro Stunde Ruhe (optional)</label>
-                <input id="euroHour" type="number" min="0" step="1" inputmode="numeric" placeholder="z. B. 10" />
+                <input id="euroHour" type="number" min="0" step="1" inputmode="numeric" placeholder="z. B. 50" />
                 <div class="hint" data-i18n="f3h">
                   Kein „Verdienst“. Nur ein Vergleichsrahmen: Was wäre dir 1 Stunde Ruhe wert (z. B. 10 / 25 / 50)?
                 </div>
@@ -490,7 +499,7 @@
 
             <div class="resultBox" aria-live="polite">
               <div class="resTop">
-                <span class="badge" id="zoneBadge" class="badge" data-i18n="zone">Zone: –</span>
+                <span class="badge" id="zoneBadge" data-i18n="zone">Zone: –</span>
                 <span class="badge" id="headlineBadge" data-i18n="badge">Kompass-Ergebnis</span>
               </div>
 
@@ -501,19 +510,19 @@
               <div class="resSmall" id="resSmall"></div>
 
               <div class="miniGuide" id="miniGuide">
-                <div class="guideItem">
+                <div class="guideItem" data-zone="green">
                   <span class="dot"></span>
                   <div class="guideText" data-i18n="gGreen">
                     <b>Grün:</b> Du bist bereit für Umsetzung/Routine. Nächster Schritt: 1 kleiner 7-Tage-Schritt + Rhythmus festlegen.
                   </div>
                 </div>
-                <div class="guideItem">
+                <div class="guideItem" data-zone="yellow">
                   <span class="dot"></span>
                   <div class="guideText" data-i18n="gYellow">
                     <b>Gelb:</b> Du brauchst Checkliste + 1 Entscheidung pro Woche. Weniger Input, mehr Reihenfolge.
                   </div>
                 </div>
-                <div class="guideItem">
+                <div class="guideItem" data-zone="red">
                   <span class="dot"></span>
                   <div class="guideText" data-i18n="gRed">
                     <b>Rot:</b> Du brauchst zuerst Orientierung + klare Reihenfolge. Ziel: Overload stoppen, Entscheidungen vereinfachen.
@@ -577,6 +586,7 @@
             </div>
 
             <div class="btnRow">
+              <!-- NUR 1x DRUCKEN -->
               <button class="btn btnGold" id="printBtn" type="button" title="Drucken">
                 <span class="ico" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none">
@@ -594,11 +604,10 @@
         </div>
       </div>
     </section>
-
   </main>
 
   <script>
-    (function(){
+    /* === TEIL 2 HIER EINFÜGEN (direkt nach dieser Zeile, ohne extra <script> Tag) === */    (function(){
       const KEY_LANG = "fsa_lang";
       const KEY_NOTES = "vertriebshandbuch_k09_notes";
       const KEY_CALC  = "vertriebshandbuch_k09_calc";
@@ -760,16 +769,13 @@
           el.setAttribute("placeholder", val);
         });
 
-        // re-render calc outputs in current language
         renderCalc();
       }
 
       // notes storage
       const notesEl = $("#notes");
       const saveState = $("#saveState");
-      function setSaved(msg){
-        saveState.textContent = msg;
-      }
+      function setSaved(msg){ saveState.textContent = msg; }
       function loadNotes(){
         try{
           const v = localStorage.getItem(KEY_NOTES);
@@ -795,7 +801,7 @@
       const resSmall = $("#resSmall");
 
       function toNum(x){
-        const n = Number(String(x).replace(",", "."));
+        const n = Number(String(x ?? "").replace(",", "."));
         return isFinite(n) ? n : 0;
       }
       function fmt(n, dec=1){
@@ -806,7 +812,14 @@
       function loadCalc(){
         try{
           const raw = localStorage.getItem(KEY_CALC);
-          if(!raw) return;
+          if(!raw){
+            // Default (damit man direkt "Wow" sieht)
+            hoursWeekEl.value = "2";
+            stressEl.value = "5";
+            euroEl.value = "50";
+            stressValEl.textContent = "5";
+            return;
+          }
           const obj = JSON.parse(raw);
           if(obj && typeof obj === "object"){
             if(obj.hoursWeek != null) hoursWeekEl.value = obj.hoursWeek;
@@ -828,13 +841,6 @@
         }catch(e){}
       }
 
-      function zoneFromNerveHours(nerveHoursMonth){
-        // zones based on nerve-hours per month
-        if(nerveHoursMonth >= 8) return "red";
-        if(nerveHoursMonth >= 3) return "yellow";
-        return "green";
-      }
-
       function setZoneBadge(zone){
         zoneBadge.classList.remove("zoneGreen","zoneYellow","zoneRed");
         const lang = document.documentElement.lang === "de" ? "de" : "en";
@@ -853,6 +859,21 @@
         zoneBadge.innerHTML = (lang==="de") ? "Zone: Rot" : "Zone: Red";
       }
 
+      function highlightGuide(zone){
+        $$("#miniGuide .guideItem").forEach(item=>{
+          const z = item.getAttribute("data-zone");
+          item.classList.toggle("active", z === zone);
+        });
+      }
+
+      function zoneFromImpact(impactMonth){
+        // impactMonth = "Nervenstunden/Monat" (Zeit × Stresswirkung)
+        // Schwellen so gewählt, dass Stress 5->10 sichtbar umschalten kann.
+        if(impactMonth >= 10) return "red";
+        if(impactMonth >= 4) return "yellow";
+        return "green";
+      }
+
       function renderCalc(){
         const lang = document.documentElement.lang === "de" ? "de" : "en";
 
@@ -863,10 +884,10 @@
         stressValEl.textContent = String(stress);
 
         if(hoursWeek <= 0){
-          setZoneBadge("green");
-          resLine.innerHTML = (lang==="de")
-            ? dict.de.resPlaceholder
-            : dict.en.resPlaceholder;
+          const z = "green";
+          setZoneBadge(z);
+          highlightGuide(z);
+          resLine.innerHTML = (lang==="de") ? dict.de.resPlaceholder : dict.en.resPlaceholder;
           resSmall.textContent = "";
           return;
         }
@@ -875,11 +896,16 @@
         const hoursMonth = hoursWeek * 4.3;
         const hoursQuarter = hoursWeek * 13.0;
 
-        // nerve-hours: month hours * stress factor
-        const nerveHoursMonth = hoursMonth * (stress/10);
+        // Stresswirkung bewusst NICHT linear: Grundlast + Stress-Anteil
+        // -> So sieht man bei Stress 5->10 deutlich einen Sprung.
+        const stressEffect = 0.35 + (stress/10) * 0.95; // 1=>0.445, 10=>1.30
 
-        const zone = zoneFromNerveHours(nerveHoursMonth);
+        // "Nervenstunden": Zeitverlust gewichtet mit Stresswirkung
+        const nerveHoursMonth = hoursMonth * stressEffect;
+
+        const zone = zoneFromImpact(nerveHoursMonth);
         setZoneBadge(zone);
+        highlightGuide(zone);
 
         let calmValueTxt = "";
         if(euro > 0){
@@ -890,21 +916,20 @@
         }
 
         resLine.innerHTML = (lang==="de")
-          ? `Zeitverlust: ca. <b>${fmt(hoursMonth,1)} Std./Monat</b> (≈ ${fmt(hoursQuarter,1)} Std./Quartal).<br/>„Nervenstunden“: ca. <b>${fmt(nerveHoursMonth,1)} Std./Monat</b> (Zeit × Stressfaktor).${calmValueTxt}`
-          : `Time loss: approx. <b>${fmt(hoursMonth,1)} hrs/month</b> (≈ ${fmt(hoursQuarter,1)} hrs/quarter).<br/>“Nerve hours”: approx. <b>${fmt(nerveHoursMonth,1)} hrs/month</b> (time × stress factor).${calmValueTxt}`;
+          ? `Zeitverlust: ca. <b>${fmt(hoursMonth,1)} Std./Monat</b> (≈ ${fmt(hoursQuarter,1)} Std./Quartal).<br/>„Nervenstunden“: ca. <b>${fmt(nerveHoursMonth,1)} Std./Monat</b> (Zeit × Stresswirkung).${calmValueTxt}`
+          : `Time loss: approx. <b>${fmt(hoursMonth,1)} hrs/month</b> (≈ ${fmt(hoursQuarter,1)} hrs/quarter).<br/>“Nerve hours”: approx. <b>${fmt(nerveHoursMonth,1)} hrs/month</b> (time × stress effect).${calmValueTxt}`;
 
         resSmall.textContent = (lang==="de")
-          ? "Interpretation: Je höher dein Stress, desto „teurer“ wird jede Chaos-Stunde – nicht in Geld, sondern in Lebensqualität."
-          : "Interpretation: the higher your stress, the more expensive each chaos hour becomes — not in money, but in quality of life.";
+          ? `Interpretation: Je höher dein Stress, desto „teurer“ wird jede Chaos-Stunde – nicht in Geld, sondern in Lebensqualität. (Stresswirkung: ${fmt(stressEffect,2)})`
+          : `Interpretation: the higher your stress, the more expensive each chaos hour becomes — not in money, but in quality of life. (Stress effect: ${fmt(stressEffect,2)})`;
       }
 
       // print
       $("#printBtn").addEventListener("click", ()=>window.print());
 
-      // notes events
+      // notes events (auto-save)
       notesEl.addEventListener("input", ()=>{
         setSaved(document.documentElement.lang === "de" ? "Nicht gespeichert." : "Not saved.");
-        // lightweight save
         saveNotes();
       });
 
@@ -931,6 +956,9 @@
       const storedLang = localStorage.getItem(KEY_LANG);
       setLang(storedLang === "en" ? "en" : "de");
       setSaved(document.documentElement.lang === "de" ? "Nicht gespeichert." : "Not saved.");
+
+      // ensure calc renders after language and defaults
+      renderCalc();
 
       // nocache on internal links
       (function(){
