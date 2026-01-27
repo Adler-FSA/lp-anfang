@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kapitel 27 – Einwandbehandlung & Entscheidung</title>
+
+  <style>
+    :root{
+      --bg:#050814;
+      --bg2:#020617;
+      --panel:rgba(15,23,42,.88);
+      --panel2:rgba(15,23,42,.72);
+      --txt:#e9eef7;
+      --muted:#a9b4c7;
+      --gold:#d4af37;
+      --gold2:#f2d37a;
+      --line:rgba(212,175,55,.38);
+      --shadow:0 24px 60px rgba(0,0,0,.55);
+      --glow:0 0 26px rgba(212,175,55,.22), 0 12px 30px rgba(0,0,0,.55);
+      --radius:18px;
+      --maxw:1100px;
+    }
+    *{box-sizing:border-box;}
+    html,body{
+      margin:0;
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(212,175,55,.10), transparent 55%),
+        radial-gradient(900px 600px at 80% 30%, rgba(94,168,255,.08), transparent 60%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      overflow-x:hidden;
+    }
+
+    .wrap{max-width:var(--maxw);margin:0 auto;padding:34px 18px 60px;}
+
+    .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:6px 0 14px;}
+    .brand{display:flex;flex-direction:column;gap:6px;min-width:min(720px,100%);}
+
+    .kicker{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 10px;border-radius:999px;
+      border:1px solid rgba(212,175,55,.25);
+      background:rgba(0,0,0,.18);
+      color:var(--gold2);
+      font-size:12px;font-weight:800;letter-spacing:.25px;
+      width:fit-content; white-space:nowrap;
+    }
+    .dot{width:8px;height:8px;border-radius:99px;background:rgba(242,211,122,.9);box-shadow:0 0 12px rgba(212,175,55,.35)}
+
+    h1{margin:0;font-size:34px;line-height:1.1;font-weight:900}
+    .sub{margin:2px 0 0;color:var(--muted);max-width:95ch;line-height:1.55}
+
+    .line{height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.85;margin:12px 0 18px;}
+
+    .panel{
+      background:linear-gradient(180deg,var(--panel),var(--panel2));
+      border:1px solid rgba(212,175,55,.22);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(6px);
+      padding:18px 18px;
+      position:relative;
+      overflow:hidden;
+      margin-top:14px;
+    }
+    .panel:before{
+      content:"";
+      position:absolute;inset:-2px;
+      background:radial-gradient(650px 240px at 10% 0%, rgba(212,175,55,.10), transparent 55%);
+      pointer-events:none;
+    }
+    .panel > *{position:relative;z-index:1;}
+
+    h2{margin:0 0 8px;font-size:18px;letter-spacing:.2px;color:var(--gold2)}
+    p{margin:0 0 10px;color:var(--txt);line-height:1.7;font-size:14.5px;opacity:.98}
+    .muted{color:var(--muted);}
+    .hr{height:1px;background:rgba(212,175,55,.22);margin:14px 0}
+
+    /* Optionaler Anschauung Block */
+    .vizGrid{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap:12px;
+      align-items:stretch;
+      margin-top:10px;
+    }
+    @media (max-width: 980px){
+      .vizGrid{grid-template-columns:1fr;}
+    }
+    .vizCard{
+      border:1px solid rgba(212,175,55,.22);
+      background:rgba(0,0,0,.14);
+      border-radius:16px;
+      padding:12px;
+      overflow:hidden;
+      min-width:0;
+    }
+    .vizTitle{
+      margin:0 0 10px;
+      font-weight:900;
+      color:var(--txt);
+      font-size:14.5px;
+    }
+    .vizInner{
+      border:1px solid rgba(212,175,55,.16);
+      background:rgba(0,0,0,.14);
+      border-radius:14px;
+      padding:12px;
+      min-width:0;
+      overflow:hidden;
+    }
+
+    .miniTableWrap{min-width:0; overflow:hidden;}
+    table.mini{
+      width:100%;
+      border-collapse:collapse;
+      table-layout:auto;
+    }
+    table.mini th, table.mini td{
+      text-align:left;
+      vertical-align:top;
+      padding:10px 10px;
+      border-bottom:1px solid rgba(212,175,55,.18);
+      font-size:13.5px;
+      line-height:1.45;
+      white-space:normal;
+      overflow-wrap:break-word;
+      word-break:break-word;
+    }
+    table.mini th{
+      color:var(--gold2);
+      font-weight:900;
+      border-bottom:1px solid rgba(212,175,55,.26);
+      font-size:13px;
+    }
+    table.mini tr:last-child td{border-bottom:none;}
+
+    /* Notizen */
+    textarea{
+      width:100%;
+      min-height:200px;
+      resize:vertical;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.22);
+      background:rgba(0,0,0,.18);
+      color:var(--txt);
+      outline:none;
+      line-height:1.6;
+      font-size:14px;
+    }
+    textarea:focus{border-color:rgba(212,175,55,.42);box-shadow:0 0 0 3px rgba(212,175,55,.10);}
+
+    .noteRow{
+      display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:10px
+    }
+    .saveHint{font-size:12px;color:var(--muted);}
+    .smallBtn{
+      padding:10px 12px;border-radius:14px;
+      border:1px solid rgba(212,175,55,.28);
+      background:rgba(0,0,0,.22);
+      color:var(--txt);
+      font-weight:900;
+      display:inline-flex;align-items:center;gap:8px;
+      white-space:nowrap;cursor:pointer;
+      text-decoration:none;
+    }
+    .smallBtn:hover{background:rgba(0,0,0,.28);}
+
+    .footerNav{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;}
+    .footerNav .left,.footerNav .mid,.footerNav .right{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .navBtn{
+      padding:10px 12px;border-radius:14px;
+      border:1px solid rgba(212,175,55,.28);
+      background:rgba(0,0,0,.22);
+      color:var(--txt);font-weight:900;text-decoration:none;
+      display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
+    }
+    .navBtn:hover{background:rgba(0,0,0,.28);}
+    .navBtnPrimary{
+      background:linear-gradient(180deg, rgba(212,175,55,.95), rgba(212,175,55,.75));
+      color:#111;border:none;box-shadow:var(--glow);
+    }
+    .navBtnPrimary:hover{filter:brightness(1.03);}
+
+    /* =======================
+       PRINT
+       ======================= */
+    @page{ margin:14mm; }
+    @media print{
+      html,body{
+        background:#fff !important;color:#000 !important;
+        height:auto !important;overflow:visible !important;
+        -webkit-print-color-adjust: exact;print-color-adjust: exact;
+      }
+      .wrap{padding:0 !important;}
+      .noteRow button{display:none !important;}
+      .footerNav{display:none !important;}
+
+      .panel{
+        box-shadow:none !important;background:#fff !important;
+        border:1px solid #999 !important;backdrop-filter:none !important;
+      }
+      .panel:before{display:none !important;}
+      .sub,p,textarea,.muted{color:#000 !important;}
+      h1,h2{color:#000 !important;}
+      .line{background:#999 !important;}
+      a{color:#000 !important;text-decoration:none !important;}
+      textarea{border:1px solid #999 !important;background:#fff !important;color:#000 !important;}
+
+      .vizGrid{grid-template-columns: 1fr !important;}
+
+      table.mini thead{display: table-header-group;}
+      table.mini tr{break-inside: avoid;page-break-inside: avoid;}
+      table.mini th, table.mini td{
+        padding:6px 6px !important;
+        font-size:11.5px !important;
+        line-height:1.35 !important;
+        color:#000 !important;
+        border-bottom:1px solid #ddd !important;
+        word-break: normal !important;
+        overflow-wrap: break-word !important;
+      }
+      table.mini th{font-size:11.5px !important;}
+      .vizCard,.vizInner{background:#fff !important;border:1px solid #999 !important;}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="kicker"><span class="dot"></span> Band 3 – Rollen, Einkommen, Gesprächspraxis</div>
+        <div>
+          <h1>Kapitel 27 – Einwandbehandlung &amp; Entscheidung: Klar bleiben, ohne Manipulation</h1>
+          <div class="sub">Einwände verstehen, sortieren, entscheiden – ohne Diskussion, ohne Druck</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="line"></div>
+
+    <section class="panel">
+      <h2>Kernaussage</h2>
+      <p><b>Einwände sind selten „Ablehnung“.</b> Meist sind sie Schutz: vor Fehlern, vor Druck, vor Kontrollverlust. Seriöse Einwandbehandlung bedeutet: verstehen, sortieren, sauber entscheiden – nicht überreden.</p>
+      <p class="muted">Dieses Kapitel gibt dir eine klare Struktur, mit der du Einwände ruhig auffängst, ohne in Diskussionen oder Rechtfertigungen zu rutschen.</p>
+
+      <div class="hr"></div>
+
+      <h2>1) Erst verstehen: Einwand ist nicht das Thema – sondern das Gefühl dahinter</h2>
+      <p>Viele Einwände sind Stellvertreter für etwas anderes:</p>
+      <p class="muted">
+        • „Zu teuer“ bedeutet oft: „Ich sehe den Wert noch nicht.“<br>
+        • „Keine Zeit“ bedeutet oft: „Ich habe Angst, wieder zu scheitern.“<br>
+        • „Krypto ist gefährlich“ bedeutet oft: „Ich will nicht dumm aussehen oder Geld verlieren.“<br>
+        • „Ich muss nachdenken“ bedeutet oft: „Ich brauche Sicherheit, bevor ich entscheide.“
+      </p>
+      <p class="muted"><b>Merksatz:</b> Du behandelst nicht den Satz. Du behandelst den Grund.</p>
+
+      <div class="hr"></div>
+
+      <h2>2) Die 4 häufigsten Einwand-Typen</h2>
+      <p><b>Typ A: Informations-Einwand</b><br>
+        „Ich verstehe das nicht.“ / „Wie läuft das ab?“<br>
+        <span class="muted">→ Lösung: Struktur, Beispiele, klare Schritte.</span>
+      </p>
+      <p><b>Typ B: Risiko-Einwand</b><br>
+        „Das ist mir zu riskant.“ / „Was, wenn…?“<br>
+        <span class="muted">→ Lösung: Grenzen, Schutzlogik, realistische Erwartung.</span>
+      </p>
+      <p><b>Typ C: Ressourcen-Einwand</b><br>
+        „Keine Zeit“ / „Kein Geld“ / „Zu viel im Kopf“<br>
+        <span class="muted">→ Lösung: kleiner Einstieg, Prioritäten klären, Tempo reduzieren.</span>
+      </p>
+      <p><b>Typ D: Vertrauens-Einwand</b><br>
+        „Ich will nichts verkauft bekommen.“ / „Klingt nach Marketing“<br>
+        <span class="muted">→ Lösung: Transparenz, Entscheidung beim Gegenüber lassen, Druck komplett rausnehmen.</span>
+      </p>
+
+      <div class="hr"></div>
+
+      <h2>3) Die seriöse 3-Schritt-Formel (die fast immer funktioniert)</h2>
+      <p><b>1) Anerkennen (ohne kleinzureden)</b><br>„Versteh ich. Das ist ein fairer Punkt.“</p>
+      <p><b>2) Klären (eine präzise Frage)</b><br>„Was genau meinst du damit – eher Zeit, eher Überforderung oder eher Priorität?“</p>
+      <p><b>3) Einordnen (Weg statt Kampf)</b><br>„Dann wäre vermutlich ein kleiner Einstieg sinnvoll – damit du nicht überrollt wirst.“</p>
+      <p class="muted">Du argumentierst nicht. Du sortierst.</p>
+
+      <div class="hr"></div>
+
+      <h2>4) Das wichtigste Prinzip: „Einwand = Entscheidungspunkt“</h2>
+      <p>Einwandbehandlung dient nicht dazu, jemanden „drinzuhalten“.</p>
+      <p>Sie dient dazu, eine saubere Entscheidung möglich zu machen:</p>
+      <p class="muted">
+        • Ja, ich starte.<br>
+        • Nein, ich starte nicht.<br>
+        • Ich starte später – mit klarem Datum.<br>
+        • Ich starte klein – mit minimalem Schritt.
+      </p>
+      <p class="muted">Alles andere erzeugt nur Hängepartien.</p>
+
+      <div class="hr"></div>
+
+      <h2>5) Einwand: „Ich habe keine Zeit.“</h2>
+      <p class="muted">Was dahinter steckt: Überforderung, Stress, schlechte Erfahrungen mit „Dranbleiben“.</p>
+      <p><b>Saubere Antwort:</b><br>
+        „Dann ist es wichtig, dass du nicht groß startest, sondern machbar. Wenn wir es so klein machen, dass es wirklich in deinen Alltag passt: Was wäre realistisch – 20 Minuten oder 30 Minuten pro Woche?“
+      </p>
+      <p class="muted"><b>Mini-Entscheidung:</b><br>
+        • Wenn 20–30 Minuten möglich: kleiner Startpfad setzen.<br>
+        • Wenn gar nichts möglich: nicht drücken – späteren Zeitpunkt vereinbaren.
+      </p>
+
+      <div class="hr"></div>
+
+      <h2>6) Einwand: „Das ist mir zu riskant.“</h2>
+      <p class="muted">Was dahinter steckt: Angst vor Verlust, Scam, Kontrollverlust.</p>
+      <p><b>Saubere Antwort:</b><br>
+        „Sehr gut, dass du das sagst. Genau deshalb geht es hier zuerst um Orientierung, Schutz und Grenzen. Nicht um Aktionismus. Du musst nichts tun, bevor du es verstehst.“
+      </p>
+      <p class="muted"><b>Wichtige Ergänzung:</b> „Es gibt keine Versprechen. Es geht um Bildung, Struktur und Eigenverantwortung.“</p>
+
+      <div class="hr"></div>
+
+      <h2>7) Einwand: „Ich will nichts verkauft bekommen.“</h2>
+      <p class="muted">Was dahinter steckt: schlechte Erfahrungen, Misstrauen.</p>
+      <p><b>Saubere Antwort:</b><br>
+        „Will ich auch nicht. Ich kann dir die Logik erklären – und du entscheidest, ob das für dich passt. Wenn nicht, ist das vollkommen okay.“
+      </p>
+      <p class="muted">Das ist oft der Moment, in dem der Druck komplett verschwindet – und Vertrauen entsteht.</p>
+
+      <div class="hr"></div>
+
+      <h2>8) Einwand: „Zu teuer.“</h2>
+      <p class="muted">Was dahinter steckt: Wert noch unklar, Priorität unklar, Angst vor Fehlkauf.</p>
+      <p><b>Saubere Antwort (ohne Diskussion):</b><br>
+        „Versteh ich. Die Frage ist: Was wäre für dich ein sinnvoller Einstieg, damit du erst sicher wirst, bevor du Geld ausgibst?“
+      </p>
+      <p class="muted">
+        Dann gibst du Optionen, die seriös sind:<br>
+        • kleiner Einstieg (Orientierung zuerst)<br>
+        • Entscheidung vertagen (mit Datum)<br>
+        • oder klar sagen: passt gerade nicht
+      </p>
+      <p class="muted"><b>Wichtig:</b> Nicht anfangen, Preis „zu verteidigen“. Wert entsteht durch Klarheit, nicht durch Reden.</p>
+
+      <div class="hr"></div>
+
+      <h2>9) Einwand: „Ich muss erstmal nachdenken.“</h2>
+      <p class="muted">Was dahinter steckt: Bedürfnis nach Sicherheit.</p>
+      <p><b>Saubere Antwort:</b><br>
+        „Sehr gut. Dann lass uns kurz klären, was du brauchst, um entscheiden zu können: eher Überblick, eher Beispiele, oder eher ein zweites Gespräch?“
+      </p>
+      <p class="muted"><b>Seriöser Abschluss:</b> „Wollen wir einen Zeitpunkt setzen, wann du dich meldest oder wann wir kurz sprechen? Sonst bleibt es nur im Kopf.“</p>
+
+      <div class="hr"></div>
+
+      <h2>Anschauung</h2>
+      <div class="vizGrid">
+        <div class="vizCard">
+          <div class="vizTitle">Tabelle: Einwände → Klärfragen → nächster Schritt</div>
+          <div class="vizInner miniTableWrap">
+            <table class="mini" aria-label="Einwände Tabelle">
+              <thead>
+                <tr>
+                  <th style="width:25%;">Einwand</th>
+                  <th style="width:40%;">Klärfrage</th>
+                  <th style="width:35%;">Nächster Schritt</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>„Keine Zeit“</td>
+                  <td>„Was wäre realistisch pro Woche?“</td>
+                  <td>Mini-Rhythmus festlegen</td>
+                </tr>
+                <tr>
+                  <td>„Zu riskant“</td>
+                  <td>„Wovor genau willst du dich schützen?“</td>
+                  <td>Orientierung/Sicherheit zuerst</td>
+                </tr>
+                <tr>
+                  <td>„Zu teuer“</td>
+                  <td>„Woran würdest du merken, dass es sich lohnt?“</td>
+                  <td>kleiner Einstieg oder Pause</td>
+                </tr>
+                <tr>
+                  <td>„Ich verstehe nichts“</td>
+                  <td>„Was ist unklar: Begriff, Ablauf oder Entscheidung?“</td>
+                  <td>10-Minuten-Überblick</td>
+                </tr>
+                <tr>
+                  <td>„Ich bin skeptisch“</td>
+                  <td>„Was müsste passieren, damit du Vertrauen hast?“</td>
+                  <td>Transparenz + Druck raus</td>
+                </tr>
+                <tr>
+                  <td>„Später“</td>
+                  <td>„Wann genau wäre später?“</td>
+                  <td>Datum setzen oder beenden</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="vizCard">
+          <div class="vizTitle">Leitfrage: „Was ist dein nächster sauberer Schritt?“</div>
+          <div class="vizInner">
+            <p>Menschen scheitern selten am Willen. Sie scheitern an fehlender Struktur.</p>
+            <p class="muted">< السؤال</p>
+            <p><b>Frage, die oft alles löst:</b><br>
+              „Wenn du nur einen kleinen, sauberen Schritt gehen würdest – welcher wäre das?“
+            </p>
+            <p class="muted">Dann setzt du genau diesen Schritt. Kein mehr.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2>Notizen &amp; Antworten</h2>
+      <p class="muted">Alles, was du hier einträgst, bleibt nur auf deinem Gerät (LocalStorage).</p>
+
+      <p>1. Mein häufigster Einwand (den ich höre):</p>
+      <p>2. Was steckt meistens wirklich dahinter (mein Gefühl dazu):</p>
+      <p>3. Meine Standard-Klärfrage (eine einzige, die ich immer stelle):</p>
+      <p>4. Meine Grenze (was ich niemals tue/sage):</p>
+      <p>5. Mein Abschluss-Satz ohne Druck:</p>
+      <p>6. Entscheidung (für mein eigenes Vorgehen):</p>
+      <p class="muted">☐ Ich setze immer einen Mini-Schritt · ☐ Ich setze immer ein Datum · ☐ Ich beende sauber, wenn es nicht passt</p>
+
+      <textarea id="notes" placeholder="Schreibe hier deine Antworten, Beispiele und nächste Schritte…"></textarea>
+
+      <div class="noteRow">
+        <div class="saveHint" id="saveHint">Nicht gespeichert.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end;">
+          <button class="smallBtn" type="button" id="clearChapter">Kapitel-Notizen löschen</button>
+          <button class="smallBtn" type="button" id="clearAll">Alle Handbuch-Daten löschen</button>
+        </div>
+      </div>
+
+      <div class="footerNav">
+        <div class="left">
+          <a class="navBtn" href="./index.html" data-internal>← Inhaltsverzeichnis</a>
+        </div>
+        <div class="mid">
+          <a class="navBtn" href="./kapitel-26.html" data-internal>← Zurück</a>
+          <a class="navBtn navBtnPrimary" href="./kapitel-28.html" data-internal>Nächstes →</a>
+        </div>
+        <div class="right">
+          <button class="navBtn navBtnPrimary" type="button" id="printBtn">Drucken</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function(){
+      document.getElementById("printBtn").addEventListener("click", function(){
+        window.print();
+      });
+    })();
+  </script>
+
+  <script>
+    (function(){
+      const STORAGE_PREFIX = "fsa_vh_";
+      const KEY_NOTES = "fsa_vh_kap27_notes";
+
+      const notesEl = document.getElementById("notes");
+      const hintEl  = document.getElementById("saveHint");
+
+      function setSaved(){ hintEl.textContent = "Gespeichert (lokal)."; }
+      function setUnsaved(){ hintEl.textContent = "Nicht gespeichert."; }
+
+      function safeGet(k){
+        try{ return localStorage.getItem(k); }catch(e){ return null; }
+      }
+      function safeSet(k,v){
+        try{ localStorage.setItem(k, v); }catch(e){}
+      }
+
+      const v = safeGet(KEY_NOTES);
+      if(v !== null){
+        notesEl.value = v;
+        setSaved();
+      }
+
+      let tId = null;
+      notesEl.addEventListener("input", function(){
+        setUnsaved();
+        if(tId) clearTimeout(tId);
+        tId = setTimeout(function(){
+          safeSet(KEY_NOTES, notesEl.value || "");
+          setSaved();
+        }, 250);
+      });
+
+      document.getElementById("clearChapter").addEventListener("click", function(){
+        if(!confirm("Kapitel-Notizen wirklich löschen?")) return;
+        try{ localStorage.removeItem(KEY_NOTES); }catch(e){}
+        notesEl.value = "";
+        setUnsaved();
+      });
+
+      document.getElementById("clearAll").addEventListener("click", function(){
+        if(!confirm("ALLE gespeicherten Handbuch-Daten auf diesem Gerät löschen?")) return;
+        try{
+          const keys = [];
+          for(let i=0;i<localStorage.length;i++){
+            const k = localStorage.key(i);
+            if(k && k.startsWith(STORAGE_PREFIX)) keys.push(k);
+          }
+          keys.forEach(k=>localStorage.removeItem(k));
+        }catch(e){}
+        notesEl.value = "";
+        setUnsaved();
+        alert("Daten gelöscht.");
+      });
+    })();
+  </script>
+
+  <script>
+    (function(){
+      const t = Date.now();
+      document.querySelectorAll('a[data-internal]').forEach(a=>{
+        try{
+          const u = new URL(a.getAttribute('href'), location.href);
+          u.searchParams.set('nocache', t);
+          a.href = u.pathname + u.search + u.hash;
+        }catch(e){}
+      });
+    })();
+  </script>
+</body>
+</html>
