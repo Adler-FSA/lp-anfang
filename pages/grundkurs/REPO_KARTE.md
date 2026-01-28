@@ -839,7 +839,13 @@
     │   │   ├── kapitel-36.html
     │   │   ├── kapitel-37.html
     │   │   ├── kapitel-38.html
-    │   │   └── kapitel-39.html
+    │   │   ├── kapitel-39.html
+    │   │   ├── kapitel-40.html
+    │   │   ├── kapitel-41.html
+    │   │   ├── kapitel-42.html
+    │   │   ├── kapitel-43.html
+    │   │   ├── kapitel-44.html
+    │   │   └── kapitel-45.htmL
     │   ├── wefi/
     │   │   ├── deobank-quellen.html
     │   │   ├── wefi-aufklaerung.html
@@ -904,4 +910,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.01.2026, 18:30)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.01.2026, 20:23)_
