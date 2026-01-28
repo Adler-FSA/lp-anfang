@@ -1,0 +1,1238 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kapitel 35 – Bonus 02: Verdienst-Rechner (Paid-only)</title>
+
+  <style>
+    :root{
+      --bg:#050814;
+      --bg2:#020617;
+
+      --gold:#d4af37;
+      --gold2:#f1d27a;
+
+      --txt:#e9e9e9;
+      --muted:#cbd5e1;
+
+      --panel:rgba(15,23,42,.82);
+      --panel2:rgba(15,23,42,.70);
+
+      --shadow:0 26px 50px rgba(0,0,0,.55);
+      --glow:0 0 22px rgba(212,175,55,.55), 0 10px 28px rgba(0,0,0,.55);
+
+      --radius:18px;
+      --maxw:1100px;
+
+      --line:rgba(212,175,55,.16);
+      --soft:rgba(212,175,55,.14);
+      --chip:rgba(0,0,0,.40);
+    }
+
+    html,body{
+      margin:0;
+      background:transparent;
+      color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      overflow-x:hidden;
+
+      /* Text-Sicherheit (Pflicht) */
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+
+    .bg-fixed{
+      position:fixed; inset:0;
+      background:
+        radial-gradient(1200px 700px at 22% 10%, rgba(212,175,55,.22), transparent 60%),
+        radial-gradient(1000px 700px at 78% 32%, rgba(94,168,255,.14), transparent 60%),
+        linear-gradient(180deg, var(--bg) 0%, #000 62%, var(--bg2) 100%);
+      z-index:-2;
+    }
+    .bg-grid{
+      position:fixed; inset:0;
+      background-image:
+        linear-gradient(rgba(212,175,55,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212,175,55,.06) 1px, transparent 1px);
+      background-size:44px 44px;
+      mask-image: radial-gradient(70% 55% at 50% 20%, #000 55%, transparent 100%);
+      opacity:.35;
+      z-index:-1;
+      pointer-events:none;
+    }
+
+    .wrap{
+      max-width:var(--maxw);
+      margin:0 auto;
+      padding:34px 18px 60px;
+    }
+
+    /* Header / Topbar (Kapitel-34-Look) */
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+    .brand{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      color:var(--txt);
+      text-decoration:none;
+      font-weight:900;
+      letter-spacing:.2px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.35);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+    }
+    .brand:hover{
+      box-shadow:0 0 0 1px rgba(212,175,55,.35) inset, var(--glow);
+    }
+
+    .kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.35);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+    .dot{
+      width:10px; height:10px;
+      border-radius:999px;
+      background:rgba(212,175,55,.9);
+      box-shadow:0 0 0 3px rgba(212,175,55,.18);
+      flex:0 0 auto;
+    }
+
+    h1{
+      margin:16px 0 8px;
+      font-size:34px;
+      line-height:1.12;
+      letter-spacing:.2px;
+    }
+    .sub{
+      margin:0 0 14px;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+    }
+
+    .line{
+      height:2px;
+      width:100%;
+      background:linear-gradient(90deg, rgba(212,175,55,.0), rgba(212,175,55,.55), rgba(212,175,55,.0));
+      border-radius:999px;
+      margin:14px 0 18px;
+    }
+
+    section.panel{
+      background:var(--panel);
+      border-radius:var(--radius);
+      padding:18px 16px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(212,175,55,.18);
+      position:relative;
+      overflow:hidden;
+    }
+    section.panel::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:radial-gradient(900px 320px at 18% 8%, rgba(212,175,55,.16), transparent 55%);
+      pointer-events:none;
+      opacity:.9;
+    }
+
+    .hr{
+      height:1px;
+      background:rgba(212,175,55,.14);
+      margin:18px 0;
+    }
+
+    /* ===== Rechner ===== */
+
+    .topline{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+      position:relative;
+      z-index:1;
+    }
+
+    .crumb{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.55);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      text-decoration:none;
+      color:var(--txt);
+    }
+    .crumb:hover{
+      box-shadow:0 0 0 1px rgba(212,175,55,.35) inset, var(--glow);
+    }
+
+    .hero{
+      background:linear-gradient(180deg, rgba(0,0,0,.60), rgba(0,0,0,.38));
+      border-radius:var(--radius);
+      padding:22px 20px;
+      box-shadow:0 16px 34px rgba(0,0,0,.45);
+      border:1px solid rgba(212,175,55,.16);
+      position:relative;
+      overflow:hidden;
+      z-index:1;
+    }
+    .hero::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:radial-gradient(900px 320px at 20% 10%, rgba(212,175,55,.18), transparent 55%);
+      pointer-events:none;
+    }
+
+    .h1{
+      margin:0 0 10px;
+      font-size:28px;
+      letter-spacing:.2px;
+      position:relative;
+    }
+    .sub2{
+      margin:0 0 12px;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+      position:relative;
+    }
+
+    .pillrow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:10px;
+      position:relative;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.40);
+      box-shadow:0 0 0 1px rgba(212,175,55,.14) inset;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .pill strong{ color:var(--txt); }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:14px;
+      margin-top:16px;
+      position:relative;
+      z-index:1;
+    }
+
+    .card{
+      grid-column:span 12;
+      background:rgba(0,0,0,.40);
+      border-radius:var(--radius);
+      padding:18px 16px;
+      box-shadow:0 16px 34px rgba(0,0,0,.45);
+      border:1px solid rgba(212,175,55,.14);
+      opacity:0;
+      transform:translateY(10px);
+      animation:fadeIn .55s ease forwards;
+    }
+    .card:nth-child(1){ animation-delay:.06s; }
+    .card:nth-child(2){ animation-delay:.12s; }
+    .card:nth-child(3){ animation-delay:.18s; }
+    .card:nth-child(4){ animation-delay:.24s; }
+
+    @keyframes fadeIn{ to{ opacity:1; transform:translateY(0); } }
+
+    .card h2{
+      margin:0 0 10px;
+      font-size:18px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .card p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+    }
+
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:12px;
+      align-items:center;
+    }
+
+    .btn{
+      border:0;
+      cursor:pointer;
+      border-radius:14px;
+      padding:10px 12px;
+      color:var(--txt);
+      background:rgba(212,175,55,.18);
+      box-shadow:0 0 0 1px rgba(212,175,55,.24) inset;
+      font-weight:900;
+    }
+    .btn:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.42) inset, var(--glow); }
+    .btn.secondary{
+      background:rgba(0,0,0,.35);
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      font-weight:800;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1.2fr 1fr 1fr 1fr;
+      gap:10px;
+      align-items:end;
+      margin-top:12px;
+    }
+
+    .field{
+      display:grid;
+      gap:6px;
+      min-width:0;
+    }
+    .label{
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.02em;
+    }
+    .input{
+      width:100%;
+      box-sizing:border-box;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.16);
+      background:rgba(0,0,0,.32);
+      color:var(--txt);
+      outline:none;
+
+      /* Text-Sicherheit */
+      min-width:0;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+    .input:focus{
+      border-color:rgba(212,175,55,.35);
+      box-shadow:0 0 0 3px rgba(212,175,55,.10);
+    }
+    .hint{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+      max-width:95ch;
+      white-space:pre-wrap;
+    }
+
+    .table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      margin-top:12px;
+      overflow:hidden;
+      border-radius:16px;
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      background:rgba(0,0,0,.25);
+      table-layout:fixed;
+    }
+    .table th, .table td{
+      padding:10px 10px;
+      border-bottom:1px solid rgba(212,175,55,.10);
+      vertical-align:middle;
+      text-align:left;
+
+      /* Text-Sicherheit */
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+    .table th{
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      background:rgba(212,175,55,.06);
+    }
+    .table tr:last-child td{ border-bottom:0; }
+
+    .prodname{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:900;
+      min-width:0;
+    }
+
+    .chip{
+      display:inline-flex; align-items:center; justify-content:center;
+      min-width:28px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(212,175,55,.10);
+      box-shadow:0 0 0 1px rgba(212,175,55,.14) inset;
+      color:var(--txt);
+      font-weight:900;
+      font-size:12px;
+      flex:0 0 auto;
+    }
+
+    .num{
+      width:90px;
+      max-width:100%;
+    }
+
+    .money{
+      font-weight:900;
+      letter-spacing:.01em;
+    }
+    .money.big{
+      font-size:26px;
+    }
+
+    .split{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+      margin-top:12px;
+    }
+    .kpi{
+      border-radius:16px;
+      background:rgba(0,0,0,.32);
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      padding:14px 14px;
+      min-width:0;
+    }
+    .kpi .t{ color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+    .kpi .v{ margin-top:6px; font-weight:900; font-size:22px; white-space:pre-wrap; }
+
+    .examples{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+    details{
+      border-radius:16px;
+      background:rgba(0,0,0,.28);
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      padding:12px 12px;
+    }
+    summary{
+      cursor:pointer;
+      list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:900;
+      min-width:0;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    .exbody{
+      margin-top:10px;
+      color:var(--muted);
+      line-height:1.55;
+      font-size:14px;
+      white-space:pre-wrap;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+
+    /* Notizen (Kapitel-Setup) */
+    .noteRow{
+      margin-top:12px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    #saveHint{
+      color:var(--muted);
+      font-size:13px;
+    }
+    textarea#notes{
+      width:100%;
+      box-sizing:border-box;
+      min-height:200px;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.16);
+      background:rgba(0,0,0,.22);
+      color:var(--txt);
+      outline:none;
+
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+    textarea#notes:focus{
+      border-color:rgba(212,175,55,.35);
+      box-shadow:0 0 0 3px rgba(212,175,55,.10);
+    }
+
+    /* FooterNav (Pflicht) – MASTER-LOOK */
+    .footerNav{
+      margin-top:18px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      position:relative;
+      z-index:1;
+    }
+    .footerNav .left,.footerNav .mid,.footerNav .right{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    a.navBtn, button.navBtn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      text-decoration:none;
+      cursor:pointer;
+      border:0;
+      color:var(--txt);
+      background:rgba(0,0,0,.22);
+      box-shadow:0 0 0 1px rgba(212,175,55,.22) inset;
+      font-weight:900;
+    }
+    a.navBtn:hover, button.navBtn:hover{
+      box-shadow:0 0 0 1px rgba(212,175,55,.35) inset, var(--glow);
+    }
+
+    a.navBtnPrimary, button.navBtnPrimary{
+      background:linear-gradient(180deg, rgba(212,175,55,.98), rgba(241,210,122,.92));
+      color:#0b0b0b;
+      box-shadow:
+        0 12px 26px rgba(212,175,55,.18),
+        0 0 0 1px rgba(212,175,55,.55) inset;
+    }
+    a.navBtnPrimary:hover, button.navBtnPrimary:hover{
+      filter:brightness(1.04);
+      box-shadow:
+        0 14px 30px rgba(212,175,55,.22),
+        0 0 0 1px rgba(212,175,55,.70) inset,
+        var(--glow);
+    }
+
+    @media (min-width: 900px){
+      .h1{ font-size:34px; }
+      .split{ grid-template-columns: 1fr 1fr 1fr; }
+      .row{ grid-template-columns: 1.2fr 1fr 1fr 1fr; }
+      .num{ width:110px; }
+    }
+
+    /* Print-Regeln (Kapitel-34-Standard) */
+    @page{ margin:14mm; }
+    @media print{
+      *{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+      .bg-fixed,.bg-grid{ display:none !important; }
+      body{ background:#fff !important; color:#000 !important; }
+      .brand,.kicker,.line{ box-shadow:none !important; }
+      section.panel{
+        background:#fff !important;
+        border:1px solid #000 !important;
+        box-shadow:none !important;
+      }
+      section.panel::before{ display:none !important; }
+
+      /* SVG-Icons im Print sicher sichtbar */
+      svg, svg *{ vector-effect: non-scaling-stroke; }
+      svg path, svg line, svg polyline, svg polygon, svg circle, svg rect{
+        stroke:#000 !important;
+      }
+
+      .footerNav{ display:none !important; }
+      .noteRow{ display:none !important; }
+
+      /* FIX: Cards dürfen im Print NICHT hidden bleiben */
+      .card{
+        opacity:1 !important;
+        transform:none !important;
+        animation:none !important;
+      }
+
+      .card,.hero{
+        background:#fff !important;
+        border:1px solid #000 !important;
+        box-shadow:none !important;
+      }
+      .table{
+        background:#fff !important;
+        box-shadow:none !important;
+        border:1px solid #000 !important;
+      }
+      .table th{
+        background:#f3f3f3 !important;
+        color:#000 !important;
+      }
+
+      .input,textarea#notes{
+        background:#fff !important;
+        color:#000 !important;
+        border:1px solid #000 !important;
+        box-shadow:none !important;
+      }
+      details{
+        background:#fff !important;
+        border:1px solid #000 !important;
+        box-shadow:none !important;
+      }
+
+      /* Tabellen: Zeilen möglichst zusammenhalten */
+      tr, td, th { page-break-inside: avoid; }
+    }
+  </style>
+
+  <!-- Handbuch-Pfad -->
+  <script defer src="../js/menu.js"></script>
+</head>
+
+<body>
+  <div class="bg-fixed" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="topbar">
+      <a class="brand" href="./index.html" data-internal>
+        <span aria-hidden="true" style="display:inline-grid;place-items:center;width:18px;height:18px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 2l8 4v6c0 5-3.4 9.4-8 10-4.6-.6-8-5-8-10V6l8-4z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span>FSA Vertriebshandbuch</span>
+      </a>
+
+      <div class="kicker">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Bonus 02 • Rechner</span>
+      </div>
+    </div>
+
+    <h1>Kapitel 35 – Bonus 02: Verdienst-Rechner (Paid-only)</h1>
+    <p class="sub">Beispielrechnung: Umsatz (bezahlt) + Provision (L1/L2/L3) aus Mitgliedschaften und Zusatzprodukten.</p>
+
+    <div class="line" aria-hidden="true"></div>
+
+    <section class="panel">
+
+      <div class="topline">
+        <a class="crumb" href="./index.html" data-internal aria-label="Zurück zum Inhaltsverzeichnis">
+          <span aria-hidden="true" style="display:inline-grid;place-items:center;width:18px;height:18px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M15 18l-6-6 6-6" stroke="rgba(212,175,55,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span>← Inhaltsverzeichnis</span>
+        </a>
+      </div>
+
+      <section class="hero" aria-label="Verdienst-Rechner Hero">
+        <h2 class="h1">Verdienst-Rechner – bezahlt (ohne Raten)</h2>
+        <p class="sub2">
+          Dieser Rechner ist bewusst nüchtern: Er rechnet Provision nur auf tatsächlich bezahlte Mitgliedschaften und bezahlte Zusatzprodukte.
+          Inhalte (Buch/Kurse) gelten im Club als freigeschaltet und werden hier nicht als separater „Verkauf“ geführt.
+        </p>
+
+        <div class="pillrow">
+          <div class="pill">
+            <span aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 2l8 4v6c0 5-3.4 9.4-8 10-4.6-.6-8-5-8-10V6l8-4z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span><strong>Standard:</strong> L1 20% / L2 15% / L3 10% (editierbar)</span>
+          </div>
+          <div class="pill">
+            <span aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 7h16M4 12h16M4 17h16" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span>Mitgliedschaften + Zusatzprodukte (bezahlt) → Provision</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+
+        <!-- CARD 1 -->
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M21 16V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" stroke="rgba(212,175,55,.95)" stroke-width="2"/>
+                <path d="M7 10h10M7 14h6" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span>Provision & Mitgliedschaften</span>
+          </h2>
+
+          <p>Trage die Basiswerte ein: Club-Preis, Provisionen (L1/L2/L3) und Anzahl bezahlter Mitgliedschaften je Ebene.</p>
+
+          <div class="controls">
+            <button class="btn secondary" id="btnReset" type="button">Zurücksetzen</button>
+            <button class="btn" id="btnCalc" type="button">Jetzt berechnen</button>
+          </div>
+
+          <div class="row" style="margin-top:14px;">
+            <div class="field">
+              <div class="label">Club-Preis (€/Jahr, bezahlt)</div>
+              <input class="input" id="clubPrice" type="number" step="0.01" min="0" value="60" />
+            </div>
+
+            <div class="field">
+              <div class="label">Provision L1 (in %)</div>
+              <input class="input" id="rate1" type="number" step="0.01" min="0" value="20" />
+            </div>
+
+            <div class="field">
+              <div class="label">Provision L2 (in %)</div>
+              <input class="input" id="rate2" type="number" step="0.01" min="0" value="15" />
+            </div>
+
+            <div class="field">
+              <div class="label">Provision L3 (in %)</div>
+              <input class="input" id="rate3" type="number" step="0.01" min="0" value="10" />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:14px;">
+            <div class="field">
+              <div class="label">Zahlende Mitgliedschaften L1</div>
+              <input class="input" id="m1" type="number" step="1" min="0" value="20" />
+            </div>
+            <div class="field">
+              <div class="label">Zahlende Mitgliedschaften L2</div>
+              <input class="input" id="m2" type="number" step="1" min="0" value="0" />
+            </div>
+            <div class="field">
+              <div class="label">Zahlende Mitgliedschaften L3</div>
+              <input class="input" id="m3" type="number" step="1" min="0" value="0" />
+            </div>
+            <div class="field">
+              <div class="label">Hinweis</div>
+              <div class="hint">Nur Beispielrechnung. Keine Abrechnung, keine Steuer-/Rechtsberatung.</div>
+            </div>
+          </div>
+
+          <p class="hint">Tipp: Wenn du später andere Produkte ergänzen willst, bleibt die Logik gleich: Umsatz (bezahlt) × Provision je Ebene.</p>
+        </article>
+
+        <!-- CARD 2 -->
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 7h16M4 12h16M4 17h16" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span>Zusatzprodukte (bezahlt)</span>
+          </h2>
+
+          <p>Trage die bezahlten Zusatzkäufe je Ebene ein. Preise sind frei anpassbar (Ø-Werte möglich).</p>
+
+          <table class="table" aria-label="Zusatzprodukte">
+            <thead>
+              <tr>
+                <th>Produkt</th>
+                <th>Preis (€)</th>
+                <th>L1 Menge</th>
+                <th>L2 Menge</th>
+                <th>L3 Menge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="prodname"><span class="chip">A1</span><span>Leadmaschine (Add-on)</span></div>
+                </td>
+                <td><input class="input" id="pLeadPrice" type="number" step="0.01" min="0" value="60"></td>
+                <td><input class="input num" id="pLeadL1" type="number" step="1" min="0" value="0"></td>
+                <td><input class="input num" id="pLeadL2" type="number" step="1" min="0" value="0"></td>
+                <td><input class="input num" id="pLeadL3" type="number" step="1" min="0" value="0"></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="prodname"><span class="chip">A2</span><span>Event-Tickets (Ø)</span></div>
+                </td>
+                <td><input class="input" id="pEventPrice" type="number" step="0.01" min="0" value="199"></td>
+                <td><input class="input num" id="pEventL1" type="number" step="1" min="0" value="0"></td>
+                <td><input class="input num" id="pEventL2" type="number" step="1" min="0" value="0"></td>
+                <td><input class="input num" id="pEventL3" type="number" step="1" min="0" value="0"></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="prodname"><span class="chip">A3</span><span>Weekend-Setup (Workshop)</span></div>
+                </td>
+                <td><input class="input" id="pWeekendPrice" type="number" step="0.01" min="0" value="499"></td>
+                <td><input class="input num" id="pWeekendL1" type="number" step="1" min="0" value="0"></td>
+                <td><input class="input num" id="pWeekendL2" type="number" step="1" min="0" value="0"></td>
+                <td><input class="input num" id="pWeekendL3" type="number" step="1" min="0" value="0"></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="prodname"><span class="chip">A4</span><span>Hörsaal-Lizenz (Jahr)</span></div>
+                </td>
+                <td><input class="input" id="pLicensePrice" type="number" step="0.01" min="0" value="4900"></td>
+                <td><input class="input num" id="pLicenseL1" type="number" step="1" min="0" value="0"></td>
+                <td><input class="input num" id="pLicenseL2" type="number" step="1" min="0" value="0"></td>
+                <td><input class="input num" id="pLicenseL3" type="number" step="1" min="0" value="0"></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p class="hint">„Menge“ = Anzahl bezahlter Käufe je Ebene. Inhalte (Buch/Kurse) sind hier bewusst nicht enthalten.</p>
+        </article>
+
+        <!-- CARD 3 -->
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 19V5" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M4 19h16" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M7 15l4-4 3 3 5-6" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span>Ergebnis (Umsatz & Provision)</span>
+          </h2>
+
+          <p>Gesamtumsatz (bezahlt) + deine Provision (L1/L2/L3). In den Boxen steht jeweils auch die Umsatz-Aufteilung.</p>
+
+          <div class="split">
+            <div class="kpi">
+              <div class="t">Gesamtumsatz (bezahlt)</div>
+              <div class="v money big" id="outRevenue">0,00 €</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Deine Gesamtprovision</div>
+              <div class="v money big" id="outCommission">0,00 €</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Teamanteil (L2 + L3)</div>
+              <div class="v money" id="outTeam">0,00 €</div>
+            </div>
+          </div>
+
+          <div class="split" style="margin-top:12px;">
+            <div class="kpi">
+              <div class="t">L1 Provision</div>
+              <div class="v money" id="outL1">0,00 €</div>
+              <div class="v" style="font-size:13px;font-weight:700;color:var(--muted);" id="outL1n">—</div>
+            </div>
+            <div class="kpi">
+              <div class="t">L2 Provision</div>
+              <div class="v money" id="outL2">0,00 €</div>
+              <div class="v" style="font-size:13px;font-weight:700;color:var(--muted);" id="outL2n">—</div>
+            </div>
+            <div class="kpi">
+              <div class="t">L3 Provision</div>
+              <div class="v money" id="outL3">0,00 €</div>
+              <div class="v" style="font-size:13px;font-weight:700;color:var(--muted);" id="outL3n">—</div>
+            </div>
+          </div>
+
+          <p class="hint" id="outHint">Berechnung aktiv (live). Werte werden lokal gespeichert.</p>
+        </article>
+
+        <!-- CARD 4 -->
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 12h16" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 4v16" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span>6 Beispiele (Soll-Zahlen) – als Orientierung</span>
+          </h2>
+
+          <p>Diese Beispiele sind bewusst simpel. Du kannst sie öffnen, verstehen und im Print mit ausdrucken.</p>
+
+          <div class="examples">
+            <details>
+              <summary><span>Beispiel 1: Fokus Club (klein)</span><span class="chip">öffnen</span></summary>
+              <div class="exbody">L1: 25 Mitgliedschaften à 60 €
+L2: 0 | L3: 0
+Zusatz: keine
+→ Umsatz: 1.500 €
+→ Provision (bei 20%): 300 €</div>
+            </details>
+
+            <details>
+              <summary><span>Beispiel 2: Club + Add-on</span><span class="chip">öffnen</span></summary>
+              <div class="exbody">L1: 40 Mitgliedschaften à 60 €
+Zusatz L1: 10× Leadmaschine à 60 €
+→ Umsatz: 2.400 € + 600 € = 3.000 €
+→ Provision L1 (bei 20%): 600 €</div>
+            </details>
+
+            <details>
+              <summary><span>Beispiel 3: Teamaufbau (L2)</span><span class="chip">öffnen</span></summary>
+              <div class="exbody">L1: 30 Mitgliedschaften à 60 €
+L2: 60 Mitgliedschaften à 60 €
+Zusatz: keine
+→ Umsatz: L1 1.800 € | L2 3.600 €
+→ Provision: L1 20% = 360 € | L2 15% = 540 €
+→ Gesamt: 900 €</div>
+            </details>
+
+            <details>
+              <summary><span>Beispiel 4: Tickets als Hebel</span><span class="chip">öffnen</span></summary>
+              <div class="exbody">L1: 20 Mitgliedschaften à 60 €
+Zusatz L1: 6× Event-Ticket à 199 €
+→ Umsatz: 1.200 € + 1.194 € = 2.394 €
+→ Provision L1 (20%): 478,80 €</div>
+            </details>
+
+            <details>
+              <summary><span>Beispiel 5: Weekend + Team (L2/L3)</span><span class="chip">öffnen</span></summary>
+              <div class="exbody">L1: 15 Mitgliedschaften à 60 €
+L2: 40 Mitgliedschaften à 60 €
+L3: 80 Mitgliedschaften à 60 €
+Zusatz L1: 2× Weekend à 499 €
+→ Umsatz:
+L1 = 900 € + 998 € = 1.898 €
+L2 = 2.400 €
+L3 = 4.800 €
+→ Provision (20/15/10):
+L1 = 379,60 € | L2 = 360,00 € | L3 = 480,00 €
+→ Gesamt: 1.219,60 €</div>
+            </details>
+
+            <details>
+              <summary><span>Beispiel 6: Lizenzverkauf als Sprung</span><span class="chip">öffnen</span></summary>
+              <div class="exbody">L1: 20 Mitgliedschaften à 60 €
+Zusatz L1: 1× Hörsaal-Lizenz à 4.900 €
+→ Umsatz: 1.200 € + 4.900 € = 6.100 €
+→ Provision L1 (20%): 1.220 €</div>
+            </details>
+          </div>
+
+          <p class="hint">Hinweis: Das sind Rechenbeispiele. Passe Preise und Mengen so an, dass sie zu deinem realen Modell passen.</p>
+        </article>
+
+      </section>
+
+      <div class="hr" aria-hidden="true"></div>
+
+      <!-- Notizen & Antworten (Pflicht) -->
+      <h2 style="position:relative;z-index:1;margin:0 0 10px;">Notizen &amp; Antworten</h2>
+      <p class="hint" style="position:relative;z-index:1;margin-top:0;">
+        Alles, was du hier einträgst, bleibt nur auf deinem Gerät (LocalStorage).
+      </p>
+
+      <textarea id="notes" placeholder="Deine Notizen zu diesem Bonus-Kapitel …" aria-label="Notizen"></textarea>
+
+      <div class="noteRow">
+        <div id="saveHint">Bereit.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn secondary" id="clearChapter" type="button">Kapitel-Notizen löschen</button>
+          <button class="btn secondary" id="clearAll" type="button">Alle Handbuch-Daten löschen</button>
+        </div>
+      </div>
+
+      <!-- Footer Navigation (Pflicht, Screen-only) -->
+      <div class="footerNav" aria-label="Footer Navigation">
+        <div class="left">
+          <a class="navBtn" href="./index.html" data-internal>← Inhaltsverzeichnis</a>
+        </div>
+        <div class="mid">
+          <a class="navBtn" href="./kapitel-34.html" data-internal>← Zurück</a>
+          <a class="navBtn navBtnPrimary" href="./kapitel-36.html" data-internal>Nächstes →</a>
+        </div>
+        <div class="right">
+          <button class="navBtn navBtnPrimary" id="printBtn" type="button">Drucken</button>
+        </div>
+      </div>
+
+    </section>
+  </div>
+
+  <script>
+    (function(){
+      // ----------------- constants (Handbuch) -----------------
+      const KAP = "35";
+      const PREFIX = "fsa_vh_";
+      const KEY_NOTES  = PREFIX + "kap" + KAP + "_notes";
+      const KEY_FIELDS = PREFIX + "kap" + KAP + "_fields";
+      const SAVE_HINT = document.getElementById("saveHint");
+
+      // nocache for internal links
+      function applyNoCache(){
+        const ts = Date.now();
+        document.querySelectorAll('a[data-internal]').forEach(a=>{
+          try{
+            const href = a.getAttribute("href") || "";
+            if(!href) return;
+            if(href.startsWith("http") || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
+
+            const u = new URL(href, location.href);
+            u.searchParams.set("nocache", String(ts));
+            a.setAttribute("href", u.pathname.replace(location.origin, "") + "?" + u.searchParams.toString());
+          }catch(e){}
+        });
+      }
+
+      // ----------------- calculator -----------------
+      const FIELD_IDS = [
+        "clubPrice","rate1","rate2","rate3","m1","m2","m3",
+        "pLeadPrice","pLeadL1","pLeadL2","pLeadL3",
+        "pEventPrice","pEventL1","pEventL2","pEventL3",
+        "pWeekendPrice","pWeekendL1","pWeekendL2","pWeekendL3",
+        "pLicensePrice","pLicenseL1","pLicenseL2","pLicenseL3"
+      ];
+
+      function n(id){
+        const el = document.getElementById(id);
+        if(!el) return 0;
+        const v = parseFloat(String(el.value || "0").replace(",", "."));
+        if(Number.isFinite(v) && v >= 0) return v;
+        return 0;
+      }
+      function i(id){
+        const el = document.getElementById(id);
+        if(!el) return 0;
+        const v = parseInt(String(el.value || "0"), 10);
+        if(Number.isFinite(v) && v >= 0) return v;
+        return 0;
+      }
+
+      function fmtEUR(x){
+        const v = (Number.isFinite(x) ? x : 0);
+        return v.toLocaleString("de-DE", {
+          style:"currency",
+          currency:"EUR",
+          minimumFractionDigits:2,
+          maximumFractionDigits:2
+        });
+      }
+
+      function calc(){
+        const clubPrice = n("clubPrice");
+        const r1 = n("rate1") / 100;
+        const r2 = n("rate2") / 100;
+        const r3 = n("rate3") / 100;
+
+        const m1 = i("m1"), m2 = i("m2"), m3 = i("m3");
+
+        // Membership revenue per level
+        const revM1 = m1 * clubPrice;
+        const revM2 = m2 * clubPrice;
+        const revM3 = m3 * clubPrice;
+
+        // Add-ons revenue per level
+        const pLeadPrice = n("pLeadPrice");
+        const pEventPrice = n("pEventPrice");
+        const pWeekendPrice = n("pWeekendPrice");
+        const pLicensePrice = n("pLicensePrice");
+
+        const revA1 =
+          (pLeadPrice * i("pLeadL1")) +
+          (pEventPrice * i("pEventL1")) +
+          (pWeekendPrice * i("pWeekendL1")) +
+          (pLicensePrice * i("pLicenseL1"));
+
+        const revA2 =
+          (pLeadPrice * i("pLeadL2")) +
+          (pEventPrice * i("pEventL2")) +
+          (pWeekendPrice * i("pWeekendL2")) +
+          (pLicensePrice * i("pLicenseL2"));
+
+        const revA3 =
+          (pLeadPrice * i("pLeadL3")) +
+          (pEventPrice * i("pEventL3")) +
+          (pWeekendPrice * i("pWeekendL3")) +
+          (pLicensePrice * i("pLicenseL3"));
+
+        const rev1 = revM1 + revA1;
+        const rev2 = revM2 + revA2;
+        const rev3 = revM3 + revA3;
+
+        const com1 = rev1 * r1;
+        const com2 = rev2 * r2;
+        const com3 = rev3 * r3;
+
+        const totalRev = rev1 + rev2 + rev3;
+        const totalCom = com1 + com2 + com3;
+
+        const team = com2 + com3;
+
+        document.getElementById("outRevenue").textContent = fmtEUR(totalRev);
+        document.getElementById("outCommission").textContent = fmtEUR(totalCom);
+        document.getElementById("outTeam").textContent = fmtEUR(team);
+
+        document.getElementById("outL1").textContent = fmtEUR(com1);
+        document.getElementById("outL2").textContent = fmtEUR(com2);
+        document.getElementById("outL3").textContent = fmtEUR(com3);
+
+        document.getElementById("outL1n").textContent =
+          "Umsatz L1: " + fmtEUR(rev1) + "\nMitgliedschaften: " + fmtEUR(revM1) + " | Zusatzprodukte: " + fmtEUR(revA1);
+
+        document.getElementById("outL2n").textContent =
+          "Umsatz L2: " + fmtEUR(rev2) + "\nMitgliedschaften: " + fmtEUR(revM2) + " | Zusatzprodukte: " + fmtEUR(revA2);
+
+        document.getElementById("outL3n").textContent =
+          "Umsatz L3: " + fmtEUR(rev3) + "\nMitgliedschaften: " + fmtEUR(revM3) + " | Zusatzprodukte: " + fmtEUR(revA3);
+
+        document.getElementById("outHint").textContent = "Berechnung aktiv (live). Werte werden lokal gespeichert.";
+      }
+
+      function resetAll(){
+        const defaults = {
+          clubPrice:"60", rate1:"20", rate2:"15", rate3:"10",
+          m1:"20", m2:"0", m3:"0",
+          pLeadPrice:"60", pLeadL1:"0", pLeadL2:"0", pLeadL3:"0",
+          pEventPrice:"199", pEventL1:"0", pEventL2:"0", pEventL3:"0",
+          pWeekendPrice:"499", pWeekendL1:"0", pWeekendL2:"0", pWeekendL3:"0",
+          pLicensePrice:"4900", pLicenseL1:"0", pLicenseL2:"0", pLicenseL3:"0"
+        };
+        Object.keys(defaults).forEach(id=>{
+          const el = document.getElementById(id);
+          if(el) el.value = defaults[id];
+        });
+        calc();
+        saveNow();
+      }
+
+      document.getElementById("btnCalc").addEventListener("click", ()=>{ calc(); saveNow(); });
+      document.getElementById("btnReset").addEventListener("click", resetAll);
+
+      // live recalc on input changes (quiet)
+      FIELD_IDS.forEach(id=>{
+        const el = document.getElementById(id);
+        if(el){
+          el.addEventListener("input", ()=>{ calc(); scheduleSave(); });
+          el.addEventListener("change", ()=>{ calc(); scheduleSave(); });
+        }
+      });
+
+      // ----------------- LocalStorage (Kapitel-Setup) -----------------
+      function setHint(msg){
+        if(!SAVE_HINT) return;
+        SAVE_HINT.textContent = msg;
+      }
+
+      function readFields(){
+        const data = {};
+        FIELD_IDS.forEach(id=>{
+          const el = document.getElementById(id);
+          if(!el) return;
+          data[id] = el.value;
+        });
+        return data;
+      }
+
+      function writeFields(data){
+        if(!data || typeof data !== "object") return;
+        FIELD_IDS.forEach(id=>{
+          const el = document.getElementById(id);
+          if(!el) return;
+          if(data[id] === undefined) return;
+          el.value = String(data[id]);
+        });
+      }
+
+      function restore(){
+        try{
+          const notes = localStorage.getItem(KEY_NOTES);
+          if(notes !== null) document.getElementById("notes").value = notes;
+
+          const raw = localStorage.getItem(KEY_FIELDS);
+          if(raw){
+            const obj = JSON.parse(raw);
+            writeFields(obj);
+          }
+        }catch(e){}
+        calc();
+      }
+
+      function saveNow(){
+        try{
+          localStorage.setItem(KEY_NOTES, document.getElementById("notes").value || "");
+          localStorage.setItem(KEY_FIELDS, JSON.stringify(readFields()));
+          setHint("Gespeichert.");
+        }catch(e){
+          setHint("Speichern fehlgeschlagen.");
+        }
+      }
+
+      let t = null;
+      function scheduleSave(){
+        setHint("Speichert…");
+        if(t) clearTimeout(t);
+        t = setTimeout(()=>{ saveNow(); t = null; }, 250);
+      }
+
+      document.getElementById("notes").addEventListener("input", scheduleSave);
+
+      document.getElementById("clearChapter").addEventListener("click", ()=>{
+        try{
+          localStorage.removeItem(KEY_NOTES);
+          localStorage.removeItem(KEY_FIELDS);
+        }catch(e){}
+        document.getElementById("notes").value = "";
+        resetAll();
+        setHint("Kapitel gelöscht.");
+      });
+
+      document.getElementById("clearAll").addEventListener("click", ()=>{
+        try{
+          const keys = [];
+          for(let i=0;i<localStorage.length;i++){
+            const k = localStorage.key(i);
+            if(k && k.startsWith(PREFIX)) keys.push(k);
+          }
+          keys.forEach(k=>localStorage.removeItem(k));
+        }catch(e){}
+        document.getElementById("notes").value = "";
+        resetAll();
+        setHint("Alle Handbuch-Daten gelöscht.");
+      });
+
+      // Print
+      document.getElementById("printBtn").addEventListener("click", ()=>window.print());
+
+      // init
+      applyNoCache();
+      restore();
+      setHint("Bereit.");
+    })();
+  </script>
+</body>
+</html>
