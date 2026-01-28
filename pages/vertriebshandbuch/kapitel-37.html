@@ -1,0 +1,1332 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kapitel 37 – Bonus 03: Sprecher-Honorar-Rechner (Live & Weekend)</title>
+
+  <style>
+    :root{
+      --bg:#050814;
+      --bg2:#020617;
+
+      --gold:#d4af37;
+      --gold2:#f1d27a;
+
+      --txt:#e9e9e9;
+      --muted:#cbd5e1;
+
+      --panel:rgba(15,23,42,.82);
+      --panel2:rgba(15,23,42,.70);
+
+      --shadow:0 26px 50px rgba(0,0,0,.55);
+      --glow:0 0 22px rgba(212,175,55,.55), 0 10px 28px rgba(0,0,0,.55);
+
+      --radius:18px;
+      --maxw:1100px;
+
+      --line:rgba(212,175,55,.16);
+      --soft:rgba(212,175,55,.14);
+      --chip:rgba(0,0,0,.40);
+    }
+
+    html,body{
+      margin:0;
+      background:transparent;
+      color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      overflow-x:hidden;
+
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+
+    .bg-fixed{
+      position:fixed; inset:0;
+      background:
+        radial-gradient(1200px 700px at 22% 10%, rgba(212,175,55,.22), transparent 60%),
+        radial-gradient(1000px 700px at 78% 32%, rgba(94,168,255,.14), transparent 60%),
+        linear-gradient(180deg, var(--bg) 0%, #000 62%, var(--bg2) 100%);
+      z-index:-2;
+    }
+    .bg-grid{
+      position:fixed; inset:0;
+      background-image:
+        linear-gradient(rgba(212,175,55,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212,175,55,.06) 1px, transparent 1px);
+      background-size:44px 44px;
+      mask-image: radial-gradient(70% 55% at 50% 20%, #000 55%, transparent 100%);
+      opacity:.35;
+      z-index:-1;
+      pointer-events:none;
+    }
+
+    .wrap{
+      max-width:var(--maxw);
+      margin:0 auto;
+      padding:34px 18px 60px;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+    .brand{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      color:var(--txt);
+      text-decoration:none;
+      font-weight:900;
+      letter-spacing:.2px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.35);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+    }
+    .brand:hover{
+      box-shadow:0 0 0 1px rgba(212,175,55,.35) inset, var(--glow);
+    }
+
+    .kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.35);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+    .dot{
+      width:10px; height:10px;
+      border-radius:999px;
+      background:rgba(212,175,55,.9);
+      box-shadow:0 0 0 3px rgba(212,175,55,.18);
+      flex:0 0 auto;
+    }
+
+    h1{
+      margin:16px 0 8px;
+      font-size:34px;
+      line-height:1.12;
+      letter-spacing:.2px;
+    }
+    .sub{
+      margin:0 0 14px;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+    }
+
+    .line{
+      height:2px;
+      width:100%;
+      background:linear-gradient(90deg, rgba(212,175,55,.0), rgba(212,175,55,.55), rgba(212,175,55,.0));
+      border-radius:999px;
+      margin:14px 0 18px;
+    }
+
+    section.panel{
+      background:var(--panel);
+      border-radius:var(--radius);
+      padding:18px 16px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(212,175,55,.18);
+      position:relative;
+      overflow:hidden;
+    }
+    section.panel::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:radial-gradient(900px 320px at 18% 8%, rgba(212,175,55,.16), transparent 55%);
+      pointer-events:none;
+      opacity:.9;
+    }
+
+    .hr{
+      height:1px;
+      background:rgba(212,175,55,.14);
+      margin:18px 0;
+    }
+
+    .topline{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+      position:relative;
+      z-index:1;
+    }
+
+    .crumb{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.55);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      text-decoration:none;
+      color:var(--txt);
+    }
+    .crumb:hover{
+      box-shadow:0 0 0 1px rgba(212,175,55,.35) inset, var(--glow);
+    }
+
+    .hero{
+      background:linear-gradient(180deg, rgba(0,0,0,.60), rgba(0,0,0,.38));
+      border-radius:var(--radius);
+      padding:22px 20px;
+      box-shadow:0 16px 34px rgba(0,0,0,.45);
+      border:1px solid rgba(212,175,55,.16);
+      position:relative;
+      overflow:hidden;
+      z-index:1;
+    }
+    .hero::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:radial-gradient(900px 320px at 20% 10%, rgba(212,175,55,.18), transparent 55%);
+      pointer-events:none;
+    }
+
+    .h1{
+      margin:0 0 10px;
+      font-size:28px;
+      letter-spacing:.2px;
+      position:relative;
+    }
+    .sub2{
+      margin:0 0 12px;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+      position:relative;
+    }
+
+    .pillrow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:10px;
+      position:relative;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.40);
+      box-shadow:0 0 0 1px rgba(212,175,55,.14) inset;
+      color:var(--muted);
+      font-size:13px;
+      white-space:nowrap;
+    }
+    .pill strong{ color:var(--txt); }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:14px;
+      margin-top:16px;
+      position:relative;
+      z-index:1;
+    }
+
+    .card{
+      grid-column:span 12;
+      background:rgba(0,0,0,.40);
+      border-radius:var(--radius);
+      padding:18px 16px;
+      box-shadow:0 16px 34px rgba(0,0,0,.45);
+      border:1px solid rgba(212,175,55,.14);
+      opacity:0;
+      transform:translateY(10px);
+      animation:fadeIn .55s ease forwards;
+      min-width:0;
+    }
+    .card:nth-child(1){ animation-delay:.06s; }
+    .card:nth-child(2){ animation-delay:.12s; }
+    .card:nth-child(3){ animation-delay:.18s; }
+    .card:nth-child(4){ animation-delay:.24s; }
+
+    @keyframes fadeIn{ to{ opacity:1; transform:translateY(0); } }
+
+    .card h2{
+      margin:0 0 10px;
+      font-size:18px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .card p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+    }
+
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:12px;
+      align-items:center;
+    }
+
+    .btn{
+      border:0;
+      cursor:pointer;
+      border-radius:14px;
+      padding:10px 12px;
+      color:var(--txt);
+      background:rgba(212,175,55,.18);
+      box-shadow:0 0 0 1px rgba(212,175,55,.24) inset;
+      font-weight:900;
+    }
+    .btn:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.42) inset, var(--glow); }
+    .btn.secondary{
+      background:rgba(0,0,0,.35);
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      font-weight:800;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap:10px;
+      align-items:end;
+      margin-top:12px;
+    }
+
+    .field{
+      display:grid;
+      gap:6px;
+      min-width:0;
+    }
+    .label{
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.02em;
+    }
+    .input, select.input{
+      width:100%;
+      box-sizing:border-box;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.16);
+      background:rgba(0,0,0,.32);
+      color:var(--txt);
+      outline:none;
+
+      min-width:0;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+    .input:focus{
+      border-color:rgba(212,175,55,.35);
+      box-shadow:0 0 0 3px rgba(212,175,55,.10);
+    }
+
+    .hint{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+      max-width:95ch;
+      white-space:pre-wrap;
+    }
+
+    .table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      margin-top:12px;
+      overflow:hidden;
+      border-radius:16px;
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      background:rgba(0,0,0,.25);
+      table-layout:fixed;
+    }
+    .table th, .table td{
+      padding:10px 10px;
+      border-bottom:1px solid rgba(212,175,55,.10);
+      vertical-align:middle;
+      text-align:left;
+
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+    .table th{
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      background:rgba(212,175,55,.06);
+    }
+    .table tr:last-child td{ border-bottom:0; }
+
+    .chip{
+      display:inline-flex; align-items:center; justify-content:center;
+      min-width:28px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(212,175,55,.10);
+      box-shadow:0 0 0 1px rgba(212,175,55,.14) inset;
+      color:var(--txt);
+      font-weight:900;
+      font-size:12px;
+      flex:0 0 auto;
+    }
+    .num{ width:90px; max-width:100%; }
+
+    .money{
+      font-weight:900;
+      letter-spacing:.01em;
+      white-space:nowrap;
+    }
+    .money.big{ font-size:26px; }
+
+    .split{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+      margin-top:12px;
+    }
+    .kpi{
+      border-radius:16px;
+      background:rgba(0,0,0,.32);
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      padding:14px 14px;
+      min-width:0;
+    }
+    .kpi .t{ color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+    .kpi .v{ margin-top:6px; font-weight:900; font-size:22px; white-space:pre-wrap; }
+    .kpi .n{ margin-top:8px; color:var(--muted); font-size:13px; line-height:1.55; white-space:pre-wrap; }
+
+    details{
+      border-radius:16px;
+      background:rgba(0,0,0,.28);
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      padding:12px 12px;
+      min-width:0;
+    }
+    summary{
+      cursor:pointer;
+      list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:900;
+      min-width:0;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    .exbody{
+      margin-top:10px;
+      color:var(--muted);
+      line-height:1.55;
+      font-size:14px;
+      white-space:pre-wrap;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+
+    .noteRow{
+      margin-top:12px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    #saveHint{
+      color:var(--muted);
+      font-size:13px;
+    }
+    textarea#notes{
+      width:100%;
+      box-sizing:border-box;
+      min-height:200px;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.16);
+      background:rgba(0,0,0,.22);
+      color:var(--txt);
+      outline:none;
+
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+    textarea#notes:focus{
+      border-color:rgba(212,175,55,.35);
+      box-shadow:0 0 0 3px rgba(212,175,55,.10);
+    }
+
+    .footerNav{
+      margin-top:18px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      position:relative;
+      z-index:1;
+    }
+    .footerNav .left,.footerNav .mid,.footerNav .right{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    a.navBtn, button.navBtn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      text-decoration:none;
+      cursor:pointer;
+      border:0;
+      color:var(--txt);
+      background:rgba(0,0,0,.22);
+      box-shadow:0 0 0 1px rgba(212,175,55,.22) inset;
+      font-weight:900;
+    }
+    a.navBtn:hover, button.navBtn:hover{
+      box-shadow:0 0 0 1px rgba(212,175,55,.35) inset, var(--glow);
+    }
+
+    a.navBtnPrimary, button.navBtnPrimary{
+      background:linear-gradient(180deg, rgba(212,175,55,.98), rgba(241,210,122,.92));
+      color:#0b0b0b;
+      box-shadow:
+        0 12px 26px rgba(212,175,55,.18),
+        0 0 0 1px rgba(212,175,55,.55) inset;
+    }
+    a.navBtnPrimary:hover, button.navBtnPrimary:hover{
+      filter:brightness(1.04);
+      box-shadow:
+        0 14px 30px rgba(212,175,55,.22),
+        0 0 0 1px rgba(212,175,55,.70) inset,
+        var(--glow);
+    }
+
+    @media (min-width: 900px){
+      .h1{ font-size:34px; }
+      .split{ grid-template-columns: 1fr 1fr 1fr; }
+      .num{ width:110px; }
+    }
+
+    @page{ margin:14mm; }
+    @media print{
+      *{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+      .bg-fixed,.bg-grid{ display:none !important; }
+      body{ background:#fff !important; color:#000 !important; }
+      .brand,.kicker,.line{ box-shadow:none !important; }
+      section.panel{
+        background:#fff !important;
+        border:1px solid #000 !important;
+        box-shadow:none !important;
+      }
+      section.panel::before{ display:none !important; }
+
+      svg, svg *{ vector-effect: non-scaling-stroke; }
+      svg path, svg line, svg polyline, svg polygon, svg circle, svg rect{
+        stroke:#000 !important;
+      }
+
+      .footerNav{ display:none !important; }
+      .noteRow{ display:none !important; }
+
+      /* FIX: Cards dürfen im Print NICHT hidden bleiben */
+      .card{
+        opacity:1 !important;
+        transform:none !important;
+        animation:none !important;
+      }
+
+      .card,.hero{
+        background:#fff !important;
+        border:1px solid #000 !important;
+        box-shadow:none !important;
+      }
+      .table{
+        background:#fff !important;
+        box-shadow:none !important;
+        border:1px solid #000 !important;
+      }
+      .table th{
+        background:#f3f3f3 !important;
+        color:#000 !important;
+      }
+
+      .input,textarea#notes, select.input{
+        background:#fff !important;
+        color:#000 !important;
+        border:1px solid #000 !important;
+        box-shadow:none !important;
+      }
+      details{
+        background:#fff !important;
+        border:1px solid #000 !important;
+        box-shadow:none !important;
+      }
+
+      tr, td, th { page-break-inside: avoid; }
+    }
+  </style>
+
+  <!-- Handbuch-Pfad -->
+  <script defer src="../js/menu.js"></script>
+</head>
+
+<body>
+  <div class="bg-fixed" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="topbar">
+      <a class="brand" href="./index.html" data-internal>
+        <span aria-hidden="true" style="display:inline-grid;place-items:center;width:18px;height:18px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 2l8 4v6c0 5-3.4 9.4-8 10-4.6-.6-8-5-8-10V6l8-4z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span>FSA Vertriebshandbuch</span>
+      </a>
+
+      <div class="kicker">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Bonus 03 • Sprecher</span>
+      </div>
+    </div>
+
+    <h1>Kapitel 37 – Bonus 03: Sprecher-Honorar-Rechner (Live & Weekend)</h1>
+    <p class="sub">Planung: Wie viel Honorar ist realistisch – je nach Anzahl Formate, Teilnehmenden, Deckeln und Aufwand.</p>
+
+    <div class="line" aria-hidden="true"></div>
+
+    <section class="panel">
+
+      <div class="topline">
+        <a class="crumb" href="./index.html" data-internal aria-label="Zurück zum Inhaltsverzeichnis">
+          <span aria-hidden="true" style="display:inline-grid;place-items:center;width:18px;height:18px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M15 18l-6-6 6-6" stroke="rgba(212,175,55,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span>← Inhaltsverzeichnis</span>
+        </a>
+      </div>
+
+      <section class="hero" aria-label="Sprecher-Honorar-Rechner Hero">
+        <h2 class="h1">Sprecher-Honorar-Rechner – Live & Weekend</h2>
+        <p class="sub2">
+          Du trägst Aktivität ein (wie viele Formate, wie viele Teilnehmende). Der Rechner nutzt Fix + pro TN + Deckel je Termin.
+          Optional kannst du Aufwand (Stunden) und Kosten ergänzen – für eine realistische Netto- und Stundenlohn-Sicht.
+        </p>
+
+        <div class="pillrow">
+          <div class="pill">
+            <span aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 19V5" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M4 19h16" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M7 15l4-4 3 3 5-6" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span><strong>Logik:</strong> Fix + pro TN, dann Deckel je Termin</span>
+          </div>
+
+          <div class="pill">
+            <span aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 11V8a5 5 0 0110 0v3" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M6 11h12v10H6V11z" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span><strong>Deckel:</strong> schützt Planbarkeit (keine Ausschläge)</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+
+        <!-- CARD 1 -->
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M21 16V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" stroke="rgba(212,175,55,.95)" stroke-width="2"/>
+                <path d="M7 10h10M7 14h6" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span>Modus, Kosten & Steuerung</span>
+          </h2>
+
+          <p>Wähle deinen Zeitraum und setze optional pauschale Kosten & Aufwand-Werte für eine Netto-/Stundenlohn-Sicht.</p>
+
+          <div class="controls">
+            <button class="btn secondary" id="btnReset" type="button">Zurücksetzen</button>
+            <button class="btn" id="btnCalc" type="button">Jetzt berechnen</button>
+          </div>
+
+          <div class="row" style="margin-top:14px;">
+            <div class="field">
+              <div class="label">Zeitraum</div>
+              <select class="input" id="period">
+                <option value="1">Monat</option>
+                <option value="3">Quartal</option>
+                <option value="12">Jahr</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <div class="label">Reisekosten pro Termin (Ø)</div>
+              <input class="input" id="travelPerEvent" type="number" step="0.01" min="0" value="0" />
+            </div>
+
+            <div class="field">
+              <div class="label">Hotel/Verpflegung pro Termin (Ø)</div>
+              <input class="input" id="hotelPerEvent" type="number" step="0.01" min="0" value="0" />
+            </div>
+
+            <div class="field">
+              <div class="label">Sonstige Kosten pro Zeitraum</div>
+              <input class="input" id="otherCosts" type="number" step="0.01" min="0" value="0" />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:14px;">
+            <div class="field">
+              <div class="label">Vorbereitung (Std) pro Live-Format (Ø)</div>
+              <input class="input" id="prepLiveH" type="number" step="0.1" min="0" value="1.5" />
+            </div>
+            <div class="field">
+              <div class="label">Vorbereitung (Std) pro Weekend (Ø)</div>
+              <input class="input" id="prepWeekendH" type="number" step="0.1" min="0" value="3" />
+            </div>
+            <div class="field">
+              <div class="label">Reisezeit (Std) pro Termin (Ø)</div>
+              <input class="input" id="travelHours" type="number" step="0.1" min="0" value="0" />
+            </div>
+            <div class="field">
+              <div class="label">Hinweis</div>
+              <div class="hint">Nur Orientierung. Keine Abrechnung, keine Steuer-/Rechtsberatung.</div>
+            </div>
+          </div>
+
+          <p class="hint">Tipp: Setze Kosten/Zeiten konservativ. Plane nicht nach „mehr“, sondern nach „sauber“.</p>
+        </article>
+
+        <!-- CARD 2 -->
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 7h16M4 12h16M4 17h16" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span>Aktivität (Formate & Teilnehmende)</span>
+          </h2>
+
+          <p>Trage ein, wie viele Termine du im Zeitraum planst – und wie viele Teilnehmende du erwartest (Ø).</p>
+
+          <table class="table" aria-label="Formate Eingaben">
+            <thead>
+              <tr>
+                <th style="width:40%">Format</th>
+                <th style="width:20%">Termine (Anzahl)</th>
+                <th style="width:20%">Ø Teilnehmende</th>
+                <th style="width:20%">Hinweis</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px;"><span class="chip">W</span><span><strong>Weekend-Setup (2 Tage)</strong></span></div></td>
+                <td><input class="input num" id="cntWeekend" type="number" step="1" min="0" value="0"></td>
+                <td><input class="input num" id="tnWeekend" type="number" step="1" min="0" value="60"></td>
+                <td><span class="hint" style="margin:0;">Fix 350 + 12/TN, Deckel 1.800</span></td>
+              </tr>
+
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px;"><span class="chip">A2</span><span><strong>Live Paket A (2 Std)</strong></span></div></td>
+                <td><input class="input num" id="cntA2" type="number" step="1" min="0" value="0"></td>
+                <td><input class="input num" id="tnA2" type="number" step="1" min="0" value="40"></td>
+                <td><span class="hint" style="margin:0;">Fix 250 + 6/TN, Deckel 700</span></td>
+              </tr>
+
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px;"><span class="chip">A3</span><span><strong>Live Paket A (3,5 Std)</strong></span></div></td>
+                <td><input class="input num" id="cntA35" type="number" step="1" min="0" value="0"></td>
+                <td><input class="input num" id="tnA35" type="number" step="1" min="0" value="40"></td>
+                <td><span class="hint" style="margin:0;">Fix 350 + 8/TN, Deckel 1.000</span></td>
+              </tr>
+
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px;"><span class="chip">B2</span><span><strong>Live Paket B (2 Std)</strong></span></div></td>
+                <td><input class="input num" id="cntB2" type="number" step="1" min="0" value="0"></td>
+                <td><input class="input num" id="tnB2" type="number" step="1" min="0" value="40"></td>
+                <td><span class="hint" style="margin:0;">Fix 450 + 10/TN, Deckel 1.250</span></td>
+              </tr>
+
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px;"><span class="chip">B3</span><span><strong>Live Paket B (3,5 Std)</strong></span></div></td>
+                <td><input class="input num" id="cntB35" type="number" step="1" min="0" value="0"></td>
+                <td><input class="input num" id="tnB35" type="number" step="1" min="0" value="40"></td>
+                <td><span class="hint" style="margin:0;">Fix 600 + 12/TN, Deckel 1.700</span></td>
+              </tr>
+
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px;"><span class="chip">C2</span><span><strong>Live Paket C (2 Std)</strong></span></div></td>
+                <td><input class="input num" id="cntC2" type="number" step="1" min="0" value="0"></td>
+                <td><input class="input num" id="tnC2" type="number" step="1" min="0" value="40"></td>
+                <td><span class="hint" style="margin:0;">Fix 900 + 15/TN, Deckel 2.400</span></td>
+              </tr>
+
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px;"><span class="chip">C3</span><span><strong>Live Paket C (3,5 Std)</strong></span></div></td>
+                <td><input class="input num" id="cntC35" type="number" step="1" min="0" value="0"></td>
+                <td><input class="input num" id="tnC35" type="number" step="1" min="0" value="40"></td>
+                <td><span class="hint" style="margin:0;">Fix 1.200 + 18/TN, Deckel 3.000</span></td>
+              </tr>
+
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px;"><span class="chip">Q</span><span><strong>Extra Q&A (Add-on)</strong></span></div></td>
+                <td><input class="input num" id="cntQA" type="number" step="1" min="0" value="0"></td>
+                <td><input class="input num" id="tnQA" type="number" step="1" min="0" value="60"></td>
+                <td><span class="hint" style="margin:0;">Fix 150 + 2/TN, Deckel 350</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="hint" id="warnBox" style="margin-top:12px;">Berechnung aktiv (live). Werte werden lokal gespeichert.</div>
+        </article>
+
+        <!-- CARD 3 -->
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 19V5" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M4 19h16" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M7 15l4-4 3 3 5-6" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span>Ergebnis (Honorar, Netto, Stunden)</span>
+          </h2>
+
+          <p>Gesamthonorar aus deinen Terminen, abzüglich optionaler Kosten. Dazu Aufwand & effektiver Stundenlohn.</p>
+
+          <div class="split">
+            <div class="kpi">
+              <div class="t">Honorar gesamt (brutto)</div>
+              <div class="v money big" id="outGross">0,00 €</div>
+              <div class="n" id="outGrossN">—</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Kosten gesamt</div>
+              <div class="v money big" id="outCosts">0,00 €</div>
+              <div class="n" id="outCostsN">—</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Netto (vor Steuern)</div>
+              <div class="v money big" id="outNet">0,00 €</div>
+              <div class="n" id="outNetN">—</div>
+            </div>
+          </div>
+
+          <div class="split" style="margin-top:12px;">
+            <div class="kpi">
+              <div class="t">Termine gesamt</div>
+              <div class="v money" id="outEvents">0</div>
+              <div class="n" id="outEventsN">—</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Aufwand gesamt (Std)</div>
+              <div class="v money" id="outHours">0,0</div>
+              <div class="n" id="outHoursN">—</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Effektiver Stundenlohn</div>
+              <div class="v money" ids="outHourly" id="outHourly">0,00 €</div>
+              <div class="n" id="outHourlyN">—</div>
+            </div>
+          </div>
+
+          <p class="hint" id="outHint">Hinweis: Deckel wird pro Termin angewandt (nicht auf die Gesamtsumme).</p>
+        </article>
+
+        <!-- CARD 4 -->
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 12h16" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 4v16" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span>6 Beispiele – als Orientierung</span>
+          </h2>
+
+          <p>Öffne die Beispiele, drucke danach – und alles Offene ist im PDF sichtbar.</p>
+
+          <div class="grid" style="margin-top:12px; grid-template-columns: 1fr;">
+            <details>
+              <summary><span>Beispiel 1: 1× Weekend (60 TN)</span><span class="chip">öffnen</span></summary>
+              <div class="exbody">Zeitraum: Monat
+Weekend: 1 Termin, Ø 60 TN
+Honorar pro Weekend: 350 + (60×12) = 1.070 € (unter Deckel 1.800)
+→ Honorar gesamt: 1.070 €</div>
+            </details>
+
+            <details>
+              <summary><span>Beispiel 2: 4× Live Paket A (2 Std, 40 TN)</span><span class="chip">öffnen</span></summary>
+              <div class="exbody">Zeitraum: Monat
+A (2 Std): 4 Termine, Ø 40 TN
+Honorar pro Termin: 250 + (40×6) = 490 € (unter Deckel 700)
+→ Honorar gesamt: 1.960 €</div>
+            </details>
+
+            <details>
+              <summary><span>Beispiel 3: 2× Live Paket B (3,5 Std, 60 TN)</span><span class="chip">öffnen</span></summary>
+              <div class="exbody">Zeitraum: Monat
+B (3,5 Std): 2 Termine, Ø 60 TN
+Honorar pro Termin: 600 + (60×12) = 1.320 € (unter Deckel 1.700)
+→ Honorar gesamt: 2.640 €</div>
+            </details>
+
+            <details>
+              <summary><span>Beispiel 4: Deckel erreicht (A 2 Std, 100 TN)</span><span class="chip">öffnen</span></summary>
+              <div class="exbody">A (2 Std): 1 Termin, Ø 100 TN
+Rechnung: 250 + (100×6) = 850 €
+Deckel: 700 €
+→ Honorar pro Termin: 700 € (Deckel greift)</div>
+            </details>
+
+            <details>
+              <summary><span>Beispiel 5: 1× Weekend + 2× Live A (2 Std) + 1× Q&A</span><span class="chip">öffnen</span></summary>
+              <div class="exbody">Zeitraum: Monat
+Weekend: 1×, Ø 50 TN → 350 + (50×12) = 950 €
+Live A (2 Std): 2×, Ø 35 TN → je 250 + (35×6)=460 € → 920 €
+Q&A: 1×, Ø 60 TN → 150 + (60×2)=270 € (unter Deckel 350)
+→ Honorar gesamt: 950 + 920 + 270 = 2.140 €</div>
+            </details>
+
+            <details>
+              <summary><span>Beispiel 6: Quartal „realistisch“ (Planbarkeit)</span><span class="chip">öffnen</span></summary>
+              <div class="exbody">Zeitraum: Quartal (3 Monate)
+Pro Monat:
+- 1× Live B (2 Std, 40 TN) → 450 + (40×10)=850 €
+- 1× Live A (3,5 Std, 30 TN) → 350 + (30×8)=590 €
+→ Monat: 1.440 €
+→ Quartal: 4.320 € (ohne Kosten/Zeiten)</div>
+            </details>
+          </div>
+
+          <p class="hint">Hinweis: Beispiele sind Orientierung. Passe Anzahl, Teilnehmende, Kosten und Zeiten an dein echtes Leben an.</p>
+        </article>
+
+      </section>
+
+      <div class="hr" aria-hidden="true"></div>
+
+      <!-- Notizen & Antworten (Pflicht) -->
+      <h2 style="position:relative;z-index:1;margin:0 0 10px;">Notizen &amp; Antworten</h2>
+      <p class="hint" style="position:relative;z-index:1;margin-top:0;">
+        Alles, was du hier einträgst, bleibt nur auf deinem Gerät (LocalStorage).
+      </p>
+
+      <textarea id="notes" placeholder="Deine Notizen zu diesem Bonus-Kapitel …" aria-label="Notizen"></textarea>
+
+      <div class="noteRow">
+        <div id="saveHint">Bereit.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn secondary" id="clearChapter" type="button">Kapitel-Notizen löschen</button>
+          <button class="btn secondary" id="clearAll" type="button">Alle Handbuch-Daten löschen</button>
+        </div>
+      </div>
+
+      <!-- Footer Navigation (Pflicht, Screen-only) -->
+      <div class="footerNav" aria-label="Footer Navigation">
+        <div class="left">
+          <a class="navBtn" href="./index.html" data-internal>← Inhaltsverzeichnis</a>
+        </div>
+        <div class="mid">
+          <a class="navBtn" href="./kapitel-36.html" data-internal>← Zurück</a>
+          <a class="navBtn navBtnPrimary" href="./kapitel-38.html" data-internal>Nächstes →</a>
+        </div>
+        <div class="right">
+          <button class="navBtn navBtnPrimary" id="printBtn" type="button">Drucken</button>
+        </div>
+      </div>
+
+    </section>
+  </div>
+
+  <script>
+    (function(){
+      // ----------------- constants (Handbuch) -----------------
+      const KAP = "37";
+      const PREFIX = "fsa_vh_";
+      const KEY_NOTES  = PREFIX + "kap" + KAP + "_notes";
+      const KEY_FIELDS = PREFIX + "kap" + KAP + "_fields";
+      const SAVE_HINT = document.getElementById("saveHint");
+
+      // nocache for internal links
+      function applyNoCache(){
+        const ts = Date.now();
+        document.querySelectorAll('a[data-internal]').forEach(a=>{
+          try{
+            const href = a.getAttribute("href") || "";
+            if(!href) return;
+            if(href.startsWith("http") || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
+
+            const u = new URL(href, location.href);
+            u.searchParams.set("nocache", String(ts));
+            a.setAttribute("href", u.pathname.replace(location.origin, "") + "?" + u.searchParams.toString());
+          }catch(e){}
+        });
+      }
+
+      // ----------------- speaker model (Fix + pro TN + Deckel) -----------------
+      function capped(fix, perTN, tn, cap){
+        const raw = (fix + perTN * tn);
+        return Math.min(raw, cap);
+      }
+
+      // Weekend: Fix 350 + 12/TN, Deckel 1800
+      function payWeekend(tn){
+        return capped(350, 12, tn, 1800);
+      }
+
+      // Live packages
+      const LIVE = {
+        A2:  { fix:250,  per:6,  cap:700,  hours:2.0 },
+        A35: { fix:350,  per:8,  cap:1000, hours:3.5 },
+        B2:  { fix:450,  per:10, cap:1250, hours:2.0 },
+        B35: { fix:600,  per:12, cap:1700, hours:3.5 },
+        C2:  { fix:900,  per:15, cap:2400, hours:2.0 },
+        C35: { fix:1200, per:18, cap:3000, hours:3.5 }
+      };
+
+      // Q&A: Fix 150 + 2/TN, Deckel 350, hours (Ø) 1.0
+      function payQA(tn){
+        return capped(150, 2, tn, 350);
+      }
+
+      // ----------------- fields -----------------
+      const FIELD_IDS = [
+        "period",
+        "travelPerEvent","hotelPerEvent","otherCosts",
+        "prepLiveH","prepWeekendH","travelHours",
+        "cntWeekend","tnWeekend",
+        "cntA2","tnA2","cntA35","tnA35",
+        "cntB2","tnB2","cntB35","tnB35",
+        "cntC2","tnC2","cntC35","tnC35",
+        "cntQA","tnQA"
+      ];
+
+      function n(id){
+        const el = document.getElementById(id);
+        if(!el) return 0;
+        const v = parseFloat(String(el.value || "0").replace(",", "."));
+        if(Number.isFinite(v) && v >= 0) return v;
+        return 0;
+      }
+      function i(id){
+        const el = document.getElementById(id);
+        if(!el) return 0;
+        const v = parseInt(String(el.value || "0"), 10);
+        if(Number.isFinite(v) && v >= 0) return v;
+        return 0;
+      }
+
+      function fmtEUR(x){
+        const v = (Number.isFinite(x) ? x : 0);
+        return v.toLocaleString("de-DE", {
+          style:"currency",
+          currency:"EUR",
+          minimumFractionDigits:2,
+          maximumFractionDigits:2
+        });
+      }
+      function fmtNum(x){
+        const v = (Number.isFinite(x) ? x : 0);
+        return v.toLocaleString("de-DE", { minimumFractionDigits:1, maximumFractionDigits:1 });
+      }
+
+      function calc(){
+        const mult = Math.max(1, parseInt(document.getElementById("period").value, 10) || 1);
+
+        // counts per period (already in chosen period)
+        const cntWeekend = i("cntWeekend");
+        const tnWeekend = i("tnWeekend");
+
+        const cntA2  = i("cntA2"),  tnA2  = i("tnA2");
+        const cntA35 = i("cntA35"), tnA35 = i("tnA35");
+        const cntB2  = i("cntB2"),  tnB2  = i("tnB2");
+        const cntB35 = i("cntB35"), tnB35 = i("tnB35");
+        const cntC2  = i("cntC2"),  tnC2  = i("tnC2");
+        const cntC35 = i("cntC35"), tnC35 = i("tnC35");
+
+        const cntQA = i("cntQA");
+        const tnQA  = i("tnQA");
+
+        // payouts per event
+        const pWeekend = payWeekend(tnWeekend);
+
+        const pA2  = capped(LIVE.A2.fix,  LIVE.A2.per,  tnA2,  LIVE.A2.cap);
+        const pA35 = capped(LIVE.A35.fix, LIVE.A35.per, tnA35, LIVE.A35.cap);
+
+        const pB2  = capped(LIVE.B2.fix,  LIVE.B2.per,  tnB2,  LIVE.B2.cap);
+        const pB35 = capped(LIVE.B35.fix, LIVE.B35.per, tnB35, LIVE.B35.cap);
+
+        const pC2  = capped(LIVE.C2.fix,  LIVE.C2.per,  tnC2,  LIVE.C2.cap);
+        const pC35 = capped(LIVE.C35.fix, LIVE.C35.per, tnC35, LIVE.C35.cap);
+
+        const pQA = payQA(tnQA);
+
+        // totals
+        const gross =
+          (cntWeekend * pWeekend) +
+          (cntA2 * pA2) + (cntA35 * pA35) +
+          (cntB2 * pB2) + (cntB35 * pB35) +
+          (cntC2 * pC2) + (cntC35 * pC35) +
+          (cntQA * pQA);
+
+        const events =
+          cntWeekend + cntA2 + cntA35 + cntB2 + cntB35 + cntC2 + cntC35 + cntQA;
+
+        const travelPerEvent = n("travelPerEvent");
+        const hotelPerEvent  = n("hotelPerEvent");
+        const otherCosts     = n("otherCosts");
+
+        const costs = (events * (travelPerEvent + hotelPerEvent)) + otherCosts;
+        const net = Math.max(0, gross - costs);
+
+        // hours
+        const prepLiveH    = n("prepLiveH");
+        const prepWeekendH = n("prepWeekendH");
+        const travelHours  = n("travelHours");
+
+        const liveCount = cntA2 + cntA35 + cntB2 + cntB35 + cntC2 + cntC35;
+        const weekendHoursExec = 14; // konservative Orientierung (2 Tage à ~7h)
+        const qaHoursExec = 1.0;
+
+        const execHours =
+          (cntWeekend * weekendHoursExec) +
+          (cntA2 * LIVE.A2.hours) + (cntA35 * LIVE.A35.hours) +
+          (cntB2 * LIVE.B2.hours) + (cntB35 * LIVE.B35.hours) +
+          (cntC2 * LIVE.C2.hours) + (cntC35 * LIVE.C35.hours) +
+          (cntQA * qaHoursExec);
+
+        const prepHours = (liveCount * prepLiveH) + (cntWeekend * prepWeekendH) + (cntQA * 0.5);
+        const travelH = events * travelHours;
+
+        const totalHours = execHours + prepHours + travelH;
+        const hourly = (totalHours > 0) ? (net / totalHours) : 0;
+
+        // output
+        document.getElementById("outGross").textContent = fmtEUR(gross);
+        document.getElementById("outCosts").textContent = fmtEUR(costs);
+        document.getElementById("outNet").textContent   = fmtEUR(net);
+
+        document.getElementById("outEvents").textContent = String(events);
+        document.getElementById("outHours").textContent  = fmtNum(totalHours);
+        document.getElementById("outHourly").textContent = fmtEUR(hourly);
+
+        document.getElementById("outGrossN").textContent =
+          "Zeitraum-Faktor: " + (mult===1 ? "Monat" : (mult===3 ? "Quartal" : "Jahr")) +
+          "\nDeckel pro Termin aktiv.";
+
+        document.getElementById("outCostsN").textContent =
+          "Reise/Hotel je Termin (Ø) + sonstige Kosten pro Zeitraum.";
+
+        document.getElementById("outNetN").textContent =
+          "Netto = Honorar – Kosten (vor Steuern).";
+
+        document.getElementById("outEventsN").textContent =
+          "Summe aller eingetragenen Termine im Zeitraum.";
+
+        document.getElementById("outHoursN").textContent =
+          "Ausführung + Vorbereitung + Reisezeit (Ø).";
+
+        document.getElementById("outHourlyN").textContent =
+          (totalHours > 0)
+            ? "Netto / Stunden gesamt."
+            : "Setze Zeiten oder Termine, um den Stundenlohn zu sehen.";
+
+        // warnings
+        const warn = [];
+        if(cntWeekend > 0 && tnWeekend > 0 && tnWeekend < 50){
+          warn.push("Weekend-Hinweis: Mindest-Teilnehmerzahl ist 50 (sonst findet das Weekend ggf. nicht statt).");
+        }
+
+        // Deckel-Warnungen (nur wenn mind. 1 Termin)
+        function deckWarn(name, cnt, fix, per, tn, cap){
+          if(cnt <= 0) return;
+          const raw = fix + per * tn;
+          if(raw > cap){
+            warn.push(name + ": Deckel greift (" + fmtEUR(cap) + " statt " + fmtEUR(raw) + ").");
+          }
+        }
+
+        deckWarn("Live A (2 Std)",  cntA2,  LIVE.A2.fix,  LIVE.A2.per,  tnA2,  LIVE.A2.cap);
+        deckWarn("Live A (3,5 Std)",cntA35, LIVE.A35.fix, LIVE.A35.per, tnA35, LIVE.A35.cap);
+        deckWarn("Live B (2 Std)",  cntB2,  LIVE.B2.fix,  LIVE.B2.per,  tnB2,  LIVE.B2.cap);
+        deckWarn("Live B (3,5 Std)",cntB35, LIVE.B35.fix, LIVE.B35.per, tnB35, LIVE.B35.cap);
+        deckWarn("Live C (2 Std)",  cntC2,  LIVE.C2.fix,  LIVE.C2.per,  tnC2,  LIVE.C2.cap);
+        deckWarn("Live C (3,5 Std)",cntC35, LIVE.C35.fix, LIVE.C35.per, tnC35, LIVE.C35.cap);
+
+        if(cntQA > 0){
+          const rawQA = 150 + 2 * tnQA;
+          if(rawQA > 350) warn.push("Extra Q&A: Deckel greift (" + fmtEUR(350) + " statt " + fmtEUR(rawQA) + ").");
+        }
+
+        document.getElementById("warnBox").textContent = warn.length ? ("Hinweis:\n" + warn.join("\n")) : "Berechnung aktiv (live). Werte werden lokal gespeichert.";
+        document.getElementById("outHint").textContent = "Hinweis: Deckel wird pro Termin angewandt (nicht auf die Gesamtsumme).";
+      }
+
+      function resetAll(){
+        const defaults = {
+          period:"1",
+          travelPerEvent:"0", hotelPerEvent:"0", otherCosts:"0",
+          prepLiveH:"1.5", prepWeekendH:"3", travelHours:"0",
+          cntWeekend:"0", tnWeekend:"60",
+          cntA2:"0", tnA2:"40",
+          cntA35:"0", tnA35:"40",
+          cntB2:"0", tnB2:"40",
+          cntB35:"0", tnB35:"40",
+          cntC2:"0", tnC2:"40",
+          cntC35:"0", tnC35:"40",
+          cntQA:"0", tnQA:"60"
+        };
+        Object.keys(defaults).forEach(id=>{
+          const el = document.getElementById(id);
+          if(el) el.value = defaults[id];
+        });
+        calc();
+        saveNow();
+      }
+
+      document.getElementById("btnCalc").addEventListener("click", ()=>{ calc(); saveNow(); });
+      document.getElementById("btnReset").addEventListener("click", resetAll);
+
+      // live recalc on input changes (quiet)
+      FIELD_IDS.forEach(id=>{
+        const el = document.getElementById(id);
+        if(el){
+          el.addEventListener("input", ()=>{ calc(); scheduleSave(); });
+          el.addEventListener("change", ()=>{ calc(); scheduleSave(); });
+        }
+      });
+
+      // ----------------- LocalStorage (Kapitel-Setup) -----------------
+      function setHint(msg){
+        if(!SAVE_HINT) return;
+        SAVE_HINT.textContent = msg;
+      }
+
+      function readFields(){
+        const data = {};
+        FIELD_IDS.forEach(id=>{
+          const el = document.getElementById(id);
+          if(!el) return;
+          data[id] = el.value;
+        });
+        return data;
+      }
+
+      function writeFields(data){
+        if(!data || typeof data !== "object") return;
+        FIELD_IDS.forEach(id=>{
+          const el = document.getElementById(id);
+          if(!el) return;
+          if(data[id] === undefined) return;
+          el.value = String(data[id]);
+        });
+      }
+
+      function restore(){
+        try{
+          const notes = localStorage.getItem(KEY_NOTES);
+          if(notes !== null) document.getElementById("notes").value = notes;
+
+          const raw = localStorage.getItem(KEY_FIELDS);
+          if(raw){
+            const obj = JSON.parse(raw);
+            writeFields(obj);
+          }
+        }catch(e){}
+        calc();
+      }
+
+      function saveNow(){
+        try{
+          localStorage.setItem(KEY_NOTES, document.getElementById("notes").value || "");
+          localStorage.setItem(KEY_FIELDS, JSON.stringify(readFields()));
+          setHint("Gespeichert.");
+        }catch(e){
+          setHint("Speichern fehlgeschlagen.");
+        }
+      }
+
+      let t = null;
+      function scheduleSave(){
+        setHint("Speichert…");
+        if(t) clearTimeout(t);
+        t = setTimeout(()=>{ saveNow(); t = null; }, 250);
+      }
+
+      document.getElementById("notes").addEventListener("input", scheduleSave);
+
+      document.getElementById("clearChapter").addEventListener("click", ()=>{
+        try{
+          localStorage.removeItem(KEY_NOTES);
+          localStorage.removeItem(KEY_FIELDS);
+        }catch(e){}
+        document.getElementById("notes").value = "";
+        resetAll();
+        setHint("Kapitel gelöscht.");
+      });
+
+      document.getElementById("clearAll").addEventListener("click", ()=>{
+        try{
+          const keys = [];
+          for(let i=0;i<localStorage.length;i++){
+            const k = localStorage.key(i);
+            if(k && k.startsWith(PREFIX)) keys.push(k);
+          }
+          keys.forEach(k=>localStorage.removeItem(k));
+        }catch(e){}
+        document.getElementById("notes").value = "";
+        resetAll();
+        setHint("Alle Handbuch-Daten gelöscht.");
+      });
+
+      // Print
+      document.getElementById("printBtn").addEventListener("click", ()=>window.print());
+
+      // init
+      applyNoCache();
+      restore();
+      setHint("Bereit.");
+    })();
+  </script>
+</body>
+</html>
