@@ -1,0 +1,1278 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kapitel 36 – Bonus 03: Provision-Stufen (kumuliert) – Umsatz-Rechner</title>
+
+  <style>
+    :root{
+      --bg:#050814;
+      --bg2:#020617;
+
+      --gold:#d4af37;
+      --gold2:#f1d27a;
+
+      --txt:#e9e9e9;
+      --muted:#cbd5e1;
+
+      --panel:rgba(15,23,42,.82);
+      --panel2:rgba(15,23,42,.70);
+
+      --shadow:0 26px 50px rgba(0,0,0,.55);
+      --glow:0 0 22px rgba(212,175,55,.55), 0 10px 28px rgba(0,0,0,.55);
+
+      --radius:18px;
+      --maxw:1100px;
+
+      --line:rgba(212,175,55,.16);
+      --soft:rgba(212,175,55,.14);
+      --chip:rgba(0,0,0,.40);
+    }
+
+    html,body{
+      margin:0;
+      background:transparent;
+      color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      overflow-x:hidden;
+
+      /* Text-Sicherheit (Pflicht) */
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+
+    .bg-fixed{
+      position:fixed; inset:0;
+      background:
+        radial-gradient(1200px 700px at 22% 10%, rgba(212,175,55,.22), transparent 60%),
+        radial-gradient(1000px 700px at 78% 32%, rgba(94,168,255,.14), transparent 60%),
+        linear-gradient(180deg, var(--bg) 0%, #000 62%, var(--bg2) 100%);
+      z-index:-2;
+    }
+    .bg-grid{
+      position:fixed; inset:0;
+      background-image:
+        linear-gradient(rgba(212,175,55,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212,175,55,.06) 1px, transparent 1px);
+      background-size:44px 44px;
+      mask-image: radial-gradient(70% 55% at 50% 20%, #000 55%, transparent 100%);
+      opacity:.35;
+      z-index:-1;
+      pointer-events:none;
+    }
+
+    .wrap{
+      max-width:var(--maxw);
+      margin:0 auto;
+      padding:34px 18px 60px;
+    }
+
+    /* Header / Topbar (Kapitel-34-Look) */
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+    .brand{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      color:var(--txt);
+      text-decoration:none;
+      font-weight:900;
+      letter-spacing:.2px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.35);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+    }
+    .brand:hover{
+      box-shadow:0 0 0 1px rgba(212,175,55,.35) inset, var(--glow);
+    }
+
+    .kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.35);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+    .dot{
+      width:10px; height:10px;
+      border-radius:999px;
+      background:rgba(212,175,55,.9);
+      box-shadow:0 0 0 3px rgba(212,175,55,.18);
+      flex:0 0 auto;
+    }
+
+    h1{
+      margin:16px 0 8px;
+      font-size:34px;
+      line-height:1.12;
+      letter-spacing:.2px;
+    }
+    .sub{
+      margin:0 0 14px;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+    }
+
+    .line{
+      height:2px;
+      width:100%;
+      background:linear-gradient(90deg, rgba(212,175,55,.0), rgba(212,175,55,.55), rgba(212,175,55,.0));
+      border-radius:999px;
+      margin:14px 0 18px;
+    }
+
+    section.panel{
+      background:var(--panel);
+      border-radius:var(--radius);
+      padding:18px 16px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(212,175,55,.18);
+      position:relative;
+      overflow:hidden;
+    }
+    section.panel::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:radial-gradient(900px 320px at 18% 8%, rgba(212,175,55,.16), transparent 55%);
+      pointer-events:none;
+      opacity:.9;
+    }
+
+    .hr{
+      height:1px;
+      background:rgba(212,175,55,.14);
+      margin:18px 0;
+    }
+
+    /* ===== Rechner ===== */
+
+    .topline{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+      position:relative;
+      z-index:1;
+    }
+
+    .crumb{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.55);
+      box-shadow:0 0 0 1px rgba(212,175,55,.18) inset;
+      text-decoration:none;
+      color:var(--txt);
+    }
+    .crumb:hover{
+      box-shadow:0 0 0 1px rgba(212,175,55,.35) inset, var(--glow);
+    }
+
+    .hero{
+      background:linear-gradient(180deg, rgba(0,0,0,.60), rgba(0,0,0,.38));
+      border-radius:var(--radius);
+      padding:22px 20px;
+      box-shadow:0 16px 34px rgba(0,0,0,.45);
+      border:1px solid rgba(212,175,55,.16);
+      position:relative;
+      overflow:hidden;
+      z-index:1;
+    }
+    .hero::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:radial-gradient(900px 320px at 20% 10%, rgba(212,175,55,.18), transparent 55%);
+      pointer-events:none;
+    }
+
+    .h1{
+      margin:0 0 10px;
+      font-size:28px;
+      letter-spacing:.2px;
+      position:relative;
+    }
+    .sub2{
+      margin:0 0 12px;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+      position:relative;
+    }
+
+    .pillrow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:10px;
+      position:relative;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.40);
+      box-shadow:0 0 0 1px rgba(212,175,55,.14) inset;
+      color:var(--muted);
+      font-size:13px;
+      white-space:nowrap;
+    }
+    .pill strong{ color:var(--txt); }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:14px;
+      margin-top:16px;
+      position:relative;
+      z-index:1;
+    }
+
+    .card{
+      grid-column:span 12;
+      background:rgba(0,0,0,.40);
+      border-radius:var(--radius);
+      padding:18px 16px;
+      box-shadow:0 16px 34px rgba(0,0,0,.45);
+      border:1px solid rgba(212,175,55,.14);
+      opacity:0;
+      transform:translateY(10px);
+      animation:fadeIn .55s ease forwards;
+    }
+    .card:nth-child(1){ animation-delay:.06s; }
+    .card:nth-child(2){ animation-delay:.12s; }
+    .card:nth-child(3){ animation-delay:.18s; }
+    .card:nth-child(4){ animation-delay:.24s; }
+
+    @keyframes fadeIn{ to{ opacity:1; transform:translateY(0); } }
+
+    .card h2{
+      margin:0 0 10px;
+      font-size:18px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .card p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:95ch;
+    }
+
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:12px;
+      align-items:center;
+    }
+
+    .btn{
+      border:0;
+      cursor:pointer;
+      border-radius:14px;
+      padding:10px 12px;
+      color:var(--txt);
+      background:rgba(212,175,55,.18);
+      box-shadow:0 0 0 1px rgba(212,175,55,.24) inset;
+      font-weight:900;
+    }
+    .btn:hover{ box-shadow:0 0 0 1px rgba(212,175,55,.42) inset, var(--glow); }
+    .btn.secondary{
+      background:rgba(0,0,0,.35);
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      font-weight:800;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:10px;
+      align-items:end;
+      margin-top:12px;
+    }
+
+    .field{
+      display:grid;
+      gap:6px;
+      min-width:0;
+    }
+    .label{
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.02em;
+    }
+    .input{
+      width:100%;
+      box-sizing:border-box;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.16);
+      background:rgba(0,0,0,.32);
+      color:var(--txt);
+      outline:none;
+
+      /* Text-Sicherheit */
+      min-width:0;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+    .input:focus{
+      border-color:rgba(212,175,55,.35);
+      box-shadow:0 0 0 3px rgba(212,175,55,.10);
+    }
+
+    .hint{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+      max-width:95ch;
+      white-space:pre-wrap;
+    }
+
+    .tableWrap{
+      margin-top:12px;
+      overflow:auto;
+      border-radius:16px;
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      background:rgba(0,0,0,.25);
+    }
+
+    .table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      table-layout:fixed;
+      min-width:980px; /* stabiler Screen-Scroll statt "zerreißen" */
+    }
+    .table th, .table td{
+      padding:10px 10px;
+      border-bottom:1px solid rgba(212,175,55,.10);
+      vertical-align:middle;
+      text-align:left;
+
+      /* Standard: nicht zeichenweise umbrechen */
+      overflow-wrap:normal;
+      word-break:normal;
+      hyphens:auto;
+    }
+    .table th{
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      background:rgba(212,175,55,.06);
+      position:sticky;
+      top:0;
+      z-index:2;
+    }
+    .table tr:last-child td{ border-bottom:0; }
+
+    .chipMini{
+      display:inline-flex; align-items:center; justify-content:center;
+      min-width:28px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(212,175,55,.10);
+      box-shadow:0 0 0 1px rgba(212,175,55,.14) inset;
+      color:var(--txt);
+      font-weight:900;
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    .num{
+      width:140px;
+      max-width:100%;
+    }
+    .money{
+      font-weight:900;
+      letter-spacing:.01em;
+      white-space:nowrap;
+    }
+    .money.big{
+      font-size:26px;
+    }
+
+    .split{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+      margin-top:12px;
+    }
+    .kpi{
+      border-radius:16px;
+      background:rgba(0,0,0,.32);
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      padding:14px 14px;
+      min-width:0;
+    }
+    .kpi .t{ color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+    .kpi .v{ margin-top:6px; font-weight:900; font-size:22px; white-space:pre-wrap; }
+    .kpi .n{ margin-top:8px; color:var(--muted); font-size:13px; line-height:1.5; white-space:pre-wrap; }
+
+    details{
+      border-radius:16px;
+      background:rgba(0,0,0,.28);
+      box-shadow:0 0 0 1px rgba(212,175,55,.12) inset;
+      padding:12px 12px;
+    }
+    summary{
+      cursor:pointer;
+      list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:900;
+      min-width:0;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    .exbody{
+      margin-top:10px;
+      color:var(--muted);
+      line-height:1.55;
+      font-size:14px;
+      white-space:pre-wrap;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+
+    /* Notizen (Kapitel-Setup) */
+    .noteRow{
+      margin-top:12px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    #saveHint{
+      color:var(--muted);
+      font-size:13px;
+    }
+    textarea#notes{
+      width:100%;
+      box-sizing:border-box;
+      min-height:200px;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.16);
+      background:rgba(0,0,0,.22);
+      color:var(--txt);
+      outline:none;
+
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+    textarea#notes:focus{
+      border-color:rgba(212,175,55,.35);
+      box-shadow:0 0 0 3px rgba(212,175,55,.10);
+    }
+
+    /* FooterNav (Pflicht) – MASTER-LOOK */
+    .footerNav{
+      margin-top:18px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      position:relative;
+      z-index:1;
+    }
+    .footerNav .left,.footerNav .mid,.footerNav .right{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    a.navBtn, button.navBtn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      text-decoration:none;
+      cursor:pointer;
+      border:0;
+      color:var(--txt);
+      background:rgba(0,0,0,.22);
+      box-shadow:0 0 0 1px rgba(212,175,55,.22) inset;
+      font-weight:900;
+    }
+    a.navBtn:hover, button.navBtn:hover{
+      box-shadow:0 0 0 1px rgba(212,175,55,.35) inset, var(--glow);
+    }
+
+    a.navBtnPrimary, button.navBtnPrimary{
+      background:linear-gradient(180deg, rgba(212,175,55,.98), rgba(241,210,122,.92));
+      color:#0b0b0b;
+      box-shadow:
+        0 12px 26px rgba(212,175,55,.18),
+        0 0 0 1px rgba(212,175,55,.55) inset;
+    }
+    a.navBtnPrimary:hover, button.navBtnPrimary:hover{
+      filter:brightness(1.04);
+      box-shadow:
+        0 14px 30px rgba(212,175,55,.22),
+        0 0 0 1px rgba(212,175,55,.70) inset,
+        var(--glow);
+    }
+
+    @media (min-width: 900px){
+      .h1{ font-size:34px; }
+      .row{ grid-template-columns: 1fr 1fr 1fr; }
+      .split{ grid-template-columns: 1fr 1fr 1fr; }
+      .num{ width:160px; }
+    }
+
+    /* Print-Regeln (Kapitel-34-Standard) */
+    @page{ margin:14mm; }
+    @media print{
+      *{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+      .bg-fixed,.bg-grid{ display:none !important; }
+      body{ background:#fff !important; color:#000 !important; }
+      .brand,.kicker,.line{ box-shadow:none !important; }
+
+      section.panel{
+        background:#fff !important;
+        border:1px solid #000 !important;
+        box-shadow:none !important;
+      }
+      section.panel::before{ display:none !important; }
+
+      /* SVG-Icons im Print sicher sichtbar */
+      svg, svg *{ vector-effect: non-scaling-stroke; }
+      svg path, svg line, svg polyline, svg polygon, svg circle, svg rect{
+        stroke:#000 !important;
+      }
+
+      .footerNav{ display:none !important; }
+      .noteRow{ display:none !important; }
+
+      /* Pflicht: Cards dürfen im Print NICHT hidden bleiben */
+      .card{
+        opacity:1 !important;
+        transform:none !important;
+        animation:none !important;
+      }
+
+      .card,.hero{
+        background:#fff !important;
+        border:1px solid #000 !important;
+        box-shadow:none !important;
+      }
+
+      /* Table print fix */
+      .tableWrap{
+        overflow:visible !important;
+        box-shadow:none !important;
+        border:1px solid #000 !important;
+        background:#fff !important;
+      }
+      .table{
+        min-width:0 !important;
+        width:100% !important;
+        table-layout:fixed !important;
+      }
+      .table th{
+        background:#f3f3f3 !important;
+        color:#000 !important;
+        position:static !important;
+      }
+      .table th, .table td{
+        overflow-wrap:normal !important;
+        word-break:normal !important;
+        hyphens:auto !important;
+        border-bottom:1px solid #000 !important;
+      }
+      .table tr:last-child td{ border-bottom:0 !important; }
+
+      .input,textarea#notes{
+        background:#fff !important;
+        color:#000 !important;
+        border:1px solid #000 !important;
+        box-shadow:none !important;
+      }
+
+      details{
+        background:#fff !important;
+        border:1px solid #000 !important;
+        box-shadow:none !important;
+      }
+
+      /* Seitenumbruch: Blöcke/Zeilen zusammenhalten */
+      .card, .hero, details, .tableWrap, .table{ break-inside: avoid; page-break-inside: avoid; }
+      .table tr{ break-inside: avoid; page-break-inside: avoid; }
+      tr, td, th { page-break-inside: avoid; }
+    }
+  </style>
+
+  <!-- Handbuch-Pfad -->
+  <script defer src="../js/menu.js"></script>
+</head>
+
+<body>
+  <div class="bg-fixed" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="topbar">
+      <a class="brand" href="./index.html" data-internal>
+        <span aria-hidden="true" style="display:inline-grid;place-items:center;width:18px;height:18px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 2l8 4v6c0 5-3.4 9.4-8 10-4.6-.6-8-5-8-10V6l8-4z" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span>FSA Vertriebshandbuch</span>
+      </a>
+
+      <div class="kicker">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Bonus 03 • Rechner</span>
+      </div>
+    </div>
+
+    <h1>Kapitel 36 – Bonus 03: Provision-Stufen (kumuliert) – Umsatz-Rechner</h1>
+    <p class="sub">Kumulierte L1-Stufen (nicht rückwirkend) + fixe L2/L3-Provision auf bezahlten Umsatz.</p>
+
+    <div class="line" aria-hidden="true"></div>
+
+    <section class="panel">
+
+      <div class="topline">
+        <a class="crumb" href="./index.html" data-internal aria-label="Zurück zum Inhaltsverzeichnis">
+          <span aria-hidden="true" style="display:inline-grid;place-items:center;width:18px;height:18px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M15 18l-6-6 6-6" stroke="rgba(212,175,55,.95)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span>← Inhaltsverzeichnis</span>
+        </a>
+      </div>
+
+      <section class="hero" aria-label="Provision-Stufen Rechner Hero">
+        <h2 class="h1">Provision-Stufen (kumuliert) – Umsatz-Rechner</h2>
+        <p class="sub2">
+          Du trägst bezahlten Umsatz pro Jahr ein (L1 / L2 / L3). L1 nutzt ein Stufen-System auf kumuliertem Umsatz – Stufen verfallen nicht.
+          Höhere Prozente gelten „ab sofort“ nur für den Umsatzteil über der Schwelle (nicht rückwirkend).
+        </p>
+
+        <div class="pillrow" aria-label="Stufenübersicht">
+          <div class="pill"><strong>20%</strong> 0–50.000</div>
+          <div class="pill"><strong>25%</strong> 50.000–125.000</div>
+          <div class="pill"><strong>27,5%</strong> 125.000–375.000</div>
+          <div class="pill"><strong>30%</strong> 375.000–750.000</div>
+          <div class="pill"><strong>35%</strong> 750.000–1.500.000</div>
+          <div class="pill"><strong>40%</strong> ab 1.500.000</div>
+          <div class="pill"><strong>Locked</strong> nicht rückwirkend</div>
+        </div>
+      </section>
+
+      <section class="grid">
+
+        <!-- CARD 1 -->
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 7h16M4 12h16M4 17h16" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span>Modus, Sätze &amp; Steuerung</span>
+          </h2>
+
+          <p>Nur bezahlter Umsatz ist provisionsfähig. L1 wird nach Stufen (kumuliert) berechnet, L2/L3 sind fix (editierbar).</p>
+
+          <div class="row" style="margin-top:14px;">
+            <div class="field">
+              <div class="label">L2 Provision (in %)</div>
+              <input class="input" id="l2Rate" data-store type="number" step="0.1" min="0" value="15" />
+            </div>
+            <div class="field">
+              <div class="label">L3 Provision (in %)</div>
+              <input class="input" id="l3Rate" data-store type="number" step="0.1" min="0" value="10" />
+            </div>
+            <div class="field">
+              <div class="label">Anzahl Jahre (Zeilen)</div>
+              <input class="input" id="years" data-store type="number" step="1" min="1" max="25" value="5" />
+            </div>
+          </div>
+
+          <div class="controls">
+            <button class="btn secondary" id="btnReset" type="button">Zurücksetzen</button>
+            <button class="btn" id="btnBuild" type="button">Zeilen neu aufbauen</button>
+            <button class="btn" id="btnCalc" type="button">Jetzt berechnen</button>
+          </div>
+
+          <p class="hint">Hinweis: Das ist ein Rechenbeispiel. Keine Abrechnung, keine Steuer-/Rechtsberatung.</p>
+        </article>
+
+        <!-- CARD 2 -->
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M21 16V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" stroke="rgba(212,175,55,.95)" stroke-width="2"/>
+                <path d="M7 10h10M7 14h6" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span>Eingaben (Umsatz pro Jahr)</span>
+          </h2>
+
+          <p>Trage die bezahlten Umsätze je Jahr ein. Provision wird pro Jahr berechnet (L1 stufenbasiert, L2/L3 fix).</p>
+
+          <div class="tableWrap" aria-label="Jahrestabelle">
+            <table class="table">
+              <colgroup>
+                <col style="width:7%">
+                <col style="width:16%">
+                <col style="width:16%">
+                <col style="width:16%">
+                <col style="width:15%">
+                <col style="width:15%">
+                <col style="width:15%">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Jahr</th>
+                  <th>L1 Umsatz (€)</th>
+                  <th>L1 Provision (€)</th>
+                  <th>Stufe nach Jahr</th>
+                  <th>L2 Umsatz (€)</th>
+                  <th>L2 Provision (€)</th>
+                  <th>L3 Umsatz (€)</th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+
+          <p class="hint">Tipp: Wenn du drucken willst: erst die gewünschten Beispiele öffnen, dann drucken. Offenes wird mitgedruckt.</p>
+        </article>
+
+        <!-- CARD 3 -->
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 19V5" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M4 19h16" stroke="rgba(212,175,55,.85)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M7 15l4-4 3 3 5-6" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span>Ergebnis</span>
+          </h2>
+
+          <p>Übersicht: kumulierter L1-Umsatz, aktuelle Stufe und Gesamtprovision.</p>
+
+          <div class="split">
+            <div class="kpi">
+              <div class="t">Kumuliert (L1 Umsatz)</div>
+              <div class="v money big" id="kpiCum">0,00 €</div>
+              <div class="n">Summe L1 Umsatz über alle Jahre.</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Aktuelle Stufe</div>
+              <div class="v money big" id="kpiStep">20%</div>
+              <div class="n" id="kpiStepN">Stufe basiert auf kumuliertem L1 Umsatz (nicht rückwirkend).</div>
+            </div>
+            <div class="kpi">
+              <div class="t">Gesamtprovision</div>
+              <div class="v money big" id="kpiTotal">0,00 €</div>
+              <div class="n" id="kpiTotalN">L1 (Stufen) + L2 (fix) + L3 (fix).</div>
+            </div>
+          </div>
+
+          <p class="hint" id="outHint">Berechnung aktiv (live). Werte werden lokal gespeichert.</p>
+        </article>
+
+        <!-- CARD 4 -->
+        <article class="card">
+          <h2>
+            <span aria-hidden="true" style="display:inline-grid;place-items:center;width:26px;height:26px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 12h16" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 4v16" stroke="rgba(212,175,55,.95)" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span>Beispiele (Soll-Zahlen) – als Orientierung</span>
+          </h2>
+
+          <p>Diese Beispiele sind bewusst simpel. Du kannst sie öffnen, verstehen und im Print mit ausdrucken.</p>
+
+          <div class="grid" style="grid-template-columns:1fr;gap:10px;margin-top:12px;">
+            <details>
+              <summary><span>Beispiel 1: Einstieg (nur L1)</span><span class="chipMini">öffnen</span></summary>
+              <div class="exbody">Jahr 1: L1 Umsatz 30.000 €
+Jahr 2: L1 Umsatz 30.000 €
+→ kumuliert nach Jahr 2: 60.000 €
+→ L1: Stufen greifen nur für den Anteil über 50.000 € (nicht rückwirkend).</div>
+            </details>
+
+            <details>
+              <summary><span>Beispiel 2: Team-Anteil (L2/L3 fix)</span><span class="chipMini">öffnen</span></summary>
+              <div class="exbody">Jahr 1:
+L1 Umsatz 40.000 €
+L2 Umsatz 100.000 € (15%)
+L3 Umsatz 50.000 € (10%)
+→ L2 Provision: 15.000 €
+→ L3 Provision: 5.000 €
+→ L1 nach Stufen (kumuliert) zusätzlich.</div>
+            </details>
+
+            <details>
+              <summary><span>Beispiel 3: Sprung in höhere Stufe</span><span class="chipMini">öffnen</span></summary>
+              <div class="exbody">Jahr 1: L1 Umsatz 120.000 €
+→ Anteil 0–50k = 20%
+→ Anteil 50k–120k = 25%
+→ Stufe nach Jahr 1: 25%</div>
+            </details>
+
+            <details>
+              <summary><span>Beispiel 4: Mehrjahres-Kumulierung</span><span class="chipMini">öffnen</span></summary>
+              <div class="exbody">Jahr 1: 80.000 €
+Jahr 2: 80.000 €
+Jahr 3: 80.000 €
+→ kumuliert: 240.000 €
+→ Stufe nach Jahr 3 liegt im Bereich 27,5% (125k–375k).
+Wichtig: höhere Sätze gelten nur für den jeweiligen Anteil über der Schwelle.</div>
+            </details>
+          </div>
+
+          <p class="hint">Hinweis: Das sind Rechenbeispiele. Passe Werte so an, dass sie zu deinem realen Modell passen.</p>
+        </article>
+
+      </section>
+
+      <div class="hr" aria-hidden="true"></div>
+
+      <!-- Notizen & Antworten (Pflicht) -->
+      <h2 style="position:relative;z-index:1;margin:0 0 10px;">Notizen &amp; Antworten</h2>
+      <p class="hint" style="position:relative;z-index:1;margin-top:0;">
+        Alles, was du hier einträgst, bleibt nur auf deinem Gerät (LocalStorage).
+      </p>
+
+      <textarea id="notes" placeholder="Deine Notizen zu diesem Bonus-Kapitel …" aria-label="Notizen"></textarea>
+
+      <div class="noteRow">
+        <div id="saveHint">Bereit.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn secondary" id="clearChapter" type="button">Kapitel-Notizen löschen</button>
+          <button class="btn secondary" id="clearAll" type="button">Alle Handbuch-Daten löschen</button>
+        </div>
+      </div>
+
+      <!-- Footer Navigation (Pflicht, Screen-only) -->
+      <div class="footerNav" aria-label="Footer Navigation">
+        <div class="left">
+          <a class="navBtn" href="./index.html" data-internal>← Inhaltsverzeichnis</a>
+        </div>
+        <div class="mid">
+          <a class="navBtn" href="./kapitel-35.html" data-internal>← Zurück</a>
+          <a class="navBtn navBtnPrimary" href="./kapitel-37.html" data-internal>Nächstes →</a>
+        </div>
+        <div class="right">
+          <button class="navBtn navBtnPrimary" id="printBtn" type="button">Drucken</button>
+        </div>
+      </div>
+
+    </section>
+  </div>
+
+  <script>
+    (function(){
+      // ----------------- constants (Handbuch) -----------------
+      const KAP = "36";
+      const PREFIX = "fsa_vh_";
+      const KEY_NOTES  = PREFIX + "kap" + KAP + "_notes";
+      const KEY_FIELDS = PREFIX + "kap" + KAP + "_fields";
+      const SAVE_HINT = document.getElementById("saveHint");
+
+      // Stufen (L1) – kumuliert / marginal (nicht rückwirkend)
+      const TIERS = [
+        { from: 0,        to: 50000,    rate: 0.20 },
+        { from: 50000,    to: 125000,   rate: 0.25 },
+        { from: 125000,   to: 375000,   rate: 0.275 },
+        { from: 375000,   to: 750000,   rate: 0.30 },
+        { from: 750000,   to: 1500000,  rate: 0.35 },
+        { from: 1500000,  to: Infinity, rate: 0.40 },
+      ];
+
+      // nocache for internal links
+      function applyNoCache(){
+        const ts = Date.now();
+        document.querySelectorAll('a[data-internal]').forEach(a=>{
+          try{
+            const href = a.getAttribute("href") || "";
+            if(!href) return;
+            if(href.startsWith("http") || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
+
+            const u = new URL(href, location.href);
+            u.searchParams.set("nocache", String(ts));
+            a.setAttribute("href", u.pathname.replace(location.origin, "") + "?" + u.searchParams.toString());
+          }catch(e){}
+        });
+      }
+
+      // ----------------- helpers -----------------
+      const tbody = document.getElementById("tbody");
+      const elYears = document.getElementById("years");
+      const elL2 = document.getElementById("l2Rate");
+      const elL3 = document.getElementById("l3Rate");
+
+      const kpiCum = document.getElementById("kpiCum");
+      const kpiStep = document.getElementById("kpiStep");
+      const kpiTotal = document.getElementById("kpiTotal");
+      const outHint = document.getElementById("outHint");
+
+      function clampNum(v){
+        const n = Number(String(v).replace(",", "."));
+        if(!Number.isFinite(n)) return 0;
+        return Math.max(0, n);
+      }
+
+      function fmtEUR(x){
+        const v = (Number.isFinite(x) ? x : 0);
+        return v.toLocaleString("de-DE", {
+          style:"currency",
+          currency:"EUR",
+          minimumFractionDigits:2,
+          maximumFractionDigits:2
+        });
+      }
+
+      function tierRateForCum(cum){
+        const c = Math.max(0, cum);
+        for(const t of TIERS){
+          if(c >= t.from && c < t.to) return t.rate;
+        }
+        return TIERS[0].rate;
+      }
+
+      function tierLabel(rate){
+        const r = Math.round(rate * 1000) / 10; // 1 Nachkommastelle
+        const s = String(r).replace(".", ",");
+        return s + "%";
+      }
+
+      // Marginal: apply tiers to [cumBefore, cumBefore + amount)
+      function commissionMarginal(amount, cumBefore){
+        let a = Math.max(0, amount);
+        let cum = Math.max(0, cumBefore);
+        let commission = 0;
+
+        for(const t of TIERS){
+          const start = Math.max(cum, t.from);
+          const end = Math.min(cum + a, t.to);
+          if(end > start){
+            commission += (end - start) * t.rate;
+          }
+        }
+        return commission;
+      }
+
+      function setHint(msg){
+        if(!SAVE_HINT) return;
+        SAVE_HINT.textContent = msg;
+      }
+
+      // ----------------- build rows -----------------
+      function buildRows(count){
+        const n = Math.max(1, Math.min(25, parseInt(count,10) || 5));
+        tbody.innerHTML = "";
+
+        for(let i=1;i<=n;i++){
+          const tr = document.createElement("tr");
+
+          // Jahr
+          const tdYear = document.createElement("td");
+          tdYear.innerHTML = '<span class="chipMini">' + i + '</span>';
+          tr.appendChild(tdYear);
+
+          // L1 Umsatz
+          tr.appendChild(tdNumInput("l1_" + i, "L1 Umsatz", "0"));
+
+          // L1 Provision (output)
+          tr.appendChild(tdMoneyOut("l1c_" + i, "0,00 €"));
+
+          // Stufe nach Jahr (output)
+          tr.appendChild(tdTextOut("step_" + i, "20%"));
+
+          // L2 Umsatz
+          tr.appendChild(tdNumInput("l2_" + i, "L2 Umsatz", "0"));
+
+          // L2 Provision (output)
+          tr.appendChild(tdMoneyOut("l2c_" + i, "0,00 €"));
+
+          // L3 Umsatz (Input) – und L3 Provision wird in KPI Gesamt berücksichtigt, aber nicht extra Spalte (wie Vorlage kürzer)
+          // -> Nutzer-Quelle hatte L3 Provision Spalte; hier im Standard: wir lassen L3 Umsatz drin und rechnen L3 fix in Gesamt.
+          // Zusätzlich zeigen wir L3 Provision im Tooltip-Text über Ergebnis-KPI (unten in calc()).
+          tr.appendChild(tdNumInput("l3_" + i, "L3 Umsatz", "0"));
+
+          tbody.appendChild(tr);
+        }
+
+        // Restore saved row values after rebuild
+        restoreFieldsToDom();
+        calc();
+      }
+
+      function tdNumInput(id, label, def){
+        const td = document.createElement("td");
+        const inp = document.createElement("input");
+        inp.className = "input num";
+        inp.type = "number";
+        inp.step = "1";
+        inp.min = "0";
+        inp.value = def || "0";
+        inp.id = id;
+        inp.setAttribute("data-store", "1");
+        inp.setAttribute("aria-label", label);
+        inp.addEventListener("input", ()=>{ calc(); scheduleSave(); });
+        inp.addEventListener("change", ()=>{ calc(); scheduleSave(); });
+        td.appendChild(inp);
+        return td;
+      }
+
+      function tdMoneyOut(id, initial){
+        const td = document.createElement("td");
+        const span = document.createElement("span");
+        span.id = id;
+        span.className = "money";
+        span.textContent = initial || "0,00 €";
+        td.appendChild(span);
+        return td;
+      }
+
+      function tdTextOut(id, initial){
+        const td = document.createElement("td");
+        const span = document.createElement("span");
+        span.id = id;
+        span.className = "money";
+        span.textContent = initial || "—";
+        td.appendChild(span);
+        return td;
+      }
+
+      // ----------------- calculation -----------------
+      function getVal(id){
+        const el = document.getElementById(id);
+        if(!el) return 0;
+        return clampNum(el.value);
+      }
+
+      function setText(id, txt){
+        const el = document.getElementById(id);
+        if(el) el.textContent = txt;
+      }
+
+      function calc(){
+        const n = Math.max(1, Math.min(25, parseInt(elYears.value,10) || 5));
+        const r2 = clampNum(elL2.value) / 100;
+        const r3 = clampNum(elL3.value) / 100;
+
+        let cumL1 = 0;
+        let totalComm = 0;
+        let totalL2Comm = 0;
+        let totalL3Comm = 0;
+
+        for(let i=1;i<=n;i++){
+          const l1 = getVal("l1_" + i);
+          const l2 = getVal("l2_" + i);
+          const l3 = getVal("l3_" + i);
+
+          const l1Comm = commissionMarginal(l1, cumL1);
+          const l2Comm = l2 * r2;
+          const l3Comm = l3 * r3;
+
+          cumL1 += l1;
+
+          const stepNow = tierRateForCum(cumL1);
+
+          setText("l1c_" + i, fmtEUR(l1Comm));
+          setText("l2c_" + i, fmtEUR(l2Comm));
+          setText("step_" + i, tierLabel(stepNow));
+
+          totalComm += (l1Comm + l2Comm + l3Comm);
+          totalL2Comm += l2Comm;
+          totalL3Comm += l3Comm;
+        }
+
+        kpiCum.textContent = fmtEUR(cumL1);
+        const rateNow = tierRateForCum(cumL1);
+        kpiStep.textContent = tierLabel(rateNow);
+        kpiTotal.textContent = fmtEUR(totalComm);
+
+        outHint.textContent =
+          "Berechnung aktiv (live). Werte werden lokal gespeichert.\n" +
+          "Zusatz: L2 gesamt = " + fmtEUR(totalL2Comm) + " | L3 gesamt = " + fmtEUR(totalL3Comm);
+      }
+
+      // ----------------- LocalStorage (Kapitel-Setup) -----------------
+      function readFields(){
+        const data = {};
+        document.querySelectorAll("[data-store]").forEach(el=>{
+          if(!el.id) return;
+          data[el.id] = el.value;
+        });
+        // years/l2/l3 are already data-store, included.
+        return data;
+      }
+
+      function writeFields(data){
+        if(!data || typeof data !== "object") return;
+        Object.keys(data).forEach(id=>{
+          const el = document.getElementById(id);
+          if(el && el.hasAttribute("data-store")){
+            el.value = String(data[id]);
+          }
+        });
+      }
+
+      function restoreFieldsToDom(){
+        try{
+          const raw = localStorage.getItem(KEY_FIELDS);
+          if(!raw) return;
+          const obj = JSON.parse(raw);
+          writeFields(obj);
+        }catch(e){}
+      }
+
+      function restore(){
+        try{
+          const notes = localStorage.getItem(KEY_NOTES);
+          if(notes !== null) document.getElementById("notes").value = notes;
+        }catch(e){}
+
+        // Restore static fields first
+        restoreFieldsToDom();
+
+        // Ensure rows exist according to saved years
+        const y = Math.max(1, Math.min(25, parseInt(elYears.value,10) || 5));
+        buildRows(y);
+
+        calc();
+      }
+
+      function saveNow(){
+        try{
+          localStorage.setItem(KEY_NOTES, document.getElementById("notes").value || "");
+          localStorage.setItem(KEY_FIELDS, JSON.stringify(readFields()));
+          setHint("Gespeichert.");
+        }catch(e){
+          setHint("Speichern fehlgeschlagen.");
+        }
+      }
+
+      let t = null;
+      function scheduleSave(){
+        setHint("Speichert…");
+        if(t) clearTimeout(t);
+        t = setTimeout(()=>{ saveNow(); t = null; }, 250);
+      }
+
+      document.getElementById("notes").addEventListener("input", scheduleSave);
+
+      document.getElementById("clearChapter").addEventListener("click", ()=>{
+        try{
+          localStorage.removeItem(KEY_NOTES);
+          localStorage.removeItem(KEY_FIELDS);
+        }catch(e){}
+        document.getElementById("notes").value = "";
+        resetAll();
+        setHint("Kapitel gelöscht.");
+      });
+
+      document.getElementById("clearAll").addEventListener("click", ()=>{
+        try{
+          const keys = [];
+          for(let i=0;i<localStorage.length;i++){
+            const k = localStorage.key(i);
+            if(k && k.startsWith(PREFIX)) keys.push(k);
+          }
+          keys.forEach(k=>localStorage.removeItem(k));
+        }catch(e){}
+        document.getElementById("notes").value = "";
+        resetAll();
+        setHint("Alle Handbuch-Daten gelöscht.");
+      });
+
+      // ----------------- actions -----------------
+      function resetAll(){
+        // Default values
+        elL2.value = "15";
+        elL3.value = "10";
+        elYears.value = "5";
+
+        // Rebuild rows and zero values
+        buildRows(5);
+        // Set all row inputs to 0
+        document.querySelectorAll("#tbody input[data-store]").forEach(inp=>{
+          inp.value = "0";
+        });
+
+        calc();
+        saveNow();
+      }
+
+      document.getElementById("btnBuild").addEventListener("click", ()=>{
+        buildRows(elYears.value);
+        calc();
+        saveNow();
+      });
+
+      document.getElementById("btnCalc").addEventListener("click", ()=>{
+        calc();
+        saveNow();
+      });
+
+      document.getElementById("btnReset").addEventListener("click", resetAll);
+
+      // live recalc on static input changes
+      [elYears, elL2, elL3].forEach(el=>{
+        el.addEventListener("input", ()=>{ calc(); scheduleSave(); });
+        el.addEventListener("change", ()=>{ 
+          if(el === elYears){
+            buildRows(elYears.value);
+          }
+          calc();
+          scheduleSave();
+        });
+      });
+
+      // Print
+      document.getElementById("printBtn").addEventListener("click", ()=>window.print());
+
+      // init
+      applyNoCache();
+      restore();
+      setHint("Bereit.");
+    })();
+  </script>
+</body>
+</html>
