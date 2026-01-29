@@ -747,14 +747,20 @@
     │   ├── produkte/
     │   │   ├── produkt-01-club-mitgliedschaft.html
     │   │   ├── produkt-05-hoersaal-angebot-lizenz.html
+    │   │   ├── produkt-05-hoersaal-crossmarketing.html
+    │   │   ├── produkt-05-hoersaal-onboarding-checkliste.html
+    │   │   ├── produkt-05-hoersaal-pakete.html
     │   │   ├── produkt-06-krypto-setup-kurs.html
     │   │   ├── produkt-07-trading-grundkurs.html
+    │   │   ├── produkt-08-nft-basis-orientierung.html
     │   │   ├── produkt-09-buch.html
     │   │   ├── produkt-beschreibungen-und-datenblaetter.html
     │   │   ├── produkt-leadmaschine.html
     │   │   ├── produkt-liveformate.html
     │   │   ├── produkt-weekend-setup.html
     │   │   ├── weekend-agenda-druckvorlage.html
+    │   │   ├── weekend-anwesenheitsliste.html
+    │   │   ├── weekend-sprecher-packliste.html
     │   │   └── weekend-teilnehmer-checkliste.html
     │   ├── social/
     │   │   ├── share-adler.html
@@ -926,4 +932,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.01.2026, 22:22)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.01.2026, 23:21)_
