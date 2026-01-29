@@ -746,6 +746,7 @@
     │   │   └── wallets.html
     │   ├── produkte/
     │   │   ├── produkt-01-club-mitgliedschaft.html
+    │   │   ├── produkt-05-hoersaal-angebot-lizenz.html
     │   │   ├── produkt-06-krypto-setup-kurs.html
     │   │   ├── produkt-07-trading-grundkurs.html
     │   │   ├── produkt-09-buch.html
@@ -923,4 +924,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.01.2026, 18:36)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.01.2026, 19:26)_
