@@ -744,6 +744,9 @@
     │   ├── office/
     │   │   ├── page.json
     │   │   └── wallets.html
+    │   ├── produkte/
+    │   │   ├── produkt-01-club-mitgliedschaft.html
+    │   │   └── produkt-beschreibungen-und-datenblaetter.html
     │   ├── social/
     │   │   ├── share-adler.html
     │   │   ├── share-akademie.html
@@ -914,4 +917,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.01.2026, 13:55)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.01.2026, 14:36)_
