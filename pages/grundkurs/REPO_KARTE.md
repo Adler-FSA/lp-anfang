@@ -753,7 +753,9 @@
     │   │   ├── produkt-beschreibungen-und-datenblaetter.html
     │   │   ├── produkt-leadmaschine.html
     │   │   ├── produkt-liveformate.html
-    │   │   └── produkt-weekend-setup.html
+    │   │   ├── produkt-weekend-setup.html
+    │   │   ├── weekend-agenda-druckvorlage.html
+    │   │   └── weekend-teilnehmer-checkliste.html
     │   ├── social/
     │   │   ├── share-adler.html
     │   │   ├── share-akademie.html
@@ -924,4 +926,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.01.2026, 20:23)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.01.2026, 21:22)_
