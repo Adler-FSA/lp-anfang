@@ -845,7 +845,7 @@
     │   │   ├── kapitel-42.html
     │   │   ├── kapitel-43.html
     │   │   ├── kapitel-44.html
-    │   │   ├── kapitel-45.htmL
+    │   │   ├── kapitel-45.html
     │   │   ├── kapitel-46.html
     │   │   └── kapitel-47.html
     │   ├── wefi/
@@ -912,4 +912,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.01.2026, 23:21)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.01.2026, 01:28)_
