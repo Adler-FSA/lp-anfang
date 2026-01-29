@@ -746,7 +746,10 @@
     │   │   └── wallets.html
     │   ├── produkte/
     │   │   ├── produkt-01-club-mitgliedschaft.html
-    │   │   └── produkt-beschreibungen-und-datenblaetter.html
+    │   │   ├── produkt-09-buch.html
+    │   │   ├── produkt-beschreibungen-und-datenblaetter.html
+    │   │   ├── produkt-leadmaschine.html
+    │   │   └── produkt-liveformate.html
     │   ├── social/
     │   │   ├── share-adler.html
     │   │   ├── share-akademie.html
@@ -917,4 +920,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.01.2026, 14:36)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.01.2026, 15:30)_
