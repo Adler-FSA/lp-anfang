@@ -746,10 +746,13 @@
     │   │   └── wallets.html
     │   ├── produkte/
     │   │   ├── produkt-01-club-mitgliedschaft.html
+    │   │   ├── produkt-06-krypto-setup-kurs.html
+    │   │   ├── produkt-07-trading-grundkurs.html
     │   │   ├── produkt-09-buch.html
     │   │   ├── produkt-beschreibungen-und-datenblaetter.html
     │   │   ├── produkt-leadmaschine.html
-    │   │   └── produkt-liveformate.html
+    │   │   ├── produkt-liveformate.html
+    │   │   └── produkt-weekend-setup.html
     │   ├── social/
     │   │   ├── share-adler.html
     │   │   ├── share-akademie.html
@@ -920,4 +923,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.01.2026, 15:30)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.01.2026, 16:37)_
