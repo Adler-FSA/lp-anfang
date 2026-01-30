@@ -886,7 +886,7 @@
     │   ├── community.html
     │   ├── lesespuren-und-vertiefung.html
     │   ├── mentoren.html
-    │   ├── neutral-zu-100%.html
+    │   ├── neutral-zu-100.html
     │   ├── office-network.html
     │   ├── office-tools.html
     │   ├── office.html
@@ -937,4 +937,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 30.01.2026, 19:27)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 30.01.2026, 20:23)_
