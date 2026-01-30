@@ -224,6 +224,8 @@
     │   │   ├── README.txt
     │   │   ├── frohe-weihnachten.jpg
     │   │   ├── index.json
+    │   │   ├── kick-of-01.jpeg
+    │   │   ├── kick-of-02.jpeg
     │   │   ├── most innovative web3 project.jpeg
     │   │   ├── so-kaufst-du-ito-video06.jpeg
     │   │   ├── vertriebshandbuch-cover-index.jpeg
@@ -603,6 +605,7 @@
     │   │   ├── hoersaal.html
     │   │   ├── index.html
     │   │   ├── landing-4-saeulen.html
+    │   │   ├── nice-to-know.html
     │   │   ├── partner.html
     │   │   ├── peer-to-peer.html
     │   │   ├── planungstool.html
@@ -933,4 +936,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 30.01.2026, 08:31)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 30.01.2026, 09:32)_
