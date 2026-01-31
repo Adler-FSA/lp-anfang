@@ -654,7 +654,8 @@
     │   │       ├── leitfaden-01-privat.html
     │   │       ├── leitfaden-02-selbstaendig.html
     │   │       ├── leitfaden-03-unternehmer-verein.html
-    │   │       └── leitfaden-04-aufbaupartner.html
+    │   │       ├── leitfaden-04-aufbaupartner.html
+    │   │       └── leitfaden-05-sprecher.html
     │   ├── footer/
     │   │   ├── community.html
     │   │   ├── impressum.html
@@ -948,4 +949,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 31.01.2026, 12:35)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 31.01.2026, 13:37)_
