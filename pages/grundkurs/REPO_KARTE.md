@@ -227,6 +227,7 @@
     │   │   ├── kick-of-01.jpeg
     │   │   ├── kick-of-02.jpeg
     │   │   ├── most innovative web3 project.jpeg
+    │   │   ├── siegel.png
     │   │   ├── so-kaufst-du-ito-video06.jpeg
     │   │   ├── vertriebshandbuch-cover-index.jpeg
     │   │   ├── wefi-anmeldung-video05.jpeg
@@ -950,4 +951,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 31.01.2026, 22:16)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 31.01.2026, 23:17)_
