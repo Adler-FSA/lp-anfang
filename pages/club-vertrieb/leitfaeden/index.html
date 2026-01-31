@@ -337,6 +337,7 @@
       table{min-width:760px}
     }
 
+    /* ===== PRINT FIX (nur das) ===== */
     @media print{
       body{background:#fff !important; color:#000 !important}
       .top-actions, header .logo, .tabs, .controls, .rowActions, .note, .grid .card .cta, #toggleLangBtn, #resetAllBtn {display:none !important}
@@ -348,7 +349,26 @@
       td{color:#111 !important}
       .badge{border:1px solid #bbb !important; background:#f7f7f7 !important; color:#111 !important}
       .badge b{color:#111 !important}
-      .tableWrap{border:1px solid #bbb !important; background:#fff !important}
+
+      /* Wichtig: kein Scroll-Container und keine Min-Width im Print */
+      .tableWrap{overflow:visible !important; border:1px solid #bbb !important; background:#fff !important}
+      table{min-width:0 !important; width:100% !important; table-layout:fixed !important}
+      th[style]{width:auto !important}
+
+      /* kompakter + sichere Umbrüche */
+      th,td{padding:6px 6px !important; font-size:11px !important; overflow-wrap:anywhere; word-break:break-word}
+
+      /* Status: im Print nur den aktiven Status als Text drucken */
+      .status{display:block !important}
+      .chip{display:none !important}
+      .chip.active{
+        display:inline !important;
+        border:none !important;
+        background:transparent !important;
+        color:#111 !important;
+        padding:0 !important;
+      }
+      .chip.active svg{display:none !important}
     }
   </style>
 </head>
@@ -777,7 +797,6 @@
           if(dict[key]) el.textContent = dict[key];
         });
 
-        // meta pills
         keys.forEach(({k,mid})=>{
           const box = document.getElementById(mid);
           box.innerHTML = "";
@@ -802,7 +821,6 @@
         });
       }
 
-      // Calllog helpers
       function calllogAll(){
         return lsGet(CALLLOG_KEY) || {};
       }
@@ -824,7 +842,6 @@
         return `${Date.now()}_${Math.random().toString(16).slice(2)}`;
       }
 
-      // UI refs
       const els = {
         weekSelect: document.getElementById("weekSelect"),
         weekLabel: document.getElementById("weekLabel"),
@@ -888,13 +905,6 @@
         renderWeek();
       }
 
-      function statusLabel(status, lang){
-        const dict = I18N[lang];
-        if(status==="in") return dict.st_in;
-        if(status==="out") return dict.st_out;
-        return dict.st_thinking;
-      }
-
       function renderWeek(){
         const lang = langGet();
         const dict = I18N[lang];
@@ -943,7 +953,6 @@
           els.wlBody.appendChild(tr);
         });
 
-        // progress counts for whole week (not filtered)
         const total = list.length;
         els.countTxt.textContent = String(total);
         const pct = Math.max(0, Math.min(100, Math.round((total / TARGET_PER_WEEK) * 100)));
@@ -986,9 +995,8 @@
         }[m]));
       }
 
-      // Modal state
-      let pendingReset = null; // {guideKey, guideNo, snapshot, ts}
-      function modalOpen(payload, lang){
+      let pendingReset = null;
+      function modalOpen(payload){
         pendingReset = payload;
 
         els.mdGuide.textContent = payload.guideNo;
@@ -1006,14 +1014,10 @@
       }
 
       function addToWeekFromModal(){
-        const lang = langGet();
-        const dict = I18N[lang];
-
         if(!pendingReset) return;
 
         const phone = (els.mdPhone.value || "").trim();
         if(!phone){
-          // no phone => treat as cancel-save (do nothing, but reset already done)
           modalClose();
           renderWeek();
           return;
@@ -1023,8 +1027,13 @@
         const list = calllogGetWeek(weekId);
 
         const snap = pendingReset.snapshot || {};
-        const focus = (snap.fokusLabel && (snap.fokusLabel.de || snap.fokusLabel.en)) ? (snap.fokusLabel[lang]||snap.fokusLabel.de||snap.fokusLabel.en) : (snap.fokus||"–");
-        const eng = (snap.engpassLabel && (snap.engpassLabel.de || snap.engpassLabel.en)) ? (snap.engpassLabel[lang]||snap.engpassLabel.de||snap.engpassLabel.en) : (snap.engpass||"–");
+        const lang = langGet();
+        const focus = (snap.fokusLabel && (snap.fokusLabel.de || snap.fokusLabel.en))
+          ? (snap.fokusLabel[lang]||snap.fokusLabel.de||snap.fokusLabel.en)
+          : (snap.fokus||"–");
+        const eng = (snap.engpassLabel && (snap.engpassLabel.de || snap.engpassLabel.en))
+          ? (snap.engpassLabel[lang]||snap.engpassLabel.de||snap.engpassLabel.en)
+          : (snap.engpass||"–");
 
         const entry = {
           id: uid(),
@@ -1046,32 +1055,27 @@
         renderWeek();
       }
 
-      // Init
       const initialLang = langGet();
       applyI18n(initialLang);
 
       const initialWeek = buildWeekOptions();
       els.weekLabel.textContent = initialWeek;
 
-      // Tabs
       els.tabs.addEventListener("click", (ev)=>{
         const b = ev.target.closest("button.tab");
         if(!b) return;
         setTab(b.getAttribute("data-tab") || "all");
       });
 
-      // Week select
       els.weekSelect.addEventListener("change", ()=>{
         localStorage.setItem(WEEK_SEL_KEY, els.weekSelect.value || "");
         renderWeek();
       });
 
-      // Print
       els.printBtn.addEventListener("click", ()=>{
         window.print();
       });
 
-      // Clear week
       els.clearWeekBtn.addEventListener("click", ()=>{
         const lang = langGet();
         const dict = I18N[lang];
@@ -1082,14 +1086,10 @@
         renderWeek();
       });
 
-      // Status change + delete actions
       els.wlBody.addEventListener("click", (ev)=>{
-        const lang = langGet();
-        const dict = I18N[lang];
         const weekId = els.weekSelect.value || getISOWeekId(new Date());
         const list = calllogGetWeek(weekId);
 
-        // delete
         const delBtn = ev.target.closest("button[data-act='del']");
         if(delBtn){
           const id = delBtn.getAttribute("data-id");
@@ -1099,7 +1099,6 @@
           return;
         }
 
-        // status chip
         const chip = ev.target.closest(".chip");
         if(chip){
           const wrap = chip.closest(".status");
@@ -1118,7 +1117,6 @@
         }
       });
 
-      // Toggle language
       document.getElementById("toggleLangBtn").addEventListener("click", ()=>{
         const next = (langGet()==="en" ? "de" : "en");
         langSet(next);
@@ -1126,7 +1124,6 @@
         renderWeek();
       });
 
-      // Reset all
       document.getElementById("resetAllBtn").addEventListener("click", ()=>{
         const lang = langGet();
         const dict = I18N[lang];
@@ -1135,7 +1132,6 @@
         applyI18n(lang);
       });
 
-      // Reset single (with weekly list flow)
       document.querySelectorAll("button[data-key]").forEach(btn=>{
         btn.addEventListener("click", ()=>{
           const lang = langGet();
@@ -1145,34 +1141,25 @@
 
           if(!confirm(dict.confirm_reset)) return;
 
-          // snapshot BEFORE delete
           const snapshot = lsGet(k);
-
-          // ask weekly list
           const add = confirm(dict.confirm_add_to_week);
 
-          // always reset guide storage
           lsDel(k);
-
-          // refresh meta pills
           applyI18n(lang);
 
           if(add){
-            // open modal for phone + status; save adds entry
             modalOpen({
               guideKey: k,
               guideNo: guideNo,
               snapshot: snapshot,
               ts: Date.now()
-            }, lang);
+            });
           }else{
-            // no add
             renderWeek();
           }
         });
       });
 
-      // Modal events
       els.mdCancelBtn.addEventListener("click", ()=>{
         modalClose();
         renderWeek();
@@ -1193,7 +1180,6 @@
         }
       });
 
-      // Initial week render
       setTab("all");
       renderWeek();
     })();
