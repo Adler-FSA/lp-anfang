@@ -1,0 +1,1583 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Beratermarkt-Index DACH – Tool</title>
+  <meta name="description" content="Beratermarkt-Index DACH: Nachfrage-Signale, 5-Jahres-Trend, Pitch & Einwand-Generator." />
+  <meta name="robots" content="noindex,nofollow" />
+
+  <style>
+    :root{
+      --bg:#050814;
+      --bg2:#020617;
+      --panel:rgba(15,23,42,.90);
+      --panel2:rgba(15,23,42,.72);
+      --txt:#e9eef7;
+      --muted:#a9b4c7;
+      --gold:#d4af37;
+      --gold2:#f2d37a;
+      --line:rgba(212,175,55,.34);
+      --shadow:0 24px 60px rgba(0,0,0,.55);
+      --glow:0 0 26px rgba(212,175,55,.22), 0 18px 44px rgba(0,0,0,.55);
+
+      --good:#33d17a;
+      --warn:#f9c74f;
+      --bad:#ff5c5c;
+
+      --radius:18px;
+      --maxw:1200px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      margin:0; padding:0;
+      background:linear-gradient(180deg,var(--bg),var(--bg2));
+      color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      overflow-x:hidden;
+    }
+
+    .bg{
+      min-height:100vh;
+      position:relative;
+      padding:26px 16px 34px;
+      background:
+        radial-gradient(900px 520px at 22% 12%, rgba(212,175,55,.16), transparent 60%),
+        radial-gradient(900px 520px at 72% 18%, rgba(94,168,255,.16), transparent 60%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+    }
+
+    .wrap{max-width:var(--maxw); margin:0 auto;}
+
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      padding:14px 14px 10px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:linear-gradient(180deg, rgba(15,23,42,.78), rgba(15,23,42,.58));
+      box-shadow:var(--shadow);
+    }
+
+    .brand{display:flex; flex-direction:column; gap:6px; min-width:260px;}
+    .title{margin:0; font-size:22px; letter-spacing:.2px; line-height:1.15;}
+    .sub{margin:0; color:var(--muted); font-size:13px; line-height:1.35;}
+
+    .actions{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      justify-content:flex-end; padding-top:2px;
+    }
+
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px; border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.30);
+      box-shadow:var(--glow);
+      user-select:none;
+    }
+
+    .langBtn{
+      display:inline-flex; gap:0;
+      border-radius:999px; overflow:hidden;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.35);
+      box-shadow:var(--glow);
+    }
+    .langBtn button{
+      appearance:none; border:0; background:transparent; color:var(--txt);
+      padding:10px 12px; font-weight:900; letter-spacing:.2px; cursor:pointer;
+    }
+    .langBtn button.active{
+      background:linear-gradient(180deg, rgba(212,175,55,.24), rgba(212,175,55,.10));
+      color:var(--gold2);
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(212,175,55,.18), rgba(0,0,0,.35));
+      color:var(--txt);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      box-shadow:var(--glow);
+      font-weight:900;
+      letter-spacing:.2px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .btn.secondary{background:rgba(0,0,0,.30); box-shadow:none;}
+    .btn:hover{filter:brightness(1.05)}
+    .btn:active{transform:translateY(1px)}
+
+    .grid{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: 1.05fr 1.65fr;
+      gap:14px;
+    }
+    @media (max-width: 980px){ .grid{grid-template-columns:1fr} .actions{justify-content:flex-start} }
+
+    .card{
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:linear-gradient(180deg, rgba(15,23,42,.86), rgba(15,23,42,.62));
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:12px 14px;
+      border-bottom:1px solid rgba(212,175,55,.18);
+      background:rgba(0,0,0,.18);
+    }
+
+    .cardTitle{
+      margin:0;
+      font-size:14px;
+      letter-spacing:.22px;
+      text-transform:uppercase;
+      color:var(--gold2);
+      font-weight:900;
+    }
+
+    .cardBody{ padding:14px; }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(212,175,55,.22);
+      background:rgba(0,0,0,.25);
+      color:var(--muted);
+      font-weight:900;
+      letter-spacing:.18px;
+      text-transform:uppercase;
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .badge .dot{
+      width:10px;height:10px;border-radius:999px;
+      background:rgba(255,255,255,.3);
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:0 0 10px rgba(255,255,255,.12);
+    }
+    .dot.good{background:rgba(51,209,122,.85); box-shadow:0 0 16px rgba(51,209,122,.25)}
+    .dot.warn{background:rgba(249,199,79,.90); box-shadow:0 0 16px rgba(249,199,79,.22)}
+    .dot.bad{background:rgba(255,92,92,.90); box-shadow:0 0 16px rgba(255,92,92,.22)}
+
+    /* Gauge */
+    .gaugeWrap{display:flex; gap:14px; align-items:center; justify-content:space-between; flex-wrap:wrap;}
+    .gauge{
+      width:280px; height:280px;
+      display:grid; place-items:center;
+      position:relative;
+      border-radius:16px;
+      background:rgba(0,0,0,.20);
+      border:1px solid rgba(212,175,55,.20);
+      box-shadow:var(--glow);
+    }
+    .gauge svg{width:250px;height:250px}
+    .gaugeCenter{
+      position:absolute; inset:0;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:6px; text-align:center; pointer-events:none;
+    }
+    .scoreLabel{
+      font-weight:900; letter-spacing:.6px;
+      text-transform:uppercase; font-size:12px;
+      color:var(--gold2); opacity:.95;
+    }
+    .scoreValue{
+      font-size:64px; font-weight:900; line-height:1; margin-top:2px;
+      text-shadow:0 10px 30px rgba(0,0,0,.55);
+    }
+    .scoreBand{
+      display:flex; gap:10px; align-items:center; justify-content:center;
+      color:var(--muted); font-weight:900; letter-spacing:.25px;
+      text-transform:uppercase; font-size:12px;
+    }
+
+    .kv{
+      flex:1; min-width:280px;
+      display:grid; grid-template-columns:1fr; gap:10px;
+    }
+    .kvRow{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:12px 12px; border-radius:14px;
+      border:1px solid rgba(212,175,55,.18);
+      background:rgba(0,0,0,.18);
+    }
+    .kvRow .k{color:var(--muted); font-size:13px; line-height:1.2;}
+    .kvRow .v{font-weight:900; letter-spacing:.2px;}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; letter-spacing:.1px;}
+
+    /* Trend chart */
+    .trendSvg{
+      width:100%; height:260px; display:block;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.18);
+      background:rgba(0,0,0,.16);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+    }
+
+    .legend{margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+    .legItem{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(212,175,55,.18);
+      background:rgba(0,0,0,.18);
+      color:var(--muted);
+      font-weight:900; letter-spacing:.15px;
+      font-size:12px; text-transform:uppercase;
+    }
+    .swatch{
+      width:14px;height:14px;border-radius:4px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.18);
+      box-shadow:0 0 12px rgba(0,0,0,.35);
+    }
+    .swatch.base{background:rgba(212,175,55,.70)}
+    .swatch.down{background:rgba(255,92,92,.75)}
+    .swatch.boom{background:rgba(51,209,122,.70)}
+
+    /* Bottom split */
+    .split{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:14px;
+    }
+    @media (max-width: 980px){ .split{grid-template-columns:1fr} }
+
+    /* Countries */
+    .countryGrid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+    @media (max-width: 860px){ .countryGrid{grid-template-columns:1fr} }
+
+    .countryCard{
+      border:1px solid rgba(212,175,55,.18);
+      background:rgba(0,0,0,.16);
+      border-radius:16px;
+      padding:12px 12px;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+      display:flex; flex-direction:column; gap:8px;
+      min-height:128px;
+    }
+    .countryTop{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+    .countryName{
+      display:flex; align-items:center; gap:10px;
+      font-weight:900; letter-spacing:.2px; text-transform:uppercase;
+    }
+    .flag{
+      width:28px;height:20px; border-radius:4px; overflow:hidden;
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:0 0 12px rgba(0,0,0,.35);
+      flex:0 0 auto;
+    }
+    .flag svg{width:100%;height:100%;display:block}
+    .countryScore{font-weight:900; font-size:20px; letter-spacing:.2px; color:var(--gold2);}
+    .countryWhy{color:var(--muted); font-size:13px; line-height:1.35;}
+
+    /* Drivers + generators */
+    .drivers{display:flex; flex-direction:column; gap:10px;}
+    .driverItem{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:10px 12px; border-radius:14px;
+      border:1px solid rgba(212,175,55,.16);
+      background:rgba(0,0,0,.16);
+    }
+    .driverLeft{display:flex; align-items:center; gap:10px; min-width:0;}
+    .driverIcon{width:18px;height:18px; flex:0 0 auto; opacity:.95;}
+    .driverText{
+      font-weight:900; letter-spacing:.15px; font-size:13px; color:var(--txt);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .delta{
+      font-weight:900; letter-spacing:.2px; font-size:12px;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(212,175,55,.16);
+      background:rgba(0,0,0,.18);
+      color:var(--muted);
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+    .delta.up{color:rgba(51,209,122,.95)}
+    .delta.down{color:rgba(255,92,92,.95)}
+    .delta.flat{color:rgba(249,199,79,.95)}
+
+    .pitchBox{display:flex; flex-direction:column; gap:10px;}
+    .outBox{
+      border:1px solid rgba(212,175,55,.18);
+      border-radius:16px;
+      background:rgba(0,0,0,.18);
+      padding:12px 12px;
+      min-height:148px;
+      color:var(--txt);
+      line-height:1.45;
+      white-space:pre-wrap;
+    }
+    .toolsRow{display:flex; gap:10px; flex-wrap:wrap;}
+
+    .formRow{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+    .select{
+      appearance:none;
+      border:1px solid rgba(212,175,55,.18);
+      background:rgba(0,0,0,.18);
+      color:var(--txt);
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:900;
+      letter-spacing:.12px;
+      min-width:260px;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+    }
+
+    /* Audience tabs */
+    .tabsBar{
+      margin-top:14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .tabs{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+    .tabBtn{
+      appearance:none;
+      border:1px solid rgba(212,175,55,.22);
+      background:rgba(0,0,0,.18);
+      color:var(--muted);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:900;
+      letter-spacing:.2px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+    }
+    .tabBtn.active{
+      background:linear-gradient(180deg, rgba(212,175,55,.20), rgba(0,0,0,.20));
+      color:var(--gold2);
+      border-color:rgba(212,175,55,.32);
+      box-shadow:var(--glow);
+    }
+
+    .audWrap{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:14px;
+    }
+    @media (max-width: 980px){ .audWrap{grid-template-columns:1fr} }
+
+    .audCard{
+      border:1px solid rgba(212,175,55,.18);
+      background:rgba(0,0,0,.16);
+      border-radius:16px;
+      padding:12px 12px;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+    }
+    .audTitle{
+      margin:0 0 6px;
+      font-size:14px;
+      letter-spacing:.18px;
+      text-transform:uppercase;
+      color:var(--gold2);
+      font-weight:900;
+    }
+    .audLead{
+      margin:0 0 10px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+    .bul{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:8px;}
+    .bul li{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px 10px; border-radius:14px;
+      border:1px solid rgba(212,175,55,.14);
+      background:rgba(0,0,0,.14);
+    }
+    .bDot{
+      width:10px;height:10px;border-radius:999px; margin-top:5px;
+      background:rgba(242,211,122,.90);
+      box-shadow:0 0 12px rgba(212,175,55,.20);
+      border:1px solid rgba(0,0,0,.35);
+      flex:0 0 auto;
+    }
+    .bTxt{color:var(--txt); font-size:13px; line-height:1.4; font-weight:800; letter-spacing:.1px;}
+    .miniPitch{white-space:pre-wrap; color:var(--txt); line-height:1.45; font-size:13px;}
+
+    .footerRow{
+      margin-top:14px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; flex-wrap:wrap;
+      color:var(--muted);
+      font-size:12px;
+      opacity:.95;
+    }
+
+    /* Toast */
+    .toast{
+      position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid rgba(212,175,55,.22);
+      background:rgba(0,0,0,.55);
+      color:var(--txt);
+      box-shadow:var(--glow);
+      font-weight:900;
+      letter-spacing:.15px;
+      font-size:12px;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .18s ease;
+      z-index:9999;
+      white-space:nowrap;
+      max-width:min(92vw, 900px);
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .toast.show{opacity:1;}
+
+    @media print{
+      body{background:#fff;color:#000}
+      .bg{padding:0;background:#fff}
+      .topbar{box-shadow:none;border:0;border-radius:0}
+      .actions, .toolsRow, .tabsBar, .formRow, .toast{display:none !important}
+      .card, .countryCard, .driverItem, .kvRow, .audCard{box-shadow:none !important; background:#fff !important;}
+      .card{border:1px solid #bbb}
+      .trendSvg{background:#fff;border:1px solid #bbb}
+      .cardTitle, .audTitle{color:#000}
+      .sub, .kvRow .k, .countryWhy, .delta, .footerRow, .audLead{color:#333 !important}
+      .scoreValue{color:#000;text-shadow:none}
+      .badge{border-color:#bbb}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg">
+    <div class="wrap">
+
+      <header class="topbar" aria-label="Header">
+        <div class="brand">
+          <h1 class="title" data-i18n="app.title">Beratermarkt-Index DACH</h1>
+          <p class="sub" data-i18n="app.sub">Demand Score · Treiber · 5-Jahres-Trend · Pitch + Einwand (Upgrade)</p>
+        </div>
+
+        <div class="actions">
+          <div class="pill" aria-label="Status">
+            <span style="width:10px;height:10px;border-radius:999px;background:rgba(242,211,122,.85);box-shadow:0 0 12px rgba(212,175,55,.22);border:1px solid rgba(0,0,0,.45);" aria-hidden="true"></span>
+            <span data-i18n="app.status">Demo-Daten</span>
+          </div>
+
+          <div class="langBtn" role="group" aria-label="Language">
+            <button type="button" id="btnDE" class="active">DE</button>
+            <button type="button" id="btnEN">EN</button>
+          </div>
+
+          <button type="button" class="btn secondary" id="btnRecalc" title="Refresh">
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M12 6V3L8 7l4 4V8c2.76 0 5 2.24 5 5a5 5 0 0 1-8.66 3.54l-1.42 1.42A7 7 0 1 0 12 6z"/>
+            </svg>
+            <span data-i18n="btn.refresh">Neu berechnen</span>
+          </button>
+
+          <button type="button" class="btn" id="btnPrint">
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M6 9V3h12v6H6zm11-4H7v2h10V5zM6 22v-6h12v6H6zm2-4h8v2H8v-2zM6 10h12a4 4 0 0 1 4 4v4h-4v-3H6v3H2v-4a4 4 0 0 1 4-4z"/>
+            </svg>
+            <span data-i18n="btn.pdf">PDF Report</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="grid" aria-label="Main">
+
+        <!-- LEFT: Gauge -->
+        <section class="card">
+          <div class="cardHead">
+            <h2 class="cardTitle" data-i18n="card.score">Demand Score</h2>
+            <span class="badge" id="badgeLevel">
+              <span class="dot warn" id="levelDot" aria-hidden="true"></span>
+              <span id="levelText" data-i18n="level.high">hoch</span>
+            </span>
+          </div>
+
+          <div class="cardBody">
+            <div class="gaugeWrap">
+
+              <div class="gauge" aria-label="Gauge">
+                <svg viewBox="0 0 260 260" role="img" aria-label="Gauge">
+                  <defs>
+                    <linearGradient id="gradTrack" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0" stop-color="rgba(255,255,255,.10)"/>
+                      <stop offset="1" stop-color="rgba(255,255,255,.03)"/>
+                    </linearGradient>
+                    <linearGradient id="gradArc" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0" stop-color="rgba(51,209,122,.95)"/>
+                      <stop offset="0.55" stop-color="rgba(249,199,79,.98)"/>
+                      <stop offset="1" stop-color="rgba(255,92,92,.98)"/>
+                    </linearGradient>
+                    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+                      <feGaussianBlur stdDeviation="3" result="blur"/>
+                      <feColorMatrix in="blur" type="matrix"
+                        values="1 0 0 0 0
+                                0 1 0 0 0
+                                0 0 1 0 0
+                                0 0 0 .6 0" result="glow"/>
+                      <feMerge>
+                        <feMergeNode in="glow"/>
+                        <feMergeNode in="SourceGraphic"/>
+                      </feMerge>
+                    </filter>
+                  </defs>
+
+                  <circle cx="130" cy="130" r="102" fill="none" stroke="url(#gradTrack)" stroke-width="18" opacity=".55"/>
+                  <circle id="arc" cx="130" cy="130" r="102" fill="none" stroke="url(#gradArc)" stroke-width="18"
+                          stroke-linecap="round" filter="url(#softGlow)"
+                          transform="rotate(-90 130 130)"/>
+
+                  <circle cx="130" cy="130" r="78" fill="rgba(0,0,0,.18)" stroke="rgba(212,175,55,.18)" stroke-width="1.2"/>
+                  <line id="needle" x1="130" y1="130" x2="130" y2="48" stroke="rgba(242,211,122,.95)" stroke-width="3.2" stroke-linecap="round"/>
+                  <circle cx="130" cy="130" r="6" fill="rgba(242,211,122,.95)" stroke="rgba(0,0,0,.55)" stroke-width="2"/>
+                </svg>
+
+                <div class="gaugeCenter">
+                  <div class="scoreLabel" data-i18n="score.label">DACH</div>
+                  <div class="scoreValue" id="scoreValue">80</div>
+                  <div class="scoreBand">
+                    <span data-i18n="band.de">hoch</span>
+                    <span style="opacity:.35">|</span>
+                    <span data-i18n="band.en">high</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="kv" aria-label="Key Values">
+                <div class="kvRow">
+                  <div class="k" data-i18n="kv.updated">Stand</div>
+                  <div class="v mono" id="kvUpdated">2026-01-31</div>
+                </div>
+                <div class="kvRow">
+                  <div class="k" data-i18n="kv.horizon">Horizont</div>
+                  <div class="v" data-i18n="kv.horizon.v">60 Monate</div>
+                </div>
+                <div class="kvRow">
+                  <div class="k" data-i18n="kv.mode">Modus</div>
+                  <div class="v" data-i18n="kv.mode.v">MVP-Signale</div>
+                </div>
+                <div class="kvRow">
+                  <div class="k" data-i18n="kv.note">Hinweis</div>
+                  <div class="v" data-i18n="kv.note.v">Index = Orientierung, kein Versprechen</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- RIGHT: Trend -->
+        <section class="card">
+          <div class="cardHead">
+            <h2 class="cardTitle" data-i18n="card.trend">Trendprognose 5 Jahre</h2>
+            <span class="badge">
+              <span class="dot warn" aria-hidden="true"></span>
+              <span data-i18n="trend.scenarios">Basis · Rückgang · Boom</span>
+            </span>
+          </div>
+
+          <div class="cardBody">
+            <svg class="trendSvg" id="trendSvg" viewBox="0 0 1000 260" preserveAspectRatio="none" role="img" aria-label="Trend Chart">
+              <defs>
+                <linearGradient id="gridFade" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="rgba(255,255,255,.08)"/>
+                  <stop offset="1" stop-color="rgba(255,255,255,.02)"/>
+                </linearGradient>
+              </defs>
+
+              <rect x="0" y="0" width="1000" height="260" fill="rgba(0,0,0,.10)"/>
+              <g opacity=".9">
+                <line x1="60" y1="30" x2="980" y2="30" stroke="url(#gridFade)" stroke-width="1"/>
+                <line x1="60" y1="90" x2="980" y2="90" stroke="url(#gridFade)" stroke-width="1"/>
+                <line x1="60" y1="150" x2="980" y2="150" stroke="url(#gridFade)" stroke-width="1"/>
+                <line x1="60" y1="210" x2="980" y2="210" stroke="url(#gridFade)" stroke-width="1"/>
+
+                <line x1="60" y1="30" x2="60" y2="230" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+                <line x1="260" y1="30" x2="260" y2="230" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+                <line x1="460" y1="30" x2="460" y2="230" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+                <line x1="660" y1="30" x2="660" y2="230" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+                <line x1="860" y1="30" x2="860" y2="230" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+              </g>
+
+              <g font-size="12" fill="rgba(233,238,247,.72)" font-weight="900" letter-spacing=".2">
+                <text x="60" y="248" text-anchor="start" data-i18n="x.today">Heute</text>
+                <text x="260" y="248" text-anchor="middle">+12M</text>
+                <text x="460" y="248" text-anchor="middle">+24M</text>
+                <text x="660" y="248" text-anchor="middle">+36M</text>
+                <text x="860" y="248" text-anchor="middle">+48M</text>
+                <text x="980" y="248" text-anchor="end">+60M</text>
+              </g>
+
+              <polyline id="lineDown" fill="none" stroke="rgba(255,92,92,.78)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" points=""/>
+              <polyline id="lineBase" fill="none" stroke="rgba(212,175,55,.78)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" points=""/>
+              <polyline id="lineBoom" fill="none" stroke="rgba(51,209,122,.72)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" points=""/>
+
+              <g font-size="12" fill="rgba(169,180,199,.85)" font-weight="900">
+                <text x="18" y="34">100</text>
+                <text x="18" y="94">75</text>
+                <text x="18" y="154">50</text>
+                <text x="18" y="214">25</text>
+              </g>
+            </svg>
+
+            <div class="legend" aria-label="Legend">
+              <div class="legItem"><span class="swatch base" aria-hidden="true"></span><span data-i18n="leg.base">Basis</span></div>
+              <div class="legItem"><span class="swatch down" aria-hidden="true"></span><span data-i18n="leg.down">Rückgang</span></div>
+              <div class="legItem"><span class="swatch boom" aria-hidden="true"></span><span data-i18n="leg.boom">Boom</span></div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      <section class="split" aria-label="Bottom">
+
+        <!-- Countries -->
+        <div class="card">
+          <div class="cardHead">
+            <h2 class="cardTitle" data-i18n="card.countries">DACH Aufschlüsselung</h2>
+            <span class="badge">
+              <span class="dot warn" aria-hidden="true"></span>
+              <span data-i18n="countries.note">Score + 1 Satz „warum“</span>
+            </span>
+          </div>
+
+          <div class="cardBody">
+            <div class="countryGrid">
+
+              <div class="countryCard">
+                <div class="countryTop">
+                  <div class="countryName">
+                    <span class="flag" aria-hidden="true">
+                      <svg viewBox="0 0 3 2" preserveAspectRatio="none">
+                        <rect width="3" height="2" fill="#000"/>
+                        <rect y="0.6667" width="3" height="0.6666" fill="#dd0000"/>
+                        <rect y="1.3333" width="3" height="0.6667" fill="#ffce00"/>
+                      </svg>
+                    </span>
+                    <span data-i18n="country.de">Deutschland</span>
+                  </div>
+                  <div class="countryScore" id="scoreDE">82</div>
+                </div>
+                <div class="countryWhy" id="whyDE" data-i18n="why.de">Mehr Unsicherheit + höherer Bedarf nach Struktur & Mentoren</div>
+              </div>
+
+              <div class="countryCard">
+                <div class="countryTop">
+                  <div class="countryName">
+                    <span class="flag" aria-hidden="true">
+                      <svg viewBox="0 0 3 2" preserveAspectRatio="none">
+                        <rect width="3" height="2" fill="#ed2939"/>
+                        <rect y="0.6667" width="3" height="0.6666" fill="#fff"/>
+                        <rect y="1.3333" width="3" height="0.6667" fill="#ed2939"/>
+                      </svg>
+                    </span>
+                    <span data-i18n="country.at">Österreich</span>
+                  </div>
+                  <div class="countryScore" id="scoreAT">77</div>
+                </div>
+                <div class="countryWhy" id="whyAT" data-i18n="why.at">Kosten drücken → Beratung wird normaler als früher</div>
+              </div>
+
+              <div class="countryCard">
+                <div class="countryTop">
+                  <div class="countryName">
+                    <span class="flag" aria-hidden="true">
+                      <svg viewBox="0 0 32 24" preserveAspectRatio="none">
+                        <rect width="32" height="24" fill="#d52b1e"/>
+                        <rect x="13" y="5" width="6" height="14" fill="#fff"/>
+                        <rect x="9" y="9" width="14" height="6" fill="#fff"/>
+                      </svg>
+                    </span>
+                    <span data-i18n="country.ch">Schweiz</span>
+                  </div>
+                  <div class="countryScore" id="scoreCH">73</div>
+                </div>
+                <div class="countryWhy" id="whyCH" data-i18n="why.ch">Planung & Diskretion → Setup-Beratung gewinnt</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Drivers + Pitch + Objections -->
+        <div class="card">
+          <div class="cardHead">
+            <h2 class="cardTitle" data-i18n="card.drivers">Top Treiber aktuell</h2>
+            <span class="badge">
+              <span class="dot warn" aria-hidden="true"></span>
+              <span data-i18n="drivers.note">Warum der Markt wächst</span>
+            </span>
+          </div>
+
+          <div class="cardBody">
+            <div class="drivers" aria-label="Drivers">
+              <div class="driverItem">
+                <div class="driverLeft">
+                  <svg class="driverIcon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M10 4h4v2h6v14H4V6h6V4zm2 2V6h-2v0h2zM6 10h12v2H6v-2zm0 4h12v2H6v-2z"/>
+                  </svg>
+                  <div class="driverText" data-i18n="drv.1">Job-Sicherheit sinkt</div>
+                </div>
+                <span class="delta up" id="d1">▲ +0.8</span>
+              </div>
+
+              <div class="driverItem">
+                <div class="driverLeft">
+                  <svg class="driverIcon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M3 13h8v8H3v-8zm10-10h8v18h-8V3zM3 3h8v8H3V3z"/>
+                  </svg>
+                  <div class="driverText" data-i18n="drv.2">Suchtrend „Finanzcoach“</div>
+                </div>
+                <span class="delta up" id="d2">▲ +1.1</span>
+              </div>
+
+              <div class="driverItem">
+                <div class="driverLeft">
+                  <svg class="driverIcon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M10 20v-6H5l7-10v6h5l-7 10z"/>
+                  </svg>
+                  <div class="driverText" data-i18n="drv.3">Zweiteinkommen wird Standard</div>
+                </div>
+                <span class="delta up" id="d3">▲ +0.9</span>
+              </div>
+
+              <div class="driverItem">
+                <div class="driverLeft">
+                  <svg class="driverIcon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                  </svg>
+                  <div class="driverText" data-i18n="drv.4">Komplexität braucht Führung</div>
+                </div>
+                <span class="delta flat" id="d4">► +0.2</span>
+              </div>
+
+              <div class="driverItem">
+                <div class="driverLeft">
+                  <svg class="driverIcon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M12 1a11 11 0 1 0 0 22 11 11 0 0 0 0-22zm1 17.9V19h-2v-.1a4.3 4.3 0 0 1-3.2-1.8l1.6-1.2c.5.7 1.1 1.1 2.1 1.1 1.1 0 1.9-.5 1.9-1.3 0-.9-.8-1.2-2.2-1.6-1.8-.5-3.4-1.1-3.4-3.1 0-1.5 1.1-2.6 3.2-2.9V5h2v.1c1.2.2 2.1.7 2.8 1.6l-1.5 1.2c-.4-.6-1.1-1-2.0-1-.9 0-1.5.4-1.5 1.1 0 .7.7 1 2.0 1.4 2 .6 3.6 1.3 3.6 3.4 0 1.7-1.3 2.8-3.4 3.1z"/>
+                  </svg>
+                  <div class="driverText" data-i18n="drv.5">Souveränität wird Mainstream</div>
+                </div>
+                <span class="delta up" id="d5">▲ +0.5</span>
+              </div>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <!-- Pitch -->
+            <div class="pitchBox" aria-label="Pitch">
+              <div class="cardHead" style="padding:10px 0 8px;border:0;background:transparent;">
+                <h3 class="cardTitle" style="margin:0" data-i18n="card.pitch">Pitch-Generator</h3>
+                <span class="badge">
+                  <span class="dot warn" aria-hidden="true"></span>
+                  <span data-i18n="pitch.note">1 Klick = Pitch</span>
+                </span>
+              </div>
+
+              <div class="outBox" id="pitchOut" data-i18n="pitch.placeholder">Klicke auf „Pitch erstellen“ – dann erscheinen hier 3 Argumente + ein kurzer Einstieg.</div>
+
+              <div class="toolsRow">
+                <button type="button" class="btn" id="btnPitch">
+                  <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M3 3h18v4H3V3zm0 6h18v12H3V9zm4 3v2h10v-2H7zm0 4v2h6v-2H7z"/>
+                  </svg>
+                  <span data-i18n="btn.pitch">Pitch erstellen</span>
+                </button>
+
+                <button type="button" class="btn secondary" id="btnCopyPitch">
+                  <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm4 4H8c-1.1 0-2 .9-2 2v16h14c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 18H8V7h12v16z"/>
+                  </svg>
+                  <span data-i18n="btn.copy">Kopieren</span>
+                </button>
+              </div>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <!-- Objections -->
+            <div class="pitchBox" aria-label="Objections">
+              <div class="cardHead" style="padding:10px 0 8px;border:0;background:transparent;">
+                <h3 class="cardTitle" style="margin:0" data-i18n="card.objections">Einwand-Generator</h3>
+                <span class="badge">
+                  <span class="dot warn" aria-hidden="true"></span>
+                  <span data-i18n="ob.note">Einwand → Antwort + Abschlussfrage</span>
+                </span>
+              </div>
+
+              <div class="formRow">
+                <select class="select" id="obSelect" aria-label="Objection Select"></select>
+
+                <button type="button" class="btn" id="btnObGen">
+                  <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M12 2l9 4.5v11L12 22l-9-4.5v-11L12 2zm0 2.2L5 7v9.9l7 3.9 7-3.9V7l-7-2.8zM7.5 11h9v2h-9v-2z"/>
+                  </svg>
+                  <span data-i18n="btn.obgen">Antwort erzeugen</span>
+                </button>
+
+                <button type="button" class="btn secondary" id="btnCopyOb">
+                  <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm4 4H8c-1.1 0-2 .9-2 2v16h14c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 18H8V7h12v16z"/>
+                  </svg>
+                  <span data-i18n="btn.copy">Kopieren</span>
+                </button>
+
+                <button type="button" class="btn secondary" id="btnObToPitch">
+                  <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M4 4h16v2H4V4zm0 7h16v2H4v-2zm0 7h10v2H4v-2z"/>
+                  </svg>
+                  <span data-i18n="btn.useOb">In Pitch einfügen</span>
+                </button>
+              </div>
+
+              <div class="outBox" id="obOut" data-i18n="ob.placeholder">Wähle einen Einwand und klicke auf „Antwort erzeugen“.</div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Audience -->
+      <section class="card" style="margin-top:14px" aria-label="Audience">
+        <div class="cardHead">
+          <h2 class="cardTitle" data-i18n="aud.card">Zielgruppen-View</h2>
+          <span class="badge">
+            <span class="dot warn" aria-hidden="true"></span>
+            <span data-i18n="aud.note">Argumente je Zielgruppe</span>
+          </span>
+        </div>
+
+        <div class="cardBody">
+          <div class="tabsBar">
+            <div class="tabs" role="tablist" aria-label="Audience Tabs">
+              <button type="button" class="tabBtn active" id="tabCareer" role="tab" aria-selected="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                  <path fill="currentColor" d="M10 4h4v2h6v14H4V6h6V4zm2 2V6h-2v0h2zM6 10h12v2H6v-2zm0 4h12v2H6v-2z"/>
+                </svg>
+                <span data-i18n="aud.career">Quereinsteiger</span>
+              </button>
+
+              <button type="button" class="tabBtn" id="tabClients" role="tab" aria-selected="false">
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                  <path fill="currentColor" d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4.42 0-8 2-8 4.5V21h16v-2.5C20 16 16.42 14 12 14z"/>
+                </svg>
+                <span data-i18n="aud.clients">Interessenten</span>
+              </button>
+
+              <button type="button" class="tabBtn" id="tabSales" role="tab" aria-selected="false">
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                  <path fill="currentColor" d="M3 13l8-10v6h10l-8 10v-6H3z"/>
+                </svg>
+                <span data-i18n="aud.sales">Vertriebspartner</span>
+              </button>
+            </div>
+
+            <span class="badge">
+              <span class="dot warn" aria-hidden="true"></span>
+              <span id="audBadge" data-i18n="aud.badge.career">Fokus: neuer Berufspfad</span>
+            </span>
+          </div>
+
+          <div class="audWrap">
+            <div class="audCard">
+              <h3 class="audTitle" id="audTitle" data-i18n="aud.title.career">Quereinsteiger – neuer Beruf, klare Struktur</h3>
+              <p class="audLead" id="audLead" data-i18n="aud.lead.career">Wenn alte Jobs wackeln, suchen viele einen stabilen Weg: Kompetenz + System + seriöser Rahmen.</p>
+
+              <ul class="bul" id="audBul">
+                <li><span class="bDot" aria-hidden="true"></span><span class="bTxt" id="audB1" data-i18n="aud.b1.career">Klare Lernpfade statt „Coach-Gelaber“: Schritt für Schritt.</span></li>
+                <li><span class="bDot" aria-hidden="true"></span><span class="bTxt" id="audB2" data-i18n="aud.b2.career">Mentor-Rolle entsteht, weil Menschen Orientierung brauchen.</span></li>
+                <li><span class="bDot" aria-hidden="true"></span><span class="bTxt" id="audB3" data-i18n="aud.b3.career">Club = Seriösitätsanker: Regeln, Qualität, Verantwortung.</span></li>
+                <li><span class="bDot" aria-hidden="true"></span><span class="bTxt" id="audB4" data-i18n="aud.b4.career">Nächster Schritt: 5-Minuten Diagnose + Roadmap.</span></li>
+              </ul>
+            </div>
+
+            <div class="audCard">
+              <h3 class="audTitle" data-i18n="aud.mini.title">Mini-Pitch</h3>
+              <div class="miniPitch" id="audPitch" data-i18n="aud.mini.career">Wenn klassische Sicherheit bröckelt, entsteht ein neuer Bedarf: Menschen brauchen Mentoren für finanzielle Souveränität.
+Ich zeige dir in 5 Minuten, wie der Weg aussieht – strukturiert und seriös.</div>
+
+              <div class="toolsRow" style="margin-top:10px">
+                <button type="button" class="btn" id="btnAudToPitch">
+                  <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M4 4h16v2H4V4zm0 7h16v2H4v-2zm0 7h16v2H4v-2z"/>
+                  </svg>
+                  <span data-i18n="btn.usePitch">In Pitch übernehmen</span>
+                </button>
+
+                <button type="button" class="btn secondary" id="btnCopyAud">
+                  <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm4 4H8c-1.1 0-2 .9-2 2v16h14c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 18H8V7h12v16z"/>
+                  </svg>
+                  <span data-i18n="btn.copyMini">Mini-Pitch kopieren</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <div class="footerRow">
+        <div>
+          <span data-i18n="foot.left">Tool: Beratermarkt-Index DACH</span>
+          <span style="opacity:.35"> · </span>
+          <span data-i18n="foot.mid">Offline-fähig · Ohne externe Ressourcen</span>
+        </div>
+        <div class="mono" id="footVer">v1.0 · 2026-01-31</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="toast" id="toast" aria-live="polite">Kopiert.</div>
+
+  <script>
+    (function(){
+      const $ = (s,p=document)=>p.querySelector(s);
+      const $$ = (s,p=document)=>Array.from(p.querySelectorAll(s));
+
+      const i18n = {
+        de: {
+          "app.title":"Beratermarkt-Index DACH",
+          "app.sub":"Demand Score · Treiber · 5-Jahres-Trend · Pitch + Einwand (Upgrade)",
+          "app.status":"Demo-Daten",
+          "btn.refresh":"Neu berechnen",
+          "btn.pdf":"PDF Report",
+
+          "card.score":"Demand Score",
+          "level.low":"niedrig",
+          "level.mid":"mittel",
+          "level.high":"hoch",
+          "score.label":"DACH",
+          "band.de":"hoch",
+          "band.en":"high",
+
+          "kv.updated":"Stand",
+          "kv.horizon":"Horizont",
+          "kv.horizon.v":"60 Monate",
+          "kv.mode":"Modus",
+          "kv.mode.v":"MVP-Signale",
+          "kv.note":"Hinweis",
+          "kv.note.v":"Index = Orientierung, kein Versprechen",
+
+          "card.trend":"Trendprognose 5 Jahre",
+          "trend.scenarios":"Basis · Rückgang · Boom",
+          "x.today":"Heute",
+          "leg.base":"Basis",
+          "leg.down":"Rückgang",
+          "leg.boom":"Boom",
+
+          "card.countries":"DACH Aufschlüsselung",
+          "countries.note":"Score + 1 Satz „warum“",
+          "country.de":"Deutschland",
+          "country.at":"Österreich",
+          "country.ch":"Schweiz",
+          "why.de":"Mehr Unsicherheit + höherer Bedarf nach Struktur & Mentoren",
+          "why.at":"Kosten drücken → Beratung wird normaler als früher",
+          "why.ch":"Planung & Diskretion → Setup-Beratung gewinnt",
+
+          "card.drivers":"Top Treiber aktuell",
+          "drivers.note":"Warum der Markt wächst",
+          "drv.1":"Job-Sicherheit sinkt",
+          "drv.2":"Suchtrend „Finanzcoach“",
+          "drv.3":"Zweiteinkommen wird Standard",
+          "drv.4":"Komplexität braucht Führung",
+          "drv.5":"Souveränität wird Mainstream",
+
+          "card.pitch":"Pitch-Generator",
+          "pitch.note":"1 Klick = Pitch",
+          "pitch.placeholder":"Klicke auf „Pitch erstellen“ – dann erscheinen hier 3 Argumente + ein kurzer Einstieg.",
+          "btn.pitch":"Pitch erstellen",
+          "btn.copy":"Kopieren",
+
+          "pitch.head":"Warum dieser Markt jetzt entsteht",
+          "pitch.b1":"Wenn sichere Jobs abgebaut werden, suchen Menschen neue Wege – mit Struktur statt Zufall.",
+          "pitch.b2":"Finanzielle Souveränität ist ein echtes Bedürfnis: weniger Abhängigkeit, mehr Kontrolle.",
+          "pitch.b3":"Mentoren werden gebraucht, weil Komplexität ohne Führung teuer wird.",
+          "pitch.close":"Wenn du willst, zeige ich dir in 5 Minuten, wie der Club als seriöser Rahmen funktioniert.",
+
+          "card.objections":"Einwand-Generator",
+          "ob.note":"Einwand → Antwort + Abschlussfrage",
+          "ob.placeholder":"Wähle einen Einwand und klicke auf „Antwort erzeugen“.",
+          "btn.obgen":"Antwort erzeugen",
+          "btn.useOb":"In Pitch einfügen",
+
+          "ob.opt.1":"„Ich habe kein Geld / Budget.“",
+          "ob.opt.2":"„Ich habe keine Zeit.“",
+          "ob.opt.3":"„Ich vertraue niemandem.“",
+          "ob.opt.4":"„Ich kann das auch allein.“",
+          "ob.opt.5":"„Das klingt nach Coaching-Hype.“",
+          "ob.opt.6":"„Ich brauche erst Infos, dann entscheide ich.“",
+
+          "ob.a.1":"Verstanden. Genau deswegen starten wir klein und strukturiert: erst Überblick, dann Entlastung, dann Schutz.\nDu sollst zuerst weniger Fehler machen – das spart oft mehr, als es kostet.\nAbschlussfrage: Wollen wir 5 Minuten schauen, wo bei dir der größte Hebel liegt?",
+          "ob.a.2":"Verstanden. Genau deshalb ist es ein Setup in kleinen Schritten: 10–15 Minuten pro Woche reichen für den Anfang.\nWichtig ist nicht „viel Zeit“, sondern ein klarer Plan, damit du nicht ständig neu anfängst.\nAbschlussfrage: Passt dir ein kurzer 5-Minuten-Check, um den ersten Schritt festzulegen?",
+          "ob.a.3":"Voll nachvollziehbar. Deshalb ist das System regelbasiert: du behältst Kontrolle, Entscheidungen bleiben bei dir.\nWir arbeiten mit Struktur, nicht mit Versprechen – und du kannst alles jederzeit stoppen.\nAbschlussfrage: Wollen wir prüfen, ob die Methodik für dich stimmig ist – ohne Verpflichtung?",
+          "ob.a.4":"Klar, das geht. Die Frage ist nur: wie lange brauchst du – und was kostet dich jeder Umweg?\nMit einem Mentor sparst du typischerweise die größten Fehler, weil der Weg vorstrukturiert ist.\nAbschlussfrage: Wollen wir kurz vergleichen, ob du irgendwo Zeit und Risiko einsparen kannst?",
+          "ob.a.5":"Verstanden. Genau deshalb ist es kein Motivations-Coaching, sondern ein nüchternes Setup:\nOrientierung · Struktur · Schutz – ohne Hype, ohne Fachchinesisch.\nAbschlussfrage: Wollen wir 5 Minuten testen, ob das Setup seriös zu dir passt?",
+          "ob.a.6":"Gerne. Ich gebe dir zuerst den Rahmen: 3 Schritte, klare Regeln, kein Druck.\nDanach entscheidest du, ob du den nächsten Schritt gehst.\nAbschlussfrage: Reicht dir ein 5-Minuten-Überblick, damit du eine saubere Entscheidung treffen kannst?",
+
+          "aud.card":"Zielgruppen-View",
+          "aud.note":"Argumente je Zielgruppe",
+          "aud.career":"Quereinsteiger",
+          "aud.clients":"Interessenten",
+          "aud.sales":"Vertriebspartner",
+          "aud.badge.career":"Fokus: neuer Berufspfad",
+          "aud.badge.clients":"Fokus: Orientierung & Schutz",
+          "aud.badge.sales":"Fokus: Gespräch & Abschluss",
+
+          "aud.title.career":"Quereinsteiger – neuer Beruf, klare Struktur",
+          "aud.lead.career":"Wenn alte Jobs wackeln, suchen viele einen stabilen Weg: Kompetenz + System + seriöser Rahmen.",
+          "aud.b1.career":"Klare Lernpfade statt „Coach-Gelaber“: Schritt für Schritt.",
+          "aud.b2.career":"Mentor-Rolle entsteht, weil Menschen Orientierung brauchen.",
+          "aud.b3.career":"Club = Seriösitätsanker: Regeln, Qualität, Verantwortung.",
+          "aud.b4.career":"Nächster Schritt: 5-Minuten Diagnose + Roadmap.",
+          "aud.mini.title":"Mini-Pitch",
+          "aud.mini.career":"Wenn klassische Sicherheit bröckelt, entsteht ein neuer Bedarf: Menschen brauchen Mentoren für finanzielle Souveränität.\nIch zeige dir in 5 Minuten, wie der Weg aussieht – strukturiert und seriös.",
+
+          "aud.title.clients":"Interessenten – wenn Menschen wieder Klarheit brauchen",
+          "aud.lead.clients":"Viele sind überfordert: Fixkosten, Schulden, Unsicherheit. Hier zählt ein einfacher Plan – ohne Fachsprache.",
+          "aud.b1.clients":"3 Schritte: Überblick → Entlastung → Absicherung.",
+          "aud.b2.clients":"Kein Hype: Struktur, Regeln, Verantwortung.",
+          "aud.b3.clients":"Souveränität: Kontrolle über Konten, Zugänge, Sicherungen.",
+          "aud.b4.clients":"Abschluss: Kurzdiagnose + nächster Schritt (Termin).",
+          "aud.mini.clients":"Wenn Kosten steigen und alles komplex wird, brauchst du keinen Vortrag – du brauchst einen Plan.\nIch zeige dir die 3 Schritte, die sofort Struktur und Schutz bringen.",
+
+          "aud.title.sales":"Vertriebspartner – wenn Gespräche planbar werden",
+          "aud.lead.sales":"Du brauchst einen klaren Talk-Track: Problem sichtbar machen, Nutzen benennen, nächster Schritt konkret.",
+          "aud.b1.sales":"Opening: „Beratermarkt wächst, weil Job-Sicherheit sinkt und Bedarf steigt.“",
+          "aud.b2.sales":"3 Nutzenpunkte: Orientierung · Struktur · Schutz.",
+          "aud.b3.sales":"Einwand-Frame: „Kein Coaching-Hype – seriöses Setup.“",
+          "aud.b4.sales":"Close: „5 Minuten Kurzdiagnose + Termin fixieren.“",
+          "aud.mini.sales":"Ich habe ein Tool, das zeigt, warum Mentoren für finanzielle Souveränität in DACH stark gefragt werden.\nWenn du willst: 5-Minuten Kurzdiagnose – dann ist klar, ob der Club passt.",
+
+          "btn.usePitch":"In Pitch übernehmen",
+          "btn.copyMini":"Mini-Pitch kopieren",
+
+          "foot.left":"Tool: Beratermarkt-Index DACH",
+          "foot.mid":"Offline-fähig · Ohne externe Ressourcen",
+
+          "toast.copied":"Kopiert.",
+          "toast.empty":"Nichts zu kopieren."
+        },
+
+        en: {
+          "app.title":"Advisor Market Index (DACH)",
+          "app.sub":"Demand score · drivers · 5-year trend · pitch + objections (upgrade)",
+          "app.status":"Demo data",
+          "btn.refresh":"Recalculate",
+          "btn.pdf":"PDF Report",
+
+          "card.score":"Demand Score",
+          "level.low":"low",
+          "level.mid":"medium",
+          "level.high":"high",
+          "score.label":"DACH",
+          "band.de":"hoch",
+          "band.en":"high",
+
+          "kv.updated":"As of",
+          "kv.horizon":"Horizon",
+          "kv.horizon.v":"60 months",
+          "kv.mode":"Mode",
+          "kv.mode.v":"MVP signals",
+          "kv.note":"Note",
+          "kv.note.v":"Index = orientation, no promises",
+
+          "card.trend":"5-year trend outlook",
+          "trend.scenarios":"Base · Downturn · Boom",
+          "x.today":"Today",
+          "leg.base":"Base",
+          "leg.down":"Downturn",
+          "leg.boom":"Boom",
+
+          "card.countries":"DACH breakdown",
+          "countries.note":"Score + one-line “why”",
+          "country.de":"Germany",
+          "country.at":"Austria",
+          "country.ch":"Switzerland",
+          "why.de":"More uncertainty + higher demand for structure & mentors",
+          "why.at":"Cost pressure → consulting becomes more “normal”",
+          "why.ch":"Planning & discretion → setup guidance wins",
+
+          "card.drivers":"Top drivers right now",
+          "drivers.note":"Why the market grows",
+          "drv.1":"Job security declines",
+          "drv.2":"Search trend “financial coach”",
+          "drv.3":"Second income becomes standard",
+          "drv.4":"Complexity needs guidance",
+          "drv.5":"Sovereignty goes mainstream",
+
+          "card.pitch":"Pitch generator",
+          "pitch.note":"1 click = pitch",
+          "pitch.placeholder":"Click “Create pitch” to generate 3 arguments + a short opener here.",
+          "btn.pitch":"Create pitch",
+          "btn.copy":"Copy",
+
+          "pitch.head":"Why this market forms now",
+          "pitch.b1":"When stable jobs get cut, people look for structured paths instead of randomness.",
+          "pitch.b2":"Financial sovereignty is a real need: less dependency, more control.",
+          "pitch.b3":"Mentors are needed because complexity without guidance gets expensive.",
+          "pitch.close":"If you want, I’ll show you in 5 minutes how the club works as a serious framework.",
+
+          "card.objections":"Objection generator",
+          "ob.note":"Objection → answer + closing question",
+          "ob.placeholder":"Pick an objection and click “Generate answer”.",
+          "btn.obgen":"Generate answer",
+          "btn.useOb":"Insert into pitch",
+
+          "ob.opt.1":"“I don’t have money / budget.”",
+          "ob.opt.2":"“I don’t have time.”",
+          "ob.opt.3":"“I don’t trust anyone.”",
+          "ob.opt.4":"“I can do it alone.”",
+          "ob.opt.5":"“Sounds like coaching hype.”",
+          "ob.opt.6":"“I need info first, then I decide.”",
+
+          "ob.a.1":"Got it. That’s why we start small and structured: overview first, then relief, then protection.\nThe goal is fewer mistakes — which often saves more than it costs.\nClosing question: Want to check in 5 minutes where your biggest lever is?",
+          "ob.a.2":"Understood. That’s why it’s step-based: 10–15 minutes per week is enough at the start.\nIt’s not “a lot of time”, it’s a clear plan so you don’t restart constantly.\nClosing question: Would a quick 5-minute check work to set the first step?",
+          "ob.a.3":"Totally fair. That’s why it’s rule-based: you keep control and decisions stay with you.\nWe work with structure, not promises — and you can stop any time.\nClosing question: Want to see if the method fits you — with zero commitment?",
+          "ob.a.4":"Sure, you can. The question is: how long will it take — and what does each detour cost?\nA mentor typically removes the biggest mistakes because the path is structured.\nClosing question: Want to compare if you can save time and risk somewhere?",
+          "ob.a.5":"I hear you. That’s why it’s not motivation coaching — it’s a sober setup:\norientation · structure · protection — no hype, no jargon.\nClosing question: Want to test in 5 minutes whether the setup feels serious to you?",
+          "ob.a.6":"Happy to. I’ll give you the framework first: 3 steps, clear rules, no pressure.\nThen you decide whether to take the next step.\nClosing question: Is a 5-minute overview enough to make a clean decision?",
+
+          "aud.card":"Audience view",
+          "aud.note":"Arguments per audience",
+          "aud.career":"Career changers",
+          "aud.clients":"Prospects",
+          "aud.sales":"Sales partners",
+          "aud.badge.career":"Focus: new career path",
+          "aud.badge.clients":"Focus: clarity & protection",
+          "aud.badge.sales":"Focus: talk-track & close",
+
+          "aud.title.career":"Career changers — new role, clear structure",
+          "aud.lead.career":"When old job security wobbles, many want a stable path: competence + system + a serious framework.",
+          "aud.b1.career":"Clear learning paths instead of “coach hype”: step by step.",
+          "aud.b2.career":"Mentor roles emerge because people need orientation.",
+          "aud.b3.career":"Club = credibility anchor: rules, quality, responsibility.",
+          "aud.b4.career":"Next step: 5-minute diagnosis + roadmap.",
+          "aud.mini.title":"Mini pitch",
+          "aud.mini.career":"As classic security erodes, a new demand appears: people need mentors for financial sovereignty.\nI’ll show you the structured, serious path in 5 minutes.",
+
+          "aud.title.clients":"Prospects — when people need clarity again",
+          "aud.lead.clients":"Many feel overwhelmed: fixed costs, debt, uncertainty. You need a simple plan — no jargon.",
+          "aud.b1.clients":"3 steps: overview → relief → protection.",
+          "aud.b2.clients":"Not hype: structure, rules, responsibility.",
+          "aud.b3.clients":"Sovereignty: control over accounts, access, backups.",
+          "aud.b4.clients":"Close: short diagnosis + next step (appointment).",
+          "aud.mini.clients":"When costs rise and everything gets complex, you don’t need a lecture — you need a plan.\nI’ll show you 3 steps that bring structure and protection fast.",
+
+          "aud.title.sales":"Sales partners — when talks become predictable",
+          "aud.lead.sales":"You need a clear talk-track: make the problem visible, name the benefit, make the next step concrete.",
+          "aud.b1.sales":"Opening: “The advisor market grows as job security declines and demand rises.”",
+          "aud.b2.sales":"3 benefits: orientation · structure · protection.",
+          "aud.b3.sales":"Objection frame: “No coaching hype — a serious setup.”",
+          "aud.b4.sales":"Close: “5-minute diagnosis + lock in the appointment.”",
+          "aud.mini.sales":"I have a tool that shows why mentors for financial sovereignty will be in high demand in DACH.\nIf you want: a 5-minute diagnosis — then it’s clear if the club fits.",
+
+          "btn.usePitch":"Insert into pitch",
+          "btn.copyMini":"Copy mini pitch",
+
+          "foot.left":"Tool: Advisor Market Index (DACH)",
+          "foot.mid":"Offline-ready · No external resources",
+
+          "toast.copied":"Copied.",
+          "toast.empty":"Nothing to copy."
+        }
+      };
+
+      let lang = "de";
+      let aud = "career"; // career | clients | sales
+
+      const E = {
+        btnDE: $("#btnDE"),
+        btnEN: $("#btnEN"),
+        btnRecalc: $("#btnRecalc"),
+        btnPrint: $("#btnPrint"),
+
+        scoreValue: $("#scoreValue"),
+        arc: $("#arc"),
+        needle: $("#needle"),
+        levelDot: $("#levelDot"),
+        levelText: $("#levelText"),
+
+        kvUpdated: $("#kvUpdated"),
+
+        scoreDE: $("#scoreDE"),
+        scoreAT: $("#scoreAT"),
+        scoreCH: $("#scoreCH"),
+        whyDE: $("#whyDE"),
+        whyAT: $("#whyAT"),
+        whyCH: $("#whyCH"),
+
+        d1: $("#d1"),
+        d2: $("#d2"),
+        d3: $("#d3"),
+        d4: $("#d4"),
+        d5: $("#d5"),
+
+        lineBase: $("#lineBase"),
+        lineDown: $("#lineDown"),
+        lineBoom: $("#lineBoom"),
+
+        pitchOut: $("#pitchOut"),
+        btnPitch: $("#btnPitch"),
+        btnCopyPitch: $("#btnCopyPitch"),
+
+        obSelect: $("#obSelect"),
+        btnObGen: $("#btnObGen"),
+        btnCopyOb: $("#btnCopyOb"),
+        btnObToPitch: $("#btnObToPitch"),
+        obOut: $("#obOut"),
+
+        tabCareer: $("#tabCareer"),
+        tabClients: $("#tabClients"),
+        tabSales: $("#tabSales"),
+
+        audBadge: $("#audBadge"),
+        audTitle: $("#audTitle"),
+        audLead: $("#audLead"),
+        audB1: $("#audB1"),
+        audB2: $("#audB2"),
+        audB3: $("#audB3"),
+        audB4: $("#audB4"),
+        audPitch: $("#audPitch"),
+        btnAudToPitch: $("#btnAudToPitch"),
+        btnCopyAud: $("#btnCopyAud"),
+
+        toast: $("#toast")
+      };
+
+      function t(key){
+        const L = i18n[lang] || i18n.de;
+        return (L && (key in L)) ? L[key] : key;
+      }
+
+      function applyI18n(){
+        document.documentElement.lang = lang;
+        $$("[data-i18n]").forEach(el=>{
+          const key = el.getAttribute("data-i18n");
+          const val = t(key);
+          el.textContent = val;
+        });
+        E.toast.textContent = t("toast.copied");
+      }
+
+      function showToast(msg){
+        E.toast.textContent = msg;
+        E.toast.classList.add("show");
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(()=>E.toast.classList.remove("show"), 950);
+      }
+
+      async function copyText(text){
+        const clean = (text || "").trim();
+        if(!clean){
+          showToast(t("toast.empty"));
+          return;
+        }
+        try{
+          if(navigator.clipboard && navigator.clipboard.writeText){
+            await navigator.clipboard.writeText(clean);
+          }else{
+            const ta = document.createElement("textarea");
+            ta.value = clean;
+            ta.style.position = "fixed";
+            ta.style.left = "-9999px";
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            document.body.removeChild(ta);
+          }
+          showToast(t("toast.copied"));
+        }catch(e){
+          showToast(t("toast.copied"));
+        }
+      }
+
+      function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
+      function rnd(min,max){ return min + Math.random()*(max-min); }
+      function round1(n){ return Math.round(n*10)/10; }
+      function signDelta(n){
+        const v = round1(n);
+        if(v > 0.25) return {cls:"up", txt:`▲ +${v.toFixed(1)}`};
+        if(v < -0.25) return {cls:"down", txt:`▼ ${v.toFixed(1)}`};
+        return {cls:"flat", txt:`► ${Math.abs(v).toFixed(1)}`};
+      }
+
+      function isoToday(){
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth()+1).padStart(2,"0");
+        const day = String(d.getDate()).padStart(2,"0");
+        return `${y}-${m}-${day}`;
+      }
+
+      function setGauge(score){
+        const s = clamp(Math.round(score), 0, 100);
+        E.scoreValue.textContent = String(s);
+
+        // Arc stroke-dash
+        const r = 102;
+        const circ = 2 * Math.PI * r;
+        const offset = circ * (1 - (s/100));
+        E.arc.style.strokeDasharray = `${circ.toFixed(2)} ${circ.toFixed(2)}`;
+        E.arc.style.strokeDashoffset = `${offset.toFixed(2)}`;
+
+        // Needle angle: -120..+120 degrees (visual)
+        const ang = (s/100)*240 - 120;
+        E.needle.setAttribute("transform", `rotate(${ang.toFixed(1)} 130 130)`);
+
+        // Level
+        let lvlKey = "level.low";
+        let dot = "bad";
+        if(s >= 70){ lvlKey = "level.high"; dot = "good"; }
+        else if(s >= 40){ lvlKey = "level.mid"; dot = "warn"; }
+
+        E.levelText.setAttribute("data-i18n", lvlKey);
+        E.levelDot.classList.remove("good","warn","bad");
+        E.levelDot.classList.add(dot);
+
+        applyI18n();
+      }
+
+      function chartPoints(values){
+        const xs = [60,260,460,660,860,980];
+        const top = 30, bottom = 230;
+        const pts = values.slice(0,6).map((v,i)=>{
+          const val = clamp(v, 0, 100);
+          const y = bottom - ((val/100)*(bottom-top));
+          const x = xs[i] ?? xs[xs.length-1];
+          return `${x.toFixed(1)},${y.toFixed(1)}`;
+        });
+        return pts.join(" ");
+      }
+
+      function genTrend(score){
+        const base0 = clamp(score, 10, 95);
+        const base = [
+          base0,
+          clamp(base0 + rnd(-4, +6), 5, 98),
+          clamp(base0 + rnd(-2, +8), 5, 99),
+          clamp(base0 + rnd(-1, +10), 5, 99),
+          clamp(base0 + rnd(-2, +12), 5, 99),
+          clamp(base0 + rnd(-3, +14), 5, 99)
+        ];
+
+        const down = base.map((v,i)=> clamp(v - (8 + i*2) + rnd(-2,2), 2, 95));
+        const boom = base.map((v,i)=> clamp(v + (6 + i*2) + rnd(-2,2), 8, 100));
+
+        return {base, down, boom};
+      }
+
+      function genCountries(score){
+        const de = clamp(Math.round(score + rnd(-2,+4)), 0, 100);
+        const at = clamp(Math.round(score + rnd(-6,+2)), 0, 100);
+        const ch = clamp(Math.round(score + rnd(-8,+1)), 0, 100);
+        return {de, at, ch};
+      }
+
+      function genDrivers(){
+        const arr = [
+          rnd(-0.2, 1.2),
+          rnd(0.1, 1.5),
+          rnd(-0.1, 1.3),
+          rnd(-0.4, 0.7),
+          rnd(-0.1, 1.0)
+        ].map(v=>round1(v));
+        return arr;
+      }
+
+      function setDrivers(deltas){
+        const ids = [E.d1,E.d2,E.d3,E.d4,E.d5];
+        deltas.slice(0,5).forEach((v,i)=>{
+          const el = ids[i];
+          const d = signDelta(v);
+          el.classList.remove("up","down","flat");
+          el.classList.add(d.cls);
+          el.textContent = d.txt;
+        });
+      }
+
+      function buildPitch(){
+        const head = t("pitch.head");
+        const b1 = t("pitch.b1");
+        const b2 = t("pitch.b2");
+        const b3 = t("pitch.b3");
+        const close = t("pitch.close");
+        const out = `${head}\n\n• ${b1}\n• ${b2}\n• ${b3}\n\n${close}`;
+        E.pitchOut.textContent = out;
+      }
+
+      function insertIntoPitch(text){
+        const add = (text || "").trim();
+        if(!add) return;
+
+        const placeholder = t("pitch.placeholder");
+        const cur = (E.pitchOut.textContent || "").trim();
+
+        if(!cur || cur === placeholder){
+          E.pitchOut.textContent = add;
+          return;
+        }
+        E.pitchOut.textContent = `${cur}\n\n—\n${add}`;
+      }
+
+      function setupObjections(){
+        const list = [
+          {id:"1", labelKey:"ob.opt.1", ansKey:"ob.a.1"},
+          {id:"2", labelKey:"ob.opt.2", ansKey:"ob.a.2"},
+          {id:"3", labelKey:"ob.opt.3", ansKey:"ob.a.3"},
+          {id:"4", labelKey:"ob.opt.4", ansKey:"ob.a.4"},
+          {id:"5", labelKey:"ob.opt.5", ansKey:"ob.a.5"},
+          {id:"6", labelKey:"ob.opt.6", ansKey:"ob.a.6"}
+        ];
+
+        E.obSelect.innerHTML = "";
+        list.forEach(item=>{
+          const opt = document.createElement("option");
+          opt.value = item.id;
+          opt.setAttribute("data-label-key", item.labelKey);
+          opt.setAttribute("data-ans-key", item.ansKey);
+          opt.textContent = t(item.labelKey);
+          E.obSelect.appendChild(opt);
+        });
+      }
+
+      function genObjectionAnswer(){
+        const opt = E.obSelect.selectedOptions[0];
+        if(!opt){
+          E.obOut.textContent = t("ob.placeholder");
+          return;
+        }
+        const labelKey = opt.getAttribute("data-label-key");
+        const ansKey = opt.getAttribute("data-ans-key");
+        const title = t(labelKey);
+        const ans = t(ansKey);
+        E.obOut.textContent = `${title}\n\n${ans}`;
+      }
+
+      function setAudience(next){
+        aud = next;
+
+        // button states
+        [E.tabCareer, E.tabClients, E.tabSales].forEach(b=>{
+          b.classList.remove("active");
+          b.setAttribute("aria-selected","false");
+        });
+
+        if(aud === "career"){ E.tabCareer.classList.add("active"); E.tabCareer.setAttribute("aria-selected","true"); }
+        if(aud === "clients"){ E.tabClients.classList.add("active"); E.tabClients.setAttribute("aria-selected","true"); }
+        if(aud === "sales"){ E.tabSales.classList.add("active"); E.tabSales.setAttribute("aria-selected","true"); }
+
+        // switch data-i18n keys
+        E.audBadge.setAttribute("data-i18n", `aud.badge.${aud}`);
+        E.audTitle.setAttribute("data-i18n", `aud.title.${aud}`);
+        E.audLead.setAttribute("data-i18n", `aud.lead.${aud}`);
+        E.audB1.setAttribute("data-i18n", `aud.b1.${aud}`);
+        E.audB2.setAttribute("data-i18n", `aud.b2.${aud}`);
+        E.audB3.setAttribute("data-i18n", `aud.b3.${aud}`);
+        E.audB4.setAttribute("data-i18n", `aud.b4.${aud}`);
+        E.audPitch.setAttribute("data-i18n", `aud.mini.${aud}`);
+
+        applyI18n();
+      }
+
+      function setLang(next){
+        lang = next;
+        E.btnDE.classList.toggle("active", lang==="de");
+        E.btnEN.classList.toggle("active", lang==="en");
+        applyI18n();
+        setupObjections(); // refresh option labels in current language
+      }
+
+      function recalcAll(){
+        const baseScore = clamp(Math.round(rnd(62, 88)), 0, 100);
+        setGauge(baseScore);
+
+        // date
+        E.kvUpdated.textContent = isoToday();
+
+        // countries
+        const c = genCountries(baseScore);
+        E.scoreDE.textContent = String(c.de);
+        E.scoreAT.textContent = String(c.at);
+        E.scoreCH.textContent = String(c.ch);
+
+        // trend lines
+        const tr = genTrend(baseScore);
+        E.lineBase.setAttribute("points", chartPoints(tr.base));
+        E.lineDown.setAttribute("points", chartPoints(tr.down));
+        E.lineBoom.setAttribute("points", chartPoints(tr.boom));
+
+        // drivers
+        const deltas = genDrivers();
+        setDrivers(deltas);
+
+        // outputs remain, do not auto overwrite pitch/objection text
+      }
+
+      // events
+      E.btnDE.addEventListener("click", ()=>setLang("de"));
+      E.btnEN.addEventListener("click", ()=>setLang("en"));
+      E.btnRecalc.addEventListener("click", ()=>recalcAll());
+      E.btnPrint.addEventListener("click", ()=>window.print());
+
+      E.btnPitch.addEventListener("click", ()=>buildPitch());
+      E.btnCopyPitch.addEventListener("click", ()=>copyText(E.pitchOut.textContent));
+
+      E.btnObGen.addEventListener("click", ()=>genObjectionAnswer());
+      E.btnCopyOb.addEventListener("click", ()=>copyText(E.obOut.textContent));
+      E.btnObToPitch.addEventListener("click", ()=>insertIntoPitch(E.obOut.textContent));
+
+      E.tabCareer.addEventListener("click", ()=>setAudience("career"));
+      E.tabClients.addEventListener("click", ()=>setAudience("clients"));
+      E.tabSales.addEventListener("click", ()=>setAudience("sales"));
+
+      E.btnAudToPitch.addEventListener("click", ()=>insertIntoPitch(E.audPitch.textContent));
+      E.btnCopyAud.addEventListener("click", ()=>copyText(E.audPitch.textContent));
+
+      // init
+      setLang("de");
+      setupObjections();
+      setAudience("career");
+
+      // initial demo calc
+      recalcAll();
+
+      // ensure placeholder texts correct after first i18n apply
+      if((E.pitchOut.textContent || "").trim() === "Klicke auf „Pitch erstellen“ – dann erscheinen hier 3 Argumente + ein kurzer Einstieg."){
+        E.pitchOut.setAttribute("data-i18n","pitch.placeholder");
+      }
+      if((E.obOut.textContent || "").trim() === "Wähle einen Einwand und klicke auf „Antwort erzeugen“."){
+        E.obOut.setAttribute("data-i18n","ob.placeholder");
+      }
+      applyI18n();
+    })();
+  </script>
+</body>
+</html>
