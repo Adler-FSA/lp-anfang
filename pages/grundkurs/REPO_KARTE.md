@@ -648,6 +648,9 @@
     │   │   ├── weekend-sprecher-packliste.html
     │   │   ├── weekend-teilnehmer-checkliste.html
     │   │   └── wichtig-archiv.html
+    │   ├── club-vertrieb/
+    │   │   └── leitfaeden/
+    │   │       └── index.html
     │   ├── footer/
     │   │   ├── community.html
     │   │   ├── impressum.html
@@ -941,4 +944,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 31.01.2026, 10:18)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 31.01.2026, 11:15)_
