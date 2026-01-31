@@ -650,7 +650,11 @@
     │   │   └── wichtig-archiv.html
     │   ├── club-vertrieb/
     │   │   └── leitfaeden/
-    │   │       └── index.html
+    │   │       ├── index.html
+    │   │       ├── leitfaden-01-privat.html
+    │   │       ├── leitfaden-02-selbstaendig.html
+    │   │       ├── leitfaden-03-unternehmer-verein.html
+    │   │       └── leitfaden-04-aufbaupartner.html
     │   ├── footer/
     │   │   ├── community.html
     │   │   ├── impressum.html
@@ -944,4 +948,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 31.01.2026, 11:15)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 31.01.2026, 12:35)_
