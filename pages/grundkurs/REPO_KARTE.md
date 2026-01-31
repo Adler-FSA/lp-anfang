@@ -784,6 +784,7 @@
     │   │   ├── timecells-tools.html
     │   │   └── workshop.html
     │   ├── tools/
+    │   │   ├── beratermarkt-index-dach-2.html
     │   │   ├── beratermarkt-index-dach.html
     │   │   └── dach-demand-dashboard.html
     │   ├── trustyfy/
@@ -940,4 +941,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 31.01.2026, 08:23)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 31.01.2026, 09:22)_
