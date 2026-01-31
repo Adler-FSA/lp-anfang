@@ -783,6 +783,8 @@
     │   │   ├── timecells-tipp.html
     │   │   ├── timecells-tools.html
     │   │   └── workshop.html
+    │   ├── tools/
+    │   │   └── dach-demand-dashboard.html
     │   ├── trustyfy/
     │   │   └── fast-track.html
     │   ├── vertriebsbibliothek/
@@ -937,4 +939,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 30.01.2026, 23:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 31.01.2026, 01:25)_
