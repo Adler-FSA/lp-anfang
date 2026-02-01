@@ -672,6 +672,7 @@
     │   │   ├── presse.html
     │   │   └── start-level-2.html
     │   ├── geschenke/
+    │   │   ├── einladung-weekend-setup.html
     │   │   ├── geschenk-01.jpg
     │   │   ├── geschenk-02.jpg
     │   │   ├── geschenk-03.jpeg
@@ -961,4 +962,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.02.2026, 20:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.02.2026, 21:17)_
