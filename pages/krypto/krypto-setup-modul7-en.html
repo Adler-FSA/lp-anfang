@@ -351,6 +351,81 @@
       border-color:#000;
     }
   }
+
+  /* ===== Certificate unlock overlay (Module 7) – ADDITION ONLY ===== */
+  .fsa-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(2,6,23,.72);
+    backdrop-filter: blur(6px);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    z-index:9999;
+  }
+  .fsa-overlay.show{ display:flex; }
+
+  .fsa-modal{
+    width:min(720px, 100%);
+    border-radius:18px;
+    border:1px solid rgba(148,163,184,.55);
+    background:linear-gradient(145deg,rgba(15,23,42,.98),rgba(8,16,32,.98));
+    box-shadow:0 18px 45px rgba(15,23,42,.95);
+    overflow:hidden;
+  }
+  .fsa-modal-head{
+    padding:16px 16px 10px;
+    border-bottom:1px solid rgba(148,163,184,.35);
+  }
+  .fsa-modal-kicker{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+  .fsa-modal h3{
+    margin:0;
+    font-size:18px;
+    color:var(--gold);
+  }
+  .fsa-modal-body{
+    padding:14px 16px 16px;
+    color:var(--txt);
+    font-size:14px;
+    line-height:1.7;
+  }
+  .fsa-hint{
+    margin:10px 0 12px;
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid rgba(234,179,8,.25);
+    background:rgba(15,23,42,.85);
+    color:var(--txt);
+  }
+  .fsa-error{
+    margin-top:10px;
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid rgba(255,107,107,.55);
+    background:rgba(255,107,107,.10);
+    color:#ffd6d6;
+    font-size:13px;
+  }
+  .fsa-strict{
+    margin-top:10px;
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid rgba(56,189,248,.30);
+    background:rgba(56,189,248,.08);
+    color:var(--txt);
+    font-size:13px;
+  }
+
+  @media print{
+    .fsa-overlay{ display:none !important; }
+  }
 </style>
 </head>
 <body data-storage-prefix="fsa-krypto-setup-m7-en:">
@@ -662,6 +737,63 @@
     </div>
   </section>
 
+  <!-- Certificate unlock (Module 7) – ONLY button + overlay -->
+  <section class="section" id="cert-unlock-section" aria-label="Certificate unlock (Module 7)">
+    <div class="section-title-small">Certificate</div>
+    <h2>Certificate Unlock (Module 7)</h2>
+
+    <p>
+      This certificate / crypto driver’s license is issued exclusively as part of the official FSA Weekend Setup.
+    </p>
+    <p>
+      Unlocking happens only after an on-site check confirmed that the security rules were followed (seed rules, storage, handling, final check).
+    </p>
+
+    <div class="actions">
+      <button type="button" class="btn-gold" id="open-cert-unlock">🎓 Unlock certificate</button>
+    </div>
+  </section>
+
+  <!-- Overlay / password dialog -->
+  <div class="fsa-overlay" id="certOverlay" aria-hidden="true">
+    <div class="fsa-modal" role="dialog" aria-modal="true" aria-labelledby="certTitle" aria-describedby="certDesc">
+      <div class="fsa-modal-head">
+        <div class="fsa-modal-kicker">Release</div>
+        <h3 id="certTitle">Certificate Unlock (Module 7)</h3>
+      </div>
+
+      <div class="fsa-modal-body" id="certDesc">
+        <p>
+          This certificate / crypto driver’s license is issued exclusively as part of the official FSA Weekend Setup.
+        </p>
+        <p>
+          Unlocking happens only after an on-site check confirmed that the security rules were followed (seed rules, storage, handling, final check).
+        </p>
+
+        <div class="fsa-hint">
+          Please enter the unlock password that will be announced by the speaker at the end of the weekend.
+        </div>
+
+        <div class="label">Unlock password:</div>
+        <input type="text" id="certPass" autocomplete="off" spellcheck="false" />
+
+        <div class="fsa-error" id="certError" role="status" aria-live="polite" style="display:none;">
+          Wrong password.<br>
+          This certificate is only unlocked after successful completion of the Weekend Setup.
+        </div>
+
+        <div class="fsa-strict">
+          By unlocking, you confirm that you have fully completed all 7 modules and that you understood and followed the security standards.
+        </div>
+
+        <div class="actions" style="margin-top:14px;">
+          <button type="button" class="btn-gold" id="certGo">Unlock &amp; go to certificate</button>
+          <button type="button" class="btn-ghost" id="certCancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Navigation -->
   <div class="footer-nav">
     <div class="footer-nav-group">
@@ -789,5 +921,74 @@
   });
 })();
 </script>
+
+<!-- Certificate unlock (Module 7) – password logic -->
+<script>
+(function(){
+  const PASS = 'FSA-Weekend-Setup-2026';
+  const CERT_URL = '/lp-anfang/pages/tools/zertifikat-krypto-fuehrerschein.html';
+
+  const $ = (id)=>document.getElementById(id);
+
+  function openOverlay(){
+    const ov = $('certOverlay');
+    if(!ov) return;
+    ov.classList.add('show');
+    ov.setAttribute('aria-hidden','false');
+    $('certError').style.display='none';
+    $('certPass').value='';
+    setTimeout(()=>{ try{ $('certPass').focus(); }catch(e){} }, 0);
+  }
+
+  function closeOverlay(){
+    const ov = $('certOverlay');
+    if(!ov) return;
+    ov.classList.remove('show');
+    ov.setAttribute('aria-hidden','true');
+    $('certError').style.display='none';
+    $('certPass').value='';
+  }
+
+  function goCert(){
+    const input = ($('certPass').value || '').trim();
+    if(input !== PASS){
+      $('certError').style.display='block';
+      return;
+    }
+    const t = Date.now();
+    const sep = CERT_URL.includes('?') ? '&' : '?';
+    location.assign(CERT_URL + sep + 'nocache=' + t);
+  }
+
+  const openBtn = $('open-cert-unlock');
+  if(openBtn) openBtn.addEventListener('click', openOverlay);
+
+  const cancelBtn = $('certCancel');
+  if(cancelBtn) cancelBtn.addEventListener('click', closeOverlay);
+
+  const goBtn = $('certGo');
+  if(goBtn) goBtn.addEventListener('click', goCert);
+
+  const pass = $('certPass');
+  if(pass){
+    pass.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter') goCert();
+      if(e.key === 'Escape') closeOverlay();
+    });
+    pass.addEventListener('input', ()=>{ $('certError').style.display='none'; });
+  }
+
+  const ov = $('certOverlay');
+  if(ov){
+    ov.addEventListener('click', (e)=>{
+      if(e.target === ov) closeOverlay();
+    });
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape' && ov.classList.contains('show')) closeOverlay();
+    });
+  }
+})();
+</script>
+
 </body>
 </html>
