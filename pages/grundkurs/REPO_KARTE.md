@@ -671,6 +671,10 @@
     │   │   ├── presse-index.html
     │   │   ├── presse.html
     │   │   └── start-level-2.html
+    │   ├── geschenke/
+    │   │   ├── geschenk-01.jpg
+    │   │   ├── geschenk-02.jpg
+    │   │   └── geschenk-03.jpeg
     │   ├── grundkurs/
     │   │   ├── REPO_KARTE.md
     │   │   ├── ROLE_TECHNISCHER_UMSETZER.md
@@ -951,4 +955,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.02.2026, 15:19)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.02.2026, 16:22)_
