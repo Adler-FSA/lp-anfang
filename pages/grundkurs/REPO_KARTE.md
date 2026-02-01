@@ -675,6 +675,11 @@
     │   │   ├── geschenk-01.jpg
     │   │   ├── geschenk-02.jpg
     │   │   ├── geschenk-03.jpeg
+    │   │   ├── kostenloser-grundkurs-abschluss.html
+    │   │   ├── kostenloser-grundkurs-basis.html
+    │   │   ├── kostenloser-grundkurs-einkommen.html
+    │   │   ├── kostenloser-grundkurs-network.html
+    │   │   ├── kostenloser-grundkurs-sicherheit.html
     │   │   └── kostenloser-grundkurs.html
     │   ├── grundkurs/
     │   │   ├── REPO_KARTE.md
@@ -956,4 +961,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.02.2026, 17:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.02.2026, 18:26)_
