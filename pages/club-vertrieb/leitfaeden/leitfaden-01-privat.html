@@ -596,21 +596,36 @@
     localStorage.setItem(LANG_KEY, v);
   }
 
+  /* FIX: DU/SIE cases + verb forms (DE scripts) */
   function pronouns(form){
     if(form==="sie"){
       return {
         form:"sie",
+        isFormal:true,
         you:"Sie",
-        youObj:"Ihnen",
+        youObj:"Ihnen",   // dative
+        youAcc:"Sie",     // accusative
         your:"Ihr",
+        yourDat:"Ihrem",  // dative (Ihrem Umfeld)
+        areVerb:"sind",
+        haveVerb:"haben",
+        askVerb:"frage",
+        noticeVerb:"merken",
         greeting:(name)=> name ? `Guten Tag ${name},` : "Guten Tag,"
       };
     }
     return {
       form:"du",
+      isFormal:false,
       you:"du",
-      youObj:"dir",
+      youObj:"dir",      // dative
+      youAcc:"dich",     // accusative
       your:"dein",
+      yourDat:"deinem",  // dative (deinem Umfeld)
+      areVerb:"bist",
+      haveVerb:"hast",
+      askVerb:"frag",
+      noticeVerb:"merkst",
       greeting:(name)=> name ? `Hey ${name},` : "Hey,"
     };
   }
@@ -632,54 +647,52 @@
     const fokusLabel = {de: dict.focusLabel[focus], en: I18N.en.focusLabel[focus]};
     const engpassLabel = {de: dict.engLabel[eng], en: I18N.en.engLabel[eng]};
 
-    const lead = (lang==="de")
-      ? `${p.greeting(name)} ${ctx ? `Ich ruf kurz an – ${ctx}. ` : ""}Wie geht’s dir gerade – ganz generell?`
-      : `${p.greeting(name)} ${ctx ? `Quick call – ${ctx}. ` : ""}How are you doing these days – in general?`;
+    let lead, warm2, lenk1, lenk2, health, trust, trustFollow, goals, focusQ, engQ, membership;
 
-    const warm2 = (lang==="de")
-      ? "Sag mal, wenn du so auf die letzten Monate schaust: läuft’s eher ruhig – oder eher anstrengend?"
-      : "Looking at the last months: has it been calm – or rather stressful?";
-
-    const lenk1 = (lang==="de")
-      ? `Wie läuft’s finanziell bei ${p.you} gerade – bist ${p.you} zufrieden oder ist da Druck?`
-      : `How are things financially for you – are you satisfied or is there pressure?`;
-
-    const lenk2 = (lang==="de")
-      ? `Und im Job/Alltag – eher stabil, oder merkst ${p.you}, dass es sich verändert?`
-      : `And work/day-to-day – stable, or do you feel things are changing?`;
-
-    const health = (lang==="de")
-      ? "Und Gesundheit – alles okay soweit?"
-      : "And health – all good so far?";
-
-    const trust = (lang==="de")
-      ? `Ich frag dich das nicht aus Neugier, sondern weil ich das ständig sehe: Hast du – oder jemand in deinem Umfeld – schon mal viel Geld investiert/abgeschlossen und danach gemerkt, es war ein Fehler?`
-      : `I'm not asking out of curiosity—because I see it all the time: Have you, or someone close, ever put in serious money and later realized it was a mistake?`;
-
-    const trustFollow = (lang==="de")
-      ? `Wenn ja: Was war’s eher – zu viel Vertrauen, zu wenig Prüfung oder zu viel Druck von außen?`
-      : `If yes: was it more—too much trust, too little checking, or too much outside pressure?`;
-
-    const goals = (lang==="de")
-      ? `Pass auf${name?` ${name}`:""}: Für mich gibt es drei Dinge, die jeder sauber abdecken sollte – egal ob man irgendwas macht oder nicht:\n\n1) Sicherheit: nicht mehr unnötig Geld verlieren\n2) Stabilität: eine Perspektive, die dich ruhiger macht\n3) Zweite Spur: optional die Fähigkeit, zusätzlich Geld zu verdienen – aber ohne Druck\n\nDie meisten haben davon eins – aber nicht alle drei. Und genau da entstehen später die Fehler.`
-      : `Listen${name?` ${name}`:""}: For me there are three things everyone should cover cleanly—whether you do anything or not:\n\n1) Safety: stop unnecessary losses\n2) Stability: a perspective that calms you down\n3) Second stream: optional ability to earn extra—without pressure\n\nMost people have one—rarely all three. That's where mistakes happen later.`;
-
-    const focusQ = (lang==="de")
-      ? `Wenn du ehrlich bist: Welcher Punkt ist bei dir gerade am wichtigsten – Sicherheit, Stabilität oder zweite Spur?`
-      : `Honestly: which point matters most right now—safety, stability, or a second stream?`;
-
-    const engQ = (lang==="de")
-      ? `Und was ist der Engpass: fehlende Klarheit, fehlende Struktur – oder dass man allein nicht dranbleibt?`
-      : `And what's the bottleneck: lack of clarity, lack of structure—or that alone it fades?`;
-
-    const membership = (lang==="de")
-      ? `Okay. Dann sag ich’s dir klar: Genau dafür gibt es bei uns die Mitgliedschaft.\nNicht als „Kauf“, sondern als Handlungsrahmen: Klarheit, Struktur und ein Geländer, damit du nicht wieder bei Null anfängst.\n\nWillst du, dass ich dich da reinnehme – ja oder nein?`
-      : `Okay. Let me be clear: that's exactly what our membership is for.\nNot as a “purchase”, but as a working frame: clarity, structure, and a guardrail so you don't restart from zero.\n\nDo you want me to bring you in—yes or no?`;
+    if(lang==="de"){
+      if(p.isFormal){
+        lead = `${p.greeting(name)} ${ctx ? `Ich rufe kurz an – ${ctx}. ` : ""}Wie geht es Ihnen gerade – ganz generell?`;
+        warm2 = "Wenn Sie so auf die letzten Monate schauen: lief’s eher ruhig – oder eher anstrengend?";
+        lenk1 = `Wie läuft’s finanziell bei ${p.youObj} gerade – ${p.areVerb} ${p.you} zufrieden oder ist da Druck?`;
+        lenk2 = `Und im Job/Alltag – eher stabil, oder ${p.noticeVerb} ${p.you}, dass es sich verändert?`;
+        health = "Und gesundheitlich – ist soweit alles okay?";
+        trust = `Ich ${p.askVerb} ${p.youAcc} das nicht aus Neugier, sondern weil ich das ständig sehe: ${p.haveVerb} ${p.you} – oder jemand in ${p.yourDat} Umfeld – schon mal viel Geld investiert/abgeschlossen und danach gemerkt, es war ein Fehler?`;
+        trustFollow = "Wenn ja: Was war’s eher – zu viel Vertrauen, zu wenig Prüfung oder zu viel Druck von außen?";
+        goals = `Darf ich’s kurz klar machen${name?` ${name}`:""}: Für mich gibt es drei Dinge, die jeder sauber abdecken sollte – egal ob man irgendwas macht oder nicht:\n\n1) Sicherheit: nicht mehr unnötig Geld verlieren\n2) Stabilität: eine Perspektive, die Sie ruhiger macht\n3) Zweite Spur: optional die Fähigkeit, zusätzlich Geld zu verdienen – aber ohne Druck\n\nDie meisten haben davon eins – aber nicht alle drei. Und genau da entstehen später die Fehler.`;
+        focusQ = "Wenn Sie ehrlich sind: Welcher Punkt ist bei Ihnen gerade am wichtigsten – Sicherheit, Stabilität oder zweite Spur?";
+        engQ = "Und was ist der Engpass: fehlende Klarheit, fehlende Struktur – oder dass man allein nicht dranbleibt?";
+        membership = `Okay. Dann sag ich’s Ihnen klar: Genau dafür gibt es bei uns die Mitgliedschaft.\nNicht als „Kauf“, sondern als Handlungsrahmen: Klarheit, Struktur und ein Geländer, damit Sie nicht wieder bei Null anfangen.\n\nWollen Sie, dass ich Sie da reinnehme – ja oder nein?`;
+      } else {
+        lead = `${p.greeting(name)} ${ctx ? `Ich ruf kurz an – ${ctx}. ` : ""}Wie geht’s dir gerade – ganz generell?`;
+        warm2 = "Sag mal, wenn du so auf die letzten Monate schaust: läuft’s eher ruhig – oder eher anstrengend?";
+        lenk1 = `Wie läuft’s finanziell bei ${p.youObj} gerade – ${p.areVerb} ${p.you} zufrieden oder ist da Druck?`;
+        lenk2 = `Und im Job/Alltag – eher stabil, oder ${p.noticeVerb} ${p.you}, dass es sich verändert?`;
+        health = "Und Gesundheit – alles okay soweit?";
+        trust = `Ich ${p.askVerb} ${p.youAcc} das nicht aus Neugier, sondern weil ich das ständig sehe: ${p.haveVerb} ${p.you} – oder jemand in ${p.yourDat} Umfeld – schon mal viel Geld investiert/abgeschlossen und danach gemerkt, es war ein Fehler?`;
+        trustFollow = "Wenn ja: Was war’s eher – zu viel Vertrauen, zu wenig Prüfung oder zu viel Druck von außen?";
+        goals = `Pass auf${name?` ${name}`:""}: Für mich gibt es drei Dinge, die jeder sauber abdecken sollte – egal ob man irgendwas macht oder nicht:\n\n1) Sicherheit: nicht mehr unnötig Geld verlieren\n2) Stabilität: eine Perspektive, die dich ruhiger macht\n3) Zweite Spur: optional die Fähigkeit, zusätzlich Geld zu verdienen – aber ohne Druck\n\nDie meisten haben davon eins – aber nicht alle drei. Und genau da entstehen später die Fehler.`;
+        focusQ = "Wenn du ehrlich bist: Welcher Punkt ist bei dir gerade am wichtigsten – Sicherheit, Stabilität oder zweite Spur?";
+        engQ = "Und was ist der Engpass: fehlende Klarheit, fehlende Struktur – oder dass man allein nicht dranbleibt?";
+        membership = `Okay. Dann sag ich’s dir klar: Genau dafür gibt es bei uns die Mitgliedschaft.\nNicht als „Kauf“, sondern als Handlungsrahmen: Klarheit, Struktur und ein Geländer, damit du nicht wieder bei Null anfängst.\n\nWillst du, dass ich dich da reinnehme – ja oder nein?`;
+      }
+    } else {
+      lead = `${p.greeting(name)} ${ctx ? `Quick call – ${ctx}. ` : ""}How are you doing these days – in general?`;
+      warm2 = "Looking at the last months: has it been calm – or rather stressful?";
+      lenk1 = "How are things financially for you – are you satisfied or is there pressure?";
+      lenk2 = "And work/day-to-day – stable, or do you feel things are changing?";
+      health = "And health – all good so far?";
+      trust = "I'm not asking out of curiosity—because I see it all the time: Have you, or someone close, ever put in serious money and later realized it was a mistake?";
+      trustFollow = "If yes: was it more—too much trust, too little checking, or too much outside pressure?";
+      goals = `Listen${name?` ${name}`:""}: For me there are three things everyone should cover cleanly—whether you do anything or not:\n\n1) Safety: stop unnecessary losses\n2) Stability: a perspective that calms you down\n3) Second stream: optional ability to earn extra—without pressure\n\nMost people have one—rarely all three. That's where mistakes happen later.`;
+      focusQ = "Honestly: which point matters most right now—safety, stability, or a second stream?";
+      engQ = "And what's the bottleneck: lack of clarity, lack of structure—or that alone it fades?";
+      membership = `Okay. Let me be clear: that's exactly what our membership is for.\nNot as a “purchase”, but as a working frame: clarity, structure, and a guardrail so you don't restart from zero.\n\nDo you want me to bring you in—yes or no?`;
+    }
 
     const scripts = [
       {id:"s1", title:dict.step1, lines:[lead, warm2]},
       {id:"s2", title:dict.step2, lines:[lenk1, lenk2, health]},
-      {id:"s3", title:dict.step3, lines:[`„${(lang==="de" ? "Ich will nicht, dass du Geld verlierst – deshalb rufe ich dich an." : "I don't want you to lose money — that's why I'm calling.")}“`, trust, trustFollow]},
+      {id:"s3", title:dict.step3, lines:[`„${(lang==="de" ? (p.isFormal ? "Ich will nicht, dass Sie Geld verlieren – deshalb rufe ich an." : "Ich will nicht, dass du Geld verlierst – deshalb rufe ich dich an.") : "I don't want you to lose money — that's why I'm calling.")}“`, trust, trustFollow]},
       {id:"s4", title:dict.step4, lines:[goals]},
       {id:"s5", title:dict.step5, lines:[focusQ, engQ, membership]}
     ];
@@ -688,7 +701,6 @@
   }
 
   function buildNextLine(state, lang){
-    const p = pronouns(state.form);
     const name = safeName(state.vorname);
     const lib = LIB[lang];
 
@@ -704,7 +716,6 @@
 
   function objectionAnswer(state, lang, key){
     const p = pronouns(state.form);
-    const name = safeName(state.vorname);
 
     function A(de, en){ return (lang==="de"?de:en); }
 
@@ -722,7 +733,7 @@
     }
     if(key==="ob3"){
       return A(
-        `Bestätigen: Versteh ich.\nKlärfrage: Was wäre realistisch – 2 Minuten jetzt oder lieber ein kurzer Folgetermin?\nEinordnen: Ich will nur kurz einordnen, ob das für dich passt. Kein Druck.`,
+        `Bestätigen: Versteh ich.\nKlärfrage: Was wäre realistisch – 2 Minuten jetzt oder lieber ein kurzer Folgetermin?\nEinordnen: Ich will nur kurz einordnen, ob das für ${p.isFormal ? "Sie" : "dich"} passt. Kein Druck.`,
         `Confirm: I get it.\nClarify: What's realistic—2 minutes now or a short follow-up?\nFrame: I only want to check fit. No pressure.`
       );
     }
