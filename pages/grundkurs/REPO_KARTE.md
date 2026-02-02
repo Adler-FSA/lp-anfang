@@ -792,7 +792,10 @@
     │   │   ├── weekend-sprecher-packliste.html
     │   │   └── weekend-teilnehmer-checkliste.html
     │   ├── produktshow/
-    │   │   └── pyramide.html
+    │   │   ├── halbkreis.html
+    │   │   ├── index.html
+    │   │   ├── pyramide.html
+    │   │   └── treppe.html
     │   ├── social/
     │   │   ├── share-adler.html
     │   │   ├── share-akademie.html
@@ -970,4 +973,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.02.2026, 08:36)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.02.2026, 09:41)_
