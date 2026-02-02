@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Demo Hörsaal Starter (8/8) – Import-Tool (Locked)</title>
+  <meta name="robots" content="noindex,nofollow" />
+
+  <style>
+    :root{
+      --bg:#050814; --bg2:#020617;
+      --panel:rgba(15,23,42,.88); --panel2:rgba(15,23,42,.72);
+      --txt:#e9eef7; --muted:#a9b4c7;
+      --gold:#d4af37; --gold2:#f2d37a;
+      --line:rgba(212,175,55,.38);
+      --shadow:0 24px 60px rgba(0,0,0,.55);
+      --glow:0 0 26px rgba(212,175,55,.22), 0 12px 30px rgba(0,0,0,.55);
+      --radius:18px; --maxw:1100px;
+
+      --accent:#d4af37;
+      --accent2:#f2d37a;
+      --glowA:rgba(212,175,55,.18);
+      --glowB:rgba(94,168,255,.14);
+      --fieldBg: rgba(0,0,0,.18);
+      --fieldBd: rgba(212,175,55,.24);
+      --ok: rgba(33,230,182,.95);
+      --bad: rgba(255,90,120,.92);
+    }
+
+    *{box-sizing:border-box;}
+    html,body{
+      margin:0;
+      background:
+        radial-gradient(1200px 800px at 20% 10%, var(--glowA), transparent 55%),
+        radial-gradient(900px 600px at 80% 30%, var(--glowB), transparent 60%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      overflow-x:hidden;
+    }
+    .wrap{max-width:var(--maxw);margin:0 auto;padding:34px 18px 70px;}
+    .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:6px 0 14px;}
+    .brand{display:flex;flex-direction:column;gap:6px;min-width:min(720px,100%);}
+    .kicker{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 10px;border-radius:999px;
+      border:1px solid rgba(212,175,55,.25);
+      background:rgba(0,0,0,.18);
+      color:var(--accent2);
+      font-size:12px;font-weight:800;letter-spacing:.25px;
+      width:fit-content;white-space:nowrap;
+    }
+    .dot{width:8px;height:8px;border-radius:99px;background:rgba(242,211,122,.9);box-shadow:0 0 12px rgba(212,175,55,.35)}
+    h1{margin:0;font-size:34px;line-height:1.1;font-weight:900}
+    .sub{margin:2px 0 0;color:var(--muted);max-width:95ch;line-height:1.55}
+    .line{height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.85;margin:12px 0 18px;}
+
+    .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+    .btn{
+      appearance:none;border:none;cursor:pointer;
+      padding:10px 12px;border-radius:14px;
+      background:linear-gradient(180deg, rgba(212,175,55,.95), rgba(212,175,55,.75));
+      color:#111;font-weight:900;letter-spacing:.2px;
+      box-shadow:var(--glow);
+      text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+      white-space:nowrap;
+    }
+    .btn2{
+      appearance:none;border:1px solid rgba(212,175,55,.28);cursor:pointer;
+      padding:10px 12px;border-radius:14px;
+      background:rgba(0,0,0,.22);
+      color:var(--txt);font-weight:800;
+      text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+      white-space:nowrap;
+    }
+    .btn2:hover{background:rgba(0,0,0,.28);}
+
+    .panel{
+      background:linear-gradient(180deg,var(--panel),var(--panel2));
+      border:1px solid rgba(212,175,55,.22);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(6px);
+      padding:18px 18px;
+      position:relative;
+      overflow:hidden;
+      margin-top:14px;
+    }
+    .panel:before{
+      content:"";
+      position:absolute;inset:-2px;
+      background:radial-gradient(650px 240px at 10% 0%, rgba(212,175,55,.10), transparent 55%);
+      pointer-events:none;
+    }
+    .panel > *{position:relative;z-index:1;}
+
+    h2{margin:0 0 8px;font-size:18px;letter-spacing:.2px;color:var(--accent2)}
+    p{margin:0 0 10px;color:var(--txt);line-height:1.65;font-size:14.5px;opacity:.98}
+
+    .miniNote{
+      margin-top:10px;padding:10px 12px;border-radius:14px;
+      border:1px dashed rgba(212,175,55,.35);
+      background:rgba(0,0,0,.18);
+      color:var(--muted);font-size:13px;line-height:1.55;
+    }
+
+    .textarea,.input{
+      width:100%;
+      border-radius:12px;
+      border:1px solid var(--fieldBd);
+      background:var(--fieldBg);
+      color:var(--txt);
+      padding:10px 10px;
+      font-size:14px;
+      outline:none;
+    }
+    .textarea{
+      min-height:260px;
+      resize:vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+    }
+    .input::placeholder,.textarea::placeholder{color:rgba(169,180,199,.72)}
+    .input:focus,.textarea:focus{border-color:rgba(212,175,55,.55); box-shadow:0 0 0 3px rgba(212,175,55,.12);}
+
+    .lockWrap{display:grid;grid-template-columns:1fr;gap:14px;}
+    .lockRow{display:grid;grid-template-columns: 1fr auto;gap:10px;align-items:center;}
+    @media (max-width: 720px){ .lockRow{grid-template-columns:1fr;} }
+
+    .statusRow{
+      margin-top:10px;
+      display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+      padding:10px 12px;border-radius:14px;
+      border:1px solid rgba(212,175,55,.18);
+      background:rgba(0,0,0,.12);
+    }
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid rgba(212,175,55,.22);
+      background:rgba(0,0,0,.16);
+      color:rgba(242,211,122,.95);
+      font-weight:900;font-size:12.5px;letter-spacing:.2px;white-space:nowrap;
+    }
+    .pill.ok{border-color:rgba(33,230,182,.35); color:rgba(220,255,246,.95)}
+    .pill.bad{border-color:rgba(255,90,120,.35); color:rgba(255,220,230,.95)}
+    .pill .dotx{width:8px;height:8px;border-radius:999px;background:rgba(242,211,122,.9);box-shadow:0 0 10px rgba(212,175,55,.25)}
+    .pill.ok .dotx{background:var(--ok); box-shadow:0 0 12px rgba(33,230,182,.25)}
+    .pill.bad .dotx{background:var(--bad); box-shadow:0 0 12px rgba(255,90,120,.25)}
+
+    .hide{display:none !important;}
+
+    .tableWrap{
+      overflow:auto;
+      border:1px solid rgba(212,175,55,.18);
+      border-radius:14px;
+      background:rgba(0,0,0,.12);
+      margin-top:10px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:820px;
+    }
+    th,td{
+      padding:12px 12px;
+      vertical-align:top;
+      border-bottom:1px solid rgba(212,175,55,.14);
+      font-size:13.5px;
+      line-height:1.45;
+    }
+    th{
+      text-align:left;
+      color:rgba(242,211,122,.95);
+      font-weight:950;
+      background:rgba(212,175,55,.08);
+      white-space:nowrap;
+    }
+    td{color:rgba(233,238,247,.92)}
+    .mutedSmall{display:block;color:rgba(169,180,199,.85);font-size:12px;margin-top:4px}
+
+    .footerNav{
+      margin-top:14px;
+      display:flex;gap:10px;flex-wrap:wrap;
+      justify-content:space-between;align-items:center;
+    }
+
+    @page{ margin:14mm; }
+    @media print{
+      html,body{background:#fff !important;color:#000 !important;height:auto !important;overflow:visible !important;-webkit-print-color-adjust: exact;print-color-adjust: exact;}
+      .wrap{padding:0 !important;}
+      .actions,.kicker,.footerNav,.noPrint{display:none !important;}
+      .panel{box-shadow:none !important;background:#fff !important;border:1px solid #999 !important;backdrop-filter:none !important;break-inside:avoid-page;page-break-inside:avoid;}
+      .panel:before{display:none !important;}
+      h1,h2{color:#000 !important;}
+      .sub,p,.miniNote,.pill,th,td{color:#000 !important;}
+      .line{background:#999 !important;}
+      .statusRow,.tableWrap{background:#fff !important;border-color:#999 !important;}
+      .textarea,.input{background:#fff !important;border:1px solid #777 !important;color:#000 !important;box-shadow:none !important;}
+      table{min-width:0 !important;}
+      .tableWrap{overflow:visible !important;}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="kicker"><span class="dot"></span> SEITE 8/8</div>
+        <div>
+          <h1>Import-Tool (Locked) – Daten einfügen &amp; Vorschau prüfen</h1>
+          <div class="sub">
+            Diese Seite ist das <b>Auslese-/Import-Tool</b>. Hier fügst du die per Mail erhaltenen Export-Daten ein und siehst sofort,
+            wie die Demo in der Vorschau aussieht. <b>Passwort-Gate</b> verhindert, dass jeder hier rumklickt.
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" type="button" id="printBtn">Drucken</button>
+        <a class="btn2" href="./demo-hoersaal-starter-07-export-summary.html" data-internal>← zurück</a>
+      </div>
+    </div>
+
+    <div class="line"></div>
+
+    <!-- LOCK -->
+    <section class="panel noPrint" id="lockPanel">
+      <h2>1) Zugriff (Passwort)</h2>
+      <p>Gib das Passwort ein, um das Import-Tool freizuschalten.</p>
+
+      <div class="lockWrap">
+        <div class="lockRow">
+          <input class="input" id="pw" type="password" inputmode="text" autocomplete="off" placeholder="Passwort eingeben" />
+          <button class="btn" type="button" id="unlockBtn">Freischalten</button>
+        </div>
+        <div class="miniNote">
+          Hinweis: Passwort ist lokal (kein Server). Es schützt nur vor „Zufalls-Klicks“.
+        </div>
+      </div>
+    </section>
+
+    <!-- TOOL -->
+    <div id="toolArea" class="hide">
+      <section class="panel">
+        <h2>2) Export einfügen</h2>
+        <p>
+          Füge hier den kompletten Export-Block ein (aus Seite 7). Danach „Import ausführen“.
+        </p>
+
+        <textarea class="textarea" id="importBox" spellcheck="false" placeholder="Export-JSON hier einfügen…"></textarea>
+
+        <div class="statusRow">
+          <div class="pill" id="importStatus"><span class="dotx"></span><span id="importStatusText">Noch kein Import</span></div>
+          <button class="btn2" type="button" id="rememberBtn">Merken (Gate offen)</button>
+          <button class="btn2" type="button" id="resetGateBtn">Gate zurücksetzen</button>
+          <button class="btn" type="button" id="importBtn">Import ausführen</button>
+        </div>
+
+        <div class="miniNote">
+          Import schreibt in <b>LocalStorage</b> (Keys mit Prefix <b>FSA_DEMO_HOERSAAL_STARTER_</b>). Danach kannst du direkt in die Vorschau (Seite 2) springen.
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>3) Was wurde importiert?</h2>
+        <p>Hier siehst du, welche Schlüssel übernommen wurden.</p>
+
+        <div class="tableWrap" aria-label="Import Ergebnis Tabelle">
+          <table>
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th>Status</th>
+                <th>Hinweis</th>
+              </tr>
+            </thead>
+            <tbody id="impBody">
+              <tr><td colspan="3"><span class="mutedSmall">noch kein Import</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="footerNav">
+          <a class="btn2" href="./demo-hoersaal-starter-02-vorschau-hub.html" data-internal>Zur Vorschau (Hub)</a>
+          <a class="btn2" href="./demo-hoersaal-starter-01-settings.html" data-internal>Zu Settings (1/8)</a>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const STORE_PREFIX = "FSA_DEMO_HOERSAAL_STARTER_";
+      const EXPORT_KEY = "DEMO_HOERSAAL_EXPORT_V1";
+
+      // Passwort (lokal) – bewusst simpel (Zufalls-Klick-Schutz)
+      const GATE_PASSWORD = "FSA08";
+      const GATE_LS = STORE_PREFIX + "08_GATE_UNLOCKED_V1";
+
+      const lockPanel = document.getElementById("lockPanel");
+      const toolArea  = document.getElementById("toolArea");
+      const pw        = document.getElementById("pw");
+
+      const importStatus = document.getElementById("importStatus");
+      const importStatusText = document.getElementById("importStatusText");
+
+      function setStatus(type, text){
+        importStatus.classList.remove("ok","bad");
+        if(type === "ok") importStatus.classList.add("ok");
+        if(type === "bad") importStatus.classList.add("bad");
+        importStatusText.textContent = text;
+      }
+
+      function unlock(){
+        lockPanel.classList.add("hide");
+        toolArea.classList.remove("hide");
+        pw.value = "";
+      }
+
+      // Autounlock if remembered
+      try{
+        if(localStorage.getItem(GATE_LS) === "1"){
+          unlock();
+        }
+      }catch(e){}
+
+      document.getElementById("unlockBtn").addEventListener("click", ()=>{
+        const v = (pw.value || "").trim();
+        if(v === GATE_PASSWORD){
+          unlock();
+          setStatus("ok","Tool freigeschaltet");
+        }else{
+          setStatus("bad","Falsches Passwort");
+        }
+      });
+
+      pw.addEventListener("keydown", (e)=>{
+        if(e.key === "Enter"){
+          e.preventDefault();
+          document.getElementById("unlockBtn").click();
+        }
+      });
+
+      document.getElementById("rememberBtn").addEventListener("click", ()=>{
+        try{ localStorage.setItem(GATE_LS, "1"); }catch(e){}
+        setStatus("ok","Gate gemerkt (lokal)");
+      });
+
+      document.getElementById("resetGateBtn").addEventListener("click", ()=>{
+        try{ localStorage.removeItem(GATE_LS); }catch(e){}
+        setStatus("ok","Gate zurückgesetzt");
+      });
+
+      function safeParse(raw){
+        try{ return JSON.parse(raw); }catch(e){ return null; }
+      }
+
+      function renderImportTable(items){
+        const body = document.getElementById("impBody");
+        body.innerHTML = "";
+        if(!items || !items.length){
+          body.innerHTML = `<tr><td colspan="3"><span class="mutedSmall">keine Einträge</span></td></tr>`;
+          return;
+        }
+        items.forEach(it=>{
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><code style="color:rgba(242,211,122,.95)">${it.key}</code></td>
+            <td>${it.ok ? '<span style="color:rgba(33,230,182,.95);font-weight:900">OK</span>' : '<span style="color:rgba(255,90,120,.92);font-weight:900">FEHLER</span>'}</td>
+            <td>${it.msg}<span class="mutedSmall">${it.hint || ""}</span></td>
+          `;
+          body.appendChild(tr);
+        });
+      }
+
+      function doImport(){
+        const raw = document.getElementById("importBox").value || "";
+        const obj = safeParse(raw);
+
+        if(!obj || typeof obj !== "object"){
+          setStatus("bad","Import fehlgeschlagen: JSON ungültig");
+          renderImportTable([{key:"—", ok:false, msg:"Ungültiges JSON", hint:"Export-Block vollständig einfügen"}]);
+          return;
+        }
+
+        if(obj.export_key !== EXPORT_KEY){
+          setStatus("bad","Import fehlgeschlagen: falscher Export-Key");
+          renderImportTable([{key:"export_key", ok:false, msg:"Export-Key passt nicht", hint:"Nur DEMO_HOERSAAL_EXPORT_V1 zulässig"}]);
+          return;
+        }
+
+        const data = obj.data;
+        if(!data || typeof data !== "object"){
+          setStatus("bad","Import fehlgeschlagen: data fehlt");
+          renderImportTable([{key:"data", ok:false, msg:"Kein data-Objekt gefunden", hint:"Export-Block prüfen"}]);
+          return;
+        }
+
+        const results = [];
+        let okCount = 0;
+
+        Object.keys(data).forEach(k=>{
+          const v = data[k];
+          if(!k.startsWith(STORE_PREFIX)){
+            results.push({key:k, ok:false, msg:"Key ignoriert (falscher Prefix)", hint:"nur FSA_DEMO_HOERSAAL_STARTER_*"});
+            return;
+          }
+          try{
+            localStorage.setItem(k, String(v ?? ""));
+            okCount++;
+            results.push({key:k, ok:true, msg:"übernommen", hint:""});
+          }catch(e){
+            results.push({key:k, ok:false, msg:"LocalStorage write failed", hint:"Speicher voll? iOS Private Mode?"});
+          }
+        });
+
+        renderImportTable(results);
+
+        if(okCount > 0){
+          setStatus("ok",`Import OK: ${okCount} Key(s) übernommen`);
+        }else{
+          setStatus("bad","Import abgeschlossen, aber nichts übernommen");
+        }
+      }
+
+      document.getElementById("importBtn").addEventListener("click", doImport);
+      document.getElementById("printBtn").addEventListener("click", ()=> window.print());
+    })();
+  </script>
+
+  <script>
+    (function(){
+      const t = Date.now();
+      document.querySelectorAll('a[data-internal]').forEach(a=>{
+        try{
+          const u = new URL(a.getAttribute('href'), location.href);
+          u.searchParams.set('nocache', t);
+          a.href = u.pathname + u.search + u.hash;
+        }catch(e){}
+      });
+    })();
+  </script>
+</body>
+</html>
