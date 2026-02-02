@@ -16,6 +16,9 @@
       --shadow:0 24px 60px rgba(0,0,0,.55);
       --radius:18px;
       --tile:4cm;
+
+      --glow:0 0 26px rgba(212,175,55,.22), 0 10px 28px rgba(0,0,0,.55);
+      --glow-strong:0 0 34px rgba(242,211,122,.30), 0 20px 60px rgba(0,0,0,.62);
     }
 
     html,body{height:100%;}
@@ -28,7 +31,7 @@
         linear-gradient(180deg, var(--bg), var(--bg2));
       overflow-x:hidden;
     }
-    .wrap{width:100%;margin:0 auto;padding:28px 18px 60px;box-sizing:border-box;}
+    .wrap{width:100%;margin:0 auto;padding:28px 18px 70px;box-sizing:border-box;}
 
     .topbar{
       display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -49,7 +52,7 @@
       background:linear-gradient(180deg, rgba(212,175,55,.20), rgba(212,175,55,.10));
       color:var(--txt);padding:10px 12px;border-radius:14px;cursor:pointer;
       box-shadow:0 0 18px rgba(212,175,55,.14);
-      font-weight:700;font-size:13px;letter-spacing:.2px;
+      font-weight:800;font-size:13px;letter-spacing:.2px;
       transition:transform .12s ease, filter .12s ease;
       user-select:none;white-space:nowrap;
       text-decoration:none;display:inline-flex;align-items:center;justify-content:center;
@@ -59,7 +62,12 @@
     .btn.secondary{
       border:1px solid rgba(148,163,184,.30);
       background:linear-gradient(180deg, rgba(148,163,184,.12), rgba(148,163,184,.06));
-      box-shadow:none;color:var(--txt);font-weight:700;
+      box-shadow:none;color:var(--txt);font-weight:800;
+    }
+    .btn.danger{
+      border:1px solid rgba(248,113,113,.35);
+      background:linear-gradient(180deg, rgba(248,113,113,.12), rgba(248,113,113,.06));
+      box-shadow:none;
     }
 
     .section{
@@ -73,10 +81,9 @@
     }
     .sectionHead h2{margin:0;font-size:16px;color:var(--gold2);}
     .sectionHead .hint{margin:2px 0 0 0;font-size:13px;color:var(--muted);}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;}
 
-    .controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
-
-    .pyrWrap{padding:18px 16px 22px;display:flex;flex-direction:column;align-items:center;gap:12px;}
+    .pyrWrap{padding:16px;display:flex;flex-direction:column;gap:12px;}
     .stage{
       width:100%;
       height:min(72vh, 720px);
@@ -92,11 +99,14 @@
       overflow:hidden;
     }
 
+    /* label optional */
     .centerLabel{
-      position:absolute;left:50%;top:20%;
+      position:absolute;left:50%;top:14%;
       transform:translate(-50%,-50%);
-      text-align:center;pointer-events:none;z-index:50;opacity:.95;
+      text-align:center;pointer-events:none;z-index:50;opacity:.85;
+      display:none;
     }
+    body.showLabel .centerLabel{display:block;}
     .centerLabel .big{
       font-weight:1000;letter-spacing:.8px;font-size:42px;color:var(--gold2);
       text-shadow: 0 0 24px rgba(212,175,55,.22), 0 18px 52px rgba(0,0,0,.60);
@@ -109,7 +119,8 @@
 
     .stack3d{
       position:absolute;
-      left:50%;top:56%;
+      left:50%;
+      top:50%;
       transform-style:preserve-3d;
       width:1px;height:1px;
       will-change:transform;
@@ -124,13 +135,214 @@
       transform-style:preserve-3d;
       background:rgba(0,0,0,.22);
       backface-visibility:hidden;
-      will-change:transform;
+      will-change:transform, opacity, filter;
+      transition:transform .30s ease, opacity .30s ease, filter .30s ease;
     }
     .card3d img{width:100%;height:100%;object-fit:cover;display:block;transform:translateZ(0);}
     .card3d::before{
       content:"";position:absolute;inset:0;
       background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.28));
       pointer-events:none;
+    }
+
+    /* order badge */
+    .badge{
+      position:absolute;
+      left:10px; top:10px;
+      padding:6px 9px;
+      border-radius:999px;
+      font-weight:1000;
+      font-size:12px;
+      letter-spacing:.2px;
+      color:rgba(233,238,247,.95);
+      border:1px solid rgba(212,175,55,.35);
+      background:rgba(0,0,0,.35);
+      box-shadow:0 12px 26px rgba(0,0,0,.35);
+      user-select:none;
+      display:none;
+    }
+    body.showNumbers .badge{display:inline-flex;}
+
+    /* highlight / spotlight */
+    .card3d.isActive{
+      filter:brightness(1.10) saturate(1.05);
+      box-shadow:var(--glow-strong);
+      border-color:rgba(242,211,122,.58);
+    }
+    body.spotlight .card3d:not(.isActive){
+      opacity:.32;
+      filter:brightness(.88) saturate(.90);
+    }
+
+    /* build animation */
+    .card3d.buildHidden{
+      opacity:0;
+      transform:translate3d(0px, 24px, 0px) scale(.985);
+    }
+
+    /* hero top */
+    body.heroTop .card3d.isTop{
+      transform:translate3d(var(--tx), var(--ty), var(--tz)) scale(1.08);
+      box-shadow:0 0 36px rgba(242,211,122,.22), 0 28px 70px rgba(0,0,0,.66);
+      border-color:rgba(242,211,122,.64);
+    }
+
+    /* order bar */
+    .orderBar{
+      border:1px solid rgba(212,175,55,.18);
+      border-radius:16px;
+      background:rgba(0,0,0,.14);
+      padding:12px 12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      box-shadow:0 18px 48px rgba(0,0,0,.35);
+    }
+    .orderBarTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .pill{
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(212,175,55,.24);
+      background:rgba(0,0,0,.18);
+      font-size:12px;
+      color:rgba(233,238,247,.88);
+      box-shadow:0 10px 24px rgba(0,0,0,.30);
+      white-space:nowrap;
+    }
+    .orderStrip{
+      display:flex;
+      gap:10px;
+      overflow:auto;
+      padding-bottom:6px;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:thin;
+    }
+    .oItem{
+      flex:0 0 auto;
+      width:76px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      cursor:pointer;
+      user-select:none;
+      align-items:center;
+    }
+    .oThumb{
+      width:76px;height:76px;
+      border-radius:14px;
+      overflow:hidden;
+      border:1px solid rgba(212,175,55,.26);
+      background:rgba(0,0,0,.20);
+      box-shadow:0 14px 34px rgba(0,0,0,.42);
+      position:relative;
+    }
+    .oThumb img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.02);}
+    .oNum{
+      position:absolute;left:8px;top:8px;
+      font-size:11px;font-weight:1000;
+      padding:5px 8px;border-radius:999px;
+      border:1px solid rgba(212,175,55,.34);
+      background:rgba(0,0,0,.40);
+      color:rgba(233,238,247,.95);
+    }
+    .oLabel{
+      font-size:11px;
+      color:rgba(169,180,199,.95);
+      max-width:76px;
+      text-align:center;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .oItem.active .oThumb{
+      border-color:rgba(242,211,122,.62);
+      box-shadow:var(--glow);
+    }
+
+    /* tool panel */
+    .toolGrid{
+      display:grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap:12px;
+    }
+    .toolCard{
+      border:1px solid rgba(212,175,55,.18);
+      border-radius:16px;
+      background:rgba(0,0,0,.12);
+      padding:12px;
+      box-shadow:0 18px 46px rgba(0,0,0,.32);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-width:0;
+    }
+    .toolCard h3{
+      margin:0;
+      font-size:13px;
+      font-weight:1000;
+      letter-spacing:.2px;
+      color:rgba(242,211,122,.92);
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-start;
+    }
+
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:8px 10px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.18);
+      background:rgba(0,0,0,.16);
+      user-select:none;
+      box-shadow:0 12px 26px rgba(0,0,0,.28);
+    }
+    .toggle input{
+      width:18px;height:18px;
+      accent-color:var(--gold);
+      cursor:pointer;
+    }
+    .toggle span{
+      font-size:12px;
+      color:rgba(233,238,247,.90);
+      font-weight:800;
+      letter-spacing:.2px;
+      white-space:nowrap;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:210px;
+      flex:1 1 220px;
+    }
+    .field label{
+      font-size:12px;
+      color:rgba(169,180,199,.95);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      white-space:nowrap;
+    }
+    .field label b{color:rgba(233,238,247,.92);font-weight:1000;}
+    .field input[type="range"]{width:100%;}
+    .field .val{
+      font-size:12px;
+      color:rgba(242,211,122,.92);
+      font-weight:1000;
     }
 
     .warn{
@@ -141,9 +353,25 @@
       background:rgba(0,0,0,.14);
     }
 
+    @media (max-width:980px){
+      .toolGrid{grid-template-columns:1fr;}
+      .field{min-width:180px;}
+    }
     @media (max-width:520px){
       .centerLabel .big{font-size:34px;}
       .stage{min-height:460px;}
+      .oItem{width:68px;}
+      .oThumb{width:68px;height:68px;}
+      .oLabel{max-width:68px;}
+    }
+
+    /* Print: keep clean */
+    @media print{
+      body{background:#fff;color:#000;}
+      .topbar,.sectionHead,.toolGrid,.orderBar,.warn{display:none !important;}
+      .section{border:none;box-shadow:none;background:transparent;}
+      .pyrWrap{padding:0;}
+      .stage{border:none;box-shadow:none;background:transparent;height:auto !important;min-height:0 !important;}
     }
   </style>
 </head>
@@ -177,6 +405,137 @@
       </div>
 
       <div class="pyrWrap">
+
+        <!-- MARKETING TOOLS -->
+        <div class="toolGrid" aria-label="Tools">
+          <div class="toolCard">
+            <h3 data-i18n="tools_h">Marketing-Tools</h3>
+
+            <div class="row">
+              <button class="btn secondary" id="btnPrev" data-i18n="prev">◀︎ Zurück</button>
+              <button class="btn" id="btnPlay" data-i18n="play">▶︎ Auto</button>
+              <button class="btn secondary" id="btnNext" data-i18n="next">Weiter ▶︎</button>
+              <span class="pill" id="stepInfo">—</span>
+            </div>
+
+            <div class="row">
+              <label class="toggle">
+                <input type="checkbox" id="tgSpot" />
+                <span data-i18n="spotlight">Spotlight</span>
+              </label>
+              <label class="toggle">
+                <input type="checkbox" id="tgNumbers" />
+                <span data-i18n="numbers">Nummern</span>
+              </label>
+              <label class="toggle">
+                <input type="checkbox" id="tgHero" />
+                <span data-i18n="hero">Hero-Top</span>
+              </label>
+              <label class="toggle">
+                <input type="checkbox" id="tgLabel" />
+                <span data-i18n="label">Titel oben</span>
+              </label>
+              <label class="toggle">
+                <input type="checkbox" id="tgAutoStage" checked />
+                <span data-i18n="autostage">Auto-Raum</span>
+              </label>
+            </div>
+
+            <div class="row">
+              <button class="btn secondary" id="btnPulse" data-i18n="pulse">Pulse (Reihenfolge)</button>
+              <button class="btn secondary" id="btnBuild" data-i18n="build">Build (Aufbau)</button>
+              <button class="btn danger" id="btnStop" data-i18n="stop">Stop</button>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label>
+                  <span data-i18n="speed">Tempo</span>
+                  <span class="val" id="vSpeed">—</span>
+                </label>
+                <input type="range" id="rgSpeed" min="250" max="3000" step="50" value="1100" />
+              </div>
+
+              <div class="field">
+                <label>
+                  <span data-i18n="stagepad">Rand</span>
+                  <span class="val" id="vPad">—</span>
+                </label>
+                <input type="range" id="rgPad" min="30" max="220" step="5" value="110" />
+              </div>
+            </div>
+
+            <div class="row">
+              <button class="btn secondary" id="btnCopyLink" data-i18n="copylink">Share-Link kopieren</button>
+              <button class="btn secondary" id="btnExport" data-i18n="export">PNG Export (2D)</button>
+              <span class="pill" id="msg">—</span>
+            </div>
+          </div>
+
+          <div class="toolCard">
+            <h3 data-i18n="view_h">View / Layout</h3>
+
+            <div class="row">
+              <div class="field">
+                <label>
+                  <span data-i18n="tilty">Schräglage (Y)</span>
+                  <span class="val" id="vTiltY">—</span>
+                </label>
+                <input type="range" id="rgTiltY" min="-60" max="0" step="1" value="-22" />
+              </div>
+              <div class="field">
+                <label>
+                  <span data-i18n="tiltx">Neigung (X)</span>
+                  <span class="val" id="vTiltX">—</span>
+                </label>
+                <input type="range" id="rgTiltX" min="0" max="28" step="1" value="12" />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label>
+                  <span data-i18n="persp">Perspektive</span>
+                  <span class="val" id="vPersp">—</span>
+                </label>
+                <input type="range" id="rgPersp" min="800" max="2000" step="20" value="1200" />
+              </div>
+              <div class="field">
+                <label>
+                  <span data-i18n="zdepth">Tiefe (Z)</span>
+                  <span class="val" id="vZ">—</span>
+                </label>
+                <input type="range" id="rgZ" min="0" max="24" step="1" value="8" />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label>
+                  <span data-i18n="spx">Abstand X</span>
+                  <span class="val" id="vSpX">—</span>
+                </label>
+                <input type="range" id="rgSpX" min="105" max="150" step="1" value="118" />
+              </div>
+              <div class="field">
+                <label>
+                  <span data-i18n="spy">Abstand Y</span>
+                  <span class="val" id="vSpY">—</span>
+                </label>
+                <input type="range" id="rgSpY" min="100" max="150" step="1" value="112" />
+              </div>
+            </div>
+
+            <div class="row">
+              <button class="btn secondary" id="btnResetView" data-i18n="resetview">View Reset</button>
+              <button class="btn secondary" id="btnCenterTop" data-i18n="centertop">Ausrichtung: oben</button>
+              <button class="btn secondary" id="btnCenterMid" data-i18n="centermid">Ausrichtung: mittig</button>
+              <span class="pill" id="countPill">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- STAGE -->
         <div class="stage" id="pyrStage">
           <div class="centerLabel">
             <div class="big">FSA Club</div>
@@ -184,6 +543,19 @@
           </div>
           <div class="stack3d" id="stack3d"></div>
         </div>
+
+        <!-- ORDER BAR -->
+        <div class="orderBar" aria-label="Order">
+          <div class="orderBarTop">
+            <div class="pill" id="orderInfo">—</div>
+            <div class="row" style="justify-content:flex-end;">
+              <button class="btn secondary" id="btnFocusTop" data-i18n="focustop">Fokus: #1</button>
+              <button class="btn secondary" id="btnFocusNone" data-i18n="focusnone">Fokus: aus</button>
+            </div>
+          </div>
+          <div class="orderStrip" id="orderStrip" aria-label="OrderStrip"></div>
+        </div>
+
       </div>
 
       <p class="warn" id="warnLine" data-i18n="warn">
@@ -193,6 +565,9 @@
   </div>
 
   <script>
+    /* =========================
+       CONFIG (shared from Center)
+    ========================= */
     const BASE = "../../library/images/produkte/";
     const FILES = [
       "ewg2-0.jpg","geschenk-01.jpg","geschenk-02.jpg","geschenk-03.jpeg",
@@ -208,6 +583,15 @@
     const LS_KEY_SEL    = "fsa_product_selected_shared_v1";
     const LS_KEY_TOP    = "fsa_bundle_pyr_top_shared_v1";
 
+    /* view/settings local */
+    const LS_KEY_VIEW   = "fsa_pyr_view_settings_v1";
+
+    /* share-link param */
+    const Q_CFG = "cfg";
+
+    /* =========================
+       I18N
+    ========================= */
     const I18N = {
       de:{
         title:"FSA Club – Produktshow (Pyramide)",
@@ -220,7 +604,49 @@
         view3:"Ansicht: Front",
         center_note:"Produktpakete / Übersicht",
         warn:"Hinweis: Wenn du weniger Bilder auswählst, wird die Pyramide automatisch kleiner aufgebaut.",
-        empty:"Keine Auswahl im Center – bitte dort mindestens 1 Bild auswählen."
+        empty:"Keine Auswahl im Center – bitte dort mindestens 1 Bild auswählen.",
+
+        tools_h:"Marketing-Tools",
+        prev:"◀︎ Zurück",
+        play:"▶︎ Auto",
+        pause:"⏸︎ Pause",
+        next:"Weiter ▶︎",
+        spotlight:"Spotlight",
+        numbers:"Nummern",
+        hero:"Hero-Top",
+        label:"Titel oben",
+        autostage:"Auto-Raum",
+        pulse:"Pulse (Reihenfolge)",
+        build:"Build (Aufbau)",
+        stop:"Stop",
+        speed:"Tempo",
+        stagepad:"Rand",
+        copylink:"Share-Link kopieren",
+        export:"PNG Export (2D)",
+
+        view_h:"View / Layout",
+        tilty:"Schräglage (Y)",
+        tiltx:"Neigung (X)",
+        persp:"Perspektive",
+        zdepth:"Tiefe (Z)",
+        spx:"Abstand X",
+        spy:"Abstand Y",
+        resetview:"View Reset",
+        centertop:"Ausrichtung: oben",
+        centermid:"Ausrichtung: mittig",
+
+        orderinfo:(n)=>`Reihenfolge aus Center: ${n} Elemente`,
+        countpill:(n)=>`Auswahl: ${n}`,
+        step:(i,n)=>`Step: #${i+1} / ${n}`,
+        focustop:"Fokus: #1",
+        focusnone:"Fokus: aus",
+
+        msg_ready:"bereit",
+        msg_copied:"Link kopiert",
+        msg_no_clip:"Clipboard nicht verfügbar",
+        msg_export:"PNG erstellt",
+        msg_cfg_applied:"Config übernommen",
+        msg_cfg_bad:"Config ungültig"
       },
       en:{
         title:"FSA Club – Product Showcase (Pyramid)",
@@ -233,34 +659,69 @@
         view3:"View: Front",
         center_note:"Product packages / overview",
         warn:"Note: If you select fewer images, the pyramid becomes smaller automatically.",
-        empty:"No selection in Center – please select at least 1 image there."
+        empty:"No selection in Center – please select at least 1 image there.",
+
+        tools_h:"Marketing Tools",
+        prev:"◀︎ Prev",
+        play:"▶︎ Auto",
+        pause:"⏸︎ Pause",
+        next:"Next ▶︎",
+        spotlight:"Spotlight",
+        numbers:"Numbers",
+        hero:"Hero top",
+        label:"Top title",
+        autostage:"Auto stage",
+        pulse:"Pulse (order)",
+        build:"Build (reveal)",
+        stop:"Stop",
+        speed:"Speed",
+        stagepad:"Padding",
+        copylink:"Copy share link",
+        export:"PNG export (2D)",
+
+        view_h:"View / Layout",
+        tilty:"Tilt (Y)",
+        tiltx:"Tilt (X)",
+        persp:"Perspective",
+        zdepth:"Depth (Z)",
+        spx:"Spacing X",
+        spy:"Spacing Y",
+        resetview:"Reset view",
+        centertop:"Align: top",
+        centermid:"Align: middle",
+
+        orderinfo:(n)=>`Order from Center: ${n} items`,
+        countpill:(n)=>`Selected: ${n}`,
+        step:(i,n)=>`Step: #${i+1} / ${n}`,
+        focustop:"Focus: #1",
+        focusnone:"Focus: off",
+
+        msg_ready:"ready",
+        msg_copied:"Link copied",
+        msg_no_clip:"Clipboard not available",
+        msg_export:"PNG created",
+        msg_cfg_applied:"Config applied",
+        msg_cfg_bad:"Invalid config"
       }
     };
 
     let lang = (localStorage.getItem(LS_KEY_LANG) || "de").toLowerCase();
     if(!I18N[lang]) lang = "de";
 
+    /* =========================
+       Helpers
+    ========================= */
     function safeJSONParse(raw,fallback){ try{return JSON.parse(raw);}catch(e){return fallback;} }
-    function loadOrder(){
-      const raw = localStorage.getItem(LS_KEY_ORDER);
-      if(!raw) return FILES.slice();
-      const arr = safeJSONParse(raw,null);
-      return Array.isArray(arr) ? arr.filter(x=>typeof x==="string") : FILES.slice();
-    }
-    function loadSelection(){
-      const raw = localStorage.getItem(LS_KEY_SEL);
-      if(!raw) return FILES.slice();
-      const arr = safeJSONParse(raw,null);
-      return Array.isArray(arr) ? arr.filter(x=>typeof x==="string") : FILES.slice();
-    }
+    function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
 
-    function applyI18n(){
-      document.documentElement.lang = lang;
-      document.querySelectorAll("[data-i18n]").forEach(el=>{
-        const k = el.getAttribute("data-i18n");
-        const v = I18N[lang][k];
-        if(typeof v === "string") el.textContent = v;
-      });
+    function b64urlEncode(str){
+      return btoa(unescape(encodeURIComponent(str)))
+        .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    }
+    function b64urlDecode(str){
+      const s = str.replace(/-/g,'+').replace(/_/g,'/');
+      const pad = s.length % 4 ? '='.repeat(4 - (s.length % 4)) : '';
+      return decodeURIComponent(escape(atob(s + pad)));
     }
 
     function getTilePx(){
@@ -274,10 +735,6 @@
       return Math.max(80, w);
     }
 
-    const stack = document.getElementById("stack3d");
-    const stage = document.getElementById("pyrStage");
-    let currentView = 1;
-
     function computeRowsTopDown(n){
       const rows = [];
       let placed = 0;
@@ -287,77 +744,378 @@
         rows.push(take);
         placed += take;
         k++;
-        if(k > 8 && placed < n) k = 8;
+        if(k > 10 && placed < n) k = 10;
       }
       return rows;
     }
 
-    function setView(mode){
-      currentView = mode;
-      render();
+    function cleanOrder(arr){
+      const a = Array.isArray(arr) ? arr : [];
+      return a.filter(x => typeof x === "string" && FILES.includes(x));
+    }
+    function loadOrder(){
+      const raw = localStorage.getItem(LS_KEY_ORDER);
+      if(!raw) return FILES.slice();
+      return cleanOrder(safeJSONParse(raw, FILES.slice()));
+    }
+    function loadSelection(){
+      const raw = localStorage.getItem(LS_KEY_SEL);
+      if(!raw) return FILES.slice();
+      return cleanOrder(safeJSONParse(raw, FILES.slice()));
+    }
+
+    function applyI18n(){
+      document.documentElement.lang = lang;
+      document.querySelectorAll("[data-i18n]").forEach(el=>{
+        const k = el.getAttribute("data-i18n");
+        const v = I18N[lang][k];
+        if(typeof v === "string") el.textContent = v;
+      });
+      // dynamic buttons
+      document.getElementById("btnPlay").textContent = isPlaying ? I18N[lang].pause : I18N[lang].play;
+      setMsg(I18N[lang].msg_ready);
+    }
+
+    function setMsg(t){
+      const el = document.getElementById("msg");
+      el.textContent = t;
+    }
+
+    /* =========================
+       View Settings (persist)
+    ========================= */
+    const defaultView = {
+      tiltY: -22,
+      tiltX: 12,
+      persp: 1200,
+      z: 8,          // 0..24 (multiplies tile*0.01-ish)
+      spX: 118,      // percent
+      spY: 112,      // percent
+      speed: 1100,   // ms
+      pad: 110,      // px
+      spotlight: false,
+      numbers: false,
+      hero: false,
+      label: false,
+      autoStage: true,
+      align: "mid"   // "top" | "mid"
+    };
+
+    function loadView(){
+      const raw = localStorage.getItem(LS_KEY_VIEW);
+      const v = raw ? safeJSONParse(raw, null) : null;
+      const out = Object.assign({}, defaultView);
+      if(v && typeof v === "object"){
+        Object.keys(out).forEach(k=>{
+          if(v[k] !== undefined) out[k] = v[k];
+        });
+      }
+      return out;
+    }
+    function saveView(){
+      try{ localStorage.setItem(LS_KEY_VIEW, JSON.stringify(view)); }catch(e){}
+    }
+
+    let view = loadView();
+
+    /* =========================
+       Share-link (cfg=)
+       - Applies to shared LS keys so Center/other pages match.
+    ========================= */
+    function parseQuery(){
+      const u = new URL(window.location.href);
+      return u.searchParams.get(Q_CFG);
+    }
+
+    function applyCfgFromUrlIfPresent(){
+      const cfg = parseQuery();
+      if(!cfg) return;
+
+      try{
+        const json = b64urlDecode(cfg);
+        const obj = safeJSONParse(json, null);
+        if(!obj || typeof obj !== "object") throw new Error("bad");
+
+        const order = cleanOrder(obj.order || []);
+        const sel   = cleanOrder(obj.sel || []);
+        const top   = (typeof obj.top === "string" && FILES.includes(obj.top)) ? obj.top : "";
+
+        if(order.length) localStorage.setItem(LS_KEY_ORDER, JSON.stringify(order));
+        if(sel.length)   localStorage.setItem(LS_KEY_SEL, JSON.stringify(sel));
+        localStorage.setItem(LS_KEY_TOP, top);
+
+        setMsg(I18N[lang].msg_cfg_applied);
+      }catch(e){
+        setMsg(I18N[lang].msg_cfg_bad);
+      }
+    }
+
+    /* =========================
+       Render State
+    ========================= */
+    const stack = document.getElementById("stack3d");
+    const stage = document.getElementById("pyrStage");
+    const strip = document.getElementById("orderStrip");
+    const warnLine = document.getElementById("warnLine");
+
+    let currentList = [];
+    let cardMap = new Map(); // fn -> el
+    let activeIndex = -1;
+
+    let pulseTimer = null;
+    let isPlaying = false;
+
+    function setBodyFlags(){
+      document.body.classList.toggle("spotlight", !!view.spotlight);
+      document.body.classList.toggle("showNumbers", !!view.numbers);
+      document.body.classList.toggle("heroTop", !!view.hero);
+      document.body.classList.toggle("showLabel", !!view.label);
+      saveView();
     }
 
     function applyRootTransform(shiftX, shiftY){
-      const el = document.getElementById("stack3d");
-      let base = "";
-      if(currentView === 1) base = "perspective(1200px) rotateY(-22deg) rotateX(12deg)";
-      else if(currentView === 2) base = "perspective(1200px) rotateY(-34deg) rotateX(16deg)";
-      else base = "perspective(1200px) rotateY(-6deg) rotateX(6deg)";
+      const el = stack;
+      const base = `perspective(${view.persp}px) rotateY(${view.tiltY}deg) rotateX(${view.tiltX}deg)`;
       el.style.transform = `translate(-50%,-50%) translate3d(${-shiftX}px, ${-shiftY}px, 0px) ${base}`;
     }
 
-    function render(){
-      const order = loadOrder().filter(fn => FILES.includes(fn));
-      const sel = new Set(loadSelection().filter(fn => FILES.includes(fn)));
+    function focusIndex(i){
+      if(!currentList.length) return;
+      const n = currentList.length;
+      const idx = clamp(i, 0, n-1);
+      activeIndex = idx;
 
+      // clear
+      cardMap.forEach(el=>{
+        el.classList.remove("isActive");
+      });
+      strip.querySelectorAll(".oItem").forEach(x=>x.classList.remove("active"));
+
+      const fn = currentList[idx];
+      const el = cardMap.get(fn);
+      if(el) el.classList.add("isActive");
+
+      const oi = strip.querySelector(`.oItem[data-fn="${cssEscape(fn)}"]`);
+      if(oi) oi.classList.add("active");
+
+      document.getElementById("stepInfo").textContent = I18N[lang].step(idx, n);
+      // try to keep strip near active
+      if(oi){
+        const r = oi.getBoundingClientRect();
+        const pr = strip.getBoundingClientRect();
+        if(r.left < pr.left + 20 || r.right > pr.right - 20){
+          oi.scrollIntoView({behavior:"smooth", inline:"center", block:"nearest"});
+        }
+      }
+    }
+
+    function clearFocus(){
+      activeIndex = -1;
+      cardMap.forEach(el=>el.classList.remove("isActive"));
+      strip.querySelectorAll(".oItem").forEach(x=>x.classList.remove("active"));
+      document.getElementById("stepInfo").textContent = "—";
+    }
+
+    function stopAll(){
+      if(pulseTimer){ clearInterval(pulseTimer); pulseTimer = null; }
+      isPlaying = false;
+      document.getElementById("btnPlay").textContent = I18N[lang].play;
+      // remove buildHidden leftovers
+      cardMap.forEach(el=>el.classList.remove("buildHidden"));
+      setMsg(I18N[lang].msg_ready);
+    }
+
+    function startAuto(){
+      if(!currentList.length) return;
+      stopAll();
+      isPlaying = true;
+      document.getElementById("btnPlay").textContent = I18N[lang].pause;
+      if(activeIndex < 0) activeIndex = 0;
+      focusIndex(activeIndex);
+
+      pulseTimer = setInterval(()=>{
+        const n = currentList.length;
+        if(!n) return;
+        activeIndex = (activeIndex + 1) % n;
+        focusIndex(activeIndex);
+      }, view.speed);
+    }
+
+    function pulseOnceSequence(){
+      if(!currentList.length) return;
+      stopAll();
+      let i = 0;
+      focusIndex(0);
+      pulseTimer = setInterval(()=>{
+        const n = currentList.length;
+        i = (i + 1) % n;
+        focusIndex(i);
+      }, view.speed);
+      setMsg("Pulse");
+    }
+
+    function buildReveal(){
+      if(!currentList.length) return;
+      stopAll();
+      // hide all
+      currentList.forEach(fn=>{
+        const el = cardMap.get(fn);
+        if(el) el.classList.add("buildHidden");
+      });
+
+      let i = 0;
+      const tick = ()=>{
+        if(i >= currentList.length){
+          setMsg("Build");
+          return;
+        }
+        const fn = currentList[i];
+        const el = cardMap.get(fn);
+        if(el) el.classList.remove("buildHidden");
+        focusIndex(i);
+        i++;
+        setTimeout(tick, Math.max(160, Math.floor(view.speed * 0.55)));
+      };
+      setTimeout(tick, 80);
+    }
+
+    function cssEscape(s){
+      // minimal escape for attribute selector (quotes handled by replacing)
+      return String(s).replace(/"/g,'\\"');
+    }
+
+    function nameFromFile(fn){
+      // short label without extension
+      const base = fn.replace(/\.[a-z0-9]+$/i, "");
+      return base.length > 14 ? base.slice(0,14) + "…" : base;
+    }
+
+    function updatePills(){
+      document.getElementById("orderInfo").textContent = I18N[lang].orderinfo(currentList.length);
+      document.getElementById("countPill").textContent = I18N[lang].countpill(currentList.length);
+    }
+
+    function buildOrderStrip(){
+      strip.innerHTML = "";
+      currentList.forEach((fn, idx)=>{
+        const item = document.createElement("div");
+        item.className = "oItem";
+        item.dataset.fn = fn;
+
+        const th = document.createElement("div");
+        th.className = "oThumb";
+
+        const img = document.createElement("img");
+        img.loading = "lazy";
+        img.alt = "";
+        img.src = BASE + fn;
+
+        const num = document.createElement("div");
+        num.className = "oNum";
+        num.textContent = "#" + (idx + 1);
+
+        th.appendChild(img);
+        th.appendChild(num);
+
+        const lab = document.createElement("div");
+        lab.className = "oLabel";
+        lab.textContent = nameFromFile(fn);
+
+        item.appendChild(th);
+        item.appendChild(lab);
+
+        item.addEventListener("click", ()=>{
+          stopAll();
+          focusIndex(idx);
+        });
+
+        strip.appendChild(item);
+      });
+    }
+
+    function setStageAutoHeight(boundsPx){
+      // boundsPx = {w,h} of pyramid content in pixels (incl tile)
+      const pad = view.pad;
+      const minH = 420;
+      const maxH = Math.min(900, Math.round(window.innerHeight * 0.80));
+      let h = boundsPx.h + pad*2;
+
+      // if title label is shown, reserve a bit more top room
+      if(view.label) h += 80;
+
+      h = clamp(Math.round(h), minH, maxH);
+
+      stage.style.height = h + "px";
+      stage.style.minHeight = "0px";
+    }
+
+    function setStageDefaultHeight(){
+      stage.style.height = "min(72vh, 720px)";
+      stage.style.minHeight = "520px";
+    }
+
+    function render(){
+      stopAll();
+      setBodyFlags();
+
+      const order = loadOrder().filter(fn => FILES.includes(fn));
+      const selSet = new Set(loadSelection().filter(fn => FILES.includes(fn)));
       const top = (localStorage.getItem(LS_KEY_TOP) || "").trim();
-      let list = order.filter(fn => sel.has(fn));
+
+      let list = order.filter(fn => selSet.has(fn));
 
       if(!list.length){
-        document.getElementById("warnLine").textContent = I18N[lang].empty;
+        warnLine.textContent = I18N[lang].empty;
         stack.innerHTML = "";
+        strip.innerHTML = "";
+        currentList = [];
+        cardMap.clear();
+        updatePills();
         return;
       }
 
+      // enforce ⭐ top as first if present
       if(top && list.includes(top)){
-        list = [top].concat(list.filter(x=>x!==top));
+        list = [top].concat(list.filter(x => x !== top));
       }
 
-      document.getElementById("warnLine").textContent = I18N[lang].warn;
+      warnLine.textContent = I18N[lang].warn;
+      currentList = list.slice();
 
+      // build pyramid
       stack.innerHTML = "";
+      cardMap.clear();
+
       const n = list.length;
       const rows = computeRowsTopDown(n);
 
       const tilePx = getTilePx();
       const rect = stage.getBoundingClientRect();
       const stageW = Math.max(320, rect.width);
-      const stageH = Math.max(360, rect.height);
 
-      /* spacing prevents overlap */
-      let X = Math.round(tilePx * 1.18);
-      let Y = Math.round(tilePx * 1.12);
-      let Z = Math.round(tilePx * 0.08);
+      // spacing factors (percent to multiplier)
+      let X = Math.round(tilePx * (view.spX / 100));
+      let Y = Math.round(tilePx * (view.spY / 100));
+      let Z = Math.round(tilePx * (view.z / 100)); // view.z is 0..24 => 0..0.24 tile
 
-      const minX = Math.round(tilePx * 1.06);
+      // keep safe minimum to avoid overlap
+      const minX = Math.round(tilePx * 1.04);
       const minY = Math.round(tilePx * 1.00);
+      X = Math.max(minX, X);
+      Y = Math.max(minY, Y);
+      Z = Math.max(0, Z);
 
+      // compress width if stage too narrow
       const maxCount = Math.max(...rows);
       const neededW = (maxCount - 1) * X + tilePx;
-      if(neededW > stageW * 0.88){
-        const scale = (stageW * 0.88) / neededW;
+      if(neededW > stageW * 0.90){
+        const scale = (stageW * 0.90) / neededW;
         X = Math.max(minX, Math.floor(X * scale));
       }
 
-      const neededH = (rows.length - 1) * Y + tilePx;
-      if(neededH > stageH * 0.62){
-        const scale = (stageH * 0.62) / neededH;
-        Y = Math.max(minY, Math.floor(Y * scale));
-      }
-
-      /* positions (TIP ON TOP): r=0 is top row, r increases downward */
+      // positions: TIP ON TOP (row 0 is top, y increases downward)
       let idx = 0;
-      const pos = [];
+      const pos = []; // {fn,x,y,z, isTop}
       for(let r=0; r<rows.length; r++){
         const count = rows[r];
         const rowWidth = (count - 1) * X;
@@ -365,50 +1123,419 @@
           const fn = list[idx++];
           if(!fn) break;
           const x = (c * X) - (rowWidth / 2);
-          const y = (r * Y);     // down
+          const y = (r * Y);
           const z = (r * Z);
-          pos.push({fn,x,y,z});
+          pos.push({fn,x,y,z,isTop:(r===0 && c===0)});
         }
       }
 
-      /* bounding box for centering */
+      // bounding box for centering
       const minXb = Math.min(...pos.map(p=>p.x));
       const maxXb = Math.max(...pos.map(p=>p.x));
       const minYb = Math.min(...pos.map(p=>p.y));
       const maxYb = Math.max(...pos.map(p=>p.y));
-      const cx = (minXb + maxXb) / 2;
-      const cy = (minYb + maxYb) / 2;
 
-      pos.forEach(p=>{
+      const contentW = (maxXb - minXb) + tilePx;
+      const contentH = (maxYb - minYb) + tilePx;
+
+      // auto-stage sizing
+      if(view.autoStage){
+        setStageAutoHeight({w:contentW,h:contentH});
+      }else{
+        setStageDefaultHeight();
+      }
+
+      // alignment: mid or top
+      // - mid: center content in stage
+      // - top: keep pyramid higher, reduce dead space above/below
+      let shiftX = (minXb + maxXb) / 2;
+      let shiftY = (minYb + maxYb) / 2;
+
+      if(view.align === "top"){
+        // move content up: shiftY reduced so pyramid sits higher
+        // target top margin roughly pad
+        const pad = view.pad;
+        const stageH = Math.max(360, stage.getBoundingClientRect().height);
+        const desiredTop = pad + (view.label ? 90 : 40);
+        // current content top in stack coords after root shift is: minYb - shiftY
+        const currentTop = minYb - shiftY;
+        // we want currentTop -> - (stageH/2 - desiredTop)
+        const targetTop = -(stageH/2 - desiredTop);
+        const delta = targetTop - currentTop;
+        shiftY -= delta;
+      }
+
+      pos.forEach((p, i)=>{
         const card = document.createElement("div");
         card.className = "card3d";
+        card.dataset.fn = p.fn;
+
+        // store tx/ty/tz for heroTop scaling without losing position
+        const tx = p.x;
+        const ty = p.y;
+        const tz = p.z;
+
+        card.style.setProperty("--tx", tx + "px");
+        card.style.setProperty("--ty", ty + "px");
+        card.style.setProperty("--tz", tz + "px");
+
+        card.style.transform = `translate3d(${tx}px, ${ty}px, ${tz}px) rotateZ(0deg)`;
+        card.style.zIndex = String(1000 + Math.round(tz));
+
+        if(p.isTop) card.classList.add("isTop");
+
         const img = document.createElement("img");
         img.loading = "lazy";
         img.alt = "";
         img.src = BASE + p.fn;
 
-        card.style.transform = `translate3d(${p.x}px, ${p.y}px, ${p.z}px) rotateZ(0deg)`;
-        card.style.zIndex = String(1000 + Math.round(p.z));
+        const badge = document.createElement("div");
+        badge.className = "badge";
+        badge.textContent = "#" + (i + 1);
+
         card.appendChild(img);
+        card.appendChild(badge);
         stack.appendChild(card);
+
+        cardMap.set(p.fn, card);
       });
 
-      applyRootTransform(cx, cy);
+      applyRootTransform(shiftX, shiftY);
+
+      // build strip
+      buildOrderStrip();
+      updatePills();
+
+      // focus top by default if spotlight enabled
+      if(view.spotlight){
+        focusIndex(0);
+      }else{
+        clearFocus();
+      }
     }
 
+    /* =========================
+       Export PNG (2D)
+       - draws the pyramid as 2D layout (order + spacing)
+       - no external libs
+    ========================= */
+    async function exportPng2D(){
+      try{
+        if(!currentList.length) return;
+        // Use current DOM positions of tiles in stage
+        const tiles = currentList.map(fn => cardMap.get(fn)).filter(Boolean);
+        if(!tiles.length) return;
+
+        // compute bounding boxes relative to stage
+        const sr = stage.getBoundingClientRect();
+        const rects = tiles.map(el=>{
+          const r = el.getBoundingClientRect();
+          return {
+            fn: el.dataset.fn,
+            x: Math.round(r.left - sr.left),
+            y: Math.round(r.top - sr.top),
+            w: Math.round(r.width),
+            h: Math.round(r.height)
+          };
+        });
+
+        const minX = Math.min(...rects.map(r=>r.x));
+        const minY = Math.min(...rects.map(r=>r.y));
+        const maxX = Math.max(...rects.map(r=>r.x + r.w));
+        const maxY = Math.max(...rects.map(r=>r.y + r.h));
+
+        const pad = 24;
+        const W = clamp((maxX - minX) + pad*2, 480, 2400);
+        const H = clamp((maxY - minY) + pad*2, 480, 2400);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = W;
+        canvas.height = H;
+        const ctx = canvas.getContext("2d");
+
+        // background
+        ctx.fillStyle = "#0b1022";
+        ctx.fillRect(0,0,W,H);
+
+        // glow-ish vignette
+        const g1 = ctx.createRadialGradient(W*0.25,H*0.18, 0, W*0.25,H*0.18, Math.max(W,H)*0.75);
+        g1.addColorStop(0, "rgba(212,175,55,0.18)");
+        g1.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = g1;
+        ctx.fillRect(0,0,W,H);
+
+        const g2 = ctx.createRadialGradient(W*0.78,H*0.22, 0, W*0.78,H*0.22, Math.max(W,H)*0.80);
+        g2.addColorStop(0, "rgba(94,168,255,0.14)");
+        g2.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = g2;
+        ctx.fillRect(0,0,W,H);
+
+        // load images in order and draw (bottom first for nicer overlap)
+        const drawOrder = rects.slice().sort((a,b)=> (a.y+a.h) - (b.y+b.h));
+
+        const loadImg = (src)=> new Promise((res,rej)=>{
+          const im = new Image();
+          im.onload = ()=>res(im);
+          im.onerror = rej;
+          im.src = src;
+        });
+
+        for(const r of drawOrder){
+          const im = await loadImg(BASE + r.fn);
+
+          const x = (r.x - minX) + pad;
+          const y = (r.y - minY) + pad;
+
+          // rounded clip
+          const rad = 18;
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(x+rad, y);
+          ctx.arcTo(x+r.w, y, x+r.w, y+r.h, rad);
+          ctx.arcTo(x+r.w, y+r.h, x, y+r.h, rad);
+          ctx.arcTo(x, y+r.h, x, y, rad);
+          ctx.arcTo(x, y, x+r.w, y, rad);
+          ctx.closePath();
+          ctx.clip();
+
+          ctx.drawImage(im, x, y, r.w, r.h);
+
+          // dark gradient overlay
+          const gg = ctx.createLinearGradient(x,y, x, y+r.h);
+          gg.addColorStop(0, "rgba(0,0,0,0.06)");
+          gg.addColorStop(1, "rgba(0,0,0,0.26)");
+          ctx.fillStyle = gg;
+          ctx.fillRect(x,y,r.w,r.h);
+
+          ctx.restore();
+
+          // border
+          ctx.strokeStyle = "rgba(212,175,55,0.35)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.roundRect ? ctx.roundRect(x,y,r.w,r.h,rad) : ctx.rect(x,y,r.w,r.h);
+          ctx.stroke();
+
+          // number badge
+          if(view.numbers){
+            const idx = currentList.indexOf(r.fn);
+            const t = "#" + (idx + 1);
+            ctx.fillStyle = "rgba(0,0,0,0.45)";
+            ctx.strokeStyle = "rgba(212,175,55,0.35)";
+            ctx.lineWidth = 2;
+
+            const bx = x + 10, by = y + 10, bw = 44, bh = 24, br = 12;
+            ctx.beginPath();
+            ctx.roundRect ? ctx.roundRect(bx,by,bw,bh,br) : ctx.rect(bx,by,bw,bh);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = "rgba(233,238,247,0.96)";
+            ctx.font = "900 12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+            ctx.fillText(t, bx + 10, by + 16);
+          }
+        }
+
+        const url = canvas.toDataURL("image/png");
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "fsa-pyramide.png";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        setMsg(I18N[lang].msg_export);
+      }catch(e){
+        setMsg("Export error");
+      }
+    }
+
+    /* =========================
+       Copy Share Link
+    ========================= */
+    async function copyShareLink(){
+      try{
+        const order = loadOrder();
+        const sel = loadSelection();
+        const top = (localStorage.getItem(LS_KEY_TOP) || "").trim();
+
+        const payload = {
+          order: cleanOrder(order),
+          sel: cleanOrder(sel),
+          top: (top && FILES.includes(top)) ? top : ""
+        };
+
+        const enc = b64urlEncode(JSON.stringify(payload));
+        const u = new URL(window.location.href);
+        u.searchParams.set(Q_CFG, enc);
+
+        const txt = u.toString();
+
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          await navigator.clipboard.writeText(txt);
+          setMsg(I18N[lang].msg_copied);
+        }else{
+          // fallback: prompt
+          window.prompt("Copy:", txt);
+          setMsg(I18N[lang].msg_no_clip);
+        }
+      }catch(e){
+        setMsg(I18N[lang].msg_no_clip);
+      }
+    }
+
+    /* =========================
+       UI: bind controls
+    ========================= */
+    function syncUI(){
+      // toggles
+      document.getElementById("tgSpot").checked = !!view.spotlight;
+      document.getElementById("tgNumbers").checked = !!view.numbers;
+      document.getElementById("tgHero").checked = !!view.hero;
+      document.getElementById("tgLabel").checked = !!view.label;
+      document.getElementById("tgAutoStage").checked = !!view.autoStage;
+
+      // ranges
+      document.getElementById("rgTiltY").value = view.tiltY;
+      document.getElementById("rgTiltX").value = view.tiltX;
+      document.getElementById("rgPersp").value = view.persp;
+      document.getElementById("rgZ").value = view.z;
+      document.getElementById("rgSpX").value = view.spX;
+      document.getElementById("rgSpY").value = view.spY;
+
+      document.getElementById("rgSpeed").value = view.speed;
+      document.getElementById("rgPad").value = view.pad;
+
+      // value labels
+      document.getElementById("vTiltY").textContent = view.tiltY + "°";
+      document.getElementById("vTiltX").textContent = view.tiltX + "°";
+      document.getElementById("vPersp").textContent = view.persp + "px";
+      document.getElementById("vZ").textContent = (view.z/100).toFixed(2) + "×";
+      document.getElementById("vSpX").textContent = (view.spX/100).toFixed(2) + "×";
+      document.getElementById("vSpY").textContent = (view.spY/100).toFixed(2) + "×";
+      document.getElementById("vSpeed").textContent = Math.round(view.speed/100)/10 + "s";
+      document.getElementById("vPad").textContent = view.pad + "px";
+    }
+
+    function onViewChange(){
+      saveView();
+      syncUI();
+      setBodyFlags();
+      render();
+    }
+
+    /* =========================
+       Presets (View buttons)
+    ========================= */
+    function preset(mode){
+      if(mode === 1){
+        view.tiltY = -22; view.tiltX = 12; view.persp = 1200;
+      }else if(mode === 2){
+        view.tiltY = -34; view.tiltX = 16; view.persp = 1200;
+      }else{
+        view.tiltY = -6; view.tiltX = 6; view.persp = 1400;
+      }
+      onViewChange();
+    }
+
+    /* =========================
+       Events
+    ========================= */
     document.getElementById("btnDE").addEventListener("click", ()=>{
-      lang = "de"; localStorage.setItem(LS_KEY_LANG, lang); applyI18n(); render();
+      lang = "de"; localStorage.setItem(LS_KEY_LANG, lang);
+      applyI18n(); render();
     });
     document.getElementById("btnEN").addEventListener("click", ()=>{
-      lang = "en"; localStorage.setItem(LS_KEY_LANG, lang); applyI18n(); render();
+      lang = "en"; localStorage.setItem(LS_KEY_LANG, lang);
+      applyI18n(); render();
     });
 
-    document.getElementById("btnView1").addEventListener("click", ()=> setView(1));
-    document.getElementById("btnView2").addEventListener("click", ()=> setView(2));
-    document.getElementById("btnView3").addEventListener("click", ()=> setView(3));
+    document.getElementById("btnView1").addEventListener("click", ()=> preset(1));
+    document.getElementById("btnView2").addEventListener("click", ()=> preset(2));
+    document.getElementById("btnView3").addEventListener("click", ()=> preset(3));
 
-    window.addEventListener("resize", render);
+    // toggles
+    document.getElementById("tgSpot").addEventListener("change", (e)=>{ view.spotlight = e.target.checked; onViewChange(); });
+    document.getElementById("tgNumbers").addEventListener("change", (e)=>{ view.numbers = e.target.checked; onViewChange(); });
+    document.getElementById("tgHero").addEventListener("change", (e)=>{ view.hero = e.target.checked; onViewChange(); });
+    document.getElementById("tgLabel").addEventListener("change", (e)=>{ view.label = e.target.checked; onViewChange(); });
+    document.getElementById("tgAutoStage").addEventListener("change", (e)=>{ view.autoStage = e.target.checked; onViewChange(); });
 
+    // ranges
+    document.getElementById("rgTiltY").addEventListener("input", (e)=>{ view.tiltY = parseInt(e.target.value,10); syncUI(); applyRootTransform(0,0); render(); });
+    document.getElementById("rgTiltX").addEventListener("input", (e)=>{ view.tiltX = parseInt(e.target.value,10); syncUI(); render(); });
+    document.getElementById("rgPersp").addEventListener("input", (e)=>{ view.persp = parseInt(e.target.value,10); syncUI(); render(); });
+    document.getElementById("rgZ").addEventListener("input", (e)=>{ view.z = parseInt(e.target.value,10); syncUI(); render(); });
+    document.getElementById("rgSpX").addEventListener("input", (e)=>{ view.spX = parseInt(e.target.value,10); syncUI(); render(); });
+    document.getElementById("rgSpY").addEventListener("input", (e)=>{ view.spY = parseInt(e.target.value,10); syncUI(); render(); });
+
+    document.getElementById("rgSpeed").addEventListener("input", (e)=>{ view.speed = parseInt(e.target.value,10); syncUI(); saveView(); });
+    document.getElementById("rgPad").addEventListener("input", (e)=>{ view.pad = parseInt(e.target.value,10); syncUI(); render(); });
+
+    // alignment
+    document.getElementById("btnCenterTop").addEventListener("click", ()=>{ view.align = "top"; onViewChange(); });
+    document.getElementById("btnCenterMid").addEventListener("click", ()=>{ view.align = "mid"; onViewChange(); });
+
+    // marketing actions
+    document.getElementById("btnPrev").addEventListener("click", ()=>{
+      stopAll();
+      if(!currentList.length) return;
+      const n = currentList.length;
+      const next = (activeIndex <= 0) ? (n-1) : (activeIndex - 1);
+      focusIndex(next);
+    });
+    document.getElementById("btnNext").addEventListener("click", ()=>{
+      stopAll();
+      if(!currentList.length) return;
+      const n = currentList.length;
+      const next = (activeIndex < 0) ? 0 : (activeIndex + 1) % n;
+      focusIndex(next);
+    });
+
+    document.getElementById("btnPlay").addEventListener("click", ()=>{
+      if(isPlaying){
+        stopAll();
+      }else{
+        startAuto();
+      }
+      applyI18n();
+    });
+
+    document.getElementById("btnPulse").addEventListener("click", ()=> pulseOnceSequence());
+    document.getElementById("btnBuild").addEventListener("click", ()=> buildReveal());
+    document.getElementById("btnStop").addEventListener("click", ()=> { stopAll(); clearFocus(); });
+
+    document.getElementById("btnCopyLink").addEventListener("click", copyShareLink);
+    document.getElementById("btnExport").addEventListener("click", exportPng2D);
+
+    document.getElementById("btnResetView").addEventListener("click", ()=>{
+      view = Object.assign({}, defaultView);
+      saveView();
+      syncUI();
+      setBodyFlags();
+      render();
+    });
+
+    document.getElementById("btnFocusTop").addEventListener("click", ()=>{
+      stopAll();
+      focusIndex(0);
+    });
+    document.getElementById("btnFocusNone").addEventListener("click", ()=>{
+      stopAll();
+      clearFocus();
+    });
+
+    // re-render on resize/orientation
+    window.addEventListener("resize", ()=>{
+      render();
+    });
+
+    /* =========================
+       INIT
+    ========================= */
+    applyCfgFromUrlIfPresent();
+    syncUI();
+    setBodyFlags();
     applyI18n();
     render();
   </script>
