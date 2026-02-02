@@ -779,6 +779,11 @@
     │   │   ├── produkt-05-hoersaal-crossmarketing.html
     │   │   ├── produkt-05-hoersaal-onboarding-checkliste.html
     │   │   ├── produkt-05-hoersaal-pakete.html
+    │   │   ├── produkt-05-hoersaal-webinar-01-briefing.html
+    │   │   ├── produkt-05-hoersaal-webinar-02-webinar-konfig.html
+    │   │   ├── produkt-05-hoersaal-webinar-03-ticketing-checkout.html
+    │   │   ├── produkt-05-hoersaal-webinar-04-assets-content.html
+    │   │   ├── produkt-05-hoersaal-webinar-05-summary-export.html
     │   │   ├── produkt-06-krypto-setup-kurs.html
     │   │   ├── produkt-07-trading-grundkurs.html
     │   │   ├── produkt-08-nft-basis-orientierung.html
@@ -973,4 +978,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.02.2026, 17:33)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.02.2026, 18:35)_
