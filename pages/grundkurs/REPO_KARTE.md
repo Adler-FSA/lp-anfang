@@ -774,6 +774,14 @@
     │   │   ├── page.json
     │   │   └── wallets.html
     │   ├── produkte/
+    │   │   ├── demo-hoersaal-starter-01-settings.html
+    │   │   ├── demo-hoersaal-starter-02-vorschau-hub.html
+    │   │   ├── demo-hoersaal-starter-03-hoersaal-hauptseite.html
+    │   │   ├── demo-hoersaal-starter-04-grundlagen-7-min.html
+    │   │   ├── demo-hoersaal-starter-05-pruefen-statt-glauben.html
+    │   │   ├── demo-hoersaal-starter-06-ticketseite-checkout.html
+    │   │   ├── demo-hoersaal-starter-07-export-summary.html
+    │   │   ├── demo-hoersaal-starter-08-import-tool-locked.html
     │   │   ├── produkt-01-club-mitgliedschaft.html
     │   │   ├── produkt-05-hoersaal-angebot-lizenz.html
     │   │   ├── produkt-05-hoersaal-crossmarketing.html
@@ -978,4 +986,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.02.2026, 18:35)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.02.2026, 23:22)_
