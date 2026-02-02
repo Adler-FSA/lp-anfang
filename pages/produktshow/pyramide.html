@@ -20,7 +20,9 @@
       --shadow:0 24px 60px rgba(0,0,0,.55);
       --glow:0 0 26px rgba(212,175,55,.22), 0 10px 28px rgba(0,0,0,.55);
       --radius:18px;
-      --tile:4cm; /* Wunsch: 4cm x 4cm */
+
+      /* Wunsch: 4cm x 4cm Bildkachel */
+      --tile:4cm;
     }
 
     html,body{height:100%;}
@@ -35,7 +37,6 @@
       overflow-x:hidden;
     }
 
-    /* Full width layout, but keep inner padding */
     .wrap{
       width:100%;
       margin:0 auto;
@@ -175,16 +176,24 @@
       white-space:nowrap;
     }
 
-    /* ===== GRID (4cm x 4cm) ===== */
+    /* ===== GRID (4cm x 4cm Bild + Auswahl unten) ===== */
     .gridWrap{padding:16px;}
     .grid{
       display:grid;
       grid-template-columns: repeat(auto-fill, minmax(var(--tile), var(--tile)));
-      gap:12px;
+      gap:16px 14px;
       justify-content:center;
     }
 
-    .tile{
+    .tileCard{
+      width:var(--tile);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:stretch;
+    }
+
+    .thumb{
       width:var(--tile);
       height:var(--tile);
       border-radius:14px;
@@ -194,62 +203,42 @@
       box-shadow:0 14px 34px rgba(0,0,0,.45);
       background:rgba(0,0,0,.22);
     }
-    .tile img{
+    .thumb img{
       width:100%;
       height:100%;
       object-fit:cover;
       display:block;
       transform:scale(1.01);
     }
-    .tile::after{
+    .thumb::after{
       content:"";
       position:absolute; inset:0;
-      background:linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.35));
+      background:linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.22));
       pointer-events:none;
     }
 
-    .tile .cap{
-      position:absolute;
-      left:8px; right:8px; bottom:8px;
-      font-size:10px;
-      color:rgba(233,238,247,.88);
-      text-shadow:0 2px 10px rgba(0,0,0,.65);
-      background:rgba(0,0,0,.25);
-      border:1px solid rgba(212,175,55,.18);
-      border-radius:10px;
-      padding:4px 6px;
-      overflow:hidden;
-      white-space:nowrap;
-      text-overflow:ellipsis;
-    }
-
-    /* checkbox overlay */
-    .pick{
-      position:absolute;
-      left:10px;
-      top:10px;
+    /* Auswahlfeld IMMER UNTER dem Bild */
+    .pickRow{
       display:flex;
+      justify-content:center;
       align-items:center;
-      gap:8px;
-      z-index:3;
-      padding:6px 8px;
-      border-radius:12px;
+      gap:10px;
+      padding:8px 10px;
+      border-radius:14px;
       border:1px solid rgba(212,175,55,.22);
-      background:rgba(0,0,0,.35);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      box-shadow:0 12px 28px rgba(0,0,0,.45);
+      background:rgba(0,0,0,.26);
+      box-shadow:0 12px 28px rgba(0,0,0,.35);
       user-select:none;
     }
-    .pick input{
-      width:16px;
-      height:16px;
+    .pickRow input{
+      width:18px;
+      height:18px;
       accent-color: var(--gold);
       cursor:pointer;
     }
-    .pick span{
-      font-size:11px;
-      color:rgba(233,238,247,.90);
+    .pickRow span{
+      font-size:12px;
+      color:rgba(233,238,247,.88);
       letter-spacing:.2px;
     }
 
@@ -262,7 +251,6 @@
       gap:12px;
     }
 
-    /* FULL WIDTH stage (nimmt Breite der Webseite ein) */
     .stage{
       width:100%;
       height:min(72vh, 720px);
@@ -324,6 +312,7 @@
       box-shadow:0 18px 42px rgba(0,0,0,.55);
       transform-style:preserve-3d;
       background:rgba(0,0,0,.22);
+      backface-visibility:hidden;
     }
 
     .card3d img{
@@ -482,10 +471,10 @@
     .arc3d{
       position:absolute;
       left:50%;
-      top:58%;
+      top:60%;
       width:1px;height:1px;
       transform-style:preserve-3d;
-      transform:translate(-50%,-50%) perspective(1400px) rotateX(10deg) rotateY(0deg);
+      /* transform kommt aus JS (setArcView) */
     }
     .arcCard{
       position:absolute;
@@ -498,6 +487,7 @@
       box-shadow:0 20px 52px rgba(0,0,0,.58);
       transform-style:preserve-3d;
       backface-visibility:hidden;
+      will-change:transform;
     }
     .arcCard img{
       width:100%;
@@ -509,8 +499,7 @@
     .arcCard::before{
       content:"";
       position:absolute; inset:0;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.34));
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.34));
       pointer-events:none;
     }
 
@@ -520,9 +509,8 @@
       .topbar,.sectionHead,.pyrWrap,.builderBar,.warn,.arcWrap,.modal{display:none !important;}
       .section{border:none;box-shadow:none;background:transparent;}
       .gridWrap{padding:0;}
-      .tile{box-shadow:none;border:1px solid #bbb;}
-      .tile .cap{display:none;}
-      .pick{display:none;}
+      .thumb{box-shadow:none;border:1px solid #bbb;}
+      .pickRow{display:none;}
     }
   </style>
 </head>
@@ -660,7 +648,6 @@
     ========================= */
     const BASE = "../../library/images/produkte/";
 
-    // Datei-Liste wie im Ordner (Screenshot)
     const FILES = [
       "ewg2-0.jpg",
       "geschenk-01.jpg",
@@ -685,11 +672,11 @@
     const I18N = {
       de: {
         title: "FSA Club – Produktshow",
-        subtitle: "Produkte auswählen → Pyramide bauen (3D)",
+        subtitle: "Produkte auswählen → Pyramide + Halbkreis (3D)",
         print: "Drucken (Grid)",
         grid_h: "Kachel-Übersicht (4cm × 4cm)",
-        grid_p: "Häkchen setzen → Auswahl übernehmen → Pyramide.",
-        builder_h: "Pyramiden-Builder",
+        grid_p: "Häkchen setzen → Auswahl übernehmen → Shows aktualisieren.",
+        builder_h: "Builder",
         all: "Alle",
         none: "Keine",
         apply: "Auswahl übernehmen",
@@ -703,7 +690,7 @@
         center_note: "Produktpakete / Übersicht",
         warn: "Hinweis: Wenn du weniger Bilder auswählst, wird die Pyramide automatisch kleiner aufgebaut.",
         arc_h: "3D-Halbkreis (Produkte im Bogen)",
-        arc_p: "Zeigt die ausgewählten Produkte als 3D-Halbkreis. Keine Beschriftung – nur Bilder.",
+        arc_p: "Keine Beschriftung – nur Bilder. Reihenfolge = Sortieren.",
         arc_view1: "Ansicht: Standard",
         arc_view2: "Ansicht: Mehr Tiefe",
         arc_view3: "Ansicht: Front",
@@ -721,11 +708,11 @@
       },
       en: {
         title: "FSA Club – Product Showcase",
-        subtitle: "Select products → build pyramid (3D)",
+        subtitle: "Select products → pyramid + arc (3D)",
         print: "Print (Grid)",
         grid_h: "Tile Overview (4cm × 4cm)",
-        grid_p: "Tick boxes → apply selection → pyramid.",
-        builder_h: "Pyramid Builder",
+        grid_p: "Tick boxes → apply selection → update shows.",
+        builder_h: "Builder",
         all: "All",
         none: "None",
         apply: "Apply selection",
@@ -739,7 +726,7 @@
         center_note: "Product packages / overview",
         warn: "Note: If you select fewer images, the pyramid automatically becomes smaller.",
         arc_h: "3D Semicircle (arc layout)",
-        arc_p: "Shows selected products as a 3D semicircle. No labels – images only.",
+        arc_p: "No labels – images only. Order = sorting.",
         arc_view1: "View: Standard",
         arc_view2: "View: More Depth",
         arc_view3: "View: Front",
@@ -758,7 +745,7 @@
     };
 
     const LS_KEY_LANG = "fsa_lang";
-    const LS_KEY_ORDER = "fsa_product_order_v1";
+    const LS_KEY_ORDER = "fsa_product_order_v2";
 
     let lang = (localStorage.getItem(LS_KEY_LANG) || "de").toLowerCase();
     if(!I18N[lang]) lang = "de";
@@ -772,16 +759,15 @@
       });
       document.getElementById("countInfo").textContent = I18N[lang].total(FILES.length);
       updateSelInfo();
-      // update inline labels on tiles
-      document.querySelectorAll(".pick span").forEach(s=> s.textContent = I18N[lang].pick);
+      document.querySelectorAll(".pickRow span").forEach(s => s.textContent = I18N[lang].pick);
       updateOrderInfo();
     }
 
     /* =========================
        SELECTION STATE + ORDER
     ========================= */
-    const selected = new Set(); // file names
-    let order = [];             // ordered file names (selection-aware)
+    const selected = new Set();
+    let order = [];
 
     function loadOrder(){
       try{
@@ -794,21 +780,14 @@
     }
 
     function saveOrder(){
-      try{
-        localStorage.setItem(LS_KEY_ORDER, JSON.stringify(order));
-      }catch(e){}
+      try{ localStorage.setItem(LS_KEY_ORDER, JSON.stringify(order)); }catch(e){}
     }
 
     function ensureOrderSync(){
-      // 1) keep only known files
       order = order.filter(fn => FILES.includes(fn));
-
-      // 2) ensure all selected items exist in order (append missing)
       Array.from(selected).forEach(fn=>{
         if(!order.includes(fn)) order.push(fn);
       });
-
-      // 3) keep non-selected items at end is fine, but display builders only use selected order
       saveOrder();
       updateOrderInfo();
     }
@@ -821,6 +800,7 @@
     function updateSelInfo(){
       document.getElementById("selInfo").textContent = I18N[lang].selected(selected.size);
     }
+
     function updateOrderInfo(){
       const n = getOrderedSelection().length;
       const el = document.getElementById("orderInfo");
@@ -829,38 +809,41 @@
 
     function setAll(on){
       selected.clear();
-      if(on){
-        FILES.forEach(fn => selected.add(fn));
-      }
-      document.querySelectorAll('.tile input[type="checkbox"]').forEach(cb=>{
-        cb.checked = on;
-      });
+      if(on) FILES.forEach(fn => selected.add(fn));
+      document.querySelectorAll('.tileCard input[type="checkbox"]').forEach(cb => cb.checked = on);
       ensureOrderSync();
       updateSelInfo();
     }
 
     /* =========================
-       GRID BUILD (with checkboxes)
+       GRID BUILD
+       - nur Bild + Auswahl darunter (keine Dateinamen)
     ========================= */
     function buildGrid(){
       const grid = document.getElementById("grid");
       grid.innerHTML = "";
 
       FILES.forEach(fn=>{
-        const tile = document.createElement("div");
-        tile.className = "tile";
+        const card = document.createElement("div");
+        card.className = "tileCard";
+
+        const thumb = document.createElement("div");
+        thumb.className = "thumb";
 
         const img = document.createElement("img");
         img.loading = "lazy";
-        img.alt = fn;
+        img.alt = "";
         img.src = BASE + fn;
 
-        const pick = document.createElement("label");
-        pick.className = "pick";
+        thumb.appendChild(img);
+
+        const pickRow = document.createElement("label");
+        pickRow.className = "pickRow";
 
         const cb = document.createElement("input");
         cb.type = "checkbox";
         cb.checked = selected.has(fn);
+        cb.setAttribute("aria-label", "select");
 
         cb.addEventListener("change", ()=>{
           if(cb.checked) selected.add(fn);
@@ -872,28 +855,22 @@
         const txt = document.createElement("span");
         txt.textContent = I18N[lang].pick;
 
-        pick.appendChild(cb);
-        pick.appendChild(txt);
+        pickRow.appendChild(cb);
+        pickRow.appendChild(txt);
 
-        const cap = document.createElement("div");
-        cap.className = "cap";
-        cap.textContent = fn;
-
-        tile.appendChild(img);
-        tile.appendChild(pick);
-        tile.appendChild(cap);
-        grid.appendChild(tile);
+        card.appendChild(thumb);
+        card.appendChild(pickRow);
+        grid.appendChild(card);
       });
     }
 
     /* =========================
-       PYRAMID LOGIC (dynamic)
+       PYRAMID (weiter auseinander: weniger verdeckt)
     ========================= */
     const stack = document.getElementById("stack3d");
 
     function computeRows(n){
       if(n <= 0) return [];
-      // base size: up to 7 (keeps layout stable on full width stage)
       const base = Math.min(7, Math.max(2, Math.ceil(Math.sqrt(n))));
       const rows = [];
       let remaining = n;
@@ -913,10 +890,10 @@
       const n = list.length;
       const rows = computeRows(n);
 
-      // offsets tuned for 4cm tile size
-      const X = 64;
-      const Y = 62;
-      const Z = 26;
+      /* Mehr Abstand als vorher */
+      const X = 92;  // horizontal weiter auseinander
+      const Y = 84;  // vertikal weiter auseinander
+      const Z = 26;  // leichte Tiefe pro Reihe
 
       let idx = 0;
 
@@ -933,20 +910,17 @@
 
           const img = document.createElement("img");
           img.loading = "lazy";
-          img.alt = fn;
+          img.alt = "";
           img.src = BASE + fn;
 
           const x = (c * X) - (rowWidth/2);
           const y = (r * Y) * -1;
           const z = (r * Z);
 
-          // deterministic tiny wobble so it doesn't reshuffle on every click
           const wobbleSeed = (fn.length * 13 + fn.charCodeAt(0)) % 7;
           const rotZ = (wobbleSeed - 3) * 0.18;
 
-          card.style.transform =
-            `translate3d(${x}px, ${y}px, ${z}px) rotateZ(${rotZ}deg)`;
-
+          card.style.transform = `translate3d(${x}px, ${y}px, ${z}px) rotateZ(${rotZ}deg)`;
           card.appendChild(img);
           stack.appendChild(card);
         }
@@ -954,9 +928,8 @@
     }
 
     /* =========================
-       HALFCIRCLE LOGIC (3D arc)
-       - no labels, just images
-       - uses the user-defined order
+       HALFCIRCLE (3D arc) - FIX: sichtbar + stabile Geometrie
+       - keine Labels, nur Bilder
     ========================= */
     const arc3d = document.getElementById("arc3d");
     const arcStage = document.getElementById("arcStage");
@@ -968,34 +941,35 @@
       if(n <= 0) return;
 
       const rect = arcStage.getBoundingClientRect();
+      const stageW = Math.max(320, rect.width);
 
-      // Radius adapts to stage width & item count
-      const tilePx = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--tile")) || 200;
-      const maxR = Math.min(rect.width * 0.42, 520);
-      const minR = Math.min(rect.width * 0.30, 360);
-      const radius = Math.max(minR, maxR - (n * 6));
+      // Radius: abhängig von Breite & Anzahl (stabil)
+      let radius = Math.min(560, stageW * 0.42);
+      radius = Math.max(320, radius - (n * 10));
 
-      // Angle span (semi-ish circle), more items => slightly wider span
-      const baseSpan = 120; // degrees
-      const span = Math.min(165, baseSpan + Math.max(0, (n - 6) * 4));
+      // Halbkreis-Span
+      const span = Math.min(170, 120 + Math.max(0, (n - 6) * 5));
       const start = -span / 2;
-      const step = (n === 1) ? 0 : (span / (n - 1));
+      const step  = (n === 1) ? 0 : (span / (n - 1));
 
-      // Depth layering: center more forward
       for(let i=0; i<n; i++){
         const fn = list[i];
 
-        const angDeg = start + (step * i);
+        const angDeg = start + step * i;
         const ang = (angDeg * Math.PI) / 180;
 
+        // X im Bogen
         const x = Math.sin(ang) * radius;
-        const y = Math.cos(ang) * (radius * 0.10); // slight arch lift
-        const z = (Math.cos(ang) * 1) * 90;        // center forward, edges back
 
-        // Face to viewer with slight yaw based on position -> nice 3D effect
+        // leichte Bogenhöhe
+        const y = Math.cos(ang) * 70;
+
+        // Tiefe: Mitte kommt nach vorne, Ränder nach hinten
+        const z = Math.cos(ang) * 220;
+
+        // Karte leicht zur Kamera drehen
         const faceY = angDeg * 0.55;
 
-        // deterministic tiny wobble
         const wobbleSeed = (fn.length * 17 + fn.charCodeAt(0)) % 9;
         const rotZ = (wobbleSeed - 4) * 0.22;
 
@@ -1004,12 +978,14 @@
 
         const img = document.createElement("img");
         img.loading = "lazy";
-        img.alt = fn;
+        img.alt = "";
         img.src = BASE + fn;
 
-        // Place around arc (no text overlays)
         card.style.transform =
           `translate3d(${x}px, ${-y}px, ${z}px) rotateY(${faceY}deg) rotateX(2deg) rotateZ(${rotZ}deg)`;
+
+        // zIndex zur Sicherheit (damit vorne wirklich vorne liegt)
+        card.style.zIndex = String(1000 + Math.round(z));
 
         card.appendChild(img);
         arc3d.appendChild(card);
@@ -1042,9 +1018,8 @@
     }
 
     /* =========================
-       APPLY SELECTION
-       -> updates both: pyramid + arc
-       -> uses ORDERED selection
+       APPLY SELECTION -> pyramid + arc
+       (uses ORDERED selection)
     ========================= */
     function applySelectionToShows(){
       const list = getOrderedSelection();
@@ -1081,10 +1056,8 @@
 
     function buildOrderGrid(){
       orderGrid.innerHTML = "";
-
       const list = getOrderedSelection();
 
-      // show only selected items (so the sorting is exactly for what's shown)
       list.forEach((fn, idx)=>{
         const item = document.createElement("div");
         item.className = "orderItem";
@@ -1094,14 +1067,13 @@
 
         const img = document.createElement("img");
         img.loading = "lazy";
-        img.alt = fn;
+        img.alt = "";
         img.src = BASE + fn;
 
         item.appendChild(img);
         orderGrid.appendChild(item);
       });
 
-      // Drag logic (grid swap)
       let dragEl = null;
 
       orderGrid.querySelectorAll(".orderItem").forEach(el=>{
@@ -1111,6 +1083,7 @@
           e.dataTransfer.effectAllowed = "move";
           try{ e.dataTransfer.setData("text/plain", el.dataset.fn); }catch(_){}
         });
+
         el.addEventListener("dragend", ()=>{
           el.classList.remove("dragging");
           dragEl = null;
@@ -1130,7 +1103,6 @@
           const fromFn = dragEl.dataset.fn;
           const toFn   = target.dataset.fn;
 
-          // Reorder inside selection list:
           const sel = getOrderedSelection();
           const fromIdx = sel.indexOf(fromFn);
           const toIdx   = sel.indexOf(toFn);
@@ -1139,8 +1111,6 @@
           sel.splice(fromIdx, 1);
           sel.splice(toIdx, 0, fromFn);
 
-          // Apply back into global 'order':
-          // Keep non-selected items after; preserve their relative order.
           const nonSel = order.filter(fn => !selected.has(fn));
           order = sel.concat(nonSel);
 
@@ -1154,7 +1124,6 @@
     }
 
     function resetOrderToDefault(){
-      // Default order is exactly FILES order
       order = FILES.slice();
       ensureOrderSync();
       saveOrder();
@@ -1180,21 +1149,14 @@
     document.getElementById("btnView2").addEventListener("click", ()=> setView(2));
     document.getElementById("btnView3").addEventListener("click", ()=> setView(3));
 
-    document.getElementById("btnArc1").addEventListener("click", ()=> setArcView(1));
-    document.getElementById("btnArc2").addEventListener("click", ()=> setArcView(2));
-    document.getElementById("btnArc3").addEventListener("click", ()=> setArcView(3));
+    document.getElementById("btnArc1").addEventListener("click", ()=> { setArcView(1); applySelectionToShows(); });
+    document.getElementById("btnArc2").addEventListener("click", ()=> { setArcView(2); applySelectionToShows(); });
+    document.getElementById("btnArc3").addEventListener("click", ()=> { setArcView(3); applySelectionToShows(); });
 
-    document.getElementById("btnAll").addEventListener("click", ()=>{
-      setAll(true);
-    });
+    document.getElementById("btnAll").addEventListener("click", ()=> setAll(true));
+    document.getElementById("btnNone").addEventListener("click", ()=> setAll(false));
 
-    document.getElementById("btnNone").addEventListener("click", ()=>{
-      setAll(false);
-    });
-
-    document.getElementById("btnApply").addEventListener("click", ()=>{
-      applySelectionToShows();
-    });
+    document.getElementById("btnApply").addEventListener("click", ()=> applySelectionToShows());
 
     document.getElementById("btnSort").addEventListener("click", openOrder);
     document.getElementById("btnCloseOrder").addEventListener("click", closeOrder);
@@ -1206,14 +1168,11 @@
     document.getElementById("btnOrderStd").addEventListener("click", resetOrderToDefault);
     document.getElementById("btnResetOrder").addEventListener("click", resetOrderToDefault);
 
-    // close modal on backdrop click
     modal.addEventListener("click", (e)=>{
       if(e.target === modal) closeOrder();
     });
 
-    // rebuild arc on resize (keeps layout clean)
     window.addEventListener("resize", ()=>{
-      // only rebuild if there is selection
       const list = getOrderedSelection();
       if(list.length > 0) buildArcFromList(list);
     });
@@ -1221,11 +1180,10 @@
     /* =========================
        INIT
     ========================= */
-    // Load order from localStorage (fallback: FILES)
     const stored = loadOrder();
     order = stored ? stored : FILES.slice();
 
-    // Default: alles ausgewählt (damit sofort eine volle Show da ist)
+    // Default: alles ausgewählt
     FILES.forEach(fn => selected.add(fn));
 
     buildGrid();
@@ -1234,7 +1192,7 @@
     ensureOrderSync();
     applyI18n();
 
-    // initial build from default selection + saved order
+    // initial build
     applySelectionToShows();
   </script>
 </body>
