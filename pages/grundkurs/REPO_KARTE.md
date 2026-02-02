@@ -210,6 +210,11 @@
     │   │   │   ├── slide-47.jpg
     │   │   │   └── slide-48.jpg
     │   │   ├── produkte/
+    │   │   │   ├── ewg2-0.jpg
+    │   │   │   ├── geschenk-01.jpg
+    │   │   │   ├── geschenk-02.jpg
+    │   │   │   ├── geschenk-03.jpeg
+    │   │   │   ├── hoersaal-vorschau.jpeg
     │   │   │   ├── produkt-01-club-mitgliedschaft.jpeg
     │   │   │   ├── produkt-02-leadmaschine.jpeg
     │   │   │   ├── produkt-03-live-formate-events.jpeg
@@ -218,7 +223,8 @@
     │   │   │   ├── produkt-06-krypto-setup-kurs.jpeg
     │   │   │   ├── produkt-07-trading-grundkurs.jpeg
     │   │   │   ├── produkt-08-nft-basis-orientierung.jpeg
-    │   │   │   └── produkt-09-buch.jpeg
+    │   │   │   ├── produkt-09-buch.jpeg
+    │   │   │   └── solar-invest.jpg
     │   │   ├── timecells/
     │   │   │   └── onboarding/
     │   │   ├── README.txt
@@ -785,6 +791,8 @@
     │   │   ├── weekend-anwesenheitsliste.html
     │   │   ├── weekend-sprecher-packliste.html
     │   │   └── weekend-teilnehmer-checkliste.html
+    │   ├── produktshow/
+    │   │   └── pyramide.html
     │   ├── social/
     │   │   ├── share-adler.html
     │   │   ├── share-akademie.html
@@ -962,4 +970,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.02.2026, 23:19)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.02.2026, 01:45)_
