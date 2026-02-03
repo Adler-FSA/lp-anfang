@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hörsaal • Webinare buchen</title>
+<meta name="robots" content="index,follow" />
+<style>
+  :root{
+    --text:#f2f2f2;
+    --muted:#b9c2d0;
+    --gold:#d4af37;
+    --turq:#1cc2a0;
+    --bg-card: rgba(15,15,25,.78);
+    --radius:16px;
+    --shadow:0 26px 50px rgba(0,0,0,.55);
+    --glow:0 0 26px rgba(212,175,55,.45), 0 10px 28px rgba(0,0,0,.55);
+    --maxw:1200px;
+    --marquee-speed:60s;
+    --marquee-gap:4cm;
+  }
+
+  html,body{height:100%}
+  body{
+    margin:0;background:#000;color:var(--text);
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,sans-serif;
+    overflow-x:hidden;
+  }
+  h1,h2{font-family:Montserrat,system-ui,sans-serif;margin:0 0 12px}
+  h1{font-size:2.4rem;line-height:1.2}
+  h2{font-size:1.9rem;line-height:1.25}
+
+  /* ===== Hintergrund-VIDEO (Adlerflug) ===== */
+  .bg-video{position:fixed;inset:0;z-index:-2;overflow:hidden;background:#000}
+  .bg-video video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.86)}
+
+  /* ===== Layout (schwebend über dem Video) ===== */
+  main{position:relative;z-index:1}
+  section{padding:90px 0}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  .grid{display:grid;gap:38px}
+  .cols-2{grid-template-columns:repeat(2,1fr)}
+  @media (max-width:980px){.cols-2{grid-template-columns:1fr}}
+
+  /* ===== Glow & Floating ===== */
+  @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-7px)}100%{transform:translateY(0)}}
+  @keyframes pulse{0%{box-shadow:var(--shadow)}50%{box-shadow:0 0 34px rgba(212,175,55,.55), 0 14px 34px rgba(0,0,0,.55)}100%{box-shadow:var(--shadow)}}
+  .floating{animation:float 11s ease-in-out infinite, pulse 11s ease-in-out infinite;will-change:transform,box-shadow}
+
+  /* ===== Cards ===== */
+  .card{
+    background:var(--bg-card);
+    border:1px solid rgba(212,175,55,.18);
+    border-radius:var(--radius);
+    box-shadow:var(--glow);
+    padding:32px;
+    backdrop-filter: blur(4px);
+  }
+
+  /* ===== Laufband (leserlicher/größer) ===== */
+  .laufband-wrap{margin:42px auto 40px;max-width:var(--maxw);padding:0 24px}
+  .laufband{position:relative;overflow:hidden;border:2px solid var(--gold);border-radius:12px;background:rgba(0,0,0,.35);box-shadow:var(--glow)}
+  .laufband::before,.laufband::after{content:"";position:absolute;top:0;bottom:0;width:80px;z-index:1}
+  .laufband::before{left:0;background:linear-gradient(90deg,#000,transparent)}
+  .laufband::after{right:0;background:linear-gradient(-90deg,#000,transparent)}
+  .marquee{
+    display:flex;align-items:center;gap:var(--marquee-gap);white-space:nowrap;
+    padding:16px 0;will-change:transform;animation:marq var(--marquee-speed) linear infinite;
+    font-size:1.22rem;letter-spacing:.25px;font-weight:700;
+  }
+  .marquee > span{display:inline-flex;align-items:center;gap:.6rem}
+  @keyframes marq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+  /* ===== Accordion ===== */
+  .acc-box{padding:6px 2px}
+  .acc-row{border-bottom:1px solid rgba(255,255,255,.15);padding:14px 0}
+  .acc-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:800;color:var(--gold);cursor:pointer}
+  .acc-head .txt{display:flex;align-items:center;gap:10px}
+  .acc-head .chev{transition:transform .25s ease;opacity:.9}
+  .acc-row.open .chev{transform:rotate(90deg)}
+  .acc-body{display:none;color:#e8eaf1;line-height:1.8;margin-top:10px}
+  .acc-row.open .acc-body{display:block}
+
+  /* ===== CTA ===== */
+  .btn{display:inline-block;background:var(--gold);color:#000;padding:14px 22px;border-radius:999px;font-weight:800;text-decoration:none}
+  .btn:hover{filter:brightness(1.05)}
+  .btn.full{display:block;text-align:center}
+
+  /* ===== Kino-Frame ===== */
+  #kino .frame{
+    position:relative;border:2px solid var(--gold);border-radius:16px;aspect-ratio:16/9;
+    box-shadow:var(--glow);overflow:hidden;background:transparent;backdrop-filter:none
+  }
+  #kino iframe{width:100%;height:100%;border:0;background:transparent}
+
+  /* Hilfsklasse für Sprache */
+  .hidden{display:none !important}
+
+  /* mehr Luft am Startbereich */
+  #hero{padding-top:110px}
+
+  /* Kleiner Hinweistext */
+  .note{color:var(--muted);line-height:1.75}
+</style>
+</head>
+<body>
+
+<!-- Sprache + Musik (bestehende JS-Dateien) -->
+<!-- (globales Menü wird NICHT genutzt) -->
+
+<!-- ===== Hintergrund-VIDEO (Adlerflug) ===== -->
+<div class="bg-video" aria-hidden="true">
+  <video autoplay loop muted playsinline>
+    <source src="../../library/videos/adlerflug.mp4" type="video/mp4">
+    Dein Browser unterstützt kein MP4-Video.
+  </video>
+</div>
+
+<main>
+
+  <!-- ===== HERO ===== -->
+  <section id="hero">
+    <div class="wrap grid cols-2">
+      <div class="card floating">
+        <h1>
+          <span class="de">Hörsaal.<br><span style="color:var(--turq)">Webinare buchen.</span></span>
+          <span class="en hidden">Lecture Hall.<br><span style="color:var(--turq)">Book webinars.</span></span>
+        </h1>
+
+        <p class="de">Du bist neu hier, weil du diese Seite irgendwo gesehen hast? Perfekt. Das hier ist kein Erklärfilm – das ist ein Einstieg in ein System, das Wachstum erzeugt: Termine, Rollen, Partnerstrecken.</p>
+        <p class="en hidden">You’re new here because you saw this page somewhere? Perfect. This is not a lecture—this is an entry into a system built for growth: sessions, roles, partner tracks.</p>
+
+        <p>
+          <strong class="de">Wähle ein Thema. Wähle einen Termin. Starte.</strong>
+          <strong class="en hidden">Pick a topic. Pick a slot. Start.</strong>
+        </p>
+
+        <p class="de">Bewerbungsgespräche sind kostenlos. Webinare, Trainings und Workshops sind kostenpflichtig – und bleiben dadurch langfristig stabil. Mitglieder erhalten <strong>20% Rabatt</strong>.</p>
+        <p class="en hidden">Application calls are free. Webinars, trainings and workshops are paid—so the system stays sustainable long-term. Members get <strong>20% off</strong>.</p>
+
+        <a href="#cta" class="btn" style="margin-top:10px">
+          <span class="de">Zu Terminen & Tickets</span>
+          <span class="en hidden">Go to dates & tickets</span>
+        </a>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:22px">
+        <div class="card floating" style="font-style:italic;text-align:center">
+          <span class="de">„Wachstum ist kein Zufall – es ist Struktur.“</span>
+          <span class="en hidden">“Growth isn’t luck—it’s structure.”</span>
+        </div>
+
+        <div class="card floating">
+          <h2 style="margin-bottom:10px">
+            <span class="de">Was du hier bekommst</span>
+            <span class="en hidden">What you get here</span>
+          </h2>
+          <ul style="margin:0;padding-left:18px;line-height:1.9">
+            <li class="de">📅 Feste Webinar-Termine mit klaren Themen</li>
+            <li class="en hidden">📅 Fixed webinar dates with clear topics</li>
+            <li class="de">🧩 Rollen-Einstieg: Promotor, Speaker, Partner</li>
+            <li class="en hidden">🧩 Role entry: promoter, speaker, partner</li>
+            <li class="de">☎️ Kostenlose Bewerbungsgespräche (Einordnung)</li>
+            <li class="en hidden">☎️ Free application calls (qualification)</li>
+            <li class="de">🏷️ Mitglieder-Vorteil: 20% Rabatt auf kostenpflichtige Termine</li>
+            <li class="en hidden">🏷️ Member benefit: 20% off paid sessions</li>
+          </ul>
+          <p style="margin-top:12px;font-weight:600;color:var(--muted);text-align:center">
+            <span class="de">Ziel: mehr Kontakte → mehr Termine → mehr Team → mehr Club.</span>
+            <span class="en hidden">Goal: more contacts → more sessions → more team → more club.</span>
+          </p>
+        </div>
+
+        <div class="card floating" style="font-style:italic;text-align:center">
+          <span class="de">„Wer wachsen will, braucht einen wiederholbaren Ablauf.“</span>
+          <span class="en hidden">“If you want growth, you need a repeatable process.”</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Mentor (umbenannt: Guide) ===== -->
+  <section id="mentor">
+    <div class="wrap">
+      <div class="card floating" style="text-align:center">
+        <div class="mentor-head">
+          <div class="mentor-icon">
+            <img src="../../library/images/mentor-icon.png" alt="" onerror="this.closest('.mentor-icon').innerHTML='🧭'">
+          </div>
+          <h2 class="mentor-title">
+            <span class="de">Dein Hörsaal-Guide</span>
+            <span class="en hidden">Your lecture-hall guide</span>
+          </h2>
+        </div>
+        <p style="margin-top:8px">
+          <span class="de">Hier geht’s um Tempo und Klarheit: Du wählst das passende Format, sicherst dir einen Termin und bekommst danach den nächsten Schritt (je nach Rolle: Promotor / Speaker / Partner).</span>
+          <span class="en hidden">This is about speed and clarity: choose the right format, secure a slot, then get the next step (depending on your role: promoter / speaker / partner).</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Laufband ===== -->
+  <section id="laufband-sec">
+    <div class="laufband-wrap">
+      <div class="laufband floating">
+        <div class="marquee" id="mqA"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Reise (Accordion) ===== -->
+  <section id="reise">
+    <div class="wrap">
+      <div class="card floating">
+        <h2 style="margin-bottom:8px">
+          <span class="de">So funktioniert dein Einstieg</span>
+          <span class="en hidden">How your entry works</span>
+        </h2>
+
+        <div class="acc-box">
+          <div class="acc-row">
+            <div class="acc-head">
+              <div class="txt">
+                <span class="de">🚀 Du kommst neu rein</span>
+                <span class="en hidden">🚀 You arrive new</span>
+              </div>
+              <div class="chev">›</div>
+            </div>
+            <div class="acc-body">
+              <span class="de">Du musst nichts “vorwissen”. Du brauchst nur einen ersten Termin, der dir Klarheit gibt: Thema wählen → Slot wählen → teilnehmen.</span>
+              <span class="en hidden">You don’t need prior knowledge. You only need a first session that creates clarity: pick a topic → pick a slot → attend.</span>
+            </div>
+          </div>
+
+          <div class="acc-row">
+            <div class="acc-head">
+              <div class="txt">
+                <span class="de">📅 Du wählst ein Format</span>
+                <span class="en hidden">📅 You pick a format</span>
+              </div>
+              <div class="chev">›</div>
+            </div>
+            <div class="acc-body">
+              <span class="de">Webinar = Einstieg. Training = Gesprächsführung. Workshop = Umsetzung. Bewerbungsgespräch = kostenloser Rollen-Check.</span>
+              <span class="en hidden">Webinar = entry. Training = conversation skill. Workshop = execution. Application call = free role check.</span>
+            </div>
+          </div>
+
+          <div class="acc-row">
+            <div class="acc-head">
+              <div class="txt">
+                <span class="de">🏷️ Mitglieder sparen 20%</span>
+                <span class="en hidden">🏷️ Members save 20%</span>
+              </div>
+              <div class="chev">›</div>
+            </div>
+            <div class="acc-body">
+              <span class="de">Kostenpflichtige Termine bleiben dadurch fair finanzierbar. Mitglieder bekommen den Vorteil automatisch über den Club-Rabatt.</span>
+              <span class="en hidden">Paid sessions stay sustainably priced. Members get the benefit automatically via the club discount.</span>
+            </div>
+          </div>
+
+          <div class="acc-row">
+            <div class="acc-head">
+              <div class="txt">
+                <span class="de">🧩 Danach kommt der nächste Schritt</span>
+                <span class="en hidden">🧩 Then comes the next step</span>
+              </div>
+              <div class="chev">›</div>
+            </div>
+            <div class="acc-body">
+              <span class="de">Je nach Rolle geht es weiter: Promotor-Strecke, Speaker-Strecke oder Partner-Strecke. Alles über Termine – nicht über endlose Texte.</span>
+              <span class="en hidden">Depending on your role: promoter track, speaker track or partner track. Everything via sessions—not endless pages.</span>
+            </div>
+          </div>
+
+          <div class="acc-row">
+            <div class="acc-head">
+              <div class="txt">
+                <span class="de">✅ Ziel: Wachstum</span>
+                <span class="en hidden">✅ Goal: growth</span>
+              </div>
+              <div class="chev">›</div>
+            </div>
+            <div class="acc-body">
+              <span class="de">Mehr Kontakte → mehr Gespräche → mehr Termine → mehr Team → mehr Club. Das ist der Kern dieses Hörsaals.</span>
+              <span class="en hidden">More contacts → more conversations → more sessions → more team → more club. That’s the core of this lecture hall.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Kino (YouTube) ===== -->
+  <section id="kino">
+    <div class="wrap" style="max-width:960px">
+      <div class="frame floating">
+        <iframe
+          src="https://www.youtube.com/embed/miWBKSszEIw?autoplay=0&mute=0&loop=0&controls=1&modestbranding=1&playsinline=1"
+          title="Kino – Hörsaal Überblick"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA / Termine & Tickets ===== -->
+  <section id="cta">
+    <div class="wrap grid cols-2">
+      <div class="card floating">
+        <h2>
+          <span class="de">Termine & Tickets</span>
+          <span class="en hidden">Dates & tickets</span>
+        </h2>
+        <p class="de">Hier kommt die Termin-Auswahl (Kalender) rein. Du wählst ein Thema, dann einen Slot. Preise stehen am Termin (z. B. 29–49 € je nach Format). Mitglieder erhalten 20% Rabatt.</p>
+        <p class="en hidden">This is where the date picker (calendar) goes. Choose a topic, then a slot. Prices are shown per session (e.g., €29–€49 depending on format). Members get 20% off.</p>
+
+        <p class="de"><strong>Bewerbungsgespräche:</strong> kostenlos (Promotor / Speaker / Partner). <strong>Webinare/Trainings/Workshops:</strong> kostenpflichtig.</p>
+        <p class="en hidden"><strong>Application calls:</strong> free (promoter / speaker / partner). <strong>Webinars/trainings/workshops:</strong> paid.</p>
+
+        <a class="btn full" href="#cta">
+          <span class="de">Kalender öffnen (Platzhalter)</span>
+          <span class="en hidden">Open calendar (placeholder)</span>
+        </a>
+        <p class="note de" style="margin-top:12px">Nach dem Kauf erhältst du den Teilnahme-Link und ggf. Materialien (je Termin).</p>
+        <p class="note en hidden" style="margin-top:12px">After purchase you receive the access link and—depending on the session—materials.</p>
+      </div>
+
+      <div class="card floating">
+        <h2>
+          <span class="de">Schnellstart</span>
+          <span class="en hidden">Quick start</span>
+        </h2>
+        <p class="de">Wenn du heute nur einen Schritt machst: Nimm an einem Webinar teil. Danach weißt du, ob du als Promotor, Speaker oder Partner einsteigst.</p>
+        <p class="en hidden">If you do only one step today: attend a webinar. After that you’ll know whether you enter as promoter, speaker or partner.</p>
+
+        <a class="btn" href="#cta" style="margin-top:10px">
+          <span class="de">Webinar wählen</span>
+          <span class="en hidden">Pick a webinar</span>
+        </a>
+        <a class="btn" href="#reise" style="margin-top:10px;margin-left:10px">
+          <span class="de">So läuft’s ab</span>
+          <span class="en hidden">How it works</span>
+        </a>
+
+        <p class="note de" style="margin-top:14px">Diese Seite ist der Einstieg in den Hörsaal – ohne Umwege, ohne “Admin-Texte”, mit Fokus auf Termin → Teilnahme → nächster Schritt.</p>
+        <p class="note en hidden" style="margin-top:14px">This page is the entry point—no detours, no admin copy, focused on session → attendance → next step.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== Globale JS (bestehende Dateien) ===== -->
+<script src="../../library/js/lang-switcher.js"></script>
+<script src="../../library/js/music-button.js"></script>
+
+<!-- ===== Seiten-Logik ===== -->
+<script>
+  /* ========= Accordion ========= */
+  document.querySelectorAll('.acc-head').forEach(h=>{
+    h.addEventListener('click',()=>h.parentElement.classList.toggle('open'));
+  });
+
+  /* ========= Laufband – DE/EN ========= */
+  const bandTextsDE = [
+    "📅 Webinare, Trainings, Workshops – klare Termine",
+    "🏷️ Mitglieder erhalten 20% Rabatt",
+    "☎️ Bewerbungsgespräche: kostenlos (Promotor / Speaker / Partner)",
+    "🚀 Fokus: Wachstum über Termine – nicht über lange Texte",
+    "🧩 Rollen & Strecken: Promotor • Speaker • Partner",
+    "✅ Termin wählen • teilnehmen • nächster Schritt",
+    "👥 Community & Teamaufbau: planbar statt Zufall",
+    "🎯 Struktur schlägt Motivation"
+  ];
+  const bandTextsEN = [
+    "📅 Webinars, trainings, workshops – clear dates",
+    "🏷️ Members get 20% off",
+    "☎️ Application calls: free (promoter / speaker / partner)",
+    "🚀 Focus: growth through sessions – not long texts",
+    "🧩 Roles & tracks: promoter • speaker • partner",
+    "✅ Pick a slot • attend • next step",
+    "👥 Community & team building: planned, not random",
+    "🎯 Structure beats motivation"
+  ];
+  function buildMarqueeLine(texts){
+    const line = document.createElement('div');
+    line.style.display='flex'; line.style.alignItems='center';
+    line.style.gap = getComputedStyle(document.documentElement).getPropertyValue('--marquee-gap') || '4cm';
+    [...texts, ...texts].forEach(t=>{
+      const span=document.createElement('span'); span.textContent=t; line.appendChild(span);
+    });
+    return line.innerHTML;
+  }
+  function renderMarqueeByLang(code){
+    const mq = document.getElementById('mqA');
+    if(!mq) return;
+    mq.innerHTML = buildMarqueeLine(code==='en' ? bandTextsEN : bandTextsDE);
+  }
+
+  /* ========= DE/EN Sichtbarkeit ========= */
+  function applyLang(code){
+    document.querySelectorAll('.de').forEach(el=>el.classList.toggle('hidden', code!=='de'));
+    document.querySelectorAll('.en').forEach(el=>el.classList.toggle('hidden', code!=='en'));
+    renderMarqueeByLang(code);
+  }
+  (function initLang(){
+    const stored = localStorage.getItem('fsa_lang') || 'de';
+    applyLang(stored);
+  })();
+  document.addEventListener('fsa:lang-change', (e)=>{
+    const code = (e && e.detail) ? e.detail : (localStorage.getItem('fsa_lang') || 'de');
+    applyLang(code);
+  });
+  renderMarqueeByLang(localStorage.getItem('fsa_lang') || 'de');
+
+  /* ========= Scroll-Position bei Reload deaktivieren ========= */
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+  }
+</script>
+</body>
+</html>
