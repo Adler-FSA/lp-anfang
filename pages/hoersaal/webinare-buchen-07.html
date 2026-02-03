@@ -321,9 +321,10 @@
             </label>
             <select id="week"></select>
 
+            <!-- CHANGED: Button-Text + Funktion (copy) statt speichern -->
             <button class="btn btnSmall" type="button" id="savePick" style="margin-top:14px;width:100%">
-              <span class="de">Auswahl speichern</span>
-              <span class="en hidden">Save selection</span>
+              <span class="de">Auswahl kopieren</span>
+              <span class="en hidden">Copy selection</span>
             </button>
           </div>
 
@@ -626,6 +627,45 @@
     }catch(e){}
   }
 
+  /* ========= NEU: Auswahl kopieren ========= */
+  async function copySelectionToClipboard(){
+    try{
+      // Sicherstellen, dass der aktuellste Stand gespeichert ist (wie bisher)
+      persist(false);
+
+      // Text wie in der Summary
+      const txt = (elSum && elSum.textContent) ? elSum.textContent.trim() : "";
+      if(!txt || txt === "Noch nichts gewählt." || txt === "Nothing selected yet."){
+        btnSave.textContent = (currentLang==="en") ? "Nothing to copy" : "Nichts zu kopieren";
+        setTimeout(()=>btnSave.textContent = (currentLang==="en") ? "Copy selection" : "Auswahl kopieren", 1200);
+        return;
+      }
+
+      // Clipboard API
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(txt);
+      }else{
+        // Fallback
+        const ta = document.createElement('textarea');
+        ta.value = txt;
+        ta.setAttribute('readonly','');
+        ta.style.position='fixed';
+        ta.style.left='-9999px';
+        ta.style.top='-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+
+      btnSave.textContent = (currentLang==="en") ? "Copied ✓" : "Kopiert ✓";
+      setTimeout(()=>btnSave.textContent = (currentLang==="en") ? "Copy selection" : "Auswahl kopieren", 1200);
+    }catch(e){
+      btnSave.textContent = (currentLang==="en") ? "Copy failed" : "Kopieren fehlgeschlagen";
+      setTimeout(()=>btnSave.textContent = (currentLang==="en") ? "Copy selection" : "Auswahl kopieren", 1400);
+    }
+  }
+
   function restore(){
     try{
       const raw = localStorage.getItem(LS_KEY);
@@ -669,7 +709,8 @@
     persist(false);
   });
 
-  btnSave.addEventListener("click", ()=>persist(true));
+  // CHANGED: Klick => kopieren (statt nur speichern)
+  btnSave.addEventListener("click", copySelectionToClipboard);
 
   btnClear.addEventListener("click", ()=>{
     state.slot = "";
@@ -736,8 +777,8 @@
     renderSlots();
     renderSummary();
 
-    // Button-Text nach Language (falls vorher Toast)
-    btnSave.textContent = (currentLang==="en") ? "Save selection" : "Auswahl speichern";
+    // Button-Text nach Language
+    btnSave.textContent = (currentLang==="en") ? "Copy selection" : "Auswahl kopieren";
   }
 
   (function initLang(){
