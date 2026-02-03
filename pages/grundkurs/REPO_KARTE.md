@@ -569,6 +569,13 @@
     │   │   ├── fsa-akademie-flyer.html
     │   │   └── verdienst-rechner.html
     │   ├── ansicht/
+    │   │   ├── muster-system-02-hoersaal-hauptseite.html
+    │   │   ├── muster-system-03-unterseite-1.html
+    │   │   ├── muster-system-04-unterseite-2.html
+    │   │   ├── muster-system-05-unterseite-3.html
+    │   │   ├── muster-system-06-unterseite-4.html
+    │   │   ├── muster-system-07-webinar-landing.html
+    │   │   ├── muster-system-08-ticketseite.html
     │   │   └── muster-system.html
     │   ├── buch/
     │   │   ├── buch-video-intro.html
@@ -988,4 +995,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.02.2026, 07:38)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.02.2026, 08:30)_
