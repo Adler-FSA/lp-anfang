@@ -703,6 +703,12 @@
     │   │   ├── grundkurs1-prototyp.html
     │   │   └── page.json
     │   ├── hoersaal/
+    │   │   ├── webinare-buchen-02-ueberblick.html
+    │   │   ├── webinare-buchen-03-webinare.html
+    │   │   ├── webinare-buchen-04-themen.html
+    │   │   ├── webinare-buchen-05-rollen-team.html
+    │   │   ├── webinare-buchen-06-ablauf-regeln.html
+    │   │   ├── webinare-buchen-07.html
     │   │   └── webinare-buchen.html
     │   ├── index/
     │   │   └── page.json
@@ -997,4 +1003,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.02.2026, 10:34)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.02.2026, 11:30)_
