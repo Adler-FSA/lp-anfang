@@ -709,6 +709,7 @@
     │   │   ├── webinare-buchen-05-rollen-team.html
     │   │   ├── webinare-buchen-06-ablauf-regeln.html
     │   │   ├── webinare-buchen-07.html
+    │   │   ├── webinare-buchen-08-ticketseite.html
     │   │   └── webinare-buchen.html
     │   ├── index/
     │   │   └── page.json
@@ -1003,4 +1004,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.02.2026, 11:30)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.02.2026, 12:46)_
