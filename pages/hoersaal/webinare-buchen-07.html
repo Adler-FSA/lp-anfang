@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hörsaal – Webinare buchen (07) – Termine wählen</title>
+<meta name="robots" content="noindex,nofollow" />
+
+<style>
+  :root{
+    --text:#f2f2f2;
+    --muted:#b9c2d0;
+    --gold:#d4af37;
+    --turq:#1cc2a0;
+    --bg-card: rgba(15,15,25,.78);
+    --radius:16px;
+    --shadow:0 26px 50px rgba(0,0,0,.55);
+    --glow:0 0 26px rgba(212,175,55,.45), 0 10px 28px rgba(0,0,0,.55);
+    --maxw:1200px;
+
+    /* Laufband leserlicher */
+    --marquee-speed:58s;
+    --marquee-gap:3.0cm;
+  }
+
+  html,body{height:100%}
+  body{
+    margin:0;background:#000;color:var(--text);
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,sans-serif;
+    overflow-x:hidden;
+  }
+  h1,h2{font-family:Montserrat,system-ui,sans-serif;margin:0 0 12px}
+  h1{font-size:2.4rem;line-height:1.2}
+  h2{font-size:1.9rem;line-height:1.25}
+
+  /* ===== Hintergrund-VIDEO (Adlerflug) ===== */
+  .bg-video{position:fixed;inset:0;z-index:-2;overflow:hidden;background:#000}
+  .bg-video video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.86)}
+
+  main{position:relative;z-index:1}
+  section{padding:90px 0}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  .grid{display:grid;gap:38px}
+  .cols-2{grid-template-columns:repeat(2,1fr)}
+  @media (max-width:980px){.cols-2{grid-template-columns:1fr}}
+
+  @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-7px)}100%{transform:translateY(0)}}
+  @keyframes pulse{0%{box-shadow:var(--shadow)}50%{box-shadow:0 0 34px rgba(212,175,55,.55), 0 14px 34px rgba(0,0,0,.55)}100%{box-shadow:var(--shadow)}}
+  .floating{animation:float 11s ease-in-out infinite, pulse 11s ease-in-out infinite;will-change:transform,box-shadow}
+
+  .card{
+    background:var(--bg-card);
+    border:1px solid rgba(212,175,55,.18);
+    border-radius:var(--radius);
+    box-shadow:var(--glow);
+    padding:32px;
+    backdrop-filter: blur(4px);
+  }
+
+  /* ===== Laufband ===== */
+  .laufband-wrap{margin:42px auto 40px;max-width:var(--maxw);padding:0 24px}
+  .laufband{position:relative;overflow:hidden;border:2px solid var(--gold);border-radius:12px;background:rgba(0,0,0,.35);box-shadow:var(--glow)}
+  .laufband::before,.laufband::after{content:"";position:absolute;top:0;bottom:0;width:80px;z-index:1}
+  .laufband::before{left:0;background:linear-gradient(90deg,#000,transparent)}
+  .laufband::after{right:0;background:linear-gradient(-90deg,#000,transparent)}
+  .marquee{
+    display:flex;align-items:center;gap:var(--marquee-gap);white-space:nowrap;
+    padding:16px 0;will-change:transform;
+    animation:marq var(--marquee-speed) linear infinite;
+    font-size:1.22rem;letter-spacing:.2px;font-weight:700;
+  }
+  .marquee > span{display:inline-flex;align-items:center;gap:.6rem}
+  @keyframes marq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+  /* ===== Buttons ===== */
+  .btn{display:inline-block;background:var(--gold);color:#000;padding:14px 22px;border-radius:999px;font-weight:800;text-decoration:none;border:none;cursor:pointer}
+  .btn:hover{filter:brightness(1.05)}
+  .btn.full{display:block;text-align:center}
+  .btnLine{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .btnGhost{
+    display:inline-block;
+    border:1px solid rgba(212,175,55,.38);
+    background:rgba(0,0,0,.18);
+    color:var(--text);
+    padding:14px 22px;border-radius:999px;
+    font-weight:800;text-decoration:none;
+  }
+  .btnGhost:hover{background:rgba(0,0,0,.26)}
+  .btnSmall{
+    padding:10px 14px;
+    font-weight:900;
+    border-radius:999px;
+  }
+
+  /* ===== Auswahl UI ===== */
+  .helper{color:var(--muted);line-height:1.7;margin:0}
+  .hr{height:1px;background:rgba(255,255,255,.14);margin:18px 0}
+
+  .pillRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .pill{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:7px 10px;border-radius:999px;
+    border:1px solid rgba(212,175,55,.25);
+    background:rgba(0,0,0,.18);
+    color:#f6e6b0;
+    font-weight:800;
+    font-size:.92rem;
+    white-space:nowrap;
+  }
+  .pill.free{border-color:rgba(28,194,160,.35);color:#bff6ea}
+  .pill.paid{border-color:rgba(212,175,55,.35);color:#f6e6b0}
+
+  .twoCols{display:grid;grid-template-columns:1.05fr .95fr;gap:14px}
+  @media (max-width:980px){.twoCols{grid-template-columns:1fr}}
+
+  .box{
+    border-radius:14px;
+    border:1px solid rgba(212,175,55,.18);
+    background:rgba(0,0,0,.22);
+    padding:16px 18px;
+  }
+  .box h3{
+    margin:0 0 10px;
+    font-family:Montserrat,system-ui,sans-serif;
+    font-size:1.15rem;
+    color:var(--gold);
+    letter-spacing:.2px;
+  }
+
+  label{display:block;font-weight:900;margin:8px 0 6px}
+  select,input{
+    width:100%;
+    border-radius:12px;
+    border:1px solid rgba(212,175,55,.28);
+    background:rgba(0,0,0,.22);
+    color:var(--text);
+    padding:12px 12px;
+    font-size:1rem;
+    outline:none;
+  }
+  select:focus,input:focus{border-color:rgba(212,175,55,.55); box-shadow:0 0 0 3px rgba(212,175,55,.15);}
+
+  .slots{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:10px;
+    margin-top:10px;
+  }
+  @media (max-width:680px){.slots{grid-template-columns:1fr}}
+  .slotBtn{
+    width:100%;
+    text-align:left;
+    border-radius:14px;
+    border:1px solid rgba(212,175,55,.20);
+    background:rgba(0,0,0,.20);
+    padding:12px 12px;
+    color:var(--text);
+    cursor:pointer;
+    font-weight:900;
+  }
+  .slotBtn:hover{background:rgba(0,0,0,.28)}
+  .slotBtn.active{
+    border-color:rgba(28,194,160,.55);
+    box-shadow:0 0 0 3px rgba(28,194,160,.16);
+  }
+  .slotMeta{display:block;color:var(--muted);font-weight:700;margin-top:4px;line-height:1.35}
+
+  .summary{
+    border-radius:14px;
+    border:1px solid rgba(28,194,160,.28);
+    background:rgba(0,0,0,.22);
+    padding:14px 14px;
+  }
+  .summary strong{color:#dffaf4}
+  .summary .line2{color:var(--muted);margin-top:6px;line-height:1.6}
+
+  .note{
+    margin-top:10px;
+    padding:12px 14px;
+    border-radius:14px;
+    border:1px dashed rgba(212,175,55,.35);
+    background:rgba(0,0,0,.18);
+    color:var(--muted);
+    line-height:1.65;
+  }
+
+  /* ===== Kino ===== */
+  #kino .frame{
+    position:relative;border:2px solid var(--gold);border-radius:16px;aspect-ratio:16/9;
+    box-shadow:var(--glow);overflow:hidden;background:transparent;backdrop-filter:none
+  }
+  #kino iframe{width:100%;height:100%;border:0;background:transparent}
+
+  #bottomNav{padding:60px 0 80px}
+</style>
+</head>
+
+<body>
+
+<div id="menu-root"></div>
+
+<div class="bg-video" aria-hidden="true">
+  <video autoplay loop muted playsinline>
+    <source src="../../library/videos/adlerflug.mp4" type="video/mp4">
+    Dein Browser unterstützt kein MP4-Video.
+  </video>
+</div>
+
+<main>
+  <!-- ===== HERO ===== -->
+  <section id="hero">
+    <div class="wrap grid cols-2">
+      <div class="card floating">
+        <h1>
+          Termine wählen<br>
+          <span style="color:var(--turq)">Webinar, Training oder kostenloses Gespräch</span>
+        </h1>
+
+        <p class="helper">
+          Du bist neu? Dann wähle zuerst <strong>kostenloses Gespräch</strong>.  
+          Du willst direkt in Umsetzung? Dann wähle <strong>Webinar/Training</strong>.
+        </p>
+
+        <div class="pillRow" aria-label="Format-Hinweise">
+          <span class="pill free">🆓 Bewerbung / Kennenlernen</span>
+          <span class="pill paid">💳 Webinar / Training / Workshop</span>
+          <span class="pill">🏷️ Mitglieder: 20% Rabatt (Preis auf Seite 08)</span>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="btnLine">
+          <a class="btnGhost" href="./webinare-buchen-06-ablauf-regeln.html" data-internal>← zurück</a>
+          <a class="btn" href="./webinare-buchen-08.html" data-internal id="toTicketTop">Weiter zur Ticketseite →</a>
+        </div>
+
+        <div class="note">
+          Hinweis: Dies ist eine <strong>neutrale Demo-Logik</strong> (ohne echte Kalender-Anbindung).  
+          Für den Livebetrieb kann später ein echter Kalender/Checkout angebunden werden.
+        </div>
+      </div>
+
+      <div class="card floating">
+        <h2 style="margin-bottom:10px">Auswahl</h2>
+
+        <div class="twoCols">
+          <div class="box">
+            <h3>1) Format</h3>
+            <label for="fmt">Was willst du buchen?</label>
+            <select id="fmt">
+              <option value="free">Kostenloses Gespräch (Bewerbung / Kennenlernen)</option>
+              <option value="paid">Webinar / Training / Workshop (kostenpflichtig)</option>
+            </select>
+
+            <label for="topic" style="margin-top:12px">2) Thema</label>
+            <select id="topic"></select>
+
+            <label for="week" style="margin-top:12px">3) Woche</label>
+            <select id="week"></select>
+
+            <button class="btn btnSmall" type="button" id="savePick" style="margin-top:14px;width:100%">
+              Auswahl speichern
+            </button>
+          </div>
+
+          <div class="box">
+            <h3>4) Uhrzeit</h3>
+            <p class="helper" style="margin:0 0 10px">
+              Klicke einen Slot an. Der ausgewählte Slot wird für Seite 08 übernommen.
+            </p>
+            <div class="slots" id="slots"></div>
+
+            <div class="summary" id="summary" style="margin-top:12px">
+              <strong>Deine Auswahl:</strong>
+              <div class="line2" id="sumLine">Noch nichts gewählt.</div>
+            </div>
+
+            <div class="btnLine" style="margin-top:12px;justify-content:space-between">
+              <button class="btnGhost btnSmall" type="button" id="clearPick">Reset</button>
+              <a class="btn btnSmall" href="./webinare-buchen-08.html" data-internal id="toTicketBtn">weiter →</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="note">
+          Tipp: Wenn du <strong>kostenlos</strong> wählst, geht es nur um Passung &amp; nächsten Schritt.  
+          Wenn du <strong>kostenpflichtig</strong> wählst, geht es um Ergebnis &amp; Umsetzung.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Laufband ===== -->
+  <section id="laufband-sec">
+    <div class="laufband-wrap">
+      <div class="laufband floating">
+        <div class="marquee" id="mqA"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Kino ===== -->
+  <section id="kino">
+    <div class="wrap" style="max-width:960px">
+      <div class="frame floating">
+        <iframe
+          src="https://www.youtube.com/embed/miWBKSszEIw?autoplay=0&mute=0&controls=1&modestbranding=1&playsinline=1"
+          title="Kino – Termine wählen"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Unten: zurück/weiter ===== -->
+  <section id="bottomNav">
+    <div class="wrap">
+      <div class="card floating">
+        <div class="btnLine" style="justify-content:space-between">
+          <a class="btnGhost" href="./webinare-buchen-06-ablauf-regeln.html" data-internal>← zurück</a>
+          <a class="btn" href="./webinare-buchen-08.html" data-internal>weiter →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="../../library/js/lang-switcher.js"></script>
+<script src="../../library/js/music-button.js"></script>
+
+<script>
+  /* ========= helpers ========= */
+  const LS_KEY = "fsa_hoersaal_webinar_pick_v1";
+
+  function ymd(d){
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,"0");
+    const dd = String(d.getDate()).padStart(2,"0");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  function niceDate(d){
+    const opts = { weekday:"short", day:"2-digit", month:"2-digit", year:"numeric" };
+    return d.toLocaleDateString("de-DE", opts);
+  }
+
+  /* ========= data (neutral placeholders) ========= */
+  const TOPICS = {
+    paid: [
+      { id:"akquise",   label:"Akquise-Training (klarer Gesprächsaufbau)" },
+      { id:"telefon",   label:"Telefon-Training (Einwand → Abschluss)" },
+      { id:"workshop",  label:"Workshop (Team/Prozess/Umsetzung)" },
+      { id:"hoersaal",  label:"Hörsaal-Besprechung (Partner-Setup & Inhalte)" }
+    ],
+    free: [
+      { id:"bewerb_prom", label:"Bewerbung: Promotor (kostenlos)" },
+      { id:"bewerb_speak",label:"Bewerbung: Speaker (kostenlos)" },
+      { id:"bewerb_event",label:"Bewerbung: Eventmanager (kostenlos)" },
+      { id:"partner",     label:"Partner-Vorgespräch (kostenlos)" }
+    ]
+  };
+
+  const TIMES = ["10:00","11:30","13:00","14:30","16:00","18:00"];
+
+  function buildWeeks(n=6){
+    const arr=[];
+    const now=new Date();
+    const day=now.getDay(); // 0..6
+    const diffToMon = (day===0 ? -6 : (1 - day));
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + diffToMon);
+
+    for(let i=0;i<n;i++){
+      const start=new Date(monday);
+      start.setDate(monday.getDate() + i*7);
+      const end=new Date(start);
+      end.setDate(start.getDate() + 6);
+      arr.push({
+        id: `w${i}`,
+        start,
+        end,
+        label: `${niceDate(start)} – ${niceDate(end)}`
+      });
+    }
+    return arr;
+  }
+  const WEEKS = buildWeeks(8);
+
+  /* ========= ui refs ========= */
+  const elFmt   = document.getElementById("fmt");
+  const elTopic = document.getElementById("topic");
+  const elWeek  = document.getElementById("week");
+  const elSlots = document.getElementById("slots");
+  const elSum   = document.getElementById("sumLine");
+  const btnSave = document.getElementById("savePick");
+  const btnClear= document.getElementById("clearPick");
+
+  let state = {
+    fmt: "free",
+    topicId: "",
+    weekId: WEEKS[0].id,
+    slot: ""
+  };
+
+  function renderTopics(){
+    const list = TOPICS[state.fmt] || [];
+    elTopic.innerHTML = "";
+    list.forEach(t=>{
+      const o=document.createElement("option");
+      o.value=t.id;
+      o.textContent=t.label;
+      elTopic.appendChild(o);
+    });
+    if(!state.topicId || !list.some(x=>x.id===state.topicId)){
+      state.topicId = list[0] ? list[0].id : "";
+    }
+    elTopic.value = state.topicId;
+  }
+
+  function renderWeeks(){
+    elWeek.innerHTML = "";
+    WEEKS.forEach(w=>{
+      const o=document.createElement("option");
+      o.value=w.id;
+      o.textContent=w.label;
+      elWeek.appendChild(o);
+    });
+    elWeek.value = state.weekId;
+  }
+
+  function renderSlots(){
+    elSlots.innerHTML = "";
+    TIMES.forEach(time=>{
+      const b=document.createElement("button");
+      b.type="button";
+      b.className="slotBtn" + (state.slot===time ? " active" : "");
+      b.dataset.time = time;
+      b.innerHTML = `${time}<span class="slotMeta">Slot wählen</span>`;
+      b.addEventListener("click", ()=>{
+        state.slot = time;
+        renderSlots();
+        renderSummary();
+        persist(false);
+      });
+      elSlots.appendChild(b);
+    });
+  }
+
+  function topicLabel(){
+    const list = TOPICS[state.fmt] || [];
+    const found = list.find(x=>x.id===state.topicId);
+    return found ? found.label : "";
+  }
+  function weekLabel(){
+    const w = WEEKS.find(x=>x.id===state.weekId);
+    return w ? w.label : "";
+  }
+
+  function renderSummary(){
+    const fmtTxt = (state.fmt==="paid") ? "Kostenpflichtig" : "Kostenlos";
+    const t = topicLabel();
+    const w = weekLabel();
+    const s = state.slot ? state.slot : "—";
+    elSum.textContent = `${fmtTxt} • ${t} • ${w} • ${s}`;
+  }
+
+  function persist(showToast){
+    try{
+      const payload = {
+        fmt: state.fmt,
+        topicId: state.topicId,
+        weekId: state.weekId,
+        slot: state.slot,
+        topicLabel: topicLabel(),
+        weekLabel: weekLabel(),
+        savedAt: Date.now()
+      };
+      localStorage.setItem(LS_KEY, JSON.stringify(payload));
+      if(showToast){
+        btnSave.textContent = "Gespeichert ✓";
+        setTimeout(()=>btnSave.textContent="Auswahl speichern", 1200);
+      }
+    }catch(e){}
+  }
+
+  function restore(){
+    try{
+      const raw = localStorage.getItem(LS_KEY);
+      if(!raw) return;
+      const p = JSON.parse(raw);
+      if(p && p.fmt) state.fmt = p.fmt;
+      if(p && p.topicId) state.topicId = p.topicId;
+      if(p && p.weekId) state.weekId = p.weekId;
+      if(p && p.slot) state.slot = p.slot;
+    }catch(e){}
+  }
+
+  function applyStateToUI(){
+    elFmt.value = state.fmt;
+    renderTopics();
+    renderWeeks();
+    elWeek.value = state.weekId;
+    renderSlots();
+    renderSummary();
+  }
+
+  elFmt.addEventListener("change", ()=>{
+    state.fmt = elFmt.value;
+    state.slot = "";           /* Slot neu */
+    state.topicId = "";        /* Topic neu */
+    renderTopics();
+    renderSlots();
+    renderSummary();
+    persist(false);
+  });
+
+  elTopic.addEventListener("change", ()=>{
+    state.topicId = elTopic.value;
+    renderSummary();
+    persist(false);
+  });
+
+  elWeek.addEventListener("change", ()=>{
+    state.weekId = elWeek.value;
+    renderSummary();
+    persist(false);
+  });
+
+  btnSave.addEventListener("click", ()=>persist(true));
+
+  btnClear.addEventListener("click", ()=>{
+    state.slot = "";
+    state.topicId = "";
+    state.weekId = WEEKS[0].id;
+    renderTopics();
+    renderWeeks();
+    renderSlots();
+    renderSummary();
+    persist(true);
+  });
+
+  /* ========= Laufband (DE-only) ========= */
+  const bandTexts = [
+    "🗓️ Termin wählen → Ticket → Link",
+    "🆓 Bewerbungsgespräch: Passung klären",
+    "💳 Webinar/Training: Ergebnis liefern",
+    "🏷️ Mitglieder: 20% Rabatt",
+    "🎯 Fokus: Wachstum & Umsetzung",
+    "📌 Next Step statt Hängepartie",
+    "⏱️ Pünktlich starten, klar enden",
+    "🚀 Momentum ist die Währung"
+  ];
+  function buildMarqueeLine(texts){
+    const line = document.createElement('div');
+    line.style.display='flex';
+    line.style.alignItems='center';
+    line.style.gap = getComputedStyle(document.documentElement).getPropertyValue('--marquee-gap') || '3cm';
+    [...texts, ...texts].forEach(t=>{
+      const span=document.createElement('span');
+      span.textContent=t;
+      line.appendChild(span);
+    });
+    return line.innerHTML;
+  }
+  (function renderMarquee(){
+    const mq = document.getElementById('mqA');
+    if(!mq) return;
+    mq.innerHTML = buildMarqueeLine(bandTexts);
+  })();
+
+  /* ========= init ========= */
+  restore();
+  applyStateToUI();
+
+  /* ========= nocache für interne Links ========= */
+  (function(){
+    const t = Date.now();
+    document.querySelectorAll('a[data-internal]').forEach(a=>{
+      try{
+        const u = new URL(a.getAttribute('href'), location.href);
+        u.searchParams.set('nocache', t);
+        a.href = u.pathname + u.search + u.hash;
+      }catch(e){}
+    });
+  })();
+
+  /* ========= Scroll-Position bei Reload deaktivieren ========= */
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+  }
+</script>
+
+</body>
+</html>
