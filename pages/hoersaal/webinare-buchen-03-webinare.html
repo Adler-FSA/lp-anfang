@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hörsaal – Webinare buchen (03) – Webinare</title>
+<meta name="robots" content="noindex,nofollow" />
+
+<style>
+  :root{
+    --text:#f2f2f2;
+    --muted:#b9c2d0;
+    --gold:#d4af37;
+    --turq:#1cc2a0;
+    --bg-card: rgba(15,15,25,.78);
+    --radius:16px;
+    --shadow:0 26px 50px rgba(0,0,0,.55);
+    --glow:0 0 26px rgba(212,175,55,.45), 0 10px 28px rgba(0,0,0,.55);
+    --maxw:1200px;
+
+    /* Laufband leserlicher */
+    --marquee-speed:60s;
+    --marquee-gap:3.2cm;
+  }
+
+  html,body{height:100%}
+  body{
+    margin:0;background:#000;color:var(--text);
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,sans-serif;
+    overflow-x:hidden;
+  }
+  h1,h2{font-family:Montserrat,system-ui,sans-serif;margin:0 0 12px}
+  h1{font-size:2.4rem;line-height:1.2}
+  h2{font-size:1.9rem;line-height:1.25}
+
+  /* ===== Hintergrund-VIDEO (Adlerflug) ===== */
+  .bg-video{position:fixed;inset:0;z-index:-2;overflow:hidden;background:#000}
+  .bg-video video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.86)}
+
+  /* ===== Layout (schwebend über dem Video) ===== */
+  main{position:relative;z-index:1}
+  section{padding:90px 0}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  .grid{display:grid;gap:38px}
+  .cols-2{grid-template-columns:repeat(2,1fr)}
+  @media (max-width:980px){.cols-2{grid-template-columns:1fr}}
+
+  /* ===== Glow & Floating ===== */
+  @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-7px)}100%{transform:translateY(0)}}
+  @keyframes pulse{0%{box-shadow:var(--shadow)}50%{box-shadow:0 0 34px rgba(212,175,55,.55), 0 14px 34px rgba(0,0,0,.55)}100%{box-shadow:var(--shadow)}}
+  .floating{animation:float 11s ease-in-out infinite, pulse 11s ease-in-out infinite;will-change:transform,box-shadow}
+
+  /* ===== Cards ===== */
+  .card{
+    background:var(--bg-card);
+    border:1px solid rgba(212,175,55,.18);
+    border-radius:var(--radius);
+    box-shadow:var(--glow);
+    padding:32px;
+    backdrop-filter: blur(4px);
+  }
+
+  /* ===== Laufband ===== */
+  .laufband-wrap{margin:42px auto 40px;max-width:var(--maxw);padding:0 24px}
+  .laufband{position:relative;overflow:hidden;border:2px solid var(--gold);border-radius:12px;background:rgba(0,0,0,.35);box-shadow:var(--glow)}
+  .laufband::before,.laufband::after{content:"";position:absolute;top:0;bottom:0;width:80px;z-index:1}
+  .laufband::before{left:0;background:linear-gradient(90deg,#000,transparent)}
+  .laufband::after{right:0;background:linear-gradient(-90deg,#000,transparent)}
+  .marquee{
+    display:flex;align-items:center;gap:var(--marquee-gap);white-space:nowrap;
+    padding:16px 0;
+    will-change:transform;
+    animation:marq var(--marquee-speed) linear infinite;
+    font-size:1.22rem;
+    letter-spacing:.2px;
+    font-weight:700;
+  }
+  .marquee > span{display:inline-flex;align-items:center;gap:.6rem}
+  @keyframes marq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+  /* ===== Accordion ===== */
+  .acc-box{padding:6px 2px}
+  .acc-row{border-bottom:1px solid rgba(255,255,255,.15);padding:14px 0}
+  .acc-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:800;color:var(--gold);cursor:pointer}
+  .acc-head .txt{display:flex;align-items:center;gap:10px}
+  .acc-head .chev{transition:transform .25s ease;opacity:.9}
+  .acc-row.open .chev{transform:rotate(90deg)}
+  .acc-body{display:none;color:#e8eaf1;line-height:1.8;margin-top:10px}
+  .acc-row.open .acc-body{display:block}
+
+  /* ===== CTA ===== */
+  .btn{display:inline-block;background:var(--gold);color:#000;padding:14px 22px;border-radius:999px;font-weight:800;text-decoration:none}
+  .btn:hover{filter:brightness(1.05)}
+  .btn.full{display:block;text-align:center}
+
+  .btnLine{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .btnGhost{
+    display:inline-block;
+    border:1px solid rgba(212,175,55,.38);
+    background:rgba(0,0,0,.18);
+    color:var(--text);
+    padding:14px 22px;border-radius:999px;
+    font-weight:800;text-decoration:none;
+  }
+  .btnGhost:hover{background:rgba(0,0,0,.26)}
+
+  /* ===== Kino-Frame ===== */
+  #kino .frame{
+    position:relative;border:2px solid var(--gold);border-radius:16px;aspect-ratio:16/9;
+    box-shadow:var(--glow);overflow:hidden;background:transparent;backdrop-filter:none
+  }
+  #kino iframe{width:100%;height:100%;border:0;background:transparent}
+
+  /* Hilfsklasse */
+  .hidden{display:none !important}
+
+  /* mehr Luft am Startbereich */
+  #hero{padding-top:110px}
+
+  /* Karten-Grid */
+  .cardsGrid{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:14px;
+    margin-top:14px;
+  }
+  @media (max-width:980px){.cardsGrid{grid-template-columns:1fr}}
+  .mini{
+    border-radius:14px;
+    border:1px solid rgba(212,175,55,.18);
+    background:rgba(0,0,0,.22);
+    padding:16px 18px;
+  }
+  .mini h3{
+    margin:0 0 8px;
+    font-family:Montserrat,system-ui,sans-serif;
+    font-size:1.15rem;
+    color:var(--gold);
+    letter-spacing:.2px;
+  }
+  .mini p{margin:0;color:var(--text);line-height:1.7}
+  .mini .sub{margin-top:8px;color:var(--muted);line-height:1.6}
+  .pillRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .pill{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:7px 10px;border-radius:999px;
+    border:1px solid rgba(212,175,55,.25);
+    background:rgba(0,0,0,.18);
+    color:#f6e6b0;
+    font-weight:800;
+    font-size:.92rem;
+    white-space:nowrap;
+  }
+
+  /* unten: zurück/weiter */
+  #bottomNav{padding:60px 0 80px}
+</style>
+</head>
+
+<body>
+
+<!-- Globales Menü NICHT verwenden – nur Lang + Musik aus euren bestehenden JS -->
+<div id="menu-root"></div>
+
+<!-- ===== Hintergrund-VIDEO (Adlerflug) ===== -->
+<div class="bg-video" aria-hidden="true">
+  <video autoplay loop muted playsinline>
+    <source src="../../library/videos/adlerflug.mp4" type="video/mp4">
+    Dein Browser unterstützt kein MP4-Video.
+  </video>
+</div>
+
+<main>
+  <!-- ===== HERO ===== -->
+  <section id="hero">
+    <div class="wrap grid cols-2">
+      <div class="card floating">
+        <h1>
+          Webinare, die Umsatz auslösen<br>
+          <span style="color:var(--turq)">Akquise • Telefon • Rollen</span>
+        </h1>
+
+        <p>
+          Diese Webinare sind nicht „Nice-to-have“. Sie sind der <strong>Club-Motor</strong>:
+          Menschen kommen rein → verstehen den Flow → setzen um → werden Mitglied / Promotor / Speaker / Partner.
+        </p>
+
+        <p><strong>Wichtig:</strong> Bewerbungsgespräche (Rollen/Team) sind kostenlos. Webinare/Trainings sind kostenpflichtig.</p>
+
+        <div class="btnLine" style="margin-top:14px">
+          <a href="#webinar" class="btn">Webinar-Formate ansehen</a>
+          <a class="btnGhost" href="./webinare-buchen-07.html" data-internal>Direkt buchen →</a>
+        </div>
+
+        <p style="margin-top:14px;color:var(--muted);line-height:1.7">
+          Nächster Schritt: Du wählst das passende Format – danach geht es in den Kalender (Seite 07).
+        </p>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:22px">
+        <div class="card floating" style="font-style:italic;text-align:center">
+          „Mehr Reichweite ohne Prozess ist nur Lärm. Mit Prozess wird es Wachstum.“
+        </div>
+
+        <div class="card floating">
+          <h2 style="margin-bottom:10px">Was ein Webinar hier leisten muss</h2>
+          <ul style="margin:0;padding-left:18px;line-height:1.9">
+            <li>🎯 Klarer Outcome (was kann ich danach?)</li>
+            <li>📞 Reproduzierbar (jede Woche wiederholbar)</li>
+            <li>🧠 Einfacher Einstieg (auch für Neue aus Crossmarketing)</li>
+            <li>🚀 Nächster Schritt ist eingebaut (Mitglied/Rolle/Partner)</li>
+          </ul>
+          <p style="margin-top:12px;font-weight:600;color:var(--muted);text-align:center">
+            Ergebnis: <strong>Teilnehmer → Umsetzung → Bindung</strong>.
+          </p>
+        </div>
+
+        <div class="card floating" style="font-style:italic;text-align:center">
+          „Ein guter Termin ersetzt 100 PDFs.“
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Laufband ===== -->
+  <section id="laufband-sec">
+    <div class="laufband-wrap">
+      <div class="laufband floating">
+        <div class="marquee" id="mqA"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== WEBINAR-FORMATE ===== -->
+  <section id="webinar">
+    <div class="wrap">
+      <div class="card floating">
+        <h2>Webinar-Formate (Standard)</h2>
+        <p style="color:var(--muted);line-height:1.7">
+          Neutraler Platzhalter: Die genauen Termine/Slots werden im Buchungsbereich gewählt (Seite 07).
+          Hier siehst du die Formate, damit du weißt, was du buchst.
+        </p>
+
+        <div class="cardsGrid" aria-label="Webinar Formate">
+          <div class="mini">
+            <h3>Akquise-Kickstart (Einsteiger)</h3>
+            <p>Für neue Kontakte: Einstieg, Gesprächsaufbau, Ziel & nächster Schritt – ohne Druck, aber klar.</p>
+            <div class="pillRow">
+              <span class="pill">⏱️ 60–75 Min</span>
+              <span class="pill">🎯 Einstieg</span>
+              <span class="pill">📞 Gespräch</span>
+            </div>
+            <div class="sub">Ideal, wenn du neu bist oder wieder „rein kommen“ willst.</div>
+          </div>
+
+          <div class="mini">
+            <h3>Telefontraining (Praxis)</h3>
+            <p>Einwände, Struktur, Tonalität, Abschlussfragen. Fokus: Routine, nicht Theorie.</p>
+            <div class="pillRow">
+              <span class="pill">⏱️ 75–90 Min</span>
+              <span class="pill">📞 Praxis</span>
+              <span class="pill">🧩 Einwände</span>
+            </div>
+            <div class="sub">Für Promotoren & Menschen, die aktiv wachsen wollen.</div>
+          </div>
+
+          <div class="mini">
+            <h3>Hörsaal-Besprechung (Team)</h3>
+            <p>Projekt- und Partnerstrecken: Was steht an, was blockiert, was ist der nächste Hebel?</p>
+            <div class="pillRow">
+              <span class="pill">⏱️ 60 Min</span>
+              <span class="pill">👥 Team</span>
+              <span class="pill">🎯 Fokus</span>
+            </div>
+            <div class="sub">Wenig reden – klar entscheiden – weiter.</div>
+          </div>
+
+          <div class="mini">
+            <h3>Workshop-Session (Intensiv)</h3>
+            <p>Für konkrete Umsetzung: z.B. Pitch bauen, Partnerstrecke aufsetzen, Event-Flow vorbereiten.</p>
+            <div class="pillRow">
+              <span class="pill">⏱️ 90–120 Min</span>
+              <span class="pill">🧰 Umsetzung</span>
+              <span class="pill">🚀 Wachstum</span>
+            </div>
+            <div class="sub">Für Teams/Partner, die schnell Output brauchen.</div>
+          </div>
+        </div>
+
+        <div class="btnLine" style="margin-top:18px;justify-content:flex-end">
+          <a class="btnGhost" href="./webinare-buchen-02-ueberblick.html" data-internal>← zurück</a>
+          <a class="btn" href="./webinare-buchen-04.html" data-internal>weiter →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Reise (Accordion) ===== -->
+  <section id="reise">
+    <div class="wrap">
+      <div class="card floating">
+        <h2 style="margin-bottom:8px">Was passiert nach dem Webinar?</h2>
+
+        <div class="acc-box">
+          <div class="acc-row">
+            <div class="acc-head">
+              <div class="txt">✅ Umsetzung statt „noch mehr Input“</div>
+              <div class="chev">›</div>
+            </div>
+            <div class="acc-body">
+              Jeder Termin endet mit einem klaren nächsten Schritt: Termin 2, Rollenweg oder Partnerstrecke.
+            </div>
+          </div>
+
+          <div class="acc-row">
+            <div class="acc-head">
+              <div class="txt">👥 Rollenwege: Promotor / Speaker / Partner</div>
+              <div class="chev">›</div>
+            </div>
+            <div class="acc-body">
+              Wer ernst macht, bekommt einen strukturierten Weg. Bewerbungsgespräche sind kostenlos (Seite 06).
+            </div>
+          </div>
+
+          <div class="acc-row">
+            <div class="acc-head">
+              <div class="txt">🏛️ Club-Flow: Bindung & Wachstum</div>
+              <div class="chev">›</div>
+            </div>
+            <div class="acc-body">
+              Das Ziel ist nicht nur Teilnahme – sondern Mitgliedschaft, Teamaufbau, Partnergewinnung.
+            </div>
+          </div>
+        </div>
+
+        <p style="margin-top:14px;color:var(--muted);line-height:1.7">
+          Hinweis: Preise/Tickets sind auf Seite 08. Buchung/Slots sind auf Seite 07.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Kino (YouTube) ===== -->
+  <section id="kino">
+    <div class="wrap" style="max-width:960px">
+      <div class="frame floating">
+        <iframe
+          src="https://www.youtube.com/embed/miWBKSszEIw?autoplay=0&mute=0&controls=1&modestbranding=1&playsinline=1"
+          title="Kino – Webinare / Wachstum"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Unten: zurück/weiter ===== -->
+  <section id="bottomNav">
+    <div class="wrap">
+      <div class="card floating">
+        <div class="btnLine" style="justify-content:space-between">
+          <a class="btnGhost" href="./webinare-buchen-02-ueberblick.html" data-internal>← zurück</a>
+          <a class="btn" href="./webinare-buchen-04.html" data-internal>weiter →</a>
+        </div>
+        <p style="margin-top:12px;color:var(--muted);line-height:1.7">
+          Nächster Schritt (Seite 04): Themen – Akquise, Verkaufstraining, Workshops, etc.
+        </p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ===== Globale JS (bestehende Dateien) ===== -->
+<script src="../../library/js/lang-switcher.js"></script>
+<script src="../../library/js/music-button.js"></script>
+
+<script>
+  /* ========= Accordion ========= */
+  document.querySelectorAll('.acc-head').forEach(h=>{
+    h.addEventListener('click',()=>h.parentElement.classList.toggle('open'));
+  });
+
+  /* ========= Laufband (DE-only) ========= */
+  const bandTexts = [
+    "🚀 Webinare = Wachstumsmotor",
+    "📞 Akquise & Telefonroutine – reproduzierbar",
+    "🎯 Einwand-Routine statt Zufall",
+    "👥 Rollenwege: Promotor / Speaker / Partner",
+    "🗓️ Kalender wählen → Ticket buchen → teilnehmen",
+    "⚡ Umsetzung nach jedem Termin",
+    "🏛️ Club-Aufbau: mehr Mitglieder, mehr Team",
+    "🧩 Struktur statt Chaos"
+  ];
+  function buildMarqueeLine(texts){
+    const line = document.createElement('div');
+    line.style.display='flex';
+    line.style.alignItems='center';
+    line.style.gap = getComputedStyle(document.documentElement).getPropertyValue('--marquee-gap') || '3cm';
+    [...texts, ...texts].forEach(t=>{
+      const span=document.createElement('span');
+      span.textContent=t;
+      line.appendChild(span);
+    });
+    return line.innerHTML;
+  }
+  (function renderMarquee(){
+    const mq = document.getElementById('mqA');
+    if(!mq) return;
+    mq.innerHTML = buildMarqueeLine(bandTexts);
+  })();
+
+  /* ========= nocache für interne Links ========= */
+  (function(){
+    const t = Date.now();
+    document.querySelectorAll('a[data-internal]').forEach(a=>{
+      try{
+        const u = new URL(a.getAttribute('href'), location.href);
+        u.searchParams.set('nocache', t);
+        a.href = u.pathname + u.search + u.hash;
+      }catch(e){}
+    });
+  })();
+
+  /* ========= Scroll-Position bei Reload deaktivieren ========= */
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+  }
+</script>
+
+</body>
+</html>
