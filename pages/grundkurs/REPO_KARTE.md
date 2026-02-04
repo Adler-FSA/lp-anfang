@@ -800,6 +800,7 @@
     │   │   ├── demo-hoersaal-starter-06-ticketseite-checkout.html
     │   │   ├── demo-hoersaal-starter-07-export-summary.html
     │   │   ├── demo-hoersaal-starter-08-import-tool-locked.html
+    │   │   ├── preisliste.html
     │   │   ├── produkt-01-club-mitgliedschaft.html
     │   │   ├── produkt-05-hoersaal-angebot-lizenz.html
     │   │   ├── produkt-05-hoersaal-crossmarketing.html
@@ -815,6 +816,7 @@
     │   │   ├── produkt-08-nft-basis-orientierung.html
     │   │   ├── produkt-09-buch.html
     │   │   ├── produkt-beschreibungen-und-datenblaetter.html
+    │   │   ├── produkt-beschreibungen.html
     │   │   ├── produkt-leadmaschine.html
     │   │   ├── produkt-liveformate.html
     │   │   ├── produkt-weekend-setup.html
@@ -1005,4 +1007,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.02.2026, 06:43)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.02.2026, 07:40)_
