@@ -836,6 +836,8 @@
     │   │   ├── share-adler.html
     │   │   ├── share-akademie.html
     │   │   └── share-netzwerk.html
+    │   ├── sprecher/
+    │   │   └── kickoff-sprecher-tools.html
     │   ├── timecells/
     │   │   ├── index.html
     │   │   ├── mission.html
@@ -1010,4 +1012,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.02.2026, 19:35)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.02.2026, 20:28)_
