@@ -1,0 +1,836 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FSA-Club – Visitenkarten Tool</title>
+  <meta name="description" content="FSA-Club Visitenkarten Tool: Eingabe → Live-Vorschau → A4 Druckbogen (8 Karten) als PDF/Druck. DE/EN, LocalStorage." />
+  <meta name="robots" content="noindex,nofollow" />
+
+  <style>
+    :root{
+      --bg:#050814; --bg2:#020617;
+      --panel:rgba(15,23,42,.88);
+      --txt:#e9eef7; --muted:#a9b4c7;
+      --gold:#d4af37; --gold2:#f2d37a;
+      --line:rgba(212,175,55,.35);
+      --shadow:0 24px 60px rgba(0,0,0,.55);
+      --glow:0 0 26px rgba(212,175,55,.25), 0 10px 28px rgba(0,0,0,.55);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--txt);
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(212,175,55,.18), transparent 60%),
+        radial-gradient(900px 700px at 80% 30%, rgba(94,168,255,.14), transparent 55%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+    }
+
+    .wrap{
+      max-width:1180px;
+      margin:28px auto 60px;
+      padding:0 18px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      padding:12px 14px;
+      background:linear-gradient(180deg, rgba(15,23,42,.92), rgba(15,23,42,.72));
+      border:1px solid var(--line);
+      border-radius:14px;
+      box-shadow:var(--shadow);
+    }
+
+    .brand svg{width:28px;height:28px;flex:0 0 28px}
+    .brand b{letter-spacing:.4px}
+    .brand .sub{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+
+    .lang{
+      display:flex; gap:8px; align-items:center;
+      padding:10px;
+      background:rgba(15,23,42,.60);
+      border:1px solid var(--line);
+      border-radius:14px;
+      box-shadow:var(--glow);
+    }
+    .btn{
+      appearance:none; border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(212,175,55,.18), rgba(15,23,42,.65));
+      color:var(--txt);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:700;
+      letter-spacing:.2px;
+      transition:transform .12s ease, border-color .12s ease;
+      user-select:none;
+    }
+    .btn:hover{transform:translateY(-1px); border-color:rgba(212,175,55,.55)}
+    .btn:active{transform:translateY(0px)}
+    .btn.primary{
+      background:linear-gradient(180deg, rgba(212,175,55,.34), rgba(212,175,55,.12));
+      border-color:rgba(212,175,55,.60);
+      box-shadow:0 0 22px rgba(212,175,55,.20);
+    }
+    .btn.ghost{
+      background:rgba(15,23,42,.55);
+    }
+    .btn.small{padding:8px 10px; font-weight:800}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap:16px;
+      margin-top:14px;
+    }
+
+    .panel{
+      background:linear-gradient(180deg, rgba(15,23,42,.92), rgba(15,23,42,.72));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .panel h2{
+      margin:0;
+      padding:16px 18px;
+      font-size:15px;
+      letter-spacing:.35px;
+      border-bottom:1px solid rgba(212,175,55,.18);
+      background:linear-gradient(90deg, rgba(212,175,55,.10), transparent 50%);
+    }
+
+    .panel .body{padding:16px 18px}
+
+    .form{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .field{display:flex; flex-direction:column; gap:6px}
+    label{
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:.25px;
+    }
+    input, select{
+      width:100%;
+      padding:12px 12px;
+      border-radius:12px;
+      border:1px solid rgba(212,175,55,.25);
+      background:rgba(2,6,23,.55);
+      color:var(--txt);
+      outline:none;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.15);
+    }
+    input::placeholder{color:rgba(169,180,199,.65)}
+    .row2{grid-column:span 2}
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:14px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .actions .left, .actions .right{display:flex; gap:10px; flex-wrap:wrap}
+
+    .hint{
+      margin-top:12px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.35;
+    }
+
+    /* -------- Card Preview (single) -------- */
+    .previewWrap{
+      display:grid;
+      gap:14px;
+    }
+
+    .cardFrame{
+      padding:14px;
+      border-radius:18px;
+      border:1px solid rgba(212,175,55,.25);
+      background:
+        radial-gradient(650px 260px at 20% 0%, rgba(212,175,55,.18), transparent 55%),
+        radial-gradient(450px 220px at 90% 40%, rgba(242,211,122,.10), transparent 55%),
+        linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.10));
+      box-shadow:var(--glow);
+    }
+
+    /* Real print size preview */
+    .card{
+      width:85mm;
+      height:55mm;
+      border-radius:4.2mm;
+      position:relative;
+      overflow:hidden;
+      background:
+        radial-gradient(180mm 80mm at 30% 0%, rgba(212,175,55,.14), transparent 55%),
+        radial-gradient(160mm 70mm at 90% 60%, rgba(242,211,122,.10), transparent 60%),
+        linear-gradient(180deg, #0a0d12, #05070b);
+      border:1px solid rgba(212,175,55,.55);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,.65) inset,
+        0 10px 26px rgba(0,0,0,.55);
+    }
+
+    .card:before{
+      content:"";
+      position:absolute; inset:2.2mm;
+      border-radius:3.4mm;
+      border:1px solid rgba(212,175,55,.28);
+      pointer-events:none;
+    }
+    .card:after{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        radial-gradient(40mm 18mm at 70% 15%, rgba(255,255,255,.06), transparent 55%),
+        radial-gradient(55mm 22mm at 15% 90%, rgba(212,175,55,.08), transparent 60%);
+      mix-blend-mode:screen;
+      opacity:.8;
+      pointer-events:none;
+    }
+
+    .cardInner{
+      position:absolute; inset:0;
+      padding:6.2mm 7mm;
+      display:flex;
+      flex-direction:column;
+      gap:2.8mm;
+    }
+
+    .cardTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:4mm;
+      padding-bottom:2mm;
+      border-bottom:1px solid rgba(212,175,55,.20);
+    }
+    .club{
+      font-weight:900;
+      letter-spacing:1.2px;
+      color:rgba(242,211,122,.96);
+      font-size:4.2mm;
+    }
+    .role{
+      font-weight:800;
+      letter-spacing:.4px;
+      color:rgba(212,175,55,.92);
+      font-size:3.4mm;
+      text-align:right;
+      white-space:nowrap;
+    }
+
+    .name{
+      margin-top:1.2mm;
+      font-size:6.2mm;
+      line-height:1.05;
+      font-weight:950;
+      letter-spacing:.2px;
+      color:rgba(242,211,122,.98);
+      text-shadow:0 0 18px rgba(212,175,55,.15);
+    }
+    .addr{
+      font-size:3.6mm;
+      color:rgba(233,238,247,.92);
+      line-height:1.18;
+    }
+
+    .contact{
+      margin-top:auto;
+      display:grid;
+      grid-template-columns:1fr;
+      gap:1.4mm;
+      font-size:3.6mm;
+      color:rgba(233,238,247,.92);
+    }
+    .contactRow{
+      display:flex;
+      justify-content:space-between;
+      gap:4mm;
+      border-top:1px solid rgba(212,175,55,.12);
+      padding-top:1.4mm;
+    }
+    .contactRow:first-child{
+      border-top:none;
+      padding-top:0;
+    }
+    .contact .mut{color:rgba(169,180,199,.92)}
+    .contact .val{font-weight:800; color:rgba(242,211,122,.92)}
+
+    .miniNote{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.35;
+      margin:0;
+    }
+
+    /* -------- Print Sheet (A4 8-up) -------- */
+    #printArea{
+      display:none;
+    }
+
+    .sheet{
+      width:210mm;
+      min-height:297mm;
+      background:#fff;
+      color:#000;
+      padding:15mm;
+    }
+
+    .sheetGrid{
+      display:grid;
+      grid-template-columns: repeat(2, 85mm);
+      grid-auto-rows: 55mm;
+      column-gap:10mm;
+      row-gap:7mm;
+      align-content:start;
+      justify-content:start;
+    }
+
+    /* Cut marks wrapper (optional) */
+    .cutWrap{
+      width:85mm; height:55mm;
+      position:relative;
+    }
+
+    .cutWrap[data-cuts="1"] .cut:before,
+    .cutWrap[data-cuts="1"] .cut:after{
+      content:"";
+      position:absolute;
+      background:#000;
+      opacity:.45;
+    }
+    /* simple corner marks */
+    .cutWrap[data-cuts="1"] .cut.tl:before{left:-3mm; top:0; width:3mm; height:.25mm;}
+    .cutWrap[data-cuts="1"] .cut.tl:after{left:0; top:-3mm; width:.25mm; height:3mm;}
+    .cutWrap[data-cuts="1"] .cut.tr:before{right:-3mm; top:0; width:3mm; height:.25mm;}
+    .cutWrap[data-cuts="1"] .cut.tr:after{right:0; top:-3mm; width:.25mm; height:3mm;}
+    .cutWrap[data-cuts="1"] .cut.bl:before{left:-3mm; bottom:0; width:3mm; height:.25mm;}
+    .cutWrap[data-cuts="1"] .cut.bl:after{left:0; bottom:-3mm; width:.25mm; height:3mm;}
+    .cutWrap[data-cuts="1"] .cut.br:before{right:-3mm; bottom:0; width:3mm; height:.25mm;}
+    .cutWrap[data-cuts="1"] .cut.br:after{right:0; bottom:-3mm; width:.25mm; height:3mm;}
+
+    /* Print card: keep same dimensions, but ensure clean */
+    .card.print{
+      box-shadow:none;
+    }
+
+    /* -------- Print Rules -------- */
+    @page{
+      size:A4;
+      margin:0;
+    }
+    @media print{
+      body{background:#fff}
+      .wrap{display:none !important}
+      #printArea{display:block !important}
+      .sheet{padding:15mm}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap" id="ui">
+    <div class="topbar">
+      <div class="brand">
+        <!-- Inline SVG (no external icons) -->
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <defs>
+            <linearGradient id="gGold" x1="0" x2="1">
+              <stop offset="0" stop-color="#d4af37"/>
+              <stop offset="1" stop-color="#f2d37a"/>
+            </linearGradient>
+          </defs>
+          <path d="M32 4c10 8 18 8 26 8 0 30-10 40-26 48C16 52 6 42 6 12c8 0 16 0 26-8z"
+                fill="rgba(15,23,42,.2)" stroke="url(#gGold)" stroke-width="2"/>
+          <path d="M20 28h24v6H20z" fill="url(#gGold)" opacity=".9"/>
+          <path d="M24 20h16v6H24z" fill="url(#gGold)" opacity=".7"/>
+          <path d="M24 36h16v6H24z" fill="url(#gGold)" opacity=".7"/>
+        </svg>
+        <div>
+          <b data-i18n="title">FSA-Club – Visitenkarten Tool</b>
+          <span class="sub" data-i18n="subtitle">Eingabe → Vorschau → A4 Druckbogen (8 Karten)</span>
+        </div>
+      </div>
+
+      <div class="lang">
+        <button class="btn small ghost" id="btnDE" type="button">DE</button>
+        <button class="btn small ghost" id="btnEN" type="button">EN</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Left: Form -->
+      <section class="panel">
+        <h2 data-i18n="panel_input">Eingabe</h2>
+        <div class="body">
+          <div class="form" id="form">
+            <div class="field">
+              <label for="firstName" data-i18n="firstName">Vorname</label>
+              <input id="firstName" type="text" placeholder="Max" autocomplete="given-name" />
+            </div>
+            <div class="field">
+              <label for="lastName" data-i18n="lastName">Nachname</label>
+              <input id="lastName" type="text" placeholder="Mustermann" autocomplete="family-name" />
+            </div>
+
+            <div class="field row2">
+              <label for="street" data-i18n="street">Straße + Hausnummer</label>
+              <input id="street" type="text" placeholder="Musterweg 16" autocomplete="street-address" />
+            </div>
+
+            <div class="field">
+              <label for="zip" data-i18n="zip">PLZ</label>
+              <input id="zip" type="text" placeholder="12345" inputmode="numeric" autocomplete="postal-code" />
+            </div>
+            <div class="field">
+              <label for="city" data-i18n="city">Ort</label>
+              <input id="city" type="text" placeholder="Musterhausen" autocomplete="address-level2" />
+            </div>
+
+            <div class="field">
+              <label for="phone" data-i18n="phone">Telefon / Mobil</label>
+              <input id="phone" type="text" placeholder="01234 / 567890" autocomplete="tel" />
+            </div>
+            <div class="field">
+              <label for="email" data-i18n="email">E-Mail</label>
+              <input id="email" type="email" placeholder="max@mustermann.com" autocomplete="email" />
+            </div>
+
+            <div class="field row2">
+              <label for="web" data-i18n="web">Webseite</label>
+              <input id="web" type="text" placeholder="max.mustermann.de" autocomplete="url" />
+            </div>
+
+            <div class="field row2">
+              <label for="role" data-i18n="role">Tätigkeit</label>
+              <select id="role"></select>
+            </div>
+
+            <div class="field row2">
+              <label for="showCuts" data-i18n="cuts">Schnittmarken (optional)</label>
+              <select id="showCuts">
+                <option value="0" data-i18n="cuts_off">Aus</option>
+                <option value="1" data-i18n="cuts_on">An</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="actions">
+            <div class="left">
+              <button class="btn primary" id="btnPrint" type="button" data-i18n="btn_print">Drucken / PDF</button>
+              <button class="btn" id="btnSave" type="button" data-i18n="btn_save">Daten merken</button>
+              <button class="btn ghost" id="btnReset" type="button" data-i18n="btn_reset">Zurücksetzen</button>
+            </div>
+            <div class="right">
+              <button class="btn ghost" id="btnCopy" type="button" data-i18n="btn_copy">Daten kopieren</button>
+            </div>
+          </div>
+
+          <div class="hint" data-i18n="hint">
+            Hinweis: Für PDF einfach „Drucken“ → „Als PDF speichern“. Beim Drucken wird nur der A4-Bogen ausgegeben (ohne Eingabemaske).
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Preview -->
+      <section class="panel">
+        <h2 data-i18n="panel_preview">Vorschau</h2>
+        <div class="body previewWrap">
+          <div class="cardFrame">
+            <div class="card" id="cardPreview" aria-label="Visitenkarten-Vorschau">
+              <div class="cardInner">
+                <div class="cardTop">
+                  <div class="club">FSA-CLUB</div>
+                  <div class="role" id="pRole">Sprecher</div>
+                </div>
+
+                <div class="name" id="pName">Max Mustermann</div>
+
+                <div class="addr" id="pAddr">
+                  Musterweg 16<br>
+                  12345 Musterhausen
+                </div>
+
+                <div class="contact">
+                  <div class="contactRow">
+                    <span class="mut" id="lblPhone">Tel</span>
+                    <span class="val" id="pPhone">01234 / 567890</span>
+                  </div>
+                  <div class="contactRow">
+                    <span class="mut" id="lblEmail">Mail</span>
+                    <span class="val" id="pEmail">max@mustermann.com</span>
+                  </div>
+                  <div class="contactRow">
+                    <span class="mut" id="lblWeb">Web</span>
+                    <span class="val" id="pWeb">max.mustermann.de</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <p class="miniNote" data-i18n="note">
+            Druckformat: 85×55 mm. A4-Bogen: 8 Karten (2×4).
+          </p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- PRINT ONLY -->
+  <div id="printArea">
+    <div class="sheet">
+      <div class="sheetGrid" id="sheetGrid"></div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const LS_KEY = "fsa_club_visitenkarte_v1";
+      let lang = "de";
+
+      const i18n = {
+        de:{
+          title:"FSA-Club – Visitenkarten Tool",
+          subtitle:"Eingabe → Vorschau → A4 Druckbogen (8 Karten)",
+          panel_input:"Eingabe",
+          panel_preview:"Vorschau",
+          firstName:"Vorname",
+          lastName:"Nachname",
+          street:"Straße + Hausnummer",
+          zip:"PLZ",
+          city:"Ort",
+          phone:"Telefon / Mobil",
+          email:"E-Mail",
+          web:"Webseite",
+          role:"Tätigkeit",
+          cuts:"Schnittmarken (optional)",
+          cuts_off:"Aus",
+          cuts_on:"An",
+          btn_print:"Drucken / PDF",
+          btn_save:"Daten merken",
+          btn_reset:"Zurücksetzen",
+          btn_copy:"Daten kopieren",
+          hint:"Hinweis: Für PDF einfach „Drucken“ → „Als PDF speichern“. Beim Drucken wird nur der A4-Bogen ausgegeben (ohne Eingabemaske).",
+          note:"Druckformat: 85×55 mm. A4-Bogen: 8 Karten (2×4).",
+          labels:{tel:"Tel", mail:"Mail", web:"Web"},
+          roles:["Promotor","Mentor","Sprecher","Eventmanagement"]
+        },
+        en:{
+          title:"FSA Club – Business Card Tool",
+          subtitle:"Input → Live preview → A4 print sheet (8 cards)",
+          panel_input:"Input",
+          panel_preview:"Preview",
+          firstName:"First name",
+          lastName:"Last name",
+          street:"Street + number",
+          zip:"ZIP",
+          city:"City",
+          phone:"Phone / Mobile",
+          email:"Email",
+          web:"Website",
+          role:"Role",
+          cuts:"Cut marks (optional)",
+          cuts_off:"Off",
+          cuts_on:"On",
+          btn_print:"Print / PDF",
+          btn_save:"Save data",
+          btn_reset:"Reset",
+          btn_copy:"Copy data",
+          hint:"Tip: To create a PDF, click “Print” → “Save as PDF”. During printing, only the A4 sheet is output (no form).",
+          note:"Print size: 85×55 mm. A4 sheet: 8 cards (2×4).",
+          labels:{tel:"Tel", mail:"Mail", web:"Web"},
+          roles:["Promoter","Mentor","Speaker","Event management"]
+        }
+      };
+
+      // Elements
+      const el = (id)=>document.getElementById(id);
+      const firstName = el("firstName");
+      const lastName  = el("lastName");
+      const street    = el("street");
+      const zip       = el("zip");
+      const city      = el("city");
+      const phone     = el("phone");
+      const email     = el("email");
+      const web       = el("web");
+      const role      = el("role");
+      const showCuts  = el("showCuts");
+
+      const pRole  = el("pRole");
+      const pName  = el("pName");
+      const pAddr  = el("pAddr");
+      const pPhone = el("pPhone");
+      const pEmail = el("pEmail");
+      const pWeb   = el("pWeb");
+
+      const lblPhone = el("lblPhone");
+      const lblEmail = el("lblEmail");
+      const lblWeb   = el("lblWeb");
+
+      const sheetGrid = el("sheetGrid");
+
+      function sanitize(s){
+        return (s||"").toString().trim();
+      }
+
+      function buildRoleOptions(){
+        role.innerHTML = "";
+        i18n[lang].roles.forEach((r, idx)=>{
+          const opt = document.createElement("option");
+          opt.value = idx.toString();
+          opt.textContent = r;
+          role.appendChild(opt);
+        });
+      }
+
+      function applyI18n(){
+        document.documentElement.lang = lang;
+
+        document.querySelectorAll("[data-i18n]").forEach(node=>{
+          const key = node.getAttribute("data-i18n");
+          if(i18n[lang][key]) node.textContent = i18n[lang][key];
+        });
+
+        // Cut options text
+        document.querySelectorAll("#showCuts option").forEach(opt=>{
+          const key = opt.getAttribute("data-i18n");
+          if(key && i18n[lang][key]) opt.textContent = i18n[lang][key];
+        });
+
+        // Labels on card
+        lblPhone.textContent = i18n[lang].labels.tel;
+        lblEmail.textContent = i18n[lang].labels.mail;
+        lblWeb.textContent   = i18n[lang].labels.web;
+
+        // Role select rebuild & keep selection
+        const prev = role.value || "0";
+        buildRoleOptions();
+        role.value = prev;
+
+        // Update preview with language role text
+        updatePreview();
+      }
+
+      function getData(){
+        const fn = sanitize(firstName.value) || "Max";
+        const ln = sanitize(lastName.value)  || "Mustermann";
+        const st = sanitize(street.value)    || "Musterweg 16";
+        const z  = sanitize(zip.value)       || "12345";
+        const ct = sanitize(city.value)      || "Musterhausen";
+        const ph = sanitize(phone.value)     || "01234 / 567890";
+        const em = sanitize(email.value)     || "max@mustermann.com";
+        const wb = sanitize(web.value)       || "max.mustermann.de";
+
+        const roleIdx = Math.max(0, parseInt(role.value||"0",10));
+        const r = i18n[lang].roles[roleIdx] || i18n[lang].roles[0];
+
+        const cuts = (showCuts.value === "1") ? 1 : 0;
+
+        return {fn, ln, st, z, ct, ph, em, wb, r, roleIdx, cuts};
+      }
+
+      function updatePreview(){
+        const d = getData();
+        pRole.textContent = d.r;
+        pName.textContent = (d.fn + " " + d.ln).trim();
+        pAddr.innerHTML = `${escapeHTML(d.st)}<br>${escapeHTML(d.z)} ${escapeHTML(d.ct)}`;
+        pPhone.textContent = d.ph;
+        pEmail.textContent = d.em;
+        pWeb.textContent = d.wb;
+
+        renderSheet();
+      }
+
+      function escapeHTML(str){
+        return (str||"").replace(/[&<>"']/g, (m)=>({
+          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+        }[m]));
+      }
+
+      function createCardNode(d){
+        const card = document.createElement("div");
+        card.className = "card print";
+        card.innerHTML = `
+          <div class="cardInner">
+            <div class="cardTop">
+              <div class="club">FSA-CLUB</div>
+              <div class="role">${escapeHTML(d.r)}</div>
+            </div>
+            <div class="name">${escapeHTML((d.fn + " " + d.ln).trim())}</div>
+            <div class="addr">${escapeHTML(d.st)}<br>${escapeHTML(d.z)} ${escapeHTML(d.ct)}</div>
+            <div class="contact">
+              <div class="contactRow">
+                <span class="mut">${escapeHTML(i18n[lang].labels.tel)}</span>
+                <span class="val">${escapeHTML(d.ph)}</span>
+              </div>
+              <div class="contactRow">
+                <span class="mut">${escapeHTML(i18n[lang].labels.mail)}</span>
+                <span class="val">${escapeHTML(d.em)}</span>
+              </div>
+              <div class="contactRow">
+                <span class="mut">${escapeHTML(i18n[lang].labels.web)}</span>
+                <span class="val">${escapeHTML(d.wb)}</span>
+              </div>
+            </div>
+          </div>
+        `;
+        return card;
+      }
+
+      function renderSheet(){
+        const d = getData();
+        sheetGrid.innerHTML = "";
+        for(let i=0;i<8;i++){
+          const wrap = document.createElement("div");
+          wrap.className = "cutWrap";
+          wrap.setAttribute("data-cuts", String(d.cuts));
+
+          // corner cut markers (just empty divs used by CSS)
+          const tl = document.createElement("div"); tl.className="cut tl";
+          const tr = document.createElement("div"); tr.className="cut tr";
+          const bl = document.createElement("div"); bl.className="cut bl";
+          const br = document.createElement("div"); br.className="cut br";
+
+          const card = createCardNode(d);
+          wrap.appendChild(tl); wrap.appendChild(tr); wrap.appendChild(bl); wrap.appendChild(br);
+          wrap.appendChild(card);
+
+          sheetGrid.appendChild(wrap);
+        }
+      }
+
+      function saveData(){
+        const d = getData();
+        const payload = {lang, ...d};
+        localStorage.setItem(LS_KEY, JSON.stringify(payload));
+      }
+
+      function loadData(){
+        try{
+          const raw = localStorage.getItem(LS_KEY);
+          if(!raw) return false;
+          const d = JSON.parse(raw);
+
+          if(d.lang){ lang = (d.lang==="en") ? "en" : "de"; }
+          applyI18n();
+
+          firstName.value = d.fn || "";
+          lastName.value  = d.ln || "";
+          street.value    = d.st || "";
+          zip.value       = d.z  || "";
+          city.value      = d.ct || "";
+          phone.value     = d.ph || "";
+          email.value     = d.em || "";
+          web.value       = d.wb || "";
+          role.value      = (typeof d.roleIdx === "number") ? String(d.roleIdx) : "0";
+          showCuts.value  = (d.cuts===1) ? "1" : "0";
+
+          updatePreview();
+          return true;
+        }catch(e){
+          return false;
+        }
+      }
+
+      function resetData(){
+        firstName.value = "Max";
+        lastName.value  = "Mustermann";
+        street.value    = "Musterweg 16";
+        zip.value       = "12345";
+        city.value      = "Musterhausen";
+        phone.value     = "01234 / 567890";
+        email.value     = "max@mustermann.com";
+        web.value       = "max.mustermann.de";
+        role.value      = "2"; // Sprecher / Speaker (index 2)
+        showCuts.value  = "0";
+        updatePreview();
+      }
+
+      function copyData(){
+        const d = getData();
+        const text =
+`FSA-CLUB
+${d.fn} ${d.ln}
+${d.st}
+${d.z} ${d.ct}
+${i18n[lang].labels.tel}: ${d.ph}
+${i18n[lang].labels.mail}: ${d.em}
+${i18n[lang].labels.web}: ${d.wb}
+${d.r}`;
+        navigator.clipboard.writeText(text).catch(()=>{});
+      }
+
+      // Events
+      [firstName,lastName,street,zip,city,phone,email,web,role,showCuts].forEach(inp=>{
+        inp.addEventListener("input", updatePreview);
+        inp.addEventListener("change", updatePreview);
+      });
+
+      el("btnPrint").addEventListener("click", ()=>{
+        updatePreview();
+        window.print();
+      });
+
+      el("btnSave").addEventListener("click", ()=>{
+        saveData();
+      });
+
+      el("btnReset").addEventListener("click", ()=>{
+        localStorage.removeItem(LS_KEY);
+        resetData();
+      });
+
+      el("btnCopy").addEventListener("click", ()=>{
+        copyData();
+      });
+
+      el("btnDE").addEventListener("click", ()=>{
+        lang = "de";
+        applyI18n();
+        updatePreview();
+      });
+
+      el("btnEN").addEventListener("click", ()=>{
+        lang = "en";
+        applyI18n();
+        updatePreview();
+      });
+
+      // Init
+      buildRoleOptions();
+      // default role = Sprecher
+      role.value = "2";
+      // try load
+      const loaded = loadData();
+      if(!loaded){
+        resetData();
+      }else{
+        applyI18n();
+      }
+    })();
+  </script>
+</body>
+</html>
