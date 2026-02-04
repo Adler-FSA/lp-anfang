@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FSA-Club – Visitenkarten Tool</title>
-  <meta name="description" content="FSA-Club Visitenkarten Tool: Eingabe → Live-Vorschau → A4 Druckbogen (8 Karten) als PDF/Druck. DE/EN, LocalStorage." />
+  <meta name="description" content="FSA-Club Visitenkarten Tool: Eingabe → SVG-Vorschau → A4 Druckbogen (8 Karten) als PDF/Druck. DE/EN, LocalStorage." />
   <meta name="robots" content="noindex,nofollow" />
 
   <style>
@@ -15,7 +15,7 @@
       --gold:#d4af37; --gold2:#f2d37a;
       --line:rgba(212,175,55,.35);
       --shadow:0 24px 60px rgba(0,0,0,.55);
-      --glow:0 0 26px rgba(212,175,55,.22), 0 10px 28px rgba(0,0,0,.55);
+      --glow:0 0 26px rgba(212,175,55,.18), 0 10px 28px rgba(0,0,0,.55);
       --radius:18px;
     }
 
@@ -73,7 +73,7 @@
     .btn.primary{
       background:linear-gradient(180deg, rgba(212,175,55,.34), rgba(212,175,55,.12));
       border-color:rgba(212,175,55,.60);
-      box-shadow:0 0 22px rgba(212,175,55,.18);
+      box-shadow:0 0 22px rgba(212,175,55,.16);
     }
     .btn.ghost{background:rgba(15,23,42,.55)}
     .btn.small{padding:8px 10px;font-weight:900}
@@ -116,151 +116,30 @@
       margin-top:14px;align-items:center;justify-content:space-between;
     }
     .actions .left,.actions .right{display:flex;gap:10px;flex-wrap:wrap}
-
     .hint{margin-top:12px;font-size:12px;color:var(--muted);line-height:1.35}
+    .hint strong{color:rgba(242,211,122,.95)}
 
-    /* ===== Card Preview Frame ===== */
+    /* ===== Preview frame ===== */
     .previewWrap{display:grid;gap:14px}
-
     .cardFrame{
       padding:16px;
       border-radius:18px;
       border:1px solid rgba(212,175,55,.22);
       background:
         radial-gradient(650px 260px at 20% 0%, rgba(212,175,55,.14), transparent 55%),
-        radial-gradient(450px 220px at 90% 40%, rgba(242,211,122,.09), transparent 55%),
+        radial-gradient(450px 220px at 90% 40%, rgba(94,168,255,.12), transparent 55%),
         linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.08));
       box-shadow:var(--glow);
     }
 
-    /* ===== The Card (85 x 55 mm) ===== */
-    .card{
-      width:85mm;height:55mm;border-radius:4.2mm;
-      position:relative;overflow:hidden;
-      background:
-        radial-gradient(120mm 45mm at 25% 0%, rgba(212,175,55,.12), transparent 60%),
-        radial-gradient(130mm 55mm at 92% 65%, rgba(94,168,255,.10), transparent 62%),
-        linear-gradient(180deg, #0b0f16, #05070b);
-      border:1px solid rgba(212,175,55,.62);
+    /* SVG card in true size for preview */
+    .svgCard{
+      width:85mm;
+      height:55mm;
+      display:block;
+      border-radius:4.2mm;
       box-shadow:0 10px 26px rgba(0,0,0,.55);
-    }
-    .card:before{
-      content:"";position:absolute;inset:2.1mm;
-      border-radius:3.2mm;border:1px solid rgba(212,175,55,.22);
-      pointer-events:none;
-    }
-    .card:after{
-      content:"";position:absolute;inset:0;
-      background:
-        radial-gradient(40mm 14mm at 72% 18%, rgba(255,255,255,.06), transparent 60%),
-        radial-gradient(55mm 18mm at 14% 92%, rgba(212,175,55,.08), transparent 65%);
-      mix-blend-mode:screen;opacity:.75;pointer-events:none;
-    }
-
-    .cardInner{
-      position:absolute;inset:0;
-      padding:6mm 7mm;
-      display:grid;
-      grid-template-rows:auto auto 1fr auto;
-      row-gap:2.2mm;
-    }
-
-    /* top line */
-    .cardTop{
-      display:flex;align-items:center;justify-content:space-between;gap:4mm;
-      padding-bottom:2mm;
-      border-bottom:1px solid rgba(212,175,55,.16);
-    }
-    .club{
-      font-weight:950;letter-spacing:1.1px;
-      color:rgba(242,211,122,.96);
-      font-size:3.7mm;
-      text-transform:uppercase;
-      white-space:nowrap;
-    }
-    .role{
-      font-weight:900;letter-spacing:.35px;
-      color:rgba(212,175,55,.92);
-      font-size:3.1mm;
-      text-align:right;
-      white-space:nowrap;
-      opacity:.98;
-    }
-
-    /* Hero name */
-    .name{
-      font-weight:1000;
-      letter-spacing:.15px;
-      color:rgba(242,211,122,.98);
-      text-shadow:0 0 16px rgba(212,175,55,.12);
-      line-height:1.02;
-      /* JS can reduce these via CSS vars */
-      font-size:var(--nameSize, 6.3mm);
-      white-space:nowrap;
       overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    /* Address */
-    .addr{
-      font-size:var(--addrSize, 3.25mm);
-      color:rgba(233,238,247,.92);
-      line-height:1.22;
-    }
-
-    /* Contact block: clear, wow, and fits */
-    .contact{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:1.35mm;
-      font-size:var(--contactSize, 3.0mm);
-      color:rgba(233,238,247,.92);
-    }
-    .contactRow{
-      display:grid;
-      grid-template-columns:5mm 1fr;
-      column-gap:2.3mm;
-      align-items:start;
-      padding-top:1.2mm;
-      border-top:1px solid rgba(212,175,55,.12);
-    }
-    .contactRow:first-child{border-top:none;padding-top:0}
-
-    .ico{width:4.6mm;height:4.6mm;display:inline-block}
-    .ico svg{width:100%;height:100%}
-    .ico path{fill:rgba(212,175,55,.92)}
-
-    .contactText{
-      display:flex;
-      justify-content:space-between;
-      gap:3mm;
-      min-width:0;
-    }
-    .label{
-      color:rgba(169,180,199,.92);
-      font-weight:800;
-      letter-spacing:.15px;
-      white-space:nowrap;
-    }
-    .value{
-      font-weight:900;
-      color:rgba(242,211,122,.92);
-      text-align:right;
-      min-width:0;
-      max-width:62mm;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-    }
-
-    /* allow wrap for really long email/web if needed (JS toggles class) */
-    .value.wrap{
-      white-space:normal;
-      overflow:visible;
-      text-overflow:clip;
-      word-break:break-word;
-      overflow-wrap:anywhere;
-      line-height:1.12;
     }
 
     .miniNote{font-size:12px;color:var(--muted);line-height:1.35;margin:0}
@@ -269,10 +148,11 @@
     #printArea{display:none}
 
     .sheet{
-      width:210mm;min-height:297mm;
-      background:#fff;color:#000;
-      /* safe inner margin for printers */
-      padding:12mm;
+      width:210mm;
+      min-height:297mm;
+      background:#fff;
+      color:#000;
+      padding:12mm; /* printer safe margin */
     }
     .sheetGrid{
       display:grid;
@@ -283,8 +163,12 @@
       align-content:start;
       justify-content:start;
     }
-    .cutWrap{width:85mm;height:55mm;position:relative}
+    .cutWrap{
+      width:85mm;height:55mm;
+      position:relative;
+    }
 
+    /* Cut marks (optional) */
     .cutWrap[data-cuts="1"] .cut:before,
     .cutWrap[data-cuts="1"] .cut:after{
       content:"";position:absolute;background:#000;opacity:.40;
@@ -298,17 +182,16 @@
     .cutWrap[data-cuts="1"] .cut.br:before{right:-3mm; bottom:0; width:3mm; height:.25mm;}
     .cutWrap[data-cuts="1"] .cut.br:after{right:0; bottom:-3mm; width:.25mm; height:3mm;}
 
-    .card.print{box-shadow:none}
-
-    /* ===== Print rules ===== */
-    @page{size:A4;margin:0}
+    /* Print rules */
+    @page{ size:A4; margin:0; }
     @media print{
       html,body{background:#fff}
       .wrap{display:none !important}
       #printArea{display:block !important}
       .sheet{padding:12mm}
-      /* ensure colors */
+      /* best effort for colors */
       *{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
+      .svgCard{box-shadow:none}
     }
   </style>
 </head>
@@ -317,23 +200,23 @@
   <div class="wrap" id="ui">
     <div class="topbar">
       <div class="brand">
-        <!-- Inline SVG only -->
+        <!-- Inline SVG only (header icon) -->
         <svg viewBox="0 0 64 64" aria-hidden="true">
           <defs>
-            <linearGradient id="gGold" x1="0" x2="1">
+            <linearGradient id="gGoldHeader" x1="0" x2="1">
               <stop offset="0" stop-color="#d4af37"/>
               <stop offset="1" stop-color="#f2d37a"/>
             </linearGradient>
           </defs>
           <path d="M32 4c10 8 18 8 26 8 0 30-10 40-26 48C16 52 6 42 6 12c8 0 16 0 26-8z"
-                fill="rgba(15,23,42,.2)" stroke="url(#gGold)" stroke-width="2"/>
-          <path d="M20 28h24v6H20z" fill="url(#gGold)" opacity=".9"/>
-          <path d="M24 20h16v6H24z" fill="url(#gGold)" opacity=".7"/>
-          <path d="M24 36h16v6H24z" fill="url(#gGold)" opacity=".7"/>
+                fill="rgba(15,23,42,.2)" stroke="url(#gGoldHeader)" stroke-width="2"/>
+          <path d="M20 28h24v6H20z" fill="url(#gGoldHeader)" opacity=".9"/>
+          <path d="M24 20h16v6H24z" fill="url(#gGoldHeader)" opacity=".7"/>
+          <path d="M24 36h16v6H24z" fill="url(#gGoldHeader)" opacity=".7"/>
         </svg>
         <div>
           <b data-i18n="title">FSA-Club – Visitenkarten Tool</b>
-          <span class="sub" data-i18n="subtitle">Eingabe → Vorschau → A4 Druckbogen (8 Karten)</span>
+          <span class="sub" data-i18n="subtitle">Eingabe → SVG-Vorschau → A4 Druckbogen (8 Karten)</span>
         </div>
       </div>
 
@@ -351,39 +234,39 @@
           <div class="form" id="form">
             <div class="field">
               <label for="firstName" data-i18n="firstName">Vorname</label>
-              <input id="firstName" type="text" placeholder="Michael" autocomplete="given-name" />
+              <input id="firstName" type="text" placeholder="Max" autocomplete="given-name" />
             </div>
             <div class="field">
               <label for="lastName" data-i18n="lastName">Nachname</label>
-              <input id="lastName" type="text" placeholder="Rau" autocomplete="family-name" />
+              <input id="lastName" type="text" placeholder="Mustermann" autocomplete="family-name" />
             </div>
 
             <div class="field row2">
               <label for="street" data-i18n="street">Straße + Hausnummer</label>
-              <input id="street" type="text" placeholder="Ringstraße 23a" autocomplete="street-address" />
+              <input id="street" type="text" placeholder="Musterweg 16" autocomplete="street-address" />
             </div>
 
             <div class="field">
               <label for="zip" data-i18n="zip">PLZ</label>
-              <input id="zip" type="text" placeholder="64399" inputmode="numeric" autocomplete="postal-code" />
+              <input id="zip" type="text" placeholder="12345" inputmode="numeric" autocomplete="postal-code" />
             </div>
             <div class="field">
               <label for="city" data-i18n="city">Ort</label>
-              <input id="city" type="text" placeholder="Pfungstadt" autocomplete="address-level2" />
+              <input id="city" type="text" placeholder="Musterhausen" autocomplete="address-level2" />
             </div>
 
             <div class="field">
               <label for="phone" data-i18n="phone">Telefon / Mobil</label>
-              <input id="phone" type="text" placeholder="0163/2573594" autocomplete="tel" />
+              <input id="phone" type="text" placeholder="01234 / 567890" autocomplete="tel" />
             </div>
             <div class="field">
               <label for="email" data-i18n="email">E-Mail</label>
-              <input id="email" type="email" placeholder="michael-rau@liquiditybooster.de" autocomplete="email" />
+              <input id="email" type="email" placeholder="max@mustermann.com" autocomplete="email" />
             </div>
 
             <div class="field row2">
               <label for="web" data-i18n="web">Webseite</label>
-              <input id="web" type="text" placeholder="https://michael-rau.liquiditybooster.de/" autocomplete="url" />
+              <input id="web" type="text" placeholder="https://max.mustermann.de/" autocomplete="url" />
             </div>
 
             <div class="field row2">
@@ -412,7 +295,7 @@
           </div>
 
           <div class="hint" data-i18n="hint">
-            Hinweis: Für PDF einfach „Drucken“ → „Als PDF speichern“. Wichtig: Skalierung 100% und Kopf-/Fußzeilen aus.
+            Hinweis: Für PDF einfach „Drucken“ → „Als PDF speichern“. <strong>Kopf-/Fußzeilen aus</strong> (URL/Datum/Seitenzahl).
           </div>
         </div>
       </section>
@@ -422,56 +305,9 @@
         <h2 data-i18n="panel_preview">Vorschau</h2>
         <div class="body previewWrap">
           <div class="cardFrame">
-            <div class="card" id="cardPreview" aria-label="Visitenkarten-Vorschau">
-              <div class="cardInner" id="cardInnerPreview">
-                <div class="cardTop">
-                  <div class="club">FSA-CLUB</div>
-                  <div class="role" id="pRole">Eventmanagement</div>
-                </div>
-
-                <div class="name" id="pName">Michael Rau</div>
-
-                <div class="addr" id="pAddr">
-                  Ringstraße 23a<br>
-                  64399 Pfungstadt
-                </div>
-
-                <div class="contact">
-                  <div class="contactRow">
-                    <span class="ico" aria-hidden="true">
-                      <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.6 3 4.1 5.5 7.1 7.1l2.4-2.4c.3-.3.8-.4 1.2-.2 1.3.4 2.7.7 4.1.7.7 0 1.2.5 1.2 1.2V21c0 .7-.5 1.2-1.2 1.2C10.6 22.2 1.8 13.4 1.8 2.4 1.8 1.7 2.3 1.2 3 1.2h3.6c.7 0 1.2.5 1.2 1.2 0 1.4.2 2.8.7 4.1.1.4 0 .9-.2 1.2l-2.7 2.1z"/></svg>
-                    </span>
-                    <div class="contactText">
-                      <span class="label" id="lblPhone">Tel</span>
-                      <span class="value" id="pPhone">0163/2573594</span>
-                    </div>
-                  </div>
-
-                  <div class="contactRow">
-                    <span class="ico" aria-hidden="true">
-                      <svg viewBox="0 0 24 24"><path d="M2 6.5C2 5.1 3.1 4 4.5 4h15C20.9 4 22 5.1 22 6.5v11C22 18.9 20.9 20 19.5 20h-15C3.1 20 2 18.9 2 17.5v-11zm2.2.2 7.2 5.1c.4.3 1 .3 1.4 0l7.2-5.1c-.2-.4-.6-.6-1.1-.6h-15c-.5 0-.9.2-1.1.6zm16.8 2.3-6.9 4.9c-.9.6-2.2.6-3.1 0L4 9v8.5c0 .6.5 1.1 1.1 1.1h13.8c.6 0 1.1-.5 1.1-1.1V9z"/></svg>
-                    </span>
-                    <div class="contactText">
-                      <span class="label" id="lblEmail">Mail</span>
-                      <span class="value" id="pEmail">michael-rau@liquiditybooster.de</span>
-                    </div>
-                  </div>
-
-                  <div class="contactRow">
-                    <span class="ico" aria-hidden="true">
-                      <svg viewBox="0 0 24 24"><path d="M12 2.2c5.4 0 9.8 4.4 9.8 9.8S17.4 21.8 12 21.8 2.2 17.4 2.2 12 6.6 2.2 12 2.2zm7.3 7.1h-3c-.4-1.6-1.2-3.2-2.3-4.6 2.2.7 4 2.3 5.3 4.6zM12 4.1c1.3 1.4 2.2 3.2 2.7 5.2H9.3c.5-2 1.4-3.8 2.7-5.2zM4.7 9.3c1.3-2.3 3.1-3.9 5.3-4.6-1.1 1.4-1.9 3-2.3 4.6h-3zM4 12c0-.6.1-1.1.2-1.7h3.2c-.1.6-.2 1.1-.2 1.7s.1 1.2.2 1.7H4.2C4.1 13.1 4 12.6 4 12zm.7 4.7h3c.4 1.6 1.2 3.2 2.3 4.6-2.2-.7-4-2.3-5.3-4.6zM12 19.9c-1.3-1.4-2.2-3.2-2.7-5.2h5.4c-.5 2-1.4 3.8-2.7 5.2zm4-1.6c1.1-1.4 1.9-3 2.3-4.6h3c-1.3 2.3-3.1 3.9-5.3 4.6zM19.8 13.7h-3.2c.1-.6.2-1.1.2-1.7s-.1-1.2-.2-1.7h3.2c.1.6.2 1.1.2 1.7s-.1 1.1-.2 1.7z"/></svg>
-                    </span>
-                    <div class="contactText">
-                      <span class="label" id="lblWeb">Web</span>
-                      <span class="value" id="pWeb">michael-rau.liquiditybooster.de</span>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
+            <!-- Preview SVG card gets injected here -->
+            <div id="previewHolder"></div>
           </div>
-
           <p class="miniNote" data-i18n="note">Druckformat: 85×55 mm. A4-Bogen: 8 Karten (2×4).</p>
         </div>
       </section>
@@ -487,13 +323,13 @@
 
   <script>
     (function(){
-      const LS_KEY = "fsa_club_visitenkarte_v2";
+      const LS_KEY = "fsa_club_visitenkarte_svg_v1";
       let lang = "de";
 
       const i18n = {
         de:{
           title:"FSA-Club – Visitenkarten Tool",
-          subtitle:"Eingabe → Vorschau → A4 Druckbogen (8 Karten)",
+          subtitle:"Eingabe → SVG-Vorschau → A4 Druckbogen (8 Karten)",
           panel_input:"Eingabe",
           panel_preview:"Vorschau",
           firstName:"Vorname",
@@ -512,14 +348,14 @@
           btn_save:"Daten merken",
           btn_reset:"Zurücksetzen",
           btn_copy:"Daten kopieren",
-          hint:"Hinweis: Für PDF einfach „Drucken“ → „Als PDF speichern“. Wichtig: Skalierung 100% und Kopf-/Fußzeilen aus.",
+          hint:"Hinweis: Für PDF einfach „Drucken“ → „Als PDF speichern“. Kopf-/Fußzeilen aus (URL/Datum/Seitenzahl).",
           note:"Druckformat: 85×55 mm. A4-Bogen: 8 Karten (2×4).",
           labels:{tel:"Tel", mail:"Mail", web:"Web"},
           roles:["Promotor","Mentor","Sprecher","Eventmanagement"]
         },
         en:{
           title:"FSA Club – Business Card Tool",
-          subtitle:"Input → Live preview → A4 print sheet (8 cards)",
+          subtitle:"Input → SVG preview → A4 print sheet (8 cards)",
           panel_input:"Input",
           panel_preview:"Preview",
           firstName:"First name",
@@ -538,7 +374,7 @@
           btn_save:"Save data",
           btn_reset:"Reset",
           btn_copy:"Copy data",
-          hint:"Tip: To create a PDF, click “Print” → “Save as PDF”. Use 100% scale and disable headers/footers.",
+          hint:"Tip: Print → Save as PDF. Disable headers/footers (URL/date/page).",
           note:"Print size: 85×55 mm. A4 sheet: 8 cards (2×4).",
           labels:{tel:"Tel", mail:"Mail", web:"Web"},
           roles:["Promoter","Mentor","Speaker","Event management"]
@@ -558,24 +394,13 @@
       const role      = el("role");
       const showCuts  = el("showCuts");
 
-      const pRole  = el("pRole");
-      const pName  = el("pName");
-      const pAddr  = el("pAddr");
-      const pPhone = el("pPhone");
-      const pEmail = el("pEmail");
-      const pWeb   = el("pWeb");
-
-      const lblPhone = el("lblPhone");
-      const lblEmail = el("lblEmail");
-      const lblWeb   = el("lblWeb");
-
-      const cardPreview = el("cardPreview");
+      const previewHolder = el("previewHolder");
       const sheetGrid = el("sheetGrid");
 
       function sanitize(s){ return (s||"").toString().trim(); }
 
-      function escapeHTML(str){
-        return (str||"").replace(/[&<>"']/g, (m)=>({
+      function escapeXML(s){
+        return (s||"").replace(/[&<>"']/g, m => ({
           "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
         }[m]));
       }
@@ -613,15 +438,12 @@
           if(key && i18n[lang][key]) opt.textContent = i18n[lang][key];
         });
 
-        lblPhone.textContent = i18n[lang].labels.tel;
-        lblEmail.textContent = i18n[lang].labels.mail;
-        lblWeb.textContent   = i18n[lang].labels.web;
-
+        // Role options preserve selection
         const prev = role.value || "0";
         buildRoleOptions();
         role.value = prev;
 
-        updatePreview();
+        updateAll();
       }
 
       function getData(){
@@ -642,128 +464,242 @@
         return {fn, ln, st, z, ct, ph, em, wb, r, roleIdx, cuts};
       }
 
-      function applyAutoFit(d, root){
-        // Name size
-        const nameLen = (d.fn + " " + d.ln).trim().length;
-        let nameSize = 6.3; // mm
-        if(nameLen > 18) nameSize = 5.8;
-        if(nameLen > 24) nameSize = 5.2;
-        if(nameLen > 30) nameSize = 4.8;
+      // Auto-fit sizes (in px within SVG viewBox 850x550)
+      function computeFit(d){
+        const name = (d.fn + " " + d.ln).trim();
+        const addr1 = d.st;
+        const addr2 = (d.z + " " + d.ct).trim();
 
-        // Address size
-        const addrLen = (d.st + " " + d.z + " " + d.ct).length;
-        let addrSize = 3.25;
-        if(addrLen > 42) addrSize = 3.05;
-        if(addrLen > 56) addrSize = 2.85;
+        // Base sizes
+        let nameSize = 54;   // px
+        let addrSize = 26;   // px
+        let lineLabel = 22;  // px
+        let lineValue = 26;  // px
 
-        // Contact size
-        const maxContactLen = Math.max(d.ph.length, d.em.length, d.wb.length);
-        let contactSize = 3.0;
-        if(maxContactLen > 26) contactSize = 2.8;
-        if(maxContactLen > 34) contactSize = 2.6;
+        // Name length scaling
+        const nLen = name.length;
+        if(nLen > 18) nameSize = 48;
+        if(nLen > 24) nameSize = 44;
+        if(nLen > 30) nameSize = 40;
 
-        root.style.setProperty("--nameSize", nameSize + "mm");
-        root.style.setProperty("--addrSize", addrSize + "mm");
-        root.style.setProperty("--contactSize", contactSize + "mm");
+        // Address scaling
+        const aLen = (addr1 + " " + addr2).length;
+        if(aLen > 42) addrSize = 25;
+        if(aLen > 56) addrSize = 24;
 
-        // Wrap email/web if needed
-        const emailEl = root.querySelector(".vEmail");
-        const webEl   = root.querySelector(".vWeb");
-        if(emailEl){
-          emailEl.classList.toggle("wrap", d.em.length > 28);
+        // Contact scaling
+        const mLen = Math.max(d.ph.length, d.em.length, d.wb.length);
+        if(mLen > 26){ lineValue = 24; }
+        if(mLen > 34){ lineValue = 22; }
+        if(mLen > 42){ lineValue = 20; }
+
+        // For email/web: if super long, allow 2-line wrap by splitting at best point
+        function split2(s){
+          if(s.length <= 28) return [s, ""];
+          // try split at @ or . or -
+          const candidates = [];
+          const at = s.indexOf("@");
+          if(at > 6 && at < s.length-6) candidates.push(at+1);
+          for(let i= Math.min(s.length-8, 28); i>10; i--){
+            if(s[i] === "." || s[i] === "-" || s[i] === "/"){ candidates.push(i+1); break; }
+          }
+          const cut = candidates.length ? candidates[0] : 28;
+          return [s.slice(0, cut), s.slice(cut)];
         }
-        if(webEl){
-          webEl.classList.toggle("wrap", d.wb.length > 28);
-        }
+
+        const emailSplit = split2(d.em);
+        const webSplit   = split2(d.wb);
+
+        // If we need two lines, reduce lineValue slightly
+        const needsWrap = (emailSplit[1] || webSplit[1]) ? true : false;
+        if(needsWrap && lineValue > 22) lineValue = 22;
+
+        return {name, addr1, addr2, nameSize, addrSize, lineLabel, lineValue, emailSplit, webSplit};
       }
 
-      function updatePreview(){
-        const d = getData();
-        pRole.textContent = d.r;
-        pName.textContent = (d.fn + " " + d.ln).trim();
+      // Build one SVG card (85x55mm) as string
+      function buildCardSVG(d){
+        const L = i18n[lang].labels;
+        const fit = computeFit(d);
 
-        // Address two lines
-        pAddr.innerHTML = `${escapeHTML(d.st)}<br>${escapeHTML(d.z)} ${escapeHTML(d.ct)}`;
+        // ViewBox is 850 x 550 to keep clean integer layout
+        // Safe padding around content
+        const padX = 56;
+        const padY = 52;
 
-        pPhone.textContent = d.ph;
-        pEmail.textContent = d.em;
-        pWeb.textContent   = d.wb;
+        // Top bar positions
+        const topY = 84;
+        const dividerY = 118;
 
-        // allow wrap in preview if long
-        pEmail.classList.toggle("wrap", d.em.length > 28);
-        pWeb.classList.toggle("wrap", d.wb.length > 28);
+        // Name block
+        const nameY = 200;
 
-        applyAutoFit(d, cardPreview);
+        // Address block
+        const addrY1 = 252;
+        const addrY2 = 286;
 
-        renderSheet();
-      }
+        // Contact rows (3 rows)
+        const rowY1 = 360;
+        const rowY2 = 420;
+        const rowY3 = 480;
 
-      function createCardNode(d){
-        const card = document.createElement("div");
-        card.className = "card print";
-        card.innerHTML = `
-          <div class="cardInner">
-            <div class="cardTop">
-              <div class="club">FSA-CLUB</div>
-              <div class="role">${escapeHTML(d.r)}</div>
-            </div>
+        // Icon positions
+        const iconX = padX;
+        const labelX = padX + 44;
+        const valueX = 800 - padX; // right aligned
 
-            <div class="name">${escapeHTML((d.fn + " " + d.ln).trim())}</div>
+        // Value baseline (right aligned)
+        const valueAnchor = "end";
 
-            <div class="addr">${escapeHTML(d.st)}<br>${escapeHTML(d.z)} ${escapeHTML(d.ct)}</div>
+        // Gold gradient IDs unique-ish for safety in DOM
+        const gid = "g" + Math.random().toString(16).slice(2);
 
-            <div class="contact">
-              <div class="contactRow">
-                <span class="ico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.6 3 4.1 5.5 7.1 7.1l2.4-2.4c.3-.3.8-.4 1.2-.2 1.3.4 2.7.7 4.1.7.7 0 1.2.5 1.2 1.2V21c0 .7-.5 1.2-1.2 1.2C10.6 22.2 1.8 13.4 1.8 2.4 1.8 1.7 2.3 1.2 3 1.2h3.6c.7 0 1.2.5 1.2 1.2 0 1.4.2 2.8.7 4.1.1.4 0 .9-.2 1.2l-2.7 2.1z"/></svg>
-                </span>
-                <div class="contactText">
-                  <span class="label">${escapeHTML(i18n[lang].labels.tel)}</span>
-                  <span class="value">${escapeHTML(d.ph)}</span>
-                </div>
-              </div>
-
-              <div class="contactRow">
-                <span class="ico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24"><path d="M2 6.5C2 5.1 3.1 4 4.5 4h15C20.9 4 22 5.1 22 6.5v11C22 18.9 20.9 20 19.5 20h-15C3.1 20 2 18.9 2 17.5v-11zm2.2.2 7.2 5.1c.4.3 1 .3 1.4 0l7.2-5.1c-.2-.4-.6-.6-1.1-.6h-15c-.5 0-.9.2-1.1.6zm16.8 2.3-6.9 4.9c-.9.6-2.2.6-3.1 0L4 9v8.5c0 .6.5 1.1 1.1 1.1h13.8c.6 0 1.1-.5 1.1-1.1V9z"/></svg>
-                </span>
-                <div class="contactText">
-                  <span class="label">${escapeHTML(i18n[lang].labels.mail)}</span>
-                  <span class="value vEmail ${d.em.length>28?'wrap':''}">${escapeHTML(d.em)}</span>
-                </div>
-              </div>
-
-              <div class="contactRow">
-                <span class="ico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24"><path d="M12 2.2c5.4 0 9.8 4.4 9.8 9.8S17.4 21.8 12 21.8 2.2 17.4 2.2 12 6.6 2.2 12 2.2zm7.3 7.1h-3c-.4-1.6-1.2-3.2-2.3-4.6 2.2.7 4 2.3 5.3 4.6zM12 4.1c1.3 1.4 2.2 3.2 2.7 5.2H9.3c.5-2 1.4-3.8 2.7-5.2zM4.7 9.3c1.3-2.3 3.1-3.9 5.3-4.6-1.1 1.4-1.9 3-2.3 4.6h-3zM4 12c0-.6.1-1.1.2-1.7h3.2c-.1.6-.2 1.1-.2 1.7s.1 1.2.2 1.7H4.2C4.1 13.1 4 12.6 4 12zm.7 4.7h3c.4 1.6 1.2 3.2 2.3 4.6-2.2-.7-4-2.3-5.3-4.6zM12 19.9c-1.3-1.4-2.2-3.2-2.7-5.2h5.4c-.5 2-1.4 3.8-2.7 5.2zm4-1.6c1.1-1.4 1.9-3 2.3-4.6h3c-1.3 2.3-3.1 3.9-5.3 4.6zM19.8 13.7h-3.2c.1-.6.2-1.1.2-1.7s-.1-1.2-.2-1.7h3.2c.1.6.2 1.1.2 1.7s-.1 1.1-.2 1.7z"/></svg>
-                </span>
-                <div class="contactText">
-                  <span class="label">${escapeHTML(i18n[lang].labels.web)}</span>
-                  <span class="value vWeb ${d.wb.length>28?'wrap':''}">${escapeHTML(d.wb)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+        // Badge (watermark) — shield/crest style, subtle
+        // placed bottom-right, low opacity
+        const badge = `
+          <g opacity="0.10" transform="translate(635 210)">
+            <path d="M80 0c25 18 45 18 65 18 0 78-25 104-65 126C40 122 15 96 15 18c20 0 40 0 65-18z"
+                  fill="none" stroke="url(#${gid})" stroke-width="6"/>
+            <path d="M52 66h56v18H52z" fill="url(#${gid})"/>
+            <path d="M60 42h40v16H60z" fill="url(#${gid})" opacity=".75"/>
+            <path d="M60 90h40v16H60z" fill="url(#${gid})" opacity=".75"/>
+          </g>
         `;
-        applyAutoFit(d, card);
-        return card;
+
+        // Email/web can have second line
+        const e1 = escapeXML(fit.emailSplit[0]);
+        const e2 = escapeXML(fit.emailSplit[1] || "");
+        const w1 = escapeXML(fit.webSplit[0]);
+        const w2 = escapeXML(fit.webSplit[1] || "");
+
+        // If second lines exist, render them slightly below with smaller size
+        const secondLineSize = Math.max(18, fit.lineValue - 2);
+        const secondLineDy = 22;
+
+        const emailSecond = e2 ? `<text x="${valueX}" y="${rowY2 + secondLineDy}" text-anchor="${valueAnchor}" font-size="${secondLineSize}" fill="rgba(242,211,122,.90)">${e2}</text>` : "";
+        const webSecond   = w2 ? `<text x="${valueX}" y="${rowY3 + secondLineDy}" text-anchor="${valueAnchor}" font-size="${secondLineSize}" fill="rgba(242,211,122,.90)">${w2}</text>` : "";
+
+        // If second lines exist, move dividers slightly? We keep fixed, SVG is stable.
+
+        return `
+<svg class="svgCard" xmlns="http://www.w3.org/2000/svg" width="85mm" height="55mm" viewBox="0 0 850 550" role="img" aria-label="FSA-Club Visitenkarte">
+  <defs>
+    <linearGradient id="${gid}" x1="0" x2="1">
+      <stop offset="0" stop-color="#d4af37"/>
+      <stop offset="1" stop-color="#f2d37a"/>
+    </linearGradient>
+
+    <!-- subtle highlight -->
+    <radialGradient id="${gid}h" cx="30%" cy="10%" r="80%">
+      <stop offset="0" stop-color="rgba(212,175,55,0.20)"/>
+      <stop offset="1" stop-color="rgba(0,0,0,0)"/>
+    </radialGradient>
+
+    <!-- inner sheen -->
+    <radialGradient id="${gid}s" cx="75%" cy="20%" r="70%">
+      <stop offset="0" stop-color="rgba(255,255,255,0.08)"/>
+      <stop offset="1" stop-color="rgba(0,0,0,0)"/>
+    </radialGradient>
+
+    <!-- clip for rounded corners -->
+    <clipPath id="${gid}c">
+      <rect x="0" y="0" width="850" height="550" rx="42" ry="42"></rect>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#${gid}c)">
+    <!-- base -->
+    <rect x="0" y="0" width="850" height="550" fill="#070a10"/>
+
+    <!-- highlights -->
+    <rect x="0" y="0" width="850" height="550" fill="url(#${gid}h)"/>
+    <rect x="0" y="0" width="850" height="550" fill="url(#${gid}s)"/>
+
+    <!-- border -->
+    <rect x="10" y="10" width="830" height="530" rx="36" ry="36" fill="none" stroke="url(#${gid})" stroke-width="8"/>
+    <rect x="26" y="26" width="798" height="498" rx="30" ry="30" fill="none" stroke="rgba(212,175,55,0.22)" stroke-width="4"/>
+
+    ${badge}
+
+    <!-- top line -->
+    <text x="${padX}" y="${topY}" font-size="30" font-weight="800" letter-spacing="3" fill="rgba(242,211,122,.95)">FSA-CLUB</text>
+    <text x="${800 - padX}" y="${topY}" text-anchor="end" font-size="26" font-weight="800" fill="rgba(212,175,55,.92)">${escapeXML(d.r)}</text>
+
+    <line x1="${padX}" y1="${dividerY}" x2="${800 - padX}" y2="${dividerY}" stroke="rgba(212,175,55,.20)" stroke-width="3"/>
+
+    <!-- name -->
+    <text x="${padX}" y="${nameY}" font-size="${fit.nameSize}" font-weight="900" fill="rgba(242,211,122,.98)">${escapeXML(fit.name)}</text>
+
+    <!-- address -->
+    <text x="${padX}" y="${addrY1}" font-size="${fit.addrSize}" font-weight="700" fill="rgba(233,238,247,.92)">${escapeXML(fit.addr1)}</text>
+    <text x="${padX}" y="${addrY2}" font-size="${fit.addrSize}" font-weight="700" fill="rgba(233,238,247,.92)">${escapeXML(fit.addr2)}</text>
+
+    <!-- contact rows separators -->
+    <line x1="${padX}" y1="${rowY1-26}" x2="${800 - padX}" y2="${rowY1-26}" stroke="rgba(212,175,55,.14)" stroke-width="3"/>
+
+    <!-- phone -->
+    <g transform="translate(${iconX} ${rowY1-18})" opacity="0.95">
+      <!-- inline svg phone icon -->
+      <path d="M18 2c2 2 2 6 2 8-1 3-3 6-6 9 3 6 8 11 14 14 3-3 6-5 9-6 2 0 6 0 8 2l6 6c2 2 2 6 0 8-3 4-8 7-14 7C22 50 2 30 2 14 2 8 5 3 9 0c2-2 6-2 8 0l1 2z"
+            fill="url(#${gid})"/>
+    </g>
+    <text x="${labelX}" y="${rowY1}" font-size="${fit.lineLabel}" font-weight="800" fill="rgba(169,180,199,.95)">${escapeXML(L.tel)}</text>
+    <text x="${valueX}" y="${rowY1}" text-anchor="${valueAnchor}" font-size="${fit.lineValue}" font-weight="900" fill="rgba(242,211,122,.92)">${escapeXML(d.ph)}</text>
+
+    <!-- email -->
+    <g transform="translate(${iconX} ${rowY2-18})" opacity="0.95">
+      <path d="M2 10c0-5 4-8 9-8h28c5 0 9 3 9 8v18c0 5-4 8-9 8H11c-5 0-9-3-9-8V10zm9-2c-2 0-4 1-5 3l19 13c2 1 4 1 6 0L50 11c-1-2-3-3-5-3H11z"
+            fill="url(#${gid})"/>
+    </g>
+    <text x="${labelX}" y="${rowY2}" font-size="${fit.lineLabel}" font-weight="800" fill="rgba(169,180,199,.95)">${escapeXML(L.mail)}</text>
+    <text x="${valueX}" y="${rowY2}" text-anchor="${valueAnchor}" font-size="${fit.lineValue}" font-weight="900" fill="rgba(242,211,122,.92)">${e1}</text>
+    ${emailSecond}
+
+    <!-- web -->
+    <g transform="translate(${iconX} ${rowY3-18})" opacity="0.95">
+      <path d="M25 2C12 2 2 12 2 25s10 23 23 23 23-10 23-23S38 2 25 2zm0 6c4 5 6 11 7 17H18c1-6 3-12 7-17zm-14 17h6c0 6 1 12 3 17-5-3-9-9-9-17zm28 0h6c0 8-4 14-9 17 2-5 3-11 3-17zm-21 0h14c0 7-2 14-7 19-5-5-7-12-7-19z"
+            fill="url(#${gid})"/>
+    </g>
+    <text x="${labelX}" y="${rowY3}" font-size="${fit.lineLabel}" font-weight="800" fill="rgba(169,180,199,.95)">${escapeXML(L.web)}</text>
+    <text x="${valueX}" y="${rowY3}" text-anchor="${valueAnchor}" font-size="${fit.lineValue}" font-weight="900" fill="rgba(242,211,122,.92)">${w1}</text>
+    ${webSecond}
+
+    <!-- bottom micro line -->
+    <text x="${padX}" y="520" font-size="18" font-weight="700" fill="rgba(169,180,199,.80)">${lang==="de" ? "Zugang • Struktur • Praxis" : "Access • Structure • Practice"}</text>
+  </g>
+</svg>
+        `;
       }
 
-      function renderSheet(){
-        const d = getData();
+      function renderPreview(d){
+        previewHolder.innerHTML = buildCardSVG(d);
+      }
+
+      function renderSheet(d){
         sheetGrid.innerHTML = "";
         for(let i=0;i<8;i++){
           const wrap = document.createElement("div");
           wrap.className = "cutWrap";
           wrap.setAttribute("data-cuts", String(d.cuts));
+
           const tl = document.createElement("div"); tl.className="cut tl";
           const tr = document.createElement("div"); tr.className="cut tr";
           const bl = document.createElement("div"); bl.className="cut bl";
           const br = document.createElement("div"); br.className="cut br";
           wrap.appendChild(tl); wrap.appendChild(tr); wrap.appendChild(bl); wrap.appendChild(br);
-          wrap.appendChild(createCardNode(d));
+
+          const card = document.createElement("div");
+          card.innerHTML = buildCardSVG(d);
+          wrap.appendChild(card.firstElementChild);
+
           sheetGrid.appendChild(wrap);
         }
+      }
+
+      function updateAll(){
+        const d = getData();
+        renderPreview(d);
+        renderSheet(d);
       }
 
       function saveData(){
@@ -776,8 +712,8 @@
           const raw = localStorage.getItem(LS_KEY);
           if(!raw) return false;
           const d = JSON.parse(raw);
+
           lang = (d.lang==="en") ? "en" : "de";
-          applyI18n();
 
           firstName.value = d.fn || "";
           lastName.value  = d.ln || "";
@@ -790,7 +726,7 @@
           role.value      = (typeof d.roleIdx === "number") ? String(d.roleIdx) : "0";
           showCuts.value  = (d.cuts===1) ? "1" : "0";
 
-          updatePreview();
+          applyI18n();
           return true;
         }catch(e){
           return false;
@@ -808,43 +744,50 @@
         web.value       = "https://max.mustermann.de/";
         role.value      = "2"; // Sprecher / Speaker
         showCuts.value  = "0";
-        updatePreview();
+        updateAll();
       }
 
       function copyData(){
         const d = getData();
+        const L = i18n[lang].labels;
         const text =
 `FSA-CLUB
 ${d.fn} ${d.ln}
 ${d.st}
 ${d.z} ${d.ct}
-${i18n[lang].labels.tel}: ${d.ph}
-${i18n[lang].labels.mail}: ${d.em}
-${i18n[lang].labels.web}: ${d.wb}
+${L.tel}: ${d.ph}
+${L.mail}: ${d.em}
+${L.web}: ${d.wb}
 ${d.r}`;
         navigator.clipboard.writeText(text).catch(()=>{});
       }
 
       // Events
       [firstName,lastName,street,zip,city,phone,email,web,role,showCuts].forEach(inp=>{
-        inp.addEventListener("input", updatePreview);
-        inp.addEventListener("change", updatePreview);
+        inp.addEventListener("input", updateAll);
+        inp.addEventListener("change", updateAll);
       });
 
-      el("btnPrint").addEventListener("click", ()=>{ updatePreview(); window.print(); });
+      el("btnPrint").addEventListener("click", ()=>{ updateAll(); window.print(); });
       el("btnSave").addEventListener("click", ()=>{ saveData(); });
       el("btnReset").addEventListener("click", ()=>{ localStorage.removeItem(LS_KEY); resetData(); });
       el("btnCopy").addEventListener("click", ()=>{ copyData(); });
 
-      el("btnDE").addEventListener("click", ()=>{ lang="de"; applyI18n(); updatePreview(); });
-      el("btnEN").addEventListener("click", ()=>{ lang="en"; applyI18n(); updatePreview(); });
+      el("btnDE").addEventListener("click", ()=>{ lang="de"; applyI18n(); });
+      el("btnEN").addEventListener("click", ()=>{ lang="en"; applyI18n(); });
 
       // Init
       buildRoleOptions();
       role.value = "2";
+
       const loaded = loadData();
-      if(!loaded) resetData();
-      applyI18n();
+      if(!loaded){
+        applyI18n();
+        resetData();
+      }else{
+        // applyI18n already called in loadData
+        updateAll();
+      }
     })();
   </script>
 </body>
