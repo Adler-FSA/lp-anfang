@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sprecher • Kick-Off Tools</title>
+  <meta name="robots" content="noindex,nofollow" />
+
+  <style>
+    :root{
+      --bg:#050814;
+      --bg2:#020617;
+      --panel:rgba(15,23,42,.90);
+      --panel2:rgba(15,23,42,.78);
+      --txt:#e9eef7;
+      --muted:#a9b4c7;
+      --gold:#d4af37;
+      --gold2:#f2d37a;
+      --line:rgba(212,175,55,.35);
+      --shadow:0 24px 60px rgba(0,0,0,.55);
+      --glow:0 0 26px rgba(212,175,55,.18), 0 10px 28px rgba(0,0,0,.55);
+      --radius:18px;
+      --ok:#2ee59d;
+      --warn:#ffcc66;
+      --bad:#ff6b6b;
+    }
+
+    html,body{
+      margin:0;
+      background:
+        radial-gradient(1200px 700px at 18% 18%, rgba(212,175,55,.18), transparent 60%),
+        radial-gradient(900px 600px at 80% 25%, rgba(94,168,255,.14), transparent 58%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      color:var(--txt);
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    }
+
+    .wrap{max-width:1100px;margin:0 auto;padding:28px 16px 80px;}
+    .topbar{
+      position:sticky;top:0;z-index:50;
+      background:linear-gradient(180deg, rgba(3,6,15,.96), rgba(3,6,15,.78));
+      border-bottom:1px solid rgba(212,175,55,.18);
+      backdrop-filter: blur(10px);
+    }
+    .topbar .inner{
+      max-width:1100px;margin:0 auto;padding:12px 16px;
+      display:flex;gap:10px;align-items:center;justify-content:space-between;
+    }
+
+    .brand{
+      display:flex;gap:10px;align-items:center;
+      letter-spacing:.3px;
+    }
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 12px;border-radius:999px;
+      background:rgba(212,175,55,.12);
+      border:1px solid rgba(212,175,55,.28);
+      box-shadow:0 0 18px rgba(212,175,55,.10);
+      color:var(--gold2);
+      font-weight:700;
+      font-size:13px;
+      white-space:nowrap;
+    }
+    .badge svg{width:16px;height:16px;display:block}
+
+    .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    .btn{
+      cursor:pointer;
+      border:1px solid rgba(212,175,55,.35);
+      background:linear-gradient(180deg, rgba(212,175,55,.22), rgba(212,175,55,.10));
+      color:var(--txt);
+      padding:10px 12px;
+      border-radius:12px;
+      box-shadow:0 16px 32px rgba(0,0,0,.35);
+      font-weight:700;
+      font-size:13px;
+      display:inline-flex;align-items:center;gap:8px;
+      user-select:none;
+    }
+    .btn:hover{filter:brightness(1.06)}
+    .btn:active{transform:translateY(1px)}
+    .btn.secondary{
+      border:1px solid rgba(255,255,255,.12);
+      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+    }
+    .btn.danger{
+      border:1px solid rgba(255,107,107,.35);
+      background:linear-gradient(180deg, rgba(255,107,107,.20), rgba(255,107,107,.08));
+    }
+
+    .status{
+      font-size:12px;color:var(--muted);
+      display:flex;gap:8px;align-items:center;
+      white-space:nowrap;
+    }
+    .dot{width:9px;height:9px;border-radius:50%;}
+    .dot.ok{background:var(--ok); box-shadow:0 0 10px rgba(46,229,157,.35);}
+    .dot.idle{background:rgba(255,255,255,.28);}
+    .dot.bad{background:var(--bad); box-shadow:0 0 10px rgba(255,107,107,.35);}
+
+    h1{
+      margin:22px 0 8px;
+      font-size:32px;line-height:1.1;
+      letter-spacing:.2px;
+    }
+    .subline{color:var(--muted);max-width:900px;margin:0 0 16px;font-size:14px;line-height:1.5}
+
+    .grid2{display:grid;grid-template-columns:1fr;gap:14px;}
+    @media(min-width:900px){ .grid2{grid-template-columns:1.2fr .8fr;} }
+
+    .card{
+      background:linear-gradient(180deg,var(--panel),var(--panel2));
+      border:1px solid rgba(212,175,55,.22);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow), var(--glow);
+      padding:16px;
+    }
+    .card h2{
+      margin:0 0 10px;
+      font-size:16px;
+      color:var(--gold2);
+      letter-spacing:.2px;
+    }
+    .card p{margin:0;color:var(--muted);line-height:1.55}
+
+    .field{
+      display:flex;flex-direction:column;gap:8px;
+      margin:10px 0 0;
+    }
+    label{
+      color:rgba(242,211,122,.95);
+      font-weight:800;font-size:12px;letter-spacing:.25px;
+      text-transform:uppercase;
+    }
+    input[type="text"], input[type="password"], textarea{
+      width:100%;
+      box-sizing:border-box;
+      background:rgba(0,0,0,.28);
+      border:1px solid rgba(212,175,55,.22);
+      color:var(--txt);
+      border-radius:14px;
+      padding:12px 12px;
+      outline:none;
+      font-size:14px;
+      line-height:1.45;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+    }
+    textarea{
+      resize:none;
+      min-height:120px;
+      overflow:hidden; /* auto-grow */
+    }
+    input:focus, textarea:focus{
+      border-color:rgba(242,211,122,.55);
+      box-shadow:0 0 0 3px rgba(212,175,55,.12);
+    }
+
+    .minirow{
+      display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px;
+    }
+
+    .sectionTitle{
+      margin:18px 0 10px;
+      font-size:14px;
+      color:rgba(242,211,122,.95);
+      font-weight:900;
+      letter-spacing:.2px;
+      text-transform:uppercase;
+    }
+
+    .agendaCard{
+      padding:14px;
+      border-radius:16px;
+      border:1px solid rgba(212,175,55,.18);
+      background:rgba(0,0,0,.18);
+      margin-top:10px;
+    }
+    .agendaHeader{
+      display:flex;gap:10px;align-items:center;justify-content:space-between;
+      margin-bottom:8px;
+    }
+    .agendaHeader .t{
+      font-weight:900;color:var(--txt);letter-spacing:.2px;
+    }
+    .agendaHeader .time{
+      font-weight:800;color:rgba(242,211,122,.92);
+      border:1px solid rgba(212,175,55,.24);
+      background:rgba(212,175,55,.10);
+      padding:6px 10px;border-radius:999px;
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    .footerNote{
+      margin-top:16px;
+      padding:14px;
+      border-radius:16px;
+      border:1px dashed rgba(212,175,55,.25);
+      background:rgba(0,0,0,.14);
+      color:var(--muted);
+      line-height:1.6;
+    }
+    .footerNote b{color:var(--txt)}
+
+    /* Password overlay */
+    .lock{
+      position:fixed;inset:0;
+      background:
+        radial-gradient(900px 600px at 18% 18%, rgba(212,175,55,.20), transparent 60%),
+        radial-gradient(900px 600px at 80% 25%, rgba(94,168,255,.14), transparent 58%),
+        linear-gradient(180deg, rgba(2,6,23,.92), rgba(2,6,23,.98));
+      display:flex;align-items:center;justify-content:center;
+      padding:18px;
+      z-index:999;
+    }
+    .lock .box{
+      width:min(560px, 100%);
+      background:linear-gradient(180deg, rgba(15,23,42,.92), rgba(15,23,42,.78));
+      border:1px solid rgba(212,175,55,.24);
+      border-radius:22px;
+      box-shadow:0 34px 90px rgba(0,0,0,.68), 0 0 30px rgba(212,175,55,.15);
+      padding:18px;
+    }
+    .lock h2{margin:0 0 8px;color:var(--gold2);font-size:18px}
+    .lock p{margin:0 0 12px;color:var(--muted);line-height:1.55}
+    .lock .row{display:flex;gap:10px;align-items:center}
+    .lock .row input{flex:1}
+    .hint{
+      margin-top:10px;
+      color:rgba(169,180,199,.92);
+      font-size:12px;
+    }
+
+    /* Print */
+    @media print{
+      .topbar, .lock, .actions, .status, .btn, .minirow{display:none !important;}
+      body{background:#fff;color:#000;}
+      .wrap{max-width:100%;padding:0 0 0;margin:0;}
+      .card, .agendaCard, .footerNote{
+        background:#fff !important;
+        border:1px solid #bbb !important;
+        box-shadow:none !important;
+        color:#000 !important;
+      }
+      .card h2, .sectionTitle, label{color:#000 !important;}
+      input[type="text"], textarea{
+        background:#fff !important;
+        color:#000 !important;
+        border:1px solid #888 !important;
+        box-shadow:none !important;
+      }
+      h1{color:#000;}
+      .subline{color:#222;}
+      a{color:#000;text-decoration:none;}
+      textarea{overflow:visible !important;}
+    }
+  </style>
+</head>
+
+<body>
+  <!-- PASSWORD OVERLAY -->
+  <div class="lock" id="lock">
+    <div class="box">
+      <div class="badge" style="margin-bottom:10px;">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M7 10V8a5 5 0 0 1 10 0v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M7.5 10h9A2.5 2.5 0 0 1 19 12.5v6A2.5 2.5 0 0 1 16.5 21h-9A2.5 2.5 0 0 1 5 18.5v-6A2.5 2.5 0 0 1 7.5 10Z" stroke="currentColor" stroke-width="2"/>
+          <path d="M12 14v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Sprecher-Bereich • Passwortschutz
+      </div>
+
+      <h2>Zugang über Sprecher-Passwort</h2>
+      <p>Dieser Bereich ist nur für Sprecher gedacht. Nach Freischaltung kannst du Inhalte live speichern und als PDF drucken.</p>
+
+      <div class="row">
+        <input id="pw" type="password" placeholder="Passwort eingeben" autocomplete="current-password" />
+        <button class="btn" id="unlockBtn" type="button">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+            <path d="M12 2v10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7 7l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 14v4a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Freischalten
+        </button>
+      </div>
+
+      <div class="hint" id="lockHint">Hinweis: Das Passwort kann sich ändern. Du bekommst es vom Admin/Sprecher-Team.</div>
+    </div>
+  </div>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="inner">
+      <div class="brand">
+        <div class="badge">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 2l8 4v6c0 5-3.5 9.5-8 10-4.5-.5-8-5-8-10V6l8-4Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M8.5 12.2l2.2 2.2L15.8 9.3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Sprecher-Tools • Kick-Off
+        </div>
+
+        <div class="status" id="saveStatus">
+          <span class="dot idle" id="saveDot"></span>
+          <span id="saveText">bereit</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn secondary" id="copyAll" type="button" title="Alle Inhalte (Text) kopieren">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+            <path d="M8 8h10v12H8z" stroke="currentColor" stroke-width="2"/>
+            <path d="M6 16H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          Alles kopieren
+        </button>
+
+        <button class="btn" id="printBtn" type="button" title="Drucken / PDF finde im Druckdialog">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+            <path d="M7 8V3h10v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7 17h10v4H7z" stroke="currentColor" stroke-width="2"/>
+            <path d="M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M6 10h12a2 2 0 0 1 2 2v3h-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M6 17H3v-5a2 2 0 0 1 2-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Drucken (PDF)
+        </button>
+
+        <button class="btn danger" id="resetBtn" type="button" title="Lokale Daten löschen (nur dieses Tool)">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+            <path d="M3 6h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M8 6V4h8v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7 6l1 16h8l1-16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Reset
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap" id="app">
+    <h1>Kick-Off Sprecher-Karte (Standard) – 11:00 bis 17:00 Uhr (mit Rechnern)</h1>
+    <div class="subline">
+      Dieser Bereich setzt einen klaren Handlungsrahmen für Sprecher. Alles ist live speicherbar (LocalStorage) und druckbar (PDF).
+      Die Textfelder wachsen automatisch mit – ohne Zeichenlimit. Wenn du nichts einträgst, wird der Beispieltext mitgedruckt (ohne „z.B“).
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h2>Intro (für Sprecher)</h2>
+        <p>
+          Ziel: Der Tag bleibt simpel und wiederholbar. Jeder Teilnehmer hat Laptop/iPad/Tablet dabei. Jeder öffnet die Akademie,
+          geht auf seinen Kurs (bereits vorhanden oder am Tag gekauft), gibt sein Passwort ein – und los geht es. Deine Hauptaufgabe ist
+          Moderation + Coaching durch einen strukturierten Prozess.
+        </p>
+
+        <div class="field">
+          <label for="speakerNotes">Notizen Sprecher (frei)</label>
+          <textarea id="speakerNotes" class="grow" data-key="speaker_notes"
+            data-default="Notizen: Raum/Technik, Besonderheiten vor Ort, Ansprechpartner, Zielgruppe, Einwände, Calls-to-Action, wichtige Links."></textarea>
+        </div>
+
+        <div class="minirow" style="margin-top:12px;">
+          <div class="badge" title="Live-Speichern aktiv">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 7a3 3 0 0 1 3-3h8l5 5v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7Z" stroke="currentColor" stroke-width="2"/>
+              <path d="M8 4v6h8V4" stroke="currentColor" stroke-width="2"/>
+              <path d="M8 20v-6h8v6" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            Live-Speichern
+          </div>
+
+          <div class="badge" style="background:rgba(94,168,255,.10);border-color:rgba(94,168,255,.25);color:#bfe0ff;">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 17l10-10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7 7h10v10H7z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            Auto-Grow Felder
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Abschluss-Block (für Sprecher)</h2>
+        <p>
+          Die Vorgehensweise ist bewusst simpel: Du gehst mit den Teilnehmern Modul für Modul durch.
+          Daraus entsteht ein strukturierter, wiederholbarer Prozess. Wenn man sich an Setup und Ablauf hält,
+          kann jeder Sprecher sauber moderieren.
+        </p>
+
+        <div class="footerNote">
+          <b>Merksatz:</b> Sieben Module sind der Schlüssel zum finanziellen Fundament – zur eigenen Souveränität.  
+          Deine Aufgabe ist nicht „viel reden“, sondern <b>Reihenfolge + Klarheit + Umsetzung</b>.
+        </div>
+      </div>
+    </div>
+
+    <div class="sectionTitle">Ablauf / Agenda (Beispieltexte sind editierbar)</div>
+
+    <!-- Agenda items -->
+    <div class="agendaCard">
+      <div class="agendaHeader">
+        <div class="t">Ankommen & Einstieg</div>
+        <div class="time">11:00–11:15</div>
+      </div>
+      <div class="field">
+        <label>Inhalt</label>
+        <textarea class="grow agenda" data-key="a_1100"
+          data-default="Willkommen + kurzer Ablauf („Heute Klarheit + Start, keine Theorie-Orgie“).
+Zielbild: „Am Ende weißt du: Was ist der Club, warum Mitglied, was ist dein nächster Schritt.“
+Hinweis: Fragen kommen in Mini-Q&A + Abschluss-Q&A."></textarea>
+      </div>
+    </div>
+
+    <div class="agendaCard">
+      <div class="agendaHeader">
+        <div class="t">Warum wir das machen (Mission)</div>
+        <div class="time">11:15–11:45</div>
+      </div>
+      <div class="field">
+        <label>Inhalt</label>
+        <textarea class="grow agenda" data-key="a_1115"
+          data-default="Leitgedanke: „Ich will, dass du kein Geld verlierst.“
+3 typische Fehler (kurz): fehlende Struktur / falsche Reihenfolge / blindes Vertrauen.
+Lösung: Struktur statt Hype – klare Schritte, die jeder versteht."></textarea>
+      </div>
+    </div>
+
+    <div class="agendaCard">
+      <div class="agendaHeader">
+        <div class="t">Der Club in 20 Minuten</div>
+        <div class="time">11:45–12:25</div>
+      </div>
+      <div class="field">
+        <label>Inhalt</label>
+        <textarea class="grow agenda" data-key="a_1145"
+          data-default="Was du bekommst: Campus, Inhalte, Orientierung, Vorteile – kurz & konkret.
+60 € / Jahr: Einstiegspreis für Struktur + Zugang (Wertlogik).
+Mitgliedervorteil: −20% auf Formate (greifbar machen: „lohnt sich schnell“)."></textarea>
+      </div>
+    </div>
+
+    <div class="agendaCard">
+      <div class="agendaHeader">
+        <div class="t">Die Rechner (Bewusstwerden in 15 Minuten)</div>
+        <div class="time">12:25–12:40</div>
+      </div>
+      <div class="field">
+        <label>Inhalt</label>
+        <textarea class="grow agenda" data-key="a_1225"
+          data-default="1–2 Rechner live zeigen: „Was kostet Unklarheit vs. was bringt Struktur?“
+Aha-Ziel: Teilnehmer versteht den Wert im Verhältnis zum Preis.
+Abschluss: „Das ist der Grund, warum 60 € nicht teuer sind, sondern ein Einstieg.“"></textarea>
+      </div>
+    </div>
+
+    <div class="agendaCard">
+      <div class="agendaHeader">
+        <div class="t">Mini-Q&A (nur Basics)</div>
+        <div class="time">12:40–12:55</div>
+      </div>
+      <div class="field">
+        <label>Inhalt</label>
+        <textarea class="grow agenda" data-key="a_1240"
+          data-default="5 häufigste Fragen: „Was genau? Für wen? Wie starte ich? Was kostet was? Wo ist der Zugang?“
+Keine Debatten – Antworten kurz, klar, ruhig.
+Übergang: „Jetzt Pause & Netzwerk.“"></textarea>
+      </div>
+    </div>
+
+    <div class="agendaCard">
+      <div class="agendaHeader">
+        <div class="t">Pause & Netzwerk (geführt)</div>
+        <div class="time">12:55–13:30</div>
+      </div>
+      <div class="field">
+        <label>Inhalt</label>
+        <textarea class="grow agenda" data-key="a_1255"
+          data-default="Auftrag an alle: „Sag 2 Leuten: Wer bist du + was willst du erreichen?“
+Vordenker-Modell: „Kennst du wen aus der nächsten Stadt? Lade ein.“
+Hinweis: 12 Städte / 12 Termine im Jahr (nur erwähnen)."></textarea>
+      </div>
+    </div>
+
+    <div class="agendaCard">
+      <div class="agendaHeader">
+        <div class="t">Leadmaschine (Überblick)</div>
+        <div class="time">13:30–14:10</div>
+      </div>
+      <div class="field">
+        <label>Inhalt</label>
+        <textarea class="grow agenda" data-key="a_1330"
+          data-default="Zweck: Tür zur Einkommensperspektive (seriös, ohne Versprechen).
+3-Schritt-Bild: Kontakt → Gespräch → nächster Termin/Prozess.
+Erwartung: funktioniert nur mit Umsetzung – Club liefert Struktur/Material."></textarea>
+      </div>
+    </div>
+
+    <div class="agendaCard">
+      <div class="agendaHeader">
+        <div class="t">Vertriebshandbuch (kurz + wow)</div>
+        <div class="time">14:10–14:40</div>
+      </div>
+      <div class="field">
+        <label>Inhalt</label>
+        <textarea class="grow agenda" data-key="a_1410"
+          data-default="„System statt Improvisation“: Leitfäden, Tools, Vorlagen.
+2–3 Tools zeigen (je 1–2 Minuten): Gesprächsstart / Einwand / Abschluss-Frage.
+Botschaft: Arbeiten macht wieder Spaß, weil es planbar wird."></textarea>
+      </div>
+    </div>
+
+    <div class="agendaCard">
+      <div class="agendaHeader">
+        <div class="t">Startplan (glasklar)</div>
+        <div class="time">14:40–15:05</div>
+      </div>
+      <div class="field">
+        <label>Inhalt</label>
+        <textarea class="grow agenda" data-key="a_1440"
+          data-default="Schritt 1: Mitglied werden (Einstieg + Vorteile).
+Schritt 2: Grundlagen im Campus (Orientierung).
+Schritt 3: erstes Format passend zum Ziel (keine Detail-Liste)."></textarea>
+      </div>
+    </div>
+
+    <div class="agendaCard">
+      <div class="agendaHeader">
+        <div class="t">Pause</div>
+        <div class="time">15:05–15:20</div>
+      </div>
+      <div class="field">
+        <label>Inhalt</label>
+        <textarea class="grow agenda" data-key="a_1505"
+          data-default="Kurz, Luft holen, Gespräche zulassen.
+Sprecher bleibt ansprechbar (kein Monolog)."></textarea>
+      </div>
+    </div>
+
+    <div class="agendaCard">
+      <div class="agendaHeader">
+        <div class="t">Weekend-Setup (Umsetzungsturbo)</div>
+        <div class="time">15:20–16:00</div>
+      </div>
+      <div class="field">
+        <label>Inhalt</label>
+        <textarea class="grow agenda" data-key="a_1520"
+          data-default="Warum: Setup/Ordnung/Sicherheit als Basis vor allem anderen.
+Ergebnisbild: „Du gehst mit Fundament raus – nicht mit Notizen.“
+Mitgliedervorteil erwähnen: −20% auf Formate."></textarea>
+      </div>
+    </div>
+
+    <div class="agendaCard">
+      <div class="agendaHeader">
+        <div class="t">Abschluss-Q&A</div>
+        <div class="time">16:00–16:30</div>
+      </div>
+      <div class="field">
+        <label>Inhalt</label>
+        <textarea class="grow agenda" data-key="a_1600"
+          data-default="3 Kategorien: Club / Ablauf / nächster Schritt.
+Einwände kurz klären, keine Diskussion.
+Fokus: Sicherheit + Klarheit → Start."></textarea>
+      </div>
+    </div>
+
+    <div class="agendaCard">
+      <div class="agendaHeader">
+        <div class="t">Abschluss & Einstieg</div>
+        <div class="time">16:30–17:00</div>
+      </div>
+      <div class="field">
+        <label>Inhalt</label>
+        <textarea class="grow agenda" data-key="a_1630"
+          data-default="3-Satz-Zusammenfassung: Mission → Club → nächster Schritt.
+Klare Einladung: „Heute einsteigen → Mitglied werden.“
+Netzwerk-Reminder: „Bring 1–2 Leute zur nächsten Stadt mit.“"></textarea>
+      </div>
+    </div>
+
+    <div class="footerNote" style="margin-top:18px;">
+      <b>Hinweis für den Prozess:</b> Jeder Teilnehmer öffnet die Akademie auf dem eigenen Gerät, geht in den Kurs, gibt sein Passwort ein – und arbeitet mit dir Modul für Modul.
+      So entsteht ein strukturierter, wiederholbarer Ablauf, der Sprecher entlastet und Teilnehmern Sicherheit gibt.
+    </div>
+
+  </div>
+
+  <script>
+    (function(){
+      "use strict";
+
+      // ===== CONFIG =====
+      const PAGE_KEY = "fsa_speaker_tools_kickoff_v1";
+      const UNLOCK_KEY = PAGE_KEY + "_unlocked";
+      const PASSWORD = "SPRECHER-2026"; // <-- nur hier ändern, falls nötig
+
+      // ===== ELEMENTS =====
+      const lock = document.getElementById("lock");
+      const pw = document.getElementById("pw");
+      const unlockBtn = document.getElementById("unlockBtn");
+
+      const saveDot = document.getElementById("saveDot");
+      const saveText = document.getElementById("saveText");
+
+      const printBtn = document.getElementById("printBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const copyAllBtn = document.getElementById("copyAll");
+
+      const allInputs = Array.from(document.querySelectorAll("textarea[data-key], input[type='text'][data-key]"));
+      const allGrow = Array.from(document.querySelectorAll("textarea.grow"));
+
+      // ===== HELPERS =====
+      function setStatus(mode, text){
+        saveDot.classList.remove("ok","idle","bad");
+        if(mode==="ok") saveDot.classList.add("ok");
+        else if(mode==="bad") saveDot.classList.add("bad");
+        else saveDot.classList.add("idle");
+        saveText.textContent = text;
+      }
+
+      function autoGrow(el){
+        if(!el || el.tagName!=="TEXTAREA") return;
+        el.style.height = "auto";
+        el.style.height = Math.max(el.scrollHeight, 120) + "px";
+      }
+
+      function getDefaultText(el){
+        return (el.getAttribute("data-default") || "").replace(/^z\.B\s*/i,"").trim();
+      }
+
+      // Placeholder behavior (default text as real value, printable)
+      function ensureDefaultIfEmpty(el){
+        const v = (el.value || "").trim();
+        if(v.length===0){
+          el.value = getDefaultText(el);
+        }
+      }
+
+      function clearIfDefault(el){
+        const d = getDefaultText(el);
+        if((el.value || "").trim() === d){
+          el.value = "";
+        }
+      }
+
+      function saveField(el){
+        const key = el.getAttribute("data-key");
+        if(!key) return;
+        localStorage.setItem(PAGE_KEY + "::" + key, el.value || "");
+      }
+
+      function loadField(el){
+        const key = el.getAttribute("data-key");
+        if(!key) return;
+        const stored = localStorage.getItem(PAGE_KEY + "::" + key);
+        if(stored !== null){
+          el.value = stored;
+        } else {
+          // first run: set default text as real content (printable)
+          ensureDefaultIfEmpty(el);
+        }
+      }
+
+      function hydrate(){
+        allInputs.forEach(el => {
+          loadField(el);
+          if(el.tagName==="TEXTAREA") autoGrow(el);
+        });
+        setStatus("idle","bereit");
+      }
+
+      function unlock(){
+        const entered = (pw.value || "").trim();
+        if(entered === PASSWORD){
+          localStorage.setItem(UNLOCK_KEY, "1");
+          lock.style.display = "none";
+          setStatus("idle","bereit");
+          setTimeout(()=>{ pw.value=""; }, 50);
+        } else {
+          setStatus("bad","Passwort falsch");
+          setTimeout(()=>setStatus("idle","bereit"), 1200);
+        }
+      }
+
+      function exportAllText(){
+        // ensure defaults for empties before export
+        allInputs.forEach(ensureDefaultIfEmpty);
+
+        const lines = [];
+        lines.push("Kick-Off Sprecher-Tools (Export)");
+        lines.push("================================");
+        lines.push("");
+        allInputs.forEach(el=>{
+          const label = el.id ? (document.querySelector('label[for="'+el.id+'"]')?.textContent || el.getAttribute("data-key")) : el.getAttribute("data-key");
+          lines.push("[" + (label || "Feld") + "]");
+          lines.push((el.value || "").trim());
+          lines.push("");
+        });
+        return lines.join("\n");
+      }
+
+      async function copyToClipboard(text){
+        try{
+          await navigator.clipboard.writeText(text);
+          setStatus("ok","kopiert");
+          setTimeout(()=>setStatus("idle","bereit"), 900);
+        }catch(e){
+          // fallback
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position="fixed";
+          ta.style.opacity="0";
+          document.body.appendChild(ta);
+          ta.select();
+          try{ document.execCommand("copy"); }catch(_){}
+          document.body.removeChild(ta);
+          setStatus("ok","kopiert");
+          setTimeout(()=>setStatus("idle","bereit"), 900);
+        }
+      }
+
+      function resetAll(){
+        if(!confirm("Lokale Daten für dieses Sprecher-Tool wirklich löschen?")) return;
+        // remove all keys for this page
+        const keysToRemove = [];
+        for(let i=0;i<localStorage.length;i++){
+          const k = localStorage.key(i);
+          if(k && (k.startsWith(PAGE_KEY + "::") || k === UNLOCK_KEY)){
+            keysToRemove.push(k);
+          }
+        }
+        keysToRemove.forEach(k => localStorage.removeItem(k));
+
+        // restore defaults
+        allInputs.forEach(el=>{
+          el.value = "";
+          ensureDefaultIfEmpty(el);
+          saveField(el);
+          if(el.tagName==="TEXTAREA") autoGrow(el);
+        });
+
+        // lock again
+        lock.style.display = "flex";
+        setStatus("idle","bereit");
+      }
+
+      // ===== EVENTS =====
+      unlockBtn.addEventListener("click", unlock);
+      pw.addEventListener("keydown", (e)=>{ if(e.key==="Enter") unlock(); });
+
+      allInputs.forEach(el=>{
+        // focus: clear if currently default text
+        el.addEventListener("focus", ()=>{
+          clearIfDefault(el);
+        });
+
+        // input: live save + auto-grow
+        el.addEventListener("input", ()=>{
+          if(el.tagName==="TEXTAREA") autoGrow(el);
+          saveField(el);
+          setStatus("ok","gespeichert");
+          setTimeout(()=>setStatus("idle","bereit"), 700);
+        });
+
+        // blur: if empty, restore default (printable)
+        el.addEventListener("blur", ()=>{
+          ensureDefaultIfEmpty(el);
+          if(el.tagName==="TEXTAREA") autoGrow(el);
+          saveField(el);
+        });
+      });
+
+      // Print: ensure defaults exist so nothing is "missing"
+      printBtn.addEventListener("click", ()=>{
+        allInputs.forEach(ensureDefaultIfEmpty);
+        allGrow.forEach(autoGrow);
+        // save once before printing
+        allInputs.forEach(saveField);
+        window.print();
+      });
+
+      // Copy all text
+      copyAllBtn.addEventListener("click", ()=>{
+        const txt = exportAllText();
+        copyToClipboard(txt);
+      });
+
+      // Reset
+      resetBtn.addEventListener("click", resetAll);
+
+      // Keep textarea heights correct after resize
+      window.addEventListener("resize", ()=> allGrow.forEach(autoGrow));
+
+      // Print hook (just in case)
+      window.addEventListener("beforeprint", ()=>{
+        allInputs.forEach(ensureDefaultIfEmpty);
+        allGrow.forEach(autoGrow);
+      });
+
+      // ===== INIT =====
+      const unlocked = localStorage.getItem(UNLOCK_KEY)==="1";
+      if(unlocked){
+        lock.style.display = "none";
+      } else {
+        lock.style.display = "flex";
+      }
+      hydrate();
+    })();
+  </script>
+</body>
+</html>
