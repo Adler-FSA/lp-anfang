@@ -849,6 +849,7 @@
     │   │   ├── beratermarkt-index-dach-2.html
     │   │   ├── beratermarkt-index-dach.html
     │   │   ├── dach-demand-dashboard.html
+    │   │   ├── visitenkarte-fsa-club.html
     │   │   └── zertifikat-krypto-fuehrerschein.html
     │   ├── trustyfy/
     │   │   └── fast-track.html
@@ -1004,4 +1005,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.02.2026, 23:23)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.02.2026, 01:28)_
