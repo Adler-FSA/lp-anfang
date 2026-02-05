@@ -859,6 +859,7 @@
     │   │   ├── promotor-onboarding-checkin.html
     │   │   ├── sprecher-onboarding-checkin.html
     │   │   ├── visitenkarte-fsa-club.html
+    │   │   ├── visitenkarte-weiss-schwarz-generator.html
     │   │   └── zertifikat-krypto-fuehrerschein.html
     │   ├── trustyfy/
     │   │   └── fast-track.html
@@ -1014,4 +1015,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 05.02.2026, 22:21)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 05.02.2026, 23:18)_
