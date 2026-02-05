@@ -3,791 +3,666 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>FSA-Club – Visitenkarten Tool</title>
-  <meta name="description" content="FSA-Club Visitenkarten Tool: Eingabe → SVG-Vorschau → A4 Druckbogen (8 Karten) als PDF/Druck. DE/EN, LocalStorage." />
+  <title>Visitenkarte – Weiß/Schwarz Generator</title>
+  <meta name="description" content="Visitenkarte Generator: Eingabefelder, Live-Vorschau, Druckvorlage (weißes Design, schwarze Schrift), DE/EN, LocalStorage." />
   <meta name="robots" content="noindex,nofollow" />
 
   <style>
     :root{
-      --bg:#050814; --bg2:#020617;
-      --panel:rgba(15,23,42,.88);
-      --txt:#e9eef7; --muted:#a9b4c7;
-      --gold:#d4af37; --gold2:#f2d37a;
-      --line:rgba(212,175,55,.35);
-      --shadow:0 24px 60px rgba(0,0,0,.55);
-      --glow:0 0 26px rgba(212,175,55,.18), 0 10px 28px rgba(0,0,0,.55);
-      --radius:18px;
+      --bg:#ffffff;
+      --ink:#000000;
+      --muted:#333333;
+      --line:#000000;
+      --panel:#ffffff;
+
+      /* Visitenkarte (Standard DE): 85 x 55 mm */
+      --card-w:85mm;
+      --card-h:55mm;
+      --card-pad:4.5mm;
+
+      --radius:2mm;
     }
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
+    html,body{
       margin:0;
+      background:var(--bg);
+      color:var(--ink);
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-      color:var(--txt);
-      background:
-        radial-gradient(1200px 800px at 20% 10%, rgba(212,175,55,.18), transparent 60%),
-        radial-gradient(900px 700px at 80% 30%, rgba(94,168,255,.14), transparent 55%),
-        linear-gradient(180deg, var(--bg), var(--bg2));
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
     }
 
-    .wrap{max-width:1180px;margin:28px auto 60px;padding:0 18px}
-    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
-
-    .brand{
-      display:flex;align-items:center;gap:12px;
-      padding:12px 14px;
-      background:linear-gradient(180deg, rgba(15,23,42,.92), rgba(15,23,42,.72));
-      border:1px solid var(--line);
-      border-radius:14px;
-      box-shadow:var(--shadow);
-    }
-    .brand svg{width:28px;height:28px;flex:0 0 28px}
-    .brand b{letter-spacing:.4px}
-    .brand .sub{display:block;font-size:12px;color:var(--muted);margin-top:2px}
-
-    .lang{
-      display:flex;gap:8px;align-items:center;
-      padding:10px;
-      background:rgba(15,23,42,.60);
-      border:1px solid var(--line);
-      border-radius:14px;
-      box-shadow:var(--glow);
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:18px 16px 34px;
     }
 
-    .btn{
-      appearance:none;border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(212,175,55,.18), rgba(15,23,42,.65));
-      color:var(--txt);
-      padding:10px 12px;
-      border-radius:12px;
-      cursor:pointer;
+    header{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .title{
+      line-height:1.15;
+    }
+    .title h1{
+      margin:0;
+      font-size:20px;
       font-weight:800;
       letter-spacing:.2px;
-      transition:transform .12s ease, border-color .12s ease;
-      user-select:none;
-      white-space:nowrap;
     }
-    .btn:hover{transform:translateY(-1px);border-color:rgba(212,175,55,.55)}
-    .btn:active{transform:translateY(0px)}
-    .btn.primary{
-      background:linear-gradient(180deg, rgba(212,175,55,.34), rgba(212,175,55,.12));
-      border-color:rgba(212,175,55,.60);
-      box-shadow:0 0 22px rgba(212,175,55,.16);
+    .title p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      max-width:62ch;
     }
-    .btn.ghost{background:rgba(15,23,42,.55)}
-    .btn.small{padding:8px 10px;font-weight:900}
 
-    .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:16px;margin-top:14px}
-
-    .panel{
-      background:linear-gradient(180deg, rgba(15,23,42,.92), rgba(15,23,42,.72));
+    .lang{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .btn{
+      appearance:none;
       border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .panel h2{
-      margin:0;padding:16px 18px;
-      font-size:15px;letter-spacing:.35px;
-      border-bottom:1px solid rgba(212,175,55,.18);
-      background:linear-gradient(90deg, rgba(212,175,55,.10), transparent 50%);
-    }
-    .panel .body{padding:16px 18px}
-
-    .form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .field{display:flex;flex-direction:column;gap:6px}
-    label{font-size:12px;color:var(--muted);letter-spacing:.25px}
-    input,select{
-      width:100%;
-      padding:12px 12px;
-      border-radius:12px;
-      border:1px solid rgba(212,175,55,.25);
-      background:rgba(2,6,23,.55);
-      color:var(--txt);
-      outline:none;
-      box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);
-    }
-    input::placeholder{color:rgba(169,180,199,.65)}
-    .row2{grid-column:span 2}
-
-    .actions{
-      display:flex;flex-wrap:wrap;gap:10px;
-      margin-top:14px;align-items:center;justify-content:space-between;
-    }
-    .actions .left,.actions .right{display:flex;gap:10px;flex-wrap:wrap}
-    .hint{margin-top:12px;font-size:12px;color:var(--muted);line-height:1.35}
-    .hint strong{color:rgba(242,211,122,.95)}
-
-    /* ===== Preview frame ===== */
-    .previewWrap{display:grid;gap:14px}
-    .cardFrame{
-      padding:16px;
-      border-radius:18px;
-      border:1px solid rgba(212,175,55,.22);
-      background:
-        radial-gradient(650px 260px at 20% 0%, rgba(212,175,55,.14), transparent 55%),
-        radial-gradient(450px 220px at 90% 40%, rgba(94,168,255,.12), transparent 55%),
-        linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.08));
-      box-shadow:var(--glow);
-    }
-
-    /* SVG card in true size for preview */
-    .svgCard{
-      width:85mm;
-      height:55mm;
-      display:block;
-      border-radius:4.2mm;
-      box-shadow:0 10px 26px rgba(0,0,0,.55);
-      overflow:hidden;
-    }
-
-    .miniNote{font-size:12px;color:var(--muted);line-height:1.35;margin:0}
-
-    /* ===== Print sheet (A4 8-up) ===== */
-    #printArea{display:none}
-
-    .sheet{
-      width:210mm;
-      min-height:297mm;
       background:#fff;
       color:#000;
-      padding:12mm; /* printer safe margin */
+      padding:8px 10px;
+      border-radius:8px;
+      font-weight:700;
+      font-size:13px;
+      cursor:pointer;
     }
-    .sheetGrid{
+    .btn:active{ transform:translateY(1px); }
+    .btn.small{ padding:7px 9px; font-size:12px; }
+    .btn.primary{
+      background:#000;
+      color:#fff;
+    }
+
+    .grid{
       display:grid;
-      grid-template-columns:repeat(2, 85mm);
-      grid-auto-rows:55mm;
-      column-gap:8mm;
-      row-gap:6mm;
-      align-content:start;
-      justify-content:start;
+      grid-template-columns: 1fr 1fr;
+      gap:16px;
+      align-items:start;
     }
-    .cutWrap{
-      width:85mm;height:55mm;
+
+    .panel{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:14px;
+      background:var(--panel);
+    }
+
+    .panel h2{
+      margin:0 0 10px;
+      font-size:15px;
+      font-weight:800;
+    }
+
+    .form{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .field.full{ grid-column:1 / -1; }
+
+    label{
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+    input{
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:10px 10px;
+      font-size:14px;
+      outline:none;
+      background:#fff;
+      color:#000;
+    }
+    input::placeholder{ color:#777; }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .hint{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.35;
+    }
+
+    /* Preview Card */
+    .previewWrap{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      align-items:flex-start;
+    }
+
+    .cardSheet{
+      background:#fff;
+      padding:12px;
+      border:1px dashed #000;
+      border-radius:12px;
+    }
+
+    .card{
+      width:var(--card-w);
+      height:var(--card-h);
+      border:1px solid #000;
+      border-radius:var(--radius);
+      padding:var(--card-pad);
+      box-sizing:border-box;
+      background:#fff;
+      color:#000;
       position:relative;
+      overflow:hidden;
     }
 
-    /* Cut marks (optional) */
-    .cutWrap[data-cuts="1"] .cut:before,
-    .cutWrap[data-cuts="1"] .cut:after{
-      content:"";position:absolute;background:#000;opacity:.40;
+    .cName{
+      font-weight:900;
+      font-size:12.5pt;
+      line-height:1.1;
+      letter-spacing:.2px;
+      margin:0;
+      word-break:break-word;
     }
-    .cutWrap[data-cuts="1"] .cut.tl:before{left:-3mm; top:0; width:3mm; height:.25mm;}
-    .cutWrap[data-cuts="1"] .cut.tl:after{left:0; top:-3mm; width:.25mm; height:3mm;}
-    .cutWrap[data-cuts="1"] .cut.tr:before{right:-3mm; top:0; width:3mm; height:.25mm;}
-    .cutWrap[data-cuts="1"] .cut.tr:after{right:0; top:-3mm; width:.25mm; height:3mm;}
-    .cutWrap[data-cuts="1"] .cut.bl:before{left:-3mm; bottom:0; width:3mm; height:.25mm;}
-    .cutWrap[data-cuts="1"] .cut.bl:after{left:0; bottom:-3mm; width:.25mm; height:3mm;}
-    .cutWrap[data-cuts="1"] .cut.br:before{right:-3mm; bottom:0; width:3mm; height:.25mm;}
-    .cutWrap[data-cuts="1"] .cut.br:after{right:0; bottom:-3mm; width:.25mm; height:3mm;}
+    .cRole{
+      margin:2mm 0 0;
+      font-weight:700;
+      font-size:9.5pt;
+      color:#000;
+      word-break:break-word;
+    }
 
-    /* Print rules */
-    @page{ size:A4; margin:0; }
+    .cLine{
+      height:0;
+      border-top:1px solid #000;
+      margin:3.2mm 0 3.2mm;
+      opacity:1;
+    }
+
+    .cInfo{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:1.2mm;
+      font-size:9.2pt;
+      line-height:1.15;
+      color:#000;
+      word-break:break-word;
+    }
+
+    .mono{
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+    }
+
+    .empty{
+      opacity:.35;
+      font-style:italic;
+    }
+
+    .footerNote{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+      .cardSheet{ width:100%; }
+    }
+
+    /* PRINT: only the card area */
     @media print{
-      html,body{background:#fff}
-      .wrap{display:none !important}
-      #printArea{display:block !important}
-      .sheet{padding:12mm}
-      /* best effort for colors */
-      *{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
-      .svgCard{box-shadow:none}
+      @page{
+        size: A4;
+        margin: 12mm;
+      }
+      body{ background:#fff; }
+      header, .panel.formPanel, .footerNote, .lang, .hint, .actions{ display:none !important; }
+      .wrap{ padding:0; max-width:none; }
+      .grid{ display:block; }
+      .panel{ border:none; padding:0; }
+      .cardSheet{
+        border:none;
+        padding:0;
+        border-radius:0;
+      }
+
+      /* Center card on page */
+      .card{
+        margin:0 auto;
+      }
+
+      /* Optional simple crop marks */
+      .card::before,
+      .card::after{
+        content:"";
+        position:absolute;
+        left:-6mm; right:-6mm;
+        top:-6mm; bottom:-6mm;
+        pointer-events:none;
+        border:0;
+      }
+      .crop{
+        position:relative;
+        width:var(--card-w);
+        height:var(--card-h);
+        margin:0 auto;
+      }
+      .crop:before, .crop:after{
+        content:"";
+        position:absolute;
+        inset:-6mm;
+        border:0;
+      }
+      .crop i{
+        position:absolute;
+        width:6mm; height:6mm;
+        border-color:#000;
+        border-style:solid;
+        border-width:0;
+        display:block;
+      }
+      .crop i.tl{ left:-6mm; top:-6mm; border-left-width:0.25mm; border-top-width:0.25mm; }
+      .crop i.tr{ right:-6mm; top:-6mm; border-right-width:0.25mm; border-top-width:0.25mm; }
+      .crop i.bl{ left:-6mm; bottom:-6mm; border-left-width:0.25mm; border-bottom-width:0.25mm; }
+      .crop i.br{ right:-6mm; bottom:-6mm; border-right-width:0.25mm; border-bottom-width:0.25mm; }
     }
   </style>
 </head>
 
 <body>
-  <div class="wrap" id="ui">
-    <div class="topbar">
-      <div class="brand">
-        <!-- Inline SVG only (header icon) -->
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <defs>
-            <linearGradient id="gGoldHeader" x1="0" x2="1">
-              <stop offset="0" stop-color="#d4af37"/>
-              <stop offset="1" stop-color="#f2d37a"/>
-            </linearGradient>
-          </defs>
-          <path d="M32 4c10 8 18 8 26 8 0 30-10 40-26 48C16 52 6 42 6 12c8 0 16 0 26-8z"
-                fill="rgba(15,23,42,.2)" stroke="url(#gGoldHeader)" stroke-width="2"/>
-          <path d="M20 28h24v6H20z" fill="url(#gGoldHeader)" opacity=".9"/>
-          <path d="M24 20h16v6H24z" fill="url(#gGoldHeader)" opacity=".7"/>
-          <path d="M24 36h16v6H24z" fill="url(#gGoldHeader)" opacity=".7"/>
-        </svg>
-        <div>
-          <b data-i18n="title">FSA-Club – Visitenkarten Tool</b>
-          <span class="sub" data-i18n="subtitle">Eingabe → SVG-Vorschau → A4 Druckbogen (8 Karten)</span>
-        </div>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <h1 data-i18n="h1">Visitenkarte – Weiß/Schwarz</h1>
+        <p data-i18n="sub">
+          Eingaben → Live-Vorschau → Drucken / als PDF speichern. Minimaler Druck (weiß + schwarz).
+        </p>
       </div>
 
       <div class="lang">
-        <button class="btn small ghost" id="btnDE" type="button">DE</button>
-        <button class="btn small ghost" id="btnEN" type="button">EN</button>
+        <button class="btn small" id="btnDE" type="button">DE</button>
+        <button class="btn small" id="btnEN" type="button">EN</button>
+        <button class="btn primary" id="btnPrint" type="button" data-i18n="printBtn">Drucken / als PDF speichern</button>
       </div>
-    </div>
+    </header>
 
     <div class="grid">
-      <!-- Input -->
-      <section class="panel">
-        <h2 data-i18n="panel_input">Eingabe</h2>
-        <div class="body">
-          <div class="form" id="form">
-            <div class="field">
-              <label for="firstName" data-i18n="firstName">Vorname</label>
-              <input id="firstName" type="text" placeholder="Max" autocomplete="given-name" />
-            </div>
-            <div class="field">
-              <label for="lastName" data-i18n="lastName">Nachname</label>
-              <input id="lastName" type="text" placeholder="Mustermann" autocomplete="family-name" />
-            </div>
+      <!-- FORM -->
+      <section class="panel formPanel">
+        <h2 data-i18n="formTitle">Eingabefelder</h2>
 
-            <div class="field row2">
-              <label for="street" data-i18n="street">Straße + Hausnummer</label>
-              <input id="street" type="text" placeholder="Musterweg 16" autocomplete="street-address" />
-            </div>
-
-            <div class="field">
-              <label for="zip" data-i18n="zip">PLZ</label>
-              <input id="zip" type="text" placeholder="12345" inputmode="numeric" autocomplete="postal-code" />
-            </div>
-            <div class="field">
-              <label for="city" data-i18n="city">Ort</label>
-              <input id="city" type="text" placeholder="Musterhausen" autocomplete="address-level2" />
-            </div>
-
-            <div class="field">
-              <label for="phone" data-i18n="phone">Telefon / Mobil</label>
-              <input id="phone" type="text" placeholder="01234 / 567890" autocomplete="tel" />
-            </div>
-            <div class="field">
-              <label for="email" data-i18n="email">E-Mail</label>
-              <input id="email" type="email" placeholder="max@mustermann.com" autocomplete="email" />
-            </div>
-
-            <div class="field row2">
-              <label for="web" data-i18n="web">Webseite</label>
-              <input id="web" type="text" placeholder="https://max.mustermann.de/" autocomplete="url" />
-            </div>
-
-            <div class="field row2">
-              <label for="role" data-i18n="role">Tätigkeit</label>
-              <select id="role"></select>
-            </div>
-
-            <div class="field row2">
-              <label for="showCuts" data-i18n="cuts">Schnittmarken (optional)</label>
-              <select id="showCuts">
-                <option value="0" data-i18n="cuts_off">Aus</option>
-                <option value="1" data-i18n="cuts_on">An</option>
-              </select>
-            </div>
+        <div class="form" id="form">
+          <div class="field">
+            <label for="firstName" data-i18n="firstNameLabel">Vorname</label>
+            <input id="firstName" type="text" placeholder="Max" autocomplete="given-name" />
           </div>
 
-          <div class="actions">
-            <div class="left">
-              <button class="btn primary" id="btnPrint" type="button" data-i18n="btn_print">Drucken / PDF</button>
-              <button class="btn" id="btnSave" type="button" data-i18n="btn_save">Daten merken</button>
-              <button class="btn ghost" id="btnReset" type="button" data-i18n="btn_reset">Zurücksetzen</button>
-            </div>
-            <div class="right">
-              <button class="btn ghost" id="btnCopy" type="button" data-i18n="btn_copy">Daten kopieren</button>
-            </div>
+          <div class="field">
+            <label for="lastName" data-i18n="lastNameLabel">Nachname</label>
+            <input id="lastName" type="text" placeholder="Mustermann" autocomplete="family-name" />
           </div>
 
+          <div class="field full">
+            <label for="street" data-i18n="streetLabel">Straße & Hausnummer</label>
+            <input id="street" type="text" placeholder="Musterstraße 12" autocomplete="street-address" />
+          </div>
+
+          <div class="field">
+            <label for="zip" data-i18n="zipLabel">PLZ</label>
+            <input id="zip" type="text" inputmode="numeric" placeholder="12345" autocomplete="postal-code" />
+          </div>
+
+          <div class="field">
+            <label for="city" data-i18n="cityLabel">Ort</label>
+            <input id="city" type="text" placeholder="Musterstadt" autocomplete="address-level2" />
+          </div>
+
+          <div class="field">
+            <label for="mobile" data-i18n="mobileLabel">Mobil</label>
+            <input id="mobile" type="tel" placeholder="+49 170 1234567" autocomplete="tel" />
+          </div>
+
+          <div class="field">
+            <label for="email" data-i18n="emailLabel">E-Mail</label>
+            <input id="email" type="email" placeholder="name@domain.de" autocomplete="email" />
+          </div>
+
+          <div class="field full">
+            <label for="website" data-i18n="websiteLabel">Webseite</label>
+            <input id="website" type="text" placeholder="https://deine-domain.de" autocomplete="url" />
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="btnClear" type="button" data-i18n="clearBtn">Felder leeren</button>
+          <button class="btn" id="btnCopy" type="button" data-i18n="copyBtn">Text kopieren</button>
           <div class="hint" data-i18n="hint">
-            Hinweis: Für PDF einfach „Drucken“ → „Als PDF speichern“. <strong>Kopf-/Fußzeilen aus</strong> (URL/Datum/Seitenzahl).
+            Tipp: Nach dem Klick auf „Drucken / als PDF speichern“ im Druckdialog „Als PDF sichern“ wählen.
           </div>
         </div>
       </section>
 
-      <!-- Preview -->
+      <!-- PREVIEW -->
       <section class="panel">
-        <h2 data-i18n="panel_preview">Vorschau</h2>
-        <div class="body previewWrap">
-          <div class="cardFrame">
-            <!-- Preview SVG card gets injected here -->
-            <div id="previewHolder"></div>
+        <h2 data-i18n="previewTitle">Vorschau</h2>
+
+        <div class="previewWrap">
+          <div class="cardSheet" aria-label="Print area">
+            <div class="crop">
+              <i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i>
+              <div class="card" id="card">
+                <p class="cName" id="pName">—</p>
+                <p class="cRole" id="pAddr1">—</p>
+                <div class="cLine"></div>
+                <div class="cInfo">
+                  <div class="mono" id="pAddr2">—</div>
+                  <div class="mono" id="pMobile">—</div>
+                  <div class="mono" id="pEmail">—</div>
+                  <div class="mono" id="pWeb">—</div>
+                </div>
+              </div>
+            </div>
           </div>
-          <p class="miniNote" data-i18n="note">Druckformat: 85×55 mm. A4-Bogen: 8 Karten (2×4).</p>
+
+          <div class="footerNote" data-i18n="privacy">
+            Hinweis: Speicherung erfolgt lokal im Browser (LocalStorage). Keine Übertragung.
+          </div>
         </div>
       </section>
-    </div>
-  </div>
-
-  <!-- PRINT ONLY -->
-  <div id="printArea">
-    <div class="sheet">
-      <div class="sheetGrid" id="sheetGrid"></div>
     </div>
   </div>
 
   <script>
     (function(){
-      const LS_KEY = "fsa_club_visitenkarte_svg_v1";
-      let lang = "de";
+      "use strict";
+
+      const LS_KEY = "fsa_vcard_white_black_v1";
+      const LS_LANG = "fsa_lang_vcard";
+
+      const els = {
+        firstName: document.getElementById("firstName"),
+        lastName: document.getElementById("lastName"),
+        street: document.getElementById("street"),
+        zip: document.getElementById("zip"),
+        city: document.getElementById("city"),
+        mobile: document.getElementById("mobile"),
+        email: document.getElementById("email"),
+        website: document.getElementById("website"),
+
+        pName: document.getElementById("pName"),
+        pAddr1: document.getElementById("pAddr1"),
+        pAddr2: document.getElementById("pAddr2"),
+        pMobile: document.getElementById("pMobile"),
+        pEmail: document.getElementById("pEmail"),
+        pWeb: document.getElementById("pWeb"),
+
+        btnPrint: document.getElementById("btnPrint"),
+        btnClear: document.getElementById("btnClear"),
+        btnCopy: document.getElementById("btnCopy"),
+        btnDE: document.getElementById("btnDE"),
+        btnEN: document.getElementById("btnEN"),
+      };
 
       const i18n = {
-        de:{
-          title:"FSA-Club – Visitenkarten Tool",
-          subtitle:"Eingabe → SVG-Vorschau → A4 Druckbogen (8 Karten)",
-          panel_input:"Eingabe",
-          panel_preview:"Vorschau",
-          firstName:"Vorname",
-          lastName:"Nachname",
-          street:"Straße + Hausnummer",
-          zip:"PLZ",
-          city:"Ort",
-          phone:"Telefon / Mobil",
-          email:"E-Mail",
-          web:"Webseite",
-          role:"Tätigkeit",
-          cuts:"Schnittmarken (optional)",
-          cuts_off:"Aus",
-          cuts_on:"An",
-          btn_print:"Drucken / PDF",
-          btn_save:"Daten merken",
-          btn_reset:"Zurücksetzen",
-          btn_copy:"Daten kopieren",
-          hint:"Hinweis: Für PDF einfach „Drucken“ → „Als PDF speichern“. Kopf-/Fußzeilen aus (URL/Datum/Seitenzahl).",
-          note:"Druckformat: 85×55 mm. A4-Bogen: 8 Karten (2×4).",
-          labels:{tel:"Tel", mail:"Mail", web:"Web"},
-          roles:["Promotor","Mentor","Sprecher","Eventmanagement"]
+        de: {
+          h1:"Visitenkarte – Weiß/Schwarz",
+          sub:"Eingaben → Live-Vorschau → Drucken / als PDF speichern. Minimaler Druck (weiß + schwarz).",
+          formTitle:"Eingabefelder",
+          firstNameLabel:"Vorname",
+          lastNameLabel:"Nachname",
+          streetLabel:"Straße & Hausnummer",
+          zipLabel:"PLZ",
+          cityLabel:"Ort",
+          mobileLabel:"Mobil",
+          emailLabel:"E-Mail",
+          websiteLabel:"Webseite",
+          previewTitle:"Vorschau",
+          printBtn:"Drucken / als PDF speichern",
+          clearBtn:"Felder leeren",
+          copyBtn:"Text kopieren",
+          hint:"Tipp: Nach dem Klick auf „Drucken / als PDF speichern“ im Druckdialog „Als PDF sichern“ wählen.",
+          privacy:"Hinweis: Speicherung erfolgt lokal im Browser (LocalStorage). Keine Übertragung.",
+          empty:"(leer)",
+          copied:"Kopiert.",
+          copyFail:"Kopieren nicht möglich.",
+          confirmClear:"Wirklich alle Felder leeren?"
         },
-        en:{
-          title:"FSA Club – Business Card Tool",
-          subtitle:"Input → SVG preview → A4 print sheet (8 cards)",
-          panel_input:"Input",
-          panel_preview:"Preview",
-          firstName:"First name",
-          lastName:"Last name",
-          street:"Street + number",
-          zip:"ZIP",
-          city:"City",
-          phone:"Phone / Mobile",
-          email:"Email",
-          web:"Website",
-          role:"Role",
-          cuts:"Cut marks (optional)",
-          cuts_off:"Off",
-          cuts_on:"On",
-          btn_print:"Print / PDF",
-          btn_save:"Save data",
-          btn_reset:"Reset",
-          btn_copy:"Copy data",
-          hint:"Tip: Print → Save as PDF. Disable headers/footers (URL/date/page).",
-          note:"Print size: 85×55 mm. A4 sheet: 8 cards (2×4).",
-          labels:{tel:"Tel", mail:"Mail", web:"Web"},
-          roles:["Promoter","Mentor","Speaker","Event management"]
+        en: {
+          h1:"Business Card – White/Black",
+          sub:"Inputs → Live preview → Print / save as PDF. Minimal ink (white + black).",
+          formTitle:"Input fields",
+          firstNameLabel:"First name",
+          lastNameLabel:"Last name",
+          streetLabel:"Street & number",
+          zipLabel:"ZIP",
+          cityLabel:"City",
+          mobileLabel:"Mobile",
+          emailLabel:"Email",
+          websiteLabel:"Website",
+          previewTitle:"Preview",
+          printBtn:"Print / save as PDF",
+          clearBtn:"Clear fields",
+          copyBtn:"Copy text",
+          hint:"Tip: After clicking “Print / save as PDF”, choose “Save as PDF” in the print dialog.",
+          privacy:"Note: Saved locally in your browser (LocalStorage). No transmission.",
+          empty:"(empty)",
+          copied:"Copied.",
+          copyFail:"Copy not available.",
+          confirmClear:"Really clear all fields?"
         }
       };
 
-      const el = (id)=>document.getElementById(id);
+      function safe(v){ return (v||"").toString().trim(); }
 
-      const firstName = el("firstName");
-      const lastName  = el("lastName");
-      const street    = el("street");
-      const zip       = el("zip");
-      const city      = el("city");
-      const phone     = el("phone");
-      const email     = el("email");
-      const web       = el("web");
-      const role      = el("role");
-      const showCuts  = el("showCuts");
+      function load(){
+        try{
+          const raw = localStorage.getItem(LS_KEY);
+          if(!raw) return;
+          const data = JSON.parse(raw);
+          if(!data || typeof data !== "object") return;
 
-      const previewHolder = el("previewHolder");
-      const sheetGrid = el("sheetGrid");
-
-      function sanitize(s){ return (s||"").toString().trim(); }
-
-      function escapeXML(s){
-        return (s||"").replace(/[&<>"']/g, m => ({
-          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-        }[m]));
+          els.firstName.value = data.firstName || "";
+          els.lastName.value  = data.lastName  || "";
+          els.street.value    = data.street    || "";
+          els.zip.value       = data.zip       || "";
+          els.city.value      = data.city      || "";
+          els.mobile.value    = data.mobile    || "";
+          els.email.value     = data.email     || "";
+          els.website.value   = data.website   || "";
+        }catch(e){}
       }
 
-      function normalizeWeb(raw){
-        let s = sanitize(raw);
-        if(!s) return "";
-        s = s.replace(/^https?:\/\//i, "");
-        s = s.replace(/^www\./i, "");
-        s = s.replace(/\/+$/,"");
-        return s;
+      function save(){
+        const data = {
+          firstName: safe(els.firstName.value),
+          lastName:  safe(els.lastName.value),
+          street:    safe(els.street.value),
+          zip:       safe(els.zip.value),
+          city:      safe(els.city.value),
+          mobile:    safe(els.mobile.value),
+          email:     safe(els.email.value),
+          website:   safe(els.website.value),
+        };
+        try{ localStorage.setItem(LS_KEY, JSON.stringify(data)); }catch(e){}
       }
 
-      function buildRoleOptions(){
-        role.innerHTML = "";
-        i18n[lang].roles.forEach((r, idx)=>{
-          const opt = document.createElement("option");
-          opt.value = String(idx);
-          opt.textContent = r;
-          role.appendChild(opt);
-        });
+      function setText(node, value, placeholder){
+        const v = safe(value);
+        if(v){
+          node.textContent = v;
+          node.classList.remove("empty");
+        }else{
+          node.textContent = placeholder;
+          node.classList.add("empty");
+        }
+      }
+
+      function normalizeWebsite(url){
+        const v = safe(url);
+        if(!v) return "";
+        // only minimal normalization (no external libs)
+        if(/^https?:\/\//i.test(v)) return v;
+        return "https://" + v;
+      }
+
+      function render(){
+        const lang = getLang();
+        const t = i18n[lang];
+
+        const first = safe(els.firstName.value);
+        const last  = safe(els.lastName.value);
+        const fullName = (first + " " + last).trim();
+
+        const street = safe(els.street.value);
+        const zip = safe(els.zip.value);
+        const city = safe(els.city.value);
+        const addr2 = ((zip ? zip : "") + (zip && city ? " " : "") + (city ? city : "")).trim();
+
+        const mobile = safe(els.mobile.value);
+        const email  = safe(els.email.value);
+        const webRaw = safe(els.website.value);
+        const web = webRaw ? normalizeWebsite(webRaw) : "";
+
+        setText(els.pName, fullName, "—");
+        setText(els.pAddr1, street, "—");
+        setText(els.pAddr2, addr2, "—");
+
+        setText(els.pMobile, mobile ? ("Mobil: " + mobile) : "", "—");
+        setText(els.pEmail,  email  ? ("E-Mail: " + email)  : "", "—");
+        setText(els.pWeb,    web    ? ("Web: " + web)       : "", "—");
+
+        save();
+      }
+
+      function getLang(){
+        const v = (localStorage.getItem(LS_LANG) || "de").toLowerCase();
+        return (v === "en") ? "en" : "de";
+      }
+
+      function setLang(lang){
+        const v = (lang === "en") ? "en" : "de";
+        localStorage.setItem(LS_LANG, v);
+        applyI18n();
+        render();
       }
 
       function applyI18n(){
+        const lang = getLang();
+        const dict = i18n[lang];
+
         document.documentElement.lang = lang;
 
-        document.querySelectorAll("[data-i18n]").forEach(node=>{
-          const key = node.getAttribute("data-i18n");
-          if(i18n[lang][key]) node.textContent = i18n[lang][key];
+        const nodes = document.querySelectorAll("[data-i18n]");
+        nodes.forEach(n=>{
+          const key = n.getAttribute("data-i18n");
+          if(dict[key]) n.textContent = dict[key];
         });
 
-        // Cut option labels
-        document.querySelectorAll("#showCuts option").forEach(opt=>{
-          const key = opt.getAttribute("data-i18n");
-          if(key && i18n[lang][key]) opt.textContent = i18n[lang][key];
+        // Also update button states subtly
+        els.btnDE.style.opacity = (lang === "de") ? "1" : ".55";
+        els.btnEN.style.opacity = (lang === "en") ? "1" : ".55";
+      }
+
+      function wire(){
+        ["firstName","lastName","street","zip","city","mobile","email","website"].forEach(id=>{
+          const el = els[id];
+          el.addEventListener("input", render);
+          el.addEventListener("change", render);
         });
 
-        // Role options preserve selection
-        const prev = role.value || "0";
-        buildRoleOptions();
-        role.value = prev;
+        els.btnPrint.addEventListener("click", ()=>{
+          // ensure latest values are saved/rendered
+          render();
+          window.print();
+        });
 
-        updateAll();
-      }
+        els.btnClear.addEventListener("click", ()=>{
+          const lang = getLang();
+          const t = i18n[lang];
+          if(!confirm(t.confirmClear)) return;
 
-      function getData(){
-        const fn = sanitize(firstName.value) || "Max";
-        const ln = sanitize(lastName.value)  || "Mustermann";
-        const st = sanitize(street.value)    || "Musterweg 16";
-        const z  = sanitize(zip.value)       || "12345";
-        const ct = sanitize(city.value)      || "Musterhausen";
-        const ph = sanitize(phone.value)     || "01234 / 567890";
-        const em = sanitize(email.value)     || "max@mustermann.com";
-        const wb = normalizeWeb(web.value)   || "max.mustermann.de";
+          els.firstName.value = "";
+          els.lastName.value  = "";
+          els.street.value    = "";
+          els.zip.value       = "";
+          els.city.value      = "";
+          els.mobile.value    = "";
+          els.email.value     = "";
+          els.website.value   = "";
+          save();
+          render();
+        });
 
-        const roleIdx = Math.max(0, parseInt(role.value||"0",10));
-        const r = i18n[lang].roles[roleIdx] || i18n[lang].roles[0];
+        els.btnCopy.addEventListener("click", async ()=>{
+          const lang = getLang();
+          const t = i18n[lang];
 
-        const cuts = (showCuts.value === "1") ? 1 : 0;
+          const first = safe(els.firstName.value);
+          const last  = safe(els.lastName.value);
+          const fullName = (first + " " + last).trim();
 
-        return {fn, ln, st, z, ct, ph, em, wb, r, roleIdx, cuts};
-      }
+          const street = safe(els.street.value);
+          const zip = safe(els.zip.value);
+          const city = safe(els.city.value);
+          const addr2 = ((zip ? zip : "") + (zip && city ? " " : "") + (city ? city : "")).trim();
 
-      // Auto-fit sizes (in px within SVG viewBox 850x550)
-      function computeFit(d){
-        const name = (d.fn + " " + d.ln).trim();
-        const addr1 = d.st;
-        const addr2 = (d.z + " " + d.ct).trim();
+          const mobile = safe(els.mobile.value);
+          const email  = safe(els.email.value);
+          const web    = safe(els.website.value);
 
-        // Base sizes
-        let nameSize = 54;   // px
-        let addrSize = 26;   // px
-        let lineLabel = 22;  // px
-        let lineValue = 26;  // px
+          const lines = [
+            fullName || "",
+            street || "",
+            addr2 || "",
+            mobile ? ("Mobil: " + mobile) : "",
+            email ? ("E-Mail: " + email) : "",
+            web ? ("Web: " + normalizeWebsite(web)) : ""
+          ].filter(Boolean);
 
-        // Name length scaling
-        const nLen = name.length;
-        if(nLen > 18) nameSize = 48;
-        if(nLen > 24) nameSize = 44;
-        if(nLen > 30) nameSize = 40;
-
-        // Address scaling
-        const aLen = (addr1 + " " + addr2).length;
-        if(aLen > 42) addrSize = 25;
-        if(aLen > 56) addrSize = 24;
-
-        // Contact scaling
-        const mLen = Math.max(d.ph.length, d.em.length, d.wb.length);
-        if(mLen > 26){ lineValue = 24; }
-        if(mLen > 34){ lineValue = 22; }
-        if(mLen > 42){ lineValue = 20; }
-
-        // For email/web: if super long, allow 2-line wrap by splitting at best point
-        function split2(s){
-          if(s.length <= 28) return [s, ""];
-          // try split at @ or . or -
-          const candidates = [];
-          const at = s.indexOf("@");
-          if(at > 6 && at < s.length-6) candidates.push(at+1);
-          for(let i= Math.min(s.length-8, 28); i>10; i--){
-            if(s[i] === "." || s[i] === "-" || s[i] === "/"){ candidates.push(i+1); break; }
+          const text = lines.join("\n");
+          try{
+            if(navigator.clipboard && navigator.clipboard.writeText){
+              await navigator.clipboard.writeText(text);
+              els.btnCopy.textContent = t.copied;
+              setTimeout(()=>{ els.btnCopy.textContent = t.copyBtn; }, 900);
+            }else{
+              throw new Error("no clipboard");
+            }
+          }catch(e){
+            alert(t.copyFail);
           }
-          const cut = candidates.length ? candidates[0] : 28;
-          return [s.slice(0, cut), s.slice(cut)];
-        }
+        });
 
-        const emailSplit = split2(d.em);
-        const webSplit   = split2(d.wb);
-
-        // If we need two lines, reduce lineValue slightly
-        const needsWrap = (emailSplit[1] || webSplit[1]) ? true : false;
-        if(needsWrap && lineValue > 22) lineValue = 22;
-
-        return {name, addr1, addr2, nameSize, addrSize, lineLabel, lineValue, emailSplit, webSplit};
+        els.btnDE.addEventListener("click", ()=>setLang("de"));
+        els.btnEN.addEventListener("click", ()=>setLang("en"));
       }
 
-      // Build one SVG card (85x55mm) as string
-      function buildCardSVG(d){
-        const L = i18n[lang].labels;
-        const fit = computeFit(d);
-
-        // ViewBox is 850 x 550 to keep clean integer layout
-        // Safe padding around content
-        const padX = 56;
-        const padY = 52;
-
-        // Top bar positions
-        const topY = 84;
-        const dividerY = 118;
-
-        // Name block
-        const nameY = 200;
-
-        // Address block
-        const addrY1 = 252;
-        const addrY2 = 286;
-
-        // Contact rows (3 rows)
-        const rowY1 = 360;
-        const rowY2 = 420;
-        const rowY3 = 480;
-
-        // Icon positions
-        const iconX = padX;
-        const labelX = padX + 44;
-        const valueX = 800 - padX; // right aligned
-
-        // Value baseline (right aligned)
-        const valueAnchor = "end";
-
-        // Gold gradient IDs unique-ish for safety in DOM
-        const gid = "g" + Math.random().toString(16).slice(2);
-
-        // Badge (watermark) — shield/crest style, subtle
-        // placed bottom-right, low opacity
-        const badge = `
-          <g opacity="0.10" transform="translate(635 210)">
-            <path d="M80 0c25 18 45 18 65 18 0 78-25 104-65 126C40 122 15 96 15 18c20 0 40 0 65-18z"
-                  fill="none" stroke="url(#${gid})" stroke-width="6"/>
-            <path d="M52 66h56v18H52z" fill="url(#${gid})"/>
-            <path d="M60 42h40v16H60z" fill="url(#${gid})" opacity=".75"/>
-            <path d="M60 90h40v16H60z" fill="url(#${gid})" opacity=".75"/>
-          </g>
-        `;
-
-        // Email/web can have second line
-        const e1 = escapeXML(fit.emailSplit[0]);
-        const e2 = escapeXML(fit.emailSplit[1] || "");
-        const w1 = escapeXML(fit.webSplit[0]);
-        const w2 = escapeXML(fit.webSplit[1] || "");
-
-        // If second lines exist, render them slightly below with smaller size
-        const secondLineSize = Math.max(18, fit.lineValue - 2);
-        const secondLineDy = 22;
-
-        const emailSecond = e2 ? `<text x="${valueX}" y="${rowY2 + secondLineDy}" text-anchor="${valueAnchor}" font-size="${secondLineSize}" fill="rgba(242,211,122,.90)">${e2}</text>` : "";
-        const webSecond   = w2 ? `<text x="${valueX}" y="${rowY3 + secondLineDy}" text-anchor="${valueAnchor}" font-size="${secondLineSize}" fill="rgba(242,211,122,.90)">${w2}</text>` : "";
-
-        // If second lines exist, move dividers slightly? We keep fixed, SVG is stable.
-
-        return `
-<svg class="svgCard" xmlns="http://www.w3.org/2000/svg" width="85mm" height="55mm" viewBox="0 0 850 550" role="img" aria-label="FSA-Club Visitenkarte">
-  <defs>
-    <linearGradient id="${gid}" x1="0" x2="1">
-      <stop offset="0" stop-color="#d4af37"/>
-      <stop offset="1" stop-color="#f2d37a"/>
-    </linearGradient>
-
-    <!-- subtle highlight -->
-    <radialGradient id="${gid}h" cx="30%" cy="10%" r="80%">
-      <stop offset="0" stop-color="rgba(212,175,55,0.20)"/>
-      <stop offset="1" stop-color="rgba(0,0,0,0)"/>
-    </radialGradient>
-
-    <!-- inner sheen -->
-    <radialGradient id="${gid}s" cx="75%" cy="20%" r="70%">
-      <stop offset="0" stop-color="rgba(255,255,255,0.08)"/>
-      <stop offset="1" stop-color="rgba(0,0,0,0)"/>
-    </radialGradient>
-
-    <!-- clip for rounded corners -->
-    <clipPath id="${gid}c">
-      <rect x="0" y="0" width="850" height="550" rx="42" ry="42"></rect>
-    </clipPath>
-  </defs>
-
-  <g clip-path="url(#${gid}c)">
-    <!-- base -->
-    <rect x="0" y="0" width="850" height="550" fill="#070a10"/>
-
-    <!-- highlights -->
-    <rect x="0" y="0" width="850" height="550" fill="url(#${gid}h)"/>
-    <rect x="0" y="0" width="850" height="550" fill="url(#${gid}s)"/>
-
-    <!-- border -->
-    <rect x="10" y="10" width="830" height="530" rx="36" ry="36" fill="none" stroke="url(#${gid})" stroke-width="8"/>
-    <rect x="26" y="26" width="798" height="498" rx="30" ry="30" fill="none" stroke="rgba(212,175,55,0.22)" stroke-width="4"/>
-
-    ${badge}
-
-    <!-- top line -->
-    <text x="${padX}" y="${topY}" font-size="30" font-weight="800" letter-spacing="3" fill="rgba(242,211,122,.95)">FSA-CLUB</text>
-    <text x="${800 - padX}" y="${topY}" text-anchor="end" font-size="26" font-weight="800" fill="rgba(212,175,55,.92)">${escapeXML(d.r)}</text>
-
-    <line x1="${padX}" y1="${dividerY}" x2="${800 - padX}" y2="${dividerY}" stroke="rgba(212,175,55,.20)" stroke-width="3"/>
-
-    <!-- name -->
-    <text x="${padX}" y="${nameY}" font-size="${fit.nameSize}" font-weight="900" fill="rgba(242,211,122,.98)">${escapeXML(fit.name)}</text>
-
-    <!-- address -->
-    <text x="${padX}" y="${addrY1}" font-size="${fit.addrSize}" font-weight="700" fill="rgba(233,238,247,.92)">${escapeXML(fit.addr1)}</text>
-    <text x="${padX}" y="${addrY2}" font-size="${fit.addrSize}" font-weight="700" fill="rgba(233,238,247,.92)">${escapeXML(fit.addr2)}</text>
-
-    <!-- contact rows separators -->
-    <line x1="${padX}" y1="${rowY1-26}" x2="${800 - padX}" y2="${rowY1-26}" stroke="rgba(212,175,55,.14)" stroke-width="3"/>
-
-    <!-- phone -->
-    <g transform="translate(${iconX} ${rowY1-18})" opacity="0.95">
-      <!-- inline svg phone icon -->
-      <path d="M18 2c2 2 2 6 2 8-1 3-3 6-6 9 3 6 8 11 14 14 3-3 6-5 9-6 2 0 6 0 8 2l6 6c2 2 2 6 0 8-3 4-8 7-14 7C22 50 2 30 2 14 2 8 5 3 9 0c2-2 6-2 8 0l1 2z"
-            fill="url(#${gid})"/>
-    </g>
-    <text x="${labelX}" y="${rowY1}" font-size="${fit.lineLabel}" font-weight="800" fill="rgba(169,180,199,.95)">${escapeXML(L.tel)}</text>
-    <text x="${valueX}" y="${rowY1}" text-anchor="${valueAnchor}" font-size="${fit.lineValue}" font-weight="900" fill="rgba(242,211,122,.92)">${escapeXML(d.ph)}</text>
-
-    <!-- email -->
-    <g transform="translate(${iconX} ${rowY2-18})" opacity="0.95">
-      <path d="M2 10c0-5 4-8 9-8h28c5 0 9 3 9 8v18c0 5-4 8-9 8H11c-5 0-9-3-9-8V10zm9-2c-2 0-4 1-5 3l19 13c2 1 4 1 6 0L50 11c-1-2-3-3-5-3H11z"
-            fill="url(#${gid})"/>
-    </g>
-    <text x="${labelX}" y="${rowY2}" font-size="${fit.lineLabel}" font-weight="800" fill="rgba(169,180,199,.95)">${escapeXML(L.mail)}</text>
-    <text x="${valueX}" y="${rowY2}" text-anchor="${valueAnchor}" font-size="${fit.lineValue}" font-weight="900" fill="rgba(242,211,122,.92)">${e1}</text>
-    ${emailSecond}
-
-    <!-- web -->
-    <g transform="translate(${iconX} ${rowY3-18})" opacity="0.95">
-      <path d="M25 2C12 2 2 12 2 25s10 23 23 23 23-10 23-23S38 2 25 2zm0 6c4 5 6 11 7 17H18c1-6 3-12 7-17zm-14 17h6c0 6 1 12 3 17-5-3-9-9-9-17zm28 0h6c0 8-4 14-9 17 2-5 3-11 3-17zm-21 0h14c0 7-2 14-7 19-5-5-7-12-7-19z"
-            fill="url(#${gid})"/>
-    </g>
-    <text x="${labelX}" y="${rowY3}" font-size="${fit.lineLabel}" font-weight="800" fill="rgba(169,180,199,.95)">${escapeXML(L.web)}</text>
-    <text x="${valueX}" y="${rowY3}" text-anchor="${valueAnchor}" font-size="${fit.lineValue}" font-weight="900" fill="rgba(242,211,122,.92)">${w1}</text>
-    ${webSecond}
-
-    <!-- bottom micro line -->
-    <text x="${padX}" y="520" font-size="18" font-weight="700" fill="rgba(169,180,199,.80)">${lang==="de" ? "Zugang • Struktur • Praxis" : "Access • Structure • Practice"}</text>
-  </g>
-</svg>
-        `;
-      }
-
-      function renderPreview(d){
-        previewHolder.innerHTML = buildCardSVG(d);
-      }
-
-      function renderSheet(d){
-        sheetGrid.innerHTML = "";
-        for(let i=0;i<8;i++){
-          const wrap = document.createElement("div");
-          wrap.className = "cutWrap";
-          wrap.setAttribute("data-cuts", String(d.cuts));
-
-          const tl = document.createElement("div"); tl.className="cut tl";
-          const tr = document.createElement("div"); tr.className="cut tr";
-          const bl = document.createElement("div"); bl.className="cut bl";
-          const br = document.createElement("div"); br.className="cut br";
-          wrap.appendChild(tl); wrap.appendChild(tr); wrap.appendChild(bl); wrap.appendChild(br);
-
-          const card = document.createElement("div");
-          card.innerHTML = buildCardSVG(d);
-          wrap.appendChild(card.firstElementChild);
-
-          sheetGrid.appendChild(wrap);
-        }
-      }
-
-      function updateAll(){
-        const d = getData();
-        renderPreview(d);
-        renderSheet(d);
-      }
-
-      function saveData(){
-        const d = getData();
-        localStorage.setItem(LS_KEY, JSON.stringify({lang, ...d, rawWeb: sanitize(web.value)}));
-      }
-
-      function loadData(){
-        try{
-          const raw = localStorage.getItem(LS_KEY);
-          if(!raw) return false;
-          const d = JSON.parse(raw);
-
-          lang = (d.lang==="en") ? "en" : "de";
-
-          firstName.value = d.fn || "";
-          lastName.value  = d.ln || "";
-          street.value    = d.st || "";
-          zip.value       = d.z  || "";
-          city.value      = d.ct || "";
-          phone.value     = d.ph || "";
-          email.value     = d.em || "";
-          web.value       = d.rawWeb || d.wb || "";
-          role.value      = (typeof d.roleIdx === "number") ? String(d.roleIdx) : "0";
-          showCuts.value  = (d.cuts===1) ? "1" : "0";
-
-          applyI18n();
-          return true;
-        }catch(e){
-          return false;
-        }
-      }
-
-      function resetData(){
-        firstName.value = "Max";
-        lastName.value  = "Mustermann";
-        street.value    = "Musterweg 16";
-        zip.value       = "12345";
-        city.value      = "Musterhausen";
-        phone.value     = "01234 / 567890";
-        email.value     = "max@mustermann.com";
-        web.value       = "https://max.mustermann.de/";
-        role.value      = "2"; // Sprecher / Speaker
-        showCuts.value  = "0";
-        updateAll();
-      }
-
-      function copyData(){
-        const d = getData();
-        const L = i18n[lang].labels;
-        const text =
-`FSA-CLUB
-${d.fn} ${d.ln}
-${d.st}
-${d.z} ${d.ct}
-${L.tel}: ${d.ph}
-${L.mail}: ${d.em}
-${L.web}: ${d.wb}
-${d.r}`;
-        navigator.clipboard.writeText(text).catch(()=>{});
-      }
-
-      // Events
-      [firstName,lastName,street,zip,city,phone,email,web,role,showCuts].forEach(inp=>{
-        inp.addEventListener("input", updateAll);
-        inp.addEventListener("change", updateAll);
-      });
-
-      el("btnPrint").addEventListener("click", ()=>{ updateAll(); window.print(); });
-      el("btnSave").addEventListener("click", ()=>{ saveData(); });
-      el("btnReset").addEventListener("click", ()=>{ localStorage.removeItem(LS_KEY); resetData(); });
-      el("btnCopy").addEventListener("click", ()=>{ copyData(); });
-
-      el("btnDE").addEventListener("click", ()=>{ lang="de"; applyI18n(); });
-      el("btnEN").addEventListener("click", ()=>{ lang="en"; applyI18n(); });
-
-      // Init
-      buildRoleOptions();
-      role.value = "2";
-
-      const loaded = loadData();
-      if(!loaded){
-        applyI18n();
-        resetData();
-      }else{
-        // applyI18n already called in loadData
-        updateAll();
-      }
+      // init
+      load();
+      applyI18n();
+      wire();
+      render();
     })();
   </script>
 </body>
