@@ -176,6 +176,20 @@
       overflow:hidden;
     }
 
+    /* NEU: Textlogo oben rechts */
+    .clubMark{
+      position:absolute;
+      top:var(--card-pad);
+      right:var(--card-pad);
+      font-weight:900;
+      font-size:9.5pt;
+      letter-spacing:.2px;
+      color:#000;
+      background:transparent;
+      line-height:1;
+      white-space:nowrap;
+    }
+
     .cName{
       font-weight:900;
       font-size:12.5pt;
@@ -183,6 +197,8 @@
       letter-spacing:.2px;
       margin:0;
       word-break:break-word;
+      /* damit Name nicht ins Textlogo läuft */
+      padding-right:22mm;
     }
     .cRole{
       margin:2mm 0 0;
@@ -190,6 +206,7 @@
       font-size:9.5pt;
       color:#000;
       word-break:break-word;
+      padding-right:22mm;
     }
 
     .cLine{
@@ -352,6 +369,12 @@
             <label for="website" data-i18n="websiteLabel">Webseite</label>
             <input id="website" type="text" placeholder="https://deine-domain.de" autocomplete="url" />
           </div>
+
+          <!-- NEU: Status -->
+          <div class="field full">
+            <label for="status" data-i18n="statusLabel">Status</label>
+            <input id="status" type="text" data-i18n-ph="statusPH" placeholder="Mitglied, Mentor, Promotor, Sprecher, Dozent" autocomplete="off" />
+          </div>
         </div>
 
         <div class="actions">
@@ -372,6 +395,9 @@
             <div class="crop">
               <i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i>
               <div class="card" id="card">
+                <!-- NEU: Textlogo oben rechts -->
+                <div class="clubMark">FSA-Club</div>
+
                 <p class="cName" id="pName">—</p>
                 <p class="cRole" id="pAddr1">—</p>
                 <div class="cLine"></div>
@@ -380,6 +406,8 @@
                   <div class="mono" id="pMobile">—</div>
                   <div class="mono" id="pEmail">—</div>
                   <div class="mono" id="pWeb">—</div>
+                  <!-- NEU: Status unter Web -->
+                  <div class="mono" id="pStatus">—</div>
                 </div>
               </div>
             </div>
@@ -409,6 +437,7 @@
         mobile: document.getElementById("mobile"),
         email: document.getElementById("email"),
         website: document.getElementById("website"),
+        status: document.getElementById("status"), // NEU
 
         pName: document.getElementById("pName"),
         pAddr1: document.getElementById("pAddr1"),
@@ -416,6 +445,7 @@
         pMobile: document.getElementById("pMobile"),
         pEmail: document.getElementById("pEmail"),
         pWeb: document.getElementById("pWeb"),
+        pStatus: document.getElementById("pStatus"), // NEU
 
         btnPrint: document.getElementById("btnPrint"),
         btnClear: document.getElementById("btnClear"),
@@ -437,6 +467,8 @@
           mobileLabel:"Mobil",
           emailLabel:"E-Mail",
           websiteLabel:"Webseite",
+          statusLabel:"Status",
+          statusPH:"Mitglied, Mentor, Promotor, Sprecher, Dozent",
           previewTitle:"Vorschau",
           printBtn:"Drucken / als PDF speichern",
           clearBtn:"Felder leeren",
@@ -460,6 +492,8 @@
           mobileLabel:"Mobile",
           emailLabel:"Email",
           websiteLabel:"Website",
+          statusLabel:"Status",
+          statusPH:"Member, Mentor, Promoter, Speaker, Lecturer",
           previewTitle:"Preview",
           printBtn:"Print / save as PDF",
           clearBtn:"Clear fields",
@@ -490,6 +524,7 @@
           els.mobile.value    = data.mobile    || "";
           els.email.value     = data.email     || "";
           els.website.value   = data.website   || "";
+          els.status.value    = data.status    || ""; // NEU
         }catch(e){}
       }
 
@@ -503,6 +538,7 @@
           mobile:    safe(els.mobile.value),
           email:     safe(els.email.value),
           website:   safe(els.website.value),
+          status:    safe(els.status.value), // NEU
         };
         try{ localStorage.setItem(LS_KEY, JSON.stringify(data)); }catch(e){}
       }
@@ -521,7 +557,6 @@
       function normalizeWebsite(url){
         const v = safe(url);
         if(!v) return "";
-        // only minimal normalization (no external libs)
         if(/^https?:\/\//i.test(v)) return v;
         return "https://" + v;
       }
@@ -544,6 +579,8 @@
         const webRaw = safe(els.website.value);
         const web = webRaw ? normalizeWebsite(webRaw) : "";
 
+        const status = safe(els.status.value);
+
         setText(els.pName, fullName, "—");
         setText(els.pAddr1, street, "—");
         setText(els.pAddr2, addr2, "—");
@@ -551,6 +588,7 @@
         setText(els.pMobile, mobile ? ("Mobil: " + mobile) : "", "—");
         setText(els.pEmail,  email  ? ("E-Mail: " + email)  : "", "—");
         setText(els.pWeb,    web    ? ("Web: " + web)       : "", "—");
+        setText(els.pStatus, status ? ("Status: " + status) : "", "—"); // NEU
 
         save();
       }
@@ -579,20 +617,25 @@
           if(dict[key]) n.textContent = dict[key];
         });
 
-        // Also update button states subtly
+        // Placeholder i18n
+        const phNodes = document.querySelectorAll("[data-i18n-ph]");
+        phNodes.forEach(n=>{
+          const key = n.getAttribute("data-i18n-ph");
+          if(dict[key]) n.setAttribute("placeholder", dict[key]);
+        });
+
         els.btnDE.style.opacity = (lang === "de") ? "1" : ".55";
         els.btnEN.style.opacity = (lang === "en") ? "1" : ".55";
       }
 
       function wire(){
-        ["firstName","lastName","street","zip","city","mobile","email","website"].forEach(id=>{
+        ["firstName","lastName","street","zip","city","mobile","email","website","status"].forEach(id=>{
           const el = els[id];
           el.addEventListener("input", render);
           el.addEventListener("change", render);
         });
 
         els.btnPrint.addEventListener("click", ()=>{
-          // ensure latest values are saved/rendered
           render();
           window.print();
         });
@@ -610,6 +653,7 @@
           els.mobile.value    = "";
           els.email.value     = "";
           els.website.value   = "";
+          els.status.value    = ""; // NEU
           save();
           render();
         });
@@ -630,6 +674,7 @@
           const mobile = safe(els.mobile.value);
           const email  = safe(els.email.value);
           const web    = safe(els.website.value);
+          const status = safe(els.status.value);
 
           const lines = [
             fullName || "",
@@ -637,7 +682,8 @@
             addr2 || "",
             mobile ? ("Mobil: " + mobile) : "",
             email ? ("E-Mail: " + email) : "",
-            web ? ("Web: " + normalizeWebsite(web)) : ""
+            web ? ("Web: " + normalizeWebsite(web)) : "",
+            status ? ("Status: " + status) : ""
           ].filter(Boolean);
 
           const text = lines.join("\n");
