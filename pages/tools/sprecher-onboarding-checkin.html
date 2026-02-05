@@ -132,6 +132,7 @@
       box-shadow:var(--shadow);
       padding:16px 16px 14px;
       page-break-inside: avoid;
+      break-inside: avoid;
     }
     .card h2{
       margin:0 0 10px;
@@ -157,7 +158,18 @@
       .form-grid.cols-3{grid-template-columns:1fr 1fr 1fr}
     }
 
+    /* Prevent grid items from being split across pages (print engines do this otherwise) */
+    .form-grid > div{
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
     label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px;letter-spacing:.2px;}
+    /* Avoid orphaned labels at end of page */
+    label{
+      break-after: avoid;
+      page-break-after: avoid;
+    }
 
     input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="time"], input[type="number"], select, textarea{
       width:100%;
@@ -169,6 +181,13 @@
       padding:10px 10px;
       font-size:14px;
       outline:none;
+      -webkit-appearance:none;
+      appearance:none;
+      background-clip: padding-box;
+    }
+    /* iOS date/time/select: keep internal paddings consistent */
+    select{
+      padding-right:34px;
     }
     textarea{min-height:92px;resize:vertical;line-height:1.4}
     input:focus, select:focus, textarea:focus{border-color:rgba(242,211,122,.55); box-shadow:0 0 0 3px rgba(212,175,55,.12)}
@@ -183,6 +202,8 @@
       border-radius:14px;
       padding:10px 10px;
       display:flex;gap:10px;align-items:flex-start;
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
     .check input{margin-top:2px; transform:scale(1.1)}
     .check .t{font-size:13px;color:var(--txt);line-height:1.35}
@@ -223,49 +244,40 @@
       }
       h1{color:#000;text-shadow:none}
       .sub, .hint, label, .small, .status{color:#111 !important}
+
+      /* IMPORTANT: iPad/Safari PDF artifacts fix */
       input, select, textarea{
         border:1px solid #999 !important;
         background:#fff !important;
         color:#000 !important;
         box-shadow:none !important;
+        outline:none !important;
+
+        /* kills the weird “cut corners / extra frames” in iOS PDF */
+        -webkit-appearance:none !important;
+        appearance:none !important;
+        border-radius:6px !important;
+
+        /* stable box model in print renderers */
+        box-sizing:border-box !important;
+        background-clip: padding-box !important;
       }
+      select{
+        padding-right:26px !important;
+      }
+
+      /* keep groups together, avoid “hard” splits */
+      .card{break-inside: avoid-page; page-break-inside: avoid;}
+      .form-grid, .form-grid > div{break-inside: avoid; page-break-inside: avoid;}
+      label{break-after: avoid; page-break-after: avoid;}
+      textarea{break-inside: avoid; page-break-inside: avoid;}
+
       .check{border:1px solid #999 !important;background:#fff !important}
       .check .t, .check .t span{color:#000 !important}
       a{color:#000;text-decoration:none}
+
+      /* printing */
       @page{size:A4;margin:12mm}
-
-      /* ===== PRINT: Umbruch-Optimierung ===== */
-
-      /* Karten normalerweise nicht splitten */
-      .card{
-        break-inside: avoid-page;
-        page-break-inside: avoid;
-      }
-
-      /* Karten, die notfalls splitten dürfen */
-      .card.allow-break{
-        break-inside: auto;
-        page-break-inside: auto;
-      }
-
-      /* Expliziter Seitenumbruch vor dem Element */
-      .pb{
-        break-before: page;
-        page-break-before: always;
-      }
-
-      /* Überschrift nicht allein am Seitenende */
-      .card h2{
-        break-after: avoid;
-        page-break-after: avoid;
-      }
-
-      /* kompaktere Felder im Print -> weniger harte Sprünge */
-      textarea{min-height:60px !important;}
-      input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="time"], input[type="number"], select, textarea{
-        padding:8px 9px !important;
-        font-size:12.5px !important;
-      }
     }
   </style>
 </head>
@@ -461,7 +473,7 @@
       </div>
 
       <!-- 4) Motivation & Warum Akademie -->
-      <div class="card pb allow-break">
+      <div class="card">
         <h2><span class="nr">4</span><span data-i18n="s4.title">Motivation & Warum Akademie</span></h2>
 
         <div class="form-grid cols-2">
@@ -525,7 +537,7 @@
       </div>
 
       <!-- 6) Didaktik & Struktur -->
-      <div class="card pb allow-break">
+      <div class="card">
         <h2><span class="nr">6</span><span data-i18n="s6.title">Didaktik & Struktur</span></h2>
 
         <div class="form-grid cols-2">
@@ -556,7 +568,7 @@
       </div>
 
       <!-- 7) Format-Wünsche & Erwartungen -->
-      <div class="card allow-break">
+      <div class="card">
         <h2><span class="nr">7</span><span data-i18n="s7.title">Format-Wünsche & Erwartungen</span></h2>
 
         <div class="form-grid cols-2">
@@ -588,7 +600,7 @@
       </div>
 
       <!-- 8) Themenkompetenz (Akademie-relevant) -->
-      <div class="card pb allow-break">
+      <div class="card">
         <h2><span class="nr">8</span><span data-i18n="s8.title">Themenkompetenz (Akademie-relevant)</span></h2>
 
         <div class="form-grid cols-2">
@@ -615,7 +627,7 @@
       </div>
 
       <!-- 9) Bedarfsanalyse -->
-      <div class="card allow-break">
+      <div class="card">
         <h2><span class="nr">9</span><span data-i18n="s9.title">Bedarfsanalyse (Ist-Stand → Ziel → Lücke)</span></h2>
 
         <div class="form-grid cols-2">
@@ -639,7 +651,7 @@
       </div>
 
       <!-- 10) Verbindlichkeit & Modell (2026) -->
-      <div class="card pb allow-break">
+      <div class="card">
         <h2><span class="nr">10</span><span data-i18n="s10.title">Verbindlichkeit & Modell (2026)</span></h2>
 
         <div class="form-grid">
@@ -697,7 +709,7 @@
       </div>
 
       <!-- 11) Notiz + Versand / Unterschrift -->
-      <div class="card pb allow-break">
+      <div class="card">
         <h2><span class="nr">11</span><span data-i18n="s11.title">Versand an Teamleitung (PDF)</span></h2>
 
         <div class="form-grid cols-2">
