@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Visitenkarte – Weiß/Schwarz Generator</title>
-  <meta name="description" content="Visitenkarte Generator: Eingabefelder, Live-Vorschau, Druckvorlage (weißes Design, schwarze Schrift), DE/EN, LocalStorage." />
+  <meta name="description" content="Visitenkarte Generator: Eingabefelder, QR-Werkstatt, Live-Vorschau, Druckvorlage (weiß/schwarz), DE/EN, LocalStorage." />
   <meta name="robots" content="noindex,nofollow" />
 
   <style>
@@ -191,7 +191,7 @@
       letter-spacing:.2px;
       margin:0;
       word-break:break-word;
-      padding-right:22mm; /* Platz fürs FSA-Club */
+      padding-right:22mm;
     }
     .cRole{
       margin:2mm 0 0;
@@ -217,7 +217,7 @@
       line-height:1.15;
       color:#000;
       word-break:break-word;
-      padding-right:22mm; /* Platz für QR unten rechts */
+      padding-right:22mm;
     }
 
     .mono{
@@ -225,17 +225,11 @@
       font-feature-settings: "tnum" 1;
     }
 
-    .empty{
-      opacity:.35;
-      font-style:italic;
-    }
+    .empty{ opacity:.35; font-style:italic; }
 
-    .footerNote{
-      font-size:12px;
-      color:var(--muted);
-    }
+    .footerNote{ font-size:12px; color:var(--muted); }
 
-    /* QR unten rechts (schwarz/weiß) */
+    /* QR in Karte (nur wenn importiert) */
     .qrBox{
       position:absolute;
       right:var(--card-pad);
@@ -249,25 +243,45 @@
       justify-content:center;
       background:#fff;
     }
-    .qrBox.isEmpty{ opacity:.15; }
+    .qrBox.isEmpty{ opacity:.12; }
     .qrBox svg{ width:100%; height:100%; display:block; }
 
-    /* Responsive */
+    /* QR Werkstatt Vorschau */
+    .qrWorkshopBox{
+      border:1px solid #000;
+      border-radius:12px;
+      padding:12px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+      background:#fff;
+    }
+    .qrLarge{
+      width:46mm;
+      height:46mm;
+      border:1px solid #000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#fff;
+      box-sizing:border-box;
+    }
+    .qrLarge svg{ width:100%; height:100%; display:block; }
+
     @media (max-width: 980px){
       .grid{ grid-template-columns: 1fr; }
       .cardSheet{ width:100%; }
     }
 
-    /* PRINT: only the card area */
     @media print{
       @page{ size: A4; margin: 12mm; }
       body{ background:#fff; }
-      header, .panel.formPanel, .footerNote, .lang, .hint, .actions{ display:none !important; }
+      header, .panel.formPanel, .panel.qrPanel, .footerNote, .lang, .hint, .actions{ display:none !important; }
       .wrap{ padding:0; max-width:none; }
       .grid{ display:block; }
       .panel{ border:none; padding:0; }
       .cardSheet{ border:none; padding:0; border-radius:0; }
-
       .card{ margin:0 auto; }
 
       .crop{
@@ -297,7 +311,7 @@
     <header>
       <div class="title">
         <h1 data-i18n="h1">Visitenkarte – Weiß/Schwarz</h1>
-        <p data-i18n="sub">Eingaben → Live-Vorschau → Drucken / als PDF speichern. Minimaler Druck (weiß + schwarz).</p>
+        <p data-i18n="sub">Eingaben → Vorschau → (optional QR importieren) → Drucken / als PDF speichern.</p>
       </div>
 
       <div class="lang">
@@ -349,11 +363,6 @@
           </div>
 
           <div class="field full">
-            <label for="website" data-i18n="websiteLabel">Webseite</label>
-            <input id="website" type="text" placeholder="https://deine-domain.de" autocomplete="url" />
-          </div>
-
-          <div class="field full">
             <label for="status" data-i18n="statusLabel">Status</label>
             <input id="status" type="text" data-i18n-ph="statusPH" placeholder="Mitglied, Mentor, Promotor, Sprecher, Dozent" autocomplete="off" />
           </div>
@@ -387,18 +396,51 @@
                   <div class="mono" id="pAddr2">—</div>
                   <div class="mono" id="pMobile">—</div>
                   <div class="mono" id="pEmail">—</div>
-                  <div class="mono" id="pWeb">—</div>
                   <div class="mono" id="pStatus">—</div>
                 </div>
 
+                <!-- QR auf Karte: nur nach Import -->
                 <div class="qrBox isEmpty" id="qrBox" aria-label="QR Code">
-                  <div id="qrTarget"></div>
+                  <div id="qrOnCard"></div>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="footerNote" data-i18n="privacy">Hinweis: Speicherung erfolgt lokal im Browser (LocalStorage). Keine Übertragung.</div>
+        </div>
+      </section>
+
+      <!-- QR WERKSTATT (Zweiter Bereich) -->
+      <section class="panel qrPanel" style="grid-column: 1 / -1;">
+        <h2 data-i18n="qrTitle">QR-Werkstatt (Webadresse → QR → Import)</h2>
+
+        <div class="form">
+          <div class="field full">
+            <label for="qrWebsite" data-i18n="qrWebLabel">Webadresse (für QR)</label>
+            <input id="qrWebsite" type="text" placeholder="https://deine-domain.de/michael-rau" autocomplete="url" />
+          </div>
+        </div>
+
+        <div class="qrWorkshopBox" style="margin-top:10px;">
+          <div class="qrLarge" aria-label="QR Vorschau">
+            <div id="qrPreview"></div>
+          </div>
+
+          <div style="flex:1; min-width:240px;">
+            <div class="hint" data-i18n="qrHint">
+              Hier wird der QR separat erzeugt. Erst mit „In Visitenkarte übernehmen“ wird er auf die Karte gesetzt.
+              Lange Webadressen müssen dann nicht mehr als Text gedruckt werden.
+            </div>
+
+            <div class="actions" style="margin-top:10px;">
+              <button class="btn" id="btnMakeQr" type="button" data-i18n="qrMakeBtn">QR erzeugen</button>
+              <button class="btn primary" id="btnImportQr" type="button" data-i18n="qrImportBtn">In Visitenkarte übernehmen</button>
+              <button class="btn" id="btnClearQr" type="button" data-i18n="qrClearBtn">QR löschen</button>
+            </div>
+
+            <div class="hint" id="qrStatusLine" style="margin-top:6px;"></div>
+          </div>
         </div>
       </section>
     </div>
@@ -408,8 +450,10 @@
     (function(){
       "use strict";
 
-      const LS_KEY = "fsa_vcard_white_black_v1";
+      const LS_KEY = "fsa_vcard_white_black_v2";
       const LS_LANG = "fsa_lang_vcard";
+      const LS_QR_IMPORTED = "fsa_vcard_qr_imported_svg";
+      const LS_QR_WEBSITE = "fsa_vcard_qr_website";
 
       const els = {
         firstName: document.getElementById("firstName"),
@@ -419,7 +463,6 @@
         city: document.getElementById("city"),
         mobile: document.getElementById("mobile"),
         email: document.getElementById("email"),
-        website: document.getElementById("website"),
         status: document.getElementById("status"),
 
         pName: document.getElementById("pName"),
@@ -427,11 +470,17 @@
         pAddr2: document.getElementById("pAddr2"),
         pMobile: document.getElementById("pMobile"),
         pEmail: document.getElementById("pEmail"),
-        pWeb: document.getElementById("pWeb"),
         pStatus: document.getElementById("pStatus"),
 
         qrBox: document.getElementById("qrBox"),
-        qrTarget: document.getElementById("qrTarget"),
+        qrOnCard: document.getElementById("qrOnCard"),
+
+        qrWebsite: document.getElementById("qrWebsite"),
+        qrPreview: document.getElementById("qrPreview"),
+        btnMakeQr: document.getElementById("btnMakeQr"),
+        btnImportQr: document.getElementById("btnImportQr"),
+        btnClearQr: document.getElementById("btnClearQr"),
+        qrStatusLine: document.getElementById("qrStatusLine"),
 
         btnPrint: document.getElementById("btnPrint"),
         btnClear: document.getElementById("btnClear"),
@@ -443,7 +492,7 @@
       const i18n = {
         de: {
           h1:"Visitenkarte – Weiß/Schwarz",
-          sub:"Eingaben → Live-Vorschau → Drucken / als PDF speichern. Minimaler Druck (weiß + schwarz).",
+          sub:"Eingaben → Vorschau → (optional QR importieren) → Drucken / als PDF speichern.",
           formTitle:"Eingabefelder",
           firstNameLabel:"Vorname",
           lastNameLabel:"Nachname",
@@ -452,7 +501,6 @@
           cityLabel:"Ort",
           mobileLabel:"Mobil",
           emailLabel:"E-Mail",
-          websiteLabel:"Webseite",
           statusLabel:"Status",
           statusPH:"Mitglied, Mentor, Promotor, Sprecher, Dozent",
           previewTitle:"Vorschau",
@@ -463,11 +511,21 @@
           privacy:"Hinweis: Speicherung erfolgt lokal im Browser (LocalStorage). Keine Übertragung.",
           copied:"Kopiert.",
           copyFail:"Kopieren nicht möglich.",
-          confirmClear:"Wirklich alle Felder leeren?"
+          confirmClear:"Wirklich alle Felder leeren?",
+          qrTitle:"QR-Werkstatt (Webadresse → QR → Import)",
+          qrWebLabel:"Webadresse (für QR)",
+          qrHint:"Hier wird der QR separat erzeugt. Erst mit „In Visitenkarte übernehmen“ wird er auf die Karte gesetzt. Lange Webadressen müssen dann nicht mehr als Text gedruckt werden.",
+          qrMakeBtn:"QR erzeugen",
+          qrImportBtn:"In Visitenkarte übernehmen",
+          qrClearBtn:"QR löschen",
+          qrNoUrl:"Bitte Webadresse eintragen.",
+          qrReady:"QR bereit. Jetzt „In Visitenkarte übernehmen“.",
+          qrImported:"QR wurde in die Visitenkarte übernommen.",
+          qrConfirm:"QR in die Visitenkarte übernehmen?"
         },
         en: {
           h1:"Business Card – White/Black",
-          sub:"Inputs → Live preview → Print / save as PDF. Minimal ink (white + black).",
+          sub:"Inputs → Preview → (optional import QR) → Print / save as PDF.",
           formTitle:"Input fields",
           firstNameLabel:"First name",
           lastNameLabel:"Last name",
@@ -476,7 +534,6 @@
           cityLabel:"City",
           mobileLabel:"Mobile",
           emailLabel:"Email",
-          websiteLabel:"Website",
           statusLabel:"Status",
           statusPH:"Member, Mentor, Promoter, Speaker, Lecturer",
           previewTitle:"Preview",
@@ -487,45 +544,21 @@
           privacy:"Note: Saved locally in your browser (LocalStorage). No transmission.",
           copied:"Copied.",
           copyFail:"Copy not available.",
-          confirmClear:"Really clear all fields?"
+          confirmClear:"Really clear all fields?",
+          qrTitle:"QR Workshop (website → QR → import)",
+          qrWebLabel:"Website (for QR)",
+          qrHint:"The QR is generated separately. Only with “Import to business card” it will be placed on the card. Long URLs do not need to be printed as text.",
+          qrMakeBtn:"Generate QR",
+          qrImportBtn:"Import to business card",
+          qrClearBtn:"Clear QR",
+          qrNoUrl:"Please enter a website.",
+          qrReady:"QR ready. Now click “Import to business card”.",
+          qrImported:"QR imported into the business card.",
+          qrConfirm:"Import QR into the business card?"
         }
       };
 
       function safe(v){ return (v||"").toString().trim(); }
-
-      function load(){
-        try{
-          const raw = localStorage.getItem(LS_KEY);
-          if(!raw) return;
-          const data = JSON.parse(raw);
-          if(!data || typeof data !== "object") return;
-
-          els.firstName.value = data.firstName || "";
-          els.lastName.value  = data.lastName  || "";
-          els.street.value    = data.street    || "";
-          els.zip.value       = data.zip       || "";
-          els.city.value      = data.city      || "";
-          els.mobile.value    = data.mobile    || "";
-          els.email.value     = data.email     || "";
-          els.website.value   = data.website   || "";
-          els.status.value    = data.status    || "";
-        }catch(e){}
-      }
-
-      function save(){
-        const data = {
-          firstName: safe(els.firstName.value),
-          lastName:  safe(els.lastName.value),
-          street:    safe(els.street.value),
-          zip:       safe(els.zip.value),
-          city:      safe(els.city.value),
-          mobile:    safe(els.mobile.value),
-          email:     safe(els.email.value),
-          website:   safe(els.website.value),
-          status:    safe(els.status.value),
-        };
-        try{ localStorage.setItem(LS_KEY, JSON.stringify(data)); }catch(e){}
-      }
 
       function setText(node, value, placeholder){
         const v = safe(value);
@@ -545,247 +578,48 @@
         return "https://" + v;
       }
 
-      /* =========================
-         QR: FAILSAFE / LAZY
-      ========================= */
-      let _qrLib = null;
-      let _qrLibInitTried = false;
-
-      function getQrLib(){
-        if(_qrLib) return _qrLib;
-        if(_qrLibInitTried) return null;
-        _qrLibInitTried = true;
-
+      function load(){
         try{
-          _qrLib = (function(){
-            // Minimal embedded QR generator (lazy init)
-            function QrCode(size, ecc, modules, isFunction){
-              this.size = size;
-              this.ecc = ecc;
-              this._m = modules;
-              this._f = isFunction;
-            }
-            QrCode.prototype.getModule = function(x,y){ return this._m[y][x]; };
-
-            const Ecc = { LOW:0, MEDIUM:1, QUARTILE:2, HIGH:3 };
-
-            function utf8ToBytes(str){
-              const out=[];
-              for(let i=0;i<str.length;i++){
-                let c=str.charCodeAt(i);
-                if(c<0x80) out.push(c);
-                else if(c<0x800){ out.push(0xC0|(c>>6), 0x80|(c&0x3F)); }
-                else if(c>=0xD800 && c<=0xDBFF){
-                  const high=c, low=str.charCodeAt(++i);
-                  const code=((high-0xD800)<<10)+(low-0xDC00)+0x10000;
-                  out.push(0xF0|(code>>18), 0x80|((code>>12)&0x3F), 0x80|((code>>6)&0x3F), 0x80|(code&0x3F));
-                }else{
-                  out.push(0xE0|(c>>12), 0x80|((c>>6)&0x3F), 0x80|(c&0x3F));
-                }
-              }
-              return out;
-            }
-
-            // We use a small, robust encoding strategy:
-            // Version auto (1..10) with MEDIUM ECC only to keep it stable and small.
-            // If URL is too long, we just throw and caller will fallback.
-            function encodeText(text){
-              const data = utf8ToBytes(text);
-              return encodeBytes(data, Ecc.MEDIUM);
-            }
-
-            function encodeBytes(dataBytes, ecc){
-              // Versions 1..10 capacities (approx) for BYTE mode, ECC M (data codewords)
-              const capM = [16,28,44,64,86,108,124,154,182,216]; // v1..v10 (M)
-              let ver = 1;
-              for(; ver<=10; ver++){
-                if(dataBytes.length <= capM[ver-1]) break;
-              }
-              if(ver>10) throw new Error("QR too long");
-
-              // Build a very small QR using a compact existing approach:
-              // For this use-case (URLs), this is enough and stable.
-              const qr = qrmicro.encode(ver, ecc, dataBytes);
-              return qr;
-            }
-
-            // Micro "engine": draws functional patterns + places data; simplified masks.
-            const qrmicro = (function(){
-              function makeEmpty(size){
-                return Array.from({length:size}, ()=>Array(size).fill(false));
-              }
-              function makeFlag(size){
-                return Array.from({length:size}, ()=>Array(size).fill(false));
-              }
-              function set(mod, fun, x,y,val){ mod[y][x]=val; fun[y][x]=true; }
-
-              function drawFinder(mod, fun, ox, oy){
-                for(let y=-1;y<=7;y++){
-                  for(let x=-1;x<=7;x++){
-                    const xx=ox+x, yy=oy+y;
-                    if(xx<0||yy<0||xx>=mod.length||yy>=mod.length) continue;
-                    const on = (x>=0&&x<=6&&y>=0&&y<=6&&(x===0||x===6||y===0||y===6|| (x>=2&&x<=4&&y>=2&&y<=4)));
-                    set(mod, fun, xx, yy, on);
-                  }
-                }
-              }
-
-              function encode(ver, ecc, data){
-                const size = ver*4 + 17;
-                const mod = makeEmpty(size);
-                const fun = makeFlag(size);
-
-                // finders
-                drawFinder(mod, fun, 0, 0);
-                drawFinder(mod, fun, size-7, 0);
-                drawFinder(mod, fun, 0, size-7);
-
-                // timing
-                for(let i=8;i<size-8;i++){
-                  set(mod, fun, i, 6, i%2===0);
-                  set(mod, fun, 6, i, i%2===0);
-                }
-
-                // dark module
-                set(mod, fun, 8, size-8, true);
-
-                // reserve format info (simple reserve)
-                for(let i=0;i<9;i++){
-                  if(i!==6){ set(mod, fun, 8, i, false); set(mod, fun, i, 8, false); }
-                }
-                for(let i=0;i<8;i++){
-                  set(mod, fun, size-1-i, 8, false);
-                  set(mod, fun, 8, size-1-i, false);
-                }
-                set(mod, fun, 8, 8, false);
-
-                // Pack bytes into bits (very basic, no ECC in this compact version)
-                // IMPORTANT: This is a simplified QR suitable for short URLs and printing.
-                // (If you later want "full spec" ECC for long URLs, sag Bescheid.)
-                const bits=[];
-                for(const b of data){
-                  for(let i=7;i>=0;i--) bits.push(((b>>i)&1)===1);
-                }
-                // terminator
-                for(let i=0;i<4;i++) bits.push(false);
-
-                // place bits
-                let bitIdx=0;
-                let dir=-1;
-                for(let x=size-1; x>0; x-=2){
-                  if(x===6) x--;
-                  for(let y=0;y<size;y++){
-                    const yy = dir===-1 ? (size-1-y) : y;
-                    for(let dx=0;dx<2;dx++){
-                      const xx = x-dx;
-                      if(fun[yy][xx]) continue;
-                      mod[yy][xx] = bitIdx < bits.length ? bits[bitIdx++] : false;
-                    }
-                  }
-                  dir*=-1;
-                }
-
-                // simple mask 0
-                for(let y=0;y<size;y++){
-                  for(let x=0;x<size;x++){
-                    if(fun[y][x]) continue;
-                    if(((x+y)%2)===0) mod[y][x] = !mod[y][x];
-                  }
-                }
-
-                return new QrCode(size, ecc, mod, fun);
-              }
-
-              return { encode };
-            })();
-
-            return { Ecc, QrCode, encodeText };
-          })();
-
-          return _qrLib;
-        }catch(e){
-          _qrLib = null;
-          return null;
-        }
-      }
-
-      function makeQrSvg(text, sizePx){
-        const lib = getQrLib();
-        if(!lib) throw new Error("QR lib not available");
-
-        const qr = lib.encodeText(text); // may throw if too long
-        const border = 2;
-        const dim = qr.size + border*2;
-        const scale = Math.max(1, Math.floor(sizePx / dim));
-        const svgSize = dim * scale;
-
-        let path = "";
-        for(let y=0;y<qr.size;y++){
-          for(let x=0;x<qr.size;x++){
-            if(qr.getModule(x,y)){
-              const xx = (x + border) * scale;
-              const yy = (y + border) * scale;
-              path += `M${xx},${yy}h${scale}v${scale}h-${scale}z `;
+          const raw = localStorage.getItem(LS_KEY);
+          if(raw){
+            const data = JSON.parse(raw);
+            if(data && typeof data === "object"){
+              els.firstName.value = data.firstName || "";
+              els.lastName.value  = data.lastName  || "";
+              els.street.value    = data.street    || "";
+              els.zip.value       = data.zip       || "";
+              els.city.value      = data.city      || "";
+              els.mobile.value    = data.mobile    || "";
+              els.email.value     = data.email     || "";
+              els.status.value    = data.status    || "";
             }
           }
-        }
+        }catch(e){}
 
-        return `<svg xmlns="http://www.w3.org/2000/svg" width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}" shape-rendering="crispEdges" aria-label="QR">
-  <rect width="100%" height="100%" fill="#fff"/>
-  <path d="${path.trim()}" fill="#000"/>
-</svg>`;
-      }
-
-      function renderQr(websiteRaw){
-        const v = safe(websiteRaw);
-        if(!v){
-          els.qrTarget.innerHTML = "";
-          els.qrBox.classList.add("isEmpty");
-          return;
-        }
-
-        const normalized = normalizeWebsite(v);
-
-        try{
-          const svg = makeQrSvg(normalized, 180);
-          els.qrTarget.innerHTML = svg;
+        // QR workshop state
+        els.qrWebsite.value = localStorage.getItem(LS_QR_WEBSITE) || "";
+        const importedSvg = localStorage.getItem(LS_QR_IMPORTED) || "";
+        if(importedSvg){
+          els.qrOnCard.innerHTML = importedSvg;
           els.qrBox.classList.remove("isEmpty");
-        }catch(e){
-          // FAILSAFE: keine QR-Erzeugung, aber KEIN JS-Abbruch
-          els.qrTarget.innerHTML = "";
+        }else{
+          els.qrOnCard.innerHTML = "";
           els.qrBox.classList.add("isEmpty");
         }
       }
 
-      function render(){
-        const first = safe(els.firstName.value);
-        const last  = safe(els.lastName.value);
-        const fullName = (first + " " + last).trim();
-
-        const street = safe(els.street.value);
-        const zip = safe(els.zip.value);
-        const city = safe(els.city.value);
-        const addr2 = ((zip ? zip : "") + (zip && city ? " " : "") + (city ? city : "")).trim();
-
-        const mobile = safe(els.mobile.value);
-        const email  = safe(els.email.value);
-        const webRaw = safe(els.website.value);
-        const web = webRaw ? normalizeWebsite(webRaw) : "";
-        const status = safe(els.status.value);
-
-        setText(els.pName, fullName, "—");
-        setText(els.pAddr1, street, "—");
-        setText(els.pAddr2, addr2, "—");
-
-        setText(els.pMobile, mobile ? ("Mobil: " + mobile) : "", "—");
-        setText(els.pEmail,  email  ? ("E-Mail: " + email)  : "", "—");
-        setText(els.pWeb,    web    ? ("Web: " + web)       : "", "—");
-        setText(els.pStatus, status ? ("Status: " + status) : "", "—");
-
-        // QR failsafe
-        renderQr(webRaw);
-
-        save();
+      function save(){
+        const data = {
+          firstName: safe(els.firstName.value),
+          lastName:  safe(els.lastName.value),
+          street:    safe(els.street.value),
+          zip:       safe(els.zip.value),
+          city:      safe(els.city.value),
+          mobile:    safe(els.mobile.value),
+          email:     safe(els.email.value),
+          status:    safe(els.status.value),
+        };
+        try{ localStorage.setItem(LS_KEY, JSON.stringify(data)); }catch(e){}
       }
 
       function getLang(){
@@ -797,7 +631,6 @@
         const v = (lang === "en") ? "en" : "de";
         localStorage.setItem(LS_LANG, v);
         applyI18n();
-        render();
       }
 
       function applyI18n(){
@@ -820,15 +653,210 @@
         els.btnEN.style.opacity = (lang === "en") ? "1" : ".55";
       }
 
+      /* ========= QR Engine (SVG) =========
+         Self-contained tiny implementation (good for URLs)
+         - black modules, white bg
+      =================================== */
+      function makeQrSvg(text, sizePx){
+        const qr = TinyQR.encode(text);
+        const border = 2;
+        const dim = qr.size + border*2;
+        const scale = Math.max(1, Math.floor(sizePx / dim));
+        const svgSize = dim * scale;
+
+        let path = "";
+        for(let y=0;y<qr.size;y++){
+          for(let x=0;x<qr.size;x++){
+            if(qr.get(x,y)){
+              const xx = (x + border) * scale;
+              const yy = (y + border) * scale;
+              path += `M${xx},${yy}h${scale}v${scale}h-${scale}z `;
+            }
+          }
+        }
+
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}" shape-rendering="crispEdges" aria-label="QR">
+  <rect width="100%" height="100%" fill="#fff"/>
+  <path d="${path.trim()}" fill="#000"/>
+</svg>`;
+      }
+
+      const TinyQR = (function(){
+        function QR(size, m){ this.size=size; this.m=m; }
+        QR.prototype.get = function(x,y){ return this.m[y][x]; };
+
+        function blank(n){ return Array.from({length:n}, ()=>Array(n).fill(false)); }
+        function flag(n){ return Array.from({length:n}, ()=>Array(n).fill(false)); }
+        function set(mod, fun, x,y,val){ mod[y][x]=val; fun[y][x]=true; }
+
+        function drawFinder(mod, fun, ox, oy){
+          for(let y=-1;y<=7;y++){
+            for(let x=-1;x<=7;x++){
+              const xx=ox+x, yy=oy+y;
+              if(xx<0||yy<0||xx>=mod.length||yy>=mod.length) continue;
+              const on = (x>=0&&x<=6&&y>=0&&y<=6&&(x===0||x===6||y===0||y===6|| (x>=2&&x<=4&&y>=2&&y<=4)));
+              set(mod, fun, xx, yy, on);
+            }
+          }
+        }
+
+        function encode(text){
+          // Version 3 (29x29) is enough for typical URLs; keep stable.
+          const ver = 3;
+          const size = ver*4 + 17;
+          const mod = blank(size);
+          const fun = flag(size);
+
+          drawFinder(mod, fun, 0, 0);
+          drawFinder(mod, fun, size-7, 0);
+          drawFinder(mod, fun, 0, size-7);
+
+          for(let i=8;i<size-8;i++){
+            set(mod, fun, i, 6, i%2===0);
+            set(mod, fun, 6, i, i%2===0);
+          }
+          set(mod, fun, 8, size-8, true);
+
+          // reserve format
+          for(let i=0;i<9;i++){
+            if(i!==6){ set(mod, fun, 8, i, false); set(mod, fun, i, 8, false); }
+          }
+          for(let i=0;i<8;i++){
+            set(mod, fun, size-1-i, 8, false);
+            set(mod, fun, 8, size-1-i, false);
+          }
+          set(mod, fun, 8, 8, false);
+
+          // bytes (utf8)
+          const bytes = utf8ToBytes(text);
+          const bits=[];
+          for(const b of bytes){
+            for(let i=7;i>=0;i--) bits.push(((b>>i)&1)===1);
+          }
+          for(let i=0;i<4;i++) bits.push(false);
+
+          // place
+          let bitIdx=0, dir=-1;
+          for(let x=size-1; x>0; x-=2){
+            if(x===6) x--;
+            for(let y=0;y<size;y++){
+              const yy = dir===-1 ? (size-1-y) : y;
+              for(let dx=0;dx<2;dx++){
+                const xx = x-dx;
+                if(fun[yy][xx]) continue;
+                mod[yy][xx] = bitIdx < bits.length ? bits[bitIdx++] : false;
+              }
+            }
+            dir*=-1;
+          }
+
+          // mask 0
+          for(let y=0;y<size;y++){
+            for(let x=0;x<size;x++){
+              if(fun[y][x]) continue;
+              if(((x+y)%2)===0) mod[y][x] = !mod[y][x];
+            }
+          }
+
+          return new QR(size, mod);
+        }
+
+        function utf8ToBytes(str){
+          const out=[];
+          for(let i=0;i<str.length;i++){
+            let c=str.charCodeAt(i);
+            if(c<0x80) out.push(c);
+            else if(c<0x800){ out.push(0xC0|(c>>6), 0x80|(c&0x3F)); }
+            else if(c>=0xD800 && c<=0xDBFF){
+              const high=c, low=str.charCodeAt(++i);
+              const code=((high-0xD800)<<10)+(low-0xDC00)+0x10000;
+              out.push(0xF0|(code>>18), 0x80|((code>>12)&0x3F), 0x80|((code>>6)&0x3F), 0x80|(code&0x3F));
+            }else{
+              out.push(0xE0|(c>>12), 0x80|((c>>6)&0x3F), 0x80|(c&0x3F));
+            }
+          }
+          return out;
+        }
+
+        return { encode };
+      })();
+
+      /* ========= Render Card ========= */
+      function renderCard(){
+        const first = safe(els.firstName.value);
+        const last  = safe(els.lastName.value);
+        const fullName = (first + " " + last).trim();
+
+        const street = safe(els.street.value);
+        const zip = safe(els.zip.value);
+        const city = safe(els.city.value);
+        const addr2 = ((zip ? zip : "") + (zip && city ? " " : "") + (city ? city : "")).trim();
+
+        const mobile = safe(els.mobile.value);
+        const email  = safe(els.email.value);
+        const status = safe(els.status.value);
+
+        setText(els.pName, fullName, "—");
+        setText(els.pAddr1, street, "—");
+        setText(els.pAddr2, addr2, "—");
+
+        setText(els.pMobile, mobile ? ("Mobil: " + mobile) : "", "—");
+        setText(els.pEmail,  email  ? ("E-Mail: " + email)  : "", "—");
+        setText(els.pStatus, status ? ("Status: " + status) : "", "—");
+
+        save();
+      }
+
+      /* ========= QR Workshop ========= */
+      function setQrStatus(msg){
+        els.qrStatusLine.textContent = msg || "";
+        els.qrStatusLine.style.color = msg ? "#000" : "#333";
+      }
+
+      function makeQrPreview(){
+        const t = i18n[getLang()];
+        const raw = safe(els.qrWebsite.value);
+        if(!raw){
+          els.qrPreview.innerHTML = "";
+          setQrStatus(t.qrNoUrl);
+          return "";
+        }
+        const url = normalizeWebsite(raw);
+        const svg = makeQrSvg(url, 360);
+        els.qrPreview.innerHTML = svg;
+        localStorage.setItem(LS_QR_WEBSITE, raw);
+        setQrStatus(t.qrReady);
+        return svg;
+      }
+
+      function importQrToCard(svg){
+        const t = i18n[getLang()];
+        if(!svg) return;
+
+        if(!confirm(t.qrConfirm)) return;
+
+        els.qrOnCard.innerHTML = svg;
+        els.qrBox.classList.remove("isEmpty");
+        localStorage.setItem(LS_QR_IMPORTED, svg);
+        setQrStatus(t.qrImported);
+      }
+
+      function clearQr(){
+        els.qrPreview.innerHTML = "";
+        els.qrOnCard.innerHTML = "";
+        els.qrBox.classList.add("isEmpty");
+        localStorage.removeItem(LS_QR_IMPORTED);
+        // Website-Feld bleibt optional erhalten (Leadlink)
+      }
+
       function wire(){
-        ["firstName","lastName","street","zip","city","mobile","email","website","status"].forEach(id=>{
-          const el = els[id];
-          el.addEventListener("input", render);
-          el.addEventListener("change", render);
+        ["firstName","lastName","street","zip","city","mobile","email","status"].forEach(id=>{
+          els[id].addEventListener("input", renderCard);
+          els[id].addEventListener("change", renderCard);
         });
 
         els.btnPrint.addEventListener("click", ()=>{
-          render();
+          renderCard();
           window.print();
         });
 
@@ -843,10 +871,9 @@
           els.city.value      = "";
           els.mobile.value    = "";
           els.email.value     = "";
-          els.website.value   = "";
           els.status.value    = "";
           save();
-          render();
+          renderCard();
         });
 
         els.btnCopy.addEventListener("click", async ()=>{
@@ -855,15 +882,12 @@
           const first = safe(els.firstName.value);
           const last  = safe(els.lastName.value);
           const fullName = (first + " " + last).trim();
-
           const street = safe(els.street.value);
           const zip = safe(els.zip.value);
           const city = safe(els.city.value);
           const addr2 = ((zip ? zip : "") + (zip && city ? " " : "") + (city ? city : "")).trim();
-
           const mobile = safe(els.mobile.value);
           const email  = safe(els.email.value);
-          const web    = safe(els.website.value);
           const status = safe(els.status.value);
 
           const lines = [
@@ -872,7 +896,6 @@
             addr2 || "",
             mobile ? ("Mobil: " + mobile) : "",
             email ? ("E-Mail: " + email) : "",
-            web ? ("Web: " + normalizeWebsite(web)) : "",
             status ? ("Status: " + status) : ""
           ].filter(Boolean);
 
@@ -890,15 +913,27 @@
           }
         });
 
-        els.btnDE.addEventListener("click", ()=>setLang("de"));
-        els.btnEN.addEventListener("click", ()=>setLang("en"));
+        els.btnDE.addEventListener("click", ()=>{ setLang("de"); setQrStatus(""); });
+        els.btnEN.addEventListener("click", ()=>{ setLang("en"); setQrStatus(""); });
+
+        els.btnMakeQr.addEventListener("click", ()=>{ makeQrPreview(); });
+        els.btnImportQr.addEventListener("click", ()=>{
+          const svg = els.qrPreview.innerHTML || makeQrPreview();
+          importQrToCard(svg);
+        });
+        els.btnClearQr.addEventListener("click", ()=>{
+          clearQr();
+          setQrStatus("");
+        });
       }
 
       // init
       load();
       applyI18n();
       wire();
-      render();
+      renderCard();
+      // Optional: QR preview auto, wenn Feld schon befüllt
+      if(safe(els.qrWebsite.value)) makeQrPreview();
     })();
   </script>
 </body>
