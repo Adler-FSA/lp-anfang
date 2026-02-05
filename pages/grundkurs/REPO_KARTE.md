@@ -856,6 +856,8 @@
     │   │   ├── beratermarkt-index-dach-2.html
     │   │   ├── beratermarkt-index-dach.html
     │   │   ├── dach-demand-dashboard.html
+    │   │   ├── promotor-onboarding-checkin.html
+    │   │   ├── sprecher-onboarding-checkin.html
     │   │   ├── visitenkarte-fsa-club.html
     │   │   └── zertifikat-krypto-fuehrerschein.html
     │   ├── trustyfy/
@@ -1012,4 +1014,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.02.2026, 23:21)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 05.02.2026, 01:29)_
