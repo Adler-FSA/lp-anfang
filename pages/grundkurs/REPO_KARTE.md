@@ -300,6 +300,8 @@
     │   │   ├── template.js
     │   │   ├── topbar-autohide.js
     │   │   └── topbar-patch.js
+    │   ├── logos/
+    │   │   └── liquiditybooster-logo.png
     │   ├── music/
     │   │   ├── pool/
     │   │   │   ├── README.txt
@@ -859,6 +861,7 @@
     │   │   ├── promotor-onboarding-checkin.html
     │   │   ├── sprecher-onboarding-checkin.html
     │   │   ├── visitenkarte-fsa-club.html
+    │   │   ├── visitenkarte-weiss-schwarz-2.html
     │   │   ├── visitenkarte-weiss-schwarz-generator.html
     │   │   └── zertifikat-krypto-fuehrerschein.html
     │   ├── trustyfy/
@@ -1015,4 +1018,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.02.2026, 08:35)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.02.2026, 09:36)_
