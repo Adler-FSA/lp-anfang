@@ -4,22 +4,24 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tragfähigkeits-Rechner – 3 Ebenen</title>
-  <meta name="description" content="Tragfähigkeits-Rechner (3 Ebenen): Arbeitstage 1–30, Promotoren als Mitglieder (Output fließt in Ebene 2), Aktiv-Quoten frei, Bausteine per Haken, LocalStorage, druckbar, DE/EN." />
+  <meta name="description" content="Tragfähigkeits-Rechner (3 Ebenen): alles frei einstellbar (Startwerte 0), Ebenen-Ertrag getrennt, Wow-UI, LocalStorage, Print, DE/EN." />
   <meta name="robots" content="noindex,nofollow" />
 
   <style>
     :root{
       --bg:#ffffff;
-      --txt:#0a0a0a;
-      --muted:#3f3f3f;
-      --line:#d6d6d6;
-      --soft:#f5f5f5;
+      --txt:#0b0b0b;
+      --muted:#4a4a4a;
+      --line:#d7d7d7;
+      --soft:#f6f6f6;
       --soft2:#fbfbfb;
 
-      --radius:14px;
-      --shadow:0 10px 24px rgba(0,0,0,.08);
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --radius:16px;
+      --shadow:0 14px 30px rgba(0,0,0,.10);
+      --shadow2:0 10px 22px rgba(0,0,0,.08);
+
+      --sans: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      --mono: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
     }
 
     html,body{height:100%}
@@ -28,101 +30,99 @@
       font-family:var(--sans);
       background:var(--bg);
       color:var(--txt);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
 
-      /* Text-Sicherheit */
       overflow-wrap:anywhere;
       word-break:break-word;
       hyphens:auto;
     }
 
     .wrap{
-      max-width:1120px;
+      max-width:1180px;
       margin:0 auto;
-      padding:22px 16px 60px;
+      padding:20px 16px 70px;
     }
 
     header{
       display:flex;
-      gap:14px;
       align-items:flex-start;
       justify-content:space-between;
+      gap:12px;
       flex-wrap:wrap;
+      padding-bottom:12px;
       border-bottom:1px solid var(--line);
-      padding-bottom:14px;
-      margin-bottom:14px;
+      margin-bottom:12px;
     }
 
     h1{
-      font-size:22px;
-      line-height:1.2;
       margin:0 0 6px 0;
+      font-size:22px;
+      line-height:1.15;
       letter-spacing:.2px;
     }
-
     .sub{
       margin:0;
       color:var(--muted);
       font-size:14px;
       line-height:1.55;
-      max-width:900px;
+      max-width:980px;
     }
 
-    .topActions{
+    .topRight{
       display:flex;
       gap:10px;
       align-items:center;
       flex-wrap:wrap;
+      justify-content:flex-end;
     }
-
-    .btn{
-      appearance:none;
-      border:1px solid #111;
-      background:#111;
-      color:#fff;
-      padding:10px 12px;
-      border-radius:12px;
-      font-weight:900;
-      font-size:13px;
-      cursor:pointer;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      user-select:none;
-    }
-    .btn.secondary{
-      background:#fff;
-      color:#111;
-      border:1px solid var(--line);
-      font-weight:900;
-    }
-    .btn:active{transform:translateY(1px)}
-    .btn svg{width:16px;height:16px}
 
     .pillRow{
       display:flex;
       gap:8px;
-      align-items:center;
       flex-wrap:wrap;
+      align-items:center;
     }
     .pill{
+      appearance:none;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--txt);
+      padding:8px 10px;
+      border-radius:999px;
+      font-weight:950;
+      font-size:13px;
+      cursor:pointer;
+      user-select:none;
+      box-shadow:0 2px 0 rgba(0,0,0,.03);
+    }
+    .pill[aria-pressed="true"]{
+      border-color:#0b0b0b;
+      box-shadow:0 0 0 2px rgba(0,0,0,.07) inset, 0 2px 0 rgba(0,0,0,.03);
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid #0b0b0b;
+      background:#0b0b0b;
+      color:#fff;
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:950;
+      font-size:13px;
+      cursor:pointer;
       display:inline-flex;
       align-items:center;
       gap:8px;
-      padding:8px 10px;
-      border:1px solid var(--line);
-      border-radius:999px;
-      background:#fff;
-      font-size:13px;
-      font-weight:900;
-      cursor:pointer;
       user-select:none;
+      box-shadow:0 10px 20px rgba(0,0,0,.10);
     }
-    .pill[aria-pressed="true"]{
-      border-color:#111;
-      box-shadow:0 0 0 2px rgba(0,0,0,.08) inset;
+    .btn.secondary{
+      background:#fff;
+      color:#0b0b0b;
+      border:1px solid var(--line);
+      box-shadow:0 6px 14px rgba(0,0,0,.06);
     }
+    .btn:active{ transform: translateY(1px); }
+    .btn svg{ width:16px; height:16px; }
 
     .hero{
       border:1px solid var(--line);
@@ -130,61 +130,46 @@
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       padding:14px;
-      margin:14px 0;
+      position:relative;
+      overflow:hidden;
     }
-    .heroTop{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:flex-start;
-      flex-wrap:wrap;
+    .hero::before{
+      content:"";
+      position:absolute; inset:-30px;
+      background:
+        radial-gradient(560px 220px at 18% 8%, rgba(0,0,0,.06), transparent 60%),
+        radial-gradient(520px 240px at 80% 25%, rgba(0,0,0,.04), transparent 60%);
+      pointer-events:none;
     }
+    .heroInner{ position:relative; z-index:1; }
     .heroTitle{
       margin:0 0 6px 0;
-      font-size:16px;
+      font-size:15px;
       font-weight:950;
+      letter-spacing:.2px;
     }
     .heroText{
       margin:0;
       color:var(--muted);
       font-size:13.5px;
       line-height:1.6;
-      max-width:980px;
-    }
-    .miniPills{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-top:10px;
-    }
-    .miniPills .tag{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:#fff;
-      font-size:12px;
-      font-weight:900;
-      white-space:nowrap;
+      max-width:1050px;
     }
 
     .grid{
       display:grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap:14px;
-    }
-    @media (max-width: 920px){
-      .grid{grid-template-columns:1fr}
+      margin-top:14px;
     }
 
     .card{
       border:1px solid var(--line);
       background:var(--soft2);
       border-radius:var(--radius);
-      box-shadow:var(--shadow);
+      box-shadow:var(--shadow2);
       padding:14px;
+      position:relative;
     }
     .card h2{
       margin:0 0 10px 0;
@@ -196,181 +181,398 @@
       color:var(--muted);
       font-size:13px;
       line-height:1.55;
+      max-width:1050px;
     }
 
+    .sectionTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:8px;
+    }
+    .sectionTools{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .miniBtn{
+      appearance:none;
+      border:1px solid var(--line);
+      background:#fff;
+      color:#0b0b0b;
+      padding:8px 10px;
+      border-radius:12px;
+      font-weight:950;
+      font-size:12px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      box-shadow:0 6px 14px rgba(0,0,0,.05);
+      user-select:none;
+    }
+    .miniBtn svg{ width:14px; height:14px; }
+
+    .rows{
+      display:grid;
+      gap:10px;
+    }
     .row{
       display:grid;
-      grid-template-columns: 1.1fr 1fr;
+      grid-template-columns: 1.25fr 1fr auto;
       gap:10px;
       align-items:center;
       padding:10px;
-      border-radius:12px;
+      border-radius:14px;
       background:#fff;
       border:1px solid var(--line);
-      margin-bottom:10px;
     }
-    @media (max-width:560px){
-      .row{grid-template-columns:1fr}
+    @media (max-width:720px){
+      .row{ grid-template-columns: 1fr; }
+      .row .resetCell{ justify-content:flex-start; }
     }
-    label{
+    .lab{
       font-weight:950;
       font-size:13px;
     }
-    .small{
+    .subLab{
+      margin-top:3px;
       color:var(--muted);
       font-size:12px;
-      line-height:1.45;
-      margin-top:4px;
+      line-height:1.4;
     }
 
-    input[type="number"], select{
+    .ctrl{
+      display:grid;
+      gap:6px;
+    }
+    input[type="number"], select, input[type="range"]{
       width:100%;
+      box-sizing:border-box;
       padding:10px 10px;
       border-radius:12px;
       border:1px solid var(--line);
+      background:#fff;
+      color:#0b0b0b;
       font-size:14px;
-      background:#fff;
-      color:#111;
-      box-sizing:border-box;
+      outline:none;
+      font-family:var(--sans);
     }
-
-    .split{
+    input[type="number"]:focus, select:focus{
+      border-color:#0b0b0b;
+      box-shadow:0 0 0 3px rgba(0,0,0,.08);
+    }
+    .rangeWrap{
       display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
+      gap:8px;
     }
-    @media (max-width:560px){
-      .split{grid-template-columns:1fr}
+    .rangeLine{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      color:var(--muted);
+      font-size:12px;
+      font-family:var(--mono);
     }
 
-    .checkLine{
+    .resetCell{
       display:flex;
-      align-items:flex-start;
-      gap:10px;
-      padding:10px;
-      border:1px solid var(--line);
-      border-radius:12px;
-      background:#fff;
-      margin-bottom:10px;
+      justify-content:flex-end;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
     }
-    .checkLine input{margin-top:3px}
-    .checkMain{display:flex; flex-direction:column; gap:2px; flex:1;}
-    .priceTag{font-family:var(--mono); font-size:12px; color:#111; white-space:nowrap;}
+    .resetOne{
+      appearance:none;
+      border:1px solid var(--line);
+      background:var(--soft);
+      color:#0b0b0b;
+      padding:8px 10px;
+      border-radius:12px;
+      font-weight:950;
+      font-size:12px;
+      cursor:pointer;
+      user-select:none;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .resetOne:hover{ background:#fff; }
+
+    .chips{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top:6px;
+    }
+    .chip{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#fff;
+      font-weight:950;
+      font-size:12px;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .chip .mono{ font-family:var(--mono); }
 
     .kpiGrid{
       display:grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(4, 1fr);
       gap:10px;
+      margin-top:10px;
     }
-    @media (max-width:920px){
-      .kpiGrid{grid-template-columns:1fr}
-    }
-    .kpi{
-      border:1px solid var(--line);
-      border-radius:12px;
-      background:#fff;
-      padding:12px;
-    }
-    .kpi .t{font-size:12px; color:var(--muted); margin:0 0 6px 0; font-weight:950; text-transform:uppercase; letter-spacing:.04em;}
-    .kpi .v{font-size:18px; margin:0; font-weight:950; letter-spacing:.2px;}
-    .kpi .s{margin:6px 0 0 0; font-size:12px; color:var(--muted); line-height:1.45;}
+    @media (max-width:980px){ .kpiGrid{ grid-template-columns: repeat(2, 1fr);} }
+    @media (max-width:520px){ .kpiGrid{ grid-template-columns: 1fr;} }
 
+    .kpi{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      position:relative;
+      overflow:hidden;
+    }
+    .kpi::before{
+      content:"";
+      position:absolute; inset:-20px;
+      background: radial-gradient(420px 180px at 20% 20%, rgba(0,0,0,.05), transparent 60%);
+      pointer-events:none;
+      opacity:.85;
+    }
+    .kpi > *{ position:relative; z-index:1; }
+    .kpi .t{
+      margin:0 0 6px 0;
+      font-size:12px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      font-weight:950;
+    }
+    .kpi .v{
+      margin:0;
+      font-size:20px;
+      font-weight:1000;
+      letter-spacing:.2px;
+      font-family:var(--mono);
+    }
+    .kpi .d{
+      margin:6px 0 0 0;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .compareBar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+      padding:10px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+    }
+    .toggle{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      user-select:none;
+    }
+    .switch{
+      position:relative;
+      width:48px;
+      height:28px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:var(--soft);
+      cursor:pointer;
+      flex:0 0 auto;
+    }
+    .knob{
+      position:absolute;
+      top:3px; left:3px;
+      width:22px; height:22px;
+      border-radius:999px;
+      background:#0b0b0b;
+      transition:transform .18s ease;
+    }
+    .switch.on{ background:#fff; border-color:#0b0b0b; }
+    .switch.on .knob{ transform: translateX(20px); }
+
+    .tableWrap{
+      margin-top:10px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      overflow:auto;
+      background:#fff;
+    }
     table{
       width:100%;
-      border-collapse:collapse;
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:12px;
-      overflow:hidden;
+      border-collapse:separate;
+      border-spacing:0;
+      min-width:860px;
+      table-layout:fixed;
+      font-family:var(--mono);
+      font-size:12px;
     }
     th, td{
       padding:10px 10px;
       border-bottom:1px solid var(--line);
-      font-size:13px;
       text-align:left;
-      vertical-align:top;
       white-space:nowrap;
     }
     th{
       background:var(--soft);
+      position:sticky;
+      top:0;
+      z-index:1;
+      font-size:12px;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      font-family:var(--sans);
+      font-weight:950;
+      color:#0b0b0b;
+    }
+    tr:last-child td{ border-bottom:0; }
+    .right{ text-align:right; }
+    .muted{ color:var(--muted); }
+
+    .checks{
+      display:grid;
+      gap:10px;
+      margin-top:8px;
+    }
+    .checkLine{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding:10px;
+      border-radius:14px;
+      background:#fff;
+      border:1px solid var(--line);
+    }
+    .checkLine input{ margin-top:3px; }
+    .checkText{ flex:1; }
+    .checkTitle{
+      font-weight:950;
+      font-size:13px;
+      margin:0;
+    }
+    .checkSub{
+      margin:4px 0 0 0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.45;
+    }
+    .priceTag{
+      font-family:var(--mono);
       font-weight:950;
       font-size:12px;
-      letter-spacing:.2px;
-      text-transform:uppercase;
+      white-space:nowrap;
     }
-    tr:last-child td{border-bottom:none}
-    .mono{font-family:var(--mono)}
-    .right{text-align:right}
-    .muted{color:var(--muted)}
 
-    .accordions{
-      border:1px solid var(--line);
-      background:var(--soft2);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:12px;
-      margin:14px 0;
+    .slots{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+      margin-top:10px;
     }
-    details.acc{
-      border:1px solid var(--line);
-      border-radius:12px;
+    @media (max-width:860px){ .slots{ grid-template-columns: 1fr; } }
+    .slot{
       background:#fff;
-      margin:10px 0;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+    }
+    .slotTitle{
+      margin:0 0 8px 0;
+      font-weight:1000;
+      font-size:13px;
+      letter-spacing:.2px;
+    }
+    .slotBtns{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    details.acc{
+      margin-top:10px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
       overflow:hidden;
     }
     details.acc summary{
       list-style:none;
       cursor:pointer;
-      font-weight:950;
-      font-size:13px;
       padding:12px 12px;
+      font-weight:1000;
+      font-size:13px;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
       user-select:none;
     }
-    details.acc summary::-webkit-details-marker{display:none}
+    details.acc summary::-webkit-details-marker{ display:none; }
     .chev{
-      width:18px;height:18px; flex:0 0 auto;
+      width:18px; height:18px;
       transition: transform .18s ease;
+      flex:0 0 auto;
     }
-    details.acc[open] .chev{transform:rotate(180deg)}
+    details.acc[open] .chev{ transform: rotate(180deg); }
     .accBody{
-      padding:0 12px 12px 12px;
       border-top:1px solid var(--line);
+      padding:0 12px 12px 12px;
       font-size:13.5px;
       line-height:1.6;
-      color:var(--txt);
+      color:#0b0b0b;
     }
-    .accBody p{margin:10px 0 0 0}
-    .accBody ul{margin:10px 0 0 18px}
-    .accBody li{margin:6px 0}
-    .accBody .muted{color:var(--muted); font-size:12.5px}
+    .accBody p{ margin:10px 0 0 0; }
+    .accBody ul{ margin:10px 0 0 18px; }
+    .accBody li{ margin:6px 0; }
+    .accBody .muted{ font-size:12.5px; }
 
     .notes{
-      margin-top:12px;
-      padding:12px;
-      border-radius:12px;
-      border:1px solid var(--line);
+      margin-top:10px;
       background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
     }
     textarea{
       width:100%;
-      min-height:160px;
-      resize:vertical;
+      box-sizing:border-box;
+      min-height:150px;
       padding:10px 10px;
       border-radius:12px;
       border:1px solid var(--line);
       font-size:14px;
-      box-sizing:border-box;
       font-family:var(--sans);
-      color:#111;
-      background:#fff;
+      outline:none;
+      resize:vertical;
 
       overflow-wrap:anywhere;
       word-break:break-word;
       hyphens:auto;
+    }
+    textarea:focus{
+      border-color:#0b0b0b;
+      box-shadow:0 0 0 3px rgba(0,0,0,.08);
     }
     .noteRow{
       display:flex;
@@ -385,30 +587,27 @@
       font-size:13px;
     }
 
-    .foot{
+    .footerNote{
       margin-top:14px;
-      padding-top:14px;
+      padding-top:12px;
       border-top:1px solid var(--line);
       color:var(--muted);
-      font-size:12px;
+      font-size:12.5px;
       line-height:1.6;
     }
 
     /* Print */
-    @page { margin: 12mm; }
+    @page{ margin: 12mm; }
     @media print{
       *{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .noPrint{display:none !important}
-      header{border-bottom:1px solid #000}
-      .wrap{max-width:none; padding:0}
-      .card, .hero, .accordions{box-shadow:none}
-      .card, .row, table, .kpi, .accordions, details.acc, .notes{break-inside:avoid; page-break-inside:avoid}
-      table{width:100%}
-      th, td{border-bottom:1px solid #000}
-      th{background:#f0f0f0}
-      .card,.hero,.accordions,details.acc,.row,.kpi,.notes,textarea,input,select{
+      .noPrint{ display:none !important; }
+      body{ background:#fff !important; color:#000 !important; }
+      .card,.hero,.kpi,.slot,.checkLine,.row,.compareBar,.notes,details.acc,.tableWrap{
+        box-shadow:none !important;
         border-color:#000 !important;
       }
+      th{ position:static !important; background:#f0f0f0 !important; }
+      table{ min-width:0 !important; width:100% !important; }
     }
   </style>
 </head>
@@ -420,26 +619,18 @@
       <div>
         <h1 data-i18n="h1">Tragfähigkeits-Rechner (3 Ebenen)</h1>
         <p class="sub" data-i18n="sub">
-          Simulation zur Orientierung: Mitgliedschaft (60 €) ist der Sockel. Nach dem Abschluss ist die Aufgabe erledigt. Promotoren sind Mitglieder (Ebene 1) – deren Output erzeugt Ebene 2.
+          Dieser Rechner macht sichtbar, wie kontinuierliches Dranbleiben eine Struktur aufbaut, die mit der Zeit stärker trägt.
+          Du stellst deine Annahmen selbst ein – alles startet bewusst bei 0.
         </p>
       </div>
 
-      <div class="topActions noPrint">
+      <div class="topRight noPrint">
         <div class="pillRow" aria-label="Sprache">
           <button class="pill" id="langDE" type="button" aria-pressed="true">DE</button>
           <button class="pill" id="langEN" type="button" aria-pressed="false">EN</button>
         </div>
 
-        <button class="btn secondary" id="btnReset" type="button">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M3 12a9 9 0 0 1 15.36-6.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <path d="M18 4v6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M21 12a9 9 0 0 1-15.36 6.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          <span data-i18n="reset">Reset</span>
-        </button>
-
-        <button class="btn secondary" id="btnCopy" type="button">
+        <button class="btn secondary" id="btnCopy" type="button" aria-label="Ergebnis kopieren">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M9 9h10v12H9V9Z" stroke="currentColor" stroke-width="2"/>
             <path d="M5 3h10v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -449,7 +640,7 @@
           <span data-i18n="copy">Kopieren</span>
         </button>
 
-        <button class="btn" id="btnPrint" type="button">
+        <button class="btn secondary" id="btnPrint" type="button">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M7 8V3h10v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             <path d="M7 17h10v4H7v-4Z" stroke="currentColor" stroke-width="2"/>
@@ -458,906 +649,1200 @@
           </svg>
           <span data-i18n="print">Drucken</span>
         </button>
+
+        <button class="btn" id="btnResetAll" type="button">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3 12a9 9 0 0 1 15.36-6.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M18 4v6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 12a9 9 0 0 1-15.36 6.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="resetAll">Alles auf 0</span>
+        </button>
       </div>
     </header>
 
     <section class="hero">
-      <div class="heroTop">
-        <div>
-          <div class="heroTitle" data-i18n="heroTitle">Kurzlogik (damit jeder es sofort richtig versteht)</div>
-          <p class="heroText" data-i18n="heroText">
-            Ebene 1 sind deine direkten Mitglieder (inkl. Profi-Promotoren, weil sie zuerst Mitglied werden). Wenn ein Profi-Promotor arbeitet, baut er seine eigene Erstlinie auf – das ist für dich Ebene 2. Ebene 3 entsteht aus der Erstlinie deiner Ebene-2-Mitglieder.
-          </p>
+      <div class="heroInner">
+        <div class="heroTitle" data-i18n="heroTitle">Wichtiger Hinweis</div>
+        <p class="heroText" data-i18n="heroText">
+          Auch wenn Zahlen stark wachsen, heißt das nicht, dass alles genau so eintrifft. Jeder entwickelt sich in seinem Tempo.
+          Die Szenarien zeigen, was grundsätzlich möglich ist, wenn man dran bleibt – oft ist es weniger die Frage ob, sondern wann es greifbar wird.
+        </p>
 
-          <div class="miniPills" aria-label="Regeln">
-            <div class="tag"><span class="mono">20%</span> <span data-i18n="pillL1">Ebene 1</span></div>
-            <div class="tag"><span class="mono">15%</span> <span data-i18n="pillL2">Ebene 2</span></div>
-            <div class="tag"><span class="mono">10%</span> <span data-i18n="pillL3">Ebene 3</span></div>
-            <div class="tag" data-i18n="pillPromoter">Promotor = Mitglied</div>
-            <div class="tag" data-i18n="pillNoBill">Keine Abrechnung</div>
-            <div class="tag" data-i18n="pillLocal">LocalStorage + Print</div>
-          </div>
+        <div class="chips" aria-label="Sätze">
+          <div class="chip"><span class="mono">20%</span> <span data-i18n="l1">Ebene 1</span></div>
+          <div class="chip"><span class="mono">15%</span> <span data-i18n="l2">Ebene 2</span></div>
+          <div class="chip"><span class="mono">10%</span> <span data-i18n="l3">Ebene 3</span></div>
+          <div class="chip" data-i18n="allZero">Startwerte: alles 0</div>
         </div>
       </div>
     </section>
 
-    <section class="accordions">
-      <details class="acc" open>
-        <summary>
-          <span data-i18n="acc1Title">Wie der Rechner die Ebenen versteht (wichtig)</span>
-          <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </summary>
-        <div class="accBody">
-          <p class="muted" data-i18n="acc1P1">
-            Promotoren sind keine externen „Zuflüsse“. Jeder Promotor wird zuerst Mitglied in deiner Ebene 1. Wenn er danach neue Mitglieder gewinnt, entstehen diese in deiner Ebene 2.
-          </p>
-          <ul>
-            <li class="muted" data-i18n="acc1L1">Ebene 1: deine direkten Mitglieder (inkl. Profi-Promotoren als Mitglieder).</li>
-            <li class="muted" data-i18n="acc1L2">Ebene 2: Erstlinie deiner Ebene-1-Mitglieder (z. B. Output eines Profi-Promotors).</li>
-            <li class="muted" data-i18n="acc1L3">Ebene 3: Erstlinie deiner Ebene-2-Mitglieder.</li>
-          </ul>
-          <p class="muted" data-i18n="acc1P2">
-            Deshalb erzeugt das Feld „Leistung je Profi-Promotor“ Mitglieder in Ebene 2 – nicht in Ebene 1.
-          </p>
-        </div>
-      </details>
-
-      <details class="acc">
-        <summary>
-          <span data-i18n="acc2Title">Wo trägst du was ein?</span>
-          <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </summary>
-        <div class="accBody">
-          <ul>
-            <li class="muted" data-i18n="acc2L1">„Eigene Abschlüsse/Tag“ → deine direkten Mitglieder (Ebene 1).</li>
-            <li class="muted" data-i18n="acc2L2">„Profi-Promotoren (als Mitglieder in Ebene 1)“ → Anzahl Promotoren in deiner Ebene 1.</li>
-            <li class="muted" data-i18n="acc2L3">„Leistung je Profi-Promotor“ → deren Abschlüsse erzeugen deine Ebene 2.</li>
-            <li class="muted" data-i18n="acc2L4">Aktiv-Quoten/Output → wie stark sich Ebene 2 und Ebene 3 zusätzlich durch Aktivierung aufbauen.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="acc">
-        <summary>
-          <span data-i18n="acc3Title">Warum nur die Mitgliedschaft aktiv angeboten wird</span>
-          <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </summary>
-        <div class="accBody">
-          <p class="muted" data-i18n="acc3P1">
-            Es gibt bis zu 50 Produkte/Bausteine. Beworben wird trotzdem nur die Mitgliedschaft – danach entscheidet jedes Mitglied freiwillig, was es nutzt und bestellt.
-          </p>
-          <p class="muted" data-i18n="acc3P2">
-            Das System (Handbuch, Kurse, Lernpfade) übernimmt die Erklärung. So wird Lebenszeit gewonnen: Promotoren sind nicht dauerhafte Supporter.
-          </p>
-        </div>
-      </details>
-
-      <details class="acc">
-        <summary>
-          <span data-i18n="acc4Title">Hinweis: 20% bis 40% Eigenumsatz (nicht im Rechner abgebildet)</span>
-          <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </summary>
-        <div class="accBody">
-          <p class="muted" data-i18n="acc4P1">
-            Die gezeigten Anteile (20% / 15% / 10%) sind eine Beispiel-Logik zur Orientierung. Eigenumsatz kann in der Praxis von 20% bis 40% anwachsen – diese Dynamik ist bewusst nicht Teil des Rechners.
-          </p>
-          <p class="muted" data-i18n="acc4P2">
-            Ziel ist Tragfähigkeit zu simulieren, nicht eine Abrechnung zu erzeugen.
-          </p>
-        </div>
-      </details>
-    </section>
-
     <div class="grid">
-      <!-- INPUTS -->
+
+      <!-- Eingaben -->
       <section class="card">
-        <h2 data-i18n="inputs">Eingaben</h2>
-        <p class="hint" data-i18n="inputsHint">
-          Ebene 1 = deine direkten Mitglieder. Profi-Promotoren sind Mitglieder in Ebene 1 – deren Leistung erzeugt deine Ebene 2.
-        </p>
+        <div class="sectionTop">
+          <div>
+            <h2 data-i18n="inputsTitle">Einstellungen</h2>
+            <p class="hint" data-i18n="inputsHint">
+              Alles ist frei einstellbar. Jeder beginnt bei 0 und setzt eigene Annahmen.
+            </p>
+          </div>
+          <div class="sectionTools noPrint">
+            <button class="miniBtn" id="resetTime" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M21 12a9 9 0 1 1-2.64-6.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M18 3v6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span data-i18n="resetTime">Zeitraum auf 0</span>
+            </button>
 
-        <div class="row">
-          <div>
-            <label for="workdays" data-i18n="workdaysLabel">Arbeitstage pro Monat</label>
-            <div class="small" data-i18n="workdaysHelp">Bereich: 1 bis 30.</div>
-          </div>
-          <div class="split">
-            <input id="workdays" type="number" min="1" max="30" step="1" value="20" data-store />
-            <input id="selfPerDay" type="number" min="0" max="10" step="1" value="1" data-store />
-          </div>
-          <div class="small muted" style="grid-column:1 / -1" data-i18n="selfPerDayHelp">Rechts: eigene Abschlüsse pro Arbeitstag (Ebene 1).</div>
-        </div>
+            <button class="miniBtn" id="resetBuild" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span data-i18n="resetBuild">Aufbau auf 0</span>
+            </button>
 
-        <div class="row">
-          <div>
-            <label for="period" data-i18n="periodLabel">Zeitraum</label>
-            <div class="small" data-i18n="periodHelp">Monat / Quartal / Jahr – Werte werden korrekt kumuliert.</div>
-          </div>
-          <div>
-            <select id="period" data-store>
-              <option value="1" data-i18n="p1">1 Monat</option>
-              <option value="3" data-i18n="p3">1 Quartal (3 Monate)</option>
-              <option value="12" data-i18n="p12">12 Monate</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row">
-          <div>
-            <label for="promoters" data-i18n="promotersLabel">Profi-Promotoren (als Mitglieder in Ebene 1)</label>
-            <div class="small" data-i18n="promotersHelp">
-              Anzahl Profi-Promotoren in deiner Ebene 1. Deren Abschlüsse zählen als Ebene 2 (deine Zweitlinie).
-            </div>
-          </div>
-          <div>
-            <div class="split">
-              <input id="promoters" type="number" min="0" max="50" step="1" value="0" data-store />
-              <input id="promotersPerDay" type="number" min="0" max="10" step="1" value="1" data-store />
-            </div>
-            <div class="small muted" data-i18n="promotersPerDayHelp">Rechts: Abschlüsse pro Arbeitstag je Profi-Promotor (erzeugt Ebene 2).</div>
+            <button class="miniBtn" id="resetBasket" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M6 6h15l-2 9H8L6 6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M8 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" stroke="currentColor" stroke-width="2"/>
+                <path d="M18 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" stroke="currentColor" stroke-width="2"/>
+                <path d="M6 6 5 3H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span data-i18n="resetBasket">Bausteine aus</span>
+            </button>
           </div>
         </div>
 
-        <div class="row">
-          <div>
-            <label data-i18n="quotesTitle">Aktiv-Quoten & Output (deine Annahmen)</label>
-            <div class="small" data-i18n="quotesHelp">
-              Damit kann jeder skeptisch klein oder motiviert groß rechnen – und trotzdem Tragfähigkeit erkennen.
+        <div class="rows">
+
+          <!-- Zeitraum -->
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="months">Zeitraum (Monate)</div>
+              <div class="subLab" data-i18n="monthsSub">0–12 (du bestimmst die Zeit)</div>
+            </div>
+            <div class="ctrl rangeWrap">
+              <input id="months" type="range" min="0" max="12" step="1" value="0" data-store />
+              <div class="rangeLine"><span class="muted">0</span><span class="mono" id="monthsOut">0</span><span class="muted">12</span></div>
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="months" type="button">↺ <span data-i18n="toZero">auf 0</span></button>
             </div>
           </div>
+
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="workdays">Arbeitstage pro Monat</div>
+              <div class="subLab" data-i18n="workdaysSub">0–30</div>
+            </div>
+            <div class="ctrl">
+              <input id="workdays" type="number" min="0" max="30" step="1" value="0" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="workdays" type="button">↺ <span data-i18n="toZero">auf 0</span></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="delay">Aktivität startet</div>
+              <div class="subLab" data-i18n="delaySub">realistische Verzögerung</div>
+            </div>
+            <div class="ctrl">
+              <select id="delay" data-store>
+                <option value="0" selected data-i18n="delay0">sofort</option>
+                <option value="1" data-i18n="delay1">ab Folgemonat</option>
+                <option value="2" data-i18n="delay2">ab Monat 3</option>
+              </select>
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="delay" type="button">↺ <span data-i18n="toZeroSel">0/sofort</span></button>
+            </div>
+          </div>
+
+          <!-- Ebene 1 -->
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="e1PerDay">Neue Mitglieder pro Arbeitstag (Ebene 1)</div>
+              <div class="subLab" data-i18n="e1PerDaySub">deine Erstlinie</div>
+            </div>
+            <div class="ctrl">
+              <input id="e1PerDay" type="number" min="0" max="50" step="1" value="0" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="e1PerDay" type="button">↺ <span data-i18n="toZero">auf 0</span></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="e1Active">Aktiv-Quote Ebene 1 (%)</div>
+              <div class="subLab" data-i18n="e1ActiveSub">Realismus-Regler</div>
+            </div>
+            <div class="ctrl">
+              <input id="e1Active" type="number" min="0" max="100" step="1" value="0" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="e1Active" type="button">↺ <span data-i18n="toZero">auf 0</span></button>
+            </div>
+          </div>
+
+          <!-- Hebel -->
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="leverCount">Hebel-Personen / Teams (Anzahl)</div>
+              <div class="subLab" data-i18n="leverCountSub">optional, kann 0 bleiben</div>
+            </div>
+            <div class="ctrl">
+              <input id="leverCount" type="number" min="0" max="50" step="1" value="0" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="leverCount" type="button">↺ <span data-i18n="toZero">auf 0</span></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="leverPerDay">Leistung je Hebel (Neue/Arbeitstag)</div>
+              <div class="subLab" data-i18n="leverPerDaySub">lädt Ebene 2 auf</div>
+            </div>
+            <div class="ctrl">
+              <input id="leverPerDay" type="number" min="0" max="50" step="1" value="0" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="leverPerDay" type="button">↺ <span data-i18n="toZero">auf 0</span></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="leverActive">Aktiv-Quote Hebel (%)</div>
+              <div class="subLab" data-i18n="leverActiveSub">wenn du es realistisch dämpfen willst</div>
+            </div>
+            <div class="ctrl">
+              <input id="leverActive" type="number" min="0" max="100" step="1" value="0" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="leverActive" type="button">↺ <span data-i18n="toZero">auf 0</span></button>
+            </div>
+          </div>
+
+          <!-- Ebene 2 -> 3 -->
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="e2Active">Aktiv-Quote Ebene 2 (%)</div>
+              <div class="subLab" data-i18n="e2ActiveSub">startet nach Verzögerung</div>
+            </div>
+            <div class="ctrl">
+              <input id="e2Active" type="number" min="0" max="100" step="1" value="0" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="e2Active" type="button">↺ <span data-i18n="toZero">auf 0</span></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="e2OutPerDay">Output aktiver Ebene 2 (Neue/Arbeitstag)</div>
+              <div class="subLab" data-i18n="e2OutPerDaySub">erzeugt Ebene 3</div>
+            </div>
+            <div class="ctrl">
+              <input id="e2OutPerDay" type="number" min="0" max="50" step="0.1" value="0" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="e2OutPerDay" type="button">↺ <span data-i18n="toZero">auf 0</span></button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="compareBar">
+          <div class="toggle">
+            <div class="lab" data-i18n="compare">Vergleich: ohne Hebel / mit Hebel</div>
+            <div class="switch noPrint" id="compareSwitch" role="switch" aria-checked="false" tabindex="0" aria-label="Vergleich umschalten">
+              <div class="knob" aria-hidden="true"></div>
+            </div>
+            <div class="muted" data-i18n="compareSub">zeigt den Hebel-Effekt als Delta</div>
+          </div>
+          <div class="muted" id="wowHint" style="font-family:var(--mono);">—</div>
+        </div>
+
+      </section>
+
+      <!-- Bausteine -->
+      <section class="card">
+        <div class="sectionTop">
           <div>
-            <div class="split">
-              <div>
-                <label class="small" for="act1" style="font-weight:950" data-i18n="act1Short">E1→E2 aktiv (%)</label>
-                <input id="act1" type="number" min="0" max="100" step="1" value="30" data-store />
-              </div>
-              <div>
-                <label class="small" for="prod1" style="font-weight:950" data-i18n="prod1Short">E1→E2 neue/Monat</label>
-                <input id="prod1" type="number" min="0" max="50" step="1" value="5" data-store />
-              </div>
-            </div>
+            <h2 data-i18n="basketTitle">Bausteine (Auswahl)</h2>
+            <p class="hint" data-i18n="basketHint">
+              Alles ist optional. Start ist 0. Du entscheidest, was pro neuem Mitglied als Annahme einfließt.
+            </p>
+          </div>
+          <div class="sectionTools noPrint">
+            <button class="miniBtn" id="resetBasket2" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M6 6h15l-2 9H8L6 6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M8 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" stroke="currentColor" stroke-width="2"/>
+                <path d="M18 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" stroke="currentColor" stroke-width="2"/>
+                <path d="M6 6 5 3H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span data-i18n="basketOff">Alles aus</span>
+            </button>
+          </div>
+        </div>
 
-            <div class="split" style="margin-top:10px;">
-              <div>
-                <label class="small" for="act2" style="font-weight:950" data-i18n="act2Short">E2→E3 aktiv (%)</label>
-                <input id="act2" type="number" min="0" max="100" step="1" value="20" data-store />
-              </div>
-              <div>
-                <label class="small" for="prod2" style="font-weight:950" data-i18n="prod2Short">E2→E3 neue/Monat</label>
-                <input id="prod2" type="number" min="0" max="50" step="1" value="3" data-store />
-              </div>
+        <div class="checks">
+          <div class="checkLine">
+            <input id="chkMember" type="checkbox" data-store />
+            <div class="checkText">
+              <p class="checkTitle" data-i18n="member">Mitgliedschaft</p>
+              <p class="checkSub" data-i18n="memberSub">Sockel-Baustein (wenn du ihn einbeziehen willst)</p>
             </div>
+            <div class="priceTag">60 €</div>
+          </div>
 
-            <div class="small muted" style="margin-top:10px" data-i18n="sharesHelp">
-              Beispiel-Anteile Ursprung: Ebene 1: 20% • Ebene 2: 15% • Ebene 3: 10%
+          <div class="checkLine">
+            <input id="chkLead" type="checkbox" data-store />
+            <div class="checkText">
+              <p class="checkTitle" data-i18n="lead">Leadmaschine (klein)</p>
+              <p class="checkSub" data-i18n="leadSub">optional</p>
+            </div>
+            <div class="priceTag">60 €</div>
+          </div>
+
+          <div class="checkLine">
+            <input id="chkWeekend" type="checkbox" data-store />
+            <div class="checkText">
+              <p class="checkTitle" data-i18n="weekend">Weekend-Setup</p>
+              <p class="checkSub" data-i18n="weekendSub">Absicherung + Verständnis (optional)</p>
+            </div>
+            <div class="priceTag">399 €</div>
+          </div>
+        </div>
+
+        <div class="chips" style="margin-top:10px;">
+          <div class="chip"><span data-i18n="basketPerMember">Warenkorb je neues Mitglied</span>: <span class="mono" id="basketOut">0,00 €</span></div>
+        </div>
+
+        <div class="slots noPrint" aria-label="Szenarien">
+          <div class="slot">
+            <div class="slotTitle" data-i18n="slotA">Szenario A</div>
+            <div class="slotBtns">
+              <button class="miniBtn" data-slot="A" data-action="save" type="button"><span data-i18n="save">Speichern</span></button>
+              <button class="miniBtn" data-slot="A" data-action="load" type="button"><span data-i18n="load">Laden</span></button>
+              <button class="miniBtn" data-slot="A" data-action="clear" type="button"><span data-i18n="clear">Löschen</span></button>
+            </div>
+          </div>
+          <div class="slot">
+            <div class="slotTitle" data-i18n="slotB">Szenario B</div>
+            <div class="slotBtns">
+              <button class="miniBtn" data-slot="B" data-action="save" type="button"><span data-i18n="save">Speichern</span></button>
+              <button class="miniBtn" data-slot="B" data-action="load" type="button"><span data-i18n="load">Laden</span></button>
+              <button class="miniBtn" data-slot="B" data-action="clear" type="button"><span data-i18n="clear">Löschen</span></button>
+            </div>
+          </div>
+          <div class="slot">
+            <div class="slotTitle" data-i18n="slotC">Szenario C</div>
+            <div class="slotBtns">
+              <button class="miniBtn" data-slot="C" data-action="save" type="button"><span data-i18n="save">Speichern</span></button>
+              <button class="miniBtn" data-slot="C" data-action="load" type="button"><span data-i18n="load">Laden</span></button>
+              <button class="miniBtn" data-slot="C" data-action="clear" type="button"><span data-i18n="clear">Löschen</span></button>
             </div>
           </div>
         </div>
 
-        <div class="row">
+      </section>
+
+      <!-- Ergebnis -->
+      <section class="card" id="results">
+        <div class="sectionTop">
           <div>
-            <label data-i18n="buildingBlocks">Bausteine (Umsatz pro neuem Mitglied)</label>
-            <div class="small" data-i18n="blocksHelp">
-              Mitgliedschaft ist fix. Alles andere ist optional und wird nur gerechnet, wenn du es auswählst.
-            </div>
+            <h2 data-i18n="resultsTitle">Ergebnis</h2>
+            <p class="hint" data-i18n="resultsHint">
+              Ebenen getrennt + Ertrag getrennt. Live, mit sichtbarem Count-Up.
+            </p>
           </div>
+          <div class="sectionTools noPrint">
+            <button class="miniBtn" id="btnZeroEarnings" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 4v16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span data-i18n="recalc">Neu berechnen</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="kpiGrid">
+          <div class="kpi">
+            <p class="t" data-i18n="kNew1">Neue Mitglieder – Ebene 1</p>
+            <p class="v" id="k_new1">0</p>
+            <p class="d" data-i18n="kNew1d">deine Erstlinie im Zeitraum</p>
+          </div>
+          <div class="kpi">
+            <p class="t" data-i18n="kNew2">Neue Mitglieder – Ebene 2</p>
+            <p class="v" id="k_new2">0</p>
+            <p class="d" data-i18n="kNew2d">entsteht durch Aktivität</p>
+          </div>
+          <div class="kpi">
+            <p class="t" data-i18n="kNew3">Neue Mitglieder – Ebene 3</p>
+            <p class="v" id="k_new3">0</p>
+            <p class="d" data-i18n="kNew3d">zweite Wachstumswelle</p>
+          </div>
+          <div class="kpi">
+            <p class="t" data-i18n="kNewT">Gesamt neue Mitglieder</p>
+            <p class="v" id="k_newT">0</p>
+            <p class="d" data-i18n="kNewTd">Summe Ebene 1–3</p>
+          </div>
+
+          <div class="kpi">
+            <p class="t" data-i18n="kEarn1">Ertrag – Ebene 1 (Orientierung)</p>
+            <p class="v" id="k_e1">0,00 €</p>
+            <p class="d" data-i18n="kEarn1d">20% vom angen. Umsatz</p>
+          </div>
+          <div class="kpi">
+            <p class="t" data-i18n="kEarn2">Ertrag – Ebene 2 (Orientierung)</p>
+            <p class="v" id="k_e2">0,00 €</p>
+            <p class="d" data-i18n="kEarn2d">15% vom angen. Umsatz</p>
+          </div>
+          <div class="kpi">
+            <p class="t" data-i18n="kEarn3">Ertrag – Ebene 3 (Orientierung)</p>
+            <p class="v" id="k_e3">0,00 €</p>
+            <p class="d" data-i18n="kEarn3d">10% vom angen. Umsatz</p>
+          </div>
+          <div class="kpi">
+            <p class="t" data-i18n="kEarnT">Gesamt-Ertrag (Orientierung)</p>
+            <p class="v" id="k_eT">0,00 €</p>
+            <p class="d" data-i18n="kEarnTd">Summe Ebene 1–3</p>
+          </div>
+        </div>
+
+        <div class="tableWrap" aria-label="Monats-Tabelle">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="thM">Monat</th>
+                <th data-i18n="th1">Neu E1</th>
+                <th data-i18n="th2">Neu E2</th>
+                <th data-i18n="th3">Neu E3</th>
+                <th class="right" data-i18n="thB">Warenkorb</th>
+                <th class="right" data-i18n="thE1">Ertrag E1</th>
+                <th class="right" data-i18n="thE2">Ertrag E2</th>
+                <th class="right" data-i18n="thE3">Ertrag E3</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="footerNote" data-i18n="footerNote">
+          Hinweis: Simulation zur Orientierung. Keine Abrechnung, keine Steuer-/Rechtsberatung. Ergebnisse hängen von Tempo, Aktivität und Zeit ab.
+        </div>
+      </section>
+
+      <!-- Leser-Akkordeons -->
+      <section class="card">
+        <h2 data-i18n="readerTitle">Lesertext (kurz & klar)</h2>
+
+        <details class="acc" open>
+          <summary>
+            <span data-i18n="accA">Was du hier siehst</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="accBody">
+            <p data-i18n="accA1">
+              Dieser Rechner zeigt, wie Tragfähigkeit entstehen kann, wenn ein Prozess konsequent wiederholt wird.
+              Du stellst Annahmen ein und siehst die Ebenen getrennt – inklusive Ertrag je Ebene (als Orientierung).
+            </p>
+          </div>
+        </details>
+
+        <details class="acc">
+          <summary>
+            <span data-i18n="accB">Der Hebel-Effekt</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="accBody">
+            <p data-i18n="accB1">
+              Multiplikatoren (z. B. Vertrieb, Network, Agentur, Teams) erhöhen den Gesprächsfluss.
+              Dadurch kann Ebene 2 schneller entstehen – und daraus Ebene 3. Der Vergleichsschalter zeigt das Delta.
+            </p>
+          </div>
+        </details>
+
+        <details class="acc">
+          <summary>
+            <span data-i18n="accC">Warum Zahlen wachsen können</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="accBody">
+            <p data-i18n="accC1">
+              Wachstum ist eine Frage von Wiederholung und Zeit. Auch wenn Zahlen stark wachsen, heißt das nicht, dass alles so eintritt.
+              Jeder entwickelt sich im eigenen Tempo – die Simulation zeigt Möglichkeiten, wenn man dran bleibt.
+            </p>
+          </div>
+        </details>
+
+      </section>
+
+      <!-- Notizen -->
+      <section class="card">
+        <div class="sectionTop">
           <div>
-            <div class="checkLine">
-              <input id="bMembership" type="checkbox" checked disabled />
-              <div class="checkMain">
-                <div style="display:flex;justify-content:space-between;gap:10px;">
-                  <div><strong data-i18n="membership">Mitgliedschaft</strong></div>
-                  <div class="priceTag">60 €</div>
-                </div>
-                <div class="small" data-i18n="membershipHelp">Stabiler Sockel (nicht abwählbar).</div>
-              </div>
-            </div>
-
-            <div class="checkLine">
-              <input id="bLead" type="checkbox" data-store />
-              <div class="checkMain">
-                <div style="display:flex;justify-content:space-between;gap:10px;">
-                  <div><strong data-i18n="leadSmall">Leadmaschine (klein)</strong></div>
-                  <div class="priceTag">60 €</div>
-                </div>
-                <div class="small" data-i18n="leadHelp">Optionaler Baustein zur Werbung.</div>
-              </div>
-            </div>
-
-            <div class="checkLine">
-              <input id="bWeekend" type="checkbox" data-store />
-              <div class="checkMain">
-                <div style="display:flex;justify-content:space-between;gap:10px;">
-                  <div><strong data-i18n="weekend">Weekend-Setup</strong></div>
-                  <div class="priceTag">399 €</div>
-                </div>
-                <div class="small" data-i18n="weekendHelp">Optionaler Baustein zur Orientierung & Umsetzung.</div>
-              </div>
-            </div>
-
-            <div class="small muted" data-i18n="productsNote" style="margin-top:8px">
-              Hinweis: Im System gibt es bis zu 50 Produkte. Hier wählst du nur Bausteine aus, die du für dein Szenario mitrechnen willst.
-            </div>
+            <h2 data-i18n="notesTitle">Notizen</h2>
+            <p class="hint" data-i18n="notesHint">Bleibt nur auf deinem Gerät (LocalStorage).</p>
+          </div>
+          <div class="sectionTools noPrint">
+            <button class="miniBtn" id="clearNotes" type="button"><span data-i18n="clearNotes">Notizen löschen</span></button>
+            <button class="miniBtn" id="clearAll" type="button"><span data-i18n="clearAll">Alles löschen</span></button>
           </div>
         </div>
 
         <div class="notes">
-          <label for="notes" data-i18n="notesTitle">Meine Annahmen / Notizen zum Szenario</label>
-          <div class="small" data-i18n="notesHelp">Bleibt nur auf deinem Gerät (LocalStorage). Hilft, Quoten und Entscheidungen zu dokumentieren.</div>
-          <textarea id="notes" data-store placeholder="Deine Notizen …"></textarea>
-
-          <div class="noteRow noPrint">
-            <div id="saveHint" data-i18n="ready">Bereit.</div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <button class="btn secondary" id="btnClearTool" type="button"><span data-i18n="clearTool">Tool-Daten löschen</span></button>
-              <button class="btn secondary" id="btnClearAll" type="button"><span data-i18n="clearAll">Alle Tool-Daten löschen</span></button>
-            </div>
-          </div>
-        </div>
-
-        <div class="foot">
-          <div data-i18n="savedNote">Deine Einstellungen werden automatisch lokal gespeichert.</div>
-        </div>
-      </section>
-
-      <!-- OUTPUTS -->
-      <section class="card">
-        <h2 data-i18n="outputs">Ergebnis</h2>
-        <p class="hint" data-i18n="outputsHint">
-          Tabelle: Ebene 1 (du), Ebene 2 (Erstlinien deiner Ebene-1-Mitglieder inkl. Promotor-Output), Ebene 3 (Erstlinien deiner Ebene-2-Mitglieder).
-        </p>
-
-        <div class="kpiGrid">
-          <div class="kpi">
-            <p class="t" data-i18n="kpiPack">Umsatz pro neuem Mitglied (gewählt)</p>
-            <p class="v mono" id="kpiPack">–</p>
-            <p class="s" data-i18n="kpiPackHelp">Mitgliedschaft (fix) + optionale Bausteine.</p>
-          </div>
-          <div class="kpi">
-            <p class="t" data-i18n="kpiPeriod">Zeitraum</p>
-            <p class="v" id="kpiPeriod">–</p>
-            <p class="s" data-i18n="kpiPeriodHelp">Monatswerte werden für Quartal/Jahr korrekt kumuliert.</p>
-          </div>
-          <div class="kpi">
-            <p class="t" data-i18n="kpiNew">Neue Mitglieder gesamt (Zeitraum)</p>
-            <p class="v mono" id="kpiNew">–</p>
-            <p class="s" data-i18n="kpiNewHelp">Ebene 1 + Ebene 2 + Ebene 3 im Zeitraum.</p>
-          </div>
-          <div class="kpi">
-            <p class="t" data-i18n="kpiEarn">Ursprung-Anteil gesamt (Zeitraum)</p>
-            <p class="v mono" id="kpiEarn">–</p>
-            <p class="s" data-i18n="kpiEarnHelp">Beispiel-Logik: 20% / 15% / 10% (keine Abrechnung).</p>
-          </div>
-        </div>
-
-        <div style="margin-top:12px; overflow:auto;">
-          <table aria-label="Ergebnis Tabelle">
-            <thead>
-              <tr>
-                <th data-i18n="thLevel">Ebene</th>
-                <th class="right" data-i18n="thNewM">Neue/Monat</th>
-                <th class="right" data-i18n="thNewT">Neue/Zeitraum</th>
-                <th class="right" data-i18n="thRevM">Umsatz/Monat</th>
-                <th class="right" data-i18n="thRevT">Umsatz/Zeitraum</th>
-                <th class="right" data-i18n="thEarnT">Ursprung/Zeitraum</th>
-              </tr>
-            </thead>
-            <tbody id="tbl"></tbody>
-          </table>
-        </div>
-
-        <div class="foot">
-          <div><strong data-i18n="explainTitle">Kurz erklärt (für Neue)</strong></div>
-          <div class="small" style="margin-top:6px" data-i18n="explainText">
-            Promotoren sind Mitglieder in Ebene 1. Deren Leistung erzeugt Ebene 2. Ebene 3 entsteht aus Ebene 2. Mitgliedschaft ist Sockel; weitere Bausteine optional.
+          <textarea id="notes" placeholder="Deine Notizen …" aria-label="Notizen" data-store></textarea>
+          <div class="noteRow">
+            <div id="saveHint">Bereit.</div>
+            <div class="muted" style="font-family:var(--mono);" id="lastWow">—</div>
           </div>
         </div>
       </section>
+
     </div>
   </div>
 
   <script>
     (function(){
-      const LS_PREFIX = "fsa_tools_";
-      const LS_KEY = LS_PREFIX + "tragfaehigkeit_v1";
+      const PREFIX = "fsa_tc_trag3_";
+      const KEY = PREFIX + "state";
+      const KEY_SLOT = (s)=> PREFIX + "slot_" + s;
+      const KEY_LANG = PREFIX + "lang";
 
-      const PRICE_MEMBERSHIP = 60;
-      const PRICE_LEAD = 60;
-      const PRICE_WEEKEND = 399;
-
-      const SHARE_L1 = 0.20;
-      const SHARE_L2 = 0.15;
-      const SHARE_L3 = 0.10;
-
-      const el = {
-        workdays: document.getElementById("workdays"),
-        selfPerDay: document.getElementById("selfPerDay"),
-        period: document.getElementById("period"),
-        promoters: document.getElementById("promoters"),
-        promotersPerDay: document.getElementById("promotersPerDay"),
-        act1: document.getElementById("act1"),
-        prod1: document.getElementById("prod1"),
-        act2: document.getElementById("act2"),
-        prod2: document.getElementById("prod2"),
-        bLead: document.getElementById("bLead"),
-        bWeekend: document.getElementById("bWeekend"),
-        notes: document.getElementById("notes"),
-
-        kpiPack: document.getElementById("kpiPack"),
-        kpiPeriod: document.getElementById("kpiPeriod"),
-        kpiNew: document.getElementById("kpiNew"),
-        kpiEarn: document.getElementById("kpiEarn"),
-        tbl: document.getElementById("tbl"),
-
-        btnPrint: document.getElementById("btnPrint"),
-        btnCopy: document.getElementById("btnCopy"),
-        btnReset: document.getElementById("btnReset"),
-        btnClearTool: document.getElementById("btnClearTool"),
-        btnClearAll: document.getElementById("btnClearAll"),
-        saveHint: document.getElementById("saveHint"),
-
-        langDE: document.getElementById("langDE"),
-        langEN: document.getElementById("langEN"),
-      };
-
+      // -------- i18n --------
       const I18N = {
         de: {
           h1:"Tragfähigkeits-Rechner (3 Ebenen)",
-          sub:"Simulation zur Orientierung: Mitgliedschaft (60 €) ist der Sockel. Nach dem Abschluss ist die Aufgabe erledigt. Promotoren sind Mitglieder (Ebene 1) – deren Output erzeugt Ebene 2.",
-          reset:"Reset", copy:"Kopieren", print:"Drucken",
-          heroTitle:"Kurzlogik (damit jeder es sofort richtig versteht)",
-          heroText:"Ebene 1 sind deine direkten Mitglieder (inkl. Profi-Promotoren, weil sie zuerst Mitglied werden). Wenn ein Profi-Promotor arbeitet, baut er seine eigene Erstlinie auf – das ist für dich Ebene 2. Ebene 3 entsteht aus der Erstlinie deiner Ebene-2-Mitglieder.",
-          pillL1:"Ebene 1", pillL2:"Ebene 2", pillL3:"Ebene 3",
-          pillPromoter:"Promotor = Mitglied",
-          pillNoBill:"Keine Abrechnung",
-          pillLocal:"LocalStorage + Print",
+          sub:"Dieser Rechner macht sichtbar, wie kontinuierliches Dranbleiben eine Struktur aufbaut, die mit der Zeit stärker trägt. Du stellst deine Annahmen selbst ein – alles startet bewusst bei 0.",
+          copy:"Kopieren", print:"Drucken", resetAll:"Alles auf 0",
+          heroTitle:"Wichtiger Hinweis",
+          heroText:"Auch wenn Zahlen stark wachsen, heißt das nicht, dass alles genau so eintrifft. Jeder entwickelt sich in seinem Tempo. Die Szenarien zeigen, was grundsätzlich möglich ist, wenn man dran bleibt – oft ist es weniger die Frage ob, sondern wann es greifbar wird.",
+          l1:"Ebene 1", l2:"Ebene 2", l3:"Ebene 3", allZero:"Startwerte: alles 0",
 
-          acc1Title:"Wie der Rechner die Ebenen versteht (wichtig)",
-          acc1P1:"Promotoren sind keine externen „Zuflüsse“. Jeder Promotor wird zuerst Mitglied in deiner Ebene 1. Wenn er danach neue Mitglieder gewinnt, entstehen diese in deiner Ebene 2.",
-          acc1L1:"Ebene 1: deine direkten Mitglieder (inkl. Profi-Promotoren als Mitglieder).",
-          acc1L2:"Ebene 2: Erstlinie deiner Ebene-1-Mitglieder (z. B. Output eines Profi-Promotors).",
-          acc1L3:"Ebene 3: Erstlinie deiner Ebene-2-Mitglieder.",
-          acc1P2:"Deshalb erzeugt das Feld „Leistung je Profi-Promotor“ Mitglieder in Ebene 2 – nicht in Ebene 1.",
+          inputsTitle:"Einstellungen",
+          inputsHint:"Alles ist frei einstellbar. Jeder beginnt bei 0 und setzt eigene Annahmen.",
+          resetTime:"Zeitraum auf 0", resetBuild:"Aufbau auf 0", resetBasket:"Bausteine aus",
 
-          acc2Title:"Wo trägst du was ein?",
-          acc2L1:"„Eigene Abschlüsse/Tag“ → deine direkten Mitglieder (Ebene 1).",
-          acc2L2:"„Profi-Promotoren (als Mitglieder in Ebene 1)“ → Anzahl Promotoren in deiner Ebene 1.",
-          acc2L3:"„Leistung je Profi-Promotor“ → deren Abschlüsse erzeugen deine Ebene 2.",
-          acc2L4:"Aktiv-Quoten/Output → wie stark sich Ebene 2 und Ebene 3 zusätzlich durch Aktivierung aufbauen.",
+          months:"Zeitraum (Monate)", monthsSub:"0–12 (du bestimmst die Zeit)",
+          workdays:"Arbeitstage pro Monat", workdaysSub:"0–30",
+          delay:"Aktivität startet", delaySub:"realistische Verzögerung",
+          delay0:"sofort", delay1:"ab Folgemonat", delay2:"ab Monat 3",
 
-          acc3Title:"Warum nur die Mitgliedschaft aktiv angeboten wird",
-          acc3P1:"Es gibt bis zu 50 Produkte/Bausteine. Beworben wird trotzdem nur die Mitgliedschaft – danach entscheidet jedes Mitglied freiwillig, was es nutzt und bestellt.",
-          acc3P2:"Das System (Handbuch, Kurse, Lernpfade) übernimmt die Erklärung. So wird Lebenszeit gewonnen: Promotoren sind nicht dauerhafte Supporter.",
+          e1PerDay:"Neue Mitglieder pro Arbeitstag (Ebene 1)", e1PerDaySub:"deine Erstlinie",
+          e1Active:"Aktiv-Quote Ebene 1 (%)", e1ActiveSub:"Realismus-Regler",
+          leverCount:"Hebel-Personen / Teams (Anzahl)", leverCountSub:"optional, kann 0 bleiben",
+          leverPerDay:"Leistung je Hebel (Neue/Arbeitstag)", leverPerDaySub:"lädt Ebene 2 auf",
+          leverActive:"Aktiv-Quote Hebel (%)", leverActiveSub:"wenn du es realistisch dämpfen willst",
+          e2Active:"Aktiv-Quote Ebene 2 (%)", e2ActiveSub:"startet nach Verzögerung",
+          e2OutPerDay:"Output aktiver Ebene 2 (Neue/Arbeitstag)", e2OutPerDaySub:"erzeugt Ebene 3",
 
-          acc4Title:"Hinweis: 20% bis 40% Eigenumsatz (nicht im Rechner abgebildet)",
-          acc4P1:"Die gezeigten Anteile (20% / 15% / 10%) sind eine Beispiel-Logik zur Orientierung. Eigenumsatz kann in der Praxis von 20% bis 40% anwachsen – diese Dynamik ist bewusst nicht Teil des Rechners.",
-          acc4P2:"Ziel ist Tragfähigkeit zu simulieren, nicht eine Abrechnung zu erzeugen.",
+          compare:"Vergleich: ohne Hebel / mit Hebel", compareSub:"zeigt den Hebel-Effekt als Delta",
+          toZero:"auf 0", toZeroSel:"0/sofort",
 
-          inputs:"Eingaben",
-          inputsHint:"Ebene 1 = deine direkten Mitglieder. Profi-Promotoren sind Mitglieder in Ebene 1 – deren Leistung erzeugt deine Ebene 2.",
-          workdaysLabel:"Arbeitstage pro Monat",
-          workdaysHelp:"Bereich: 1 bis 30.",
-          selfPerDayHelp:"Rechts: eigene Abschlüsse pro Arbeitstag (Ebene 1).",
-          periodLabel:"Zeitraum",
-          periodHelp:"Monat / Quartal / Jahr – Werte werden korrekt kumuliert.",
-          p1:"1 Monat", p3:"1 Quartal (3 Monate)", p12:"12 Monate",
+          basketTitle:"Bausteine (Auswahl)",
+          basketHint:"Alles ist optional. Start ist 0. Du entscheidest, was pro neuem Mitglied als Annahme einfließt.",
+          basketOff:"Alles aus",
+          member:"Mitgliedschaft", memberSub:"Sockel-Baustein (wenn du ihn einbeziehen willst)",
+          lead:"Leadmaschine (klein)", leadSub:"optional",
+          weekend:"Weekend-Setup", weekendSub:"Absicherung + Verständnis (optional)",
+          basketPerMember:"Warenkorb je neues Mitglied",
+          slotA:"Szenario A", slotB:"Szenario B", slotC:"Szenario C",
+          save:"Speichern", load:"Laden", clear:"Löschen",
 
-          promotersLabel:"Profi-Promotoren (als Mitglieder in Ebene 1)",
-          promotersHelp:"Anzahl Profi-Promotoren in deiner Ebene 1. Deren Abschlüsse zählen als Ebene 2 (deine Zweitlinie).",
-          promotersPerDayHelp:"Rechts: Abschlüsse pro Arbeitstag je Profi-Promotor (erzeugt Ebene 2).",
+          resultsTitle:"Ergebnis",
+          resultsHint:"Ebenen getrennt + Ertrag getrennt. Live, mit sichtbarem Count-Up.",
+          recalc:"Neu berechnen",
 
-          quotesTitle:"Aktiv-Quoten & Output (deine Annahmen)",
-          quotesHelp:"Damit kann jeder skeptisch klein oder motiviert groß rechnen – und trotzdem Tragfähigkeit erkennen.",
-          act1Short:"E1→E2 aktiv (%)",
-          prod1Short:"E1→E2 neue/Monat",
-          act2Short:"E2→E3 aktiv (%)",
-          prod2Short:"E2→E3 neue/Monat",
-          sharesHelp:"Beispiel-Anteile Ursprung: Ebene 1: 20% • Ebene 2: 15% • Ebene 3: 10%",
+          kNew1:"Neue Mitglieder – Ebene 1", kNew1d:"deine Erstlinie im Zeitraum",
+          kNew2:"Neue Mitglieder – Ebene 2", kNew2d:"entsteht durch Aktivität",
+          kNew3:"Neue Mitglieder – Ebene 3", kNew3d:"zweite Wachstumswelle",
+          kNewT:"Gesamt neue Mitglieder", kNewTd:"Summe Ebene 1–3",
+          kEarn1:"Ertrag – Ebene 1 (Orientierung)", kEarn1d:"20% vom angen. Umsatz",
+          kEarn2:"Ertrag – Ebene 2 (Orientierung)", kEarn2d:"15% vom angen. Umsatz",
+          kEarn3:"Ertrag – Ebene 3 (Orientierung)", kEarn3d:"10% vom angen. Umsatz",
+          kEarnT:"Gesamt-Ertrag (Orientierung)", kEarnTd:"Summe Ebene 1–3",
 
-          buildingBlocks:"Bausteine (Umsatz pro neuem Mitglied)",
-          blocksHelp:"Mitgliedschaft ist fix. Alles andere ist optional und wird nur gerechnet, wenn du es auswählst.",
-          membership:"Mitgliedschaft",
-          membershipHelp:"Stabiler Sockel (nicht abwählbar).",
-          leadSmall:"Leadmaschine (klein)",
-          leadHelp:"Optionaler Baustein zur Werbung.",
-          weekend:"Weekend-Setup",
-          weekendHelp:"Optionaler Baustein zur Orientierung & Umsetzung.",
-          productsNote:"Hinweis: Im System gibt es bis zu 50 Produkte. Hier wählst du nur Bausteine aus, die du für dein Szenario mitrechnen willst.",
+          thM:"Monat", th1:"Neu E1", th2:"Neu E2", th3:"Neu E3", thB:"Warenkorb",
+          thE1:"Ertrag E1", thE2:"Ertrag E2", thE3:"Ertrag E3",
 
-          notesTitle:"Meine Annahmen / Notizen zum Szenario",
-          notesHelp:"Bleibt nur auf deinem Gerät (LocalStorage). Hilft, Quoten und Entscheidungen zu dokumentieren.",
+          footerNote:"Hinweis: Simulation zur Orientierung. Keine Abrechnung, keine Steuer-/Rechtsberatung. Ergebnisse hängen von Tempo, Aktivität und Zeit ab.",
 
-          outputs:"Ergebnis",
-          outputsHint:"Tabelle: Ebene 1 (du), Ebene 2 (Erstlinien deiner Ebene-1-Mitglieder inkl. Promotor-Output), Ebene 3 (Erstlinien deiner Ebene-2-Mitglieder).",
-          kpiPack:"Umsatz pro neuem Mitglied (gewählt)",
-          kpiPackHelp:"Mitgliedschaft (fix) + optionale Bausteine.",
-          kpiPeriod:"Zeitraum",
-          kpiPeriodHelp:"Monatswerte werden für Quartal/Jahr korrekt kumuliert.",
-          kpiNew:"Neue Mitglieder gesamt (Zeitraum)",
-          kpiNewHelp:"Ebene 1 + Ebene 2 + Ebene 3 im Zeitraum.",
-          kpiEarn:"Ursprung-Anteil gesamt (Zeitraum)",
-          kpiEarnHelp:"Beispiel-Logik: 20% / 15% / 10% (keine Abrechnung).",
+          readerTitle:"Lesertext (kurz & klar)",
+          accA:"Was du hier siehst",
+          accA1:"Dieser Rechner zeigt, wie Tragfähigkeit entstehen kann, wenn ein Prozess konsequent wiederholt wird. Du stellst Annahmen ein und siehst die Ebenen getrennt – inklusive Ertrag je Ebene (als Orientierung).",
+          accB:"Der Hebel-Effekt",
+          accB1:"Multiplikatoren (z. B. Vertrieb, Network, Agentur, Teams) erhöhen den Gesprächsfluss. Dadurch kann Ebene 2 schneller entstehen – und daraus Ebene 3. Der Vergleichsschalter zeigt das Delta.",
+          accC:"Warum Zahlen wachsen können",
+          accC1:"Wachstum ist eine Frage von Wiederholung und Zeit. Auch wenn Zahlen stark wachsen, heißt das nicht, dass alles so eintritt. Jeder entwickelt sich im eigenen Tempo – die Simulation zeigt Möglichkeiten, wenn man dran bleibt.",
 
-          thLevel:"Ebene",
-          thNewM:"Neue/Monat",
-          thNewT:"Neue/Zeitraum",
-          thRevM:"Umsatz/Monat",
-          thRevT:"Umsatz/Zeitraum",
-          thEarnT:"Ursprung/Zeitraum",
-
-          explainTitle:"Kurz erklärt (für Neue)",
-          explainText:"Promotoren sind Mitglieder in Ebene 1. Deren Leistung erzeugt Ebene 2. Ebene 3 entsteht aus Ebene 2. Mitgliedschaft ist Sockel; weitere Bausteine optional.",
-
-          level1:"Ebene 1",
-          level2:"Ebene 2",
-          level3:"Ebene 3",
-          total:"Gesamt",
-
-          savedNote:"Deine Einstellungen werden automatisch lokal gespeichert.",
-          ready:"Bereit.",
-          saving:"Speichert…",
-          saved:"Gespeichert.",
-          saveFail:"Speichern fehlgeschlagen.",
-          clearTool:"Tool-Daten löschen",
-          clearAll:"Alle Tool-Daten löschen",
-
-          copiedOk:"Kopiert.",
-          copiedFail:"Kopieren nicht möglich."
+          notesTitle:"Notizen",
+          notesHint:"Bleibt nur auf deinem Gerät (LocalStorage).",
+          clearNotes:"Notizen löschen",
+          clearAll:"Alles löschen"
         },
         en: {
           h1:"Sustainability Calculator (3 Levels)",
-          sub:"Orientation simulation: membership (€60) is the base. After closing, the task is done. Promoters are members (Level 1) — their output creates Level 2.",
-          reset:"Reset", copy:"Copy", print:"Print",
-          heroTitle:"Core logic (so it’s understood correctly)",
-          heroText:"Level 1 is your direct members (incl. professional promoters because they first become members). When a promoter works, they build their own first line — for you that is Level 2. Level 3 is built from the first line of your Level-2 members.",
-          pillL1:"Level 1", pillL2:"Level 2", pillL3:"Level 3",
-          pillPromoter:"Promoter = member",
-          pillNoBill:"No billing",
-          pillLocal:"LocalStorage + print",
+          sub:"This calculator makes visible how consistent repetition can build a structure that carries more over time. You set your own assumptions — everything intentionally starts at 0.",
+          copy:"Copy", print:"Print", resetAll:"Reset to 0",
+          heroTitle:"Important note",
+          heroText:"Even if numbers grow fast, it doesn’t mean everything will happen exactly like that. Everyone moves at their own pace. These scenarios show what can be possible if you stay consistent — often it’s less about if, and more about when it becomes tangible.",
+          l1:"Level 1", l2:"Level 2", l3:"Level 3", allZero:"Defaults: all 0",
 
-          acc1Title:"How the calculator defines the levels (important)",
-          acc1P1:"Promoters are not external inflows. Every promoter first becomes a member in your Level 1. When they bring new members, those appear in your Level 2.",
-          acc1L1:"Level 1: your direct members (incl. promoters as members).",
-          acc1L2:"Level 2: first line of your Level-1 members (e.g., promoter output).",
-          acc1L3:"Level 3: first line of your Level-2 members.",
-          acc1P2:"Therefore the field “output per promoter” creates members in Level 2 — not Level 1.",
+          inputsTitle:"Settings",
+          inputsHint:"Everything is adjustable. Everyone starts at 0 and sets their own assumptions.",
+          resetTime:"Timeframe to 0", resetBuild:"Build to 0", resetBasket:"Modules off",
 
-          acc2Title:"Where do you enter what?",
-          acc2L1:"“Own sign-ups/day” → your direct members (Level 1).",
-          acc2L2:"“Professional promoters (as members in Level 1)” → number of promoters in your Level 1.",
-          acc2L3:"“Output per promoter” → their sign-ups create your Level 2.",
-          acc2L4:"Activation rates/output → how strongly Level 2 and Level 3 grow through activation.",
+          months:"Timeframe (months)", monthsSub:"0–12 (you set the time)",
+          workdays:"Workdays per month", workdaysSub:"0–30",
+          delay:"Activity starts", delaySub:"realistic delay",
+          delay0:"immediately", delay1:"next month", delay2:"month 3",
 
-          acc3Title:"Why only membership is actively offered",
-          acc3P1:"There are up to 50 products/blocks. Still, only membership is actively offered — after that, each member voluntarily decides what to use and buy.",
-          acc3P2:"The system (handbook, courses, learning paths) carries the explanation. This saves time: promoters are not permanent supporters.",
+          e1PerDay:"New members per workday (Level 1)", e1PerDaySub:"your direct line",
+          e1Active:"Active rate Level 1 (%)", e1ActiveSub:"realism control",
+          leverCount:"Multipliers / Teams (count)", leverCountSub:"optional, can be 0",
+          leverPerDay:"Performance per multiplier (new/workday)", leverPerDaySub:"loads Level 2",
+          leverActive:"Active rate multipliers (%)", leverActiveSub:"optional damping",
+          e2Active:"Active rate Level 2 (%)", e2ActiveSub:"after delay",
+          e2OutPerDay:"Output of active Level 2 (new/workday)", e2OutPerDaySub:"creates Level 3",
 
-          acc4Title:"Note: 20% to 40% personal share (not modeled here)",
-          acc4P1:"The shown shares (20% / 15% / 10%) are an example logic for orientation. Personal share can grow from 20% up to 40% — intentionally not modeled here.",
-          acc4P2:"Goal is to simulate sustainability, not to create billing.",
+          compare:"Compare: without / with multipliers", compareSub:"shows the multiplier delta",
+          toZero:"to 0", toZeroSel:"0/immediate",
 
-          inputs:"Inputs",
-          inputsHint:"Level 1 = your direct members. Promoters are members in Level 1 — their output creates your Level 2.",
-          workdaysLabel:"Working days per month",
-          workdaysHelp:"Range: 1 to 30.",
-          selfPerDayHelp:"Right: your own sign-ups per working day (Level 1).",
-          periodLabel:"Period",
-          periodHelp:"Month / quarter / year — values are accumulated correctly.",
-          p1:"1 month", p3:"1 quarter (3 months)", p12:"12 months",
+          basketTitle:"Modules (selection)",
+          basketHint:"Everything is optional. Start is 0. You decide what counts per new member as an assumption.",
+          basketOff:"All off",
+          member:"Membership", memberSub:"base module (only if you include it)",
+          lead:"Lead machine (small)", leadSub:"optional",
+          weekend:"Weekend setup", weekendSub:"security + understanding (optional)",
+          basketPerMember:"Basket per new member",
+          slotA:"Scenario A", slotB:"Scenario B", slotC:"Scenario C",
+          save:"Save", load:"Load", clear:"Clear",
 
-          promotersLabel:"Professional promoters (as members in Level 1)",
-          promotersHelp:"Number of professional promoters in your Level 1. Their sign-ups are counted as Level 2 (your second line).",
-          promotersPerDayHelp:"Right: sign-ups per working day per promoter (creates Level 2).",
+          resultsTitle:"Results",
+          resultsHint:"Levels separated + earnings separated. Live with visible count-up.",
+          recalc:"Recalculate",
 
-          quotesTitle:"Activation rates & output (your assumptions)",
-          quotesHelp:"So skeptics can calculate small and motivated users can calculate big — and still see sustainability.",
-          act1Short:"L1→L2 active (%)",
-          prod1Short:"L1→L2 new/month",
-          act2Short:"L2→L3 active (%)",
-          prod2Short:"L2→L3 new/month",
-          sharesHelp:"Example origin shares: Level 1: 20% • Level 2: 15% • Level 3: 10%",
+          kNew1:"New members – Level 1", kNew1d:"your direct line in timeframe",
+          kNew2:"New members – Level 2", kNew2d:"created by activity",
+          kNew3:"New members – Level 3", kNew3d:"second wave",
+          kNewT:"Total new members", kNewTd:"sum Level 1–3",
+          kEarn1:"Earnings – Level 1 (orientation)", kEarn1d:"20% of assumed revenue",
+          kEarn2:"Earnings – Level 2 (orientation)", kEarn2d:"15% of assumed revenue",
+          kEarn3:"Earnings – Level 3 (orientation)", kEarn3d:"10% of assumed revenue",
+          kEarnT:"Total earnings (orientation)", kEarnTd:"sum Level 1–3",
 
-          buildingBlocks:"Building blocks (revenue per new member)",
-          blocksHelp:"Membership is fixed. Everything else is optional and only counted when selected.",
-          membership:"Membership",
-          membershipHelp:"Stable base (cannot be deselected).",
-          leadSmall:"Lead machine (small)",
-          leadHelp:"Optional advertising block.",
-          weekend:"Weekend setup",
-          weekendHelp:"Optional orientation & implementation block.",
-          productsNote:"Note: the system includes up to 50 products. Here you only select the blocks you want to include in your scenario.",
+          thM:"Month", th1:"New L1", th2:"New L2", th3:"New L3", thB:"Basket",
+          thE1:"Earn L1", thE2:"Earn L2", thE3:"Earn L3",
 
-          notesTitle:"My assumptions / scenario notes",
-          notesHelp:"Stored only on your device (LocalStorage). Helps document your rates and decisions.",
+          footerNote:"Note: Simulation for orientation. No billing, no tax/legal advice. Results depend on pace, activity and time.",
 
-          outputs:"Results",
-          outputsHint:"Table: Level 1 (you), Level 2 (first lines of your Level-1 members incl. promoter output), Level 3 (first lines of your Level-2 members).",
-          kpiPack:"Revenue per new member (selected)",
-          kpiPackHelp:"Membership (fixed) + optional blocks.",
-          kpiPeriod:"Period",
-          kpiPeriodHelp:"Monthly values are accumulated correctly for quarter/year.",
-          kpiNew:"Total new members (period)",
-          kpiNewHelp:"Level 1 + Level 2 + Level 3 in the period.",
-          kpiEarn:"Total origin share (period)",
-          kpiEarnHelp:"Example logic: 20% / 15% / 10% (no billing).",
+          readerTitle:"Reader text (short & clear)",
+          accA:"What you see here",
+          accA1:"This calculator shows how sustainability can emerge when a process is repeated consistently. You set assumptions and see levels separated — including earnings per level (orientation).",
+          accB:"The multiplier effect",
+          accB1:"Multipliers (sales, network, agencies, teams) increase conversation flow. This can accelerate Level 2 — and therefore Level 3. The compare toggle shows the delta.",
+          accC:"Why numbers can grow",
+          accC1:"Growth is a question of repetition and time. Even if numbers grow, it doesn’t mean it will happen exactly like that. Everyone moves at their own pace — this shows what can be possible if you stay consistent.",
 
-          thLevel:"Level",
-          thNewM:"New/month",
-          thNewT:"New/period",
-          thRevM:"Revenue/month",
-          thRevT:"Revenue/period",
-          thEarnT:"Origin/period",
-
-          explainTitle:"Quick explanation (beginners)",
-          explainText:"Promoters are members in Level 1. Their output creates Level 2. Level 3 is built from Level 2. Membership is the base; other blocks optional.",
-
-          level1:"Level 1",
-          level2:"Level 2",
-          level3:"Level 3",
-          total:"Total",
-
-          savedNote:"Your settings are stored locally.",
-          ready:"Ready.",
-          saving:"Saving…",
-          saved:"Saved.",
-          saveFail:"Save failed.",
-          clearTool:"Clear tool data",
-          clearAll:"Clear all tool data",
-
-          copiedOk:"Copied.",
-          copiedFail:"Copy not available."
+          notesTitle:"Notes",
+          notesHint:"Stored only on your device (LocalStorage).",
+          clearNotes:"Clear notes",
+          clearAll:"Clear everything"
         }
       };
 
-      let LANG = "de";
-
-      function t(key){
-        const dict = I18N[LANG] || I18N.de;
-        return dict[key] ?? I18N.de[key] ?? key;
-      }
-
-      function applyI18N(){
-        document.documentElement.lang = (LANG === "de" ? "de" : "en");
-        document.querySelectorAll("[data-i18n]").forEach(node=>{
-          const k = node.getAttribute("data-i18n");
-          node.textContent = t(k);
+      function setLang(lang){
+        const dict = I18N[lang] || I18N.de;
+        document.documentElement.lang = (lang === "en") ? "en" : "de";
+        document.querySelectorAll("[data-i18n]").forEach(el=>{
+          const k = el.getAttribute("data-i18n");
+          if(dict[k] != null) el.textContent = dict[k];
         });
-        // options
-        Array.from(el.period.options).forEach(opt=>{
-          const k = opt.getAttribute("data-i18n");
-          if (k) opt.textContent = t(k);
+        document.getElementById("langDE").setAttribute("aria-pressed", String(lang !== "en"));
+        document.getElementById("langEN").setAttribute("aria-pressed", String(lang === "en"));
+        try{ localStorage.setItem(KEY_LANG, lang); }catch(e){}
+      }
+
+      // -------- helpers --------
+      const $ = (id)=> document.getElementById(id);
+      const clamp = (n,min,max)=> Math.min(max, Math.max(min, n));
+      const toNum = (v)=>{
+        const n = Number(String(v).replace(",", "."));
+        return Number.isFinite(n) ? n : 0;
+      };
+      const pct = (v)=> clamp(toNum(v), 0, 100) / 100;
+      const fmtEUR = (x)=>{
+        const v = Number.isFinite(x) ? x : 0;
+        return v.toLocaleString(document.documentElement.lang === "en" ? "en-US" : "de-DE", {
+          style:"currency", currency:"EUR", minimumFractionDigits:2, maximumFractionDigits:2
         });
-        el.langDE.setAttribute("aria-pressed", LANG==="de" ? "true" : "false");
-        el.langEN.setAttribute("aria-pressed", LANG==="en" ? "true" : "false");
-        calc();
-      }
+      };
+      const fmtInt = (x)=> {
+        const v = Math.round(Number.isFinite(x) ? x : 0);
+        return v.toLocaleString(document.documentElement.lang === "en" ? "en-US" : "de-DE");
+      };
 
-      function clampNum(val, min, max){
-        let n = Number(String(val).replace(",", "."));
-        if (!Number.isFinite(n)) n = min;
-        n = Math.max(min, Math.min(max, n));
-        return n;
-      }
-
-      function fmtEUR(n){
-        const v = Number.isFinite(n) ? n : 0;
-        // always show in DE money style (tool look)
-        return v.toLocaleString("de-DE", {minimumFractionDigits:2, maximumFractionDigits:2}) + " €";
-      }
-      function fmtInt(n){
-        const v = Math.round(Number.isFinite(n) ? n : 0);
-        return v.toLocaleString("de-DE");
-      }
-
-      function packValue(){
-        let sum = PRICE_MEMBERSHIP;
-        if (el.bLead.checked) sum += PRICE_LEAD;
-        if (el.bWeekend.checked) sum += PRICE_WEEKEND;
-        return sum;
-      }
-
-      function setHint(msgKey){
-        if (!el.saveHint) return;
-        el.saveHint.textContent = t(msgKey);
-      }
-
-      function readStore(){
-        const data = { lang: LANG };
-        document.querySelectorAll("[data-store]").forEach(node=>{
-          if (!node.id) return;
-          if (node.type === "checkbox") data[node.id] = !!node.checked;
-          else data[node.id] = node.value;
+      // -------- state IO --------
+      function readStateFromDom(){
+        const ids = [
+          "months","workdays","delay","e1PerDay","e1Active",
+          "leverCount","leverPerDay","leverActive",
+          "e2Active","e2OutPerDay",
+          "chkMember","chkLead","chkWeekend",
+          "notes"
+        ];
+        const out = {};
+        ids.forEach(id=>{
+          const el = $(id);
+          if(!el) return;
+          if(el.type === "checkbox") out[id] = !!el.checked;
+          else out[id] = el.value;
         });
-        return data;
+        out._compare = compareOn;
+        return out;
       }
 
-      function writeStore(data){
-        if (!data || typeof data !== "object") return;
-        if (data.lang === "en" || data.lang === "de") LANG = data.lang;
-
-        document.querySelectorAll("[data-store]").forEach(node=>{
-          if (!node.id) return;
-          if (!(node.id in data)) return;
-          if (node.type === "checkbox") node.checked = !!data[node.id];
-          else node.value = String(data[node.id]);
+      function writeStateToDom(s){
+        if(!s || typeof s !== "object") return;
+        Object.keys(s).forEach(id=>{
+          const el = $(id);
+          if(!el) return;
+          if(el.type === "checkbox") el.checked = !!s[id];
+          else el.value = String(s[id]);
         });
+        if(typeof s._compare === "boolean"){
+          compareOn = s._compare;
+          renderCompareSwitch();
+        }
+        updateMonthsOut();
       }
 
-      function saveNow(){
+      function save(){
         try{
-          localStorage.setItem(LS_KEY, JSON.stringify(readStore()));
-          setHint("saved");
+          localStorage.setItem(KEY, JSON.stringify(readStateFromDom()));
+          setSaveHint("Gespeichert.");
         }catch(e){
-          setHint("saveFail");
+          setSaveHint("Speichern fehlgeschlagen.");
         }
       }
 
-      let saveTimer = null;
-      function scheduleSave(){
-        setHint("saving");
-        if (saveTimer) clearTimeout(saveTimer);
-        saveTimer = setTimeout(()=>{ saveNow(); saveTimer=null; }, 250);
-      }
-
-      function restore(){
+      function load(){
         try{
-          const raw = localStorage.getItem(LS_KEY);
-          if (!raw) return;
+          const raw = localStorage.getItem(KEY);
+          if(!raw) return;
           const obj = JSON.parse(raw);
-          writeStore(obj);
+          writeStateToDom(obj);
         }catch(e){}
       }
 
-      function calc(){
-        // clamp inputs + write back normalized
-        const wd = clampNum(el.workdays.value, 1, 30); el.workdays.value = String(wd);
-        const self = clampNum(el.selfPerDay.value, 0, 10); el.selfPerDay.value = String(self);
-
-        const months = clampNum(el.period.value, 1, 12);
-
-        const prom = clampNum(el.promoters.value, 0, 50); el.promoters.value = String(prom);
-        const promPerDay = clampNum(el.promotersPerDay.value, 0, 10); el.promotersPerDay.value = String(promPerDay);
-
-        const a1 = clampNum(el.act1.value, 0, 100) / 100; el.act1.value = String(Math.round(a1*100));
-        const out2 = clampNum(el.prod1.value, 0, 50); el.prod1.value = String(out2);
-
-        const a2 = clampNum(el.act2.value, 0, 100) / 100; el.act2.value = String(Math.round(a2*100));
-        const out3 = clampNum(el.prod2.value, 0, 50); el.prod2.value = String(out3);
-
-        const pack = packValue();
-
-        // MONTHLY MEMBERS
-        // Level 1: your direct closes (including promoters as members only by count, not auto-added)
-        // NOTE: promoters count are members; user may set selfPerDay to include them, but we also add them explicitly as L1 members:
-        // Because the user said: "I hire a promoter, make him a member" -> that's a Level 1 member.
-        // We count promoter persons once per period (month), not per day. (One-time onboarding)
-        // Therefore: L1 monthly new = own daily closes + new promoters you onboard this month.
-        // Promoter count is assumed "active promoters in your L1" (stock), not "new this month".
-        // To avoid double meaning, we do NOT add promoters into L1 new automatically.
-        // L1 new comes only from your own closes (clean).
-        const lvl1_new_m = wd * self;
-
-        // Level 2:
-        // A) Activation of Level 1 members
-        const lvl1_active_m = Math.round(lvl1_new_m * a1);
-        const lvl2_from_activation_m = lvl1_active_m * out2;
-
-        // B) Promoter output: Promoters are members in L1; their own closes create YOUR L2
-        const lvl2_from_promoters_m = prom * wd * promPerDay;
-
-        const lvl2_new_m = lvl2_from_activation_m + lvl2_from_promoters_m;
-
-        // Level 3 from activation of level 2
-        const lvl2_active_m = Math.round(lvl2_new_m * a2);
-        const lvl3_new_m = lvl2_active_m * out3;
-
-        // REVENUE monthly
-        const lvl1_rev_m = lvl1_new_m * pack;
-        const lvl2_rev_m = lvl2_new_m * pack;
-        const lvl3_rev_m = lvl3_new_m * pack;
-
-        // PERIOD totals
-        const lvl1_new_t = lvl1_new_m * months;
-        const lvl2_new_t = lvl2_new_m * months;
-        const lvl3_new_t = lvl3_new_m * months;
-
-        const lvl1_rev_t = lvl1_rev_m * months;
-        const lvl2_rev_t = lvl2_rev_m * months;
-        const lvl3_rev_t = lvl3_rev_m * months;
-
-        const earn1_t = lvl1_rev_t * SHARE_L1;
-        const earn2_t = lvl2_rev_t * SHARE_L2;
-        const earn3_t = lvl3_rev_t * SHARE_L3;
-
-        const new_total_t = lvl1_new_t + lvl2_new_t + lvl3_new_t;
-        const earn_total = earn1_t + earn2_t + earn3_t;
-
-        el.kpiPack.textContent = fmtEUR(pack);
-        el.kpiPeriod.textContent = (LANG==="de")
-          ? (months === 1 ? "1 Monat" : (months === 3 ? "1 Quartal (3 Monate)" : (months === 12 ? "12 Monate" : (months + " Monate"))))
-          : (months === 1 ? "1 month" : (months === 3 ? "1 quarter (3 months)" : (months === 12 ? "12 months" : (months + " months"))));
-        el.kpiNew.textContent = fmtInt(new_total_t);
-        el.kpiEarn.textContent = fmtEUR(earn_total);
-
-        // table
-        const rows = [
-          { name: t("level1"), nm: lvl1_new_m, nt: lvl1_new_t, rm: lvl1_rev_m, rt: lvl1_rev_t, et: earn1_t },
-          { name: t("level2"), nm: lvl2_new_m, nt: lvl2_new_t, rm: lvl2_rev_m, rt: lvl2_rev_t, et: earn2_t },
-          { name: t("level3"), nm: lvl3_new_m, nt: lvl3_new_t, rm: lvl3_rev_m, rt: lvl3_rev_t, et: earn3_t },
-          { name: t("total"),  nm: (lvl1_new_m+lvl2_new_m+lvl3_new_m), nt: new_total_t, rm: (lvl1_rev_m+lvl2_rev_m+lvl3_rev_m), rt: (lvl1_rev_t+lvl2_rev_t+lvl3_rev_t), et: earn_total },
-        ];
-
-        el.tbl.innerHTML = rows.map(r => `
-          <tr>
-            <td><strong>${r.name}</strong></td>
-            <td class="right mono">${fmtInt(r.nm)}</td>
-            <td class="right mono">${fmtInt(r.nt)}</td>
-            <td class="right mono">${fmtEUR(r.rm)}</td>
-            <td class="right mono">${fmtEUR(r.rt)}</td>
-            <td class="right mono">${fmtEUR(r.et)}</td>
-          </tr>
-        `).join("");
+      // -------- save hint --------
+      const saveHintEl = $("saveHint");
+      function setSaveHint(msg){
+        if(!saveHintEl) return;
+        saveHintEl.textContent = msg;
+      }
+      let saveT = null;
+      function scheduleSave(){
+        setSaveHint("Speichert…");
+        if(saveT) clearTimeout(saveT);
+        saveT = setTimeout(()=>{ save(); saveT=null; }, 220);
       }
 
-      function buildCopyText(){
-        const pack = el.kpiPack.textContent;
-        const per = el.kpiPeriod.textContent;
-        const newT = el.kpiNew.textContent;
-        const earnT = el.kpiEarn.textContent;
-
-        const wd = el.workdays.value;
-        const self = el.selfPerDay.value;
-        const prom = el.promoters.value;
-        const promRate = el.promotersPerDay.value;
-        const a1 = el.act1.value;
-        const o1 = el.prod1.value;
-        const a2 = el.act2.value;
-        const o2 = el.prod2.value;
-
-        const blocks = [
-          "Mitgliedschaft (60€)",
-          (el.bLead.checked ? "Leadmaschine klein (60€)" : null),
-          (el.bWeekend.checked ? "Weekend-Setup (399€)" : null),
-        ].filter(Boolean).join(" + ");
-
-        const linesDE = [
-          "Tragfähigkeits-Rechner (3 Ebenen) – Zusammenfassung",
-          "Zeitraum: " + per,
-          "Bausteine: " + blocks,
-          "Umsatz pro neuem Mitglied: " + pack,
-          "Neue Mitglieder gesamt (Zeitraum): " + newT,
-          "Ursprung-Anteil gesamt (Zeitraum): " + earnT,
-          "",
-          "Eingaben:",
-          "- Arbeitstage/Monat: " + wd,
-          "- Eigene Abschlüsse/Tag (E1): " + self,
-          "- Profi-Promotoren (als Mitglieder in E1): " + prom,
-          "- Leistung je Promotor (Abschlüsse/Tag → erzeugt E2): " + promRate,
-          "- Aktiv E1→E2: " + a1 + "%, Output: " + o1 + " neue/Monat",
-          "- Aktiv E2→E3: " + a2 + "%, Output: " + o2 + " neue/Monat",
-        ];
-
-        const linesEN = [
-          "Sustainability Calculator (3 Levels) – Summary",
-          "Period: " + per,
-          "Blocks: " + blocks,
-          "Revenue per new member: " + pack,
-          "Total new members (period): " + newT,
-          "Total origin share (period): " + earnT,
-          "",
-          "Inputs:",
-          "- Working days/month: " + wd,
-          "- Own sign-ups/day (L1): " + self,
-          "- Pro promoters (as members in L1): " + prom,
-          "- Output per promoter (sign-ups/day → creates L2): " + promRate,
-          "- Active L1→L2: " + a1 + "%, output: " + o1 + " new/month",
-          "- Active L2→L3: " + a2 + "%, output: " + o2 + " new/month",
-        ];
-
-        return (LANG === "de" ? linesDE.join("\n") : linesEN.join("\n"));
+      // -------- compare --------
+      let compareOn = false;
+      const compareSwitch = $("compareSwitch");
+      function renderCompareSwitch(){
+        if(!compareSwitch) return;
+        compareSwitch.classList.toggle("on", compareOn);
+        compareSwitch.setAttribute("aria-checked", String(compareOn));
+      }
+      function toggleCompare(){
+        compareOn = !compareOn;
+        renderCompareSwitch();
+        scheduleSave();
+        recalc(true);
       }
 
-      async function copyToClipboard(text){
-        try{
-          await navigator.clipboard.writeText(text);
-          setHint("copiedOk");
-        }catch(e){
-          try{
-            const ta = document.createElement("textarea");
-            ta.value = text;
-            ta.style.position = "fixed";
-            ta.style.left = "-9999px";
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand("copy");
-            document.body.removeChild(ta);
-            setHint("copiedOk");
-          }catch(err){
-            setHint("copiedFail");
+      if(compareSwitch){
+        compareSwitch.addEventListener("click", toggleCompare);
+        compareSwitch.addEventListener("keydown", (e)=>{
+          if(e.key === "Enter" || e.key === " "){
+            e.preventDefault();
+            toggleCompare();
           }
+        });
+      }
+
+      // -------- reset helpers --------
+      function setToZero(id){
+        const el = $(id);
+        if(!el) return;
+        if(el.tagName === "SELECT"){
+          el.value = "0";
+        }else if(el.type === "checkbox"){
+          el.checked = false;
+        }else{
+          el.value = "0";
         }
       }
 
-      function resetDefaults(){
-        // Defaults
-        el.workdays.value = "20";
-        el.selfPerDay.value = "1";
-        el.period.value = "1";
+      function resetTimeBlock(){
+        setToZero("months");
+        setToZero("workdays");
+        setToZero("delay");
+        updateMonthsOut();
+      }
 
-        el.promoters.value = "0";
-        el.promotersPerDay.value = "1";
+      function resetBuildBlock(){
+        ["e1PerDay","e1Active","leverCount","leverPerDay","leverActive","e2Active","e2OutPerDay"].forEach(setToZero);
+      }
 
-        el.act1.value = "30";
-        el.prod1.value = "5";
-        el.act2.value = "20";
-        el.prod2.value = "3";
+      function resetBasketBlock(){
+        ["chkMember","chkLead","chkWeekend"].forEach(setToZero);
+      }
 
-        el.bLead.checked = false;
-        el.bWeekend.checked = false;
-
-        el.notes.value = "";
-
-        calc();
+      function resetAll(){
+        resetTimeBlock();
+        resetBuildBlock();
+        resetBasketBlock();
+        setToZero("notes");
+        compareOn = false;
+        renderCompareSwitch();
         scheduleSave();
+        recalc(true);
+        setSaveHint("Alles auf 0.");
       }
 
-      function clearToolData(){
+      $("btnResetAll")?.addEventListener("click", resetAll);
+      $("resetTime")?.addEventListener("click", ()=>{ resetTimeBlock(); scheduleSave(); recalc(true); });
+      $("resetBuild")?.addEventListener("click", ()=>{ resetBuildBlock(); scheduleSave(); recalc(true); });
+      $("resetBasket")?.addEventListener("click", ()=>{ resetBasketBlock(); scheduleSave(); recalc(true); });
+      $("resetBasket2")?.addEventListener("click", ()=>{ resetBasketBlock(); scheduleSave(); recalc(true); });
+
+      document.querySelectorAll("[data-reset]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const id = btn.getAttribute("data-reset");
+          if(id === "delay") $("delay").value = "0";
+          else setToZero(id);
+          updateMonthsOut();
+          scheduleSave();
+          recalc(true);
+        });
+      });
+
+      // -------- scenario slots --------
+      function slotKey(s){ return KEY_SLOT(s); }
+      function slotSave(s){
         try{
-          localStorage.removeItem(LS_KEY);
-        }catch(e){}
-        resetDefaults();
+          localStorage.setItem(slotKey(s), JSON.stringify(readStateFromDom()));
+          setSaveHint("Szenario " + s + " gespeichert.");
+        }catch(e){
+          setSaveHint("Speichern fehlgeschlagen.");
+        }
       }
+      function slotLoad(s){
+        try{
+          const raw = localStorage.getItem(slotKey(s));
+          if(!raw){ setSaveHint("Szenario " + s + " leer."); return; }
+          const obj = JSON.parse(raw);
+          writeStateToDom(obj);
+          setSaveHint("Szenario " + s + " geladen.");
+          scheduleSave();
+          recalc(true);
+        }catch(e){
+          setSaveHint("Laden fehlgeschlagen.");
+        }
+      }
+      function slotClear(s){
+        try{
+          localStorage.removeItem(slotKey(s));
+          setSaveHint("Szenario " + s + " gelöscht.");
+        }catch(e){}
+      }
+      document.querySelectorAll("[data-slot][data-action]").forEach(b=>{
+        b.addEventListener("click", ()=>{
+          const s = b.getAttribute("data-slot");
+          const a = b.getAttribute("data-action");
+          if(a === "save") slotSave(s);
+          if(a === "load") slotLoad(s);
+          if(a === "clear") slotClear(s);
+        });
+      });
 
-      function clearAllToolData(){
+      // -------- notes clear --------
+      $("clearNotes")?.addEventListener("click", ()=>{
+        $("notes").value = "";
+        scheduleSave();
+      });
+      $("clearAll")?.addEventListener("click", ()=>{
         try{
           const keys = [];
           for(let i=0;i<localStorage.length;i++){
             const k = localStorage.key(i);
-            if (k && k.startsWith(LS_PREFIX)) keys.push(k);
+            if(k && k.startsWith(PREFIX)) keys.push(k);
           }
           keys.forEach(k=>localStorage.removeItem(k));
         }catch(e){}
-        resetDefaults();
+        resetAll();
+        setSaveHint("Alles gelöscht.");
+      });
+
+      // -------- months out --------
+      function updateMonthsOut(){
+        $("monthsOut").textContent = String($("months").value || "0");
+      }
+      $("months")?.addEventListener("input", ()=>{ updateMonthsOut(); scheduleSave(); recalc(true); });
+
+      // -------- basket --------
+      function getBasket(){
+        const b =
+          ($("chkMember").checked ? 60 : 0) +
+          ($("chkLead").checked ? 60 : 0) +
+          ($("chkWeekend").checked ? 399 : 0);
+        return b;
       }
 
-      // Events
-      document.querySelectorAll("[data-store]").forEach(node=>{
-        node.addEventListener("input", ()=>{ calc(); scheduleSave(); });
-        node.addEventListener("change", ()=>{ calc(); scheduleSave(); });
+      function updateBasketOut(){
+        $("basketOut").textContent = fmtEUR(getBasket());
+      }
+
+      // -------- wow / count up --------
+      const wowHint = $("wowHint");
+      const lastWow = $("lastWow");
+      function setWow(msg){
+        if(wowHint) wowHint.textContent = msg;
+        if(lastWow) lastWow.textContent = msg;
+      }
+
+      function animateNumber(el, from, to, fmt){
+        const start = performance.now();
+        const dur = 520;
+        function step(t){
+          const p = Math.min(1, (t - start) / dur);
+          const eased = 1 - Math.pow(1 - p, 3);
+          const v = from + (to - from) * eased;
+          el.textContent = fmt(v);
+          if(p < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+
+      function setKPI(id, val, isMoney){
+        const el = $(id);
+        if(!el) return;
+        const oldText = el.textContent || "0";
+        const oldVal = isMoney ? parseMoney(oldText) : parseIntText(oldText);
+        const fmt = isMoney ? (x)=>fmtEUR(x) : (x)=>fmtInt(x);
+        animateNumber(el, oldVal, val, fmt);
+      }
+
+      function parseIntText(s){
+        const t = String(s).replace(/[^\d\-]/g,"");
+        const n = Number(t);
+        return Number.isFinite(n) ? n : 0;
+      }
+      function parseMoney(s){
+        // very forgiving parse
+        const t = String(s).replace(/\./g,"").replace(",",".").replace(/[^\d\.\-]/g,"");
+        const n = Number(t);
+        return Number.isFinite(n) ? n : 0;
+      }
+
+      // -------- core calc --------
+      function calcScenario(opts){
+        // opts: { ignoreLever:boolean }
+        const months = clamp(toNum($("months").value), 0, 12);
+        const workdays = clamp(toNum($("workdays").value), 0, 30);
+        const delay = clamp(toNum($("delay").value), 0, 2);
+
+        const e1PerDay = clamp(toNum($("e1PerDay").value), 0, 50);
+        const e1Active = pct($("e1Active").value);
+
+        const leverCountRaw = clamp(toNum($("leverCount").value), 0, 50);
+        const leverCount = (opts && opts.ignoreLever) ? 0 : leverCountRaw;
+        const leverPerDay = clamp(toNum($("leverPerDay").value), 0, 50);
+        const leverActive = pct($("leverActive").value);
+
+        const e2Active = pct($("e2Active").value);
+        const e2OutPerDay = clamp(toNum($("e2OutPerDay").value), 0, 50);
+
+        const basket = getBasket();
+
+        const r1 = 0.20, r2 = 0.15, r3 = 0.10;
+
+        let cumE2 = 0;
+
+        let sum1=0, sum2=0, sum3=0;
+        let earn1=0, earn2=0, earn3=0;
+
+        const rows = [];
+
+        // We'll use: E1 builds directly.
+        // E2 is produced by multipliers (subset inside Level 1) as their own repeatable activity.
+        // E3 is produced by active Level 2 after delay.
+        for(let m=1; m<=months; m++){
+          const new1 = workdays * e1PerDay;
+          // optional realism: only active portion of E1 matters elsewhere, but we don't model E1 -> E2 generally
+          // multipliers:
+          const activeLevers = leverCount * leverActive; // can be fractional for realism
+          const new2 = activeLevers * workdays * leverPerDay;
+
+          // E3 uses cumE2 up to month (m - delay)
+          // We'll approximate by using cumE2_beforeDelay = cumE2_prev when m <= delay -> 0
+          // and for m > delay -> cumE2 history (we store cumE2 per month).
+          // We'll keep history array.
+          rows.push({ m, new1, new2, new3:0, basket, e1:0, e2:0, e3:0 });
+        }
+
+        // second pass for E3 with delay + cumE2 history
+        let cumE2History = [0]; // index by month
+        let cumE2Run = 0;
+        for(let i=1;i<=months;i++){
+          cumE2Run += rows[i-1].new2;
+          cumE2History[i] = cumE2Run;
+        }
+
+        for(let i=1;i<=months;i++){
+          const row = rows[i-1];
+          const refMonth = i - delay;
+          const cumE2ForAct = (refMonth >= 1) ? cumE2History[refMonth] : 0;
+          const activeE2 = cumE2ForAct * e2Active;
+          const new3 = activeE2 * workdays * e2OutPerDay;
+
+          row.new3 = new3;
+
+          // earnings by level using new members per level (assumed basket)
+          row.e1 = row.new1 * basket * r1;
+          row.e2 = row.new2 * basket * r2;
+          row.e3 = row.new3 * basket * r3;
+
+          sum1 += row.new1;
+          sum2 += row.new2;
+          sum3 += row.new3;
+          earn1 += row.e1;
+          earn2 += row.e2;
+          earn3 += row.e3;
+        }
+
+        return {
+          months, workdays, delay,
+          basket,
+          sum1, sum2, sum3,
+          earn1, earn2, earn3,
+          rows
+        };
+      }
+
+      function buildTable(rows){
+        const tbody = $("tbody");
+        tbody.innerHTML = "";
+        rows.forEach(r=>{
+          const tr = document.createElement("tr");
+
+          const tdM = document.createElement("td");
+          tdM.textContent = String(r.m);
+          tr.appendChild(tdM);
+
+          const td1 = document.createElement("td");
+          td1.textContent = fmtInt(r.new1);
+          tr.appendChild(td1);
+
+          const td2 = document.createElement("td");
+          td2.textContent = fmtInt(r.new2);
+          tr.appendChild(td2);
+
+          const td3 = document.createElement("td");
+          td3.textContent = fmtInt(r.new3);
+          tr.appendChild(td3);
+
+          const tdB = document.createElement("td");
+          tdB.className = "right";
+          tdB.textContent = fmtEUR(r.basket);
+          tr.appendChild(tdB);
+
+          const tdE1 = document.createElement("td");
+          tdE1.className = "right";
+          tdE1.textContent = fmtEUR(r.e1);
+          tr.appendChild(tdE1);
+
+          const tdE2 = document.createElement("td");
+          tdE2.className = "right";
+          tdE2.textContent = fmtEUR(r.e2);
+          tr.appendChild(tdE2);
+
+          const tdE3 = document.createElement("td");
+          tdE3.className = "right";
+          tdE3.textContent = fmtEUR(r.e3);
+          tr.appendChild(tdE3);
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      function recalc(showWow){
+        updateMonthsOut();
+        updateBasketOut();
+
+        const withLever = calcScenario({ ignoreLever:false });
+        const withoutLever = calcScenario({ ignoreLever:true });
+
+        // display main scenario = with lever (normal)
+        const main = withLever;
+
+        const totalNew = main.sum1 + main.sum2 + main.sum3;
+        const totalEarn = main.earn1 + main.earn2 + main.earn3;
+
+        setKPI("k_new1", main.sum1, false);
+        setKPI("k_new2", main.sum2, false);
+        setKPI("k_new3", main.sum3, false);
+        setKPI("k_newT", totalNew, false);
+
+        setKPI("k_e1", main.earn1, true);
+        setKPI("k_e2", main.earn2, true);
+        setKPI("k_e3", main.earn3, true);
+        setKPI("k_eT", totalEarn, true);
+
+        buildTable(main.rows);
+
+        // wow messaging
+        if(showWow){
+          if(main.months === 0 || main.workdays === 0){
+            setWow("Setze Monate & Arbeitstage → dann wird es sichtbar.");
+          }else{
+            const deltaNew = withLever.sum2 + withLever.sum3 - (withoutLever.sum2 + withoutLever.sum3);
+            const deltaEarn = (withLever.earn2 + withLever.earn3) - (withoutLever.earn2 + withoutLever.earn3);
+
+            if(compareOn){
+              setWow("Delta (mit vs. ohne Hebel): +" + fmtInt(deltaNew) + " | +" + fmtEUR(deltaEarn));
+            }else{
+              // tiny “wow” hints
+              if(main.sum3 > 0){
+                setWow("Ebene 3 ist aktiv → jetzt wird es greifbar.");
+              }else if(main.sum2 > 0){
+                setWow("Ebene 2 baut sich auf → Zeit wirkt als Verstärker.");
+              }else if(main.sum1 > 0){
+                setWow("Ebene 1 steht → der Rest ist Wiederholung + Zeit.");
+              }else{
+                setWow("Setze Annahmen → der Effekt wird sichtbar.");
+              }
+            }
+          }
+        }
+
+        // compare mode: if on, temporarily display “with lever” but show delta line already handled.
+        // also: if compareOn, we dim lever fields? we keep simple.
+
+        // compare switch effect: If compareOn, we keep normal view but show delta message above.
+      }
+
+      $("btnZeroEarnings")?.addEventListener("click", ()=>recalc(true));
+
+      // -------- copy --------
+      $("btnCopy")?.addEventListener("click", async ()=>{
+        const s = readStateFromDom();
+        const main = calcScenario({ ignoreLever:false });
+        const totalNew = main.sum1 + main.sum2 + main.sum3;
+        const totalEarn = main.earn1 + main.earn2 + main.earn3;
+
+        const lines = [];
+        lines.push("Tragfähigkeits-Rechner (3 Ebenen)");
+        lines.push("Zeitraum (Monate): " + s.months);
+        lines.push("Arbeitstage/Monat: " + s.workdays);
+        lines.push("Aktivität startet: " + (s.delay === "2" ? "ab Monat 3" : (s.delay === "1" ? "ab Folgemonat" : "sofort")));
+        lines.push("");
+        lines.push("Ebene 1: neue/Tag=" + s.e1PerDay + " | Aktiv-Quote=" + s.e1Active + "%");
+        lines.push("Hebel: Anzahl=" + s.leverCount + " | Leistung/Tag=" + s.leverPerDay + " | Aktiv-Quote=" + s.leverActive + "%");
+        lines.push("Ebene 2: Aktiv-Quote=" + s.e2Active + "% | Output/Tag=" + s.e2OutPerDay);
+        lines.push("");
+        lines.push("Bausteine:");
+        lines.push("  Mitgliedschaft: " + (s.chkMember ? "ja" : "nein"));
+        lines.push("  Leadmaschine: " + (s.chkLead ? "ja" : "nein"));
+        lines.push("  Weekend-Setup: " + (s.chkWeekend ? "ja" : "nein"));
+        lines.push("  Warenkorb je neues Mitglied: " + fmtEUR(getBasket()));
+        lines.push("");
+        lines.push("Ergebnis (Orientierung):");
+        lines.push("  Neue Mitglieder E1: " + fmtInt(main.sum1));
+        lines.push("  Neue Mitglieder E2: " + fmtInt(main.sum2));
+        lines.push("  Neue Mitglieder E3: " + fmtInt(main.sum3));
+        lines.push("  Gesamt neue Mitglieder: " + fmtInt(totalNew));
+        lines.push("  Ertrag E1 (20%): " + fmtEUR(main.earn1));
+        lines.push("  Ertrag E2 (15%): " + fmtEUR(main.earn2));
+        lines.push("  Ertrag E3 (10%): " + fmtEUR(main.earn3));
+        lines.push("  Gesamt-Ertrag: " + fmtEUR(totalEarn));
+        lines.push("");
+        lines.push("Hinweis: Simulation zur Orientierung. Keine Abrechnung.");
+
+        const text = lines.join("\n");
+        try{
+          await navigator.clipboard.writeText(text);
+          setSaveHint("Kopiert.");
+        }catch(e){
+          // fallback
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          try{ document.execCommand("copy"); setSaveHint("Kopiert."); }catch(err){ setSaveHint("Kopieren fehlgeschlagen."); }
+          document.body.removeChild(ta);
+        }
       });
 
-      el.btnPrint.addEventListener("click", ()=>window.print());
-      el.btnCopy.addEventListener("click", ()=>copyToClipboard(buildCopyText()));
-      el.btnReset.addEventListener("click", resetDefaults);
+      // print
+      $("btnPrint")?.addEventListener("click", ()=>window.print());
 
-      if (el.btnClearTool) el.btnClearTool.addEventListener("click", clearToolData);
-      if (el.btnClearAll) el.btnClearAll.addEventListener("click", clearAllToolData);
-
-      el.langDE.addEventListener("click", ()=>{
-        LANG = "de";
-        applyI18N();
-        scheduleSave();
+      // input listeners (live)
+      const liveIds = [
+        "workdays","delay","e1PerDay","e1Active","leverCount","leverPerDay","leverActive","e2Active","e2OutPerDay",
+        "chkMember","chkLead","chkWeekend","notes"
+      ];
+      liveIds.forEach(id=>{
+        const el = $(id);
+        if(!el) return;
+        const evt = (el.tagName === "SELECT" || el.type === "checkbox") ? "change" : "input";
+        el.addEventListener(evt, ()=>{
+          scheduleSave();
+          recalc(true);
+        });
       });
-      el.langEN.addEventListener("click", ()=>{
-        LANG = "en";
-        applyI18N();
-        scheduleSave();
-      });
 
-      // Init
-      restore();
-      applyI18N(); // also triggers calc()
-      setHint("ready");
-      // After initial apply, save normalized state once
-      saveNow();
+      // language
+      $("langDE")?.addEventListener("click", ()=>{ setLang("de"); recalc(true); });
+      $("langEN")?.addEventListener("click", ()=>{ setLang("en"); recalc(true); });
+
+      // compare behavior: when compareOn, show delta, but keep full inputs
+      // (optional: if compareOn, we keep it; delta is shown in wow line)
+      // We do NOT override inputs; only calculation uses both scenarios.
+
+      // init
+      const savedLang = (()=>{ try{ return localStorage.getItem(KEY_LANG) || "de"; }catch(e){ return "de"; } })();
+      setLang(savedLang === "en" ? "en" : "de");
+
+      load();
+      updateMonthsOut();
+      renderCompareSwitch();
+      updateBasketOut();
+      recalc(true);
+      setSaveHint("Bereit.");
+
     })();
   </script>
 </body>
