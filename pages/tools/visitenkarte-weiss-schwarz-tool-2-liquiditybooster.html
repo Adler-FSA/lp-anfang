@@ -1,12 +1,10 @@
 <!doctype html>
+<!--
+  FSA • Tool 2 • Visitenkarte Weiß/Schwarz – Liquiditybooster
+  GitHub-Pfad: lp-anfang/pages/tools/visitenkarte-weiss-schwarz-tool-2-liquiditybooster.html
+-->
 <html lang="de">
 <head>
-  <!--
-    GitHub-Pfad (FIX):
-    Speicherort: lp-anfang/pages/tools/
-    Datei:       visitenkarte-weiss-schwarz-tool-2-liquiditybooster.html
-    Zweck:       Visitenkarten Tool 2 (Logo: liquiditybooster.de)
-  -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Visitenkarte – Weiß/Schwarz Generator</title>
@@ -27,7 +25,7 @@
       --radius:2mm;
 
       /* Tool 2: Brand Logo (lokal) */
-      --brand-logo: "/lp-anfang/library/images/logos/liquiditybooster-logo.png";
+      --brand-logo: "/lp-anfang/library/logos/liquiditybooster-logo.png";
       --brand-logo-h: 7.8mm;   /* Höhe des Logos auf der Karte */
       --brand-max-w: 30mm;     /* max Breite, damit es nicht in QR/Content läuft */
     }
@@ -328,7 +326,7 @@
             <div class="card" id="card">
               <!-- Tool 2: Brand Logo oben rechts -->
               <div class="clubMark" id="brandMark" aria-label="Brand">
-                <img id="brandLogo" alt="liquiditybooster.de" src="/lp-anfang/library/images/logos/liquiditybooster-logo.png">
+                <img id="brandLogo" alt="liquiditybooster.de" src="/lp-anfang/library/logos/liquiditybooster-logo.png">
                 <span class="brandFallback">liquidity booster.de</span>
               </div>
 
@@ -1112,28 +1110,15 @@
           return pattern;
         };
 
-        this.addData = function(data) { _dataCache = null; _dataList.push(new QR8BitByte(data)); };
-        this.isDark = function(row, col) { return (_modules[row][col] != null) ? _modules[row][col] : false; };
-        this.getModuleCount = function() { return _moduleCount; };
-
-        this.make = function() {
-          if (_typeNumber < 1) {
-            _typeNumber = 1;
-            for (; _typeNumber < 40; _typeNumber++) {
-              var rsBlocks = QRRSBlock.getRSBlocks(_typeNumber, _errorCorrectionLevel);
-              var buffer = new QRBitBuffer();
-              for (var i = 0; i < _dataList.length; i++) {
-                var data = _dataList[i];
-                buffer.put(data.getMode(), 4);
-                buffer.put(data.getLength(), QRUtil.getLengthInBits(data.getMode(), _typeNumber));
-                data.write(buffer);
-              }
-              var totalDataCount = 0;
-              for (var i = 0; i < rsBlocks.length; i++) totalDataCount += rsBlocks[i].dataCount;
-              if (buffer.getLengthInBits() <= totalDataCount * 8) break;
-            }
+        var setupTimingPattern = function() {
+          for (var r = 8; r < _moduleCount - 8; r++) {
+            if (_modules[r][6] != null) continue;
+            _modules[r][6] = (r % 2 == 0);
           }
-          makeImpl.call(this, false, getBestMaskPattern.call(this));
+          for (var c = 8; c < _moduleCount - 8; c++) {
+            if (_modules[6][c] != null) continue;
+            _modules[6][c] = (c % 2 == 0);
+          }
         };
 
         var setupPositionAdjustPattern = function() {
@@ -1151,17 +1136,6 @@
                 }
               }
             }
-          }
-        };
-
-        var setupTimingPattern = function() {
-          for (var r = 8; r < _moduleCount - 8; r++) {
-            if (_modules[r][6] != null) continue;
-            _modules[r][6] = (r % 2 == 0);
-          }
-          for (var c = 8; c < _moduleCount - 8; c++) {
-            if (_modules[6][c] != null) continue;
-            _modules[6][c] = (c % 2 == 0);
           }
         };
 
@@ -1296,6 +1270,30 @@
           }
 
           return data;
+        };
+
+        this.addData = function(data) { _dataCache = null; _dataList.push(new QR8BitByte(data)); };
+        this.isDark = function(row, col) { return (_modules[row][col] != null) ? _modules[row][col] : false; };
+        this.getModuleCount = function() { return _moduleCount; };
+
+        this.make = function() {
+          if (_typeNumber < 1) {
+            _typeNumber = 1;
+            for (; _typeNumber < 40; _typeNumber++) {
+              var rsBlocks = QRRSBlock.getRSBlocks(_typeNumber, _errorCorrectionLevel);
+              var buffer = new QRBitBuffer();
+              for (var i = 0; i < _dataList.length; i++) {
+                var data = _dataList[i];
+                buffer.put(data.getMode(), 4);
+                buffer.put(data.getLength(), QRUtil.getLengthInBits(data.getMode(), _typeNumber));
+                data.write(buffer);
+              }
+              var totalDataCount = 0;
+              for (var i = 0; i < rsBlocks.length; i++) totalDataCount += rsBlocks[i].dataCount;
+              if (buffer.getLengthInBits() <= totalDataCount * 8) break;
+            }
+          }
+          makeImpl.call(this, false, getBestMaskPattern.call(this));
         };
       }
 
