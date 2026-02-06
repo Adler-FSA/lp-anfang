@@ -858,6 +858,7 @@
     │   │   ├── beratermarkt-index-dach-2.html
     │   │   ├── beratermarkt-index-dach.html
     │   │   ├── dach-demand-dashboard.html
+    │   │   ├── einkaufsmeile-prozess-pixel.html
     │   │   ├── promotor-onboarding-checkin.html
     │   │   ├── sprecher-onboarding-checkin.html
     │   │   ├── tragfaehigkeits-rechner-3-ebenen.html
@@ -1020,4 +1021,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.02.2026, 22:17)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.02.2026, 23:20)_
