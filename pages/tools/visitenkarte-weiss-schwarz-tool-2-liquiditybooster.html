@@ -212,7 +212,8 @@
       overflow:hidden;
     }
     .qrBox.isEmpty{ opacity:.12; }
-    .qrBox img{ width:100%; height:100%; display:block; image-rendering:pixelated; }
+    .qrBox svg{ width:100%; height:100%; display:block; }
+    .qrBox svg *{ shape-rendering:crispEdges; }
 
     /* QR Werkstatt */
     .qrWorkshopBox{
@@ -237,7 +238,8 @@
       padding:2mm;
       overflow:hidden;
     }
-    .qrLarge img{ width:100%; height:100%; display:block; image-rendering:pixelated; }
+    .qrLarge svg{ width:100%; height:100%; display:block; }
+    .qrLarge svg *{ shape-rendering:crispEdges; }
 
     @media (max-width: 980px){
       .grid{ grid-template-columns: 1fr; }
@@ -393,7 +395,7 @@
       /* Tool 2: eigener LocalStorage-Key (keine Kollision mit Tool 1) */
       const LS_KEY = "fsa_vcard_white_black_v7_tool2";
       const LS_LANG = "fsa_lang_vcard";
-      const LS_QR_IMPORTED = "fsa_vcard_qr_imported_png_tool2";
+      const LS_QR_IMPORTED = "fsa_vcard_qr_imported_svg_tool2";
       const LS_QR_WEBSITE = "fsa_vcard_qr_website_tool2";
 
       const els = {
@@ -564,9 +566,9 @@
 
         els.qrWebsite.value = localStorage.getItem(LS_QR_WEBSITE) || "";
 
-        const importedPng = localStorage.getItem(LS_QR_IMPORTED) || "";
-        if(importedPng){
-          els.qrOnCard.innerHTML = `<img alt="QR" src="${importedPng}">`;
+        const importedSvg = localStorage.getItem(LS_QR_IMPORTED) || "";
+        if(importedSvg){
+          els.qrOnCard.innerHTML = importedSvg;
           els.qrBox.classList.remove("isEmpty");
         }else{
           els.qrOnCard.innerHTML = "";
@@ -614,38 +616,35 @@
 
       function setQrStatus(msg){ els.qrStatusLine.textContent = msg || ""; }
 
-      function makeQrPngDataUrl(url, targetPx){
+      /* QR als SVG (crispEdges) => stabil scanbar im Druck/PDF */
+      function makeQrSvgMarkup(url){
         const qr = qrcode(0, 'Q');
         qr.addData(url);
         qr.make();
 
         const count = qr.getModuleCount();
+
+        /* Quiet Zone: bewusst etwas größer als "klassisch", aber ohne Layout-Änderung */
         const quiet = 4;
         const dim = count + quiet * 2;
 
-        const scale = Math.max(1, Math.floor(targetPx / dim));
-        const size = dim * scale;
+        const parts = [];
+        parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${dim} ${dim}" width="100%" height="100%" preserveAspectRatio="none" aria-label="QR">`);
+        parts.push(`<rect x="0" y="0" width="${dim}" height="${dim}" fill="#fff"/>`);
+        parts.push(`<g fill="#000" shape-rendering="crispEdges">`);
 
-        const canvas = document.createElement("canvas");
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext("2d", { alpha:false });
-
-        ctx.fillStyle = "#fff";
-        ctx.fillRect(0,0,size,size);
-
-        ctx.fillStyle = "#000";
         for(let r=0; r<count; r++){
           for(let c=0; c<count; c++){
             if(qr.isDark(r,c)){
-              const x = (c + quiet) * scale;
-              const y = (r + quiet) * scale;
-              ctx.fillRect(x,y,scale,scale);
+              const x = c + quiet;
+              const y = r + quiet;
+              parts.push(`<rect x="${x}" y="${y}" width="1" height="1"/>`);
             }
           }
         }
 
-        return canvas.toDataURL("image/png");
+        parts.push(`</g></svg>`);
+        return parts.join("");
       }
 
       function makeQrPreview(){
@@ -659,11 +658,11 @@
         const url = normalizeWebsite(raw);
 
         try{
-          const png = makeQrPngDataUrl(url, 900);
-          els.qrPreview.innerHTML = `<img alt="QR" src="${png}">`;
+          const svg = makeQrSvgMarkup(url);
+          els.qrPreview.innerHTML = svg;
           localStorage.setItem(LS_QR_WEBSITE, raw);
           setQrStatus(t.qrReady);
-          return png;
+          return svg;
         }catch(e){
           els.qrPreview.innerHTML = "";
           setQrStatus(t.qrErr + (e && e.message ? (" (" + e.message + ")") : ""));
@@ -681,10 +680,10 @@
         const url = normalizeWebsite(raw);
 
         try{
-          const png = makeQrPngDataUrl(url, 420);
-          els.qrOnCard.innerHTML = `<img alt="QR" src="${png}">`;
+          const svg = makeQrSvgMarkup(url);
+          els.qrOnCard.innerHTML = svg;
           els.qrBox.classList.remove("isEmpty");
-          localStorage.setItem(LS_QR_IMPORTED, png);
+          localStorage.setItem(LS_QR_IMPORTED, svg);
           setQrStatus(t.qrImported);
         }catch(e){
           setQrStatus(t.qrErr + (e && e.message ? (" (" + e.message + ")") : ""));
@@ -768,7 +767,7 @@
 
         els.btnMakeQr.addEventListener("click", ()=>{ makeQrPreview(); });
         els.btnImportQr.addEventListener("click", ()=>{
-          if(!els.qrPreview.querySelector("img")) makeQrPreview();
+          if(!els.qrPreview.querySelector("svg")) makeQrPreview();
           importQrToCard();
         });
         els.btnClearQr.addEventListener("click", ()=>{
@@ -955,6 +954,7 @@
         G15: (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0),
         G18: (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0),
         G15_MASK: (1 << 14) | (1 << 12) | (1 << 10) | (1 << 4) | (1 << 1),
+
         getBCHTypeInfo: function(data) {
           var d = data << 10;
           while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) >= 0) {
@@ -962,6 +962,7 @@
           }
           return ((data << 10) | d) ^ QRUtil.G15_MASK;
         },
+
         getBCHTypeNumber: function(data) {
           var d = data << 12;
           while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) >= 0) {
@@ -969,8 +970,10 @@
           }
           return (data << 12) | d;
         },
+
         getBCHDigit: function(data) { var digit = 0; while (data != 0) { digit++; data >>>= 1; } return digit; },
         getPatternPosition: function(typeNumber) { return QRUtil.PATTERN_POSITION_TABLE[typeNumber - 1]; },
+
         getMask: function(maskPattern, i, j) {
           switch (maskPattern) {
             case 0: return (i + j) % 2 == 0;
@@ -984,6 +987,7 @@
             default: throw new Error("bad maskPattern:" + maskPattern);
           }
         },
+
         getErrorCorrectPolynomial: function(errorCorrectLength) {
           var a = new qrPolynomial([1], 0);
           for (var i = 0; i < errorCorrectLength; i++) {
@@ -991,11 +995,13 @@
           }
           return a;
         },
+
         getLengthInBits: function(mode, type) {
           if (1 <= type && type < 10) return 8;
           if (type < 27) return 16;
           return 16;
         },
+
         getLostPoint: function(qrCode) {
           var moduleCount = qrCode.getModuleCount();
           var lostPoint = 0;
@@ -1016,6 +1022,7 @@
           }
           return lostPoint;
         },
+
         getUTF8Length: function(s) {
           var len = 0;
           for (var i = 0; i < s.length; i++) {
@@ -1027,6 +1034,7 @@
           }
           return len;
         },
+
         writeUTF8: function(buffer, s) {
           for (var i = 0; i < s.length; i++) {
             var c = s.charCodeAt(i);
