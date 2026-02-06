@@ -1,0 +1,1888 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Einkaufsmeile – Prozess (Pixel)</title>
+  <meta name="description" content="Pixel-Einkaufsmeile: wiederholbarer Prozess sichtbar machen (Story-Modus + Freier Modus + Locks + LocalStorage + Print). Keine externen Ressourcen." />
+  <meta name="robots" content="noindex,nofollow" />
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --txt:#0b0b0b;
+      --muted:#4a4a4a;
+      --line:#d8d8d8;
+      --soft:#f6f6f6;
+      --soft2:#fbfbfb;
+
+      --ok:#0b0b0b;
+      --warn:#7a4a00;
+
+      --radius:16px;
+      --shadow:0 16px 34px rgba(0,0,0,.10);
+      --shadow2:0 10px 24px rgba(0,0,0,.08);
+
+      --mono: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      --sans: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--txt);
+      font-family:var(--sans);
+
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+
+    .wrap{
+      max-width:1280px;
+      margin:0 auto;
+      padding:18px 14px 70px;
+    }
+
+    /* Topbar */
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      padding-bottom:12px;
+      border-bottom:1px solid var(--line);
+      margin-bottom:12px;
+    }
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      max-width:860px;
+    }
+    h1{
+      margin:0;
+      font-size:22px;
+      line-height:1.15;
+      letter-spacing:.2px;
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size:13.5px;
+      line-height:1.6;
+    }
+
+    .topRight{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .pillRow{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+    .pill{
+      appearance:none;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--txt);
+      padding:8px 10px;
+      border-radius:999px;
+      font-weight:950;
+      font-size:13px;
+      cursor:pointer;
+      user-select:none;
+      box-shadow:0 2px 0 rgba(0,0,0,.03);
+    }
+    .pill[aria-pressed="true"]{
+      border-color:#0b0b0b;
+      box-shadow:0 0 0 2px rgba(0,0,0,.07) inset, 0 2px 0 rgba(0,0,0,.03);
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid #0b0b0b;
+      background:#0b0b0b;
+      color:#fff;
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:950;
+      font-size:13px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+      box-shadow:0 10px 22px rgba(0,0,0,.10);
+    }
+    .btn.secondary{
+      background:#fff;
+      color:#0b0b0b;
+      border:1px solid var(--line);
+      box-shadow:0 8px 18px rgba(0,0,0,.06);
+    }
+    .btn:active{ transform: translateY(1px); }
+    .btn svg{ width:16px; height:16px; }
+
+    /* Layout */
+    .layout{
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap:12px;
+      align-items:start;
+    }
+    @media (max-width: 1020px){
+      .layout{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      border:1px solid var(--line);
+      background:var(--soft2);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow2);
+      padding:14px;
+    }
+
+    .card h2{
+      margin:0 0 8px 0;
+      font-size:15px;
+      letter-spacing:.2px;
+    }
+    .hint{
+      margin:0 0 10px 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+    }
+
+    .sectionTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:8px;
+    }
+    .miniRow{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .miniBtn{
+      appearance:none;
+      border:1px solid var(--line);
+      background:#fff;
+      color:#0b0b0b;
+      padding:8px 10px;
+      border-radius:12px;
+      font-weight:950;
+      font-size:12px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      box-shadow:0 6px 14px rgba(0,0,0,.05);
+      user-select:none;
+    }
+    .miniBtn svg{ width:14px; height:14px; }
+
+    /* Mode selector */
+    .modeTabs{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:8px;
+    }
+    .tab{
+      appearance:none;
+      border:1px solid var(--line);
+      background:#fff;
+      color:#0b0b0b;
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:1000;
+      font-size:13px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .tab[aria-pressed="true"]{
+      border-color:#0b0b0b;
+      box-shadow:0 0 0 2px rgba(0,0,0,.08) inset;
+      background:var(--soft);
+    }
+
+    /* Controls rows */
+    .rows{ display:grid; gap:10px; }
+    .row{
+      display:grid;
+      grid-template-columns: 1.2fr 1fr auto;
+      gap:10px;
+      align-items:center;
+      padding:10px;
+      border-radius:14px;
+      background:#fff;
+      border:1px solid var(--line);
+    }
+    @media (max-width: 560px){
+      .row{ grid-template-columns: 1fr; }
+      .row .resetCell{ justify-content:flex-start; }
+    }
+    .lab{ font-weight:1000; font-size:13px; }
+    .subLab{ margin-top:3px; color:var(--muted); font-size:12px; line-height:1.35; }
+    .ctrl{ display:grid; gap:6px; }
+    input[type="number"], select, input[type="range"], input[type="text"]{
+      width:100%;
+      box-sizing:border-box;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:#0b0b0b;
+      font-size:14px;
+      outline:none;
+      font-family:var(--sans);
+    }
+    input[type="number"]:focus, select:focus, input[type="text"]:focus{
+      border-color:#0b0b0b;
+      box-shadow:0 0 0 3px rgba(0,0,0,.08);
+    }
+    .resetCell{
+      display:flex;
+      justify-content:flex-end;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .resetOne{
+      appearance:none;
+      border:1px solid var(--line);
+      background:var(--soft);
+      color:#0b0b0b;
+      padding:8px 10px;
+      border-radius:12px;
+      font-weight:1000;
+      font-size:12px;
+      cursor:pointer;
+      user-select:none;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    /* Pixel stage */
+    .stage{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .stageTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      padding:12px 12px 10px;
+      border-bottom:1px solid var(--line);
+      background:var(--soft2);
+    }
+    .stageTitle{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      max-width:760px;
+    }
+    .stageTitle strong{
+      font-size:14px;
+      letter-spacing:.2px;
+    }
+    .stageTitle span{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.5;
+    }
+
+    .stageTools{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+
+    .infoDock{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      padding:12px;
+      border-top:1px solid var(--line);
+      background:var(--soft2);
+    }
+
+    .kpiGrid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+    }
+    @media (max-width: 1180px){ .kpiGrid{ grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 560px){ .kpiGrid{ grid-template-columns: 1fr; } }
+
+    .kpi{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      position:relative;
+      overflow:hidden;
+    }
+    .kpi::before{
+      content:"";
+      position:absolute; inset:-20px;
+      background: radial-gradient(520px 220px at 18% 18%, rgba(0,0,0,.05), transparent 62%);
+      pointer-events:none;
+      opacity:.9;
+    }
+    .kpi > *{ position:relative; z-index:1; }
+    .kpi .t{
+      margin:0 0 6px 0;
+      font-size:12px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      font-weight:1000;
+    }
+    .kpi .v{
+      margin:0;
+      font-size:18px;
+      font-weight:1100;
+      letter-spacing:.2px;
+      font-family:var(--mono);
+    }
+    .kpi .d{
+      margin:6px 0 0 0;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    /* Log list */
+    .logWrap{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px;
+      max-height:260px;
+      overflow:auto;
+    }
+    .logItem{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding:10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:var(--soft2);
+      margin-bottom:8px;
+    }
+    .logItem:last-child{ margin-bottom:0; }
+    .badge{
+      font-family:var(--mono);
+      font-weight:1000;
+      font-size:12px;
+      padding:6px 8px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      white-space:nowrap;
+    }
+    .logMain{ flex:1; min-width:0; }
+    .logTitle{ font-weight:1000; font-size:13px; margin:0; }
+    .logSub{ margin:4px 0 0 0; color:var(--muted); font-size:12px; line-height:1.45; }
+
+    /* Accordion */
+    details.acc{
+      margin-top:10px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      overflow:hidden;
+    }
+    details.acc summary{
+      list-style:none;
+      cursor:pointer;
+      padding:12px;
+      font-weight:1100;
+      font-size:13px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      user-select:none;
+    }
+    details.acc summary::-webkit-details-marker{ display:none; }
+    .chev{ width:18px; height:18px; transition: transform .18s ease; }
+    details.acc[open] .chev{ transform: rotate(180deg); }
+    .accBody{
+      border-top:1px solid var(--line);
+      padding:0 12px 12px;
+      font-size:13.5px;
+      line-height:1.6;
+      color:#0b0b0b;
+    }
+    .accBody p{ margin:10px 0 0 0; }
+    .accBody ul{ margin:10px 0 0 18px; }
+    .accBody li{ margin:6px 0; }
+    .muted{ color:var(--muted); }
+
+    /* Notes */
+    textarea{
+      width:100%;
+      box-sizing:border-box;
+      min-height:120px;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      font-size:14px;
+      font-family:var(--sans);
+      outline:none;
+      resize:vertical;
+
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+    textarea:focus{
+      border-color:#0b0b0b;
+      box-shadow:0 0 0 3px rgba(0,0,0,.08);
+    }
+    .noteRow{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:10px;
+    }
+    #saveHint{ color:var(--muted); font-size:13px; }
+    .mono{ font-family:var(--mono); }
+
+    /* Print */
+    @page{ margin: 12mm; }
+    @media print{
+      *{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .noPrint{ display:none !important; }
+      body{ background:#fff !important; color:#000 !important; }
+      .card,.stage,.kpi,.logWrap,details.acc{
+        box-shadow:none !important;
+        border-color:#000 !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <div class="topbar">
+      <div class="brand">
+        <h1 data-i18n="h1">Einkaufsmeile – Prozess (Pixel)</h1>
+        <p class="sub" data-i18n="sub">
+          Eine interaktive Pixel-Meile, die zeigt, wie sich ein Weg über Zeit aufbaut: Start → Lernen → Werkzeuge → Erweiterungen → Entdecken → Wiederholung.
+          Alles ohne externe Ressourcen – nur ein Tool, das sichtbar macht, was sonst unsichtbar bleibt.
+        </p>
+      </div>
+
+      <div class="topRight noPrint">
+        <div class="pillRow" aria-label="Sprache">
+          <button class="pill" id="langDE" type="button" aria-pressed="true">DE</button>
+          <button class="pill" id="langEN" type="button" aria-pressed="false">EN</button>
+        </div>
+
+        <button class="btn secondary" id="btnCopy" type="button" aria-label="Kopie">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 9h10v12H9V9Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M5 3h10v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M5 7h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M5 7v14h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="copy">Kopieren</span>
+        </button>
+
+        <button class="btn secondary" id="btnPrint" type="button">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 8V3h10v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7 17h10v4H7v-4Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M6 18H5a3 3 0 0 1-3-3v-4a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3h-1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M18 12h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="print">Drucken</span>
+        </button>
+
+        <button class="btn" id="btnResetAll" type="button">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3 12a9 9 0 0 1 15.36-6.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M18 4v6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 12a9 9 0 0 1-15.36 6.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="resetAll">Alles zurücksetzen</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="layout">
+
+      <!-- LEFT: Controls -->
+      <section class="card">
+        <div class="sectionTop">
+          <div>
+            <h2 data-i18n="modeTitle">Modus</h2>
+            <p class="hint" data-i18n="modeHint">Wähle, wie die Meile aufgebaut wird. Story läuft automatisch. Freier Modus ist dein eigener Weg.</p>
+          </div>
+        </div>
+
+        <div class="modeTabs noPrint" role="tablist" aria-label="Modi">
+          <button class="tab" id="tabStory" type="button" aria-pressed="true" data-mode="story" data-i18n="tabStory">Story-Modus</button>
+          <button class="tab" id="tabBuild" type="button" aria-pressed="false" data-mode="build" data-i18n="tabBuild">Freier Modus</button>
+          <button class="tab" id="tabExplore" type="button" aria-pressed="false" data-mode="explore" data-i18n="tabExplore">Entdecken</button>
+        </div>
+
+        <div class="rows" style="margin-top:12px;">
+
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="speed">Story-Geschwindigkeit</div>
+              <div class="subLab" data-i18n="speedSub">Wie schnell die Story Schritte setzt</div>
+            </div>
+            <div class="ctrl">
+              <select id="storySpeed" data-store>
+                <option value="900" data-i18n="speed1">langsam</option>
+                <option value="600" selected data-i18n="speed2">normal</option>
+                <option value="380" data-i18n="speed3">schnell</option>
+              </select>
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="storySpeed" type="button">↺ <span data-i18n="reset">reset</span></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="months">Zeitraum (Monate)</div>
+              <div class="subLab" data-i18n="monthsSub">0–24 (als Einordnung im Log)</div>
+            </div>
+            <div class="ctrl">
+              <input id="months" type="number" min="0" max="24" step="1" value="18" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="months" type="button">↺ <span data-i18n="to18">auf 18</span></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="actor">Bezeichnung</div>
+              <div class="subLab" data-i18n="actorSub">Wie du die Person nennst</div>
+            </div>
+            <div class="ctrl">
+              <input id="actor" type="text" value="Mitglied" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="actor" type="button">↺ <span data-i18n="toDefault">default</span></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="action">Aktion hinzufügen</div>
+              <div class="subLab" data-i18n="actionSub">Im Freien Modus klickst du dir den Weg</div>
+            </div>
+            <div class="ctrl">
+              <select id="actionSelect">
+                <option value="" selected data-i18n="pick">auswählen…</option>
+                <option value="club_member" data-i18n="a_member">Mitgliedschaft</option>
+                <option value="weekend_setup" data-i18n="a_weekend">Weekend-Setup</option>
+                <option value="lead_small" data-i18n="a_leadS">Leadmaschine klein</option>
+                <option value="lead_pro" data-i18n="a_leadP">Leadmaschine groß (Profi)</option>
+                <option value="lead_addon" data-i18n="a_addon">Add-on (Leadmaschine)</option>
+                <option value="trading_course" data-i18n="a_trading">Tradingkurs</option>
+                <option value="nft_course" data-i18n="a_nft">NFT Kurs</option>
+                <option value="hoersaal_discover" data-i18n="a_hoersaal">Hörsaal entdeckt</option>
+                <option value="project_weekend" data-i18n="a_projWS">Weekend-Setup (Projekt)</option>
+                <option value="webinar" data-i18n="a_webinar">Webinar gebucht</option>
+                <option value="talk" data-i18n="a_talk">Gespräch geführt</option>
+              </select>
+            </div>
+            <div class="resetCell noPrint">
+              <button class="miniBtn" id="btnAddAction" type="button">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span data-i18n="add">Hinzufügen</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <details class="acc" open>
+          <summary>
+            <span data-i18n="helpTitle">So funktioniert die Pixel-Meile</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="accBody">
+            <p data-i18n="help1">
+              Jeder Baustein ist ein Pixel-Gebäude. Du klickst Gebäude an, liest kurz die Bedeutung, und siehst im Log, wie sich ein Weg über Zeit aufbaut.
+            </p>
+            <ul>
+              <li data-i18n="help2"><strong>Story-Modus:</strong> führt das Beispiel automatisch Schritt für Schritt aus.</li>
+              <li data-i18n="help3"><strong>Freier Modus:</strong> du baust deinen eigenen Weg per Auswahl.</li>
+              <li data-i18n="help4"><strong>Entdecken:</strong> der Hörsaal wird zur „Messehalle“ für neue Themen – inkl. wiederholbarer Projekt-Weekends.</li>
+            </ul>
+            <p class="muted" data-i18n="help5">
+              Locks zeigen Voraussetzungen (z. B. Add-on geht erst nach Upgrade). Das Tool ist bewusst kompakt und druckbar.
+            </p>
+          </div>
+        </details>
+
+        <details class="acc">
+          <summary>
+            <span data-i18n="slotsTitle">Szenarien speichern</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="accBody">
+            <p class="muted" data-i18n="slotsHint">3 Slots. Lokal gespeichert. Kein Upload, kein Tracking.</p>
+            <div class="miniRow noPrint" style="margin-top:10px;">
+              <button class="miniBtn" data-slot="A" data-action="save" type="button"><span data-i18n="saveA">A speichern</span></button>
+              <button class="miniBtn" data-slot="A" data-action="load" type="button"><span data-i18n="loadA">A laden</span></button>
+              <button class="miniBtn" data-slot="A" data-action="clear" type="button"><span data-i18n="delA">A löschen</span></button>
+            </div>
+            <div class="miniRow noPrint" style="margin-top:10px;">
+              <button class="miniBtn" data-slot="B" data-action="save" type="button"><span data-i18n="saveB">B speichern</span></button>
+              <button class="miniBtn" data-slot="B" data-action="load" type="button"><span data-i18n="loadB">B laden</span></button>
+              <button class="miniBtn" data-slot="B" data-action="clear" type="button"><span data-i18n="delB">B löschen</span></button>
+            </div>
+            <div class="miniRow noPrint" style="margin-top:10px;">
+              <button class="miniBtn" data-slot="C" data-action="save" type="button"><span data-i18n="saveC">C speichern</span></button>
+              <button class="miniBtn" data-slot="C" data-action="load" type="button"><span data-i18n="loadC">C laden</span></button>
+              <button class="miniBtn" data-slot="C" data-action="clear" type="button"><span data-i18n="delC">C löschen</span></button>
+            </div>
+          </div>
+        </details>
+
+        <details class="acc">
+          <summary>
+            <span data-i18n="notesTitle">Notizen</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="accBody">
+            <textarea id="notes" data-store placeholder="Deine Notizen …"></textarea>
+            <div class="noteRow">
+              <div id="saveHint">Bereit.</div>
+              <div class="mono" id="wowLine">—</div>
+            </div>
+            <div class="miniRow noPrint" style="margin-top:10px;">
+              <button class="miniBtn" id="clearNotes" type="button"><span data-i18n="clearNotes">Notizen löschen</span></button>
+            </div>
+          </div>
+        </details>
+
+      </section>
+
+      <!-- RIGHT: Pixel Stage -->
+      <section class="stage">
+        <div class="stageTop">
+          <div class="stageTitle">
+            <strong data-i18n="stageTitle">Pixel-Einkaufsmeile</strong>
+            <span data-i18n="stageSub">Klicke Gebäude. Story baut automatisch. Locks zeigen Voraussetzungen.</span>
+          </div>
+
+          <div class="stageTools noPrint">
+            <button class="miniBtn" id="btnStoryStart" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M8 5l12 7-12 7V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+              <span data-i18n="storyStart">Story starten</span>
+            </button>
+            <button class="miniBtn" id="btnStoryStep" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span data-i18n="storyStep">1 Schritt</span>
+            </button>
+            <button class="miniBtn" id="btnClearPath" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 7h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M6 7l2 14h8l2-14" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M9 7V4h6v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span data-i18n="clearPath">Weg leeren</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Inline SVG Pixel Map -->
+        <svg id="map"
+             viewBox="0 0 1200 760"
+             width="100%" height="auto"
+             xmlns="http://www.w3.org/2000/svg"
+             role="img"
+             aria-label="Pixel Einkaufsmeile"
+             shape-rendering="crispEdges">
+
+          <!-- background -->
+          <defs>
+            <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+              <path d="M24 0H0V24" fill="none" stroke="rgba(0,0,0,.06)" stroke-width="1"/>
+            </pattern>
+            <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,.18)"/>
+            </filter>
+          </defs>
+
+          <rect x="0" y="0" width="1200" height="760" fill="#ffffff"/>
+          <rect x="0" y="0" width="1200" height="760" fill="url(#grid)"/>
+
+          <!-- "Streets" -->
+          <g id="streets" opacity="0.9">
+            <rect x="120" y="150" width="960" height="28" fill="rgba(0,0,0,.06)"/>
+            <rect x="120" y="330" width="960" height="28" fill="rgba(0,0,0,.06)"/>
+            <rect x="120" y="510" width="960" height="28" fill="rgba(0,0,0,.06)"/>
+
+            <rect x="280" y="90" width="28" height="600" fill="rgba(0,0,0,.06)"/>
+            <rect x="560" y="90" width="28" height="600" fill="rgba(0,0,0,.06)"/>
+            <rect x="840" y="90" width="28" height="600" fill="rgba(0,0,0,.06)"/>
+          </g>
+
+          <!-- Paths (highlighted) -->
+          <g id="paths"></g>
+
+          <!-- Buildings (nodes) -->
+          <g id="nodes" filter="url(#softShadow)"></g>
+
+          <!-- floating tooltip anchor -->
+          <g id="hover" pointer-events="none"></g>
+        </svg>
+
+        <div class="infoDock">
+          <div class="kpiGrid">
+            <div class="kpi">
+              <p class="t" data-i18n="kpiSteps">Schritte im Weg</p>
+              <p class="v" id="k_steps">0</p>
+              <p class="d" data-i18n="kpiStepsD">wie viele Bausteine gesetzt sind</p>
+            </div>
+            <div class="kpi">
+              <p class="t" data-i18n="kpiLocks">Locks</p>
+              <p class="v" id="k_locks">0</p>
+              <p class="d" data-i18n="kpiLocksD">Voraussetzungen noch offen</p>
+            </div>
+            <div class="kpi">
+              <p class="t" data-i18n="kpiWow">Wow-Moment</p>
+              <p class="v" id="k_wow">—</p>
+              <p class="d" data-i18n="kpiWowD">kurzer Hinweis zum Status</p>
+            </div>
+          </div>
+
+          <div class="card" style="padding:12px; background:#fff;">
+            <h2 data-i18n="logTitle">Prozess-Log</h2>
+            <p class="hint" data-i18n="logHint">Hier entsteht die „Einkaufsmeile“ als wiederholbarer Weg. Das ist Leserversion – kompakt und druckbar.</p>
+            <div class="logWrap" id="log"></div>
+          </div>
+
+          <details class="acc" open>
+            <summary>
+              <span data-i18n="readerTitle">Warum das wirkt</span>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </summary>
+            <div class="accBody">
+              <p data-i18n="reader1">
+                Ein Weg wird dann „tragfähig“, wenn er nicht jedes Mal neu erfunden werden muss. Lernen und Erklären übernimmt das System.
+                Dadurch bleibt Zeit für das, was wirklich Wachstum bringt: kontinuierliche Gespräche, klare Entscheidungen, Wiederholung.
+              </p>
+              <p class="muted" data-i18n="reader2">
+                Hinweis: Auch wenn Prozesse stark wirken, entwickelt sich jeder in seinem eigenen Tempo. Das Tool zeigt Möglichkeiten – keine Garantien.
+              </p>
+            </div>
+          </details>
+
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const PREFIX = "fsa_tool_pixel_meile_";
+      const KEY_STATE = PREFIX + "state";
+      const KEY_LANG  = PREFIX + "lang";
+      const KEY_SLOT  = (s)=> PREFIX + "slot_" + s;
+
+      // ---------------- i18n ----------------
+      const I18N = {
+        de: {
+          h1:"Einkaufsmeile – Prozess (Pixel)",
+          sub:"Eine interaktive Pixel-Meile, die zeigt, wie sich ein Weg über Zeit aufbaut: Start → Lernen → Werkzeuge → Erweiterungen → Entdecken → Wiederholung. Alles ohne externe Ressourcen – nur ein Tool, das sichtbar macht, was sonst unsichtbar bleibt.",
+          copy:"Kopieren", print:"Drucken", resetAll:"Alles zurücksetzen",
+
+          modeTitle:"Modus",
+          modeHint:"Wähle, wie die Meile aufgebaut wird. Story läuft automatisch. Freier Modus ist dein eigener Weg.",
+          tabStory:"Story-Modus",
+          tabBuild:"Freier Modus",
+          tabExplore:"Entdecken",
+
+          speed:"Story-Geschwindigkeit",
+          speedSub:"Wie schnell die Story Schritte setzt",
+          speed1:"langsam",
+          speed2:"normal",
+          speed3:"schnell",
+          reset:"reset",
+
+          months:"Zeitraum (Monate)",
+          monthsSub:"0–24 (als Einordnung im Log)",
+          actor:"Bezeichnung",
+          actorSub:"Wie du die Person nennst",
+          action:"Aktion hinzufügen",
+          actionSub:"Im Freien Modus klickst du dir den Weg",
+          pick:"auswählen…",
+          add:"Hinzufügen",
+          to18:"auf 18",
+          toDefault:"default",
+
+          a_member:"Mitgliedschaft",
+          a_weekend:"Weekend-Setup",
+          a_leadS:"Leadmaschine klein",
+          a_leadP:"Leadmaschine groß (Profi)",
+          a_addon:"Add-on (Leadmaschine)",
+          a_trading:"Tradingkurs",
+          a_nft:"NFT Kurs",
+          a_hoersaal:"Hörsaal entdeckt",
+          a_projWS:"Weekend-Setup (Projekt)",
+          a_webinar:"Webinar gebucht",
+          a_talk:"Gespräch geführt",
+
+          helpTitle:"So funktioniert die Pixel-Meile",
+          help1:"Jeder Baustein ist ein Pixel-Gebäude. Du klickst Gebäude an, liest kurz die Bedeutung, und siehst im Log, wie sich ein Weg über Zeit aufbaut.",
+          help2:"Story-Modus: führt das Beispiel automatisch Schritt für Schritt aus.",
+          help3:"Freier Modus: du baust deinen eigenen Weg per Auswahl.",
+          help4:"Entdecken: der Hörsaal wird zur „Messehalle“ für neue Themen – inkl. wiederholbarer Projekt-Weekends.",
+          help5:"Locks zeigen Voraussetzungen (z. B. Add-on geht erst nach Upgrade). Das Tool ist bewusst kompakt und druckbar.",
+
+          slotsTitle:"Szenarien speichern",
+          slotsHint:"3 Slots. Lokal gespeichert. Kein Upload, kein Tracking.",
+          saveA:"A speichern", loadA:"A laden", delA:"A löschen",
+          saveB:"B speichern", loadB:"B laden", delB:"B löschen",
+          saveC:"C speichern", loadC:"C laden", delC:"C löschen",
+
+          notesTitle:"Notizen",
+          clearNotes:"Notizen löschen",
+
+          stageTitle:"Pixel-Einkaufsmeile",
+          stageSub:"Klicke Gebäude. Story baut automatisch. Locks zeigen Voraussetzungen.",
+          storyStart:"Story starten",
+          storyStep:"1 Schritt",
+          clearPath:"Weg leeren",
+
+          kpiSteps:"Schritte im Weg",
+          kpiStepsD:"wie viele Bausteine gesetzt sind",
+          kpiLocks:"Locks",
+          kpiLocksD:"Voraussetzungen noch offen",
+          kpiWow:"Wow-Moment",
+          kpiWowD:"kurzer Hinweis zum Status",
+
+          logTitle:"Prozess-Log",
+          logHint:"Hier entsteht die „Einkaufsmeile“ als wiederholbarer Weg. Das ist Leserversion – kompakt und druckbar.",
+
+          readerTitle:"Warum das wirkt",
+          reader1:"Ein Weg wird dann „tragfähig“, wenn er nicht jedes Mal neu erfunden werden muss. Lernen und Erklären übernimmt das System. Dadurch bleibt Zeit für das, was wirklich Wachstum bringt: kontinuierliche Gespräche, klare Entscheidungen, Wiederholung.",
+          reader2:"Hinweis: Auch wenn Prozesse stark wirken, entwickelt sich jeder in seinem eigenen Tempo. Das Tool zeigt Möglichkeiten – keine Garantien.",
+
+          // Node names
+          n_club:"Club (Mitgliedschaft)",
+          n_weekend:"Weekend-Setup (Basis)",
+          n_leadS:"Leadmaschine (klein)",
+          n_leadP:"Leadmaschine (Profi)",
+          n_addon:"Add-on (Leadmaschine)",
+          n_trading:"Tradingkurs",
+          n_nft:"NFT Kurs",
+          n_hoersaal:"Hörsaal (Entdecken)",
+          n_project:"Weekend-Setup (Projekt)",
+          n_webinar:"Webinar",
+          n_talk:"Gespräch",
+
+          // Node short descriptions
+          d_club:"Der Einstieg. Ab hier ist die Person Mitglied und kann ihren Weg in eigenem Tempo bauen.",
+          d_weekend:"Fundament + Absicherung: Verständnis, Struktur, Klarheit.",
+          d_leadS:"Werkzeug für Reichweite. Klein starten, Erfahrungen sammeln.",
+          d_leadP:"Upgrade, wenn man skaliert. Voraussetzungen werden freigeschaltet.",
+          d_addon:"Erweiterung. Geht erst, wenn die Profi-Leadmaschine aktiv ist.",
+          d_trading:"Wissensbaustein: Trading als Thema nach Bedarf.",
+          d_nft:"Wissensbaustein: NFT als Thema nach Bedarf.",
+          d_hoersaal:"Messehalle: neue Projekte entdecken, prüfen, vergleichen.",
+          d_project:"Wiederholbarer Schritt: spezielles Weekend-Setup für ein Projekt.",
+          d_webinar:"Zwischenbaustein: Termine, Impulse, Live-Input.",
+          d_talk:"Zwischenbaustein: Gespräche mit Teamleitern / Geschäftsführung.",
+
+          // System messages
+          msg_locked:"Lock: Voraussetzung fehlt",
+          msg_added:"Hinzugefügt",
+          msg_notAllowed:"Noch nicht möglich",
+          msg_storyDone:"Story abgeschlossen",
+          msg_wow1:"Jetzt entsteht die Meile.",
+          msg_wow2:"Locks sind sichtbar – das ist echte Logik.",
+          msg_wow3:"Wiederholung schließt den Kreis."
+        },
+        en: {
+          h1:"Shopping Mile – Process (Pixel)",
+          sub:"An interactive pixel mile showing how a path builds over time: Start → Learn → Tools → Upgrades → Discover → Repeat. No external resources — a tool that makes the invisible visible.",
+          copy:"Copy", print:"Print", resetAll:"Reset all",
+
+          modeTitle:"Mode",
+          modeHint:"Choose how the mile is built. Story runs automatically. Free mode is your own path.",
+          tabStory:"Story mode",
+          tabBuild:"Free mode",
+          tabExplore:"Discover",
+
+          speed:"Story speed",
+          speedSub:"How fast the story places steps",
+          speed1:"slow",
+          speed2:"normal",
+          speed3:"fast",
+          reset:"reset",
+
+          months:"Timeframe (months)",
+          monthsSub:"0–24 (used for log context)",
+          actor:"Label",
+          actorSub:"How you name the person",
+          action:"Add action",
+          actionSub:"In Free mode you build your own path",
+          pick:"select…",
+          add:"Add",
+          to18:"to 18",
+          toDefault:"default",
+
+          a_member:"Membership",
+          a_weekend:"Weekend setup",
+          a_leadS:"Lead machine small",
+          a_leadP:"Lead machine Pro",
+          a_addon:"Add-on (lead machine)",
+          a_trading:"Trading course",
+          a_nft:"NFT course",
+          a_hoersaal:"Lecture hall discovered",
+          a_projWS:"Weekend setup (project)",
+          a_webinar:"Webinar booked",
+          a_talk:"Conversation",
+
+          helpTitle:"How the pixel mile works",
+          help1:"Every module is a pixel building. Click buildings, read a short meaning, and see how a path builds over time in the log.",
+          help2:"Story mode: runs the example step by step.",
+          help3:"Free mode: you build your own path via selection.",
+          help4:"Discover: the lecture hall becomes an expo for new topics — including repeatable project weekends.",
+          help5:"Locks show prerequisites (e.g. add-on requires upgrade). Compact and printable by design.",
+
+          slotsTitle:"Save scenarios",
+          slotsHint:"3 slots. Stored locally. No upload, no tracking.",
+          saveA:"Save A", loadA:"Load A", delA:"Delete A",
+          saveB:"Save B", loadB:"Load B", delB:"Delete B",
+          saveC:"Save C", loadC:"Load C", delC:"Delete C",
+
+          notesTitle:"Notes",
+          clearNotes:"Clear notes",
+
+          stageTitle:"Pixel shopping mile",
+          stageSub:"Click buildings. Story builds automatically. Locks show prerequisites.",
+          storyStart:"Start story",
+          storyStep:"1 step",
+          clearPath:"Clear path",
+
+          kpiSteps:"Steps in path",
+          kpiStepsD:"how many modules are placed",
+          kpiLocks:"Locks",
+          kpiLocksD:"prerequisites still open",
+          kpiWow:"Wow moment",
+          kpiWowD:"short status hint",
+
+          logTitle:"Process log",
+          logHint:"This is the readable path. Compact and printable.",
+
+          readerTitle:"Why it works",
+          reader1:"A path becomes sustainable when it doesn’t need to be reinvented each time. Learning and explaining is handled by the system. This frees time for what grows: conversations, decisions, repetition.",
+          reader2:"Note: everyone moves at their own pace. This shows possibilities — not guarantees.",
+
+          n_club:"Club (membership)",
+          n_weekend:"Weekend setup (base)",
+          n_leadS:"Lead machine (small)",
+          n_leadP:"Lead machine (Pro)",
+          n_addon:"Add-on (lead machine)",
+          n_trading:"Trading course",
+          n_nft:"NFT course",
+          n_hoersaal:"Lecture hall (discover)",
+          n_project:"Weekend setup (project)",
+          n_webinar:"Webinar",
+          n_talk:"Conversation",
+
+          d_club:"The entry point. From here, the person is a member and can build at their own pace.",
+          d_weekend:"Foundation + safety: understanding, structure, clarity.",
+          d_leadS:"Reach tool. Start small and learn.",
+          d_leadP:"Upgrade for scaling. Unlocks prerequisites.",
+          d_addon:"Extension. Requires the Pro lead machine to be active.",
+          d_trading:"Knowledge module: trading as needed.",
+          d_nft:"Knowledge module: NFT as needed.",
+          d_hoersaal:"Expo hall: discover new projects, compare, verify.",
+          d_project:"Repeatable step: a dedicated weekend setup for a project.",
+          d_webinar:"In-between module: sessions, impulses, live input.",
+          d_talk:"In-between module: talks with leads / management.",
+
+          msg_locked:"Lock: prerequisite missing",
+          msg_added:"Added",
+          msg_notAllowed:"Not possible yet",
+          msg_storyDone:"Story finished",
+          msg_wow1:"Now the mile forms.",
+          msg_wow2:"Locks are visible — real logic.",
+          msg_wow3:"Repetition closes the loop."
+        }
+      };
+
+      function setLang(lang){
+        const dict = I18N[lang] || I18N.de;
+        document.documentElement.lang = (lang === "en") ? "en" : "de";
+        document.querySelectorAll("[data-i18n]").forEach(el=>{
+          const k = el.getAttribute("data-i18n");
+          if(dict[k] != null) el.textContent = dict[k];
+        });
+        // Update dynamic labels (actor default)
+        if(lang === "en" && ($("#actor").value || "").trim() === "Mitglied") $("#actor").value = "Member";
+        if(lang !== "en" && ($("#actor").value || "").trim() === "Member") $("#actor").value = "Mitglied";
+
+        $("#langDE").setAttribute("aria-pressed", String(lang !== "en"));
+        $("#langEN").setAttribute("aria-pressed", String(lang === "en"));
+        try{ localStorage.setItem(KEY_LANG, lang); }catch(e){}
+        renderAll();
+      }
+
+      // ---------------- DOM helpers ----------------
+      const $ = (id)=> document.getElementById(id);
+      const clamp = (n,min,max)=> Math.min(max, Math.max(min, n));
+      const toNum = (v)=> {
+        const n = Number(String(v).replace(",", "."));
+        return Number.isFinite(n) ? n : 0;
+      };
+
+      // ---------------- Map model ----------------
+      // Grid positions in SVG space (pixel blocks)
+      const NODES = [
+        { id:"club_member", key:"n_club", dkey:"d_club", x:160, y:110, w:170, h:110, color:"#0b0b0b", type:"core" },
+        { id:"weekend_setup", key:"n_weekend", dkey:"d_weekend", x:420, y:110, w:190, h:110, color:"#111111", type:"learn" },
+        { id:"lead_small", key:"n_leadS", dkey:"d_leadS", x:700, y:110, w:190, h:110, color:"#1a1a1a", type:"tool" },
+
+        { id:"hoersaal_discover", key:"n_hoersaal", dkey:"d_hoersaal", x:980, y:110, w:180, h:110, color:"#0b0b0b", type:"discover" },
+
+        { id:"trading_course", key:"n_trading", dkey:"d_trading", x:160, y:290, w:190, h:110, color:"#111111", type:"course" },
+        { id:"nft_course", key:"n_nft", dkey:"d_nft", x:420, y:290, w:190, h:110, color:"#111111", type:"course" },
+
+        { id:"lead_pro", key:"n_leadP", dkey:"d_leadP", x:700, y:290, w:190, h:110, color:"#0b0b0b", type:"upgrade" },
+        { id:"lead_addon", key:"n_addon", dkey:"d_addon", x:980, y:290, w:180, h:110, color:"#0b0b0b", type:"addon" },
+
+        { id:"webinar", key:"n_webinar", dkey:"d_webinar", x:160, y:470, w:190, h:110, color:"#111111", type:"event" },
+        { id:"talk", key:"n_talk", dkey:"d_talk", x:420, y:470, w:190, h:110, color:"#111111", type:"event" },
+
+        { id:"project_weekend", key:"n_project", dkey:"d_project", x:700, y:470, w:460, h:110, color:"#0b0b0b", type:"repeat" },
+      ];
+
+      // prerequisites (hard locks)
+      // Add-on requires lead_pro. lead_pro requires lead_small. lead_small is recommended after weekend_setup but not hard required.
+      const REQUIRES = {
+        lead_pro: ["lead_small"],
+        lead_addon: ["lead_pro"]
+      };
+
+      const RECOMMENDS = {
+        lead_small: ["weekend_setup"], // soft guidance only (no lock)
+        trading_course: ["weekend_setup"],
+        nft_course: ["weekend_setup"],
+        project_weekend: ["hoersaal_discover"]
+      };
+
+      // Story sequence (your narrative as steps)
+      const STORY = [
+        { id:"club_member", month:0 },
+        { id:"weekend_setup", month:0 },
+        { id:"lead_small", month:1 },
+        { id:"trading_course", month:4 },
+        { id:"nft_course", month:7 },
+        { id:"hoersaal_discover", month:8 },
+        // add-on attempt (will lock until pro)
+        { id:"lead_addon", month:9, isAttempt:true },
+        { id:"lead_pro", month:9 },
+        { id:"lead_addon", month:9 },
+        { id:"webinar", month:10 },
+        { id:"talk", month:11 },
+        { id:"project_weekend", month:12 },
+        { id:"webinar", month:13 },
+        { id:"talk", month:14 },
+        { id:"project_weekend", month:16 }
+      ];
+
+      // ---------------- State ----------------
+      let mode = "story"; // story | build | explore
+      let storyIndex = 0;
+      let storyTimer = null;
+
+      const state = {
+        placed: [],   // array of {id, t, month, note, source}
+        selectedNode: null
+      };
+
+      // ---------------- SVG building blocks ----------------
+      const svg = $("#map");
+      const gNodes = svg.querySelector("#nodes");
+      const gPaths = svg.querySelector("#paths");
+      const gHover = svg.querySelector("#hover");
+
+      function clearSvgGroup(g){
+        while(g.firstChild) g.removeChild(g.firstChild);
+      }
+
+      function pixelRect(x,y,w,h,fill,stroke){
+        const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        r.setAttribute("x", String(x));
+        r.setAttribute("y", String(y));
+        r.setAttribute("width", String(w));
+        r.setAttribute("height", String(h));
+        r.setAttribute("fill", fill || "#fff");
+        if(stroke){
+          r.setAttribute("stroke", stroke);
+          r.setAttribute("stroke-width", "2");
+        }
+        return r;
+      }
+
+      function pixelText(x,y,txt,fill,size,weight){
+        const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        t.setAttribute("x", String(x));
+        t.setAttribute("y", String(y));
+        t.setAttribute("fill", fill || "#fff");
+        t.setAttribute("font-size", String(size || 16));
+        t.setAttribute("font-weight", String(weight || 900));
+        t.setAttribute("font-family", "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace");
+        t.textContent = txt;
+        return t;
+      }
+
+      function iconLock(x,y){
+        const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+        g.setAttribute("transform", `translate(${x},${y})`);
+        // pixel lock
+        g.appendChild(pixelRect(0,6,18,14,"#fff","#0b0b0b"));
+        g.appendChild(pixelRect(4,0,10,8,"#fff","#0b0b0b"));
+        g.appendChild(pixelRect(7,10,4,6,"#0b0b0b"));
+        return g;
+      }
+
+      function iconCheck(x,y){
+        const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+        g.setAttribute("transform", `translate(${x},${y})`);
+        // pixel check (blocky)
+        g.appendChild(pixelRect(0,10,6,6,"#fff","#0b0b0b"));
+        g.appendChild(pixelRect(6,16,6,6,"#fff","#0b0b0b"));
+        g.appendChild(pixelRect(12,10,6,6,"#fff","#0b0b0b"));
+        g.appendChild(pixelRect(18,4,6,6,"#fff","#0b0b0b"));
+        return g;
+      }
+
+      function drawNode(n, status){
+        // status: "locked" | "open" | "active"
+        const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+        g.setAttribute("data-node", n.id);
+        g.setAttribute("tabindex","0");
+        g.style.cursor = "pointer";
+
+        // base frame (pixel look)
+        const frame = pixelRect(n.x, n.y, n.w, n.h, "#ffffff", "#0b0b0b");
+        g.appendChild(frame);
+
+        // inner fill
+        const inner = pixelRect(n.x+10, n.y+10, n.w-20, n.h-20, n.color, "#0b0b0b");
+        inner.setAttribute("opacity", status === "locked" ? "0.35" : "1");
+        g.appendChild(inner);
+
+        // tiny "pixel roof" highlights
+        for(let i=0;i<6;i++){
+          g.appendChild(pixelRect(n.x+16 + i*12, n.y+14, 8, 6, "rgba(255,255,255,.18)"));
+        }
+
+        // label (short)
+        const dict = I18N[getLang()];
+        const label = (dict[n.key] || n.id);
+        const short = label.length > 22 ? (label.slice(0,22) + "…") : label;
+
+        const t = pixelText(n.x+18, n.y + n.h - 18, short, "#ffffff", 15, 1000);
+        t.setAttribute("opacity", status === "locked" ? "0.6" : "1");
+        g.appendChild(t);
+
+        // status badge icon
+        if(status === "locked"){
+          g.appendChild(iconLock(n.x + n.w - 36, n.y + 16));
+        }else if(status === "active"){
+          g.appendChild(iconCheck(n.x + n.w - 36, n.y + 16));
+        }
+
+        // focus ring (via rect)
+        const focus = pixelRect(n.x-3, n.y-3, n.w+6, n.h+6, "transparent", "transparent");
+        focus.setAttribute("data-focus", "1");
+        focus.setAttribute("stroke-width", "3");
+        g.appendChild(focus);
+
+        // handlers
+        g.addEventListener("click", ()=> onNodeClick(n.id));
+        g.addEventListener("mouseenter", ()=> showHover(n.id));
+        g.addEventListener("mouseleave", ()=> hideHover());
+        g.addEventListener("focus", ()=> showHover(n.id));
+        g.addEventListener("blur", ()=> hideHover());
+        g.addEventListener("keydown", (e)=>{
+          if(e.key === "Enter" || e.key === " "){
+            e.preventDefault();
+            onNodeClick(n.id);
+          }
+        });
+
+        return g;
+      }
+
+      function drawPathLine(ax,ay,bx,by){
+        // draw chunky pixel path: horizontal then vertical
+        const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+        const width = 10;
+
+        const midx = bx;
+        // horizontal segment
+        const x1 = Math.min(ax, midx);
+        const w1 = Math.abs(midx - ax) || 0;
+        if(w1 > 0){
+          const r1 = pixelRect(x1, ay - width/2, w1, width, "rgba(0,0,0,.18)");
+          g.appendChild(r1);
+        }
+        // vertical segment
+        const y1 = Math.min(ay, by);
+        const h1 = Math.abs(by - ay) || 0;
+        if(h1 > 0){
+          const r2 = pixelRect(midx - width/2, y1, width, h1, "rgba(0,0,0,.18)");
+          g.appendChild(r2);
+        }
+
+        // endpoint dot
+        g.appendChild(pixelRect(bx-6, by-6, 12, 12, "rgba(0,0,0,.28)", "#0b0b0b"));
+        return g;
+      }
+
+      function nodeCenter(id){
+        const n = NODES.find(x=>x.id===id);
+        if(!n) return {x:0,y:0};
+        return { x: n.x + n.w/2, y: n.y + n.h/2 };
+      }
+
+      function getLang(){
+        try{
+          return localStorage.getItem(KEY_LANG) || "de";
+        }catch(e){
+          return "de";
+        }
+      }
+
+      // ---------------- Logic ----------------
+      function has(id){
+        return state.placed.some(p=>p.id===id);
+      }
+
+      function missingReq(id){
+        const req = REQUIRES[id] || [];
+        return req.filter(r=>!has(r));
+      }
+
+      function isLocked(id){
+        return missingReq(id).length > 0;
+      }
+
+      function addStep(id, meta){
+        const dict = I18N[getLang()];
+        const now = Date.now();
+
+        // attempt behavior
+        const lockMissing = missingReq(id);
+        if(lockMissing.length > 0){
+          // in story: allow "attempt" log
+          if(meta && meta.isAttempt){
+            logPush({
+              id,
+              month: meta.month ?? null,
+              status:"locked",
+              note: dict.msg_locked + ": " + lockMissing.join(", ")
+            });
+            setWow(dict.msg_wow2);
+            renderAll();
+            scheduleSave();
+            return false;
+          }
+          // in build/explore: block hard
+          flashWow(dict.msg_notAllowed + " → " + dict.msg_locked);
+          logPush({
+            id,
+            month: meta?.month ?? null,
+            status:"locked",
+            note: dict.msg_locked + ": " + lockMissing.join(", ")
+          });
+          renderAll();
+          scheduleSave();
+          return false;
+        }
+
+        // normal add
+        if(!has(id)){
+          state.placed.push({
+            id,
+            t: now,
+            month: meta?.month ?? null,
+            source: meta?.source || mode,
+            note: meta?.note || ""
+          });
+        }else{
+          // allow repeats for some nodes (project_weekend, webinar, talk)
+          const repeatable = ["project_weekend","webinar","talk"];
+          if(repeatable.includes(id)){
+            state.placed.push({
+              id,
+              t: now,
+              month: meta?.month ?? null,
+              source: meta?.source || mode,
+              note: meta?.note || ""
+            });
+          }
+        }
+
+        logPush({ id, month: meta?.month ?? null, status:"added", note: dict.msg_added });
+        setWow(dict.msg_wow1);
+        renderAll();
+        scheduleSave();
+        return true;
+      }
+
+      function clearPath(){
+        state.placed = [];
+        storyIndex = 0;
+        logClear();
+        setWow("—");
+        renderAll();
+        scheduleSave();
+      }
+
+      // ---------------- Log ----------------
+      const logEl = $("#log");
+      let logItems = []; // {id, month, status, note, t}
+
+      function dict(){
+        return I18N[getLang()] || I18N.de;
+      }
+
+      function nodeLabel(id){
+        const n = NODES.find(x=>x.id===id);
+        if(!n) return id;
+        return dict()[n.key] || id;
+      }
+      function nodeDesc(id){
+        const n = NODES.find(x=>x.id===id);
+        if(!n) return "";
+        return dict()[n.dkey] || "";
+      }
+
+      function logPush(item){
+        logItems.push({ ...item, t: Date.now() });
+        renderLog();
+      }
+      function logClear(){
+        logItems = [];
+        renderLog();
+      }
+
+      function renderLog(){
+        logEl.innerHTML = "";
+        const actor = ($("#actor").value || "Mitglied").trim();
+        const maxMonths = clamp(toNum($("#months").value), 0, 24);
+
+        // If empty: show a friendly placeholder
+        if(logItems.length === 0){
+          const div = document.createElement("div");
+          div.className = "logItem";
+          div.innerHTML = `
+            <div class="badge">—</div>
+            <div class="logMain">
+              <p class="logTitle">${actor}: <span class="muted">…</span></p>
+              <p class="logSub">${dict().stageSub}</p>
+            </div>
+          `;
+          logEl.appendChild(div);
+          return;
+        }
+
+        logItems.slice(-40).forEach((it, idx)=>{
+          const div = document.createElement("div");
+          div.className = "logItem";
+          const m = (it.month == null) ? "" : ("M" + String(it.month).padStart(2,"0"));
+          const badge = it.status === "locked" ? "LOCK" : (it.status === "added" ? "OK" : "—");
+          const title = nodeLabel(it.id);
+          const desc = nodeDesc(it.id);
+          const rel = (it.month == null) ? "" : ` · ${m}/${maxMonths}`;
+          const note = it.note ? (" · " + it.note) : "";
+
+          div.innerHTML = `
+            <div class="badge">${badge}</div>
+            <div class="logMain">
+              <p class="logTitle">${actor}: ${title}<span class="muted">${rel}</span></p>
+              <p class="logSub">${desc}${note}</p>
+            </div>
+          `;
+          logEl.appendChild(div);
+        });
+      }
+
+      // ---------------- Hover tooltip in SVG ----------------
+      function showHover(id){
+        clearSvgGroup(gHover);
+        const n = NODES.find(x=>x.id===id);
+        if(!n) return;
+
+        const label = nodeLabel(id);
+        const desc = nodeDesc(id);
+
+        const locked = isLocked(id);
+        const missing = missingReq(id);
+
+        const boxW = 420;
+        const boxH = locked ? 98 : 84;
+
+        // place near node
+        let x = n.x + n.w + 14;
+        let y = n.y - 4;
+        if(x + boxW > 1180) x = n.x - boxW - 14;
+        if(y + boxH > 740) y = 740 - boxH - 14;
+        if(y < 14) y = 14;
+
+        const bg = pixelRect(x,y,boxW,boxH,"#ffffff","#0b0b0b");
+        gHover.appendChild(bg);
+
+        const bar = pixelRect(x+10,y+10,boxW-20,20,"rgba(0,0,0,.08)","#0b0b0b");
+        gHover.appendChild(bar);
+
+        const t1 = pixelText(x+18,y+26,label,"#0b0b0b",14,1000);
+        gHover.appendChild(t1);
+
+        const t2 = pixelText(x+18,y+52,desc.slice(0,78) + (desc.length>78?"…":""),"#0b0b0b",12,800);
+        gHover.appendChild(t2);
+
+        if(locked){
+          const lockLine = dict().msg_locked + ": " + missing.join(", ");
+          const t3 = pixelText(x+18,y+74,lockLine,"#7a4a00",12,1000);
+          gHover.appendChild(t3);
+          gHover.appendChild(iconLock(x+boxW-34,y+12));
+        }else{
+          const ok = has(id) ? "ACTIVE" : "OPEN";
+          const t3 = pixelText(x+18,y+74,ok,"#0b0b0b",12,1000);
+          gHover.appendChild(t3);
+        }
+      }
+      function hideHover(){
+        clearSvgGroup(gHover);
+      }
+
+      // ---------------- Render map ----------------
+      function renderMap(){
+        clearSvgGroup(gNodes);
+        clearSvgGroup(gPaths);
+
+        // Build path list from placed steps (unique sequence of actual movement)
+        const placed = state.placed.map(p=>p.id);
+
+        // Draw connections in order (for visual wow)
+        const seq = [];
+        placed.forEach(id=>{
+          // include repeats
+          seq.push(id);
+        });
+
+        // draw path segments between consecutive items
+        for(let i=1;i<seq.length;i++){
+          const a = nodeCenter(seq[i-1]);
+          const b = nodeCenter(seq[i]);
+          // chunky path
+          gPaths.appendChild(drawPathLine(a.x, a.y, b.x, b.y));
+        }
+
+        // nodes with statuses
+        NODES.forEach(n=>{
+          const locked = isLocked(n.id);
+          const active = has(n.id);
+          const status = locked ? "locked" : (active ? "active" : "open");
+          const g = drawNode(n, status);
+          gNodes.appendChild(g);
+        });
+      }
+
+      function countLocks(){
+        let locks = 0;
+        NODES.forEach(n=>{
+          if(isLocked(n.id)) locks++;
+        });
+        return locks;
+      }
+
+      function setWow(msg){
+        $("#k_wow").textContent = msg || "—";
+        $("#wowLine").textContent = msg || "—";
+      }
+      function flashWow(msg){
+        setWow(msg);
+        // quick pulse in KPI
+        const k = $("#k_wow");
+        if(!k) return;
+        k.style.transform = "scale(1.04)";
+        setTimeout(()=>{ k.style.transform = "scale(1)"; }, 160);
+      }
+
+      function renderKPIs(){
+        $("#k_steps").textContent = String(state.placed.length);
+        $("#k_locks").textContent = String(countLocks());
+
+        if(state.placed.length === 0){
+          setWow("—");
+        }else{
+          // simple “wow stages”
+          const hasPro = has("lead_pro");
+          const hasAddon = state.placed.filter(p=>p.id==="lead_addon").length > 0;
+          const hasProject = state.placed.filter(p=>p.id==="project_weekend").length > 0;
+
+          const d = dict();
+          let msg = d.msg_wow1;
+
+          if(hasPro && hasAddon) msg = d.msg_wow2;
+          if(hasProject) msg = d.msg_wow3;
+
+          $("#k_wow").textContent = msg;
+        }
+      }
+
+      function renderAll(){
+        renderMap();
+        renderKPIs();
+        renderLog();
+        renderTabs();
+      }
+
+      // ---------------- Mode / Tabs ----------------
+      function setMode(m){
+        mode = m;
+        // stop story timer on mode change
+        stopStory();
+        renderTabs();
+        flashWow(m === "story" ? "Story" : (m === "build" ? "Build" : "Explore"));
+        scheduleSave();
+      }
+
+      function renderTabs(){
+        const tabs = [
+          {id:"tabStory", m:"story"},
+          {id:"tabBuild", m:"build"},
+          {id:"tabExplore", m:"explore"}
+        ];
+        tabs.forEach(t=>{
+          const el = $(t.id);
+          el.setAttribute("aria-pressed", String(mode === t.m));
+        });
+
+        // enable/disable add action button depending on mode
+        const btnAdd = $("#btnAddAction");
+        const sel = $("#actionSelect");
+        const isFree = (mode === "build" || mode === "explore");
+        btnAdd.disabled = !isFree;
+        sel.disabled = !isFree;
+
+        // story buttons only useful in story mode
+        $("#btnStoryStart").disabled = (mode !== "story");
+        $("#btnStoryStep").disabled  = (mode !== "story");
+      }
+
+      document.querySelectorAll(".tab[data-mode]").forEach(b=>{
+        b.addEventListener("click", ()=> setMode(b.getAttribute("data-mode")));
+      });
+
+      // ---------------- Story controls ----------------
+      function stopStory(){
+        if(storyTimer) clearInterval(storyTimer);
+        storyTimer = null;
+      }
+
+      function storyStep(){
+        const d = dict();
+        if(storyIndex >= STORY.length){
+          flashWow(d.msg_storyDone);
+          stopStory();
+          return;
+        }
+
+        const s = STORY[storyIndex++];
+        addStep(s.id, { month: s.month, source:"story", isAttempt: !!s.isAttempt });
+        // In explore mode we could branch; here: keep story deterministic.
+        if(storyIndex >= STORY.length){
+          flashWow(d.msg_storyDone);
+          stopStory();
+        }
+      }
+
+      function storyStart(){
+        stopStory();
+        const ms = clamp(toNum($("#storySpeed").value), 250, 2000);
+        storyTimer = setInterval(()=> storyStep(), ms);
+      }
+
+      $("#btnStoryStart").addEventListener("click", storyStart);
+      $("#btnStoryStep").addEventListener("click", storyStep);
+
+      // ---------------- Free add action ----------------
+      $("#btnAddAction").addEventListener("click", ()=>{
+        const v = $("#actionSelect").value;
+        if(!v) return;
+        const month = null;
+        addStep(v, { month, source: mode });
+        $("#actionSelect").value = "";
+      });
+
+      // Click on node: in build/explore -> add; in story -> select details only
+      function onNodeClick(id){
+        state.selectedNode = id;
+
+        const d = dict();
+        // in story mode: click previews only (but allow add if you want: we keep story pure)
+        if(mode === "story"){
+          flashWow(nodeLabel(id));
+          showHover(id);
+          return;
+        }
+
+        // build/explore: try add
+        addStep(id, { month: null, source: mode });
+      }
+
+      // clear path
+      $("#btnClearPath").addEventListener("click", clearPath);
+
+      // ---------------- Copy ----------------
+      function buildCopyText(){
+        const d = dict();
+        const actor = ($("#actor").value || "Mitglied").trim();
+        const months = clamp(toNum($("#months").value), 0, 24);
+
+        const lines = [];
+        lines.push(d.h1);
+        lines.push("");
+        lines.push((d.months + ": " + months));
+        lines.push((d.actor + ": " + actor));
+        lines.push((d.modeTitle + ": " + mode));
+        lines.push("");
+        lines.push(d.logTitle + ":");
+        lines.push("");
+
+        // Render from placed list in order
+        if(state.placed.length === 0){
+          lines.push("—");
+        }else{
+          state.placed.forEach((p, idx)=>{
+            const m = (p.month == null) ? "" : (" (M" + String(p.month).padStart(2,"0") + ")");
+            lines.push(String(idx+1).padStart(2,"0") + ". " + nodeLabel(p.id) + m);
+          });
+        }
+
+        lines.push("");
+        lines.push(d.reader2);
+        return lines.join("\n");
+      }
+
+      $("#btnCopy").addEventListener("click", async ()=>{
+        const text = buildCopyText();
+        try{
+          await navigator.clipboard.writeText(text);
+          setSaveHint("Kopiert.");
+        }catch(e){
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          try{ document.execCommand("copy"); setSaveHint("Kopiert."); }catch(err){ setSaveHint("Kopieren fehlgeschlagen."); }
+          document.body.removeChild(ta);
+        }
+      });
+
+      // print
+      $("#btnPrint").addEventListener("click", ()=> window.print());
+
+      // ---------------- Save/Load ----------------
+      const saveHintEl = $("#saveHint");
+      function setSaveHint(msg){
+        if(saveHintEl) saveHintEl.textContent = msg;
+      }
+
+      function readState(){
+        return {
+          mode,
+          storyIndex,
+          placed: state.placed,
+          logItems,
+          actor: $("#actor").value,
+          months: $("#months").value,
+          storySpeed: $("#storySpeed").value,
+          notes: $("#notes").value,
+          lang: getLang()
+        };
+      }
+      function writeState(s){
+        if(!s || typeof s !== "object") return;
+
+        mode = s.mode || "story";
+        storyIndex = Number.isFinite(+s.storyIndex) ? +s.storyIndex : 0;
+
+        state.placed = Array.isArray(s.placed) ? s.placed : [];
+        logItems = Array.isArray(s.logItems) ? s.logItems : [];
+
+        if(typeof s.actor === "string") $("#actor").value = s.actor;
+        if(typeof s.months === "string" || typeof s.months === "number") $("#months").value = String(s.months);
+        if(typeof s.storySpeed === "string" || typeof s.storySpeed === "number") $("#storySpeed").value = String(s.storySpeed);
+        if(typeof s.notes === "string") $("#notes").value = s.notes;
+
+        if(s.lang) setLang(s.lang === "en" ? "en" : "de");
+
+        renderAll();
+      }
+
+      function saveNow(){
+        try{
+          localStorage.setItem(KEY_STATE, JSON.stringify(readState()));
+          setSaveHint("Gespeichert.");
+        }catch(e){
+          setSaveHint("Speichern fehlgeschlagen.");
+        }
+      }
+
+      let tSave = null;
+      function scheduleSave(){
+        setSaveHint("Speichert…");
+        if(tSave) clearTimeout(tSave);
+        tSave = setTimeout(()=>{ saveNow(); tSave = null; }, 240);
+      }
+
+      function loadNow(){
+        try{
+          const raw = localStorage.getItem(KEY_STATE);
+          if(!raw) return;
+          writeState(JSON.parse(raw));
+        }catch(e){}
+      }
+
+      // global reset
+      $("#btnResetAll").addEventListener("click", ()=>{
+        stopStory();
+        mode = "story";
+        storyIndex = 0;
+        state.placed = [];
+        logItems = [];
+        $("#months").value = "18";
+        $("#storySpeed").value = "600";
+        $("#actor").value = (getLang()==="en") ? "Member" : "Mitglied";
+        $("#notes").value = "";
+        setWow("—");
+        renderAll();
+        scheduleSave();
+      });
+
+      // per-field reset
+      document.querySelectorAll("[data-reset]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const id = btn.getAttribute("data-reset");
+          if(id === "months") $("#months").value = "18";
+          if(id === "storySpeed") $("#storySpeed").value = "600";
+          if(id === "actor") $("#actor").value = (getLang()==="en") ? "Member" : "Mitglied";
+          scheduleSave();
+          renderAll();
+        });
+      });
+
+      // notes clear
+      $("#clearNotes").addEventListener("click", ()=>{
+        $("#notes").value = "";
+        scheduleSave();
+      });
+
+      // scenario slots
+      function slotSave(s){
+        try{
+          localStorage.setItem(KEY_SLOT(s), JSON.stringify(readState()));
+          setSaveHint("Slot " + s + " gespeichert.");
+        }catch(e){
+          setSaveHint("Speichern fehlgeschlagen.");
+        }
+      }
+      function slotLoad(s){
+        try{
+          const raw = localStorage.getItem(KEY_SLOT(s));
+          if(!raw){ setSaveHint("Slot " + s + " leer."); return; }
+          writeState(JSON.parse(raw));
+          setSaveHint("Slot " + s + " geladen.");
+          scheduleSave();
+        }catch(e){
+          setSaveHint("Laden fehlgeschlagen.");
+        }
+      }
+      function slotClear(s){
+        try{
+          localStorage.removeItem(KEY_SLOT(s));
+          setSaveHint("Slot " + s + " gelöscht.");
+        }catch(e){}
+      }
+      document.querySelectorAll("[data-slot][data-action]").forEach(b=>{
+        b.addEventListener("click", ()=>{
+          const s = b.getAttribute("data-slot");
+          const a = b.getAttribute("data-action");
+          if(a==="save") slotSave(s);
+          if(a==="load") slotLoad(s);
+          if(a==="clear") slotClear(s);
+        });
+      });
+
+      // live save triggers
+      ["storySpeed","months","actor","notes"].forEach(id=>{
+        $(id).addEventListener("input", ()=>{ scheduleSave(); renderAll(); });
+        $(id).addEventListener("change", ()=>{ scheduleSave(); renderAll(); });
+      });
+
+      // language buttons
+      $("#langDE").addEventListener("click", ()=> setLang("de"));
+      $("#langEN").addEventListener("click", ()=> setLang("en"));
+
+      // init
+      // apply saved lang first
+      const savedLang = (()=>{ try{ return localStorage.getItem(KEY_LANG) || "de"; }catch(e){ return "de"; } })();
+      setLang(savedLang === "en" ? "en" : "de");
+
+      loadNow();
+      renderAll();
+      setSaveHint("Bereit.");
+    })();
+  </script>
+</body>
+</html>
