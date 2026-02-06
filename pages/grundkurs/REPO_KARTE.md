@@ -860,6 +860,7 @@
     │   │   ├── dach-demand-dashboard.html
     │   │   ├── promotor-onboarding-checkin.html
     │   │   ├── sprecher-onboarding-checkin.html
+    │   │   ├── tragfaehigkeits-rechner-3-ebenen.html
     │   │   ├── visitenkarte-fsa-club.html
     │   │   ├── visitenkarte-weiss-schwarz-2.html
     │   │   ├── visitenkarte-weiss-schwarz-generator.html
@@ -1019,4 +1020,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.02.2026, 16:37)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.02.2026, 17:37)_
