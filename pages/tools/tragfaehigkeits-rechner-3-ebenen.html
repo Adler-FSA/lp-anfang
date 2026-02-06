@@ -1,0 +1,989 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tragfähigkeits-Rechner – 3 Ebenen</title>
+  <meta name="description" content="Tragfähigkeits-Rechner: 1–50 neue Mitglieder/Monat, Produkte auswählbar, 3 Ebenen (20/15/10), druckbar als PDF, LocalStorage, DE/EN." />
+  <meta name="robots" content="noindex,nofollow" />
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --txt:#0b0b0b;
+      --muted:#444;
+      --line:#cfcfcf;
+      --soft:#f6f6f6;
+      --soft2:#fbfbfb;
+      --accent:#111;
+      --btn:#111;
+      --btnTxt:#fff;
+      --warn:#b00020;
+      --ok:#0a6b2e;
+      --radius:14px;
+      --shadow:0 10px 24px rgba(0,0,0,.08);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background:var(--bg);
+      color:var(--txt);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:22px 16px 60px;
+    }
+
+    header{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      border-bottom:1px solid var(--line);
+      padding-bottom:14px;
+      margin-bottom:18px;
+    }
+    h1{
+      font-size:22px;
+      line-height:1.2;
+      margin:0 0 6px 0;
+      letter-spacing:.2px;
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.45;
+      max-width:740px;
+    }
+
+    .topActions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid var(--btn);
+      background:var(--btn);
+      color:var(--btnTxt);
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:700;
+      font-size:13px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+    }
+    .btn.secondary{
+      background:#fff;
+      color:#111;
+      border:1px solid var(--line);
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn svg{width:16px;height:16px}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:14px;
+    }
+    @media (max-width: 920px){
+      .grid{grid-template-columns:1fr}
+    }
+
+    .card{
+      border:1px solid var(--line);
+      background:var(--soft2);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+    .card h2{
+      margin:0 0 10px 0;
+      font-size:16px;
+      letter-spacing:.2px;
+    }
+    .hint{
+      margin:0 0 10px 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap:10px;
+      align-items:center;
+      padding:10px;
+      border-radius:12px;
+      background:#fff;
+      border:1px solid var(--line);
+      margin-bottom:10px;
+    }
+    @media (max-width:560px){
+      .row{grid-template-columns:1fr}
+    }
+    label{
+      font-weight:700;
+      font-size:13px;
+    }
+    .small{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+      margin-top:4px;
+    }
+
+    input[type="number"], select{
+      width:100%;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      font-size:14px;
+      background:#fff;
+      color:#111;
+      box-sizing:border-box;
+    }
+    input[type="range"]{
+      width:100%;
+      accent-color:#111;
+    }
+
+    .split{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width:560px){
+      .split{grid-template-columns:1fr}
+    }
+
+    .checkLine{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+      margin-bottom:10px;
+    }
+    .checkLine input{margin-top:3px}
+    .checkMain{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      flex:1;
+    }
+    .priceTag{
+      font-family:var(--mono);
+      font-size:12px;
+      color:#111;
+      white-space:nowrap;
+    }
+
+    details{
+      border:1px dashed var(--line);
+      border-radius:12px;
+      padding:10px 12px;
+      background:#fff;
+    }
+    summary{
+      cursor:pointer;
+      font-weight:800;
+      font-size:13px;
+      list-style:none;
+    }
+    summary::-webkit-details-marker{display:none}
+    .detailsBody{padding-top:10px}
+
+    .kpiGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width:920px){
+      .kpiGrid{grid-template-columns:1fr}
+    }
+    .kpi{
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+      padding:12px;
+    }
+    .kpi .t{
+      font-size:12px;
+      color:var(--muted);
+      margin:0 0 6px 0;
+      font-weight:700;
+    }
+    .kpi .v{
+      font-size:18px;
+      margin:0;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .kpi .s{
+      margin:6px 0 0 0;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.35;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:12px;
+      overflow:hidden;
+    }
+    th, td{
+      padding:10px 10px;
+      border-bottom:1px solid var(--line);
+      font-size:13px;
+      text-align:left;
+      vertical-align:top;
+    }
+    th{
+      background:var(--soft);
+      font-weight:900;
+      font-size:12px;
+      letter-spacing:.2px;
+      text-transform:uppercase;
+    }
+    tr:last-child td{border-bottom:none}
+    .mono{font-family:var(--mono)}
+    .right{text-align:right}
+    .muted{color:var(--muted)}
+    .warn{color:var(--warn); font-weight:800}
+    .ok{color:var(--ok); font-weight:800}
+
+    .foot{
+      margin-top:14px;
+      padding-top:14px;
+      border-top:1px solid var(--line);
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.5;
+    }
+
+    .lang{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#fff;
+      font-size:13px;
+      font-weight:800;
+      cursor:pointer;
+      user-select:none;
+    }
+    .pill[aria-pressed="true"]{
+      border-color:#111;
+      box-shadow:0 0 0 2px rgba(0,0,0,.08) inset;
+    }
+
+    /* PRINT */
+    @media print{
+      @page { margin: 12mm; }
+      body{background:#fff}
+      header{border-bottom:1px solid #000}
+      .topActions, .lang, .noPrint{display:none !important}
+      .card{box-shadow:none}
+      .wrap{max-width:none; padding:0}
+      a{color:#000; text-decoration:none}
+      .card, .row, table, .kpi{break-inside:avoid}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1 data-i18n="h1">Tragfähigkeits-Rechner (3 Ebenen)</h1>
+        <p class="sub" data-i18n="sub">
+          Rechne dir selbst aus, was bei 1–50 neuen Mitgliedern pro Monat möglich sein kann.
+          Mitgliedschaft (60 €) ist der stabile Sockel. Weitere Bausteine kannst du optional dazunehmen.
+        </p>
+      </div>
+
+      <div class="topActions noPrint">
+        <div class="lang" aria-label="Sprache">
+          <button class="pill" id="langDE" type="button" aria-pressed="true">DE</button>
+          <button class="pill" id="langEN" type="button" aria-pressed="false">EN</button>
+        </div>
+
+        <button class="btn secondary" id="btnReset" type="button" title="Zurücksetzen">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3 12a9 9 0 0 1 15.36-6.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M18 4v6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 12a9 9 0 0 1-15.36 6.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="reset">Reset</span>
+        </button>
+
+        <button class="btn secondary" id="btnCopy" type="button" title="Zahlen kopieren">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 9h10v12H9V9Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M5 3h10v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M5 7h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M5 7v14h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="copy">Kopieren</span>
+        </button>
+
+        <button class="btn" id="btnPrint" type="button" title="Drucken / PDF">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 8V3h10v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7 17h10v4H7v-4Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M6 18H5a3 3 0 0 1-3-3v-4a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3h-1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M18 12h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="print">Drucken</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- INPUTS -->
+      <section class="card">
+        <h2 data-i18n="inputs">Eingaben</h2>
+        <p class="hint" data-i18n="inputsHint">
+          Stelle ein, wie viele neue Mitglieder du pro Monat gewinnst. Danach wähle, welche Bausteine in die Beispielrechnung einfließen sollen.
+        </p>
+
+        <div class="row">
+          <div>
+            <label for="m1" data-i18n="m1Label">Neue Mitglieder pro Monat (Ebene 1)</label>
+            <div class="small" data-i18n="m1Help">Das sind deine direkten neuen Mitglieder pro Monat. Bereich: 1 bis 50.</div>
+          </div>
+          <div>
+            <div class="split">
+              <input id="m1" type="number" min="1" max="50" step="1" value="20" />
+              <select id="period">
+                <option value="1" data-i18n="p1">1 Monat</option>
+                <option value="3" data-i18n="p3">1 Quartal (3 Monate)</option>
+                <option value="12" data-i18n="p12">12 Monate</option>
+              </select>
+            </div>
+            <div style="margin-top:8px">
+              <input id="m1r" type="range" min="1" max="50" step="1" value="20" />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label data-i18n="buildingBlocks">Bausteine (Umsatz pro neuem Mitglied)</label>
+            <div class="small" data-i18n="blocksHelp">
+              Mitgliedschaft ist fix. Alles andere ist optional und wird nur gerechnet, wenn du es auswählst.
+            </div>
+          </div>
+          <div>
+            <div class="checkLine">
+              <input id="bMembership" type="checkbox" checked disabled />
+              <div class="checkMain">
+                <div style="display:flex;justify-content:space-between;gap:10px;">
+                  <div><strong data-i18n="membership">Mitgliedschaft</strong></div>
+                  <div class="priceTag">60 €</div>
+                </div>
+                <div class="small" data-i18n="membershipHelp">Stabiler Sockel (nicht abwählbar).</div>
+              </div>
+            </div>
+
+            <div class="checkLine">
+              <input id="bLead" type="checkbox" />
+              <div class="checkMain">
+                <div style="display:flex;justify-content:space-between;gap:10px;">
+                  <div><strong data-i18n="leadSmall">Leadmaschine (klein)</strong></div>
+                  <div class="priceTag">60 €</div>
+                </div>
+                <div class="small" data-i18n="leadHelp">Optionaler Baustein zur Werbung.</div>
+              </div>
+            </div>
+
+            <div class="checkLine">
+              <input id="bWeekend" type="checkbox" />
+              <div class="checkMain">
+                <div style="display:flex;justify-content:space-between;gap:10px;">
+                  <div><strong data-i18n="weekend">Weekend-Setup</strong></div>
+                  <div class="priceTag">399 €</div>
+                </div>
+                <div class="small" data-i18n="weekendHelp">Optionaler Baustein zur Orientierung & Umsetzung.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <details id="advBox" class="noPrint">
+          <summary data-i18n="advanced">Erweitert: Ebenen-Annahmen anpassen</summary>
+          <div class="detailsBody">
+            <p class="hint" data-i18n="advancedHint">
+              Standardmäßig nutzt der Rechner einfache Annahmen. Hier kannst du einstellen, wie viele aktiv werden und wie viele neue Mitglieder pro aktivem Mitglied entstehen.
+            </p>
+
+            <div class="row">
+              <div>
+                <label for="act1" data-i18n="act1Label">Aktivierungsquote Ebene 1 → Ebene 2 (%)</label>
+                <div class="small" data-i18n="act1Help">Wie viel Prozent deiner Ebene-1-Neuen werden selbst aktiv.</div>
+              </div>
+              <div class="split">
+                <input id="act1" type="number" min="0" max="100" step="1" value="60" />
+                <input id="prod1" type="number" min="0" max="50" step="1" value="20" />
+              </div>
+              <div class="small muted" style="grid-column:1 / -1" data-i18n="prod1Help">Rechts: Neue Mitglieder pro aktivem Mitglied (Ebene 1 → Ebene 2) pro Monat.</div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="act2" data-i18n="act2Label">Aktivierungsquote Ebene 2 → Ebene 3 (%)</label>
+                <div class="small" data-i18n="act2Help">Wie viel Prozent der Ebene-2-Neuen werden aktiv.</div>
+              </div>
+              <div class="split">
+                <input id="act2" type="number" min="0" max="100" step="1" value="50" />
+                <input id="prod2" type="number" min="0" max="50" step="1" value="20" />
+              </div>
+              <div class="small muted" style="grid-column:1 / -1" data-i18n="prod2Help">Rechts: Neue Mitglieder pro aktivem Mitglied (Ebene 2 → Ebene 3) pro Monat.</div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label data-i18n="sharesLabel">Beteiligung Ursprung (fix)</label>
+                <div class="small" data-i18n="sharesHelp">Ebene 1: 20% • Ebene 2: 15% • Ebene 3: 10%</div>
+              </div>
+              <div class="split">
+                <input type="text" value="20% / 15% / 10%" readonly />
+                <input id="toggleSimple" type="button" class="btn secondary" value="Standardwerte wiederherstellen" />
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <div class="foot">
+          <div data-i18n="legalNote">
+            Hinweis: Das Tool ist eine Rechenhilfe zur Orientierung. Es zeigt mögliche Entwicklungen anhand deiner Eingaben und Annahmen – keine Zusage oder Garantie.
+          </div>
+        </div>
+      </section>
+
+      <!-- OUTPUTS -->
+      <section class="card">
+        <h2 data-i18n="outputs">Ergebnis</h2>
+        <p class="hint" data-i18n="outputsHint">
+          Du siehst unten die Mitgliederzahlen und den Umsatz pro Ebene – sowie den Anteil für den Ursprung (20% / 15% / 10%).
+        </p>
+
+        <div class="kpiGrid">
+          <div class="kpi">
+            <p class="t" data-i18n="kpiPack">Umsatz pro neuem Mitglied (gewählt)</p>
+            <p class="v mono" id="kpiPack">–</p>
+            <p class="s" data-i18n="kpiPackHelp">Summe aus Mitgliedschaft (fix) und optionalen Bausteinen.</p>
+          </div>
+          <div class="kpi">
+            <p class="t" data-i18n="kpiPeriod">Zeitraum</p>
+            <p class="v" id="kpiPeriod">–</p>
+            <p class="s" data-i18n="kpiPeriodHelp">Die Monatswerte werden für Quartal/Jahr kumuliert.</p>
+          </div>
+          <div class="kpi">
+            <p class="t" data-i18n="kpiNew">Neue Mitglieder gesamt (kumuliert)</p>
+            <p class="v mono" id="kpiNew">–</p>
+            <p class="s" data-i18n="kpiNewHelp">Ebene 1 + Ebene 2 + Ebene 3 im gewählten Zeitraum.</p>
+          </div>
+          <div class="kpi">
+            <p class="t" data-i18n="kpiEarn">Verdienst Ursprung (kumuliert)</p>
+            <p class="v mono" id="kpiEarn">–</p>
+            <p class="s" data-i18n="kpiEarnHelp">Beteiligung über 3 Ebenen: 20% / 15% / 10%.</p>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <table aria-label="Ergebnis Tabelle">
+            <thead>
+              <tr>
+                <th data-i18n="thLevel">Ebene</th>
+                <th class="right" data-i18n="thNewM">Neue Mitglieder (Monat)</th>
+                <th class="right" data-i18n="thNewT">Neue Mitglieder (Zeitraum)</th>
+                <th class="right" data-i18n="thRevM">Umsatz (Monat)</th>
+                <th class="right" data-i18n="thRevT">Umsatz (Zeitraum)</th>
+                <th class="right" data-i18n="thEarnT">Ursprung-Anteil (Zeitraum)</th>
+              </tr>
+            </thead>
+            <tbody id="tbl">
+              <!-- JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="foot">
+          <div><strong data-i18n="explainTitle">Kurz erklärt (für Neue)</strong></div>
+          <div class="small" style="margin-top:6px" data-i18n="explainText">
+            Ebene 1 sind deine direkten neuen Mitglieder. Ein Teil wird später aktiv und bringt weitere Mitglieder (Ebene 2).
+            Aus Ebene 2 kann wiederum Ebene 3 entstehen. Die Mitgliedschaft (60 €) ist der stabile Sockel.
+            Weitere Bausteine rechnest du nur dann mit, wenn du sie aktivierst.
+          </div>
+
+          <div class="small" style="margin-top:10px">
+            <span class="muted" data-i18n="savedNote">Deine Einstellungen werden automatisch lokal im Browser gespeichert (LocalStorage).</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const LS_KEY = "fsa_tragfaehigkeit_rechner_v1";
+
+      // UI
+      const m1 = document.getElementById("m1");
+      const m1r = document.getElementById("m1r");
+      const period = document.getElementById("period");
+
+      const bLead = document.getElementById("bLead");
+      const bWeekend = document.getElementById("bWeekend");
+
+      const act1 = document.getElementById("act1");
+      const prod1 = document.getElementById("prod1");
+      const act2 = document.getElementById("act2");
+      const prod2 = document.getElementById("prod2");
+      const toggleSimple = document.getElementById("toggleSimple");
+
+      const kpiPack = document.getElementById("kpiPack");
+      const kpiPeriod = document.getElementById("kpiPeriod");
+      const kpiNew = document.getElementById("kpiNew");
+      const kpiEarn = document.getElementById("kpiEarn");
+      const tbl = document.getElementById("tbl");
+
+      const btnPrint = document.getElementById("btnPrint");
+      const btnCopy = document.getElementById("btnCopy");
+      const btnReset = document.getElementById("btnReset");
+
+      const langDE = document.getElementById("langDE");
+      const langEN = document.getElementById("langEN");
+
+      // i18n
+      const I18N = {
+        de: {
+          h1:"Tragfähigkeits-Rechner (3 Ebenen)",
+          sub:"Rechne dir selbst aus, was bei 1–50 neuen Mitgliedern pro Monat möglich sein kann. Mitgliedschaft (60 €) ist der stabile Sockel. Weitere Bausteine kannst du optional dazunehmen.",
+          reset:"Reset",
+          copy:"Kopieren",
+          print:"Drucken",
+          inputs:"Eingaben",
+          inputsHint:"Stelle ein, wie viele neue Mitglieder du pro Monat gewinnst. Danach wähle, welche Bausteine in die Beispielrechnung einfließen sollen.",
+          m1Label:"Neue Mitglieder pro Monat (Ebene 1)",
+          m1Help:"Das sind deine direkten neuen Mitglieder pro Monat. Bereich: 1 bis 50.",
+          p1:"1 Monat",
+          p3:"1 Quartal (3 Monate)",
+          p12:"12 Monate",
+          buildingBlocks:"Bausteine (Umsatz pro neuem Mitglied)",
+          blocksHelp:"Mitgliedschaft ist fix. Alles andere ist optional und wird nur gerechnet, wenn du es auswählst.",
+          membership:"Mitgliedschaft",
+          membershipHelp:"Stabiler Sockel (nicht abwählbar).",
+          leadSmall:"Leadmaschine (klein)",
+          leadHelp:"Optionaler Baustein zur Werbung.",
+          weekend:"Weekend-Setup",
+          weekendHelp:"Optionaler Baustein zur Orientierung & Umsetzung.",
+          advanced:"Erweitert: Ebenen-Annahmen anpassen",
+          advancedHint:"Standardmäßig nutzt der Rechner einfache Annahmen. Hier kannst du einstellen, wie viele aktiv werden und wie viele neue Mitglieder pro aktivem Mitglied entstehen.",
+          act1Label:"Aktivierungsquote Ebene 1 → Ebene 2 (%)",
+          act1Help:"Wie viel Prozent deiner Ebene-1-Neuen werden selbst aktiv.",
+          prod1Help:"Rechts: Neue Mitglieder pro aktivem Mitglied (Ebene 1 → Ebene 2) pro Monat.",
+          act2Label:"Aktivierungsquote Ebene 2 → Ebene 3 (%)",
+          act2Help:"Wie viel Prozent der Ebene-2-Neuen werden aktiv.",
+          prod2Help:"Rechts: Neue Mitglieder pro aktivem Mitglied (Ebene 2 → Ebene 3) pro Monat.",
+          sharesLabel:"Beteiligung Ursprung (fix)",
+          sharesHelp:"Ebene 1: 20% • Ebene 2: 15% • Ebene 3: 10%",
+          legalNote:"Hinweis: Das Tool ist eine Rechenhilfe zur Orientierung. Es zeigt mögliche Entwicklungen anhand deiner Eingaben und Annahmen – keine Zusage oder Garantie.",
+          outputs:"Ergebnis",
+          outputsHint:"Du siehst unten die Mitgliederzahlen und den Umsatz pro Ebene – sowie den Anteil für den Ursprung (20% / 15% / 10%).",
+          kpiPack:"Umsatz pro neuem Mitglied (gewählt)",
+          kpiPackHelp:"Summe aus Mitgliedschaft (fix) und optionalen Bausteinen.",
+          kpiPeriod:"Zeitraum",
+          kpiPeriodHelp:"Die Monatswerte werden für Quartal/Jahr kumuliert.",
+          kpiNew:"Neue Mitglieder gesamt (kumuliert)",
+          kpiNewHelp:"Ebene 1 + Ebene 2 + Ebene 3 im gewählten Zeitraum.",
+          kpiEarn:"Verdienst Ursprung (kumuliert)",
+          kpiEarnHelp:"Beteiligung über 3 Ebenen: 20% / 15% / 10%.",
+          thLevel:"Ebene",
+          thNewM:"Neue Mitglieder (Monat)",
+          thNewT:"Neue Mitglieder (Zeitraum)",
+          thRevM:"Umsatz (Monat)",
+          thRevT:"Umsatz (Zeitraum)",
+          thEarnT:"Ursprung-Anteil (Zeitraum)",
+          explainTitle:"Kurz erklärt (für Neue)",
+          explainText:"Ebene 1 sind deine direkten neuen Mitglieder. Ein Teil wird später aktiv und bringt weitere Mitglieder (Ebene 2). Aus Ebene 2 kann wiederum Ebene 3 entstehen. Die Mitgliedschaft (60 €) ist der stabile Sockel. Weitere Bausteine rechnest du nur dann mit, wenn du sie aktivierst.",
+          savedNote:"Deine Einstellungen werden automatisch lokal im Browser gespeichert (LocalStorage).",
+          level1:"Ebene 1",
+          level2:"Ebene 2",
+          level3:"Ebene 3",
+          total:"Gesamt",
+          copiedOk:"Kopiert.",
+          copiedFail:"Kopieren nicht möglich.",
+          resetDone:"Zurückgesetzt."
+        },
+        en: {
+          h1:"Sustainability Calculator (3 Levels)",
+          sub:"Calculate what could be possible with 1–50 new members per month. Membership (€60) is the stable base. You can optionally include additional building blocks.",
+          reset:"Reset",
+          copy:"Copy",
+          print:"Print",
+          inputs:"Inputs",
+          inputsHint:"Set how many new members you gain per month. Then choose which building blocks should be included in the example calculation.",
+          m1Label:"New members per month (Level 1)",
+          m1Help:"These are your direct new members per month. Range: 1 to 50.",
+          p1:"1 month",
+          p3:"1 quarter (3 months)",
+          p12:"12 months",
+          buildingBlocks:"Building blocks (revenue per new member)",
+          blocksHelp:"Membership is fixed. Everything else is optional and only counted when selected.",
+          membership:"Membership",
+          membershipHelp:"Stable base (cannot be deselected).",
+          leadSmall:"Lead machine (small)",
+          leadHelp:"Optional advertising block.",
+          weekend:"Weekend setup",
+          weekendHelp:"Optional block for orientation & implementation.",
+          advanced:"Advanced: adjust level assumptions",
+          advancedHint:"By default the calculator uses simple assumptions. Here you can set how many become active and how many new members an active member brings.",
+          act1Label:"Activation rate Level 1 → Level 2 (%)",
+          act1Help:"Percentage of your Level-1 new members who become active.",
+          prod1Help:"Right: new members per active member (Level 1 → Level 2) per month.",
+          act2Label:"Activation rate Level 2 → Level 3 (%)",
+          act2Help:"Percentage of Level-2 new members who become active.",
+          prod2Help:"Right: new members per active member (Level 2 → Level 3) per month.",
+          sharesLabel:"Origin share (fixed)",
+          sharesHelp:"Level 1: 20% • Level 2: 15% • Level 3: 10%",
+          legalNote:"Note: This tool is a calculation aid for orientation. It shows possible developments based on your inputs and assumptions—no promise or guarantee.",
+          outputs:"Results",
+          outputsHint:"Below you see member counts and revenue per level—plus the origin share (20% / 15% / 10%).",
+          kpiPack:"Revenue per new member (selected)",
+          kpiPackHelp:"Sum of membership (fixed) and optional blocks.",
+          kpiPeriod:"Period",
+          kpiPeriodHelp:"Monthly values are accumulated for quarter/year.",
+          kpiNew:"Total new members (accumulated)",
+          kpiNewHelp:"Level 1 + Level 2 + Level 3 in the selected period.",
+          kpiEarn:"Origin earnings (accumulated)",
+          kpiEarnHelp:"3-level participation: 20% / 15% / 10%.",
+          thLevel:"Level",
+          thNewM:"New members (month)",
+          thNewT:"New members (period)",
+          thRevM:"Revenue (month)",
+          thRevT:"Revenue (period)",
+          thEarnT:"Origin share (period)",
+          explainTitle:"Quick explanation (for beginners)",
+          explainText:"Level 1 are your direct new members. Some later become active and bring additional members (Level 2). From Level 2, Level 3 can emerge. Membership (€60) is the stable base. You only include other blocks when you select them.",
+          savedNote:"Your settings are stored locally in your browser (LocalStorage).",
+          level1:"Level 1",
+          level2:"Level 2",
+          level3:"Level 3",
+          total:"Total",
+          copiedOk:"Copied.",
+          copiedFail:"Copy not available.",
+          resetDone:"Reset done."
+        }
+      };
+
+      let LANG = "de";
+
+      function fmtEUR(n){
+        const v = Number(n || 0);
+        return v.toLocaleString("de-DE", {minimumFractionDigits:2, maximumFractionDigits:2}) + " €";
+      }
+      function fmtInt(n){
+        const v = Math.round(Number(n || 0));
+        return v.toLocaleString("de-DE");
+      }
+
+      function packValue(){
+        // membership always 60
+        let sum = 60;
+        if (bLead.checked) sum += 60;
+        if (bWeekend.checked) sum += 399;
+        return sum;
+      }
+
+      function clampNum(el, min, max){
+        let v = Number(el.value);
+        if (!Number.isFinite(v)) v = min;
+        v = Math.max(min, Math.min(max, v));
+        el.value = String(v);
+        return v;
+      }
+
+      function calc(){
+        const months = Number(period.value);
+
+        const m1v = clampNum(m1, 1, 50);
+        m1r.value = String(m1v);
+
+        const a1 = clampNum(act1, 0, 100) / 100;
+        const p1 = clampNum(prod1, 0, 50);
+
+        const a2 = clampNum(act2, 0, 100) / 100;
+        const p2 = clampNum(prod2, 0, 50);
+
+        const pack = packValue();
+
+        // monthly members per level
+        const lvl1_new_m = m1v;
+
+        const lvl1_active_m = Math.round(lvl1_new_m * a1);
+        const lvl2_new_m = lvl1_active_m * p1;
+
+        const lvl2_active_m = Math.round(lvl2_new_m * a2);
+        const lvl3_new_m = lvl2_active_m * p2;
+
+        // monthly revenue
+        const lvl1_rev_m = lvl1_new_m * pack;
+        const lvl2_rev_m = lvl2_new_m * pack;
+        const lvl3_rev_m = lvl3_new_m * pack;
+
+        // period totals
+        const lvl1_new_t = lvl1_new_m * months;
+        const lvl2_new_t = lvl2_new_m * months;
+        const lvl3_new_t = lvl3_new_m * months;
+
+        const lvl1_rev_t = lvl1_rev_m * months;
+        const lvl2_rev_t = lvl2_rev_m * months;
+        const lvl3_rev_t = lvl3_rev_m * months;
+
+        // origin share fixed
+        const share1 = 0.20, share2 = 0.15, share3 = 0.10;
+        const earn1_t = lvl1_rev_t * share1;
+        const earn2_t = lvl2_rev_t * share2;
+        const earn3_t = lvl3_rev_t * share3;
+        const earn_total = earn1_t + earn2_t + earn3_t;
+
+        const new_total_t = lvl1_new_t + lvl2_new_t + lvl3_new_t;
+
+        // KPIs
+        kpiPack.textContent = fmtEUR(pack);
+        kpiPeriod.textContent = (months === 1 ? "1" : String(months)) + (LANG==="de" ? " Monat(e)" : " month(s)");
+        kpiNew.textContent = fmtInt(new_total_t);
+        kpiEarn.textContent = fmtEUR(earn_total);
+
+        // table
+        const rows = [
+          {name: t("level1"), nm:lvl1_new_m, nt:lvl1_new_t, rm:lvl1_rev_m, rt:lvl1_rev_t, et:earn1_t},
+          {name: t("level2"), nm:lvl2_new_m, nt:lvl2_new_t, rm:lvl2_rev_m, rt:lvl2_rev_t, et:earn2_t},
+          {name: t("level3"), nm:lvl3_new_m, nt:lvl3_new_t, rm:lvl3_rev_m, rt:lvl3_rev_t, et:earn3_t},
+          {name: t("total"),
+            nm:(lvl1_new_m+lvl2_new_m+lvl3_new_m),
+            nt:new_total_t,
+            rm:(lvl1_rev_m+lvl2_rev_m+lvl3_rev_m),
+            rt:(lvl1_rev_t+lvl2_rev_t+lvl3_rev_t),
+            et:earn_total
+          }
+        ];
+
+        tbl.innerHTML = rows.map(r => `
+          <tr>
+            <td><strong>${escapeHtml(r.name)}</strong></td>
+            <td class="right mono">${fmtInt(r.nm)}</td>
+            <td class="right mono">${fmtInt(r.nt)}</td>
+            <td class="right mono">${fmtEUR(r.rm)}</td>
+            <td class="right mono">${fmtEUR(r.rt)}</td>
+            <td class="right mono">${fmtEUR(r.et)}</td>
+          </tr>
+        `).join("");
+
+        saveState();
+      }
+
+      function escapeHtml(s){
+        return String(s).replace(/[&<>"']/g, c => ({
+          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+        }[c]));
+      }
+
+      function t(key){
+        const dict = I18N[LANG] || I18N.de;
+        return dict[key] ?? I18N.de[key] ?? key;
+      }
+
+      function applyI18N(){
+        document.documentElement.lang = LANG === "de" ? "de" : "en";
+        document.querySelectorAll("[data-i18n]").forEach(el=>{
+          const k = el.getAttribute("data-i18n");
+          el.textContent = t(k);
+        });
+
+        langDE.setAttribute("aria-pressed", LANG==="de" ? "true" : "false");
+        langEN.setAttribute("aria-pressed", LANG==="en" ? "true" : "false");
+
+        // period options text refresh
+        Array.from(period.options).forEach(opt=>{
+          const k = opt.getAttribute("data-i18n");
+          if(k) opt.textContent = t(k);
+        });
+
+        calc();
+      }
+
+      function saveState(){
+        const state = {
+          LANG,
+          m1: Number(m1.value),
+          period: String(period.value),
+          bLead: !!bLead.checked,
+          bWeekend: !!bWeekend.checked,
+          act1: Number(act1.value),
+          prod1: Number(prod1.value),
+          act2: Number(act2.value),
+          prod2: Number(prod2.value)
+        };
+        try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){}
+      }
+
+      function loadState(){
+        try{
+          const raw = localStorage.getItem(LS_KEY);
+          if(!raw) return;
+          const s = JSON.parse(raw);
+
+          if (s && typeof s === "object"){
+            if (s.LANG === "de" || s.LANG === "en") LANG = s.LANG;
+
+            if (Number.isFinite(s.m1)) m1.value = String(s.m1);
+            if (s.period === "1" || s.period === "3" || s.period === "12") period.value = s.period;
+
+            bLead.checked = !!s.bLead;
+            bWeekend.checked = !!s.bWeekend;
+
+            if (Number.isFinite(s.act1)) act1.value = String(s.act1);
+            if (Number.isFinite(s.prod1)) prod1.value = String(s.prod1);
+            if (Number.isFinite(s.act2)) act2.value = String(s.act2);
+            if (Number.isFinite(s.prod2)) prod2.value = String(s.prod2);
+          }
+        }catch(e){}
+      }
+
+      function resetAll(){
+        LANG = "de";
+        m1.value = "20";
+        m1r.value = "20";
+        period.value = "1";
+        bLead.checked = false;
+        bWeekend.checked = false;
+        act1.value = "60";
+        prod1.value = "20";
+        act2.value = "50";
+        prod2.value = "20";
+        try{ localStorage.removeItem(LS_KEY); }catch(e){}
+        applyI18N();
+        // small user feedback via title change only (no popups)
+        btnReset.title = t("resetDone");
+      }
+
+      function restoreDefaults(){
+        act1.value = "60";
+        prod1.value = "20";
+        act2.value = "50";
+        prod2.value = "20";
+        calc();
+      }
+
+      async function copySummary(){
+        const months = Number(period.value);
+        const pack = packValue();
+
+        const m1v = Number(m1.value);
+        const a1 = Number(act1.value)/100;
+        const p1 = Number(prod1.value);
+        const a2 = Number(act2.value)/100;
+        const p2 = Number(prod2.value);
+
+        const lvl1_new_m = m1v;
+        const lvl1_active_m = Math.round(lvl1_new_m * a1);
+        const lvl2_new_m = lvl1_active_m * p1;
+        const lvl2_active_m = Math.round(lvl2_new_m * a2);
+        const lvl3_new_m = lvl2_active_m * p2;
+
+        const share1=0.20, share2=0.15, share3=0.10;
+
+        const lvl1_rev_t = (lvl1_new_m * pack) * months;
+        const lvl2_rev_t = (lvl2_new_m * pack) * months;
+        const lvl3_rev_t = (lvl3_new_m * pack) * months;
+
+        const earn_total = (lvl1_rev_t*share1)+(lvl2_rev_t*share2)+(lvl3_rev_t*share3);
+        const new_total_t = (lvl1_new_m+lvl2_new_m+lvl3_new_m) * months;
+
+        const lines = [];
+        lines.push(LANG==="de" ? "Tragfähigkeits-Rechner (3 Ebenen)" : "Sustainability Calculator (3 Levels)");
+        lines.push((LANG==="de" ? "Zeitraum: " : "Period: ") + months + (LANG==="de" ? " Monat(e)" : " month(s)"));
+        lines.push((LANG==="de" ? "Umsatz pro neuem Mitglied: " : "Revenue per new member: ") + fmtEUR(pack));
+        lines.push((LANG==="de" ? "Neue Mitglieder gesamt (Zeitraum): " : "Total new members (period): ") + fmtInt(new_total_t));
+        lines.push((LANG==="de" ? "Verdienst Ursprung (Zeitraum): " : "Origin earnings (period): ") + fmtEUR(earn_total));
+        lines.push("");
+        lines.push((LANG==="de" ? "Annahmen:" : "Assumptions:"));
+        lines.push((LANG==="de" ? "- Aktivierung E1→E2: " : "- Activation L1→L2: ") + Math.round(a1*100) + "%, " + (LANG==="de" ? "Leistung: " : "Output: ") + p1 + "/Monat");
+        lines.push((LANG==="de" ? "- Aktivierung E2→E3: " : "- Activation L2→L3: ") + Math.round(a2*100) + "%, " + (LANG==="de" ? "Leistung: " : "Output: ") + p2 + "/Monat");
+        lines.push((LANG==="de" ? "- Beteiligung: 20% / 15% / 10%" : "- Shares: 20% / 15% / 10%"));
+
+        const text = lines.join("\n");
+
+        try{
+          if (navigator.clipboard && navigator.clipboard.writeText){
+            await navigator.clipboard.writeText(text);
+            btnCopy.title = t("copiedOk");
+          }else{
+            throw new Error("no clipboard");
+          }
+        }catch(e){
+          btnCopy.title = t("copiedFail");
+        }
+      }
+
+      // events
+      m1.addEventListener("input", calc);
+      m1r.addEventListener("input", ()=>{ m1.value = m1r.value; calc(); });
+      period.addEventListener("change", calc);
+
+      bLead.addEventListener("change", calc);
+      bWeekend.addEventListener("change", calc);
+
+      act1.addEventListener("input", calc);
+      prod1.addEventListener("input", calc);
+      act2.addEventListener("input", calc);
+      prod2.addEventListener("input", calc);
+
+      toggleSimple.addEventListener("click", restoreDefaults);
+
+      btnPrint.addEventListener("click", ()=> window.print());
+      btnCopy.addEventListener("click", copySummary);
+      btnReset.addEventListener("click", resetAll);
+
+      langDE.addEventListener("click", ()=>{ LANG="de"; saveState(); applyI18N(); });
+      langEN.addEventListener("click", ()=>{ LANG="en"; saveState(); applyI18N(); });
+
+      // init
+      loadState();
+      applyI18N();
+    })();
+  </script>
+</body>
+</html>
