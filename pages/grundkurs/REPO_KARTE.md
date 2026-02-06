@@ -863,6 +863,7 @@
     │   │   ├── visitenkarte-fsa-club.html
     │   │   ├── visitenkarte-weiss-schwarz-2.html
     │   │   ├── visitenkarte-weiss-schwarz-generator.html
+    │   │   ├── visitenkarte-weiss-schwarz-tool-2-liquiditybooster.html
     │   │   └── zertifikat-krypto-fuehrerschein.html
     │   ├── trustyfy/
     │   │   └── fast-track.html
@@ -1018,4 +1019,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.02.2026, 10:33)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.02.2026, 11:29)_
