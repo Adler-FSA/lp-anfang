@@ -212,6 +212,12 @@
     .accBody p{margin:10px 0 0}
     .accBody p:first-child{margin-top:0}
     .accBody .muted{color:var(--muted)}
+    /* Textlinks sichtbar */
+    .accBody a{
+      text-decoration:underline;
+      text-decoration-thickness:1px;
+      text-underline-offset:2px;
+    }
 
     /* Notes */
     .notesWrap{
@@ -250,6 +256,7 @@
       .accBody{color:#111 !important}
       .accTitle span{color:#444 !important}
       textarea{border:1px solid #bbb !important; background:#fff !important; color:#111 !important}
+      a{color:#000 !important; text-decoration:underline !important}
     }
   </style>
 </head>
@@ -276,7 +283,7 @@
       <div class="top-actions">
         <span class="pill" id="langPill"><strong data-i18n="lang_label">Sprache</strong>: <span id="langVal">DE</span></span>
 
-        <a class="btn" id="toPage2Btn" href="./club-promotion-tragfaehigkeit-02.html" title="Weiter">
+        <a class="btn" id="toPage2Btn" href="./club-promotion-tragfaehigkeit-02.html" title="Weiter" data-internal>
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M9 6l6 6-6 6" stroke="rgba(242,211,122,.9)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -395,6 +402,14 @@
               </p>
               <p data-i18n="s3_p3">
                 Das ist der entscheidende Hebel. Denn nach dem Abschluss beginnt nicht für den Promoter die nächste Baustelle – sondern für das neue Mitglied beginnt ein System, das Orientierung, Lernpfade und Struktur liefert. Der Promoter bleibt in seiner Rolle: Akquise, Abschluss, nächster Kontakt. So wie es in der Promotion sein muss, damit es wirtschaftlich bleibt.
+              </p>
+
+              <!-- NEU: Textlink Rechner + Formular (i18n-html, damit es nicht überschrieben wird) -->
+              <p data-i18n-html="links_promo">
+                Wer die Logik (inkl. Rechner) sehen will, findet sie hier:
+                <a href="/lp-anfang/pages/vertriebshandbuch/kapitel-35.html" data-internal>Kapitel 35 – Promotor-Rechner</a>.
+                Das Bewerbungsformular ist hier erreichbar:
+                <a href="/lp-anfang/pages/tools/promotor-onboarding-checkin.html" data-internal>Bewerbungsformular</a>.
               </p>
             </div>
           </details>
@@ -634,6 +649,8 @@
           s3_p2:"Die Aufgabe lautet nicht: Erklär das ganze Konzept. Die Aufgabe lautet nicht: Mach Support für alle. Die Aufgabe lautet: Biete die Mitgliedschaft an – fertig.",
           s3_p3:"Das ist der entscheidende Hebel. Denn nach dem Abschluss beginnt nicht für den Promoter die nächste Baustelle – sondern für das neue Mitglied beginnt ein System, das Orientierung, Lernpfade und Struktur liefert. Der Promoter bleibt in seiner Rolle: Akquise, Abschluss, nächster Kontakt. So wie es in der Promotion sein muss, damit es wirtschaftlich bleibt.",
 
+          links_promo:'Wer die Logik (inkl. Rechner) sehen will, findet sie hier: <a href="/lp-anfang/pages/vertriebshandbuch/kapitel-35.html" data-internal>Kapitel 35 – Promotor-Rechner</a>. Das Bewerbungsformular ist hier erreichbar: <a href="/lp-anfang/pages/tools/promotor-onboarding-checkin.html" data-internal>Bewerbungsformular</a>.',
+
           s4_t:"4) Was danach passiert: Das System arbeitet – nicht die Lebenszeit des Promoters",
           s4_s:"Der Promoter wird nicht zum Flaschenhals – Struktur übernimmt.",
           s4_p1:"Nach der Mitgliedschaft wird niemand festgehalten. Jeder entscheidet selbst, ob und wann er tiefer einsteigt. Genau dadurch entsteht Entlastung: Der Promoter muss nicht hinterherlaufen, niemanden ziehen und nicht über Monate erklären.",
@@ -715,6 +732,8 @@
           s3_p2:"The task is not: explain the whole concept. The task is not: do support for everyone. The task is: offer the membership — done.",
           s3_p3:"That is the decisive lever. After the closing, the next problem does not start for the promoter — the new member enters a system that provides orientation, learning paths, and structure. The promoter stays in their role: acquisition, closing, next contact. Exactly what promotion needs to remain economically viable.",
 
+          links_promo:'If you want to see the logic (including the calculator), it’s here: <a href="/lp-anfang/pages/vertriebshandbuch/kapitel-35.html" data-internal>Chapter 35 – Promoter Calculator</a>. The application form is here: <a href="/lp-anfang/pages/tools/promotor-onboarding-checkin.html" data-internal>Application form</a>.',
+
           s4_t:"4) What happens next: the system works — not the promoter’s lifetime",
           s4_s:"The promoter is not the bottleneck — structure takes over.",
           s4_p1:"After joining, nobody is held back. Everyone decides if and when they go deeper. That creates relief: the promoter does not have to chase people, pull them along, or explain for months.",
@@ -777,10 +796,21 @@
         const dict = I18N[lang] || I18N.de;
         document.documentElement.lang = (lang==="en" ? "en" : "de");
         $("langVal").textContent = (lang==="en" ? "EN" : "DE");
+
+        // normal text
         document.querySelectorAll("[data-i18n]").forEach(el=>{
           const key = el.getAttribute("data-i18n");
           if(dict[key]) el.textContent = dict[key];
         });
+
+        // html text (keeps links)
+        document.querySelectorAll("[data-i18n-html]").forEach(el=>{
+          const key = el.getAttribute("data-i18n-html");
+          if(dict[key]) el.innerHTML = dict[key];
+        });
+
+        // nocache for internal links (also inside translated HTML)
+        applyNoCache();
       }
 
       function notesLoad(){
@@ -791,6 +821,20 @@
       }
       function notesClear(){
         try{ localStorage.removeItem(NOTES_KEY); }catch(e){}
+      }
+
+      function applyNoCache(){
+        const ts = Date.now();
+        document.querySelectorAll('a[data-internal]').forEach(a=>{
+          try{
+            const href = a.getAttribute("href") || "";
+            if(!href) return;
+            if(href.startsWith("http") || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
+            const u = new URL(href, location.href);
+            u.searchParams.set("nocache", String(ts));
+            a.setAttribute("href", u.pathname + "?" + u.searchParams.toString());
+          }catch(e){}
+        });
       }
 
       const initialLang = langGet();
