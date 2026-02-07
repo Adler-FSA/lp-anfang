@@ -614,6 +614,7 @@
     │   │   ├── checkout.html
     │   │   ├── club-befaehigen-kleine-aufgaben.html
     │   │   ├── club-promotion-tragfaehigkeit-02.html
+    │   │   ├── club-promotion-tragfaehigkeit-03.html
     │   │   ├── club-promotion-tragfaehigkeit.html
     │   │   ├── club-serioesitaetsanker.html
     │   │   ├── club-sprecher-tragfaehigkeit-02.html
@@ -1027,4 +1028,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 07.02.2026, 22:19)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 07.02.2026, 23:24)_
