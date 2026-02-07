@@ -616,7 +616,9 @@
     │   │   ├── club-promotion-tragfaehigkeit-02.html
     │   │   ├── club-promotion-tragfaehigkeit.html
     │   │   ├── club-serioesitaetsanker.html
+    │   │   ├── club-sprecher-tragfaehigkeit-02.html
     │   │   ├── club-sprecher-tragfaehigkeit.html
+    │   │   ├── club-tragfaehigkeit-start.html
     │   │   ├── club.html
     │   │   ├── dokument-01-mitgliederantrag.html
     │   │   ├── dokumente.html
@@ -1025,4 +1027,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 07.02.2026, 10:19)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 07.02.2026, 11:17)_
