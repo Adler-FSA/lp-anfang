@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Club – Sprecher: FairPlay-Flow & Buchungslogik</title>
+  <meta name="description" content="Warum die Sprecher-Rolle im Club-Konzept funktioniert: Neutralität, Fix+proTN, transparente Planung, wiederholbarer Prozess und Einsatzlogik." />
+  <meta name="robots" content="noindex,nofollow" />
+
+  <style>
+    :root{
+      --bg:#050814;
+      --bg2:#020617;
+      --panel:rgba(15,23,42,.90);
+      --panel2:rgba(15,23,42,.74);
+      --txt:#e9eef7;
+      --muted:#a9b4c7;
+      --gold:#d4af37;
+      --gold2:#f2d37a;
+      --blue:#5ea8ff;
+      --line:rgba(212,175,55,.35);
+      --shadow:0 24px 60px rgba(0,0,0,.55);
+      --glow:0 0 26px rgba(212,175,55,.22), 0 10px 30px rgba(0,0,0,.55);
+      --radius:18px;
+      --maxw:1180px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      background:
+        radial-gradient(900px 520px at 18% 12%, rgba(212,175,55,.18), transparent 60%),
+        radial-gradient(900px 520px at 82% 18%, rgba(94,168,255,.16), transparent 62%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      overflow-x:hidden;
+    }
+    a{color:inherit; text-decoration:none}
+    .wrap{max-width:var(--maxw); margin:0 auto; padding:28px 18px 40px;}
+
+    header{
+      display:flex; gap:14px; align-items:flex-start; justify-content:space-between;
+      margin-bottom:16px;
+    }
+    .brand{display:flex; gap:12px; align-items:center;}
+    .logo{
+      width:46px;height:46px;border-radius:14px;
+      background:rgba(15,23,42,.55);
+      border:1px solid var(--line);
+      box-shadow:var(--glow);
+      display:grid;place-items:center;
+    }
+    .logo svg{width:28px;height:28px}
+    h1{margin:0; font-size:20px; letter-spacing:.2px}
+    .sub{margin:6px 0 0; color:var(--muted); font-size:13px; line-height:1.35}
+
+    .top-actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
+    .btn{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(15,23,42,.62);
+      box-shadow:0 10px 24px rgba(0,0,0,.35);
+      color:var(--txt);
+      cursor:pointer;
+      user-select:none;
+      font-size:13px;
+    }
+    .btn:hover{border-color:rgba(242,211,122,.55)}
+    .btn svg{width:16px;height:16px}
+
+    .pill{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:9px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(15,23,42,.56);
+      font-size:12px;
+      color:var(--muted);
+    }
+    .pill strong{color:var(--txt); font-weight:700}
+
+    .grid{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:14px;
+    }
+
+    .panel{
+      grid-column: span 12;
+      border-radius:var(--radius);
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(15,23,42,.88), rgba(15,23,42,.70));
+      box-shadow:var(--shadow);
+      padding:16px;
+      position:relative;
+      overflow:hidden;
+    }
+    .panel::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(680px 260px at 12% 0%, rgba(212,175,55,.10), transparent 55%),
+        radial-gradient(680px 260px at 92% 0%, rgba(94,168,255,.10), transparent 55%);
+      pointer-events:none;
+      opacity:.85;
+    }
+    .panel > *{position:relative}
+
+    .intro{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .intro h2{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.2px;
+      display:flex; gap:10px; align-items:center;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(94,168,255,.22);
+      background:rgba(2,6,23,.28);
+      color:var(--muted);
+      font-size:12px;
+    }
+    .badge b{color:var(--txt)}
+    .note{
+      margin-top:12px;
+      border-radius:var(--radius);
+      border:1px dashed rgba(242,211,122,.35);
+      background:rgba(15,23,42,.48);
+      padding:12px 14px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+    }
+
+    /* Accordion */
+    .acc{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
+    }
+    details.accItem{
+      border-radius:16px;
+      border:1px solid rgba(212,175,55,.18);
+      background:linear-gradient(180deg, rgba(2,6,23,.22), rgba(15,23,42,.35));
+      overflow:hidden;
+      position:relative;
+    }
+    details.accItem::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(520px 220px at 18% 0%, rgba(212,175,55,.10), transparent 60%),
+        radial-gradient(520px 220px at 92% 0%, rgba(94,168,255,.10), transparent 60%);
+      pointer-events:none;
+      opacity:.9;
+    }
+    details.accItem > *{position:relative}
+    summary{
+      list-style:none;
+      cursor:pointer;
+      user-select:none;
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    summary::-webkit-details-marker{display:none}
+    .accTitle{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width:0;
+    }
+    .accTitle strong{
+      font-size:13px;
+      letter-spacing:.2px;
+    }
+    .accTitle span{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.35;
+      overflow-wrap:anywhere;
+    }
+    .chev{
+      flex:0 0 auto;
+      width:34px;height:34px;
+      border-radius:12px;
+      border:1px solid rgba(212,175,55,.22);
+      background:rgba(2,6,23,.22);
+      display:grid;
+      place-items:center;
+    }
+    .chev svg{width:18px;height:18px}
+    details[open] .chev svg{transform:rotate(180deg)}
+    .accBody{
+      padding:0 14px 14px;
+      color:var(--txt);
+      font-size:13px;
+      line-height:1.65;
+    }
+    .accBody p{margin:10px 0 0}
+    .accBody p:first-child{margin-top:0}
+    .accBody .muted{color:var(--muted)}
+    .accBody a{
+      text-decoration:underline;
+      text-decoration-thickness:1px;
+      text-underline-offset:2px;
+    }
+
+    /* Notes */
+    .notesWrap{
+      margin-top:12px;
+      display:grid;
+      gap:10px;
+    }
+    label{display:block; font-size:12px; color:var(--muted); margin:0 0 6px}
+    textarea{
+      width:100%;
+      min-height:120px;
+      resize:vertical;
+      padding:11px 12px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.28);
+      background:rgba(2,6,23,.35);
+      color:var(--txt);
+      outline:none;
+      font-size:13px;
+      line-height:1.55;
+    }
+    .rowActions{display:flex; gap:10px; flex-wrap:wrap}
+
+    @media (max-width:980px){
+      .top-actions{justify-content:flex-start}
+    }
+
+    /* Print */
+    @media print{
+      body{background:#fff !important; color:#000 !important}
+      .top-actions, header .logo, #toggleLangBtn, #resetAllBtn, #printBtn, #clearNotesBtn, #backPage1Btn {display:none !important}
+      .wrap{max-width:none; padding:0}
+      .panel{box-shadow:none !important; border:1px solid #bbb !important; background:#fff !important}
+      .panel::before, details.accItem::before{display:none !important}
+      summary{border-bottom:1px solid #ddd}
+      .accBody{color:#111 !important}
+      .accTitle span{color:#444 !important}
+      textarea{border:1px solid #bbb !important; background:#fff !important; color:#111 !important}
+      a{color:#000 !important; text-decoration:underline !important}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 2.5l7.8 3.2v6.6c0 5.1-3.3 9.5-7.8 9.7-4.5-.2-7.8-4.6-7.8-9.7V5.7L12 2.5z" stroke="rgba(242,211,122,.95)" stroke-width="1.5"/>
+            <path d="M8.2 11.8c2.3-2.7 5.2-2.7 7.6 0" stroke="rgba(94,168,255,.85)" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M9.2 15.4c1.8 1.6 3.8 1.6 5.6 0" stroke="rgba(212,175,55,.85)" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h1 data-i18n="title">Club – Sprecher: FairPlay-Flow & Buchungslogik</h1>
+          <p class="sub" data-i18n="sub">
+            Warum die Sprecher-Rolle seriös wirkt: Neutralität, transparente Honorare und ein wiederholbarer Ablauf.
+          </p>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <span class="pill" id="langPill"><strong data-i18n="lang_label">Sprache</strong>: <span id="langVal">DE</span></span>
+
+        <button class="btn" id="toggleLangBtn" type="button" title="DE/EN">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 6h16M4 18h16" stroke="rgba(242,211,122,.9)" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M7 6c0 6 3 12 5 12s5-6 5-12" stroke="rgba(94,168,255,.8)" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="btn_lang">DE/EN</span>
+        </button>
+
+        <a class="btn" id="backPage1Btn" href="./club-sprecher-tragfaehigkeit.html" data-internal>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M14 6l-6 6 6 6" stroke="rgba(242,211,122,.9)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span data-i18n="btn_page1">Seite 1</span>
+        </a>
+
+        <button class="btn" id="printBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 8V4h10v4" stroke="rgba(242,211,122,.9)" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M7 17v3h10v-3" stroke="rgba(94,168,255,.85)" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M6 10h12a2 2 0 0 1 2 2v4H4v-4a2 2 0 0 1 2-2z" stroke="rgba(212,175,55,.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span data-i18n="btn_print">Drucken / PDF</span>
+        </button>
+
+        <button class="btn" id="resetAllBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 7h12M9 7V5.5c0-.6.4-1 1-1h4c.6 0 1 .4 1 1V7" stroke="rgba(242,211,122,.9)" stroke-width="1.4" stroke-linecap="round"/>
+            <path d="M8 7l.7 14h6.6L16 7" stroke="rgba(212,175,55,.8)" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="btn_reset_all">Alle Daten löschen</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="panel">
+        <div class="intro">
+          <h2>
+            <span class="badge"><b data-i18n="badge_reader">Leserversion</b></span>
+            <span class="badge"><b data-i18n="badge_format">Format</b>: <span data-i18n="badge_acc">Akkordeon</span></span>
+          </h2>
+        </div>
+
+        <div class="note" data-i18n="note_top">
+          Hinweis: Diese Seite zeigt die Logik als Perspektive. Niemand muss alles sofort umsetzen. Entscheidend ist, dass es einen sauberen Ablauf gibt, der über Zeit Stabilität erzeugen kann.
+        </div>
+
+        <div class="acc" id="acc">
+          <details class="accItem" open>
+            <summary>
+              <div class="accTitle">
+                <strong data-i18n="s1_t">1) Der FairPlay-Flow: Wissen wird als Leistung sichtbar – nicht als Verkaufsdruck</strong>
+                <span data-i18n="s1_s">Viele können Inhalte, aber haben nie gelernt, diese Leistung seriös zu vermarkten.</span>
+              </div>
+              <div class="chev" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M6 9l6 6 6-6" stroke="rgba(242,211,122,.9)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </summary>
+            <div class="accBody">
+              <p data-i18n="s1_p1">
+                Eine Tatsache im Markt ist, dass viele Menschen Fachwissen haben – manchmal sogar sehr viel. Aber sie haben nie darüber nachgedacht, dass Wissen eine Dienstleistung sein kann, die fair bezahlt wird. Stattdessen hängt es oft an Beziehungen, an Zufall oder an „ich kenne da jemanden“.
+              </p>
+              <p data-i18n="s1_p2">
+                Der FairPlay-Flow macht daraus eine klare Logik: Wissen wird buchbar, neutral und transparent. Das nimmt Druck aus dem Thema, weil niemand „überreden“ muss. Es gibt eine Leistung, einen Rahmen und eine faire Vergütung.
+              </p>
+            </div>
+          </details>
+
+          <details class="accItem">
+            <summary>
+              <div class="accTitle">
+                <strong data-i18n="s2_t">2) Warum Neutralität der Schlüssel ist</strong>
+                <span data-i18n="s2_s">Wenn ein Sprecher nicht vom Auftraggeber bezahlt wird, wirkt der Inhalt seriöser.</span>
+              </div>
+              <div class="chev" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M6 9l6 6 6-6" stroke="rgba(242,211,122,.9)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </summary>
+            <div class="accBody">
+              <p data-i18n="s2_p1">
+                In vielen Situationen wirkt ein Auftritt unseriös, sobald Außenstehende das Gefühl haben: „Der Sprecher ist Teil der Organisation und will am Ende Umsatz machen.“ Selbst wenn der Inhalt gut ist, bleibt ein Restzweifel – und genau dieser Restzweifel senkt die Annahmequote.
+              </p>
+              <p data-i18n="s2_p2">
+                Wenn die Vergütung nicht direkt aus der Organisation kommt, sondern über die Systemlogik läuft, wird dieser Effekt neutralisiert. Der Sprecher kann sauber auftreten, ohne dass jede Aussage wie ein verdeckter Pitch wirkt. Das macht Formate für Firmen, Vereine und Projekte leichter buchbar.
+              </p>
+            </div>
+          </details>
+
+          <details class="accItem">
+            <summary>
+              <div class="accTitle">
+                <strong data-i18n="s3_t">3) Transparenz: Fixum + pro Teilnehmendem + Deckel</strong>
+                <span data-i18n="s3_s">Planbarkeit für Auftraggeber, faire Bezahlung für den Sprecher.</span>
+              </div>
+              <div class="chev" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M6 9l6 6 6-6" stroke="rgba(242,211,122,.9)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </summary>
+            <div class="accBody">
+              <p data-i18n="s3_p1">
+                Sobald eine Logik transparent ist, entsteht Ruhe. Der Auftraggeber weiß, was ungefähr passiert, und der Sprecher weiß, wofür er bezahlt wird. Fixum plus Zuschlag pro Teilnehmendem ist leicht nachvollziehbar. Deckel sorgen dafür, dass Planung nicht „explodiert“.
+              </p>
+              <p data-i18n="s3_p2">
+                Wie diese Logik konkret gerechnet wird, ist hier transparent einsehbar: <a href="/lp-anfang/pages/vertriebshandbuch/kapitel-37.html" data-internal>Kapitel 37 – Sprecher-Honorar-Rechner</a>.
+              </p>
+            </div>
+          </details>
+
+          <details class="accItem">
+            <summary>
+              <div class="accTitle">
+                <strong data-i18n="s4_t">4) Der Einstieg ist trotzdem einfach: Erst Mitglied – dann bewerben</strong>
+                <span data-i18n="s4_s">Das System braucht Klarheit, wer wofür steht – sauber, ohne Diskussionen.</span>
+              </div>
+              <div class="chev" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M6 9l6 6 6-6" stroke="rgba(242,211,122,.9)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </summary>
+            <div class="accBody">
+              <p data-i18n="s4_p1">
+                Auch hier gilt wieder: Es gibt keine Überforderung. Ein Sprecher wird zuerst Mitglied und baut sich damit Basis-Fundament auf. Danach kann er sich als Sprecher sichtbar machen, damit das System ihn einsetzen kann, wenn Nachfrage entsteht.
+              </p>
+              <p data-i18n="s4_p2">
+                Der Check-in ist als Textlink erreichbar: <a href="/lp-anfang/pages/tools/sprecher-onboarding-checkin.html" data-internal>Bewerbungsformular</a>. Das ist der saubere Schritt, damit die Rolle eindeutig ist.
+              </p>
+            </div>
+          </details>
+
+          <details class="accItem">
+            <summary>
+              <div class="accTitle">
+                <strong data-i18n="s5_t">5) Der gleiche Ablauf wie bei Tragfähigkeit: Eine klare Aufgabe, kein Chaos</strong>
+                <span data-i18n="s5_s">Mitgliedschaften empfehlen bleibt die Kernaufgabe – Sprecher-Einsätze sind ein fairer Zusatz.</span>
+              </div>
+              <div class="chev" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M6 9l6 6 6-6" stroke="rgba(242,211,122,.9)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </summary>
+            <div class="accBody">
+              <p data-i18n="s5_p1">
+                Der Ablauf bleibt bewusst gleich und löst das Hauptproblem vieler Selbstständiger: Zuviel gleichzeitig, zu viele Rollen, zu viele unsichtbare Aufgaben. Hier bleibt die Kernaufgabe klar: Mitgliedschaft empfehlen. Das ist die tägliche, wiederholbare Tätigkeit.
+              </p>
+              <p data-i18n="s5_p2">
+                Sprecher-Einsätze sind ein zusätzlicher Vorteil, weil sie fair bezahlt und transparent gerechnet werden. Das stabilisiert Existenz, ohne dass jemand sich verzettelt.
+              </p>
+            </div>
+          </details>
+
+          <details class="accItem">
+            <summary>
+              <div class="accTitle">
+                <strong data-i18n="s6_t">6) Fazit: Tragfähigkeit entsteht, weil Basis-Fundament + Buchbarkeit zusammenkommen</strong>
+                <span data-i18n="s6_s">Die Akademie liefert Fundament, Tragfähigkeit, Skalierbarkeit und echte Perspektiven.</span>
+              </div>
+              <div class="chev" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M6 9l6 6 6-6" stroke="rgba(242,211,122,.9)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </summary>
+            <div class="accBody">
+              <p data-i18n="s6_p1">
+                Das Entscheidende ist der Kombi-Effekt: Erst liefert die Mitgliedschaft Basis-Fundament. Dann liefert das System Buchbarkeit und eine klare Logik für Honorare. Dadurch wird aus einer unsicheren Selbstständigkeit ein Aufbau, der über Zeit stabiler werden kann.
+              </p>
+              <p data-i18n="s6_p2">
+                Zur Einordnung der Honorare (Fix + pro Teilnehmendem + Deckel) siehe: <a href="/lp-anfang/pages/vertriebshandbuch/kapitel-37.html" data-internal>Kapitel 37 – Sprecher-Honorar-Rechner</a>.
+              </p>
+            </div>
+          </details>
+        </div>
+
+        <div class="notesWrap">
+          <div>
+            <label for="notes" data-i18n="notes_label">Notizen (lokal)</label>
+            <textarea id="notes" placeholder=""></textarea>
+          </div>
+          <div class="rowActions">
+            <button class="btn" id="clearNotesBtn" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M6 7h12M9 7V5.5c0-.6.4-1 1-1h4c.6 0 1 .4 1 1V7" stroke="rgba(242,211,122,.9)" stroke-width="1.4" stroke-linecap="round"/>
+                <path d="M8 7l.7 14h6.6L16 7" stroke="rgba(212,175,55,.8)" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+              <span data-i18n="btn_clear_notes">Notizen löschen</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="note" data-i18n="note_bottom">
+          Hinweis: Diese Seite speichert nur Sprache und Notizen lokal (LocalStorage). Keine Daten werden versendet.
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const LANG_KEY = "fsa_club_sprecher_tf2_lang_v1";
+      const NOTES_KEY = "fsa_club_sprecher_tf2_notes_v1";
+
+      const I18N = {
+        de:{
+          title:"Club – Sprecher: FairPlay-Flow & Buchungslogik",
+          sub:"Warum die Sprecher-Rolle seriös wirkt: Neutralität, transparente Honorare und ein wiederholbarer Ablauf.",
+          lang_label:"Sprache",
+          btn_lang:"DE/EN",
+          btn_page1:"Seite 1",
+          btn_print:"Drucken / PDF",
+          btn_reset_all:"Alle Daten löschen",
+
+          badge_reader:"Leserversion",
+          badge_format:"Format",
+          badge_acc:"Akkordeon",
+
+          note_top:"Hinweis: Diese Seite zeigt die Logik als Perspektive. Niemand muss alles sofort umsetzen. Entscheidend ist, dass es einen sauberen Ablauf gibt, der über Zeit Stabilität erzeugen kann.",
+
+          s1_t:"1) Der FairPlay-Flow: Wissen wird als Leistung sichtbar – nicht als Verkaufsdruck",
+          s1_s:"Viele können Inhalte, aber haben nie gelernt, diese Leistung seriös zu vermarkten.",
+          s1_p1:"Eine Tatsache im Markt ist, dass viele Menschen Fachwissen haben – manchmal sogar sehr viel. Aber sie haben nie darüber nachgedacht, dass Wissen eine Dienstleistung sein kann, die fair bezahlt wird. Stattdessen hängt es oft an Beziehungen, an Zufall oder an „ich kenne da jemanden“.",
+          s1_p2:"Der FairPlay-Flow macht daraus eine klare Logik: Wissen wird buchbar, neutral und transparent. Das nimmt Druck aus dem Thema, weil niemand „überreden“ muss. Es gibt eine Leistung, einen Rahmen und eine faire Vergütung.",
+
+          s2_t:"2) Warum Neutralität der Schlüssel ist",
+          s2_s:"Wenn ein Sprecher nicht vom Auftraggeber bezahlt wird, wirkt der Inhalt seriöser.",
+          s2_p1:"In vielen Situationen wirkt ein Auftritt unseriös, sobald Außenstehende das Gefühl haben: „Der Sprecher ist Teil der Organisation und will am Ende Umsatz machen.“ Selbst wenn der Inhalt gut ist, bleibt ein Restzweifel – und genau dieser Restzweifel senkt die Annahmequote.",
+          s2_p2:"Wenn die Vergütung nicht direkt aus der Organisation kommt, sondern über die Systemlogik läuft, wird dieser Effekt neutralisiert. Der Sprecher kann sauber auftreten, ohne dass jede Aussage wie ein verdeckter Pitch wirkt. Das macht Formate für Firmen, Vereine und Projekte leichter buchbar.",
+
+          s3_t:"3) Transparenz: Fixum + pro Teilnehmendem + Deckel",
+          s3_s:"Planbarkeit für Auftraggeber, faire Bezahlung für den Sprecher.",
+          s3_p1:"Sobald eine Logik transparent ist, entsteht Ruhe. Der Auftraggeber weiß, was ungefähr passiert, und der Sprecher weiß, wofür er bezahlt wird. Fixum plus Zuschlag pro Teilnehmendem ist leicht nachvollziehbar. Deckel sorgen dafür, dass Planung nicht „explodiert“.",
+          s3_p2:"Wie diese Logik konkret gerechnet wird, ist hier transparent einsehbar: Kapitel 37 – Sprecher-Honorar-Rechner.",
+
+          s4_t:"4) Der Einstieg ist trotzdem einfach: Erst Mitglied – dann bewerben",
+          s4_s:"Das System braucht Klarheit, wer wofür steht – sauber, ohne Diskussionen.",
+          s4_p1:"Auch hier gilt wieder: Es gibt keine Überforderung. Ein Sprecher wird zuerst Mitglied und baut sich damit Basis-Fundament auf. Danach kann er sich als Sprecher sichtbar machen, damit das System ihn einsetzen kann, wenn Nachfrage entsteht.",
+          s4_p2:"Der Check-in ist als Textlink erreichbar: Bewerbungsformular. Das ist der saubere Schritt, damit die Rolle eindeutig ist.",
+
+          s5_t:"5) Der gleiche Ablauf wie bei Tragfähigkeit: Eine klare Aufgabe, kein Chaos",
+          s5_s:"Mitgliedschaften empfehlen bleibt die Kernaufgabe – Sprecher-Einsätze sind ein fairer Zusatz.",
+          s5_p1:"Der Ablauf bleibt bewusst gleich und löst das Hauptproblem vieler Selbstständiger: Zuviel gleichzeitig, zu viele Rollen, zu viele unsichtbare Aufgaben. Hier bleibt die Kernaufgabe klar: Mitgliedschaft empfehlen. Das ist die tägliche, wiederholbare Tätigkeit.",
+          s5_p2:"Sprecher-Einsätze sind ein zusätzlicher Vorteil, weil sie fair bezahlt und transparent gerechnet werden. Das stabilisiert Existenz, ohne dass jemand sich verzettelt.",
+
+          s6_t:"6) Fazit: Tragfähigkeit entsteht, weil Basis-Fundament + Buchbarkeit zusammenkommen",
+          s6_s:"Die Akademie liefert Fundament, Tragfähigkeit, Skalierbarkeit und echte Perspektiven.",
+          s6_p1:"Das Entscheidende ist der Kombi-Effekt: Erst liefert die Mitgliedschaft Basis-Fundament. Dann liefert das System Buchbarkeit und eine klare Logik für Honorare. Dadurch wird aus einer unsicheren Selbstständigkeit ein Aufbau, der über Zeit stabiler werden kann.",
+          s6_p2:"Zur Einordnung der Honorare (Fix + pro Teilnehmendem + Deckel) siehe: Kapitel 37 – Sprecher-Honorar-Rechner.",
+
+          notes_label:"Notizen (lokal)",
+          btn_clear_notes:"Notizen löschen",
+          note_bottom:"Hinweis: Diese Seite speichert nur Sprache und Notizen lokal (LocalStorage). Keine Daten werden versendet.",
+
+          confirm_reset_all:"Alle gespeicherten Daten dieser Seite löschen?",
+          confirm_clear_notes:"Notizen wirklich löschen?"
+        },
+        en:{
+          title:"Club – Speakers: FairPlay flow & booking logic",
+          sub:"Why the speaker role feels credible: neutrality, transparent fees, and a repeatable process.",
+          lang_label:"Language",
+          btn_lang:"DE/EN",
+          btn_page1:"Page 1",
+          btn_print:"Print / PDF",
+          btn_reset_all:"Delete all data",
+
+          badge_reader:"Reader view",
+          badge_format:"Format",
+          badge_acc:"Accordion",
+
+          note_top:"Note: This page shows the logic as a perspective. Nobody has to implement everything immediately. What matters is a clean process that can create stability over time.",
+
+          s1_t:"1) The FairPlay flow: knowledge becomes a bookable service — not sales pressure",
+          s1_s:"Many can deliver content, but never learned to monetize it credibly.",
+          s1_p1:"A market fact: many people have expertise — sometimes a lot. But they never considered that knowledge can be a service that is paid fairly. Instead, it often depends on relationships, randomness, or 'I know someone'.",
+          s1_p2:"The FairPlay flow turns this into clear logic: knowledge becomes bookable, neutral, and transparent. That removes pressure because nobody must 'convince'. There is a service, a framework, and fair compensation.",
+
+          s2_t:"2) Why neutrality is the key",
+          s2_s:"If a speaker is not paid directly by the organizer, the message feels more credible.",
+          s2_p1:"In many situations, an appearance feels less credible as soon as outsiders sense: 'The speaker is part of the organization and wants to generate revenue.' Even if the content is good, doubt remains — and that doubt reduces acceptance.",
+          s2_p2:"If compensation does not come directly from the organization but through the system logic, this effect is neutralized. The speaker can deliver cleanly without every statement feeling like a hidden pitch. That makes formats easier to book for companies, associations, and projects.",
+
+          s3_t:"3) Transparency: base fee + per participant + cap",
+          s3_s:"Planning stability for organizers, fair pay for the speaker.",
+          s3_p1:"When logic is transparent, calm appears. The organizer knows what happens, and the speaker knows what they are paid for. Base fee plus per participant is easy to understand. Caps prevent planning from exploding.",
+          s3_p2:"See the transparent calculator here: Chapter 37 – Speaker Fee Calculator.",
+
+          s4_t:"4) Entry stays simple: member first — then onboard",
+          s4_s:"The system needs clarity on who stands for what — cleanly.",
+          s4_p1:"Again: no overwhelm. A speaker becomes a member first and builds a stable foundation. Then they can make themselves visible so the system can deploy them when demand appears.",
+          s4_p2:"The check-in is available as a text link: Application form. It’s the clean step so the role is unambiguous.",
+
+          s5_t:"5) Same sustainability logic: one clear task, no chaos",
+          s5_s:"Recommending membership stays the core — speaker deployments are a fair add-on.",
+          s5_p1:"The flow stays consistent and solves the core problem of many self-employed people: too much at once, too many roles. Here the core task stays clear: recommend membership — repeatable daily work.",
+          s5_p2:"Speaker deployments are an additional advantage because they are paid fairly and calculated transparently. That stabilizes income without distraction.",
+
+          s6_t:"6) Conclusion: stability appears when foundation and bookability meet",
+          s6_s:"The Academy delivers foundation, sustainability, scalability, real perspective.",
+          s6_p1:"The key is the combined effect: membership delivers foundation first. Then the system delivers bookability and a clear fee logic. That turns fragile self-employment into a path that can become stable over time.",
+          s6_p2:"For fee logic (base + per participant + cap), see: Chapter 37 – Speaker Fee Calculator.",
+
+          notes_label:"Notes (local)",
+          btn_clear_notes:"Delete notes",
+          note_bottom:"Note: This page only stores language and notes locally (LocalStorage). Nothing is sent.",
+
+          confirm_reset_all:"Delete all saved data on this page?",
+          confirm_clear_notes:"Delete notes now?"
+        }
+      };
+
+      const $ = (id)=>document.getElementById(id);
+
+      function langGet(){
+        const v = (localStorage.getItem(LANG_KEY) || "de").toLowerCase();
+        return v === "en" ? "en" : "de";
+      }
+      function langSet(v){ localStorage.setItem(LANG_KEY, v); }
+
+      function applyI18n(lang){
+        const dict = I18N[lang] || I18N.de;
+        document.documentElement.lang = (lang==="en" ? "en" : "de");
+        $("langVal").textContent = (lang==="en" ? "EN" : "DE");
+        document.querySelectorAll("[data-i18n]").forEach(el=>{
+          const key = el.getAttribute("data-i18n");
+          if(dict[key]) el.textContent = dict[key];
+        });
+      }
+
+      function notesLoad(){
+        try{ return String(localStorage.getItem(NOTES_KEY) || ""); }catch(e){ return ""; }
+      }
+      function notesSave(val){
+        try{ localStorage.setItem(NOTES_KEY, String(val||"")); }catch(e){}
+      }
+      function notesClear(){
+        try{ localStorage.removeItem(NOTES_KEY); }catch(e){}
+      }
+
+      function applyNoCache(){
+        const ts = Date.now();
+        document.querySelectorAll('a[data-internal]').forEach(a=>{
+          try{
+            const href = a.getAttribute("href") || "";
+            if(!href) return;
+            if(href.startsWith("http") || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
+            const u = new URL(href, location.href);
+            u.searchParams.set("nocache", String(ts));
+            a.setAttribute("href", u.pathname.replace(location.origin, "") + "?" + u.searchParams.toString());
+          }catch(e){}
+        });
+      }
+
+      // init
+      const initialLang = langGet();
+      applyI18n(initialLang);
+      applyNoCache();
+
+      const notesEl = $("notes");
+      notesEl.value = notesLoad();
+
+      $("toggleLangBtn").addEventListener("click", ()=>{
+        const next = (langGet()==="en" ? "de" : "en");
+        langSet(next);
+        applyI18n(next);
+      });
+
+      $("printBtn").addEventListener("click", ()=>window.print());
+
+      notesEl.addEventListener("input", ()=>{
+        notesSave(notesEl.value);
+      });
+
+      $("clearNotesBtn").addEventListener("click", ()=>{
+        const dict = I18N[langGet()] || I18N.de;
+        if(!confirm(dict.confirm_clear_notes)) return;
+        notesClear();
+        notesEl.value = "";
+      });
+
+      $("resetAllBtn").addEventListener("click", ()=>{
+        const dict = I18N[langGet()] || I18N.de;
+        if(!confirm(dict.confirm_reset_all)) return;
+        notesClear();
+        localStorage.removeItem(LANG_KEY);
+        notesEl.value = "";
+        applyI18n("de");
+        $("langVal").textContent = "DE";
+      });
+    })();
+  </script>
+</body>
+</html>
