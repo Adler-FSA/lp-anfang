@@ -612,6 +612,7 @@
     │   │   ├── 4-saeulen-system.html
     │   │   ├── akquise.html
     │   │   ├── checkout.html
+    │   │   ├── club-befaehigen-kleine-aufgaben.html
     │   │   ├── club-serioesitaetsanker.html
     │   │   ├── club.html
     │   │   ├── dokument-01-mitgliederantrag.html
@@ -1021,4 +1022,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 07.02.2026, 06:35)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 07.02.2026, 07:27)_
