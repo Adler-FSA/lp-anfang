@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tool – Lokaler Speicher & PDF-Backup (Erklärung)</title>
+  <meta name="description" content="Einfach erklärt: Lokaler Speicher (LocalStorage), warum Daten manchmal 'weg' wirken, und wie PDF-Backups souverän gesichert werden." />
+  <meta name="robots" content="index,follow" />
+
+  <style>
+    :root{
+      --bg:#050814;
+      --bg2:#020617;
+      --panel:rgba(15,23,42,.90);
+      --panel2:rgba(15,23,42,.74);
+      --txt:#e9eef7;
+      --muted:#a9b4c7;
+      --gold:#d4af37;
+      --gold2:#f2d37a;
+      --blue:#5ea8ff;
+      --line:rgba(212,175,55,.36);
+      --shadow:0 24px 60px rgba(0,0,0,.55);
+      --glow:0 0 26px rgba(212,175,55,.22), 0 0 52px rgba(94,168,255,.12);
+      --radius:18px;
+      --max:980px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--txt);
+      background:
+        radial-gradient(1200px 700px at 18% 12%, rgba(212,175,55,.18), transparent 55%),
+        radial-gradient(1000px 700px at 85% 18%, rgba(94,168,255,.15), transparent 55%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    a{color:var(--gold2); text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 16px 64px}
+    .topbar{
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+      margin-bottom:18px;
+    }
+
+    .brand{
+      display:flex; gap:10px; align-items:center;
+      padding:10px 12px;
+      background:linear-gradient(180deg, rgba(15,23,42,.72), rgba(15,23,42,.48));
+      border:1px solid rgba(212,175,55,.22);
+      border-radius:999px;
+      box-shadow:var(--glow);
+    }
+    .brand svg{width:18px; height:18px}
+    .brand .t1{font-weight:800; letter-spacing:.2px}
+    .brand .t2{color:var(--muted); font-size:12px; margin-top:1px}
+
+    .lang{
+      display:flex; gap:8px; align-items:center;
+      padding:10px;
+      background:linear-gradient(180deg, rgba(15,23,42,.78), rgba(15,23,42,.52));
+      border:1px solid rgba(212,175,55,.22);
+      border-radius:999px;
+      box-shadow:var(--glow);
+    }
+    .lang button{
+      appearance:none; border:1px solid rgba(212,175,55,.22);
+      background:rgba(2,6,23,.35);
+      color:var(--txt);
+      padding:8px 10px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:12px;
+    }
+    .lang button.active{
+      background:linear-gradient(180deg, rgba(212,175,55,.22), rgba(212,175,55,.10));
+      border-color:rgba(212,175,55,.45);
+      box-shadow:0 0 0 3px rgba(212,175,55,.10);
+    }
+
+    header{
+      padding:18px 18px 14px;
+      background:linear-gradient(180deg, rgba(15,23,42,.86), rgba(15,23,42,.58));
+      border:1px solid rgba(212,175,55,.28);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    header:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(800px 260px at 20% 0%, rgba(212,175,55,.18), transparent 65%),
+        radial-gradient(700px 260px at 85% 0%, rgba(94,168,255,.12), transparent 65%);
+      pointer-events:none;
+    }
+    header > *{position:relative}
+    h1{
+      margin:0 0 6px;
+      font-size:28px;
+      line-height:1.15;
+      letter-spacing:.2px;
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.45;
+    }
+
+    .topbox{
+      margin-top:14px;
+      padding:14px 14px;
+      background:linear-gradient(180deg, rgba(2,6,23,.28), rgba(2,6,23,.08));
+      border:1px solid rgba(212,175,55,.18);
+      border-radius:14px;
+    }
+    .topbox strong{color:var(--gold2)}
+    .topbox p{margin:0; color:var(--txt); line-height:1.55; font-size:14px}
+
+    nav.quick{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin:14px 0 0;
+    }
+    nav.quick a{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid rgba(212,175,55,.22);
+      background:rgba(2,6,23,.25);
+      color:var(--txt);
+      font-weight:700;
+      font-size:13px;
+    }
+    nav.quick a svg{width:16px; height:16px}
+    nav.quick a:hover{background:rgba(2,6,23,.38); text-decoration:none}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
+      margin-top:14px;
+    }
+
+    .card{
+      padding:18px 18px;
+      background:linear-gradient(180deg, rgba(15,23,42,.90), rgba(15,23,42,.70));
+      border:1px solid rgba(212,175,55,.26);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .card h2{
+      margin:0 0 10px;
+      font-size:18px;
+      letter-spacing:.2px;
+    }
+    .card h3{
+      margin:14px 0 8px;
+      font-size:15px;
+      color:var(--gold2);
+      letter-spacing:.2px;
+    }
+    .card p{
+      margin:8px 0;
+      color:var(--txt);
+      line-height:1.62;
+      font-size:14px;
+    }
+    .muted{color:var(--muted)}
+    .hr{
+      height:1px;
+      background:linear-gradient(90deg, transparent, rgba(212,175,55,.35), transparent);
+      margin:14px 0;
+    }
+
+    ul{
+      margin:10px 0 0 18px;
+      padding:0;
+    }
+    li{margin:8px 0; color:var(--txt); line-height:1.55; font-size:14px}
+    li span{color:var(--muted)}
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:12px;
+    }
+    .btn{
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.28);
+      background:rgba(2,6,23,.28);
+      color:var(--txt);
+      cursor:pointer;
+      font-weight:800;
+      letter-spacing:.2px;
+      box-shadow:0 10px 28px rgba(0,0,0,.28);
+      user-select:none;
+    }
+    .btn:hover{background:rgba(2,6,23,.40)}
+    .btn svg{width:18px;height:18px}
+    .btn.gold{
+      background:linear-gradient(180deg, rgba(212,175,55,.22), rgba(212,175,55,.10));
+      border-color:rgba(212,175,55,.45);
+      box-shadow:0 0 0 3px rgba(212,175,55,.10), 0 12px 34px rgba(0,0,0,.40);
+    }
+
+    .panel{
+      margin-top:12px;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px dashed rgba(212,175,55,.38);
+      background:rgba(2,6,23,.22);
+      color:var(--txt);
+      display:none;
+    }
+    .panel pre{
+      margin:0;
+      white-space:pre-wrap;
+      word-break:break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      line-height:1.45;
+      color:var(--txt);
+    }
+
+    .checklist{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
+    }
+    .check{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.18);
+      background:rgba(2,6,23,.20);
+    }
+    .check input{
+      margin-top:3px;
+      width:18px; height:18px;
+      accent-color: var(--gold);
+    }
+    .check label{
+      cursor:pointer;
+      line-height:1.45;
+      font-size:14px;
+    }
+    .note{
+      margin-top:10px;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(94,168,255,.22);
+      background:rgba(2,6,23,.18);
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+    }
+
+    footer{
+      margin-top:14px;
+      color:var(--muted);
+      font-size:12px;
+      text-align:center;
+      opacity:.95;
+    }
+
+    /* Print */
+    @media print{
+      body{
+        background:#fff !important;
+        color:#111 !important;
+      }
+      .topbar, .actions, .lang, nav.quick, .panel, footer{display:none !important;}
+      .wrap{max-width:900px; padding:0}
+      header, .card{
+        box-shadow:none !important;
+        border:1px solid #ccc !important;
+        background:#fff !important;
+        color:#111 !important;
+      }
+      header:before{display:none !important;}
+      h1{color:#111 !important;}
+      .sub, .muted, .note{color:#333 !important;}
+      a{color:#111 !important; text-decoration:underline}
+      .topbox{border:1px solid #ccc !important; background:#fff !important;}
+      .check{border:1px solid #ccc !important; background:#fff !important;}
+      .hr{background:#ddd !important;}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar" aria-label="Topbar">
+      <div class="brand" aria-label="FSA Tool">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2.8l7.5 3.4v6.4c0 5-3.3 8.7-7.5 9.6-4.2-.9-7.5-4.6-7.5-9.6V6.2L12 2.8Z" stroke="rgba(212,175,55,.85)" stroke-width="1.6"/>
+          <path d="M8.2 12.1l2.4 2.4 5.2-5.6" stroke="rgba(242,211,122,.95)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div>
+          <div class="t1" data-i18n="brandTitle">FSA • Tools</div>
+          <div class="t2" data-i18n="brandSub">Privat. Lokal. Kontrollierbar.</div>
+        </div>
+      </div>
+
+      <div class="lang" aria-label="Language switcher">
+        <button id="btnDE" type="button" class="active">DE</button>
+        <button id="btnEN" type="button">EN</button>
+      </div>
+    </div>
+
+    <header>
+      <h1 data-i18n="h1">Deine Daten bleiben bei dir – nicht bei uns</h1>
+      <p class="sub" data-i18n="subline">
+        Einfach erklärt: lokaler Speicher, typische Missverständnisse beim Wiedereinstieg, und saubere PDF-Backups.
+      </p>
+
+      <div class="topbox">
+        <p data-i18n="topbox">
+          <strong>Wichtig:</strong> Diese Akademie ist bewusst so gebaut, dass sie keine Datenkrake sein kann.
+          Notizen/Einstellungen bleiben – soweit möglich – lokal auf deinem Gerät und werden nicht automatisch an Server übertragen.
+          Tipp: Lege dir einen festen „FSA“-Ordner an und sichere wichtige Inhalte regelmäßig als PDF – am besten zusätzlich extern.
+        </p>
+      </div>
+
+      <nav class="quick" aria-label="Schnellnavigation">
+        <a href="#teil1">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 3.5v17" stroke="rgba(242,211,122,.92)" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M5.8 9.2c1.6-3.2 4-5 6.2-5s4.6 1.8 6.2 5" stroke="rgba(212,175,55,.75)" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="nav1">Teil 1: Was heißt „lokal“?</span>
+        </a>
+        <a href="#teil2">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 8.5h10M7 12h10M7 15.5h7" stroke="rgba(242,211,122,.92)" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M4.2 6.5c0-1.1.9-2 2-2h11.6c1.1 0 2 .9 2 2v11c0 1.1-.9 2-2 2H6.2c-1.1 0-2-.9-2-2v-11Z" stroke="rgba(212,175,55,.75)" stroke-width="1.6"/>
+          </svg>
+          <span data-i18n="nav2">Teil 2: Warum wirkt es „weg“?</span>
+        </a>
+        <a href="#teil3">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 3.8h7.6l2.4 2.6V20a1.9 1.9 0 0 1-1.9 1.9H7A1.9 1.9 0 0 1 5.1 20V5.7A1.9 1.9 0 0 1 7 3.8Z" stroke="rgba(212,175,55,.75)" stroke-width="1.6"/>
+            <path d="M9 11.2h6M9 14.6h6M9 18h4.2" stroke="rgba(242,211,122,.92)" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="nav3">Teil 3: PDF & Backup</span>
+        </a>
+      </nav>
+    </header>
+
+    <div class="grid">
+      <section id="teil1" class="card">
+        <h2 data-i18n="t1_h2">Teil 1: Was bedeutet „lokal gespeichert“?</h2>
+
+        <p data-i18n="t1_p1">
+          Viele Menschen sind heute vorsichtig. Und das ist gut so. Weil man oft erlebt hat, dass Daten gesammelt,
+          ausgewertet oder weitergegeben werden.
+        </p>
+
+        <p data-i18n="t1_p2">
+          Genau deshalb ist diese Akademie anders gebaut: Wir speichern sensible Inhalte nicht automatisch auf einem Server.
+          Wenn du hier etwas einträgst (z. B. Sprache, Notizen, Fortschritt), dann bleibt das – soweit möglich – lokal in deinem Browser.
+        </p>
+
+        <p class="muted" data-i18n="t1_p3">
+          Stell dir das wie ein Notizbuch in deinem Browser vor: Es liegt auf deinem Gerät. Wir haben keinen Zugriff darauf.
+          Niemand „liest mit“. Niemand bekommt diese Inhalte.
+        </p>
+
+        <div class="hr"></div>
+
+        <h3 data-i18n="twoAreas_h3">Zwei Bereiche. Ein Prinzip: Du behältst die Kontrolle.</h3>
+        <p data-i18n="twoAreas_p1">
+          Unsere Plattform hat zwei klar getrennte Bereiche: einen öffentlichen Bereich (Information, Einstieg, Angebote)
+          und den Akademie-Bereich im Hintergrund (Lernen, Inhalte, persönliche Notizen, Arbeitsmaterial).
+        </p>
+        <p data-i18n="twoAreas_p2">
+          Der Akademie-Bereich ist bewusst so konzipiert, dass er keine Datenkrake sein kann – denn echte Souveränität hängt auch mit Datenhoheit zusammen.
+        </p>
+
+        <div class="note" data-i18n="twoAreas_note">
+          Merksatz: Kontrolle statt Bequemlichkeitsfalle. Was wichtig ist, wird bewusst gesichert – so wie man auch Seeds nicht leichtfertig behandelt.
+        </div>
+      </section>
+
+      <section id="teil2" class="card">
+        <h2 data-i18n="t2_h2">Teil 2: Warum wirken Daten manchmal „weg“, obwohl sie noch da sind?</h2>
+
+        <p data-i18n="t2_intro">
+          Manchmal fühlt es sich so an, als wäre etwas verschwunden. In Wirklichkeit liegt es oft an typischen Browser-Situationen.
+          Hier sind die häufigsten Gründe – und die passende Lösung.
+        </p>
+
+        <h3 data-i18n="t2_h3_1">1) Du bist über einen anderen Einstieg reingekommen</h3>
+        <p data-i18n="t2_p_1">
+          Wenn du über einen alten Link, Messenger, Suchmaschine oder ein anderes Lesezeichen reinkommst, landest du nicht immer am gleichen Startpunkt.
+          Dadurch wirkt es, als wäre „nichts gespeichert“.
+        </p>
+        <p class="muted" data-i18n="t2_tip_1">
+          Tipp: Nutze einen festen Startpunkt als Favorit – dann findest du alles immer wieder.
+        </p>
+
+        <h3 data-i18n="t2_h3_2">2) Du nutzt den Privatmodus</h3>
+        <p data-i18n="t2_p_2">
+          Im Privatmodus speichern viele Browser entweder gar nicht – oder sie löschen alles automatisch, sobald du das Fenster schließt.
+        </p>
+        <p class="muted" data-i18n="t2_tip_2">
+          Tipp: Wenn Notizen bleiben sollen, nutze den normalen Browsermodus.
+        </p>
+
+        <h3 data-i18n="t2_h3_3">3) Der Browser hat aufgeräumt</h3>
+        <p data-i18n="t2_p_3">
+          Wenn Browserdaten gelöscht werden (absichtlich oder automatisch), können auch lokale Notizen dieser Seite entfernt werden.
+          Das ist die Kehrseite davon, dass die Inhalte nicht in einer Cloud liegen.
+        </p>
+
+        <div class="hr"></div>
+
+        <h3 data-i18n="t2_help_h3">Sofort-Hilfe</h3>
+        <ul>
+          <li data-i18n="t2_li1">Öffne die Seite über deinen festen Favoriten/Startpunkt.</li>
+          <li data-i18n="t2_li2">Prüfe, ob du im Privatmodus bist.</li>
+          <li data-i18n="t2_li3">Wenn du Browserdaten gelöscht hast: dann waren lokale Notizen betroffen.</li>
+        </ul>
+
+        <div class="actions" aria-label="Lokale Funktionen">
+          <button class="btn" id="btnShow" type="button">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M3 12s3.4-6.6 9-6.6 9 6.6 9 6.6-3.4 6.6-9 6.6S3 12 3 12Z" stroke="rgba(242,211,122,.92)" stroke-width="1.7"/>
+              <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z" stroke="rgba(212,175,55,.78)" stroke-width="1.7"/>
+            </svg>
+            <span data-i18n="btnShow">Meine lokalen Daten anzeigen</span>
+          </button>
+
+          <button class="btn" id="btnHide" type="button">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 5l14 14" stroke="rgba(242,211,122,.92)" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M3 12s3.4-6.6 9-6.6c2.1 0 4 .9 5.5 2.1M21 12s-3.4 6.6-9 6.6c-2.1 0-4-.9-5.5-2.1" stroke="rgba(212,175,55,.78)" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+            <span data-i18n="btnHide">Panel schließen</span>
+          </button>
+
+          <button class="btn gold" id="btnClear" type="button">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 7h10l-1 14H8L7 7Z" stroke="rgba(255,255,255,.86)" stroke-width="1.6"/>
+              <path d="M9 7V5.6c0-1 0.8-1.8 1.8-1.8h2.4c1 0 1.8.8 1.8 1.8V7" stroke="rgba(255,255,255,.86)" stroke-width="1.6"/>
+              <path d="M6 7h12" stroke="rgba(255,255,255,.86)" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            <span data-i18n="btnClear">Lokale Daten dieser Seite löschen</span>
+          </button>
+        </div>
+
+        <div id="lsPanel" class="panel" aria-live="polite" aria-label="Local data panel">
+          <pre id="lsOut"></pre>
+        </div>
+
+        <div class="note" data-i18n="t2_note">
+          Hinweis: Die Anzeige zeigt nur, was auf diesem Gerät im Browser gespeichert ist. Das wird nicht an uns übertragen.
+        </div>
+      </section>
+
+      <section id="teil3" class="card">
+        <h2 data-i18n="t3_h2">Teil 3: Lokaler Speicher & PDF-Ausdruck (sauber sichern)</h2>
+
+        <p data-i18n="t3_p1">
+          Ein PDF ist ein Schnappschuss der Seite – so, wie sie in diesem Moment aussieht.
+          Was sichtbar ist, kann ins PDF kommen. Was eingeklappt oder verborgen ist, kann fehlen.
+        </p>
+
+        <h3 data-i18n="t3_h3_1">So bekommst du saubere PDFs</h3>
+        <ul>
+          <li data-i18n="t3_li1">Öffne/klappe alle Bereiche auf, die im PDF sichtbar sein sollen.</li>
+          <li data-i18n="t3_li2">Scrolle einmal kurz durch, damit alles geladen ist.</li>
+          <li data-i18n="t3_li3">Dann „Drucken / Als PDF speichern“.</li>
+        </ul>
+
+        <div class="actions">
+          <button class="btn" id="btnPrint" type="button">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 8V4.8c0-.6.5-1.1 1.1-1.1h7.8c.6 0 1.1.5 1.1 1.1V8" stroke="rgba(242,211,122,.92)" stroke-width="1.6"/>
+              <path d="M6 16.8h12v3.1c0 .6-.5 1.1-1.1 1.1H7.1c-.6 0-1.1-.5-1.1-1.1v-3.1Z" stroke="rgba(212,175,55,.78)" stroke-width="1.6"/>
+              <path d="M6.2 10.2h11.6c1.2 0 2.2 1 2.2 2.2v2.2c0 1.2-1 2.2-2.2 2.2H6.2c-1.2 0-2.2-1-2.2-2.2v-2.2c0-1.2 1-2.2 2.2-2.2Z" stroke="rgba(212,175,55,.50)" stroke-width="1.4"/>
+              <path d="M16.6 13.2h1.2" stroke="rgba(242,211,122,.92)" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            <span data-i18n="btnPrint">Als PDF speichern (Druckansicht)</span>
+          </button>
+        </div>
+
+        <div class="hr"></div>
+
+        <h3 data-i18n="t3_h3_2">Souveränitäts-Routine (wie bei Seeds)</h3>
+        <p class="muted" data-i18n="t3_p2">
+          Weil wichtige Inhalte nicht automatisch in einer Cloud liegen, gilt: Was wertvoll ist, wird bewusst gesichert.
+          So wie man auch Seeds nicht leichtfertig behandelt.
+        </p>
+
+        <div class="checklist" role="group" aria-label="Checkliste">
+          <div class="check">
+            <input id="c1" type="checkbox" />
+            <label for="c1" data-i18n="c1">Ich habe einen Ordner „FSA – Akademie“ angelegt.</label>
+          </div>
+          <div class="check">
+            <input id="c2" type="checkbox" />
+            <label for="c2" data-i18n="c2">Ich nutze einen festen Startpunkt/Favoriten für die Akademie.</label>
+          </div>
+          <div class="check">
+            <input id="c3" type="checkbox" />
+            <label for="c3" data-i18n="c3">Ich speichere wichtige Inhalte nach jedem Abschnitt als PDF.</label>
+          </div>
+          <div class="check">
+            <input id="c4" type="checkbox" />
+            <label for="c4" data-i18n="c4">Ich lege die PDFs zusätzlich extern ab (USB/Festplatte).</label>
+          </div>
+          <div class="check">
+            <input id="c5" type="checkbox" />
+            <label for="c5" data-i18n="c5">Ich behandle wichtige Inhalte wie Seeds: lieber doppelt sichern als einmal verlieren.</label>
+          </div>
+        </div>
+
+        <div class="note" data-i18n="t3_note">
+          Tipp: Wenn du Geräte wechselst, wandern lokale Browserdaten nicht automatisch mit. PDFs sind dafür der stabilste „Mitnahme-Weg“.
+        </div>
+      </section>
+    </div>
+
+    <footer data-i18n="footer">
+      FSA Tools • Lokaler Speicher & Backup • Keine externen Ressourcen • DE/EN
+    </footer>
+  </div>
+
+  <script>
+    (function(){
+      "use strict";
+
+      // ===== i18n =====
+      const LS_LANG_KEY = "fsa_lang";
+      const LS_CHECK_KEY = "fsa_tools_localstorage_checklist_v1";
+
+      const dict = {
+        de: {
+          brandTitle:"FSA • Tools",
+          brandSub:"Privat. Lokal. Kontrollierbar.",
+
+          h1:"Deine Daten bleiben bei dir – nicht bei uns",
+          subline:"Einfach erklärt: lokaler Speicher, typische Missverständnisse beim Wiedereinstieg, und saubere PDF-Backups.",
+          topbox:"<strong>Wichtig:</strong> Diese Akademie ist bewusst so gebaut, dass sie keine Datenkrake sein kann. Notizen/Einstellungen bleiben – soweit möglich – lokal auf deinem Gerät und werden nicht automatisch an Server übertragen. Tipp: Lege dir einen festen „FSA“-Ordner an und sichere wichtige Inhalte regelmäßig als PDF – am besten zusätzlich extern.",
+
+          nav1:"Teil 1: Was heißt „lokal“?",
+          nav2:"Teil 2: Warum wirkt es „weg“?",
+          nav3:"Teil 3: PDF & Backup",
+
+          t1_h2:"Teil 1: Was bedeutet „lokal gespeichert“?",
+          t1_p1:"Viele Menschen sind heute vorsichtig. Und das ist gut so. Weil man oft erlebt hat, dass Daten gesammelt, ausgewertet oder weitergegeben werden.",
+          t1_p2:"Genau deshalb ist diese Akademie anders gebaut: Wir speichern sensible Inhalte nicht automatisch auf einem Server. Wenn du hier etwas einträgst (z. B. Sprache, Notizen, Fortschritt), dann bleibt das – soweit möglich – lokal in deinem Browser.",
+          t1_p3:"Stell dir das wie ein Notizbuch in deinem Browser vor: Es liegt auf deinem Gerät. Wir haben keinen Zugriff darauf. Niemand „liest mit“. Niemand bekommt diese Inhalte.",
+
+          twoAreas_h3:"Zwei Bereiche. Ein Prinzip: Du behältst die Kontrolle.",
+          twoAreas_p1:"Unsere Plattform hat zwei klar getrennte Bereiche: einen öffentlichen Bereich (Information, Einstieg, Angebote) und den Akademie-Bereich im Hintergrund (Lernen, Inhalte, persönliche Notizen, Arbeitsmaterial).",
+          twoAreas_p2:"Der Akademie-Bereich ist bewusst so konzipiert, dass er keine Datenkrake sein kann – denn echte Souveränität hängt auch mit Datenhoheit zusammen.",
+          twoAreas_note:"Merksatz: Kontrolle statt Bequemlichkeitsfalle. Was wichtig ist, wird bewusst gesichert – so wie man auch Seeds nicht leichtfertig behandelt.",
+
+          t2_h2:"Teil 2: Warum wirken Daten manchmal „weg“, obwohl sie noch da sind?",
+          t2_intro:"Manchmal fühlt es sich so an, als wäre etwas verschwunden. In Wirklichkeit liegt es oft an typischen Browser-Situationen. Hier sind die häufigsten Gründe – und die passende Lösung.",
+          t2_h3_1:"1) Du bist über einen anderen Einstieg reingekommen",
+          t2_p_1:"Wenn du über einen alten Link, Messenger, Suchmaschine oder ein anderes Lesezeichen reinkommst, landest du nicht immer am gleichen Startpunkt. Dadurch wirkt es, als wäre „nichts gespeichert“.",
+          t2_tip_1:"Tipp: Nutze einen festen Startpunkt als Favorit – dann findest du alles immer wieder.",
+          t2_h3_2:"2) Du nutzt den Privatmodus",
+          t2_p_2:"Im Privatmodus speichern viele Browser entweder gar nicht – oder sie löschen alles automatisch, sobald du das Fenster schließt.",
+          t2_tip_2:"Tipp: Wenn Notizen bleiben sollen, nutze den normalen Browsermodus.",
+          t2_h3_3:"3) Der Browser hat aufgeräumt",
+          t2_p_3:"Wenn Browserdaten gelöscht werden (absichtlich oder automatisch), können auch lokale Notizen dieser Seite entfernt werden. Das ist die Kehrseite davon, dass die Inhalte nicht in einer Cloud liegen.",
+
+          t2_help_h3:"Sofort-Hilfe",
+          t2_li1:"Öffne die Seite über deinen festen Favoriten/Startpunkt.",
+          t2_li2:"Prüfe, ob du im Privatmodus bist.",
+          t2_li3:"Wenn du Browserdaten gelöscht hast: dann waren lokale Notizen betroffen.",
+
+          btnShow:"Meine lokalen Daten anzeigen",
+          btnHide:"Panel schließen",
+          btnClear:"Lokale Daten dieser Seite löschen",
+          t2_note:"Hinweis: Die Anzeige zeigt nur, was auf diesem Gerät im Browser gespeichert ist. Das wird nicht an uns übertragen.",
+
+          t3_h2:"Teil 3: Lokaler Speicher & PDF-Ausdruck (sauber sichern)",
+          t3_p1:"Ein PDF ist ein Schnappschuss der Seite – so, wie sie in diesem Moment aussieht. Was sichtbar ist, kann ins PDF kommen. Was eingeklappt oder verborgen ist, kann fehlen.",
+          t3_h3_1:"So bekommst du saubere PDFs",
+          t3_li1:"Öffne/klappe alle Bereiche auf, die im PDF sichtbar sein sollen.",
+          t3_li2:"Scrolle einmal kurz durch, damit alles geladen ist.",
+          t3_li3:"Dann „Drucken / Als PDF speichern“.",
+          btnPrint:"Als PDF speichern (Druckansicht)",
+
+          t3_h3_2:"Souveränitäts-Routine (wie bei Seeds)",
+          t3_p2:"Weil wichtige Inhalte nicht automatisch in einer Cloud liegen, gilt: Was wertvoll ist, wird bewusst gesichert. So wie man auch Seeds nicht leichtfertig behandelt.",
+          c1:"Ich habe einen Ordner „FSA – Akademie“ angelegt.",
+          c2:"Ich nutze einen festen Startpunkt/Favoriten für die Akademie.",
+          c3:"Ich speichere wichtige Inhalte nach jedem Abschnitt als PDF.",
+          c4:"Ich lege die PDFs zusätzlich extern ab (USB/Festplatte).",
+          c5:"Ich behandle wichtige Inhalte wie Seeds: lieber doppelt sichern als einmal verlieren.",
+          t3_note:"Tipp: Wenn du Geräte wechselst, wandern lokale Browserdaten nicht automatisch mit. PDFs sind dafür der stabilste „Mitnahme-Weg“.",
+
+          footer:"FSA Tools • Lokaler Speicher & Backup • Keine externen Ressourcen • DE/EN"
+        },
+
+        en: {
+          brandTitle:"FSA • Tools",
+          brandSub:"Private. Local. Under your control.",
+
+          h1:"Your data stays with you — not with us",
+          subline:"Plain-English: local storage, why data can feel “missing”, and clean PDF backups.",
+          topbox:"<strong>Important:</strong> This academy is intentionally built so it cannot become a data-harvesting system. Notes/settings stay — as far as possible — locally on your device and are not automatically uploaded to servers. Tip: create a dedicated “FSA” folder and regularly save important sections as PDF — ideally also on an external drive.",
+
+          nav1:"Part 1: What does “local” mean?",
+          nav2:"Part 2: Why can it feel “gone”?",
+          nav3:"Part 3: PDF & backup",
+
+          t1_h2:"Part 1: What does “stored locally” mean?",
+          t1_p1:"People are cautious today — and that’s a good thing. Many have seen how data can be collected, analyzed, and misused.",
+          t1_p2:"That’s why this academy is built differently: sensitive content is not automatically stored on a server. When you enter something here (language, notes, progress), it stays — as far as possible — locally in your browser.",
+          t1_p3:"Think of it like a notebook inside your browser: it lives on your device. We can’t access it. Nobody is “reading along”. Nobody receives that content.",
+
+          twoAreas_h3:"Two areas. One principle: you stay in control.",
+          twoAreas_p1:"Our platform has two clearly separated areas: a public area (information, entry points, offers) and the academy area in the background (learning, content, personal notes, working material).",
+          twoAreas_p2:"The academy area is intentionally designed so it can’t turn into a data-harvesting system — because real sovereignty also includes data ownership.",
+          twoAreas_note:"Rule of thumb: control over convenience traps. If it matters, you back it up — just like you would never treat seeds casually.",
+
+          t2_h2:"Part 2: Why can data feel “missing” even if it isn’t?",
+          t2_intro:"Sometimes it feels like something disappeared. Most of the time it’s simply typical browser behavior. Here are the common reasons — and what to do.",
+          t2_h3_1:"1) You entered through a different starting point",
+          t2_p_1:"If you open the page via an old link, messenger, search engine, or a different bookmark, you don’t always land on the same starting point. That can make it feel like nothing was saved.",
+          t2_tip_1:"Tip: use one fixed starting link as your bookmark — then you’ll always find things again.",
+          t2_h3_2:"2) You are using private/incognito mode",
+          t2_p_2:"In private mode many browsers don’t store anything — or they delete it automatically when you close the window.",
+          t2_tip_2:"Tip: if you want notes to persist, use normal browsing mode.",
+          t2_h3_3:"3) The browser cleaned up",
+          t2_p_3:"If website data gets deleted (manually or automatically), local notes can be removed too. That’s the trade-off of not using a cloud account.",
+
+          t2_help_h3:"Quick help",
+          t2_li1:"Open the page via your fixed bookmark/start link.",
+          t2_li2:"Check if you’re in private/incognito mode.",
+          t2_li3:"If you recently deleted browser data, local notes were affected.",
+
+          btnShow:"Show my local data",
+          btnHide:"Close panel",
+          btnClear:"Clear this site’s local data",
+          t2_note:"Note: this shows only what’s stored in your browser on this device. Nothing is sent to us.",
+
+          t3_h2:"Part 3: Local storage & PDF export (backup properly)",
+          t3_p1:"A PDF is a snapshot of the page — exactly how it looks right now. What is visible can go into the PDF. What is collapsed/hidden may be missing.",
+          t3_h3_1:"How to get clean PDFs",
+          t3_li1:"Expand/open everything you want to appear in the PDF.",
+          t3_li2:"Scroll through once so everything loads.",
+          t3_li3:"Then choose “Print / Save as PDF”.",
+          btnPrint:"Save as PDF (print view)",
+
+          t3_h3_2:"Sovereignty routine (like seeds)",
+          t3_p2:"Because important content is not automatically stored in a cloud, the rule is: if it matters, you back it up — just like you would never handle seeds carelessly.",
+          c1:"I created an “FSA – Academy” folder.",
+          c2:"I use one fixed bookmark/start link for the academy.",
+          c3:"I save important sections as PDF after each step.",
+          c4:"I store PDFs additionally on an external drive (USB/HDD).",
+          c5:"I treat important content like seeds: better double-backup than lose it once.",
+          t3_note:"Tip: when you switch devices, local browser data doesn’t move automatically. PDFs are the most reliable way to carry your work.",
+
+          footer:"FSA Tools • Local storage & backup • No external resources • DE/EN"
+        }
+      };
+
+      function setLang(lang){
+        document.documentElement.lang = (lang === "en") ? "en" : "de";
+        localStorage.setItem(LS_LANG_KEY, lang);
+
+        const pack = dict[lang] || dict.de;
+        document.querySelectorAll("[data-i18n]").forEach(el=>{
+          const key = el.getAttribute("data-i18n");
+          if(!key) return;
+          const val = pack[key];
+          if(val == null) return;
+
+          // Allow inline <strong> in topbox
+          if (typeof val === "string" && val.indexOf("<") !== -1 && (key === "topbox")) {
+            el.innerHTML = val;
+          } else {
+            el.textContent = val;
+          }
+        });
+
+        document.getElementById("btnDE").classList.toggle("active", lang !== "en");
+        document.getElementById("btnEN").classList.toggle("active", lang === "en");
+      }
+
+      const initialLang = localStorage.getItem(LS_LANG_KEY) || "de";
+      setLang(initialLang);
+
+      document.getElementById("btnDE").addEventListener("click", ()=>setLang("de"));
+      document.getElementById("btnEN").addEventListener("click", ()=>setLang("en"));
+
+      // ===== Local data panel =====
+      const panel = document.getElementById("lsPanel");
+      const out = document.getElementById("lsOut");
+
+      function humanBytes(bytes){
+        if(bytes < 1024) return bytes + " B";
+        const kb = bytes / 1024;
+        if(kb < 1024) return kb.toFixed(1) + " KB";
+        const mb = kb / 1024;
+        return mb.toFixed(2) + " MB";
+      }
+
+      function buildLocalStorageDump(){
+        const items = [];
+        let totalBytes = 0;
+
+        for(let i=0; i<localStorage.length; i++){
+          const k = localStorage.key(i);
+          const v = localStorage.getItem(k) || "";
+          const size = (k.length + v.length) * 2; // rough UTF-16 bytes
+          totalBytes += size;
+          items.push({k, size});
+        }
+
+        items.sort((a,b)=>a.k.localeCompare(b.k));
+
+        const lines = [];
+        lines.push("Origin: " + location.origin);
+        lines.push("Path:   " + location.pathname);
+        lines.push("Items:  " + items.length);
+        lines.push("Size:   " + humanBytes(totalBytes));
+        lines.push("");
+        lines.push("Keys:");
+        if(items.length === 0){
+          lines.push("- (none)");
+        } else {
+          items.forEach(it=>{
+            lines.push("- " + it.k + "  (" + humanBytes(it.size) + ")");
+          });
+        }
+        lines.push("");
+        lines.push("Hinweis/Note:");
+        lines.push("- Das ist nur die Übersicht der Schlüssel (Keys). Inhalte werden hier nicht angezeigt.");
+        lines.push("- Nichts davon wird an Server übertragen.");
+
+        return lines.join("\n");
+      }
+
+      document.getElementById("btnShow").addEventListener("click", ()=>{
+        out.textContent = buildLocalStorageDump();
+        panel.style.display = "block";
+        panel.scrollIntoView({behavior:"smooth", block:"nearest"});
+      });
+
+      document.getElementById("btnHide").addEventListener("click", ()=>{
+        panel.style.display = "none";
+      });
+
+      document.getElementById("btnClear").addEventListener("click", ()=>{
+        const lang = localStorage.getItem(LS_LANG_KEY) || "de";
+        const msg = (lang === "en")
+          ? "This will remove local data stored by this site in your browser. Continue?"
+          : "Damit werden lokale Daten dieser Seite im Browser gelöscht. Fortfahren?";
+
+        if(!confirm(msg)) return;
+
+        // keep language? user asked clear local data "dieser Seite" – we clear all localStorage keys for origin.
+        // After clearing, restore language to current choice so UX doesn't flip unexpectedly.
+        const keepLang = localStorage.getItem(LS_LANG_KEY) || "de";
+        localStorage.clear();
+        localStorage.setItem(LS_LANG_KEY, keepLang);
+        setLang(keepLang);
+
+        // reset checklist UI
+        loadChecklist();
+        out.textContent = (keepLang === "en")
+          ? "Local data cleared."
+          : "Lokale Daten wurden gelöscht.";
+        panel.style.display = "block";
+      });
+
+      // ===== Print =====
+      document.getElementById("btnPrint").addEventListener("click", ()=>{
+        window.print();
+      });
+
+      // ===== Checklist persistence =====
+      const checks = ["c1","c2","c3","c4","c5"].map(id=>document.getElementById(id));
+
+      function loadChecklist(){
+        let saved = {};
+        try{
+          saved = JSON.parse(localStorage.getItem(LS_CHECK_KEY) || "{}") || {};
+        }catch(e){ saved = {}; }
+
+        checks.forEach(ch=>{
+          ch.checked = !!saved[ch.id];
+        });
+      }
+
+      function saveChecklist(){
+        const obj = {};
+        checks.forEach(ch=>{ obj[ch.id] = !!ch.checked; });
+        localStorage.setItem(LS_CHECK_KEY, JSON.stringify(obj));
+      }
+
+      checks.forEach(ch=>{
+        ch.addEventListener("change", saveChecklist);
+      });
+
+      loadChecklist();
+
+    })();
+  </script>
+</body>
+</html>
