@@ -24,6 +24,9 @@
       --radius:18px;
       --radius2:14px;
       --max:1100px;
+
+      /* NEW: Space reserved for the fixed footer */
+      --footerH: 86px;
     }
 
     html,body{height:100%}
@@ -105,7 +108,13 @@
       white-space:nowrap;
     }
 
-    main{max-width:var(--max);margin:22px auto 80px;padding:0 16px}
+    /* FIX: reserve space for fixed footer + iOS safe-area */
+    main{
+      max-width:var(--max);
+      margin:22px auto 0;
+      padding:0 16px calc(var(--footerH) + 34px + env(safe-area-inset-bottom));
+    }
+
     header.hero{
       padding:18px 18px 16px;
       background:linear-gradient(180deg, rgba(15,23,42,.86), rgba(15,23,42,.62));
@@ -239,7 +248,7 @@
       max-width:var(--max);
       margin:0 auto;
       display:flex;gap:10px;flex-wrap:wrap;
-      padding:10px 16px;
+      padding:10px 16px calc(10px + env(safe-area-inset-bottom)); /* FIX */
       justify-content:space-between;
       align-items:center;
     }
@@ -895,10 +904,6 @@
         window.print();
       }
 
-      function allRulesOK(d){
-        return !!(d.rule1 && d.rule2 && d.rule3 && d.rule4 && d.rule5);
-      }
-
       function channelsLine(d){
         const ig = (d.igLink||"").trim();
         const tt = (d.ttLink||"").trim();
@@ -977,8 +982,6 @@ ${name || ""}`.trim();
         const h2 = (d.hook2||"").trim() || "-";
         const h3 = (d.hook3||"").trim() || "-";
 
-        const rules = allRulesOK(d) ? (state.lang === "de" ? "OK" : "OK") : (state.lang === "de" ? "Offen" : "Pending");
-
         const textDE =
 `FSA Bewerber-Kurzprofil (Social Media / Creator)
 Name: ${name}
@@ -992,7 +995,6 @@ Stil: ${style}
 Warum FSA: ${why}
 3 Hooks: ${h1} | ${h2} | ${h3}
 14-Tage-Plan: ${plan}
-Regel-Check: ${rules}
 `.trim();
 
         const textEN =
@@ -1008,7 +1010,6 @@ Style: ${style}
 Why FSA: ${why}
 3 Hooks: ${h1} | ${h2} | ${h3}
 14-day plan: ${plan}
-Rules check: ${rules}
 `.trim();
 
         const out = (state.lang === "de") ? textDE : textEN;
@@ -1034,7 +1035,7 @@ Rules check: ${rules}
           el.id = "toast";
           el.style.position = "fixed";
           el.style.left = "50%";
-          el.style.bottom = "74px";
+          el.style.bottom = "calc(74px + env(safe-area-inset-bottom))";
           el.style.transform = "translateX(-50%)";
           el.style.padding = "10px 12px";
           el.style.borderRadius = "12px";
@@ -1337,7 +1338,6 @@ Rules check: ${rules}
         state.lang = (state.lang === "de") ? "en" : "de";
         localStorage.setItem(LANG_KEY, state.lang);
         applyI18n();
-        // UI refresh for status label language
         setSavedUI(!!localStorage.getItem(STORAGE_KEY), Date.now());
       }
 
