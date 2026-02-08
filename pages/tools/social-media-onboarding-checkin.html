@@ -28,7 +28,7 @@
       /* Space reserved for fixed footer */
       --footerH: 86px;
 
-      /* NEW: Stable field metrics (screen + print) */
+      /* Stable field metrics (screen + print) */
       --fieldH: 44px;
       --fieldPadX: 12px;
       --fieldPadY: 10px;
@@ -185,20 +185,17 @@
       flex:0 0 auto;
     }
 
-    /* ===== NEW: stable form grid ===== */
+    /* stable form grid */
     .form-grid{
       display:grid;
       grid-template-columns:1fr;
       gap:var(--gridGap);
       align-items:start;
     }
-
-    /* Critical: avoid grid min-content weirdness in PDF renderers */
     .form-grid > div{min-width:0}
 
     @media(min-width: 860px){
       .form-grid.cols-2{grid-template-columns:1fr 1fr}
-      /* make date/time slightly wider than channel */
       .form-grid.cols-3{grid-template-columns:1.15fr 1.15fr .95fr}
     }
 
@@ -210,7 +207,6 @@
       letter-spacing:.2px;
     }
 
-    /* Unified controls */
     input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="time"], input[type="number"], select, textarea{
       width:100%;
       box-sizing:border-box;
@@ -221,9 +217,10 @@
       padding:var(--fieldPadY) var(--fieldPadX);
       font-size:14px;
       outline:none;
+      min-width:0;
+      max-width:100%;
     }
 
-    /* Force consistent height for single-line controls */
     input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="time"], input[type="number"], select{
       height:var(--fieldH);
       line-height:calc(var(--fieldH) - 2px);
@@ -232,7 +229,7 @@
     }
 
     select{
-      padding-right:38px; /* room for native arrow */
+      padding-right:38px;
       -webkit-appearance:menulist;
       appearance:menulist;
     }
@@ -316,7 +313,12 @@
       .check .t, .check .t span{color:#000 !important}
       a{color:#000;text-decoration:none}
 
-      /* IMPORTANT: force stable columns in PDF regardless of viewport */
+      /* ====== FIX: Termin-Zeile sauber ohne Überlappen ======
+         In PDF: 2 Spalten (Datum/Uhrzeit), Kanal darunter volle Breite */
+      .appt3{grid-template-columns:1fr 1fr !important; gap:10px !important;}
+      .appt3 > div:nth-child(3){grid-column:1 / -1 !important;}
+
+      /* Keep other grids stable */
       .form-grid.cols-2{grid-template-columns:1fr 1fr !important}
       .form-grid.cols-3{grid-template-columns:1.15fr 1.15fr .95fr !important}
       .form-grid{gap:10px !important}
@@ -333,7 +335,6 @@
         padding-bottom:0 !important;
       }
 
-      /* Avoid blank spaces from "card must not break" */
       .card{
         page-break-inside:auto !important;
         break-inside:auto !important;
@@ -360,7 +361,6 @@
   <div class="topbar no-print">
     <div class="topbar-inner">
       <div class="brand">
-        <!-- Inline-SVG Logo -->
         <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
           <defs>
             <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
@@ -426,11 +426,11 @@
 
     <section class="grid">
 
-      <!-- 1) Termin & Basisdaten -->
       <div class="card">
         <h2><span class="nr">1</span><span data-i18n="s1.title">Termin & Basisdaten</span></h2>
 
-        <div class="form-grid cols-3">
+        <!-- CHANGED: appt3 class for PDF-safe layout -->
+        <div class="form-grid cols-3 appt3">
           <div>
             <label for="slotDate" data-i18n="s1.slotDate">Gesprächstermin (Datum)</label>
             <input id="slotDate" type="date" />
@@ -1098,7 +1098,6 @@ Why FSA: ${why}
         });
       }
 
-      // Mini toast
       let toastTimer = null;
       function toast(msg){
         let el = document.getElementById("toast");
@@ -1415,7 +1414,6 @@ Why FSA: ${why}
         setSavedUI(!!localStorage.getItem(STORAGE_KEY), Date.now());
       }
 
-      // Bind Buttons
       $("langBtn").addEventListener("click", toggleLang);
       $("printBtn").addEventListener("click", printPDF);
       $("printBtn2").addEventListener("click", printPDF);
@@ -1423,7 +1421,6 @@ Why FSA: ${why}
       $("mailBtn").addEventListener("click", makeMailto);
       $("exportBtn").addEventListener("click", copyProfile);
 
-      // Init
       applyI18n();
       load();
       bindAutoSave();
