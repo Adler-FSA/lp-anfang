@@ -25,8 +25,15 @@
       --radius2:14px;
       --max:1100px;
 
-      /* NEW: Space reserved for the fixed footer */
+      /* Space reserved for fixed footer */
       --footerH: 86px;
+
+      /* NEW: Stable field metrics (screen + print) */
+      --fieldH: 44px;
+      --fieldPadX: 12px;
+      --fieldPadY: 10px;
+      --labelGap: 6px;
+      --gridGap: 12px;
     }
 
     html,body{height:100%}
@@ -108,7 +115,6 @@
       white-space:nowrap;
     }
 
-    /* FIX: reserve space for fixed footer + iOS safe-area */
     main{
       max-width:var(--max);
       margin:22px auto 0;
@@ -158,7 +164,7 @@
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       padding:16px 16px 14px;
-      page-break-inside: avoid; /* (screen ok; print wird unten überschrieben) */
+      page-break-inside: avoid;
     }
 
     .card h2{
@@ -179,25 +185,32 @@
       flex:0 0 auto;
     }
 
+    /* ===== NEW: stable form grid ===== */
     .form-grid{
       display:grid;
       grid-template-columns:1fr;
-      gap:10px;
+      gap:var(--gridGap);
+      align-items:start;
     }
+
+    /* Critical: avoid grid min-content weirdness in PDF renderers */
+    .form-grid > div{min-width:0}
 
     @media(min-width: 860px){
       .form-grid.cols-2{grid-template-columns:1fr 1fr}
-      .form-grid.cols-3{grid-template-columns:1fr 1fr 1fr}
+      /* make date/time slightly wider than channel */
+      .form-grid.cols-3{grid-template-columns:1.15fr 1.15fr .95fr}
     }
 
     label{
       display:block;
       font-size:12px;
       color:var(--muted);
-      margin:0 0 6px;
+      margin:0 0 var(--labelGap);
       letter-spacing:.2px;
     }
 
+    /* Unified controls */
     input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="time"], input[type="number"], select, textarea{
       width:100%;
       box-sizing:border-box;
@@ -205,12 +218,32 @@
       border:1px solid rgba(212,175,55,.22);
       background:rgba(2,6,23,.60);
       color:var(--txt);
-      padding:10px 10px;
+      padding:var(--fieldPadY) var(--fieldPadX);
       font-size:14px;
       outline:none;
     }
+
+    /* Force consistent height for single-line controls */
+    input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="time"], input[type="number"], select{
+      height:var(--fieldH);
+      line-height:calc(var(--fieldH) - 2px);
+      padding-top:0;
+      padding-bottom:0;
+    }
+
+    select{
+      padding-right:38px; /* room for native arrow */
+      -webkit-appearance:menulist;
+      appearance:menulist;
+    }
+
     textarea{min-height:92px;resize:vertical;line-height:1.4}
-    input:focus, select:focus, textarea:focus{border-color:rgba(242,211,122,.55); box-shadow:0 0 0 3px rgba(212,175,55,.12)}
+
+    input:focus, select:focus, textarea:focus{
+      border-color:rgba(242,211,122,.55);
+      box-shadow:0 0 0 3px rgba(212,175,55,.12)
+    }
+
     .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     .small{font-size:12px;color:var(--muted);line-height:1.4}
     .divider{
@@ -248,7 +281,7 @@
       max-width:var(--max);
       margin:0 auto;
       display:flex;gap:10px;flex-wrap:wrap;
-      padding:10px 16px calc(10px + env(safe-area-inset-bottom)); /* FIX */
+      padding:10px 16px calc(10px + env(safe-area-inset-bottom));
       justify-content:space-between;
       align-items:center;
     }
@@ -283,7 +316,24 @@
       .check .t, .check .t span{color:#000 !important}
       a{color:#000;text-decoration:none}
 
-      /* ===== FIX: keine weißen Leerflächen durch "card darf nicht umbrechen" ===== */
+      /* IMPORTANT: force stable columns in PDF regardless of viewport */
+      .form-grid.cols-2{grid-template-columns:1fr 1fr !important}
+      .form-grid.cols-3{grid-template-columns:1.15fr 1.15fr .95fr !important}
+      .form-grid{gap:10px !important}
+
+      /* Slightly tighter metrics for print */
+      :root{
+        --fieldH: 40px;
+        --fieldPadX: 10px;
+      }
+      input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="time"], input[type="number"], select{
+        height:var(--fieldH) !important;
+        line-height:calc(var(--fieldH) - 2px) !important;
+        padding-top:0 !important;
+        padding-bottom:0 !important;
+      }
+
+      /* Avoid blank spaces from "card must not break" */
       .card{
         page-break-inside:auto !important;
         break-inside:auto !important;
@@ -296,7 +346,6 @@
         break-after:avoid !important;
         page-break-after:avoid !important;
       }
-      /* einzelne Checkbox-Zeilen möglichst zusammenhalten */
       .check{
         break-inside:avoid !important;
         page-break-inside:avoid !important;
