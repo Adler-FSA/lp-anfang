@@ -730,6 +730,8 @@
     │   │   ├── timecells-handling.html
     │   │   ├── trusttipp-handling.html
     │   │   └── trustyfy-handling.html
+    │   ├── jobangebote/
+    │   │   └── promotoren-stellenauschreibung.html
     │   ├── krypto/
     │   │   ├── krypto-glossar.html
     │   │   ├── krypto-glossary.html
@@ -1028,4 +1030,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.02.2026, 08:27)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.02.2026, 09:25)_
