@@ -732,6 +732,7 @@
     │   │   └── trustyfy-handling.html
     │   ├── jobangebote/
     │   │   ├── promotoren-stellenauschreibung.html
+    │   │   ├── quereinsteiger-stellenausschreibung.html
     │   │   ├── social-media-stellenausschreibung.html
     │   │   └── sprecher-experten-stellenausschreibung.html
     │   ├── krypto/
@@ -1033,4 +1034,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.02.2026, 19:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.02.2026, 20:20)_
