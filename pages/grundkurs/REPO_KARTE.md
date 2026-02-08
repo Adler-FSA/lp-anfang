@@ -871,6 +871,7 @@
     │   │   ├── beratermarkt-index-dach.html
     │   │   ├── dach-demand-dashboard.html
     │   │   ├── einkaufsmeile-prozess-pixel.html
+    │   │   ├── lokal-speicher-erklaerung.html
     │   │   ├── promotor-onboarding-checkin.html
     │   │   ├── social-media-onboarding-checkin.html
     │   │   ├── sprecher-onboarding-checkin.html
@@ -1034,4 +1035,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.02.2026, 22:21)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.02.2026, 23:25)_
