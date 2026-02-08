@@ -731,7 +731,9 @@
     │   │   ├── trusttipp-handling.html
     │   │   └── trustyfy-handling.html
     │   ├── jobangebote/
-    │   │   └── promotoren-stellenauschreibung.html
+    │   │   ├── promotoren-stellenauschreibung.html
+    │   │   ├── social-media-stellenausschreibung.html
+    │   │   └── sprecher-experten-stellenausschreibung.html
     │   ├── krypto/
     │   │   ├── krypto-glossar.html
     │   │   ├── krypto-glossary.html
@@ -869,6 +871,7 @@
     │   │   ├── dach-demand-dashboard.html
     │   │   ├── einkaufsmeile-prozess-pixel.html
     │   │   ├── promotor-onboarding-checkin.html
+    │   │   ├── social-media-onboarding-checkin.html
     │   │   ├── sprecher-onboarding-checkin.html
     │   │   ├── tragfaehigkeits-rechner-3-ebenen.html
     │   │   ├── visitenkarte-fsa-club.html
@@ -1030,4 +1033,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.02.2026, 09:25)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.02.2026, 11:18)_
