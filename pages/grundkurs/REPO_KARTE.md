@@ -852,6 +852,8 @@
     │   │   └── share-netzwerk.html
     │   ├── sprecher/
     │   │   └── kickoff-sprecher-tools.html
+    │   ├── statement/
+    │   │   └── vow-power.html
     │   ├── timecells/
     │   │   ├── index.html
     │   │   ├── mission.html
@@ -1037,4 +1039,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.02.2026, 11:01)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.02.2026, 11:42)_
