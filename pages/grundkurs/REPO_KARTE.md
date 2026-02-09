@@ -874,6 +874,7 @@
     │   │   ├── lokal-speicher-erklaerung.html
     │   │   ├── promotor-onboarding-checkin.html
     │   │   ├── quicklinks-hub.html
+    │   │   ├── rollup-generator-liquiditybooster-01-promotor.html
     │   │   ├── social-media-onboarding-checkin.html
     │   │   ├── sprecher-onboarding-checkin.html
     │   │   ├── tragfaehigkeits-rechner-3-ebenen.html
@@ -1036,4 +1037,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.02.2026, 07:53)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.02.2026, 08:43)_
