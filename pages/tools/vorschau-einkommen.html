@@ -181,13 +181,9 @@
       white-space:nowrap;
     }
 
-    /* recurring row highlight (NO layout change: just background + thin left edge) */
-    tr.recurring td{
-      background:var(--rec-bg);
-    }
-    tr.recurring td:first-child{
-      box-shadow: inset 4px 0 0 var(--rec-edge);
-    }
+    /* recurring row highlight */
+    tr.recurring td{ background:var(--rec-bg); }
+    tr.recurring td:first-child{ box-shadow: inset 4px 0 0 var(--rec-edge); }
     .rec-tag{
       display:inline-block;
       margin-top:6px;
@@ -208,9 +204,7 @@
       gap:10px;
       margin-bottom:12px;
     }
-    @media (max-width:520px){
-      .kpis{grid-template-columns:1fr}
-    }
+    @media (max-width:520px){ .kpis{grid-template-columns:1fr} }
     .kpi{
       border:1px solid var(--line);
       background:#fff;
@@ -236,11 +230,7 @@
       line-height:1.25;
     }
 
-    .split{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:10px;
-    }
+    .split{ display:grid; grid-template-columns:1fr; gap:10px; }
     .row{
       display:flex;
       align-items:center;
@@ -264,7 +254,6 @@
     }
     .mini{ font-size:12.5px; color:var(--muted); }
 
-    /* Year-2 panel (Tragfähigkeit) */
     .year2{
       margin-top:12px;
       border:1px solid var(--line);
@@ -297,11 +286,7 @@
       padding:3px 8px;
       white-space:nowrap;
     }
-    .year2 h3{
-      margin:0;
-      font-size:14px;
-      letter-spacing:.2px;
-    }
+    .year2 h3{ margin:0; font-size:14px; letter-spacing:.2px; }
     .year2 .desc{
       margin:0 0 10px 0;
       color:var(--muted);
@@ -314,9 +299,7 @@
       gap:10px;
       margin-bottom:10px;
     }
-    @media (max-width:520px){
-      .year2 .kpis2{grid-template-columns:1fr}
-    }
+    @media (max-width:520px){ .year2 .kpis2{grid-template-columns:1fr} }
     .year2 .kpi2{
       border:1px solid var(--line);
       border-radius:12px;
@@ -336,11 +319,7 @@
       font-variant-numeric: tabular-nums;
       white-space:nowrap;
     }
-    .year2 .rows2{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:8px;
-    }
+    .year2 .rows2{ display:grid; grid-template-columns:1fr; gap:8px; }
     .year2 .row2{
       display:flex;
       align-items:center;
@@ -377,19 +356,64 @@
       white-space:nowrap;
     }
 
-    /* PRINT / PDF */
+    /* =======================
+       PRINT / PDF (FIX)
+       ======================= */
+    @page{
+      size: A4 landscape;
+      margin: 10mm;
+    }
     @media print{
-      body{ background:#fff; }
-      .wrap{ max-width:none; padding:0; }
-      header{ margin-bottom:10px; }
-      .lang{ display:none !important; } /* buttons hidden */
+      html, body{
+        background:#fff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      /* keep the same two-column page view, but make it fit safely */
+      .wrap{
+        max-width:none !important;
+        margin:0 !important;
+        padding:0 !important;
+        transform: scale(0.97);
+        transform-origin: top left;
+      }
+
+      /* hide UI buttons */
+      .lang{ display:none !important; }
+
       .card{ box-shadow:none !important; }
-      .twrap{ max-height:none !important; overflow:visible !important; }
+
+      /* remove sticky behavior + open scroll area */
       th{ position:static !important; }
-      .btn{ display:none !important; }
-      /* keep recurring highlight printable but subtle */
-      tr.recurring td{ background:#eef3ff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .year2.hintRecurring{ background:#eef3ff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .twrap{
+        max-height:none !important;
+        overflow:visible !important;
+        border-radius:12px !important;
+      }
+
+      /* tighter table so inputs never touch the right margin */
+      table{ table-layout: fixed; }
+      th, td{
+        padding:7px 6px !important;
+        font-size:12.5px !important;
+      }
+
+      /* force numeric columns to have safe widths */
+      th:nth-child(2), td:nth-child(2){ width: 92px; }
+      th:nth-child(3), td:nth-child(3),
+      th:nth-child(4), td:nth-child(4),
+      th:nth-child(5), td:nth-child(5){ width: 72px; }
+
+      .num{
+        width:64px !important;
+        padding:6px 6px !important;
+        border-radius:9px !important;
+      }
+
+      /* keep highlight printable but subtle */
+      tr.recurring td{ background:#eef3ff !important; }
+      .year2.hintRecurring{ background:#eef3ff !important; }
     }
   </style>
 </head>
@@ -413,7 +437,6 @@
     </header>
 
     <div class="grid">
-      <!-- LEFT: INPUTS -->
       <section class="card">
         <div class="hd">
           <h2 data-i18n="inputsTitle">Eingaben (Anzahl Käufe pro Ebene)</h2>
@@ -441,17 +464,12 @@
           </div>
 
           <div class="foot">
-            <span class="mini" data-i18n="formula">
-              Formel: (Anzahl Käufe × Clubpreis) × Satz je Ebene.
-            </span>
-            <span class="mini" data-i18n="recLegend">
-              Markierung: Wiederkehrender Beitrag (Verlängerung möglich).
-            </span>
+            <span class="mini" data-i18n="formula">Formel: (Anzahl Käufe × Clubpreis) × Satz je Ebene.</span>
+            <span class="mini" data-i18n="recLegend">Markierung: Wiederkehrender Beitrag (Verlängerung möglich).</span>
           </div>
         </div>
       </section>
 
-      <!-- RIGHT: RESULTS -->
       <aside class="card">
         <div class="hd">
           <h2 data-i18n="resultsTitle">Ergebnis (Ebene 0)</h2>
@@ -471,18 +489,9 @@
           </div>
 
           <div class="split">
-            <div class="row">
-              <div class="l" data-i18n="lvl1">L1-Provision (20%)</div>
-              <div class="r" id="pL1">0,00 €</div>
-            </div>
-            <div class="row">
-              <div class="l" data-i18n="lvl2">L2-Provision (15%)</div>
-              <div class="r" id="pL2">0,00 €</div>
-            </div>
-            <div class="row">
-              <div class="l" data-i18n="lvl3">L3-Provision (10%)</div>
-              <div class="r" id="pL3">0,00 €</div>
-            </div>
+            <div class="row"><div class="l" data-i18n="lvl1">L1-Provision (20%)</div><div class="r" id="pL1">0,00 €</div></div>
+            <div class="row"><div class="l" data-i18n="lvl2">L2-Provision (15%)</div><div class="r" id="pL2">0,00 €</div></div>
+            <div class="row"><div class="l" data-i18n="lvl3">L3-Provision (10%)</div><div class="r" id="pL3">0,00 €</div></div>
           </div>
 
           <div style="height:12px"></div>
@@ -491,7 +500,6 @@
             Alle Preise sind Clubpreise (-20%). Ebene 0 ist immer die Basis: Du füllst L1 (20%), L1 füllt L2 (15% für dich), L2 füllt L3 (10% für dich).
           </div>
 
-          <!-- YEAR 2 / TRAGFÄHIGKEIT -->
           <div class="year2 hintRecurring" aria-label="Jahr 2 Verlängerung">
             <div class="cap">
               <h3 data-i18n="y2Title">Tragfähigkeit – Jahr 2 (Verlängerung)</h3>
@@ -513,18 +521,9 @@
             </div>
 
             <div class="rows2">
-              <div class="row2">
-                <div class="l" data-i18n="y2L1">Jahr-2 Provision aus L1 (20%)</div>
-                <div class="r" id="y2PL1">0,00 €</div>
-              </div>
-              <div class="row2">
-                <div class="l" data-i18n="y2L2">Jahr-2 Provision aus L2 (15%)</div>
-                <div class="r" id="y2PL2">0,00 €</div>
-              </div>
-              <div class="row2">
-                <div class="l" data-i18n="y2L3">Jahr-2 Provision aus L3 (10%)</div>
-                <div class="r" id="y2PL3">0,00 €</div>
-              </div>
+              <div class="row2"><div class="l" data-i18n="y2L1">Jahr-2 Provision aus L1 (20%)</div><div class="r" id="y2PL1">0,00 €</div></div>
+              <div class="row2"><div class="l" data-i18n="y2L2">Jahr-2 Provision aus L2 (15%)</div><div class="r" id="y2PL2">0,00 €</div></div>
+              <div class="row2"><div class="l" data-i18n="y2L3">Jahr-2 Provision aus L3 (10%)</div><div class="r" id="y2PL3">0,00 €</div></div>
             </div>
 
             <div class="sum2">
@@ -559,7 +558,6 @@
         { id:"krypto_setup",     name_de:"Krypto Setup Kurs", name_en:"Crypto Setup Course", cat_de:"COACHING", cat_en:"COACHING", price:140.00 }
       ];
 
-      // Wiederkehrend: Mitgliedschaft + beide Leadmaschinen
       const RECURRING_IDS = new Set(["membership_year","lead_starter","lead_pro"]);
 
       const $rows = document.getElementById("rows");
@@ -594,19 +592,45 @@
         return Math.floor(n);
       }
 
+      function escapeHtml(str){
+        return String(str)
+          .replaceAll("&","&amp;")
+          .replaceAll("<","&lt;")
+          .replaceAll(">","&gt;")
+          .replaceAll('"',"&quot;")
+          .replaceAll("'","&#039;");
+      }
+
+      function makeInput(pid, lvl){
+        const input = document.createElement("input");
+        input.type = "number";
+        input.min = "0";
+        input.step = "1";
+        input.inputMode = "numeric";
+        input.className = "num";
+        input.value = "0";
+        input.setAttribute("data-pid", pid);
+        input.setAttribute("data-lvl", lvl);
+        input.addEventListener("input", recalc);
+        input.addEventListener("blur", () => {
+          input.value = String(clampInt(input.value));
+          recalc();
+        });
+        return input;
+      }
+
       function renderRows(){
         $rows.innerHTML = "";
         for (const p of PRODUCTS){
           const tr = document.createElement("tr");
-          if (RECURRING_IDS.has(p.id)) tr.classList.add("recurring");
+          const isRec = RECURRING_IDS.has(p.id);
+          if (isRec) tr.classList.add("recurring");
 
           const tdP = document.createElement("td");
-          const isRec = RECURRING_IDS.has(p.id);
-
           tdP.innerHTML =
             `<span class="pname">${escapeHtml(LANG==="de" ? p.name_de : p.name_en)}</span>
              <span class="pcat">${escapeHtml(LANG==="de" ? p.cat_de : p.cat_en)}</span>
-             ${isRec ? `<span class="rec-tag" data-i18n="recTag">${escapeHtml((LANG==="de") ? "Wiederkehrend" : "Recurring")}</span>` : ""}`;
+             ${isRec ? `<span class="rec-tag">${escapeHtml(LANG==="de" ? "Wiederkehrend" : "Recurring")}</span>` : ""}`;
           tr.appendChild(tdP);
 
           const tdPrice = document.createElement("td");
@@ -631,24 +655,6 @@
 
           $rows.appendChild(tr);
         }
-      }
-
-      function makeInput(pid, lvl){
-        const input = document.createElement("input");
-        input.type = "number";
-        input.min = "0";
-        input.step = "1";
-        input.inputMode = "numeric";
-        input.className = "num";
-        input.value = "0";
-        input.setAttribute("data-pid", pid);
-        input.setAttribute("data-lvl", lvl);
-        input.addEventListener("input", recalc);
-        input.addEventListener("blur", () => {
-          input.value = String(clampInt(input.value));
-          recalc();
-        });
-        return input;
       }
 
       function recalc(){
@@ -716,8 +722,8 @@
         de: {
           title: "Vorschau Einkommensrechner (Clubpreise)",
           subtitle: "Ebene 0 (du) rechnet auf bezahlte Umsätze: L1 = 20%, L2 = 15%, L3 = 10%. Alle Preise sind Clubpreise (-20%).",
-          reset: "Zurücksetzen",
           print: "Als PDF drucken",
+          reset: "Zurücksetzen",
           inputsTitle: "Eingaben (Anzahl Käufe pro Ebene)",
           noteTop: "Hinweis: Das ist eine Vorschau auf mögliches Einkommen. Keine Garantie. Berechnung erfolgt nur auf bezahlte Umsätze.",
           thProduct: "Produkt",
@@ -727,7 +733,6 @@
           thL3: "L3",
           formula: "Formel: (Anzahl Käufe × Clubpreis) × Satz je Ebene.",
           recLegend: "Markierung: Wiederkehrender Beitrag (Verlängerung möglich).",
-          recTag: "Wiederkehrend",
           resultsTitle: "Ergebnis (Ebene 0)",
           kpiTotal: "Provision Gesamt",
           kpiTotalHint: "Summe aus L1 (20%) + L2 (15%) + L3 (10%).",
@@ -751,8 +756,8 @@
         en: {
           title: "Income Preview Calculator (Club prices)",
           subtitle: "Level 0 (you) calculates on paid revenue: L1 = 20%, L2 = 15%, L3 = 10%. All prices are club prices (-20%).",
-          reset: "Reset",
           print: "Print as PDF",
+          reset: "Reset",
           inputsTitle: "Inputs (number of purchases per level)",
           noteTop: "Note: This is a preview of possible income. No guarantee. Calculation is based on paid revenue only.",
           thProduct: "Product",
@@ -762,7 +767,6 @@
           thL3: "L3",
           formula: "Formula: (purchases × club price) × level rate.",
           recLegend: "Highlight: Recurring fee (renewal possible).",
-          recTag: "Recurring",
           resultsTitle: "Result (Level 0)",
           kpiTotal: "Total commission",
           kpiTotalHint: "Sum of L1 (20%) + L2 (15%) + L3 (10%).",
@@ -806,15 +810,6 @@
 
         renderRows();
         recalc();
-      }
-
-      function escapeHtml(str){
-        return String(str)
-          .replaceAll("&","&amp;")
-          .replaceAll("<","&lt;")
-          .replaceAll(">","&gt;")
-          .replaceAll('"',"&quot;")
-          .replaceAll("'","&#039;");
       }
 
       $langDE.addEventListener("click", () => applyLang("de"));
