@@ -884,6 +884,7 @@
     │   │   ├── visitenkarte-weiss-schwarz-2.html
     │   │   ├── visitenkarte-weiss-schwarz-generator.html
     │   │   ├── visitenkarte-weiss-schwarz-tool-2-liquiditybooster.html
+    │   │   ├── vorschau-einkommen.html
     │   │   └── zertifikat-krypto-fuehrerschein.html
     │   ├── trustyfy/
     │   │   └── fast-track.html
@@ -1039,4 +1040,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.02.2026, 07:52)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.02.2026, 08:41)_
