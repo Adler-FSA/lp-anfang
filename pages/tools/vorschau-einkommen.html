@@ -22,6 +22,9 @@
       /* recurring highlight (subtle, white/black compatible) */
       --rec-bg:#f1f6ff;
       --rec-edge:#1f3a66;
+
+      /* booster pink (Logo-Farbe) */
+      --booster:#d1007a;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -84,6 +87,18 @@
       color:#fff;
     }
     .btn.ghost{ background:transparent; }
+
+    /* Reset-Button: Booster-Pink */
+    .btn.booster{
+      border-color:var(--booster);
+      background:var(--booster);
+      color:#fff;
+    }
+    .btn.booster:active{ transform:translateY(1px); }
+    .btn.booster:focus{
+      outline:none;
+      box-shadow:0 0 0 3px rgba(209,0,122,.22);
+    }
 
     .grid{
       display:grid;
@@ -347,7 +362,7 @@
       <div class="lang" aria-label="Language">
         <button class="btn primary" id="langDE" type="button">DE</button>
         <button class="btn ghost" id="langEN" type="button">EN</button>
-        <button class="btn" id="resetBtn" type="button" data-i18n="reset">Zurücksetzen</button>
+        <button class="btn booster" id="resetBtn" type="button" data-i18n="reset">Zurücksetzen</button>
       </div>
     </header>
 
@@ -470,6 +485,13 @@
 
       const RECURRING_IDS = new Set(["membership_year","lead_starter","lead_pro"]);
 
+      // Startbild (3×3 Logik) für wiederkehrende Produkte:
+      const START_DEFAULTS = {
+        membership_year: { L1: 3, L2: 9,  L3: 27 },
+        lead_starter:    { L1: 3, L2: 9,  L3: 27 },
+        lead_pro:        { L1: 3, L2: 9,  L3: 27 }
+      };
+
       const $rows = document.getElementById("rows");
       const $kpiTotal = document.getElementById("kpiTotal");
       const $kpiRevenue = document.getElementById("kpiRevenue");
@@ -587,6 +609,25 @@
         }
       }
 
+      function setStartDefaults(){
+        // alle Felder zuerst 0
+        const inputs = $rows.querySelectorAll("input.num");
+        for (const el of inputs) el.value = "0";
+
+        // Startwerte nur für wiederkehrende Produkte setzen (3/9/27)
+        for (const pid of Object.keys(START_DEFAULTS)){
+          const d = START_DEFAULTS[pid];
+          const iL1 = $rows.querySelector(`input.num[data-pid="${pid}"][data-lvl="L1"]`);
+          const iL2 = $rows.querySelector(`input.num[data-pid="${pid}"][data-lvl="L2"]`);
+          const iL3 = $rows.querySelector(`input.num[data-pid="${pid}"][data-lvl="L3"]`);
+          if (iL1) iL1.value = String(d.L1);
+          if (iL2) iL2.value = String(d.L2);
+          if (iL3) iL3.value = String(d.L3);
+        }
+
+        recalc();
+      }
+
       function recalc(){
         let revL1 = 0, revL2 = 0, revL3 = 0;
         let revY2L1 = 0, revY2L2 = 0, revY2L3 = 0;
@@ -638,6 +679,7 @@
         $y2PL3.textContent = fmtEUR(y2ProvL3);
       }
 
+      // Pinker Reset: löscht alle Zahlen (damit eigene Werte eingetragen werden können)
       function resetAll(){
         const inputs = $rows.querySelectorAll("input.num");
         for (const el of inputs) el.value = "0";
@@ -739,7 +781,8 @@
 
       renderRows();
       applyLang("de");
-      resetAll();
+      // Startansicht (3/9/27) für wiederkehrende Produkte
+      setStartDefaults();
     })();
   </script>
 </body>
