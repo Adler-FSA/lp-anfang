@@ -182,12 +182,8 @@
     }
 
     /* recurring row highlight */
-    tr.recurring td{
-      background:var(--rec-bg);
-    }
-    tr.recurring td:first-child{
-      box-shadow: inset 4px 0 0 var(--rec-edge);
-    }
+    tr.recurring td{ background:var(--rec-bg); }
+    tr.recurring td:first-child{ box-shadow: inset 4px 0 0 var(--rec-edge); }
     .rec-tag{
       display:inline-block;
       margin-top:6px;
@@ -449,7 +445,7 @@
               <span class="badge" data-i18n="y2Badge">Wiederkehrend</span>
             </div>
             <p class="desc" data-i18n="y2Desc">
-              Diese Ansicht zeigt, was automatisch im zweiten Jahr passieren kann, wenn wiederkehrende Beiträge erneut bezahlt werden (Mitgliedschaft + beide Leadmaschinen).
+              Zusatz-Ansicht: Diese Werte entstehen nur, wenn im Folgejahr exakt dieselben wiederkehrenden Beiträge erneut bezahlt werden (Mitgliedschaft + beide Leadmaschinen). Das ist zusätzlich zu Jahr 1.
             </p>
 
             <div class="kpis2">
@@ -472,7 +468,7 @@
             <div class="sum2">
               <div>
                 <div class="lbl" data-i18n="y2CumLbl">Kumuliert (Jahr 1 + Jahr 2)</div>
-                <div class="mini" data-i18n="y2CumHint">Jahr 2 zählt nur wiederkehrende Beiträge (wenn sie erneut bezahlt werden).</div>
+                <div class="mini" data-i18n="y2CumHint">Jahr 2 zählt nur wiederkehrende Beiträge (nur wenn sie wirklich erneut bezahlt werden).</div>
               </div>
               <div class="val" id="y2CumProv">0,00 €</div>
             </div>
@@ -494,7 +490,6 @@
         { id:"kickoff_ticket",   name_de:"Kick-Off Seminar – Ticket (Frühbucher)", name_en:"Kick-Off Seminar – Ticket (early bird)", cat_de:"MITGLIEDSCHAFT", cat_en:"MEMBERSHIP", price:39.20 },
         { id:"lead_starter",     name_de:"Leadmaschine für Starter (Jahresgebühr)", name_en:"Lead machine for starters (annual fee)", cat_de:"LEADMASCHINE", cat_en:"LEAD MACHINE", price:60.00 },
 
-        /* Text-Klarstellung: 298,00 € ist Jahresgebühr, Zahlung halbjährlich */
         { id:"lead_pro",
           name_de:"Leadmaschine für Profis (Jahresgebühr – 2× halbjährlich)",
           name_en:"Lead machine for pros (annual fee – paid semi-annually)",
@@ -549,6 +544,29 @@
           .replaceAll(">","&gt;")
           .replaceAll('"',"&quot;")
           .replaceAll("'","&#039;");
+      }
+
+      function makeKey(pid,lvl){ return pid + "|" + lvl; }
+
+      function readInputsToMap(){
+        const map = {};
+        const inputs = $rows.querySelectorAll("input.num");
+        for (const el of inputs){
+          const pid = el.getAttribute("data-pid");
+          const lvl = el.getAttribute("data-lvl");
+          map[makeKey(pid,lvl)] = String(clampInt(el.value));
+        }
+        return map;
+      }
+
+      function writeInputsFromMap(map){
+        const inputs = $rows.querySelectorAll("input.num");
+        for (const el of inputs){
+          const pid = el.getAttribute("data-pid");
+          const lvl = el.getAttribute("data-lvl");
+          const k = makeKey(pid,lvl);
+          if (map[k] != null) el.value = map[k];
+        }
       }
 
       function makeInput(pid, lvl){
@@ -693,14 +711,14 @@
           noteBottom: "Alle Preise sind Clubpreise (-20%). Ebene 0 ist immer die Basis: Du füllst L1 (20%), L1 füllt L2 (15% für dich), L2 füllt L3 (10% für dich).",
           y2Title: "Tragfähigkeit – Jahr 2 (Verlängerung)",
           y2Badge: "Wiederkehrend",
-          y2Desc: "Diese Ansicht zeigt, was automatisch im zweiten Jahr passieren kann, wenn wiederkehrende Beiträge erneut bezahlt werden (Mitgliedschaft + beide Leadmaschinen).",
+          y2Desc: "Zusatz-Ansicht: Diese Werte entstehen nur, wenn im Folgejahr exakt dieselben wiederkehrenden Beiträge erneut bezahlt werden (Mitgliedschaft + beide Leadmaschinen). Das ist zusätzlich zu Jahr 1.",
           y2Rev: "Wiederkehrender Umsatz (Jahr 2)",
           y2Prov: "Wiederkehrende Provision (Jahr 2)",
           y2L1: "Jahr-2 Provision aus L1 (20%)",
           y2L2: "Jahr-2 Provision aus L2 (15%)",
           y2L3: "Jahr-2 Provision aus L3 (10%)",
           y2CumLbl: "Kumuliert (Jahr 1 + Jahr 2)",
-          y2CumHint: "Jahr 2 zählt nur wiederkehrende Beiträge (wenn sie erneut bezahlt werden)."
+          y2CumHint: "Jahr 2 zählt nur wiederkehrende Beiträge (nur wenn sie wirklich erneut bezahlt werden)."
         },
         en: {
           title: "Income Preview Calculator (Club prices)",
@@ -726,18 +744,20 @@
           noteBottom: "All prices are club prices (-20%). Level 0 is always the base: you fill L1 (20%), L1 fills L2 (15% for you), L2 fills L3 (10% for you).",
           y2Title: "Sustainability – Year 2 (Renewal)",
           y2Badge: "Recurring",
-          y2Desc: "This view shows what can happen automatically in year 2 if recurring fees are paid again (membership + both lead machines).",
+          y2Desc: "Add-on view: These values occur only if the same recurring fees are paid again in the following year (membership + both lead machines). This is additional to Year 1.",
           y2Rev: "Recurring revenue (Year 2)",
           y2Prov: "Recurring commission (Year 2)",
           y2L1: "Year-2 commission from L1 (20%)",
           y2L2: "Year-2 commission from L2 (15%)",
           y2L3: "Year-2 commission from L3 (10%)",
           y2CumLbl: "Cumulative (Year 1 + Year 2)",
-          y2CumHint: "Year 2 counts recurring fees only (if they are paid again)."
+          y2CumHint: "Year 2 counts recurring fees only (only if they are actually paid again)."
         }
       };
 
       function applyLang(next){
+        const saved = readInputsToMap();
+
         LANG = (next === "en") ? "en" : "de";
         document.documentElement.lang = LANG;
 
@@ -757,6 +777,7 @@
         }
 
         renderRows();
+        writeInputsFromMap(saved);
         recalc();
       }
 
