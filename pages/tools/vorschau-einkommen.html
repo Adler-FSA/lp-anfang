@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vorschau Einkommensrechner (Clubpreise)</title>
+  <meta name="description" content="Einkommens-Vorschau: L1 20%, L2 15%, L3 10% auf bezahlte Umsätze. Preise: Clubpreise (-20%)." />
+  <meta name="robots" content="index,follow" />
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --ink:#0b0b0b;
+      --muted:#3a3a3a;
+      --line:#d9d9d9;
+      --panel:#f6f6f6;
+      --panel2:#fbfbfb;
+      --focus:#111111;
+      --radius:14px;
+      --shadow:0 10px 24px rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:var(--bg);
+      color:var(--ink);
+    }
+    a{color:inherit}
+    .wrap{
+      max-width:1180px;
+      margin:0 auto;
+      padding:22px 16px 40px;
+    }
+    header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:14px;
+    }
+    .title{
+      margin:0;
+      font-size:22px;
+      line-height:1.2;
+      letter-spacing:.2px;
+    }
+    .sub{
+      margin:6px 0 0 0;
+      color:var(--muted);
+      font-size:13.5px;
+      line-height:1.35;
+      max-width:78ch;
+    }
+    .lang{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .btn{
+      appearance:none;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--ink);
+      padding:8px 10px;
+      border-radius:10px;
+      font-weight:600;
+      font-size:13px;
+      cursor:pointer;
+      box-shadow:none;
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{
+      border-color:var(--ink);
+      background:var(--ink);
+      color:#fff;
+    }
+    .btn.ghost{
+      background:transparent;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap:14px;
+      margin-top:12px;
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr}
+      header{flex-direction:column; align-items:stretch}
+      .lang{justify-content:flex-start}
+    }
+
+    .card{
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:var(--panel2);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:14px 14px 10px;
+      border-bottom:1px solid var(--line);
+      background:var(--panel);
+    }
+    .card .hd h2{
+      margin:0;
+      font-size:15px;
+      letter-spacing:.2px;
+    }
+    .card .bd{
+      padding:14px;
+    }
+
+    .note{
+      border:1px dashed var(--line);
+      background:#fff;
+      border-radius:12px;
+      padding:12px;
+      color:var(--muted);
+      font-size:13.5px;
+      line-height:1.35;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+    }
+    th, td{
+      border-bottom:1px solid var(--line);
+      padding:10px 8px;
+      vertical-align:middle;
+      font-size:13.5px;
+    }
+    th{
+      text-align:left;
+      font-size:12px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--muted);
+      background: #ffffff;
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+    .twrap{
+      max-height:560px;
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+    }
+
+    .pname{
+      font-weight:700;
+      display:block;
+      margin-bottom:2px;
+    }
+    .pcat{
+      font-size:12.5px;
+      color:var(--muted);
+    }
+    .price{
+      font-variant-numeric: tabular-nums;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .num{
+      width:86px;
+      max-width:100%;
+      padding:8px 8px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      outline:none;
+      background:#fff;
+      color:var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+    .num:focus{
+      border-color:var(--focus);
+      box-shadow:0 0 0 3px rgba(0,0,0,.10);
+    }
+    .right{
+      text-align:right;
+      font-variant-numeric: tabular-nums;
+      white-space:nowrap;
+    }
+
+    .kpis{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:12px;
+    }
+    @media (max-width:520px){
+      .kpis{grid-template-columns:1fr}
+    }
+    .kpi{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:12px;
+      padding:12px;
+    }
+    .kpi .lbl{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+    .kpi .val{
+      font-size:20px;
+      font-weight:800;
+      font-variant-numeric: tabular-nums;
+    }
+    .kpi .hint{
+      margin-top:6px;
+      font-size:12.5px;
+      color:var(--muted);
+      line-height:1.25;
+    }
+
+    .split{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:12px;
+      padding:10px 12px;
+    }
+    .row .l{
+      color:var(--muted);
+      font-weight:700;
+    }
+    .row .r{
+      font-weight:800;
+      font-variant-numeric: tabular-nums;
+      white-space:nowrap;
+    }
+
+    .foot{
+      margin-top:14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-start;
+    }
+
+    .mini{
+      font-size:12.5px;
+      color:var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1 class="title" data-i18n="title">Vorschau Einkommensrechner (Clubpreise)</h1>
+        <p class="sub" data-i18n="subtitle">
+          Ebene 0 (du) rechnet auf bezahlte Umsätze: L1 = 20%, L2 = 15%, L3 = 10%. Alle Preise sind Clubpreise (-20%).
+        </p>
+      </div>
+
+      <div class="lang" aria-label="Language">
+        <button class="btn primary" id="langDE" type="button">DE</button>
+        <button class="btn ghost" id="langEN" type="button">EN</button>
+        <button class="btn" id="resetBtn" type="button" data-i18n="reset">Zurücksetzen</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT: INPUTS -->
+      <section class="card">
+        <div class="hd">
+          <h2 data-i18n="inputsTitle">Eingaben (Anzahl Käufe pro Ebene)</h2>
+        </div>
+        <div class="bd">
+          <div class="note" data-i18n="noteTop">
+            Hinweis: Das ist eine Vorschau auf mögliches Einkommen. Keine Garantie. Berechnung erfolgt nur auf bezahlte Umsätze.
+          </div>
+
+          <div style="height:12px"></div>
+
+          <div class="twrap" role="region" aria-label="Rechner Tabelle">
+            <table>
+              <thead>
+                <tr>
+                  <th data-i18n="thProduct">Produkt</th>
+                  <th class="right" data-i18n="thPrice">Clubpreis</th>
+                  <th class="right" data-i18n="thL1">L1</th>
+                  <th class="right" data-i18n="thL2">L2</th>
+                  <th class="right" data-i18n="thL3">L3</th>
+                </tr>
+              </thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+
+          <div class="foot">
+            <span class="mini" data-i18n="formula">
+              Formel: (Anzahl Käufe × Clubpreis) × Satz je Ebene.
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: RESULTS -->
+      <aside class="card">
+        <div class="hd">
+          <h2 data-i18n="resultsTitle">Ergebnis (Ebene 0)</h2>
+        </div>
+        <div class="bd">
+          <div class="kpis">
+            <div class="kpi">
+              <div class="lbl" data-i18n="kpiTotal">Provision Gesamt</div>
+              <div class="val" id="kpiTotal">0,00 €</div>
+              <div class="hint" data-i18n="kpiTotalHint">Summe aus L1 (20%) + L2 (15%) + L3 (10%).</div>
+            </div>
+            <div class="kpi">
+              <div class="lbl" data-i18n="kpiPaid">Bezahlter Umsatz (gesamt)</div>
+              <div class="val" id="kpiRevenue">0,00 €</div>
+              <div class="hint" data-i18n="kpiPaidHint">Summe aller eingegebenen Käufe × Clubpreise (L1+L2+L3).</div>
+            </div>
+          </div>
+
+          <div class="split">
+            <div class="row">
+              <div class="l" data-i18n="lvl1">L1-Provision (20%)</div>
+              <div class="r" id="pL1">0,00 €</div>
+            </div>
+            <div class="row">
+              <div class="l" data-i18n="lvl2">L2-Provision (15%)</div>
+              <div class="r" id="pL2">0,00 €</div>
+            </div>
+            <div class="row">
+              <div class="l" data-i18n="lvl3">L3-Provision (10%)</div>
+              <div class="r" id="pL3">0,00 €</div>
+            </div>
+          </div>
+
+          <div style="height:12px"></div>
+
+          <div class="note" id="noteBottom" data-i18n="noteBottom">
+            Alle Preise sind Clubpreise (-20%). Ebene 0 ist immer die Basis: Du füllst L1 (20%), L1 füllt L2 (15% für dich), L2 füllt L3 (10% für dich).
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      "use strict";
+
+      // Provision rates for Ebene 0
+      const RATES = { L1: 0.20, L2: 0.15, L3: 0.10 };
+
+      // Products (ONLY Club prices) — exact values from user
+      const PRODUCTS = [
+        { id:"membership_year", name_de:"Club-Mitgliedschaft (Jahresgebühr)", name_en:"Club Membership (annual fee)", cat_de:"MITGLIEDSCHAFT", cat_en:"MEMBERSHIP", price:60.00 },
+        { id:"kickoff_ticket",   name_de:"Kick-Off Seminar – Ticket (Frühbucher)", name_en:"Kick-Off Seminar – Ticket (early bird)", cat_de:"MITGLIEDSCHAFT", cat_en:"MEMBERSHIP", price:39.20 },
+        { id:"lead_starter",     name_de:"Leadmaschine für Starter (Jahresgebühr)", name_en:"Lead machine for starters (annual fee)", cat_de:"LEADMASCHINE", cat_en:"LEAD MACHINE", price:60.00 },
+        { id:"lead_pro",         name_de:"Leadmaschine für Profis (Halbjahresgebühr)", name_en:"Lead machine for pros (half-year fee)", cat_de:"LEADMASCHINE", cat_en:"LEAD MACHINE", price:149.00 },
+        { id:"weekend_setup",    name_de:"Weekend-Setup (2-Tage-Workshop)", name_en:"Weekend Setup (2-day workshop)", cat_de:"COACHING", cat_en:"COACHING", price:399.00 },
+        { id:"nft_course",       name_de:"NFT Kurs", name_en:"NFT Course", cat_de:"COACHING", cat_en:"COACHING", price:160.00 },
+        { id:"book",             name_de:"Buch „Die Rückeroberung der eigenen Souveränität“", name_en:"Book “Reclaiming Your Sovereignty”", cat_de:"COACHING", cat_en:"COACHING", price:31.20 },
+        { id:"trading_course",   name_de:"Tradingkurs", name_en:"Trading Course", cat_de:"COACHING", cat_en:"COACHING", price:180.00 },
+        { id:"krypto_setup",     name_de:"Krypto Setup Kurs", name_en:"Crypto Setup Course", cat_de:"COACHING", cat_en:"COACHING", price:140.00 }
+      ];
+
+      const $rows = document.getElementById("rows");
+      const $kpiTotal = document.getElementById("kpiTotal");
+      const $kpiRevenue = document.getElementById("kpiRevenue");
+      const $pL1 = document.getElementById("pL1");
+      const $pL2 = document.getElementById("pL2");
+      const $pL3 = document.getElementById("pL3");
+
+      const $langDE = document.getElementById("langDE");
+      const $langEN = document.getElementById("langEN");
+      const $resetBtn = document.getElementById("resetBtn");
+
+      let LANG = "de";
+
+      function fmtEUR(n){
+        const locale = (LANG === "de") ? "de-DE" : "en-GB";
+        return new Intl.NumberFormat(locale, { style:"currency", currency:"EUR" }).format(n);
+      }
+
+      function clampInt(v){
+        const n = Number(v);
+        if (!Number.isFinite(n) || n < 0) return 0;
+        return Math.floor(n);
+      }
+
+      function renderRows(){
+        $rows.innerHTML = "";
+        for (const p of PRODUCTS){
+          const tr = document.createElement("tr");
+
+          const tdP = document.createElement("td");
+          tdP.innerHTML =
+            `<span class="pname">${escapeHtml(LANG==="de" ? p.name_de : p.name_en)}</span>
+             <span class="pcat">${escapeHtml(LANG==="de" ? p.cat_de : p.cat_en)}</span>`;
+          tr.appendChild(tdP);
+
+          const tdPrice = document.createElement("td");
+          tdPrice.className = "right price";
+          tdPrice.textContent = fmtEUR(p.price);
+          tr.appendChild(tdPrice);
+
+          const tdL1 = document.createElement("td");
+          tdL1.className = "right";
+          tdL1.appendChild(makeInput(p.id, "L1"));
+          tr.appendChild(tdL1);
+
+          const tdL2 = document.createElement("td");
+          tdL2.className = "right";
+          tdL2.appendChild(makeInput(p.id, "L2"));
+          tr.appendChild(tdL2);
+
+          const tdL3 = document.createElement("td");
+          tdL3.className = "right";
+          tdL3.appendChild(makeInput(p.id, "L3"));
+          tr.appendChild(tdL3);
+
+          $rows.appendChild(tr);
+        }
+      }
+
+      function makeInput(pid, lvl){
+        const input = document.createElement("input");
+        input.type = "number";
+        input.min = "0";
+        input.step = "1";
+        input.inputMode = "numeric";
+        input.className = "num";
+        input.value = "0";
+        input.setAttribute("data-pid", pid);
+        input.setAttribute("data-lvl", lvl);
+        input.addEventListener("input", recalc);
+        input.addEventListener("blur", () => {
+          input.value = String(clampInt(input.value));
+          recalc();
+        });
+        return input;
+      }
+
+      function recalc(){
+        let revL1 = 0, revL2 = 0, revL3 = 0;
+
+        const inputs = $rows.querySelectorAll("input.num");
+        for (const el of inputs){
+          const pid = el.getAttribute("data-pid");
+          const lvl = el.getAttribute("data-lvl");
+          const p = PRODUCTS.find(x => x.id === pid);
+          if (!p) continue;
+
+          const qty = clampInt(el.value);
+          const revenue = qty * p.price;
+
+          if (lvl === "L1") revL1 += revenue;
+          else if (lvl === "L2") revL2 += revenue;
+          else if (lvl === "L3") revL3 += revenue;
+        }
+
+        const provL1 = revL1 * RATES.L1;
+        const provL2 = revL2 * RATES.L2;
+        const provL3 = revL3 * RATES.L3;
+
+        const totalProv = provL1 + provL2 + provL3;
+        const totalRev = revL1 + revL2 + revL3;
+
+        $pL1.textContent = fmtEUR(provL1);
+        $pL2.textContent = fmtEUR(provL2);
+        $pL3.textContent = fmtEUR(provL3);
+
+        $kpiTotal.textContent = fmtEUR(totalProv);
+        $kpiRevenue.textContent = fmtEUR(totalRev);
+      }
+
+      function resetAll(){
+        const inputs = $rows.querySelectorAll("input.num");
+        for (const el of inputs) el.value = "0";
+        recalc();
+      }
+
+      // Minimal i18n via data-i18n keys
+      const I18N = {
+        de: {
+          title: "Vorschau Einkommensrechner (Clubpreise)",
+          subtitle: "Ebene 0 (du) rechnet auf bezahlte Umsätze: L1 = 20%, L2 = 15%, L3 = 10%. Alle Preise sind Clubpreise (-20%).",
+          reset: "Zurücksetzen",
+          inputsTitle: "Eingaben (Anzahl Käufe pro Ebene)",
+          noteTop: "Hinweis: Das ist eine Vorschau auf mögliches Einkommen. Keine Garantie. Berechnung erfolgt nur auf bezahlte Umsätze.",
+          thProduct: "Produkt",
+          thPrice: "Clubpreis",
+          thL1: "L1",
+          thL2: "L2",
+          thL3: "L3",
+          formula: "Formel: (Anzahl Käufe × Clubpreis) × Satz je Ebene.",
+          resultsTitle: "Ergebnis (Ebene 0)",
+          kpiTotal: "Provision Gesamt",
+          kpiTotalHint: "Summe aus L1 (20%) + L2 (15%) + L3 (10%).",
+          kpiPaid: "Bezahlter Umsatz (gesamt)",
+          kpiPaidHint: "Summe aller eingegebenen Käufe × Clubpreise (L1+L2+L3).",
+          lvl1: "L1-Provision (20%)",
+          lvl2: "L2-Provision (15%)",
+          lvl3: "L3-Provision (10%)",
+          noteBottom: "Alle Preise sind Clubpreise (-20%). Ebene 0 ist immer die Basis: Du füllst L1 (20%), L1 füllt L2 (15% für dich), L2 füllt L3 (10% für dich)."
+        },
+        en: {
+          title: "Income Preview Calculator (Club prices)",
+          subtitle: "Level 0 (you) calculates on paid revenue: L1 = 20%, L2 = 15%, L3 = 10%. All prices are club prices (-20%).",
+          reset: "Reset",
+          inputsTitle: "Inputs (number of purchases per level)",
+          noteTop: "Note: This is a preview of possible income. No guarantee. Calculation is based on paid revenue only.",
+          thProduct: "Product",
+          thPrice: "Club price",
+          thL1: "L1",
+          thL2: "L2",
+          thL3: "L3",
+          formula: "Formula: (purchases × club price) × level rate.",
+          resultsTitle: "Result (Level 0)",
+          kpiTotal: "Total commission",
+          kpiTotalHint: "Sum of L1 (20%) + L2 (15%) + L3 (10%).",
+          kpiPaid: "Paid revenue (total)",
+          kpiPaidHint: "Sum of all entered purchases × club prices (L1+L2+L3).",
+          lvl1: "L1 commission (20%)",
+          lvl2: "L2 commission (15%)",
+          lvl3: "L3 commission (10%)",
+          noteBottom: "All prices are club prices (-20%). Level 0 is always the base: you fill L1 (20%), L1 fills L2 (15% for you), L2 fills L3 (10% for you)."
+        }
+      };
+
+      function applyLang(next){
+        LANG = (next === "en") ? "en" : "de";
+        document.documentElement.lang = LANG;
+
+        // buttons
+        if (LANG === "de"){
+          $langDE.classList.add("primary");
+          $langDE.classList.remove("ghost");
+          $langEN.classList.remove("primary");
+          $langEN.classList.add("ghost");
+        } else {
+          $langEN.classList.add("primary");
+          $langEN.classList.remove("ghost");
+          $langDE.classList.remove("primary");
+          $langDE.classList.add("ghost");
+        }
+
+        // text
+        const dict = I18N[LANG];
+        const nodes = document.querySelectorAll("[data-i18n]");
+        for (const n of nodes){
+          const key = n.getAttribute("data-i18n");
+          if (dict[key] != null) n.textContent = dict[key];
+        }
+
+        // rerender product names/categories and prices formatting
+        renderRows();
+        recalc();
+      }
+
+      function escapeHtml(str){
+        return String(str)
+          .replaceAll("&","&amp;")
+          .replaceAll("<","&lt;")
+          .replaceAll(">","&gt;")
+          .replaceAll('"',"&quot;")
+          .replaceAll("'","&#039;");
+      }
+
+      // events
+      $langDE.addEventListener("click", () => applyLang("de"));
+      $langEN.addEventListener("click", () => applyLang("en"));
+      $resetBtn.addEventListener("click", resetAll);
+
+      // init
+      renderRows();
+      applyLang("de");
+      resetAll();
+    })();
+  </script>
+</body>
+</html>
