@@ -608,6 +608,8 @@
     │   │   └── template-kapitel.html
     │   ├── campus/
     │   │   └── page.json
+    │   ├── ceo/
+    │   │   └── termin.html
     │   ├── club/
     │   │   ├── 4-saeulen-system.html
     │   │   ├── akquise.html
@@ -1043,4 +1045,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.02.2026, 20:29)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.02.2026, 21:28)_
