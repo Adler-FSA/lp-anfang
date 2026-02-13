@@ -713,6 +713,10 @@
     │   │   ├── ROLE_TECHNISCHER_UMSETZER.md
     │   │   ├── grundkurs1-prototyp.html
     │   │   └── page.json
+    │   ├── gut-zu-wissen/
+    │   │   ├── beweisrealitaet.html
+    │   │   ├── fallmuster.html
+    │   │   └── mica-strafrecht.html
     │   ├── hoersaal/
     │   │   ├── webinare-buchen-02-ueberblick.html
     │   │   ├── webinare-buchen-03-webinare.html
@@ -1047,4 +1051,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.02.2026, 19:38)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.02.2026, 20:32)_
