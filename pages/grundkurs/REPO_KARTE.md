@@ -993,6 +993,7 @@
     │   ├── admin-config.json
     │   ├── affiliate-magazin.html
     │   ├── community.html
+    │   ├── gut-zu-wissen.html
     │   ├── lesespuren-und-vertiefung.html
     │   ├── mentoren.html
     │   ├── neutral-zu-100.html
@@ -1046,4 +1047,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.02.2026, 17:36)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.02.2026, 18:39)_
