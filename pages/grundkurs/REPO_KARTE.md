@@ -232,6 +232,7 @@
     │   │   ├── index.json
     │   │   ├── kick-of-01.jpeg
     │   │   ├── kick-of-02.jpeg
+    │   │   ├── michael-rau.jpeg
     │   │   ├── most innovative web3 project.jpeg
     │   │   ├── siegel.png
     │   │   ├── so-kaufst-du-ito-video06.jpeg
@@ -609,6 +610,7 @@
     │   ├── campus/
     │   │   └── page.json
     │   ├── ceo/
+    │   │   ├── hallo.html
     │   │   └── termin.html
     │   ├── club/
     │   │   ├── 4-saeulen-system.html
@@ -1057,4 +1059,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.02.2026, 20:19)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.02.2026, 21:18)_
