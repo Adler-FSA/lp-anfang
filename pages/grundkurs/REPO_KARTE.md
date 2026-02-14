@@ -683,6 +683,12 @@
     │   │       ├── leitfaden-03-unternehmer-verein.html
     │   │       ├── leitfaden-04-aufbaupartner.html
     │   │       └── leitfaden-05-sprecher.html
+    │   ├── faq/
+    │   │   ├── faq/
+    │   │   │   └── einkommen-auszahlung.html
+    │   │   ├── bestellung-mitgliedschaft.html
+    │   │   ├── einkommen-auszahlung.html
+    │   │   └── index.html
     │   ├── footer/
     │   │   ├── community.html
     │   │   ├── impressum.html
@@ -1051,4 +1057,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.02.2026, 09:25)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.02.2026, 10:20)_
