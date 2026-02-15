@@ -228,6 +228,7 @@
     │   │   ├── timecells/
     │   │   │   └── onboarding/
     │   │   ├── README.txt
+    │   │   ├── ceo-bausteine.PNG
     │   │   ├── frohe-weihnachten.jpg
     │   │   ├── index.json
     │   │   ├── kick-of-01.jpeg
@@ -1059,4 +1060,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.02.2026, 08:27)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.02.2026, 09:26)_
