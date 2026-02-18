@@ -1014,6 +1014,7 @@
     │   ├── office-tools.html
     │   ├── office.html
     │   ├── presse.html
+    │   ├── profi-nachweis.html
     │   ├── social.html
     │   ├── souveraenitaet.html
     │   ├── timecells.html
@@ -1062,4 +1063,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 18.02.2026, 11:34)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 18.02.2026, 12:53)_
