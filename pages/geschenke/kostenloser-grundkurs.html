@@ -48,6 +48,7 @@
 
     .hero{
       padding: 26px;
+      position: relative;
     }
 
     h1{
@@ -64,6 +65,36 @@
       max-width: 980px;
       font-size: 15.5px;
     }
+
+    /* ===== Language Toggle (DE/EN) ===== */
+    .lang-toggle{
+      position:absolute;
+      top: 18px;
+      right: 18px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      z-index: 5;
+    }
+    .lang-btn{
+      width:44px;
+      height:34px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius: 10px;
+      border: 1px solid rgba(212,175,55,.42);
+      background: rgba(0,0,0,.28);
+      box-shadow: 0 0 18px rgba(212,175,55,.10);
+      cursor:pointer;
+      padding:0;
+    }
+    .lang-btn[aria-pressed="true"]{
+      background: rgba(212,175,55,.14);
+      border-color: rgba(212,175,55,.65);
+      box-shadow: 0 0 22px rgba(212,175,55,.18);
+    }
+    .lang-btn svg{ display:block; }
 
     /* ===== Module Buttons ===== */
     .module-nav{
@@ -92,7 +123,7 @@
     }
     .btn:active{ transform: translateY(1px); }
 
-    /* ===== Wissens-Box (jetzt ÜBER der Modul-Leiste) ===== */
+    /* ===== Info Box (soll ÜBER den Modulen stehen) ===== */
     .info-box{
       margin-top: 16px;
       background: rgba(0,0,0,.22);
@@ -117,7 +148,7 @@
       line-height: 1.55;
     }
 
-    /* Mini helpers for text switching if needed */
+    /* Mini helpers for text switching */
     [data-i18n]{}
   </style>
 </head>
@@ -125,13 +156,40 @@
 <body>
   <main>
     <section class="card hero">
+      <!-- DE/EN Toggle (ohne globales Menü) -->
+      <div class="lang-toggle" aria-label="Sprache / Language">
+        <button class="lang-btn" type="button" data-set-lang="de" aria-pressed="true" title="Deutsch" aria-label="Deutsch">
+          <!-- Inline SVG: DE -->
+          <svg width="28" height="18" viewBox="0 0 28 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="28" height="18" rx="3" fill="rgba(255,255,255,0.06)"/>
+            <rect x="1" y="1" width="26" height="16" rx="2" fill="#111827"/>
+            <rect x="1" y="6" width="26" height="6" fill="#dc2626"/>
+            <rect x="1" y="12" width="26" height="5" fill="#f59e0b"/>
+          </svg>
+        </button>
+
+        <button class="lang-btn" type="button" data-set-lang="en" aria-pressed="false" title="English" aria-label="English">
+          <!-- Inline SVG: EN (UK style simplified) -->
+          <svg width="28" height="18" viewBox="0 0 28 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="28" height="18" rx="3" fill="rgba(255,255,255,0.06)"/>
+            <rect x="1" y="1" width="26" height="16" rx="2" fill="#1f3b87"/>
+            <path d="M1 1 L27 17 M27 1 L1 17" stroke="#ffffff" stroke-width="3"/>
+            <path d="M1 1 L27 17 M27 1 L1 17" stroke="#dc2626" stroke-width="1.4"/>
+            <rect x="12" y="1" width="4" height="16" fill="#ffffff"/>
+            <rect x="1" y="7" width="26" height="4" fill="#ffffff"/>
+            <rect x="13" y="1" width="2" height="16" fill="#dc2626"/>
+            <rect x="1" y="8" width="26" height="2" fill="#dc2626"/>
+          </svg>
+        </button>
+      </div>
+
       <h1 data-i18n="gift.title">Kostenloser Grundkurs – Geschenk</h1>
       <p class="lead" data-i18n="gift.lead">
         Willkommen! Hier findest du den kostenlosen Grundkurs als Geschenk-Version – ohne Academy-Menü, ohne Ablenkung.
         Du kannst die 5 Module frei durchlaufen.
       </p>
 
-      <!-- Wissens-Text (muss ÜBER die Kurs-Menüleiste) -->
+      <!-- Aufgabe 3: Textblock ÜBER die Kurs-Menüleiste -->
       <div class="info-box">
         <h2 data-i18n="gift.knowledgeBoxTitle">Wissens-Abfrage – was sie bewirkt</h2>
         <p data-i18n="gift.knowledgeBoxText">
@@ -155,6 +213,9 @@
         <a class="btn" href="/lp-anfang/pages/geschenke/kostenloser-grundkurs-network.html" data-nocache="1" data-i18n="gift.m4">Grundkurs 4 – Network</a>
         <a class="btn" href="/lp-anfang/pages/geschenke/kostenloser-grundkurs-abschluss.html" data-nocache="1" data-i18n="gift.m5">Grundkurs 5 – Prüfung</a>
       </div>
+
+      <!-- Aufgabe 1: Geschenk-Kacheln komplett entfernt -->
+      <!-- Aufgabe 2: Button "Weiter zur Einladung" komplett entfernt -->
     </section>
   </main>
 
@@ -176,6 +237,46 @@
     })();
   </script>
 
+  <!-- DE/EN Toggle (setzt fsa_lang + triggert Switcher) -->
+  <script>
+    (function(){
+      const KEY = 'fsa_lang';
+
+      function setPressed(lang){
+        document.querySelectorAll('[data-set-lang]').forEach(btn=>{
+          btn.setAttribute('aria-pressed', btn.getAttribute('data-set-lang') === lang ? 'true' : 'false');
+        });
+        try{ document.documentElement.setAttribute('lang', lang); }catch(e){}
+      }
+
+      function apply(lang){
+        const L = (lang || 'de').toLowerCase() === 'en' ? 'en' : 'de';
+        try{ localStorage.setItem(KEY, L); }catch(e){}
+        setPressed(L);
+        document.dispatchEvent(new CustomEvent('fsa:lang-change', { detail: L }));
+      }
+
+      // Init
+      let pref = 'de';
+      try{ pref = localStorage.getItem(KEY) || 'de'; }catch(e){}
+      pref = (pref || 'de').toLowerCase() === 'en' ? 'en' : 'de';
+      setPressed(pref);
+
+      // Click
+      document.querySelectorAll('[data-set-lang]').forEach(btn=>{
+        btn.addEventListener('click', ()=> apply(btn.getAttribute('data-set-lang')));
+      });
+
+      // Sync (optional)
+      window.addEventListener('storage', ev=>{
+        if(ev.key === KEY){
+          const v = (ev.newValue || 'de').toLowerCase() === 'en' ? 'en' : 'de';
+          setPressed(v);
+        }
+      });
+    })();
+  </script>
+
   <script>
     window.I18N = window.I18N || {};
     window.I18N.de = Object.assign({}, window.I18N.de, {
@@ -192,7 +293,7 @@
 
     window.I18N.en = Object.assign({}, window.I18N.en, {
       "gift.title":"Free Basic Course – Gift",
-      "gift.lead":"Welcome! Here you’ll find the free basic course as a gift version—no academy menu, no distractions. You can complete all 5 modules.",
+      "gift.lead":"Welcome! Here you’ll find the free basic course as a gift version—no academy menu, no distractions. You can complete all 5 modules freely.",
       "gift.m1":"Module 1 – Basics",
       "gift.m2":"Module 2 – Security",
       "gift.m3":"Module 3 – Income",
