@@ -826,6 +826,9 @@
     │   │   └── wallets.html
     │   ├── online-kurse/
     │   │   ├── basis-setup.html
+    │   │   ├── fsa-office-network-struktur.html
+    │   │   ├── krypto-glossar.html
+    │   │   ├── krypto-glossary.html
     │   │   ├── krypto-welt-status.html
     │   │   ├── krypto-welt-timeline.html
     │   │   ├── krypto-welt-unternehmen.html
@@ -1071,4 +1074,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.02.2026, 19:35)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.02.2026, 20:26)_
