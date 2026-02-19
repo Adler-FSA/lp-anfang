@@ -825,7 +825,8 @@
     │   │   ├── page.json
     │   │   └── wallets.html
     │   ├── online-kurse/
-    │   │   └── basis-setup.html
+    │   │   ├── basis-setup.html
+    │   │   └── krypto-welt-status.html
     │   ├── produkte/
     │   │   ├── demo-hoersaal-starter-01-settings.html
     │   │   ├── demo-hoersaal-starter-02-vorschau-hub.html
@@ -1066,4 +1067,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.02.2026, 12:53)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.02.2026, 14:06)_
