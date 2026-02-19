@@ -831,12 +831,16 @@
     │   │   ├── krypto-glossar.html
     │   │   ├── krypto-glossary.html
     │   │   ├── krypto-step1.html
+    │   │   ├── krypto-step2.html
+    │   │   ├── krypto-step3.html
     │   │   ├── krypto-welt-status.html
     │   │   ├── krypto-welt-timeline.html
     │   │   ├── krypto-welt-unternehmen.html
     │   │   ├── krypto-welt-zahlen.html
     │   │   ├── krypto-welt-zeitstrahl.html
-    │   │   └── step1-en.html
+    │   │   ├── step1-en.html
+    │   │   ├── step2-en.html
+    │   │   └── step3-en.html
     │   ├── produkte/
     │   │   ├── demo-hoersaal-starter-01-settings.html
     │   │   ├── demo-hoersaal-starter-02-vorschau-hub.html
@@ -1077,4 +1081,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.02.2026, 22:26)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.02.2026, 23:24)_
