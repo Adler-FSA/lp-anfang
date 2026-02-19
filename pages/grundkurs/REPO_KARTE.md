@@ -827,6 +827,7 @@
     │   ├── online-kurse/
     │   │   ├── basis-setup.html
     │   │   ├── krypto-welt-status.html
+    │   │   ├── krypto-welt-timeline.html
     │   │   └── krypto-welt-zeitstrahl.html
     │   ├── produkte/
     │   │   ├── demo-hoersaal-starter-01-settings.html
@@ -1068,4 +1069,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.02.2026, 16:44)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.02.2026, 17:45)_
