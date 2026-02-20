@@ -828,6 +828,7 @@
     │   │   ├── basis-setup.html
     │   │   ├── fsa-office-network-struktur.html
     │   │   ├── fsa-office-tools-onofframps.html
+    │   │   ├── grundkurs-vorschau.html
     │   │   ├── index.html
     │   │   ├── krypto-glossar.html
     │   │   ├── krypto-glossary.html
@@ -1082,4 +1083,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.02.2026, 09:35)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.02.2026, 10:31)_
