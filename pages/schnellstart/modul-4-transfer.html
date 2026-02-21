@@ -1,0 +1,752 @@
+<!doctype html>
+<!--
+  FSA • Schnellstart Kurs • Modul 4 – Sicher senden & Tresor-System
+  GitHub-Pfad: lp-anfang/pages/schnellstart/modul-4-transfer.html
+  Commit-Message: schnellstart – modul 4 transfer (DE/EN) testbetrag-regel + adresse/netzwerk check + red flags + wallet-trennung + kursnotizen shared + printlayout
+  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/schnellstart/modul-4-transfer.html?nocache=__TS__
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Modul 4 – Sicher senden &amp; Tresor-System (Schnellstart Kurs)</title>
+  <meta name="description" content="Schnellstart Kurs – Modul 4: Transfers sicher durchführen (Testbetrag-Regel), Adresse/Netzwerk prüfen, Red Flags, Wallet-Trennung. Kursnotizen (LocalStorage), Print/PDF." />
+
+  <style>
+    :root{
+      --bg:#050814;
+      --bg2:#020617;
+      --panel:rgba(15,23,42,.88);
+      --panel2:rgba(15,23,42,.72);
+      --txt:#e9eef7;
+      --muted:#a9b4c7;
+      --gold:#d4af37;
+      --gold2:#f2d37a;
+      --line:rgba(212,175,55,.38);
+      --shadow:0 24px 60px rgba(0,0,0,.55);
+      --glow:0 0 26px rgba(212,175,55,.22), 0 12px 30px rgba(0,0,0,.55);
+      --radius:18px;
+      --maxw:1100px;
+    }
+    *{box-sizing:border-box;}
+    html,body{
+      margin:0;
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(212,175,55,.10), transparent 55%),
+        radial-gradient(900px 600px at 80% 30%, rgba(94,168,255,.08), transparent 60%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      overflow-x:hidden;
+      -webkit-text-size-adjust:100%;
+      text-size-adjust:100%;
+    }
+
+    /* Text-Sicherheit */
+    body{
+      hyphens:auto;
+      -webkit-hyphens:auto;
+      -ms-hyphens:auto;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+    p,h1,h2,h3,li,td,th,.sub,.muted,.label,.pill{
+      overflow-wrap:anywhere;
+      word-break:normal;
+      hyphens:auto;
+      -webkit-hyphens:auto;
+      -ms-hyphens:auto;
+    }
+
+    .wrap{max-width:var(--maxw);margin:0 auto;padding:34px 18px 60px;}
+    .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:6px 0 14px;}
+    .brand{display:flex;flex-direction:column;gap:8px;min-width:min(720px,100%);}
+
+    .kicker{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 10px;border-radius:999px;
+      border:1px solid rgba(212,175,55,.25);
+      background:rgba(0,0,0,.18);
+      color:var(--gold2);
+      font-size:12px;font-weight:800;letter-spacing:.25px;
+      width:fit-content; white-space:nowrap;
+    }
+    .dot{width:8px;height:8px;border-radius:99px;background:rgba(242,211,122,.9);box-shadow:0 0 12px rgba(212,175,55,.35)}
+
+    h1{margin:0;font-size:34px;line-height:1.1;font-weight:900}
+    .sub{margin:2px 0 0;color:var(--muted);max-width:95ch;line-height:1.55}
+    .line{height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.85;margin:12px 0 18px;}
+
+    .panel{
+      background:linear-gradient(180deg,var(--panel),var(--panel2));
+      border:1px solid rgba(212,175,55,.22);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(6px);
+      padding:18px 18px;
+      position:relative;
+      overflow:hidden;
+      margin-top:14px;
+    }
+    .panel:before{
+      content:"";
+      position:absolute;inset:-2px;
+      background:radial-gradient(650px 240px at 10% 0%, rgba(212,175,55,.10), transparent 55%);
+      pointer-events:none;
+    }
+    .panel > *{position:relative;z-index:1;}
+
+    h2{margin:0 0 8px;font-size:18px;letter-spacing:.2px;color:var(--gold2)}
+    h3{margin:12px 0 8px;font-size:15px;letter-spacing:.2px;color:var(--gold2)}
+    p{margin:0 0 10px;color:var(--txt);line-height:1.7;font-size:14.5px;opacity:.98}
+    .muted{color:var(--muted);}
+    .hr{height:1px;background:rgba(212,175,55,.22);margin:14px 0}
+
+    /* Language switch */
+    .langBar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end;}
+    .langBtn{
+      padding:10px 12px;border-radius:14px;
+      border:1px solid rgba(212,175,55,.28);
+      background:rgba(0,0,0,.22);
+      color:var(--txt);
+      font-weight:900;
+      display:inline-flex;align-items:center;gap:8px;
+      white-space:nowrap;cursor:pointer;
+    }
+    .langBtn[aria-pressed="true"]{
+      background:linear-gradient(180deg, rgba(212,175,55,.95), rgba(212,175,55,.75));
+      color:#111;border:none;box-shadow:var(--glow);
+    }
+
+    /* Callouts */
+    .callout{
+      border:1px solid rgba(212,175,55,.25);
+      background:rgba(0,0,0,.16);
+      border-radius:16px;
+      padding:12px;
+      box-shadow:0 0 18px rgba(212,175,55,.10);
+      margin:10px 0 12px;
+      overflow:hidden;
+      min-width:0;
+    }
+    .callout strong{color:var(--gold2);}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid rgba(212,175,55,.18);
+      background:rgba(0,0,0,.12);
+      color:var(--muted);
+      font-size:12px;font-weight:900;
+      width:fit-content;
+      white-space:nowrap;
+    }
+
+    /* Simple list */
+    .bul{margin:8px 0 0;padding-left:18px;color:var(--txt);line-height:1.7;font-size:14.5px;opacity:.98}
+    .bul li{margin:6px 0;}
+
+    /* Inputs */
+    .fieldRow{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0 2px;}
+    .label{font-size:13px;color:var(--muted);font-weight:700;}
+    .inp{
+      width:100%;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.22);
+      background:rgba(0,0,0,.18);
+      color:var(--txt);
+      outline:none;
+      font-size:14px;
+      line-height:1.4;
+      min-width:0;
+    }
+    .inp:focus{border-color:rgba(212,175,55,.42);box-shadow:0 0 0 3px rgba(212,175,55,.10);}
+    .inp::placeholder{color:rgba(169,180,199,.75);}
+
+    textarea{
+      width:100%;
+      min-height:220px;
+      resize:vertical;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.22);
+      background:rgba(0,0,0,.18);
+      color:var(--txt);
+      outline:none;
+      line-height:1.6;
+      font-size:14px;
+      min-width:0;
+    }
+    textarea:focus{border-color:rgba(212,175,55,.42);box-shadow:0 0 0 3px rgba(212,175,55,.10);}
+
+    /* Buttons */
+    .smallBtn,.navBtn{
+      padding:10px 12px;border-radius:14px;
+      border:1px solid rgba(212,175,55,.28);
+      background:rgba(0,0,0,.22);
+      color:var(--txt);
+      font-weight:900;
+      display:inline-flex;align-items:center;gap:8px;
+      white-space:nowrap;cursor:pointer;
+      text-decoration:none;
+    }
+    .smallBtn:hover,.navBtn:hover{background:rgba(0,0,0,.28);}
+    .navBtnPrimary{
+      background:linear-gradient(180deg, rgba(212,175,55,.95), rgba(212,175,55,.75));
+      color:#111;border:none;box-shadow:var(--glow);
+    }
+    .navBtnPrimary:hover{filter:brightness(1.03);}
+    .ico{width:16px;height:16px;display:inline-block;vertical-align:middle}
+
+    .noteRow{
+      display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:10px
+    }
+    .saveHint{font-size:12px;color:var(--muted);}
+    .footerNav{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;}
+    .footerNav .left,.footerNav .mid,.footerNav .right{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+
+    /* PRINT */
+    @page{ margin:14mm; }
+    @media print{
+      html,body{
+        background:#fff !important;color:#000 !important;
+        height:auto !important;overflow:visible !important;
+        -webkit-print-color-adjust: exact;print-color-adjust: exact;
+      }
+      .wrap{padding:0 !important;}
+      .langBar{display:none !important;}
+      .noteRow button{display:none !important;}
+      .footerNav{display:none !important;}
+      .pill{border:1px solid #999 !important;background:#fff !important;}
+
+      .panel{
+        box-shadow:none !important;background:#fff !important;
+        border:1px solid #999 !important;backdrop-filter:none !important;
+      }
+      .panel:before{display:none !important;}
+      .sub,p,textarea,.muted,.label,li,.pill{color:#000 !important;}
+      h1,h2,h3{color:#000 !important;}
+      .line{background:#999 !important;}
+      a{color:#000 !important;text-decoration:none !important;}
+
+      textarea,.inp{
+        border:1px solid #999 !important;background:#fff !important;color:#000 !important;
+      }
+      .callout{background:#fff !important;border:1px solid #999 !important;box-shadow:none !important;}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="kicker"><span class="dot"></span> <span data-i18n="kicker">Schnellstart Kurs – Modul 4</span></div>
+        <div>
+          <h1 data-i18n="h1">Sicher senden &amp; Tresor-System</h1>
+          <div class="sub" data-i18n="sub">Jetzt kommt die Praxis: Du sendest erst klein (Testbetrag), prüfst, und sendest erst dann den Rest.</div>
+        </div>
+      </div>
+
+      <div class="langBar" aria-label="Language">
+        <button class="langBtn" type="button" id="btnDE" aria-pressed="true">DE</button>
+        <button class="langBtn" type="button" id="btnEN" aria-pressed="false">EN</button>
+      </div>
+    </div>
+
+    <div class="line"></div>
+
+    <section class="panel">
+      <div class="pill" data-i18n="pill_rule">Hauptregel</div>
+      <h2 data-i18n="r_title">Die Testbetrag-Regel</h2>
+      <p data-i18n="r_p1">
+        Du sendest nie sofort den ganzen Betrag. Du sendest erst einen kleinen Testbetrag, wartest auf die Bestätigung in deiner Wallet,
+        und erst danach sendest du den Rest.
+      </p>
+
+      <div class="callout">
+        <p style="margin:0;line-height:1.65;" data-i18n="r_callout">
+          <strong>Warum?</strong> Ein kleiner Fehler (Adresse, Netzwerk) wird sonst sofort teuer. Der Test macht Fehler klein.
+        </p>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="pill" data-i18n="pill_check">Pflicht-Check</div>
+      <h2 data-i18n="c_title">Vor jedem Senden (Pflicht-Check)</h2>
+      <ul class="bul" data-i18n="c_list">
+        <li>Papier-Backup ist vollständig und lesbar (FSA-Office-Sicherung.pdf)</li>
+        <li>Adresse geprüft: erste 6 Zeichen + letzte 4 Zeichen</li>
+        <li>Netzwerk stimmt: BSC / BEP20 (nicht raten)</li>
+        <li>Erst Testbetrag, dann Rest</li>
+      </ul>
+
+      <div class="callout">
+        <p style="margin:0;line-height:1.65;" data-i18n="c_callout">
+          <strong>Stop-Regel:</strong> Wenn du unsicher bist: nicht senden. Erst prüfen.
+        </p>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="pill" data-i18n="pill_t1">Transfer 1</div>
+      <h2 data-i18n="t1_title">Transfer 1: Stablecoin (USDT/USDC)</h2>
+      <p class="muted" data-i18n="t1_p1">
+        Ziel: Du siehst den Stablecoin in deiner Wallet (im richtigen Netzwerk).
+      </p>
+      <ul class="bul" data-i18n="t1_list">
+        <li>Auf der Börse: Withdraw/Send auswählen</li>
+        <li>Wallet-Adresse einfügen</li>
+        <li>Netzwerk auswählen: BSC / BEP20</li>
+        <li>Testbetrag senden (z. B. 5€)</li>
+        <li>In der Wallet prüfen, ob es angekommen ist</li>
+        <li>Wenn ok: Rest senden</li>
+      </ul>
+
+      <div class="hr"></div>
+
+      <div class="pill" data-i18n="pill_t2">Transfer 2</div>
+      <h2 data-i18n="t2_title">Transfer 2: BNB (Gebühren / „Benzin“)</h2>
+      <p class="muted" data-i18n="t2_p1">
+        BNB ist wichtig, damit du auf dem BSC Netzwerk Gebühren bezahlen kannst.
+      </p>
+      <ul class="bul" data-i18n="t2_list">
+        <li>Auf der Börse: Withdraw/Send auswählen</li>
+        <li>Wallet-Adresse einfügen</li>
+        <li>Netzwerk auswählen: BSC / BEP20</li>
+        <li>Testbetrag senden (klein)</li>
+        <li>In der Wallet prüfen</li>
+        <li>Wenn ok: Rest senden</li>
+      </ul>
+
+      <div class="hr"></div>
+
+      <div class="pill" data-i18n="pill_red">Projekt-Check</div>
+      <h2 data-i18n="red_title">Red Flags (wenn 2–3 zutreffen: STOP)</h2>
+      <ul class="bul" data-i18n="red_list">
+        <li>Garantierte Rendite / „sicherer Gewinn“</li>
+        <li>Auszahlung nur nach Nachzahlung („Fee“, „Tax“, „Unlock“)</li>
+        <li>„Support“ fordert Seed oder Remote-Zugriff</li>
+        <li>Extremer Zeitdruck („nur heute“)</li>
+        <li>Domain/URL nicht 100% identisch (Copycat)</li>
+      </ul>
+
+      <div class="hr"></div>
+
+      <div class="pill" data-i18n="pill_sep">Tresor-System</div>
+      <h2 data-i18n="sep_title">Wallet-Trennung (Tresor / Operativ / Risiko)</h2>
+      <p data-i18n="sep_p1">
+        Damit ein Fehler nicht alles betrifft, trennst du deine Wallets:
+      </p>
+      <ul class="bul" data-i18n="sep_list">
+        <li><b>Tresor</b>: Rücklagen, langfristig – keine DApps, keine Experimente</li>
+        <li><b>Operativ</b>: kleine Beträge – normale Nutzung</li>
+        <li><b>Risiko/Test</b>: neue Projekte, Airdrops, unbekannte Seiten</li>
+      </ul>
+
+      <div class="callout">
+        <p style="margin:0;line-height:1.65;" data-i18n="sep_callout">
+          <strong>Merke:</strong> Jede Wallet ist wie ein eigener Raum. Wenn ein Raum Probleme hat, bleibt der Rest geschützt.
+        </p>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2 data-i18n="sig_title">Kurz erklärt: „Signieren“ &amp; „Approve“</h2>
+      <p data-i18n="sig_p1">
+        Manchmal musst du etwas bestätigen. Ganz einfach:
+      </p>
+      <ul class="bul" data-i18n="sig_list">
+        <li><b>Signieren</b>: „Ich stimme dieser Aktion zu“</li>
+        <li><b>Approve</b>: „Ich erlaube, dass ein Vertrag Token nutzen darf“</li>
+      </ul>
+      <p class="muted" data-i18n="sig_p2">
+        Regel: Nichts blind bestätigen. Wenn du nicht verstehst, wofür die Bestätigung ist: STOP.
+      </p>
+
+      <div class="hr"></div>
+
+      <h2 data-i18n="notes_title">Kursnotizen (Modul 4)</h2>
+      <p class="muted" data-i18n="notes_sub">Alles bleibt nur auf deinem Gerät (LocalStorage). Es wird nichts gesendet.</p>
+
+      <div class="fieldRow">
+        <div class="label" data-i18n="f1_label">A) Meine Transfer-Checkliste (kurz):</div>
+        <input class="inp" id="m4_check" type="text" placeholder="Adresse + Netzwerk + Testbetrag" data-i18n-placeholder="ph_check" />
+      </div>
+
+      <div class="fieldRow">
+        <div class="label" data-i18n="f2_label">B) Stablecoin Testbetrag (z. B. 5€):</div>
+        <input class="inp" id="m4_stable_test" type="text" placeholder="…" data-i18n-placeholder="ph_dots" />
+      </div>
+
+      <div class="fieldRow">
+        <div class="label" data-i18n="f3_label">C) BNB Testbetrag (klein):</div>
+        <input class="inp" id="m4_bnb_test" type="text" placeholder="…" data-i18n-placeholder="ph_dots" />
+      </div>
+
+      <div class="fieldRow">
+        <div class="label" data-i18n="f4_label">D) Mein Wallet-System (Tresor/Operativ/Risiko – kurzer Plan):</div>
+        <input class="inp" id="m4_system" type="text" placeholder="…" data-i18n-placeholder="ph_dots" />
+      </div>
+
+      <div class="hr"></div>
+
+      <p class="muted"><b data-i18n="free_notes">Freie Notizen (optional):</b></p>
+      <textarea id="m4_notes" placeholder="…" data-i18n-placeholder="ph_notes"></textarea>
+
+      <div class="noteRow">
+        <div class="saveHint" id="saveHint" data-i18n="save_unsaved">Nicht gespeichert.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end;">
+          <button class="smallBtn" type="button" id="clearPage">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M7 4h10l1 2h4v2H2V6h4l1-2zm2 6h2v10H9V10zm4 0h2v10h-2V10zm-6 0h2v10H7V10zm10 0h2v10c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V10h14z"/>
+            </svg>
+            <span data-i18n="btn_clear_page">Seiten-Notizen löschen</span>
+          </button>
+          <button class="smallBtn" type="button" id="clearAll">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M5 4h14v2H5V4zm2 4h10l-1 14H8L7 8zm4 2h2v10h-2V10z"/>
+            </svg>
+            <span data-i18n="btn_clear_all">Alle Kurs-Notizen löschen</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="footerNav">
+        <div class="left">
+          <a class="navBtn" href="./index.html" data-internal>← <span data-i18n="btn_index">Kursstart</span></a>
+        </div>
+        <div class="mid">
+          <a class="navBtn" href="./modul-3-boerse.html" data-internal>← <span data-i18n="btn_back">Zurück</span></a>
+          <a class="navBtn navBtnPrimary" href="./glossar.html" data-internal><span data-i18n="btn_next">Weiter: Glossar</span> →</a>
+        </div>
+        <div class="right">
+          <button class="navBtn navBtnPrimary" type="button" id="printBtn">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M6 9V3h12v6H6zm10-2V5H8v2h8zM6 19v-4H4a2 2 0 0 1-2-2v-3a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v3a2 2 0 0 1-2 2h-2v4H6zm2-2h8v-4H8v4z"/>
+            </svg>
+            <span data-i18n="btn_print">Drucken</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function(){
+      "use strict";
+
+      const COURSE_KEY = "fsa_schnellstart_notes_v1";
+      const LANG_KEY   = "fsa_schnellstart_lang_v1";
+      const PAGE_ID    = "modul4";
+      const FIELD_IDS  = ["m4_check","m4_stable_test","m4_bnb_test","m4_system","m4_notes"];
+
+      function safeGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+      function safeSet(k,v){ try{ localStorage.setItem(k, v); }catch(e){} }
+      function safeRemove(k){ try{ localStorage.removeItem(k); }catch(e){} }
+
+      function loadCourseObject(){
+        const raw = safeGet(COURSE_KEY);
+        if(!raw) return { v:1, pages:{} };
+        try{
+          const obj = JSON.parse(raw);
+          if(!obj || typeof obj !== "object") return { v:1, pages:{} };
+          if(!obj.pages || typeof obj.pages !== "object") obj.pages = {};
+          if(!obj.v) obj.v = 1;
+          return obj;
+        }catch(e){
+          return { v:1, pages:{} };
+        }
+      }
+      function saveCourseObject(obj){ safeSet(COURSE_KEY, JSON.stringify(obj)); }
+
+      /* Print */
+      const printBtn = document.getElementById("printBtn");
+      if(printBtn) printBtn.addEventListener("click", ()=>window.print());
+
+      /* I18N */
+      const i18n = {
+        de:{
+          kicker:"Schnellstart Kurs – Modul 4",
+          h1:"Sicher senden & Tresor-System",
+          sub:"Jetzt kommt die Praxis: Du sendest erst klein (Testbetrag), prüfst, und sendest erst dann den Rest.",
+
+          pill_rule:"Hauptregel",
+          r_title:"Die Testbetrag-Regel",
+          r_p1:"Du sendest nie sofort den ganzen Betrag. Du sendest erst einen kleinen Testbetrag, wartest auf die Bestätigung in deiner Wallet, und erst danach sendest du den Rest.",
+          r_callout:"<strong>Warum?</strong> Ein kleiner Fehler (Adresse, Netzwerk) wird sonst sofort teuer. Der Test macht Fehler klein.",
+
+          pill_check:"Pflicht-Check",
+          c_title:"Vor jedem Senden (Pflicht-Check)",
+          c_list:"<li>Papier-Backup ist vollständig und lesbar (FSA-Office-Sicherung.pdf)</li><li>Adresse geprüft: erste 6 Zeichen + letzte 4 Zeichen</li><li>Netzwerk stimmt: BSC / BEP20 (nicht raten)</li><li>Erst Testbetrag, dann Rest</li>",
+          c_callout:"<strong>Stop-Regel:</strong> Wenn du unsicher bist: nicht senden. Erst prüfen.",
+
+          pill_t1:"Transfer 1",
+          t1_title:"Transfer 1: Stablecoin (USDT/USDC)",
+          t1_p1:"Ziel: Du siehst den Stablecoin in deiner Wallet (im richtigen Netzwerk).",
+          t1_list:"<li>Auf der Börse: Withdraw/Send auswählen</li><li>Wallet-Adresse einfügen</li><li>Netzwerk auswählen: BSC / BEP20</li><li>Testbetrag senden (z. B. 5€)</li><li>In der Wallet prüfen, ob es angekommen ist</li><li>Wenn ok: Rest senden</li>",
+
+          pill_t2:"Transfer 2",
+          t2_title:"Transfer 2: BNB (Gebühren / „Benzin“)",
+          t2_p1:"BNB ist wichtig, damit du auf dem BSC Netzwerk Gebühren bezahlen kannst.",
+          t2_list:"<li>Auf der Börse: Withdraw/Send auswählen</li><li>Wallet-Adresse einfügen</li><li>Netzwerk auswählen: BSC / BEP20</li><li>Testbetrag senden (klein)</li><li>In der Wallet prüfen</li><li>Wenn ok: Rest senden</li>",
+
+          pill_red:"Projekt-Check",
+          red_title:"Red Flags (wenn 2–3 zutreffen: STOP)",
+          red_list:"<li>Garantierte Rendite / „sicherer Gewinn“</li><li>Auszahlung nur nach Nachzahlung („Fee“, „Tax“, „Unlock“)</li><li>„Support“ fordert Seed oder Remote-Zugriff</li><li>Extremer Zeitdruck („nur heute“)</li><li>Domain/URL nicht 100% identisch (Copycat)</li>",
+
+          pill_sep:"Tresor-System",
+          sep_title:"Wallet-Trennung (Tresor / Operativ / Risiko)",
+          sep_p1:"Damit ein Fehler nicht alles betrifft, trennst du deine Wallets:",
+          sep_list:"<li><b>Tresor</b>: Rücklagen, langfristig – keine DApps, keine Experimente</li><li><b>Operativ</b>: kleine Beträge – normale Nutzung</li><li><b>Risiko/Test</b>: neue Projekte, Airdrops, unbekannte Seiten</li>",
+          sep_callout:"<strong>Merke:</strong> Jede Wallet ist wie ein eigener Raum. Wenn ein Raum Probleme hat, bleibt der Rest geschützt.",
+
+          sig_title:"Kurz erklärt: „Signieren“ & „Approve“",
+          sig_p1:"Manchmal musst du etwas bestätigen. Ganz einfach:",
+          sig_list:"<li><b>Signieren</b>: „Ich stimme dieser Aktion zu“</li><li><b>Approve</b>: „Ich erlaube, dass ein Vertrag Token nutzen darf“</li>",
+          sig_p2:"Regel: Nichts blind bestätigen. Wenn du nicht verstehst, wofür die Bestätigung ist: STOP.",
+
+          notes_title:"Kursnotizen (Modul 4)",
+          notes_sub:"Alles bleibt nur auf deinem Gerät (LocalStorage). Es wird nichts gesendet.",
+          f1_label:"A) Meine Transfer-Checkliste (kurz):",
+          f2_label:"B) Stablecoin Testbetrag (z. B. 5€):",
+          f3_label:"C) BNB Testbetrag (klein):",
+          f4_label:"D) Mein Wallet-System (Tresor/Operativ/Risiko – kurzer Plan):",
+          free_notes:"Freie Notizen (optional):",
+
+          save_unsaved:"Nicht gespeichert.",
+          save_saved:"Gespeichert (lokal).",
+
+          btn_clear_page:"Seiten-Notizen löschen",
+          btn_clear_all:"Alle Kurs-Notizen löschen",
+          btn_index:"Kursstart",
+          btn_back:"Zurück",
+          btn_next:"Weiter: Glossar",
+          btn_print:"Drucken",
+
+          ph_dots:"…",
+          ph_check:"Adresse + Netzwerk + Testbetrag",
+          ph_notes:"Freie Notizen zu Modul 4 …",
+
+          confirm_clear_page:"Seiten-Notizen wirklich löschen?",
+          confirm_clear_all:"ALLE Kurs-Notizen auf diesem Gerät löschen?",
+          alert_cleared:"Daten gelöscht."
+        },
+        en:{
+          kicker:"Quick Start Course — Module 4",
+          h1:"Safe transfers & vault system",
+          sub:"Now comes the practice: send small first (test amount), verify, then send the rest.",
+
+          pill_rule:"Main rule",
+          r_title:"The test amount rule",
+          r_p1:"Never send the full amount right away. Send a small test amount first, wait until it shows up in your wallet, and only then send the rest.",
+          r_callout:"<strong>Why?</strong> A small mistake (address, network) becomes expensive instantly. The test keeps mistakes small.",
+
+          pill_check:"Mandatory check",
+          c_title:"Before every transfer (mandatory check)",
+          c_list:"<li>Your paper backup is complete and readable (FSA-Office-Sicherung.pdf)</li><li>Address verified: first 6 + last 4 characters</li><li>Network is correct: BSC / BEP20 (do not guess)</li><li>Test amount first, then the rest</li>",
+          c_callout:"<strong>Stop rule:</strong> If you are unsure: do not send. Check first.",
+
+          pill_t1:"Transfer 1",
+          t1_title:"Transfer 1: stablecoin (USDT/USDC)",
+          t1_p1:"Goal: you can see the stablecoin in your wallet (on the correct network).",
+          t1_list:"<li>On the exchange: choose Withdraw/Send</li><li>Paste your wallet address</li><li>Select network: BSC / BEP20</li><li>Send a test amount (e.g., €5)</li><li>Check it arrived in the wallet</li><li>If ok: send the rest</li>",
+
+          pill_t2:"Transfer 2",
+          t2_title:"Transfer 2: BNB (fees / “fuel”)",
+          t2_p1:"BNB is important to pay fees on the BSC network.",
+          t2_list:"<li>On the exchange: choose Withdraw/Send</li><li>Paste your wallet address</li><li>Select network: BSC / BEP20</li><li>Send a small test amount</li><li>Check it arrived in the wallet</li><li>If ok: send the rest</li>",
+
+          pill_red:"Project check",
+          red_title:"Red flags (if 2–3 apply: STOP)",
+          red_list:"<li>Guaranteed profit / “safe win”</li><li>Payout only after paying a fee (“fee”, “tax”, “unlock”)</li><li>“Support” asks for seed or remote access</li><li>Heavy pressure (“only today”)</li><li>Domain/URL not 100% identical (copycat)</li>",
+
+          pill_sep:"Vault system",
+          sep_title:"Wallet separation (vault / operational / risk)",
+          sep_p1:"So one mistake doesn’t affect everything, separate wallets:",
+          sep_list:"<li><b>Vault</b>: savings/long-term — no DApps, no experiments</li><li><b>Operational</b>: small amounts — normal use</li><li><b>Risk/Test</b>: new projects, airdrops, unknown sites</li>",
+          sep_callout:"<strong>Remember:</strong> Each wallet is like its own room. If one room has trouble, the rest stays protected.",
+
+          sig_title:"Simple: “Sign” & “Approve”",
+          sig_p1:"Sometimes you must confirm something. Very simple:",
+          sig_list:"<li><b>Sign</b>: “I agree to this action”</li><li><b>Approve</b>: “I allow a contract to use tokens”</li>",
+          sig_p2:"Rule: never confirm blindly. If you don’t understand what it is for: STOP.",
+
+          notes_title:"Course notes (Module 4)",
+          notes_sub:"Everything stays only on your device (LocalStorage). Nothing is sent anywhere.",
+          f1_label:"A) My transfer checklist (short):",
+          f2_label:"B) Stablecoin test amount (e.g. €5):",
+          f3_label:"C) BNB test amount (small):",
+          f4_label:"D) My wallet system plan (vault/operational/risk):",
+          free_notes:"Free notes (optional):",
+
+          save_unsaved:"Not saved.",
+          save_saved:"Saved (local).",
+
+          btn_clear_page:"Clear this page notes",
+          btn_clear_all:"Clear all course notes",
+          btn_index:"Course start",
+          btn_back:"Back",
+          btn_next:"Next: Glossary",
+          btn_print:"Print",
+
+          ph_dots:"…",
+          ph_check:"Address + network + test amount",
+          ph_notes:"Free notes for Module 4 …",
+
+          confirm_clear_page:"Really clear this page notes?",
+          confirm_clear_all:"Clear ALL course notes on this device?",
+          alert_cleared:"Data cleared."
+        }
+      };
+
+      const hintEl = document.getElementById("saveHint");
+      let lastHintState = "unsaved";
+
+      function refreshHintLang(lang){
+        if(!hintEl) return;
+        hintEl.textContent = (lastHintState === "saved")
+          ? ((lang === "en") ? i18n.en.save_saved : i18n.de.save_saved)
+          : ((lang === "en") ? i18n.en.save_unsaved : i18n.de.save_unsaved);
+      }
+
+      function setLang(lang){
+        const d = (lang === "en") ? i18n.en : i18n.de;
+        document.documentElement.lang = (lang === "en") ? "en" : "de";
+        safeSet(LANG_KEY, (lang === "en") ? "en" : "de");
+
+        document.querySelectorAll("[data-i18n]").forEach(el=>{
+          const key = el.getAttribute("data-i18n");
+          if(key && Object.prototype.hasOwnProperty.call(d, key)){
+            el.innerHTML = d[key];
+          }
+        });
+        document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
+          const key = el.getAttribute("data-i18n-placeholder");
+          if(key && Object.prototype.hasOwnProperty.call(d, key)){
+            el.setAttribute("placeholder", d[key]);
+          }
+        });
+
+        const btnDE = document.getElementById("btnDE");
+        const btnEN = document.getElementById("btnEN");
+        if(btnDE && btnEN){
+          const isEN = (lang === "en");
+          btnEN.setAttribute("aria-pressed", isEN ? "true" : "false");
+          btnDE.setAttribute("aria-pressed", isEN ? "false" : "true");
+        }
+        refreshHintLang(lang);
+      }
+
+      document.getElementById("btnDE").addEventListener("click", ()=>setLang("de"));
+      document.getElementById("btnEN").addEventListener("click", ()=>setLang("en"));
+
+      /* Restore notes */
+      function restorePageData(){
+        const obj = loadCourseObject();
+        const page = obj.pages[PAGE_ID] || {};
+        FIELD_IDS.forEach(id=>{
+          const el = document.getElementById(id);
+          if(!el) return;
+          if(Object.prototype.hasOwnProperty.call(page, id)){
+            el.value = page[id] || "";
+          }
+        });
+      }
+
+      let saveTimer = null;
+      function scheduleSave(){
+        const lang = safeGet(LANG_KEY) === "en" ? "en" : "de";
+        lastHintState = "unsaved";
+        refreshHintLang(lang);
+
+        if(saveTimer) clearTimeout(saveTimer);
+        saveTimer = setTimeout(function(){
+          const obj = loadCourseObject();
+          if(!obj.pages[PAGE_ID]) obj.pages[PAGE_ID] = {};
+          const page = obj.pages[PAGE_ID];
+
+          FIELD_IDS.forEach(id=>{
+            const el = document.getElementById(id);
+            if(el) page[id] = el.value || "";
+          });
+
+          saveCourseObject(obj);
+          lastHintState = "saved";
+          refreshHintLang(lang);
+        }, 250);
+      }
+
+      FIELD_IDS.forEach(id=>{
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.addEventListener("input", scheduleSave);
+        el.addEventListener("change", scheduleSave);
+      });
+
+      document.getElementById("clearPage").addEventListener("click", function(){
+        const lang = safeGet(LANG_KEY) === "en" ? "en" : "de";
+        const msg = (lang === "en") ? i18n.en.confirm_clear_page : i18n.de.confirm_clear_page;
+        if(!confirm(msg)) return;
+
+        const obj = loadCourseObject();
+        obj.pages[PAGE_ID] = {};
+        saveCourseObject(obj);
+
+        FIELD_IDS.forEach(id=>{
+          const el = document.getElementById(id);
+          if(el) el.value = "";
+        });
+
+        lastHintState = "unsaved";
+        refreshHintLang(lang);
+      });
+
+      document.getElementById("clearAll").addEventListener("click", function(){
+        const lang = safeGet(LANG_KEY) === "en" ? "en" : "de";
+        const msg = (lang === "en") ? i18n.en.confirm_clear_all : i18n.de.confirm_clear_all;
+        if(!confirm(msg)) return;
+
+        safeRemove(COURSE_KEY);
+
+        FIELD_IDS.forEach(id=>{
+          const el = document.getElementById(id);
+          if(el) el.value = "";
+        });
+
+        lastHintState = "unsaved";
+        refreshHintLang(lang);
+        alert((lang === "en") ? i18n.en.alert_cleared : i18n.de.alert_cleared);
+      });
+
+      /* nocache for internal links */
+      (function(){
+        const t = Date.now();
+        document.querySelectorAll('a[data-internal]').forEach(a=>{
+          try{
+            const href = a.getAttribute('href');
+            const u = new URL(href, location.href);
+            u.searchParams.set('nocache', t);
+            a.href = u.pathname + u.search + u.hash;
+          }catch(e){}
+        });
+      })();
+
+      /* INIT */
+      const preferred = safeGet(LANG_KEY);
+      const lang = (preferred === "en") ? "en" : "de";
+      setLang(lang);
+      restorePageData();
+
+      (function(){
+        const obj = loadCourseObject();
+        const page = obj.pages[PAGE_ID] || {};
+        const hasAny = FIELD_IDS.some(id=> (page[id] || "").trim().length > 0);
+        lastHintState = hasAny ? "saved" : "unsaved";
+        refreshHintLang(lang);
+      })();
+
+    })();
+  </script>
+</body>
+</html>
