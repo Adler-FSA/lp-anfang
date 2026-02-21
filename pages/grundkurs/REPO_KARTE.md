@@ -886,6 +886,13 @@
     │   │   ├── index.html
     │   │   ├── pyramide.html
     │   │   └── treppe.html
+    │   ├── schnellstart/
+    │   │   ├── glossar.html
+    │   │   ├── index.html
+    │   │   ├── modul-1-sicherheit.html
+    │   │   ├── modul-2-wallet.html
+    │   │   ├── modul-3-boerse.html
+    │   │   └── modul-4-transfer.html
     │   ├── social/
     │   │   ├── share-adler.html
     │   │   ├── share-akademie.html
@@ -1085,4 +1092,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.02.2026, 11:17)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.02.2026, 12:35)_
