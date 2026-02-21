@@ -727,6 +727,8 @@
     │   │   ├── beweisrealitaet.html
     │   │   ├── fallmuster.html
     │   │   └── mica-strafrecht.html
+    │   ├── hoerbuch/
+    │   │   └── kapitel-01.html
     │   ├── hoersaal/
     │   │   ├── webinare-buchen-02-ueberblick.html
     │   │   ├── webinare-buchen-03-webinare.html
@@ -1083,4 +1085,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.02.2026, 07:28)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.02.2026, 08:24)_
