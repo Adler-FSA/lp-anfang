@@ -1,0 +1,748 @@
+<!doctype html>
+<!--
+  FSA • Schnellstart Kurs • Modul 2 – Wallet (dein Tresor)
+  GitHub-Pfad: lp-anfang/pages/schnellstart/modul-2-wallet.html
+  Commit-Message: schnellstart – modul 2 wallet (DE/EN) mit Schritt 0 PDF Pflicht + seed 1–24 + BSC/BEP20 + kursnotizen shared + printlayout
+  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/schnellstart/modul-2-wallet.html?nocache=__TS__
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Modul 2 – Wallet (dein Tresor) (Schnellstart Kurs)</title>
+  <meta name="description" content="Schnellstart Kurs – Modul 2: Wallet einrichten. Schritt 0: PDF drucken. Seed offline sichern (1–24), BSC/BEP20 aktivieren, Adresse prüfen. Kursnotizen (LocalStorage), Print/PDF." />
+
+  <style>
+    :root{
+      --bg:#050814;
+      --bg2:#020617;
+      --panel:rgba(15,23,42,.88);
+      --panel2:rgba(15,23,42,.72);
+      --txt:#e9eef7;
+      --muted:#a9b4c7;
+      --gold:#d4af37;
+      --gold2:#f2d37a;
+      --line:rgba(212,175,55,.38);
+      --shadow:0 24px 60px rgba(0,0,0,.55);
+      --glow:0 0 26px rgba(212,175,55,.22), 0 12px 30px rgba(0,0,0,.55);
+      --radius:18px;
+      --maxw:1100px;
+    }
+    *{box-sizing:border-box;}
+    html,body{
+      margin:0;
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(212,175,55,.10), transparent 55%),
+        radial-gradient(900px 600px at 80% 30%, rgba(94,168,255,.08), transparent 60%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      overflow-x:hidden;
+      -webkit-text-size-adjust:100%;
+      text-size-adjust:100%;
+    }
+
+    /* Text-Sicherheit */
+    body{
+      hyphens:auto;
+      -webkit-hyphens:auto;
+      -ms-hyphens:auto;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+    p,h1,h2,h3,li,td,th,.sub,.muted,.label,.pill{
+      overflow-wrap:anywhere;
+      word-break:normal;
+      hyphens:auto;
+      -webkit-hyphens:auto;
+      -ms-hyphens:auto;
+    }
+
+    .wrap{max-width:var(--maxw);margin:0 auto;padding:34px 18px 60px;}
+    .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:6px 0 14px;}
+    .brand{display:flex;flex-direction:column;gap:8px;min-width:min(720px,100%);}
+
+    .kicker{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 10px;border-radius:999px;
+      border:1px solid rgba(212,175,55,.25);
+      background:rgba(0,0,0,.18);
+      color:var(--gold2);
+      font-size:12px;font-weight:800;letter-spacing:.25px;
+      width:fit-content; white-space:nowrap;
+    }
+    .dot{width:8px;height:8px;border-radius:99px;background:rgba(242,211,122,.9);box-shadow:0 0 12px rgba(212,175,55,.35)}
+
+    h1{margin:0;font-size:34px;line-height:1.1;font-weight:900}
+    .sub{margin:2px 0 0;color:var(--muted);max-width:95ch;line-height:1.55}
+    .line{height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.85;margin:12px 0 18px;}
+
+    .panel{
+      background:linear-gradient(180deg,var(--panel),var(--panel2));
+      border:1px solid rgba(212,175,55,.22);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(6px);
+      padding:18px 18px;
+      position:relative;
+      overflow:hidden;
+      margin-top:14px;
+    }
+    .panel:before{
+      content:"";
+      position:absolute;inset:-2px;
+      background:radial-gradient(650px 240px at 10% 0%, rgba(212,175,55,.10), transparent 55%);
+      pointer-events:none;
+    }
+    .panel > *{position:relative;z-index:1;}
+
+    h2{margin:0 0 8px;font-size:18px;letter-spacing:.2px;color:var(--gold2)}
+    h3{margin:12px 0 8px;font-size:15px;letter-spacing:.2px;color:var(--gold2)}
+    p{margin:0 0 10px;color:var(--txt);line-height:1.7;font-size:14.5px;opacity:.98}
+    .muted{color:var(--muted);}
+    .hr{height:1px;background:rgba(212,175,55,.22);margin:14px 0}
+
+    /* Language switch */
+    .langBar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end;}
+    .langBtn{
+      padding:10px 12px;border-radius:14px;
+      border:1px solid rgba(212,175,55,.28);
+      background:rgba(0,0,0,.22);
+      color:var(--txt);
+      font-weight:900;
+      display:inline-flex;align-items:center;gap:8px;
+      white-space:nowrap;cursor:pointer;
+    }
+    .langBtn[aria-pressed="true"]{
+      background:linear-gradient(180deg, rgba(212,175,55,.95), rgba(212,175,55,.75));
+      color:#111;border:none;box-shadow:var(--glow);
+    }
+
+    /* Callouts */
+    .callout{
+      border:1px solid rgba(212,175,55,.25);
+      background:rgba(0,0,0,.16);
+      border-radius:16px;
+      padding:12px;
+      box-shadow:0 0 18px rgba(212,175,55,.10);
+      margin:10px 0 12px;
+      overflow:hidden;
+      min-width:0;
+    }
+    .callout strong{color:var(--gold2);}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid rgba(212,175,55,.18);
+      background:rgba(0,0,0,.12);
+      color:var(--muted);
+      font-size:12px;font-weight:900;
+      width:fit-content;
+      white-space:nowrap;
+    }
+
+    /* Simple list */
+    .bul{margin:8px 0 0;padding-left:18px;color:var(--txt);line-height:1.7;font-size:14.5px;opacity:.98}
+    .bul li{margin:6px 0;}
+
+    /* Inputs */
+    .fieldRow{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0 2px;}
+    .label{font-size:13px;color:var(--muted);font-weight:700;}
+    .inp{
+      width:100%;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.22);
+      background:rgba(0,0,0,.18);
+      color:var(--txt);
+      outline:none;
+      font-size:14px;
+      line-height:1.4;
+      min-width:0;
+    }
+    .inp:focus{border-color:rgba(212,175,55,.42);box-shadow:0 0 0 3px rgba(212,175,55,.10);}
+    .inp::placeholder{color:rgba(169,180,199,.75);}
+
+    textarea{
+      width:100%;
+      min-height:210px;
+      resize:vertical;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.22);
+      background:rgba(0,0,0,.18);
+      color:var(--txt);
+      outline:none;
+      line-height:1.6;
+      font-size:14px;
+      min-width:0;
+    }
+    textarea:focus{border-color:rgba(212,175,55,.42);box-shadow:0 0 0 3px rgba(212,175,55,.10);}
+
+    /* Buttons */
+    .smallBtn,.navBtn{
+      padding:10px 12px;border-radius:14px;
+      border:1px solid rgba(212,175,55,.28);
+      background:rgba(0,0,0,.22);
+      color:var(--txt);
+      font-weight:900;
+      display:inline-flex;align-items:center;gap:8px;
+      white-space:nowrap;cursor:pointer;
+      text-decoration:none;
+    }
+    .smallBtn:hover,.navBtn:hover{background:rgba(0,0,0,.28);}
+    .navBtnPrimary{
+      background:linear-gradient(180deg, rgba(212,175,55,.95), rgba(212,175,55,.75));
+      color:#111;border:none;box-shadow:var(--glow);
+    }
+    .navBtnPrimary:hover{filter:brightness(1.03);}
+    .ico{width:16px;height:16px;display:inline-block;vertical-align:middle}
+
+    .noteRow{
+      display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:10px
+    }
+    .saveHint{font-size:12px;color:var(--muted);}
+    .footerNav{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;}
+    .footerNav .left,.footerNav .mid,.footerNav .right{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+
+    /* PRINT */
+    @page{ margin:14mm; }
+    @media print{
+      html,body{
+        background:#fff !important;color:#000 !important;
+        height:auto !important;overflow:visible !important;
+        -webkit-print-color-adjust: exact;print-color-adjust: exact;
+      }
+      .wrap{padding:0 !important;}
+      .langBar{display:none !important;}
+      .noteRow button{display:none !important;}
+      .footerNav{display:none !important;}
+      .pill{border:1px solid #999 !important;background:#fff !important;}
+
+      .panel{
+        box-shadow:none !important;background:#fff !important;
+        border:1px solid #999 !important;backdrop-filter:none !important;
+      }
+      .panel:before{display:none !important;}
+      .sub,p,textarea,.muted,.label,li,.pill{color:#000 !important;}
+      h1,h2,h3{color:#000 !important;}
+      .line{background:#999 !important;}
+      a{color:#000 !important;text-decoration:none !important;}
+
+      textarea,.inp{
+        border:1px solid #999 !important;background:#fff !important;color:#000 !important;
+      }
+      .callout{background:#fff !important;border:1px solid #999 !important;box-shadow:none !important;}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="kicker"><span class="dot"></span> <span data-i18n="kicker">Schnellstart Kurs – Modul 2</span></div>
+        <div>
+          <h1 data-i18n="h1">Wallet einrichten (dein Tresor)</h1>
+          <div class="sub" data-i18n="sub">Wir richten deine Wallet so ein, dass du sicher starten kannst – mit Papier-Backup und klaren Checks.</div>
+        </div>
+      </div>
+
+      <div class="langBar" aria-label="Language">
+        <button class="langBtn" type="button" id="btnDE" aria-pressed="true">DE</button>
+        <button class="langBtn" type="button" id="btnEN" aria-pressed="false">EN</button>
+      </div>
+    </div>
+
+    <div class="line"></div>
+
+    <section class="panel">
+      <div class="pill" data-i18n="pill_step0">Schritt 0 (Pflicht): PDF drucken</div>
+      <h2 data-i18n="s0_title">Schritt 0 – Druckvorlage bereit machen (ohne das geht’s nicht)</h2>
+      <p data-i18n="s0_p1">
+        Bevor du eine Wallet erstellst, lädst du diese Druckvorlage herunter und druckst sie aus: <b>FSA-Office-Sicherung.pdf</b>.
+      </p>
+      <p class="muted" data-i18n="s0_p2">
+        Dort notierst du später die Seed Wörter (1–24) sauber von Hand. Keine Screenshots, keine Notizen-App, keine Cloud, keine E-Mail, kein Messenger.
+      </p>
+
+      <div class="callout">
+        <p style="margin:0;line-height:1.65;" data-i18n="s0_callout">
+          <strong>Merke:</strong> Erst Papier-Backup, dann Wallet erstellen. Nicht andersrum.
+        </p>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="pill" data-i18n="pill_step1">Schritt 1</div>
+      <h2 data-i18n="s1_title">1) Wallet auswählen (neutral)</h2>
+      <p data-i18n="s1_p1">
+        Eine Wallet ist eine App oder Browser-Erweiterung. Du kannst eine wählen, die zu dir passt. Der Markenname ist nicht das Entscheidende –
+        die Regeln sind immer gleich.
+      </p>
+      <p class="muted" data-i18n="s1_p2">
+        Beispiele: Rabby, MetaMask, Trust Wallet, SafePal, OKX Wallet (je nach Gerät).
+      </p>
+
+      <div class="hr"></div>
+
+      <div class="pill" data-i18n="pill_step2">Schritt 2</div>
+      <h2 data-i18n="s2_title">2) Neue Wallet erstellen</h2>
+      <p data-i18n="s2_p1">
+        Du klickst auf „Neue Wallet erstellen“. Danach werden dir 12 oder 24 Wörter gezeigt (Seed Phrase).
+      </p>
+
+      <div class="callout">
+        <p style="margin:0;line-height:1.65;" data-i18n="s2_callout">
+          <strong>Wichtig:</strong> Diese Wörter schreibst du sofort auf die Druckvorlage. Wort für Wort, in der richtigen Reihenfolge.
+          Wörter 1–24 kommen in die Felder 1–24 der Vorlage.
+        </p>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="pill" data-i18n="pill_step3">Schritt 3</div>
+      <h2 data-i18n="s3_title">3) Optional: Passphrase (25. Wort)</h2>
+      <p data-i18n="s3_p1">
+        Manche Wallets bieten eine zusätzliche Passphrase an (manchmal „25. Wort“ genannt). Das ist optional.
+      </p>
+      <p class="muted" data-i18n="s3_p2">
+        Trage sie nur ein, wenn du sie wirklich nutzt. Wenn du sie aktivierst und verlierst, kommst du nicht mehr an dein Wallet.
+      </p>
+
+      <div class="hr"></div>
+
+      <div class="pill" data-i18n="pill_step4">Schritt 4</div>
+      <h2 data-i18n="s4_title">4) Netzwerk aktivieren (für unsere Übung)</h2>
+      <p data-i18n="s4_p1">
+        Für diesen Kurs nutzen wir als Übung das Netzwerk <b>BSC / BNB Chain</b>. Beim Senden auf Börsen heißt das oft <b>BEP20</b>.
+      </p>
+      <p class="muted" data-i18n="s4_p2">
+        Damit du deine Transfers später siehst, muss dieses Netzwerk in der Wallet aktiv sein.
+      </p>
+
+      <div class="hr"></div>
+
+      <div class="pill" data-i18n="pill_step5">Schritt 5</div>
+      <h2 data-i18n="s5_title">5) Empfangsadresse prüfen (wie Kontonummer)</h2>
+      <p data-i18n="s5_p1">
+        Deine Wallet hat eine Empfangsadresse (oft beginnt sie mit <b>0x…</b>). Wenn du sie kopierst und irgendwo einfügst, prüfst du immer:
+      </p>
+      <ul class="bul" data-i18n="s5_list">
+        <li>die ersten 6 Zeichen</li>
+        <li>die letzten 4 Zeichen</li>
+      </ul>
+
+      <div class="callout">
+        <p style="margin:0;line-height:1.65;" data-i18n="s5_callout">
+          <strong>Regel:</strong> Wenn die Zeichen nicht passen: sofort stoppen. Nicht senden.
+        </p>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2 data-i18n="notes_title">Kursnotizen (Modul 2)</h2>
+      <p class="muted" data-i18n="notes_sub">Alles bleibt nur auf deinem Gerät (LocalStorage). Es wird nichts gesendet.</p>
+
+      <div class="fieldRow">
+        <div class="label" data-i18n="f1_label">A) Welche Wallet nutze ich? (Name/Typ):</div>
+        <input class="inp" id="m2_wallet" type="text" placeholder="…" data-i18n-placeholder="ph_dots" />
+      </div>
+
+      <div class="fieldRow">
+        <div class="label" data-i18n="f2_label">B) Wo liegt meine Druckvorlage (Papier)? (Ort 1 / Ort 2):</div>
+        <input class="inp" id="m2_backup_places" type="text" placeholder="…" data-i18n-placeholder="ph_dots" />
+      </div>
+
+      <div class="fieldRow">
+        <div class="label" data-i18n="f3_label">C) Meine Empfangsadresse (nur als Merkhilfe, nicht als Seed!):</div>
+        <input class="inp" id="m2_address_hint" type="text" placeholder="0x…" data-i18n-placeholder="ph_addr" />
+      </div>
+
+      <div class="fieldRow">
+        <div class="label" data-i18n="f4_label">D) Netzwerk für den Kurs:</div>
+        <input class="inp" id="m2_network" type="text" placeholder="BSC / BEP20" data-i18n-placeholder="ph_net" />
+      </div>
+
+      <div class="hr"></div>
+
+      <p class="muted"><b data-i18n="free_notes">Freie Notizen (optional):</b></p>
+      <textarea id="m2_notes" placeholder="…" data-i18n-placeholder="ph_notes"></textarea>
+
+      <div class="noteRow">
+        <div class="saveHint" id="saveHint" data-i18n="save_unsaved">Nicht gespeichert.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end;">
+          <button class="smallBtn" type="button" id="openPdfBtn">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42 9.3-9.29H14V3zM5 5h6v2H7v10h10v-4h2v6H5V5z"/>
+            </svg>
+            <span data-i18n="btn_open_pdf">PDF öffnen</span>
+          </button>
+          <button class="smallBtn" type="button" id="clearPage">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M7 4h10l1 2h4v2H2V6h4l1-2zm2 6h2v10H9V10zm4 0h2v10h-2V10zm-6 0h2v10H7V10zm10 0h2v10c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V10h14z"/>
+            </svg>
+            <span data-i18n="btn_clear_page">Seiten-Notizen löschen</span>
+          </button>
+          <button class="smallBtn" type="button" id="clearAll">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M5 4h14v2H5V4zm2 4h10l-1 14H8L7 8zm4 2h2v10h-2V10z"/>
+            </svg>
+            <span data-i18n="btn_clear_all">Alle Kurs-Notizen löschen</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="footerNav">
+        <div class="left">
+          <a class="navBtn" href="./index.html" data-internal>← <span data-i18n="btn_index">Kursstart</span></a>
+        </div>
+        <div class="mid">
+          <a class="navBtn" href="./modul-1-sicherheit.html" data-internal>← <span data-i18n="btn_back">Zurück</span></a>
+          <a class="navBtn navBtnPrimary" href="./modul-3-boerse.html" data-internal><span data-i18n="btn_next">Weiter: Modul 3</span> →</a>
+        </div>
+        <div class="right">
+          <button class="navBtn navBtnPrimary" type="button" id="printBtn">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M6 9V3h12v6H6zm10-2V5H8v2h8zM6 19v-4H4a2 2 0 0 1-2-2v-3a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v3a2 2 0 0 1-2 2h-2v4H6zm2-2h8v-4H8v4z"/>
+            </svg>
+            <span data-i18n="btn_print">Drucken</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function(){
+      "use strict";
+
+      const COURSE_KEY = "fsa_schnellstart_notes_v1";
+      const LANG_KEY   = "fsa_schnellstart_lang_v1";
+      const PAGE_ID    = "modul2";
+      const FIELD_IDS  = ["m2_wallet","m2_backup_places","m2_address_hint","m2_network","m2_notes"];
+
+      function safeGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+      function safeSet(k,v){ try{ localStorage.setItem(k, v); }catch(e){} }
+      function safeRemove(k){ try{ localStorage.removeItem(k); }catch(e){} }
+
+      function loadCourseObject(){
+        const raw = safeGet(COURSE_KEY);
+        if(!raw) return { v:1, pages:{} };
+        try{
+          const obj = JSON.parse(raw);
+          if(!obj || typeof obj !== "object") return { v:1, pages:{} };
+          if(!obj.pages || typeof obj.pages !== "object") obj.pages = {};
+          if(!obj.v) obj.v = 1;
+          return obj;
+        }catch(e){
+          return { v:1, pages:{} };
+        }
+      }
+      function saveCourseObject(obj){ safeSet(COURSE_KEY, JSON.stringify(obj)); }
+
+      /* PDF open */
+      function pdfAbsoluteUrl(){
+        const u = new URL(location.href);
+        const idx = u.pathname.toLowerCase().indexOf("/pages/schnellstart/");
+        if(idx >= 0){
+          const root = u.origin + u.pathname.substring(0, idx); // .../lp-anfang
+          return root + "/library/pdf/FSA-Office-Sicherung.pdf";
+        }
+        return "../..//library/pdf/FSA-Office-Sicherung.pdf".replace("//library","/library");
+      }
+      document.getElementById("openPdfBtn").addEventListener("click", ()=>{
+        const t = Date.now();
+        window.open(pdfAbsoluteUrl() + "?nocache=" + t, "_blank", "noopener");
+      });
+
+      /* Print */
+      const printBtn = document.getElementById("printBtn");
+      if(printBtn) printBtn.addEventListener("click", ()=>window.print());
+
+      /* I18N */
+      const i18n = {
+        de:{
+          kicker:"Schnellstart Kurs – Modul 2",
+          h1:"Wallet einrichten (dein Tresor)",
+          sub:"Wir richten deine Wallet so ein, dass du sicher starten kannst – mit Papier-Backup und klaren Checks.",
+
+          pill_step0:"Schritt 0 (Pflicht): PDF drucken",
+          s0_title:"Schritt 0 – Druckvorlage bereit machen (ohne das geht’s nicht)",
+          s0_p1:"Bevor du eine Wallet erstellst, lädst du diese Druckvorlage herunter und druckst sie aus: <b>FSA-Office-Sicherung.pdf</b>.",
+          s0_p2:"Dort notierst du später die Seed Wörter (1–24) sauber von Hand. Keine Screenshots, keine Notizen-App, keine Cloud, keine E-Mail, kein Messenger.",
+          s0_callout:"<strong>Merke:</strong> Erst Papier-Backup, dann Wallet erstellen. Nicht andersrum.",
+
+          pill_step1:"Schritt 1",
+          s1_title:"1) Wallet auswählen (neutral)",
+          s1_p1:"Eine Wallet ist eine App oder Browser-Erweiterung. Du kannst eine wählen, die zu dir passt. Der Markenname ist nicht das Entscheidende – die Regeln sind immer gleich.",
+          s1_p2:"Beispiele: Rabby, MetaMask, Trust Wallet, SafePal, OKX Wallet (je nach Gerät).",
+
+          pill_step2:"Schritt 2",
+          s2_title:"2) Neue Wallet erstellen",
+          s2_p1:"Du klickst auf „Neue Wallet erstellen“. Danach werden dir 12 oder 24 Wörter gezeigt (Seed Phrase).",
+          s2_callout:"<strong>Wichtig:</strong> Diese Wörter schreibst du sofort auf die Druckvorlage. Wort für Wort, in der richtigen Reihenfolge. Wörter 1–24 kommen in die Felder 1–24 der Vorlage.",
+
+          pill_step3:"Schritt 3",
+          s3_title:"3) Optional: Passphrase (25. Wort)",
+          s3_p1:"Manche Wallets bieten eine zusätzliche Passphrase an (manchmal „25. Wort“ genannt). Das ist optional.",
+          s3_p2:"Trage sie nur ein, wenn du sie wirklich nutzt. Wenn du sie aktivierst und verlierst, kommst du nicht mehr an dein Wallet.",
+
+          pill_step4:"Schritt 4",
+          s4_title:"4) Netzwerk aktivieren (für unsere Übung)",
+          s4_p1:"Für diesen Kurs nutzen wir als Übung das Netzwerk <b>BSC / BNB Chain</b>. Beim Senden auf Börsen heißt das oft <b>BEP20</b>.",
+          s4_p2:"Damit du deine Transfers später siehst, muss dieses Netzwerk in der Wallet aktiv sein.",
+
+          pill_step5:"Schritt 5",
+          s5_title:"5) Empfangsadresse prüfen (wie Kontonummer)",
+          s5_p1:"Deine Wallet hat eine Empfangsadresse (oft beginnt sie mit <b>0x…</b>). Wenn du sie kopierst und irgendwo einfügst, prüfst du immer:",
+          s5_list:"<li>die ersten 6 Zeichen</li><li>die letzten 4 Zeichen</li>",
+          s5_callout:"<strong>Regel:</strong> Wenn die Zeichen nicht passen: sofort stoppen. Nicht senden.",
+
+          notes_title:"Kursnotizen (Modul 2)",
+          notes_sub:"Alles bleibt nur auf deinem Gerät (LocalStorage). Es wird nichts gesendet.",
+          f1_label:"A) Welche Wallet nutze ich? (Name/Typ):",
+          f2_label:"B) Wo liegt meine Druckvorlage (Papier)? (Ort 1 / Ort 2):",
+          f3_label:"C) Meine Empfangsadresse (nur als Merkhilfe, nicht als Seed!):",
+          f4_label:"D) Netzwerk für den Kurs:",
+          free_notes:"Freie Notizen (optional):",
+
+          btn_open_pdf:"PDF öffnen",
+
+          save_unsaved:"Nicht gespeichert.",
+          save_saved:"Gespeichert (lokal).",
+
+          btn_clear_page:"Seiten-Notizen löschen",
+          btn_clear_all:"Alle Kurs-Notizen löschen",
+          btn_index:"Kursstart",
+          btn_back:"Zurück",
+          btn_next:"Weiter: Modul 3",
+          btn_print:"Drucken",
+
+          ph_dots:"…",
+          ph_addr:"0x…",
+          ph_net:"BSC / BEP20",
+          ph_notes:"Freie Notizen zu Modul 2 …",
+
+          confirm_clear_page:"Seiten-Notizen wirklich löschen?",
+          confirm_clear_all:"ALLE Kurs-Notizen auf diesem Gerät löschen?",
+          alert_cleared:"Daten gelöscht."
+        },
+        en:{
+          kicker:"Quick Start Course — Module 2",
+          h1:"Set up your wallet (your vault)",
+          sub:"We set up your wallet so you can start safely — with a paper backup and clear checks.",
+
+          pill_step0:"Step 0 (mandatory): print PDF",
+          s0_title:"Step 0 — Prepare the printed sheet (required)",
+          s0_p1:"Before you create any wallet, download and print <b>FSA-Office-Sicherung.pdf</b>.",
+          s0_p2:"You will later write your seed words (1–24) on paper. No screenshots, no notes app, no cloud, no email, no messenger.",
+          s0_callout:"<strong>Remember:</strong> First the paper backup, then create the wallet. Not the other way around.",
+
+          pill_step1:"Step 1",
+          s1_title:"1) Choose a wallet (neutral)",
+          s1_p1:"A wallet is an app or browser extension. Choose what fits you. The brand name is not the main thing — the rules are always the same.",
+          s1_p2:"Examples: Rabby, MetaMask, Trust Wallet, SafePal, OKX Wallet (depending on device).",
+
+          pill_step2:"Step 2",
+          s2_title:"2) Create a new wallet",
+          s2_p1:"Click “Create new wallet”. Then you will see 12 or 24 words (seed phrase).",
+          s2_callout:"<strong>Important:</strong> Write these words immediately on the printed sheet. Word by word, in the correct order. Words 1–24 go into fields 1–24.",
+
+          pill_step3:"Step 3",
+          s3_title:"3) Optional: passphrase (25th word)",
+          s3_p1:"Some wallets offer an additional passphrase (sometimes called the “25th word”). This is optional.",
+          s3_p2:"Only write it down if you actually use it. If you enable it and lose it, you can lose access.",
+
+          pill_step4:"Step 4",
+          s4_title:"4) Activate the network (for our exercise)",
+          s4_p1:"For this course we use the practice network <b>BSC / BNB Chain</b>. On exchanges, sending often shows as <b>BEP20</b>.",
+          s4_p2:"To see your transfers later, this network must be active in your wallet.",
+
+          pill_step5:"Step 5",
+          s5_title:"5) Verify your receiving address (like an account number)",
+          s5_p1:"Your wallet has a receiving address (often starting with <b>0x…</b>). When you copy and paste it, always verify:",
+          s5_list:"<li>the first 6 characters</li><li>the last 4 characters</li>",
+          s5_callout:"<strong>Rule:</strong> If it doesn’t match: stop immediately. Do not send.",
+
+          notes_title:"Course notes (Module 2)",
+          notes_sub:"Everything stays only on your device (LocalStorage). Nothing is sent anywhere.",
+          f1_label:"A) Which wallet do I use? (name/type):",
+          f2_label:"B) Where is my printed sheet stored? (place 1 / place 2):",
+          f3_label:"C) My receiving address (reminder only, not seed):",
+          f4_label:"D) Network for this course:",
+          free_notes:"Free notes (optional):",
+
+          btn_open_pdf:"Open PDF",
+
+          save_unsaved:"Not saved.",
+          save_saved:"Saved (local).",
+
+          btn_clear_page:"Clear this page notes",
+          btn_clear_all:"Clear all course notes",
+          btn_index:"Course start",
+          btn_back:"Back",
+          btn_next:"Next: Module 3",
+          btn_print:"Print",
+
+          ph_dots:"…",
+          ph_addr:"0x…",
+          ph_net:"BSC / BEP20",
+          ph_notes:"Free notes for Module 2 …",
+
+          confirm_clear_page:"Really clear this page notes?",
+          confirm_clear_all:"Clear ALL course notes on this device?",
+          alert_cleared:"Data cleared."
+        }
+      };
+
+      const hintEl = document.getElementById("saveHint");
+      let lastHintState = "unsaved";
+
+      function refreshHintLang(lang){
+        if(!hintEl) return;
+        hintEl.textContent = (lastHintState === "saved")
+          ? ((lang === "en") ? i18n.en.save_saved : i18n.de.save_saved)
+          : ((lang === "en") ? i18n.en.save_unsaved : i18n.de.save_unsaved);
+      }
+
+      function setLang(lang){
+        const d = (lang === "en") ? i18n.en : i18n.de;
+        document.documentElement.lang = (lang === "en") ? "en" : "de";
+        safeSet(LANG_KEY, (lang === "en") ? "en" : "de");
+
+        document.querySelectorAll("[data-i18n]").forEach(el=>{
+          const key = el.getAttribute("data-i18n");
+          if(key && Object.prototype.hasOwnProperty.call(d, key)){
+            el.innerHTML = d[key];
+          }
+        });
+        document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
+          const key = el.getAttribute("data-i18n-placeholder");
+          if(key && Object.prototype.hasOwnProperty.call(d, key)){
+            el.setAttribute("placeholder", d[key]);
+          }
+        });
+
+        const btnDE = document.getElementById("btnDE");
+        const btnEN = document.getElementById("btnEN");
+        if(btnDE && btnEN){
+          const isEN = (lang === "en");
+          btnEN.setAttribute("aria-pressed", isEN ? "true" : "false");
+          btnDE.setAttribute("aria-pressed", isEN ? "false" : "true");
+        }
+        refreshHintLang(lang);
+      }
+
+      document.getElementById("btnDE").addEventListener("click", ()=>setLang("de"));
+      document.getElementById("btnEN").addEventListener("click", ()=>setLang("en"));
+
+      /* Restore notes */
+      function restorePageData(){
+        const obj = loadCourseObject();
+        const page = obj.pages[PAGE_ID] || {};
+        FIELD_IDS.forEach(id=>{
+          const el = document.getElementById(id);
+          if(!el) return;
+          if(Object.prototype.hasOwnProperty.call(page, id)){
+            el.value = page[id] || "";
+          }
+        });
+      }
+
+      let saveTimer = null;
+      function scheduleSave(){
+        const lang = safeGet(LANG_KEY) === "en" ? "en" : "de";
+        lastHintState = "unsaved";
+        refreshHintLang(lang);
+
+        if(saveTimer) clearTimeout(saveTimer);
+        saveTimer = setTimeout(function(){
+          const obj = loadCourseObject();
+          if(!obj.pages[PAGE_ID]) obj.pages[PAGE_ID] = {};
+          const page = obj.pages[PAGE_ID];
+
+          FIELD_IDS.forEach(id=>{
+            const el = document.getElementById(id);
+            if(el) page[id] = el.value || "";
+          });
+
+          saveCourseObject(obj);
+          lastHintState = "saved";
+          refreshHintLang(lang);
+        }, 250);
+      }
+
+      FIELD_IDS.forEach(id=>{
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.addEventListener("input", scheduleSave);
+        el.addEventListener("change", scheduleSave);
+      });
+
+      document.getElementById("clearPage").addEventListener("click", function(){
+        const lang = safeGet(LANG_KEY) === "en" ? "en" : "de";
+        const msg = (lang === "en") ? i18n.en.confirm_clear_page : i18n.de.confirm_clear_page;
+        if(!confirm(msg)) return;
+
+        const obj = loadCourseObject();
+        obj.pages[PAGE_ID] = {};
+        saveCourseObject(obj);
+
+        FIELD_IDS.forEach(id=>{
+          const el = document.getElementById(id);
+          if(el) el.value = "";
+        });
+
+        lastHintState = "unsaved";
+        refreshHintLang(lang);
+      });
+
+      document.getElementById("clearAll").addEventListener("click", function(){
+        const lang = safeGet(LANG_KEY) === "en" ? "en" : "de";
+        const msg = (lang === "en") ? i18n.en.confirm_clear_all : i18n.de.confirm_clear_all;
+        if(!confirm(msg)) return;
+
+        safeRemove(COURSE_KEY);
+
+        FIELD_IDS.forEach(id=>{
+          const el = document.getElementById(id);
+          if(el) el.value = "";
+        });
+
+        lastHintState = "unsaved";
+        refreshHintLang(lang);
+        alert((lang === "en") ? i18n.en.alert_cleared : i18n.de.alert_cleared);
+      });
+
+      /* nocache for internal links */
+      (function(){
+        const t = Date.now();
+        document.querySelectorAll('a[data-internal]').forEach(a=>{
+          try{
+            const href = a.getAttribute('href');
+            const u = new URL(href, location.href);
+            u.searchParams.set('nocache', t);
+            a.href = u.pathname + u.search + u.hash;
+          }catch(e){}
+        });
+      })();
+
+      /* INIT */
+      const preferred = safeGet(LANG_KEY);
+      const lang = (preferred === "en") ? "en" : "de";
+      setLang(lang);
+      restorePageData();
+
+      (function(){
+        const obj = loadCourseObject();
+        const page = obj.pages[PAGE_ID] || {};
+        const hasAny = FIELD_IDS.some(id=> (page[id] || "").trim().length > 0);
+        lastHintState = hasAny ? "saved" : "unsaved";
+        refreshHintLang(lang);
+      })();
+
+    })();
+  </script>
+</body>
+</html>
