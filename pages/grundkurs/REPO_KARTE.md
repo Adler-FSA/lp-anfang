@@ -808,6 +808,12 @@
     │   │   ├── modul-2-wie-funktioniert.html
     │   │   ├── modul-3-wozu-nutzen.html
     │   │   └── modul-4-praxis-finanzwelt.html
+    │   ├── krypto-aufklaerung-defi/
+    │   │   ├── index.html
+    │   │   ├── modul-1-was-ist-defi.html
+    │   │   ├── modul-2-wie-funktioniert-defi.html
+    │   │   ├── modul-3-was-kann-defi-anwendungen.html
+    │   │   └── modul-4-wie-macht-man-defi-sicher.html
     │   ├── krypto-aufklaerung-versicherung/
     │   │   ├── index.html
     │   │   ├── modul-1-grundlagen.html
@@ -1110,4 +1116,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.02.2026, 19:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.02.2026, 20:20)_
