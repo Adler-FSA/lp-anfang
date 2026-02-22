@@ -796,6 +796,12 @@
     │   │   ├── trading-rahmen.html
     │   │   ├── trading-simulator.html
     │   │   └── trading-zahlen.html
+    │   ├── krypto-aufklaerung-bankblockade/
+    │   │   ├── index.html
+    │   │   ├── modul-1-ursachen.html
+    │   │   ├── modul-2-regeln-rechte.html
+    │   │   ├── modul-3-alternativen.html
+    │   │   └── modul-4-plan-abc.html
     │   ├── krypto-aufklaerung-versicherung/
     │   │   ├── index.html
     │   │   ├── modul-1-grundlagen.html
@@ -1098,4 +1104,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.02.2026, 16:22)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.02.2026, 17:21)_
