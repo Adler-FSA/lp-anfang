@@ -802,6 +802,12 @@
     │   │   ├── modul-2-regeln-rechte.html
     │   │   ├── modul-3-alternativen.html
     │   │   └── modul-4-plan-abc.html
+    │   ├── krypto-aufklaerung-blockchain/
+    │   │   ├── index.html
+    │   │   ├── modul-1-was-ist-blockchain.html
+    │   │   ├── modul-2-wie-funktioniert.html
+    │   │   ├── modul-3-wozu-nutzen.html
+    │   │   └── modul-4-praxis-finanzwelt.html
     │   ├── krypto-aufklaerung-versicherung/
     │   │   ├── index.html
     │   │   ├── modul-1-grundlagen.html
@@ -1104,4 +1110,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.02.2026, 18:28)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.02.2026, 19:20)_
