@@ -802,6 +802,12 @@
     │   │   ├── modul-2-regeln-rechte.html
     │   │   ├── modul-3-alternativen.html
     │   │   └── modul-4-plan-abc.html
+    │   ├── krypto-aufklaerung-banken-pruefen/
+    │   │   ├── index.html
+    │   │   ├── modul-1-geldwaesche-verstehen.html
+    │   │   ├── modul-2-was-banken-pruefen.html
+    │   │   ├── modul-3-richtig-reagieren.html
+    │   │   └── modul-4-vorbeugen-limits-routine.html
     │   ├── krypto-aufklaerung-blockchain/
     │   │   ├── index.html
     │   │   ├── modul-1-was-ist-blockchain.html
@@ -1116,4 +1122,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.02.2026, 21:19)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.02.2026, 22:17)_
