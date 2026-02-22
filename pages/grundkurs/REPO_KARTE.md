@@ -796,6 +796,12 @@
     │   │   ├── trading-rahmen.html
     │   │   ├── trading-simulator.html
     │   │   └── trading-zahlen.html
+    │   ├── krypto-aufklaerung-versicherung/
+    │   │   ├── index.html
+    │   │   ├── modul-1-grundlagen.html
+    │   │   ├── modul-2-versicherbarkeit.html
+    │   │   ├── modul-3-risiken-szenarien.html
+    │   │   └── modul-4-empfehlungen-grenzen.html
     │   ├── liquiditybooster/
     │   │   ├── krypto-setup-intro-en.html
     │   │   └── krypto-setup-intro.html
@@ -1092,4 +1098,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.02.2026, 07:32)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.02.2026, 08:25)_
