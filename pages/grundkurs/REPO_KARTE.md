@@ -845,7 +845,8 @@
     │   │   ├── modul-2-welche-daten-sammeln.html
     │   │   ├── modul-3-tools-listenlogik.html
     │   │   ├── modul-4-tools-listenlogik.html
-    │   │   └── modul-5-stop-regeln-ordnung.html
+    │   │   ├── modul-5-stop-regeln-ordnung.html
+    │   │   └── modul-6-steuerberater-paket-formular.html
     │   ├── krypto-aufklaerung-versicherung/
     │   │   ├── index.html
     │   │   ├── modul-1-grundlagen.html
@@ -1148,4 +1149,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.02.2026, 16:49)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.02.2026, 17:57)_
