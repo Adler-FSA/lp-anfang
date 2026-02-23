@@ -796,6 +796,9 @@
     │   │   ├── trading-rahmen.html
     │   │   ├── trading-simulator.html
     │   │   └── trading-zahlen.html
+    │   ├── krypto-aufklaerung/
+    │   │   └── steuern/
+    │   │       └── index.html
     │   ├── krypto-aufklaerung-bankblockade/
     │   │   ├── index.html
     │   │   ├── modul-1-ursachen.html
@@ -836,6 +839,13 @@
     │   │   ├── modul-4-airdrops-claim-wallet-connection.html
     │   │   ├── modul-5-checkliste-sicher-handeln.html
     │   │   └── modul-6-wenn-etwas-passiert-ruhig-reagieren.html
+    │   ├── krypto-aufklaerung-steuern/
+    │   │   ├── index.html
+    │   │   ├── modul-1-grundlogik-ohne-angst.html
+    │   │   ├── modul-2-welche-daten-sammeln.html
+    │   │   ├── modul-3-tools-listenlogik.html
+    │   │   ├── modul-4-tools-listenlogik.html
+    │   │   └── modul-5-stop-regeln-ordnung.html
     │   ├── krypto-aufklaerung-versicherung/
     │   │   ├── index.html
     │   │   ├── modul-1-grundlagen.html
@@ -1138,4 +1148,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.02.2026, 14:05)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.02.2026, 15:43)_
