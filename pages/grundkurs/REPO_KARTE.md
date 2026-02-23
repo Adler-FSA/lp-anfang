@@ -833,7 +833,9 @@
     │   │   ├── modul-1-wie-scams-funktionieren.html
     │   │   ├── modul-2-fake-support-social-media.html
     │   │   ├── modul-3-phishing-fake-apps-links.html
-    │   │   └── modul-4-airdrops-claim-wallet-connection.html
+    │   │   ├── modul-4-airdrops-claim-wallet-connection.html
+    │   │   ├── modul-5-checkliste-sicher-handeln.html
+    │   │   └── modul-6-wenn-etwas-passiert-ruhig-reagieren.html
     │   ├── krypto-aufklaerung-versicherung/
     │   │   ├── index.html
     │   │   ├── modul-1-grundlagen.html
@@ -1136,4 +1138,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.02.2026, 08:42)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.02.2026, 09:48)_
