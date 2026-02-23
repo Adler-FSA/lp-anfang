@@ -820,6 +820,14 @@
     │   │   ├── modul-2-wie-funktioniert-defi.html
     │   │   ├── modul-3-was-kann-defi-anwendungen.html
     │   │   └── modul-4-wie-macht-man-defi-sicher.html
+    │   ├── krypto-aufklaerung-investieren/
+    │   │   ├── index.html
+    │   │   ├── modul-1-was-ist-ein-krypto-projekt.html
+    │   │   ├── modul-2-serioes-pruefen.html
+    │   │   ├── modul-3-warnsignale-stop-regeln.html
+    │   │   ├── modul-4-tokenomics-glossar.html
+    │   │   ├── modul-5-limits-vorgehensweise.html
+    │   │   └── modul-6-berater-interessen.html
     │   ├── krypto-aufklaerung-versicherung/
     │   │   ├── index.html
     │   │   ├── modul-1-grundlagen.html
@@ -1122,4 +1130,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.02.2026, 06:01)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.02.2026, 07:50)_
