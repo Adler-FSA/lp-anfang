@@ -691,7 +691,9 @@
     │   │   ├── modul-1-bildungsauftrag.html
     │   │   ├── modul-2-club-ethik-umgang.html
     │   │   ├── modul-3-kommunikation-claims.html
-    │   │   └── modul-4-verguetung-transparenz-grenzen.html
+    │   │   ├── modul-4-verguetung-transparenz-grenzen.html
+    │   │   ├── modul-5-neutralitaet-integritaet.html
+    │   │   └── modul-6-veranstaltungen-verhaltenskodex.html
     │   ├── faq/
     │   │   ├── faq/
     │   │   │   └── einkommen-auszahlung.html
@@ -1155,4 +1157,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.02.2026, 10:42)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.02.2026, 11:36)_
