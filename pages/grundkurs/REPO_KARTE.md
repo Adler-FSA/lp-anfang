@@ -229,6 +229,7 @@
     │   │   │   └── onboarding/
     │   │   ├── README.txt
     │   │   ├── ceo-bausteine.PNG
+    │   │   ├── compliance.jpg
     │   │   ├── frohe-weihnachten.jpg
     │   │   ├── index.json
     │   │   ├── kick-of-01.jpeg
@@ -1157,4 +1158,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.02.2026, 14:08)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.02.2026, 15:56)_
