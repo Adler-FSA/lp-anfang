@@ -864,7 +864,8 @@
     │   │   └── modul-4-empfehlungen-grenzen.html
     │   ├── liquiditybooster/
     │   │   ├── krypto-setup-intro-en.html
-    │   │   └── krypto-setup-intro.html
+    │   │   ├── krypto-setup-intro.html
+    │   │   └── termine.html
     │   ├── mentor/
     │   │   ├── lektion-souveraen.html
     │   │   └── trustyfy-bewusstsein.html
@@ -1158,4 +1159,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.02.2026, 08:41)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.02.2026, 09:48)_
