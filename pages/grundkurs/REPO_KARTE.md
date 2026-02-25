@@ -915,7 +915,9 @@
     │   ├── photovoltaik-als-kapitalanlage/
     │   │   ├── index.html
     │   │   ├── module-01.html
-    │   │   └── module-02.html
+    │   │   ├── module-02.html
+    │   │   ├── module-03.html
+    │   │   └── module-04.html
     │   ├── produkte/
     │   │   ├── demo-hoersaal-starter-01-settings.html
     │   │   ├── demo-hoersaal-starter-02-vorschau-hub.html
@@ -1163,4 +1165,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.02.2026, 21:30)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.02.2026, 22:27)_
