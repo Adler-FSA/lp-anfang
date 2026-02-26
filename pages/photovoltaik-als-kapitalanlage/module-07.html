@@ -1,1 +1,1601 @@
+<!doctype html>
+<!--
+  FSA • Premium Kurs (Workbook)
+  Kurs: Photovoltaik als Kapitalanlage
+  Modul 07: Rendite realistisch verstehen
+
+  GitHub-Pfad: lp-anfang/pages/photovoltaik-als-kapitalanlage/module-07.html
+  Commit-Message: photovoltaik-als-kapitalanlage – Modul 07 (Rendite realistisch) Premium: Rendite-Logik + Annahmen-Check (Auswahl), Demo-Rechenwege, Wow-Chart, Glossar, Print, LocalStorage (DE/EN)
+  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/photovoltaik-als-kapitalanlage/module-07.html?nocache=__TS__
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Modul 07 – Rendite realistisch • Photovoltaik als Kapitalanlage</title>
+  <meta name="description" content="Modul 07 (DE/EN): Rendite realistisch verstehen – Annahmen, Cashflow, Preislogik, Ausfallzeiten, Degradation. Premium Workbook mit Auswahlfeldern, Demo-Rechenwegen, Wow-Chart, Glossar, Print und LocalStorage." />
+  <meta name="robots" content="index,follow" />
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --ink:#0f1114;
+      --muted:#47505f;
+
+      --line: rgba(15,17,20,.12);
+      --line2: rgba(15,17,20,.18);
+
+      --gold:#c8a63a;
+      --gold2:#e0c466;
+
+      --accent:#0b7d5c;
+      --accent2:#1aa57a;
+
+      --danger:#c52646;
+      --dangerSoft: rgba(197,38,70,.12);
+
+      --shadow: 0 14px 34px rgba(0,0,0,.10);
+      --shadow2: 0 26px 70px rgba(0,0,0,.12);
+
+      --radius:18px;
+      --max: 1140px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 720px at 10% 8%, rgba(200,166,58,.18), transparent 58%),
+        radial-gradient(1050px 720px at 88% 14%, rgba(11,125,92,.14), transparent 58%),
+        radial-gradient(920px 640px at 52% 96%, rgba(197,38,70,.10), transparent 60%),
+        linear-gradient(180deg, #ffffff 0%, #fbfbfc 45%, #ffffff 100%);
+      overflow-x:hidden;
+    }
+
+    .spark{
+      position:fixed;
+      inset:-30vh -30vw auto -30vw;
+      height:60vh;
+      pointer-events:none;
+      z-index:0;
+      filter: blur(18px);
+      opacity:.55;
+      background:
+        radial-gradient(closest-side at 18% 35%, rgba(200,166,58,.30), transparent 65%),
+        radial-gradient(closest-side at 68% 28%, rgba(11,125,92,.24), transparent 65%),
+        radial-gradient(closest-side at 48% 85%, rgba(197,38,70,.16), transparent 70%);
+      transform: translate3d(0,0,0);
+      animation: floaty 10s ease-in-out infinite;
+    }
+    @keyframes floaty{
+      0%{ transform: translate3d(0px, 0px, 0px) scale(1); }
+      50%{ transform: translate3d(12px, 10px, 0px) scale(1.02); }
+      100%{ transform: translate3d(0px, 0px, 0px) scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce){
+      .spark{ animation:none; }
+      .shine:before{ animation:none !important; }
+    }
+
+    .wrap{
+      position:relative;
+      z-index:1;
+      max-width:var(--max);
+      margin:0 auto;
+      padding: 22px 18px 84px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding: 10px 12px;
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.78));
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .brand:before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(520px 180px at 12% 30%, rgba(200,166,58,.16), transparent 64%),
+        radial-gradient(520px 180px at 84% 20%, rgba(11,125,92,.12), transparent 64%);
+      pointer-events:none;
+    }
+    .brand > *{ position:relative; }
+    .brand svg{ width:22px; height:22px; flex:0 0 auto; }
+    .brand .t1{ font-weight:1000; letter-spacing:.2px; line-height:1.1; }
+    .brand .t2{ font-size:12px; color:var(--muted); margin-top:2px; line-height:1.1; }
+
+    .premiumTag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-top:6px;
+      font-size:11px;
+      font-weight:1000;
+      letter-spacing:.35px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border:1px solid rgba(200,166,58,.35);
+      background: rgba(200,166,58,.10);
+      color: rgba(15,17,20,.86);
+      width: fit-content;
+    }
+    .premiumTag .dot{
+      width:8px; height:8px; border-radius:50%;
+      background: linear-gradient(180deg, var(--gold2), var(--gold));
+      box-shadow: 0 0 10px rgba(200,166,58,.35);
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+
+    .lang{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.72));
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+    }
+    .lang label{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:900;
+    }
+    .lang select{
+      background: rgba(255,255,255,.92);
+      border:1px solid rgba(15,17,20,.18);
+      color: var(--ink);
+      border-radius:10px;
+      padding:8px 10px;
+      font-weight:1000;
+      outline:none;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.76));
+      color:var(--ink);
+      padding:10px 12px;
+      border-radius: 12px;
+      font-weight:1000;
+      cursor:pointer;
+      box-shadow: var(--shadow);
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
+      user-select:none;
+      transition: transform .10s ease, border-color .14s ease, box-shadow .14s ease;
+    }
+    .btn:hover{ transform: translateY(-1px); border-color: rgba(200,166,58,.45); box-shadow: var(--shadow2); }
+    .btn:active{ transform: translateY(0px); }
+    .btn .dot{
+      width:10px; height:10px; border-radius:50%;
+      background: linear-gradient(180deg, var(--gold2), var(--gold));
+      box-shadow: 0 0 12px rgba(200,166,58,.45);
+    }
+    .btn.secondary .dot{
+      background: linear-gradient(180deg, var(--accent2), var(--accent));
+      box-shadow: 0 0 12px rgba(11,125,92,.38);
+    }
+    .btn.danger .dot{
+      background: linear-gradient(180deg, rgba(197,38,70,.9), rgba(197,38,70,1));
+      box-shadow: 0 0 12px rgba(197,38,70,.30);
+    }
+
+    .hero{
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow2);
+      padding: 18px 18px 16px;
+      margin-bottom: 14px;
+      position:relative;
+      overflow:hidden;
+      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.82));
+    }
+    .hero:before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(840px 280px at 14% 16%, rgba(200,166,58,.20), transparent 65%),
+        radial-gradient(740px 260px at 86% 18%, rgba(11,125,92,.14), transparent 65%),
+        radial-gradient(720px 260px at 40% 98%, rgba(197,38,70,.10), transparent 70%);
+      pointer-events:none;
+    }
+    .hero:after{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius: var(--radius);
+      pointer-events:none;
+      background: linear-gradient(90deg, rgba(200,166,58,.22), transparent 18%, transparent 82%, rgba(200,166,58,.18));
+      mix-blend-mode: multiply;
+      opacity:.45;
+    }
+    .hero > *{ position:relative; }
+
+    h1{ margin:0 0 10px; font-size: 28px; letter-spacing:.2px; line-height:1.2; }
+    .sub{ margin:0; color: var(--muted); line-height:1.75; font-size:14.8px; max-width: 98ch; }
+
+    .card{
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px 16px 14px;
+      margin-top: 12px;
+      position:relative;
+      overflow:hidden;
+      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.84));
+    }
+    .card:before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(620px 180px at 16% 8%, rgba(200,166,58,.12), transparent 65%),
+        radial-gradient(620px 180px at 84% 12%, rgba(11,125,92,.10), transparent 65%);
+      pointer-events:none;
+      opacity:.75;
+    }
+    .card > *{ position:relative; }
+
+    .card h2{ margin:0 0 10px; font-size:16px; letter-spacing:.2px; }
+    .card p{ margin:0 0 10px; color: var(--muted); font-size:14.2px; line-height:1.8; }
+
+    .notice{
+      border:1px solid rgba(200,166,58,.38);
+      background: rgba(200,166,58,.10);
+      border-radius: 14px;
+      padding: 12px 12px;
+      color: rgba(15,17,20,.92);
+      line-height:1.75;
+      font-size:13.6px;
+      margin-top:12px;
+      position:relative;
+      overflow:hidden;
+    }
+    .notice:before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(520px 160px at 18% 50%, rgba(200,166,58,.18), transparent 70%);
+      pointer-events:none;
+    }
+    .notice > *{ position:relative; }
+    .notice strong{ color: #7a5c00; }
+
+    /* Glossar */
+    .glossWrap{ margin-top:10px; }
+    details.gloss{
+      border:1px solid rgba(15,17,20,.12);
+      border-radius: 14px;
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 10px 22px rgba(0,0,0,.05);
+      padding: 10px 12px;
+      margin: 10px 0;
+      overflow:hidden;
+    }
+    details.gloss[open]{
+      border-color: rgba(11,125,92,.22);
+      box-shadow: 0 18px 40px rgba(0,0,0,.08);
+    }
+    details.gloss summary{
+      cursor:pointer;
+      list-style:none;
+      font-weight:1000;
+      color: rgba(15,17,20,.92);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      outline:none;
+    }
+    details.gloss summary::-webkit-details-marker{ display:none; }
+    .glossBadge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-size:11px;
+      font-weight:1000;
+      padding: 4px 8px;
+      border-radius:999px;
+      border:1px solid rgba(200,166,58,.30);
+      background: rgba(200,166,58,.10);
+      color: rgba(15,17,20,.82);
+      flex:0 0 auto;
+    }
+    .glossBadge .dot{
+      width:8px; height:8px; border-radius:50%;
+      background: linear-gradient(180deg, var(--gold2), var(--gold));
+      box-shadow: 0 0 10px rgba(200,166,58,.28);
+    }
+    .glossBody{
+      margin-top:10px;
+      color: var(--muted);
+      line-height:1.8;
+      font-size: 13.8px;
+    }
+
+    /* Auswahl-Felder */
+    .form{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+    .field{
+      border:1px solid rgba(15,17,20,.12);
+      border-radius: 14px;
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 10px 22px rgba(0,0,0,.05);
+      padding: 12px 12px;
+      position:relative;
+      overflow:hidden;
+    }
+    .field:before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(520px 160px at 10% 40%, rgba(200,166,58,.08), transparent 70%),
+        radial-gradient(520px 160px at 90% 30%, rgba(11,125,92,.06), transparent 70%);
+      pointer-events:none;
+      opacity:.9;
+    }
+    .field > *{ position:relative; }
+    .field .lbl{
+      font-weight:1000;
+      font-size:13px;
+      margin-bottom:6px;
+      color: rgba(15,17,20,.92);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .hint{
+      font-weight:900;
+      font-size:12px;
+      color: rgba(71,80,95,.92);
+      background: rgba(11,125,92,.08);
+      border:1px solid rgba(11,125,92,.18);
+      border-radius: 999px;
+      padding: 4px 8px;
+    }
+    select{
+      width:100%;
+      border:1px solid rgba(15,17,20,.18);
+      border-radius: 12px;
+      padding: 10px 10px;
+      font: inherit;
+      background: rgba(255,255,255,.96);
+      color: var(--ink);
+      outline:none;
+      font-weight:900;
+    }
+    .help{
+      margin-top:8px;
+      color: rgba(71,80,95,.92);
+      font-size:12.8px;
+      line-height:1.65;
+    }
+
+    /* Demo-Rechenwege */
+    .demo{
+      border:1px solid rgba(15,17,20,.12);
+      border-radius: 16px;
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 12px 26px rgba(0,0,0,.06);
+      padding: 12px 12px;
+      margin-top:10px;
+      position:relative;
+      overflow:hidden;
+    }
+    .demo:before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(520px 180px at 18% 50%, rgba(200,166,58,.10), transparent 70%),
+        radial-gradient(520px 180px at 82% 40%, rgba(11,125,92,.08), transparent 70%);
+      pointer-events:none;
+      opacity:.9;
+    }
+    .demo > *{ position:relative; }
+    .demo .line{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; flex-wrap:wrap;
+      padding:8px 0;
+      border-top:1px dashed rgba(15,17,20,.14);
+    }
+    .demo .line:first-child{ border-top:none; }
+    .demo .k{ font-weight:1000; color: rgba(15,17,20,.92); }
+    .demo .v{ font-weight:1100; color: rgba(15,17,20,.92); }
+    .demo .s{ font-size:12.6px; color: rgba(71,80,95,.92); line-height:1.55; margin-top:6px; }
+
+    /* KPIs */
+    .kpis{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    @media (min-width: 720px){
+      .kpis{ grid-template-columns: 1fr 1fr 1fr 1fr; }
+    }
+    .kpi{
+      border:1px solid rgba(15,17,20,.12);
+      border-radius: 14px;
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 12px 26px rgba(0,0,0,.06);
+      padding: 12px 12px;
+      position:relative;
+      overflow:hidden;
+      min-height: 82px;
+    }
+    .kpi:before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(520px 160px at 18% 50%, rgba(200,166,58,.10), transparent 70%),
+        radial-gradient(520px 160px at 82% 40%, rgba(11,125,92,.08), transparent 70%);
+      pointer-events:none;
+      opacity:.9;
+    }
+    .kpi > *{ position:relative; }
+    .kpi .t{ font-size:12px; font-weight:1000; color: rgba(71,80,95,.92); }
+    .kpi .v{ font-size:18px; font-weight:1100; margin-top:4px; color: rgba(15,17,20,.94); }
+    .kpi .s{ font-size:12px; margin-top:2px; color: rgba(71,80,95,.88); line-height:1.35; }
+
+    /* Wow Chart */
+    .viz{
+      border:1px solid rgba(15,17,20,.12);
+      border-radius: 16px;
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 14px 34px rgba(0,0,0,.08);
+      padding: 12px 12px;
+      margin-top: 10px;
+      overflow:hidden;
+      position:relative;
+    }
+    .viz.shine:before{
+      content:"";
+      position:absolute;
+      inset:-60% -40%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+      transform: rotate(18deg);
+      opacity:.28;
+      animation: sheen 6.5s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes sheen{
+      0%{ transform: translateX(-30%) rotate(18deg); opacity:.12; }
+      50%{ transform: translateX(18%) rotate(18deg); opacity:.32; }
+      100%{ transform: translateX(60%) rotate(18deg); opacity:.12; }
+    }
+    .vizTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .vizTop .title{ font-weight:1100; color: rgba(15,17,20,.94); }
+    .vizTop .note{
+      font-size:12px;
+      font-weight:900;
+      color: rgba(71,80,95,.92);
+      background: rgba(200,166,58,.10);
+      border:1px solid rgba(200,166,58,.22);
+      border-radius: 999px;
+      padding: 4px 8px;
+      width: fit-content;
+    }
+    .vizFrame{
+      border:1px solid rgba(15,17,20,.10);
+      border-radius: 16px;
+      background: rgba(255,255,255,.92);
+      padding: 10px;
+      overflow:hidden;
+      box-shadow: inset 0 0 0 1px rgba(200,166,58,.06);
+    }
+    .viz svg{ width:100%; height:auto; display:block; }
+
+    /* Checklist */
+    .checks{ display:flex; flex-direction:column; gap:8px; margin-top:10px; }
+    .chk{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      border:1px solid rgba(15,17,20,.12);
+      background: rgba(255,255,255,.72);
+      border-radius: 14px;
+      padding: 10px 12px;
+      box-shadow: 0 10px 22px rgba(0,0,0,.05);
+    }
+    .chk input{
+      width:18px; height:18px;
+      margin-top:2px;
+      accent-color: var(--accent);
+      flex:0 0 auto;
+    }
+    .chk .t{ font-weight:1000; color: rgba(15,17,20,.92); line-height:1.4; }
+    .chk .d{ margin-top:2px; color: rgba(71,80,95,.92); font-size:12.8px; line-height:1.6; }
+
+    .footer{ margin-top: 16px; color: rgba(71,80,95,.85); font-size: 12px; line-height:1.6; text-align:center; }
+
+    @media print{
+      body{ background:#fff !important; color:#000 !important; }
+      .spark, .topbar, .actions, .lang, .btn, .footer{ display:none !important; }
+      .wrap{ max-width: 820px; padding: 0; }
+      .hero, .card, .field, .viz, details.gloss, .demo, .chk, .kpi{
+        box-shadow:none !important;
+        background:#fff !important;
+        border:1px solid #bbb !important;
+        color:#000 !important;
+      }
+      .sub, .card p, .glossBody, .help, .chk .d, .kpi .s, .demo .s{ color:#111 !important; }
+      .notice{ border:1px solid #999 !important; background:#f7f2df !important; color:#000 !important; }
+      details.gloss{ break-inside: avoid; }
+      .viz.shine:before{ display:none !important; }
+      .hint{ border:1px solid #bbb !important; background:#f2f2f2 !important; color:#000 !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="spark" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand" aria-label="Kurs">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <defs>
+            <linearGradient id="gSunM7" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#c8a63a"/>
+              <stop offset="1" stop-color="#e0c466"/>
+            </linearGradient>
+          </defs>
+          <circle cx="12" cy="12" r="5.2" fill="url(#gSunM7)"></circle>
+          <g fill="none" stroke="rgba(15,17,20,.75)" stroke-width="1.2" stroke-linecap="round">
+            <path d="M12 2.2v2.2M12 19.6v2.2M2.2 12h2.2M19.6 12h2.2"/>
+            <path d="M4.6 4.6l1.55 1.55M17.85 17.85l1.55 1.55M19.4 4.6l-1.55 1.55M6.15 17.85L4.6 19.4"/>
+          </g>
+        </svg>
+        <div>
+          <div class="t1" data-i18n="brand_title">Premium Kurs</div>
+          <div class="t2" data-i18n="brand_sub">Photovoltaik als Kapitalanlage</div>
+          <div class="premiumTag" aria-hidden="true">
+            <span class="dot"></span>
+            <span data-i18n="premium_tag">Modul 07 • Hauptkurs</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a class="btn" id="toIndex" href="index.html" data-nocache="1" title="Index">
+          <span class="dot" aria-hidden="true"></span>
+          <span data-i18n="btn_index">Index</span>
+        </a>
+
+        <div class="lang" title="Sprache / Language">
+          <label for="langSel" data-i18n="lang_label">Sprache</label>
+          <select id="langSel" aria-label="Sprache wählen">
+            <option value="de">DE</option>
+            <option value="en">EN</option>
+          </select>
+        </div>
+
+        <button class="btn secondary" id="printBtn" type="button" title="Drucken / Print">
+          <span class="dot" aria-hidden="true"></span>
+          <span data-i18n="btn_print">Drucken</span>
+        </button>
+
+        <button class="btn danger" id="resetBtn" type="button" title="Projektakte leeren">
+          <span class="dot" aria-hidden="true"></span>
+          <span data-i18n="btn_reset">Projektakte leeren</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="hero">
+      <h1 data-i18n="h1">Modul 07 – Rendite realistisch verstehen</h1>
+      <p class="sub" data-i18n="sub">
+        Dieses Modul zeigt, wie Rendite in PV-Angeboten typischerweise entsteht – und wo sie in der Praxis „kippen“ kann.
+        Ziel: Du erkennst Annahmen, fragst nach Belegen und lässt dir Rechenwege verständlich erklären.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="sec1_title">1) Rendite ist kein Zauber – sie ist eine Rechen-Logik</h2>
+      <p data-i18n="sec1_p1">
+        Rendite entsteht aus Ertrag (kWh) × Preis (€/kWh) minus Kosten. Klingt einfach – wird aber oft kompliziert,
+        weil Preise, Ausfälle, Abregelung und Langfristigkeit über viele Jahre geschätzt werden müssen.
+      </p>
+      <p data-i18n="sec1_p2">
+        Der wichtigste Schutz ist nicht „selbst rechnen können“, sondern: Annahmen sehen + Belege einfordern + Szenarien verstehen.
+      </p>
+
+      <div class="notice">
+        <strong data-i18n="notice_title">Wichtiger Hinweis:</strong>
+        <span data-i18n="notice_text">Keine Anlageberatung, keine Steuer- oder Rechtsberatung. Dieses Modul ist Bildung: Rendite-Logik, Annahmen-Check, Fragenkatalog.</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="sec2_title">2) Glossar: Worte, die Rendite „schön“ wirken lassen können</h2>
+
+      <div class="glossWrap">
+        <details class="gloss">
+          <summary>
+            <span data-i18n="g1_t">Begriff: Amortisation</span>
+            <span class="glossBadge"><span class="dot" aria-hidden="true"></span><span data-i18n="g_badge">Glossar</span></span>
+          </summary>
+          <div class="glossBody" data-i18n="g1_b">
+            Amortisation heißt: Wie viele Jahre es dauert, bis sich eine Investition durch Überschüsse „zurückverdient“.
+            Wichtig: Amortisation ist nicht automatisch „Gewinn“ – und sie hängt extrem von Annahmen ab.
+          </div>
+        </details>
+
+        <details class="gloss">
+          <summary>
+            <span data-i18n="g2_t">Begriff: Degradation</span>
+            <span class="glossBadge"><span class="dot" aria-hidden="true"></span><span data-i18n="g_badge">Glossar</span></span>
+          </summary>
+          <div class="glossBody" data-i18n="g2_b">
+            Degradation ist der schleichende Leistungsrückgang von Modulen über Jahre. In realistischen Kalkulationen wird das berücksichtigt.
+            Wird es ignoriert, wirkt die Rendite zu hoch.
+          </div>
+        </details>
+
+        <details class="gloss">
+          <summary>
+            <span data-i18n="g3_t">Begriff: Cashflow</span>
+            <span class="glossBadge"><span class="dot" aria-hidden="true"></span><span data-i18n="g_badge">Glossar</span></span>
+          </summary>
+          <div class="glossBody" data-i18n="g3_b">
+            Cashflow ist der jährliche Überschuss nach Kosten. Rendite-Versprechen ohne Cashflow-Plan (Jahr für Jahr) sind ein Warnsignal.
+          </div>
+        </details>
+
+        <details class="gloss">
+          <summary>
+            <span data-i18n="g4_t">Begriff: Szenario</span>
+            <span class="glossBadge"><span class="dot" aria-hidden="true"></span><span data-i18n="g_badge">Glossar</span></span>
+          </summary>
+          <div class="glossBody" data-i18n="g4_b">
+            Ein Szenario ist eine bewusst veränderte Annahme (z. B. Preis niedriger, Ertrag niedriger, Ausfallzeit höher),
+            um zu sehen, ob ein Projekt trotzdem stabil bleibt.
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="sec3_title">3) Annahmen-Check (alles als Auswahlfelder)</h2>
+      <p data-i18n="sec3_p1">
+        Wähle aus, wie die Rendite im Angebot begründet ist. Je klarer und belegbarer, desto besser.
+      </p>
+
+      <div class="form">
+        <div class="field">
+          <div class="lbl">
+            <span data-i18n="f1_lbl">Ertragsannahmen (kWh) sind…</span>
+            <span class="hint" data-i18n="hint_yield">Ertrag</span>
+          </div>
+          <select data-save="m07_yield">
+            <option value="" data-i18n="opt_choose">Bitte wählen…</option>
+            <option value="gut" data-i18n="f1_o1">mit Standort/Simulation erklärt + plausibel</option>
+            <option value="ok" data-i18n="f1_o2">grob erklärt</option>
+            <option value="unklar" data-i18n="f1_o3">unklar („wird schon passen“)</option>
+            <option value="keine" data-i18n="f1_o4">nicht nachvollziehbar</option>
+          </select>
+          <div class="help" data-i18n="f1_help">Frage nach: Simulation/Ertragsgutachten, Ausrichtung, Verschattung, Degradation.</div>
+        </div>
+
+        <div class="field">
+          <div class="lbl">
+            <span data-i18n="f2_lbl">Preisannahmen (Vergütung / Marktpreis / Strompreis) sind…</span>
+            <span class="hint" data-i18n="hint_price">Preis</span>
+          </div>
+          <select data-save="m07_price">
+            <option value="" data-i18n="opt_choose">Bitte wählen…</option>
+            <option value="konservativ" data-i18n="f2_o1">konservativ + begründet</option>
+            <option value="neutral" data-i18n="f2_o2">realistisch aber knapp begründet</option>
+            <option value="optimistisch" data-i18n="f2_o3">sehr optimistisch</option>
+            <option value="keine" data-i18n="f2_o4">nicht erklärt</option>
+          </select>
+          <div class="help" data-i18n="f2_help">Achte auf: feste Vergütung vs. Marktpreis, Indexierung, Laufzeiten, Risiken.</div>
+        </div>
+
+        <div class="field">
+          <div class="lbl">
+            <span data-i18n="f3_lbl">Ausfallzeiten / Wartung / Abregelung werden…</span>
+            <span class="hint" data-i18n="hint_downtime">Ausfälle</span>
+          </div>
+          <select data-save="m07_downtime">
+            <option value="" data-i18n="opt_choose">Bitte wählen…</option>
+            <option value="beruecksichtigt" data-i18n="f3_o1">berücksichtigt (mit Begründung)</option>
+            <option value="teil" data-i18n="f3_o2">teilweise erwähnt</option>
+            <option value="ignoriert" data-i18n="f3_o3">ignoriert</option>
+          </select>
+          <div class="help" data-i18n="f3_help">Wenn Ausfälle ignoriert werden, ist jede Rendite automatisch zu hoch.</div>
+        </div>
+
+        <div class="field">
+          <div class="lbl">
+            <span data-i18n="f4_lbl">Langfristige Kosten (Versicherung, Ersatzteile, Rücklage) sind…</span>
+            <span class="hint" data-i18n="hint_costs">Kosten</span>
+          </div>
+          <select data-save="m07_costs">
+            <option value="" data-i18n="opt_choose">Bitte wählen…</option>
+            <option value="klar" data-i18n="f4_o1">klar aufgeführt</option>
+            <option value="teil" data-i18n="f4_o2">teilweise aufgeführt</option>
+            <option value="klein" data-i18n="f4_o3">wirken zu klein</option>
+            <option value="keine" data-i18n="f4_o4">nicht vorhanden</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="sec4_title">4) Demo-Rechenweg (nur zum Verständnis)</h2>
+      <p data-i18n="sec4_p1">
+        Hier geht es nicht um echte Werte, sondern um den Rechenweg, den dir ein seriöser Anbieter erklären können muss.
+      </p>
+
+      <div class="demo">
+        <div class="line">
+          <div class="k" data-i18n="d1_k">Schritt 1: Jahresertrag (kWh)</div>
+          <div class="v" id="demoY">–</div>
+        </div>
+        <div class="line">
+          <div class="k" data-i18n="d2_k">Schritt 2: Preisannahme (€/kWh)</div>
+          <div class="v" id="demoP">–</div>
+        </div>
+        <div class="line">
+          <div class="k" data-i18n="d3_k">Schritt 3: Brutto (Ertrag × Preis)</div>
+          <div class="v" id="demoB">–</div>
+        </div>
+        <div class="line">
+          <div class="k" data-i18n="d4_k">Schritt 4: minus Kosten/Rücklage</div>
+          <div class="v" id="demoC">–</div>
+        </div>
+        <div class="line">
+          <div class="k" data-i18n="d5_k">Schritt 5: Cashflow (Überschuss/Jahr)</div>
+          <div class="v" id="demoCF">–</div>
+        </div>
+        <div class="s" data-i18n="demo_s">
+          Wenn ein Angebot keinen Jahres-Cashflow zeigt oder keine Belege zu Annahmen liefert, fehlt die Grundlage für eine Entscheidung.
+        </div>
+      </div>
+
+      <div class="notice">
+        <strong data-i18n="demo_note_t">Merksatz:</strong>
+        <span data-i18n="demo_note_b">Rendite ohne Annahmen + Belege ist kein Ergebnis – sondern Marketing.</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="sec5_title">5) Wow-Chart: Wie Annahmen Rendite verändern</h2>
+      <p data-i18n="sec5_p1">
+        Die Balken zeigen beispielhaft: konservativ / neutral / optimistisch. Das ist keine Prognose – nur eine Visualisierung,
+        warum man Annahmen sehen muss.
+      </p>
+
+      <div class="viz shine">
+        <div class="vizTop">
+          <div class="title" data-i18n="viz_title">Annahmen-Sensitivität (Illustration)</div>
+          <div class="note" data-i18n="viz_note">keine Echt-Daten</div>
+        </div>
+
+        <div class="vizFrame">
+          <svg viewBox="0 0 1200 420" role="img" aria-label="Rendite Sensitivität">
+            <defs>
+              <linearGradient id="barG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="rgba(200,166,58,.85)"/>
+                <stop offset="1" stop-color="rgba(200,166,58,.30)"/>
+              </linearGradient>
+              <linearGradient id="barA" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="rgba(11,125,92,.80)"/>
+                <stop offset="1" stop-color="rgba(11,125,92,.24)"/>
+              </linearGradient>
+              <linearGradient id="barD" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="rgba(197,38,70,.78)"/>
+                <stop offset="1" stop-color="rgba(197,38,70,.22)"/>
+              </linearGradient>
+            </defs>
+
+            <rect x="30" y="20" width="1140" height="380" rx="18" fill="rgba(255,255,255,.96)" stroke="rgba(15,17,20,.12)"/>
+
+            <!-- grid -->
+            <g stroke="rgba(15,17,20,.10)" stroke-width="1">
+              <path d="M90 330H1130"/>
+              <path d="M90 270H1130"/>
+              <path d="M90 210H1130"/>
+              <path d="M90 150H1130"/>
+              <path d="M90 90H1130"/>
+            </g>
+
+            <!-- bars -->
+            <rect x="210" y="170" width="160" height="160" rx="14" fill="url(#barD)" stroke="rgba(197,38,70,.26)"/>
+            <rect x="520" y="120" width="160" height="210" rx="14" fill="url(#barA)" stroke="rgba(11,125,92,.24)"/>
+            <rect x="830" y="80" width="160" height="250" rx="14" fill="url(#barG)" stroke="rgba(200,166,58,.26)"/>
+
+            <!-- labels -->
+            <g font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" fill="rgba(15,17,20,.92)">
+              <text x="170" y="360" font-size="14" font-weight="900">konservativ</text>
+              <text x="500" y="360" font-size="14" font-weight="900">neutral</text>
+              <text x="825" y="360" font-size="14" font-weight="900">optimistisch</text>
+
+              <text x="210" y="158" font-size="12.6" font-weight="900" fill="rgba(71,80,95,.92)">mehr Puffer</text>
+              <text x="520" y="108" font-size="12.6" font-weight="900" fill="rgba(71,80,95,.92)">realistisch</text>
+              <text x="830" y="68"  font-size="12.6" font-weight="900" fill="rgba(71,80,95,.92)">wenig Puffer</text>
+
+              <text x="92" y="92" font-size="12" font-weight="800" fill="rgba(71,80,95,.92)">höherer Überschuss</text>
+              <text x="92" y="340" font-size="12" font-weight="800" fill="rgba(71,80,95,.92)">niedrigerer Überschuss</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="sec6_title">6) Checkliste: Rendite-Schutz durch Fragen</h2>
+      <p data-i18n="sec6_p1">Haken setzen, wenn du Antwort + Beleg bekommen hast.</p>
+
+      <div class="checks">
+        <label class="chk">
+          <input type="checkbox" data-save-check="m07_c1" />
+          <span>
+            <div class="t" data-i18n="c1_t">Ertrag ist nachvollziehbar (Simulation/Gutachten)</div>
+            <div class="d" data-i18n="c1_d">Ausrichtung, Verschattung, Degradation – erklärt.</div>
+          </span>
+        </label>
+
+        <label class="chk">
+          <input type="checkbox" data-save-check="m07_c2" />
+          <span>
+            <div class="t" data-i18n="c2_t">Preisannahmen sind erklärt + konservativ</div>
+            <div class="d" data-i18n="c2_d">Vergütung/Marktpreis/Laufzeit – klar.</div>
+          </span>
+        </label>
+
+        <label class="chk">
+          <input type="checkbox" data-save-check="m07_c3" />
+          <span>
+            <div class="t" data-i18n="c3_t">Kosten + Rücklagen sind vollständig</div>
+            <div class="d" data-i18n="c3_d">Versicherung, Wartung, Ersatzteile – enthalten.</div>
+          </span>
+        </label>
+
+        <label class="chk">
+          <input type="checkbox" data-save-check="m07_c4" />
+          <span>
+            <div class="t" data-i18n="c4_t">Es gibt Szenarien/Stresstest</div>
+            <div class="d" data-i18n="c4_d">Was passiert bei weniger Ertrag oder niedrigeren Preisen?</div>
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="sec7_title">7) Mini-Tool: Rendite-Vertrauen (Orientierung)</h2>
+      <p data-i18n="sec7_p1">
+        Dieses Tool bewertet nicht die Rendite – es zeigt nur, ob die Grundlage (Annahmen/Belege) solide wirkt.
+      </p>
+
+      <div class="kpis">
+        <div class="kpi">
+          <div class="t" data-i18n="k1_t">Ertrag-Grundlage</div>
+          <div class="v" id="kpiA">–</div>
+          <div class="s" data-i18n="k1_s">Wie belegbar ist der Ertrag?</div>
+        </div>
+        <div class="kpi">
+          <div class="t" data-i18n="k2_t">Preis-Grundlage</div>
+          <div class="v" id="kpiB">–</div>
+          <div class="s" data-i18n="k2_s">Wie plausibel sind Preise?</div>
+        </div>
+        <div class="kpi">
+          <div class="t" data-i18n="k3_t">Kosten-Grundlage</div>
+          <div class="v" id="kpiC">–</div>
+          <div class="s" data-i18n="k3_s">Sind Kosten/Rücklagen drin?</div>
+        </div>
+        <div class="kpi">
+          <div class="t" data-i18n="k4_t">Gesamt</div>
+          <div class="v" id="kpiD">–</div>
+          <div class="s" data-i18n="k4_s">Nur Orientierung</div>
+        </div>
+      </div>
+
+      <div class="notice">
+        <strong data-i18n="tool_rule_t">Regel:</strong>
+        <span data-i18n="tool_rule_b">Wenn Belege fehlen, gilt automatisch: nicht entscheiden – weiter prüfen.</span>
+      </div>
+    </div>
+
+    <div class="footer" data-i18n="footer">
+      Premium Workbook – Modul 07. Eingaben werden lokal gespeichert und sind druckbar.
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const LS_KEY_LANG = "fsa_pvka_lang";
+      const LS_KEY_DATA = "fsa_pvka_project";
+
+      const langSel  = document.getElementById("langSel");
+      const printBtn = document.getElementById("printBtn");
+      const resetBtn = document.getElementById("resetBtn");
+
+      const kpiA = document.getElementById("kpiA");
+      const kpiB = document.getElementById("kpiB");
+      const kpiC = document.getElementById("kpiC");
+      const kpiD = document.getElementById("kpiD");
+
+      const demoY  = document.getElementById("demoY");
+      const demoP  = document.getElementById("demoP");
+      const demoB  = document.getElementById("demoB");
+      const demoC  = document.getElementById("demoC");
+      const demoCF = document.getElementById("demoCF");
+
+      const i18n = {
+        de: {
+          brand_title:"Premium Kurs",
+          brand_sub:"Photovoltaik als Kapitalanlage",
+          premium_tag:"Modul 07 • Hauptkurs",
+          btn_index:"Index",
+          lang_label:"Sprache",
+          btn_print:"Drucken",
+          btn_reset:"Projektakte leeren",
+
+          h1:"Modul 07 – Rendite realistisch verstehen",
+          sub:"Dieses Modul zeigt, wie Rendite in PV-Angeboten typischerweise entsteht – und wo sie in der Praxis „kippen“ kann. Ziel: Du erkennst Annahmen, fragst nach Belegen und lässt dir Rechenwege verständlich erklären.",
+
+          sec1_title:"1) Rendite ist kein Zauber – sie ist eine Rechen-Logik",
+          sec1_p1:"Rendite entsteht aus Ertrag (kWh) × Preis (€/kWh) minus Kosten. Klingt einfach – wird aber oft kompliziert, weil Preise, Ausfälle, Abregelung und Langfristigkeit über viele Jahre geschätzt werden müssen.",
+          sec1_p2:"Der wichtigste Schutz ist nicht „selbst rechnen können“, sondern: Annahmen sehen + Belege einfordern + Szenarien verstehen.",
+          notice_title:"Wichtiger Hinweis:",
+          notice_text:"Keine Anlageberatung, keine Steuer- oder Rechtsberatung. Dieses Modul ist Bildung: Rendite-Logik, Annahmen-Check, Fragenkatalog.",
+
+          sec2_title:"2) Glossar: Worte, die Rendite „schön“ wirken lassen können",
+          g_badge:"Glossar",
+          g1_t:"Begriff: Amortisation",
+          g1_b:"Amortisation heißt: Wie viele Jahre es dauert, bis sich eine Investition durch Überschüsse „zurückverdient“. Wichtig: Amortisation ist nicht automatisch „Gewinn“ – und sie hängt extrem von Annahmen ab.",
+          g2_t:"Begriff: Degradation",
+          g2_b:"Degradation ist der schleichende Leistungsrückgang von Modulen über Jahre. In realistischen Kalkulationen wird das berücksichtigt. Wird es ignoriert, wirkt die Rendite zu hoch.",
+          g3_t:"Begriff: Cashflow",
+          g3_b:"Cashflow ist der jährliche Überschuss nach Kosten. Rendite-Versprechen ohne Cashflow-Plan (Jahr für Jahr) sind ein Warnsignal.",
+          g4_t:"Begriff: Szenario",
+          g4_b:"Ein Szenario ist eine bewusst veränderte Annahme (z. B. Preis niedriger, Ertrag niedriger, Ausfallzeit höher), um zu sehen, ob ein Projekt trotzdem stabil bleibt.",
+
+          sec3_title:"3) Annahmen-Check (alles als Auswahlfelder)",
+          sec3_p1:"Wähle aus, wie die Rendite im Angebot begründet ist. Je klarer und belegbarer, desto besser.",
+
+          hint_yield:"Ertrag",
+          hint_price:"Preis",
+          hint_downtime:"Ausfälle",
+          hint_costs:"Kosten",
+
+          opt_choose:"Bitte wählen…",
+
+          f1_lbl:"Ertragsannahmen (kWh) sind…",
+          f1_o1:"mit Standort/Simulation erklärt + plausibel",
+          f1_o2:"grob erklärt",
+          f1_o3:"unklar („wird schon passen“)",
+          f1_o4:"nicht nachvollziehbar",
+          f1_help:"Frage nach: Simulation/Ertragsgutachten, Ausrichtung, Verschattung, Degradation.",
+
+          f2_lbl:"Preisannahmen (Vergütung / Marktpreis / Strompreis) sind…",
+          f2_o1:"konservativ + begründet",
+          f2_o2:"realistisch aber knapp begründet",
+          f2_o3:"sehr optimistisch",
+          f2_o4:"nicht erklärt",
+          f2_help:"Achte auf: feste Vergütung vs. Marktpreis, Indexierung, Laufzeiten, Risiken.",
+
+          f3_lbl:"Ausfallzeiten / Wartung / Abregelung werden…",
+          f3_o1:"berücksichtigt (mit Begründung)",
+          f3_o2:"teilweise erwähnt",
+          f3_o3:"ignoriert",
+          f3_help:"Wenn Ausfälle ignoriert werden, ist jede Rendite automatisch zu hoch.",
+
+          f4_lbl:"Langfristige Kosten (Versicherung, Ersatzteile, Rücklage) sind…",
+          f4_o1:"klar aufgeführt",
+          f4_o2:"teilweise aufgeführt",
+          f4_o3:"wirken zu klein",
+          f4_o4:"nicht vorhanden",
+
+          sec4_title:"4) Demo-Rechenweg (nur zum Verständnis)",
+          sec4_p1:"Hier geht es nicht um echte Werte, sondern um den Rechenweg, den dir ein seriöser Anbieter erklären können muss.",
+          d1_k:"Schritt 1: Jahresertrag (kWh)",
+          d2_k:"Schritt 2: Preisannahme (€/kWh)",
+          d3_k:"Schritt 3: Brutto (Ertrag × Preis)",
+          d4_k:"Schritt 4: minus Kosten/Rücklage",
+          d5_k:"Schritt 5: Cashflow (Überschuss/Jahr)",
+          demo_s:"Wenn ein Angebot keinen Jahres-Cashflow zeigt oder keine Belege zu Annahmen liefert, fehlt die Grundlage für eine Entscheidung.",
+          demo_note_t:"Merksatz:",
+          demo_note_b:"Rendite ohne Annahmen + Belege ist kein Ergebnis – sondern Marketing.",
+
+          sec5_title:"5) Wow-Chart: Wie Annahmen Rendite verändern",
+          sec5_p1:"Die Balken zeigen beispielhaft: konservativ / neutral / optimistisch. Das ist keine Prognose – nur eine Visualisierung, warum man Annahmen sehen muss.",
+          viz_title:"Annahmen-Sensitivität (Illustration)",
+          viz_note:"keine Echt-Daten",
+
+          sec6_title:"6) Checkliste: Rendite-Schutz durch Fragen",
+          sec6_p1:"Haken setzen, wenn du Antwort + Beleg bekommen hast.",
+          c1_t:"Ertrag ist nachvollziehbar (Simulation/Gutachten)",
+          c1_d:"Ausrichtung, Verschattung, Degradation – erklärt.",
+          c2_t:"Preisannahmen sind erklärt + konservativ",
+          c2_d:"Vergütung/Marktpreis/Laufzeit – klar.",
+          c3_t:"Kosten + Rücklagen sind vollständig",
+          c3_d:"Versicherung, Wartung, Ersatzteile – enthalten.",
+          c4_t:"Es gibt Szenarien/Stresstest",
+          c4_d:"Was passiert bei weniger Ertrag oder niedrigeren Preisen?",
+
+          sec7_title:"7) Mini-Tool: Rendite-Vertrauen (Orientierung)",
+          sec7_p1:"Dieses Tool bewertet nicht die Rendite – es zeigt nur, ob die Grundlage (Annahmen/Belege) solide wirkt.",
+          k1_t:"Ertrag-Grundlage",
+          k1_s:"Wie belegbar ist der Ertrag?",
+          k2_t:"Preis-Grundlage",
+          k2_s:"Wie plausibel sind Preise?",
+          k3_t:"Kosten-Grundlage",
+          k3_s:"Sind Kosten/Rücklagen drin?",
+          k4_t:"Gesamt",
+          k4_s:"Nur Orientierung",
+          tool_rule_t:"Regel:",
+          tool_rule_b:"Wenn Belege fehlen, gilt automatisch: nicht entscheiden – weiter prüfen.",
+
+          footer:"Premium Workbook – Modul 07. Eingaben werden lokal gespeichert und sind druckbar."
+        },
+
+        en: {
+          brand_title:"Premium course",
+          brand_sub:"Photovoltaics as a capital investment",
+          premium_tag:"Module 07 • Main course",
+          btn_index:"Index",
+          lang_label:"Language",
+          btn_print:"Print",
+          btn_reset:"Clear project file",
+
+          h1:"Module 07 – Understanding returns realistically",
+          sub:"This module shows how returns are typically created in PV offers—and where they can break in real life. Goal: you spot assumptions, ask for proof, and get calculation steps explained clearly.",
+
+          sec1_title:"1) Returns are not magic—they are a calculation logic",
+          sec1_p1:"Returns come from output (kWh) × price (€/kWh) minus costs. Sounds simple—but gets complex because prices, downtime, curtailment and long-term reality must be estimated over many years.",
+          sec1_p2:"The best protection is not ‘being able to calculate everything’, but: see assumptions + demand proof + understand scenarios.",
+          notice_title:"Important notice:",
+          notice_text:"No investment advice, no tax or legal advice. This module is education: return logic, assumption check, question list.",
+
+          sec2_title:"2) Glossary: words that can make returns look ‘too nice’",
+          g_badge:"Glossary",
+          g1_t:"Term: Payback (amortisation)",
+          g1_b:"Payback means: how many years it takes until the investment is ‘earned back’ via surpluses. Important: payback is not automatically ‘profit’—and it depends heavily on assumptions.",
+          g2_t:"Term: Degradation",
+          g2_b:"Degradation is the gradual loss of module performance over years. Realistic models include it. Ignoring it makes returns look too high.",
+          g3_t:"Term: Cashflow",
+          g3_b:"Cashflow is the annual surplus after costs. Return promises without a year-by-year cashflow plan are a red flag.",
+          g4_t:"Term: Scenario",
+          g4_b:"A scenario is a deliberately changed assumption (e.g., lower prices, lower output, higher downtime) to see whether the project still remains stable.",
+
+          sec3_title:"3) Assumption check (selection fields only)",
+          sec3_p1:"Select how the offer justifies returns. The clearer and more evidence-based, the better.",
+
+          hint_yield:"yield",
+          hint_price:"price",
+          hint_downtime:"downtime",
+          hint_costs:"costs",
+
+          opt_choose:"Please choose…",
+
+          f1_lbl:"Yield assumptions (kWh) are…",
+          f1_o1:"explained with site/simulation + plausible",
+          f1_o2:"roughly explained",
+          f1_o3:"unclear (‘it will work out’)",
+          f1_o4:"not traceable",
+          f1_help:"Ask for: simulation/yield report, orientation, shading, degradation.",
+
+          f2_lbl:"Price assumptions (tariff / market price / electricity price) are…",
+          f2_o1:"conservative + justified",
+          f2_o2:"realistic but lightly justified",
+          f2_o3:"very optimistic",
+          f2_o4:"not explained",
+          f2_help:"Watch for: fixed tariff vs. market price, indexation, durations, risks.",
+
+          f3_lbl:"Downtime / maintenance / curtailment are…",
+          f3_o1:"included (with reasoning)",
+          f3_o2:"partly mentioned",
+          f3_o3:"ignored",
+          f3_help:"If downtime is ignored, every return is automatically too high.",
+
+          f4_lbl:"Long-term costs (insurance, replacements, reserves) are…",
+          f4_o1:"clearly listed",
+          f4_o2:"partly listed",
+          f4_o3:"seem too low",
+          f4_o4:"missing",
+
+          sec4_title:"4) Demo calculation path (for understanding only)",
+          sec4_p1:"This is not about real numbers. It’s about the calculation path a serious provider must be able to explain.",
+          d1_k:"Step 1: annual output (kWh)",
+          d2_k:"Step 2: price assumption (€/kWh)",
+          d3_k:"Step 3: gross (output × price)",
+          d4_k:"Step 4: minus costs/reserve",
+          d5_k:"Step 5: cashflow (surplus/year)",
+          demo_s:"If an offer shows no annual cashflow or provides no proof for assumptions, there is no basis for a decision.",
+          demo_note_t:"Rule of thumb:",
+          demo_note_b:"Returns without assumptions + proof are not results—they’re marketing.",
+
+          sec5_title:"5) Wow chart: how assumptions change the ‘return’",
+          sec5_p1:"The bars show an example: conservative / neutral / optimistic. This is not a forecast—only a visualization of why assumptions must be visible.",
+          viz_title:"Assumption sensitivity (illustration)",
+          viz_note:"no real data",
+
+          sec6_title:"6) Checklist: protect yourself by asking return questions",
+          sec6_p1:"Tick only if you got an answer + proof.",
+          c1_t:"Yield is traceable (simulation/report)",
+          c1_d:"Orientation, shading, degradation—explained.",
+          c2_t:"Price assumptions are explained + conservative",
+          c2_d:"Tariff/market price/duration—clear.",
+          c3_t:"Costs + reserves are complete",
+          c3_d:"Insurance, maintenance, replacements—included.",
+          c4_t:"There are scenarios/stress tests",
+          c4_d:"What happens with less output or lower prices?",
+
+          sec7_title:"7) Mini tool: return confidence (orientation)",
+          sec7_p1:"This tool does not judge returns—it only shows whether the foundation (assumptions/proof) looks solid.",
+          k1_t:"Yield foundation",
+          k1_s:"How evidence-based is yield?",
+          k2_t:"Price foundation",
+          k2_s:"How plausible are prices?",
+          k3_t:"Cost foundation",
+          k3_s:"Are costs/reserves included?",
+          k4_t:"Overall",
+          k4_s:"Orientation only",
+          tool_rule_t:"Rule:",
+          tool_rule_b:"If proof is missing: don’t decide—keep checking.",
+
+          footer:"Premium workbook – Module 07. Inputs are stored locally and printable."
+        }
+      };
+
+      function getData(){
+        try{
+          const raw = localStorage.getItem(LS_KEY_DATA);
+          const obj = raw ? JSON.parse(raw) : {};
+          return (obj && typeof obj === "object") ? obj : {};
+        }catch(e){ return {}; }
+      }
+      function setData(obj){
+        localStorage.setItem(LS_KEY_DATA, JSON.stringify(obj));
+      }
+
+      function applyI18n(lang){
+        document.documentElement.lang = lang;
+        document.querySelectorAll("[data-i18n]").forEach(el=>{
+          const k = el.getAttribute("data-i18n");
+          const txt = (i18n[lang] && i18n[lang][k] !== undefined) ? i18n[lang][k] : null;
+          if(txt !== null) el.textContent = txt;
+        });
+        document.querySelectorAll("option[data-i18n]").forEach(opt=>{
+          const k = opt.getAttribute("data-i18n");
+          const txt = (i18n[lang] && i18n[lang][k] !== undefined) ? i18n[lang][k] : null;
+          if(txt !== null) opt.textContent = txt;
+        });
+      }
+
+      function loadLang(){
+        const saved = localStorage.getItem(LS_KEY_LANG);
+        return saved === "en" ? "en" : "de";
+      }
+      function saveLang(lang){
+        localStorage.setItem(LS_KEY_LANG, lang);
+      }
+
+      function wireFields(){
+        const data = getData();
+
+        document.querySelectorAll("select[data-save]").forEach(sel=>{
+          const k = sel.getAttribute("data-save");
+          if(data[k] !== undefined) sel.value = data[k];
+          sel.addEventListener("change", ()=>{
+            const d = getData();
+            d[k] = sel.value;
+            setData(d);
+            updateAll();
+          });
+        });
+
+        document.querySelectorAll("input[type='checkbox'][data-save-check]").forEach(chk=>{
+          const k = chk.getAttribute("data-save-check");
+          if(data[k] !== undefined) chk.checked = !!data[k];
+          chk.addEventListener("change", ()=>{
+            const d = getData();
+            d[k] = chk.checked;
+            setData(d);
+            updateAll();
+          });
+        });
+      }
+
+      function demoNumbers(lang){
+        // purely illustrative, based on selected “conservatism”
+        const d = getData();
+
+        // yield level
+        let y = 100; // index units
+        if(d.m07_yield === "gut") y = 110;
+        else if(d.m07_yield === "ok") y = 100;
+        else if(d.m07_yield === "unklar") y = 90;
+        else if(d.m07_yield === "keine") y = 85;
+
+        // price level
+        let p = 1.00;
+        if(d.m07_price === "konservativ") p = 0.95;
+        else if(d.m07_price === "neutral") p = 1.00;
+        else if(d.m07_price === "optimistisch") p = 1.08;
+        else if(d.m07_price === "keine") p = 0.90;
+
+        // downtime
+        let dt = 1.00;
+        if(d.m07_downtime === "beruecksichtigt") dt = 0.98;
+        else if(d.m07_downtime === "teil") dt = 0.99;
+        else if(d.m07_downtime === "ignoriert") dt = 1.00;
+
+        // costs
+        let c = 35;
+        if(d.m07_costs === "klar") c = 35;
+        else if(d.m07_costs === "teil") c = 30;
+        else if(d.m07_costs === "klein") c = 25;
+        else if(d.m07_costs === "keine") c = 18;
+
+        // Build demo
+        const gross = Math.round(y * p * dt);
+        const cash = Math.max(0, gross - c);
+
+        demoY.textContent  = (lang==="en") ? (y + " (index)") : (y + " (Index)");
+        demoP.textContent  = (lang==="en") ? (p.toFixed(2) + " (index)") : (p.toFixed(2) + " (Index)");
+        demoB.textContent  = (lang==="en") ? (gross + " (index)") : (gross + " (Index)");
+        demoC.textContent  = (lang==="en") ? (c + " (index)") : (c + " (Index)");
+        demoCF.textContent = (lang==="en") ? (cash + " (index)") : (cash + " (Index)");
+      }
+
+      function score(){
+        const d = getData();
+
+        // foundation scoring
+        const y = d.m07_yield || "";
+        const p = d.m07_price || "";
+        const dt = d.m07_downtime || "";
+        const c = d.m07_costs || "";
+
+        let a=0,b=0,cost=0;
+        a += (y==="gut")?3:(y==="ok")?2:(y==="unklar")?1:(y==="keine")?0:0;
+        b += (p==="konservativ")?3:(p==="neutral")?2:(p==="optimistisch")?1:(p==="keine")?0:0;
+        cost += (c==="klar")?3:(c==="teil")?2:(c==="klein")?1:(c==="keine")?0:0;
+
+        // downtime is a multiplier-ish
+        let dtScore = (dt==="beruecksichtigt")?2:(dt==="teil")?1:(dt==="ignoriert")?0:0;
+
+        // checklist proof points
+        let proof=0;
+        ["m07_c1","m07_c2","m07_c3","m07_c4"].forEach(k=>{ if(d[k]) proof += 1; });
+
+        // combine
+        let overall = a + b + cost + dtScore + proof; // 0..?
+        // normalize labels
+        return {a,b,cost,dtScore,proof,overall};
+      }
+
+      function label(lang, v, max){
+        const pct = max<=0?0:(v/max);
+        if(pct < 0.25) return lang==="en" ? "low" : "niedrig";
+        if(pct < 0.55) return lang==="en" ? "medium" : "mittel";
+        if(pct < 0.85) return lang==="en" ? "high" : "hoch";
+        return lang==="en" ? "very high" : "sehr hoch";
+      }
+
+      function updateKPIs(){
+        const lang = (langSel.value === "en") ? "en" : "de";
+        const s = score();
+
+        kpiA.textContent = label(lang, s.a + s.dtScore, 5);  // yield + downtime thinking
+        kpiB.textContent = label(lang, s.b, 3);
+        kpiC.textContent = label(lang, s.cost, 3);
+
+        let overall;
+        if(s.overall <= 5) overall = (lang==="en") ? "caution" : "Vorsicht";
+        else if(s.overall <= 9) overall = (lang==="en") ? "needs clarification" : "klärungsbedürftig";
+        else if(s.overall <= 12) overall = (lang==="en") ? "solid" : "solide";
+        else overall = (lang==="en") ? "very solid" : "sehr solide";
+        kpiD.textContent = overall;
+      }
+
+      function updateAll(){
+        const lang = (langSel.value === "en") ? "en" : "de";
+        demoNumbers(lang);
+        updateKPIs();
+      }
+
+      // Buttons
+      printBtn.addEventListener("click", ()=> window.print());
+      resetBtn.addEventListener("click", ()=>{
+        const lang = langSel.value === "en" ? "en" : "de";
+        const ok = confirm(lang === "en"
+          ? "Clear all saved project inputs for this course?"
+          : "Alle gespeicherten Eingaben für diesen Kurs wirklich löschen?"
+        );
+        if(!ok) return;
+        localStorage.removeItem(LS_KEY_DATA);
+        location.reload();
+      });
+
+      // nocache links
+      (function addNoCache(){
+        const ts = Date.now();
+        document.querySelectorAll('a[data-nocache="1"]').forEach(link=>{
+          const href = link.getAttribute("href") || "";
+          const url = new URL(href, location.href);
+          url.searchParams.set("nocache", String(ts));
+          link.setAttribute("href", url.pathname.split("/").pop() + "?" + url.searchParams.toString());
+        });
+      })();
+
+      // Init
+      const lang = loadLang();
+      langSel.value = lang;
+      applyI18n(lang);
+      wireFields();
+      updateAll();
+
+      langSel.addEventListener("change", ()=>{
+        const l = langSel.value === "en" ? "en" : "de";
+        saveLang(l);
+        applyI18n(l);
+        updateAll();
+      });
+    })();
+  </script>
+<!-- PATCH: Modul-Navigation (Prev / Index / Next) -->
+<style>
+  .modNav{
+    margin-top: 14px;
+    border:1px solid rgba(15,17,20,.12);
+    border-radius: 16px;
+    background: rgba(255,255,255,.72);
+    box-shadow: 0 14px 34px rgba(0,0,0,.08);
+    padding: 12px 12px;
+    position:relative;
+    overflow:hidden;
+  }
+  .modNav:before{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    background:
+      radial-gradient(620px 180px at 16% 8%, rgba(200,166,58,.12), transparent 65%),
+      radial-gradient(620px 180px at 84% 12%, rgba(11,125,92,.10), transparent 65%);
+    pointer-events:none;
+    opacity:.75;
+  }
+  .modNav > *{ position:relative; }
+
+  .modNavTop{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+  }
+  .modNavTitle{
+    font-weight:1100;
+    font-size:13px;
+    color: rgba(15,17,20,.92);
+  }
+  .modNavHint{
+    font-size:12px;
+    font-weight:900;
+    color: rgba(71,80,95,.92);
+    background: rgba(200,166,58,.10);
+    border:1px solid rgba(200,166,58,.22);
+    border-radius: 999px;
+    padding: 4px 8px;
+    width: fit-content;
+  }
+
+  .modNavBtns{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+
+  .modNavBtn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    text-decoration:none;
+    font-weight:1100;
+    border-radius: 12px;
+    padding: 11px 14px;
+    border:1px solid rgba(15,17,20,.12);
+    background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.76));
+    color: rgba(15,17,20,.92);
+    box-shadow: 0 14px 30px rgba(0,0,0,.06);
+    transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    white-space:nowrap;
+  }
+  .modNavBtn:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 18px 38px rgba(0,0,0,.10);
+    border-color: rgba(11,125,92,.28);
+  }
+
+  .modNavBtn.primary{
+    color:#fff;
+    border:1px solid rgba(11,125,92,.22);
+    background: linear-gradient(180deg, rgba(26,165,122,1), rgba(11,125,92,1));
+    box-shadow: 0 14px 30px rgba(11,125,92,.18);
+  }
+  .modNavBtn.primary:hover{
+    box-shadow: 0 18px 38px rgba(11,125,92,.22);
+  }
+
+  .modNavBtn svg{ width:16px; height:16px; flex:0 0 auto; opacity:.95; }
+  .modNavBtn.disabled{
+    opacity:.45;
+    pointer-events:none;
+    filter: grayscale(1);
+  }
+
+  @media print{
+    .modNav{ display:none !important; }
+  }
+</style>
+
+<nav class="modNav" id="modNav" aria-label="Modul Navigation" style="display:none">
+  <div class="modNavTop">
+    <div class="modNavTitle" data-i18n="nav_title">Navigation</div>
+    <div class="modNavHint" data-i18n="nav_hint">Weiter zum nächsten Modul</div>
+  </div>
+
+  <div class="modNavBtns">
+    <a class="modNavBtn" id="navPrev" href="#" data-nocache="1">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M15 6l-6 6 6 6" fill="none" stroke="rgba(15,17,20,.85)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span data-i18n="nav_prev">Vorheriges Modul</span>
+    </a>
+
+    <a class="modNavBtn" id="navIndex" href="index.html" data-nocache="1">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 10.5l8-6 8 6V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1v-9.5z"
+              fill="rgba(200,166,58,.18)" stroke="rgba(15,17,20,.55)" stroke-width="1.4" stroke-linejoin="round"/>
+      </svg>
+      <span data-i18n="nav_index">Index</span>
+    </a>
+
+    <a class="modNavBtn primary" id="navNext" href="#" data-nocache="1">
+      <span data-i18n="nav_next">Nächstes Modul</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9 6l6 6-6 6" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+</nav>
+
+<script>
+  (function(){
+    // i18n keys ergänzen, falls dein Modul bereits i18n nutzt:
+    // (Wir überschreiben nichts – nur fallback, wenn Keys fehlen.)
+    const fallback = {
+      de: { nav_title:"Navigation", nav_hint:"Weiter zum nächsten Modul", nav_prev:"Vorheriges Modul", nav_index:"Index", nav_next:"Nächstes Modul" },
+      en: { nav_title:"Navigation", nav_hint:"Continue to the next module", nav_prev:"Previous module", nav_index:"Index", nav_next:"Next module" }
+    };
+
+    // Sprache aus bestehender Seite ableiten (html lang oder select#langSel, wenn vorhanden)
+    function getLang(){
+      const sel = document.getElementById("langSel");
+      if(sel && (sel.value==="en" || sel.value==="de")) return sel.value;
+      const l = (document.documentElement.lang || "de").toLowerCase();
+      return l.startsWith("en") ? "en" : "de";
+    }
+
+    // Modulnummer aus Dateiname: module-01.html ... module-12.html
+    const file = (location.pathname.split("/").pop() || "").toLowerCase();
+    const m = file.match(/^module-(\d{2})\.html$/);
+    if(!m) return; // nur auf Modul-Seiten aktiv
+
+    const num = parseInt(m[1], 10);
+    if(!Number.isFinite(num)) return;
+
+    const nav = document.getElementById("modNav");
+    const prev = document.getElementById("navPrev");
+    const next = document.getElementById("navNext");
+    const idx  = document.getElementById("navIndex");
+
+    function withNoCache(href){
+      const ts = Date.now();
+      const url = new URL(href, location.href);
+      url.searchParams.set("nocache", String(ts));
+      return url.pathname.split("/").pop() + "?" + url.searchParams.toString();
+    }
+
+    function pad2(n){ return String(n).padStart(2,"0"); }
+
+    // Links setzen
+    idx.href = withNoCache("index.html");
+
+    if(num > 1){
+      prev.href = withNoCache("module-" + pad2(num-1) + ".html");
+      prev.classList.remove("disabled");
+    }else{
+      prev.href = "#";
+      prev.classList.add("disabled");
+    }
+
+    if(num < 12){
+      next.href = withNoCache("module-" + pad2(num+1) + ".html");
+      next.classList.remove("disabled");
+    }else{
+      next.href = "#";
+      next.classList.add("disabled");
+    }
+
+    // i18n minimal anwenden (nur diese Nav-Keys, ohne dein System zu stören)
+    function applyNavI18n(){
+      const lang = getLang();
+      document.querySelectorAll("#modNav [data-i18n]").forEach(el => {
+        const k = el.getAttribute("data-i18n");
+        if(!k) return;
+        // wenn deine Seite das schon setzt, lassen wir es; sonst fallback:
+        const current = (el.textContent || "").trim();
+        if(current) return;
+        el.textContent = (fallback[lang] && fallback[lang][k]) ? fallback[lang][k] : (fallback.de[k] || "");
+      });
+    }
+
+    // sichtbar machen
+    nav.style.display = "";
+    applyNavI18n();
+
+    // falls dein Modul per Sprachumschalter live wechselt
+    const langSel = document.getElementById("langSel");
+    if(langSel){
+      langSel.addEventListener("change", () => {
+        // Texte nur setzen, wenn leer – also kein Überschreiben
+        applyNavI18n();
+      });
+    }
+  })();
+</script>
+<!-- /PATCH: Modul-Navigation -->
+</body>
+</html>
 
