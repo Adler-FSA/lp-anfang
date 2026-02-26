@@ -923,7 +923,9 @@
     │   │   ├── module-07.html
     │   │   ├── module-08.html
     │   │   ├── module-09.html
-    │   │   └── module-10.html
+    │   │   ├── module-10.html
+    │   │   ├── module-11.html
+    │   │   └── module-12.html
     │   ├── produkte/
     │   │   ├── demo-hoersaal-starter-01-settings.html
     │   │   ├── demo-hoersaal-starter-02-vorschau-hub.html
@@ -1171,4 +1173,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.02.2026, 23:23)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.02.2026, 01:41)_
