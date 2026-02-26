@@ -1128,6 +1128,7 @@
     │   ├── social.html
     │   ├── souveraenitaet.html
     │   ├── timecells.html
+    │   ├── tragfaehigkeits-simulation.html
     │   ├── unikat-url-alexander-demo.html
     │   ├── unikat-url.html
     │   ├── weihnachtsgeschenk-akademie-share-1.html
@@ -1173,4 +1174,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.02.2026, 16:52)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.02.2026, 17:53)_
