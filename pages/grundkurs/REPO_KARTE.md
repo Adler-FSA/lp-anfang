@@ -975,7 +975,8 @@
     │   │   ├── modul-3-boerse.html
     │   │   └── modul-4-transfer.html
     │   ├── sehnsucht/
-    │   │   └── aufbruch-vision.html
+    │   │   ├── aufbruch-vision.html
+    │   │   └── aufbruch.html
     │   ├── social/
     │   │   ├── share-adler.html
     │   │   ├── share-akademie.html
@@ -1176,4 +1177,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.02.2026, 12:44)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.02.2026, 13:56)_
