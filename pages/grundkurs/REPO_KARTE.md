@@ -867,6 +867,9 @@
     │   │   ├── krypto-setup-intro-en.html
     │   │   ├── krypto-setup-intro.html
     │   │   └── termine.html
+    │   ├── lp-anfang/
+    │   │   └── pages/
+    │   │       └── legal/
     │   ├── mentor/
     │   │   ├── lektion-souveraen.html
     │   │   └── trustyfy-bewusstsein.html
@@ -1178,4 +1181,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.02.2026, 07:21)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.02.2026, 08:22)_
