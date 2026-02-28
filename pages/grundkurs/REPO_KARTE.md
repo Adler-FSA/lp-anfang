@@ -700,7 +700,8 @@
     │   │   │   └── einkommen-auszahlung.html
     │   │   ├── bestellung-mitgliedschaft.html
     │   │   ├── einkommen-auszahlung.html
-    │   │   └── index.html
+    │   │   ├── index.html
+    │   │   └── marktplatz.html
     │   ├── footer/
     │   │   ├── community.html
     │   │   ├── impressum.html
@@ -1177,4 +1178,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.02.2026, 06:30)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.02.2026, 07:21)_
