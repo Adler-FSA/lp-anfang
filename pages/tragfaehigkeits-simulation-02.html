@@ -1,0 +1,1830 @@
+<!doctype html>
+<!--
+  FSA • Tragfähigkeits-Simulation (3 Ebenen) – Version 02 (Stunden/Woche + Produktmix in %)
+  GitHub-Pfad: lp-anfang/pages/tragfaehigkeits-simulation-02.html
+
+  Commit-Message: tragfaehigkeits-simulation-02 – Neu: Stunden/Woche + Startdatum + Produktmix in % (additiv) + ganze Mitglieder (keine Dezimalwerte), E1→E2→E3 sauber
+  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/tragfaehigkeits-simulation-02.html?nocache=__TS__
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tragfähigkeits-Rechner – 3 Ebenen (02)</title>
+  <meta name="description" content="Tragfähigkeits-Rechner (3 Ebenen) – Version 02: Stunden/Woche, Startdatum, Produktmix in %, ganze Mitglieder (ohne Dezimalwerte), LocalStorage, Print, DE/EN." />
+  <meta name="robots" content="noindex,nofollow" />
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --txt:#0b0b0b;
+      --muted:#4a4a4a;
+      --line:#d7d7d7;
+      --soft:#f6f6f6;
+      --soft2:#fbfbfb;
+
+      --radius:16px;
+      --shadow:0 14px 30px rgba(0,0,0,.10);
+      --shadow2:0 10px 22px rgba(0,0,0,.08);
+
+      --sans: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      --mono: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+    }
+
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background:var(--bg);
+      color:var(--txt);
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+
+    .wrap{
+      max-width:1180px;
+      margin:0 auto;
+      padding:20px 16px 70px;
+    }
+
+    header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      padding-bottom:12px;
+      border-bottom:1px solid var(--line);
+      margin-bottom:12px;
+    }
+
+    h1{
+      margin:0 0 6px 0;
+      font-size:22px;
+      line-height:1.15;
+      letter-spacing:.2px;
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.55;
+      max-width:980px;
+    }
+
+    .topRight{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .pillRow{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      appearance:none;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--txt);
+      padding:8px 10px;
+      border-radius:999px;
+      font-weight:950;
+      font-size:13px;
+      cursor:pointer;
+      user-select:none;
+      box-shadow:0 2px 0 rgba(0,0,0,.03);
+    }
+    .pill[aria-pressed="true"]{
+      border-color:#0b0b0b;
+      box-shadow:0 0 0 2px rgba(0,0,0,.07) inset, 0 2px 0 rgba(0,0,0,.03);
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid #0b0b0b;
+      background:#0b0b0b;
+      color:#fff;
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:950;
+      font-size:13px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+      box-shadow:0 10px 20px rgba(0,0,0,.10);
+    }
+    .btn.secondary{
+      background:#fff;
+      color:#0b0b0b;
+      border:1px solid var(--line);
+      box-shadow:0 6px 14px rgba(0,0,0,.06);
+    }
+    .btn:active{ transform: translateY(1px); }
+    .btn svg{ width:16px; height:16px; }
+
+    .hero{
+      border:1px solid var(--line);
+      background:var(--soft2);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+      position:relative;
+      overflow:hidden;
+    }
+    .hero::before{
+      content:"";
+      position:absolute; inset:-30px;
+      background:
+        radial-gradient(560px 220px at 18% 8%, rgba(0,0,0,.06), transparent 60%),
+        radial-gradient(520px 240px at 80% 25%, rgba(0,0,0,.04), transparent 60%);
+      pointer-events:none;
+    }
+    .heroInner{ position:relative; z-index:1; }
+    .heroTitle{
+      margin:0 0 6px 0;
+      font-size:15px;
+      font-weight:950;
+      letter-spacing:.2px;
+    }
+    .heroText{
+      margin:0;
+      color:var(--muted);
+      font-size:13.5px;
+      line-height:1.6;
+      max-width:1050px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
+      margin-top:14px;
+    }
+
+    .card{
+      border:1px solid var(--line);
+      background:var(--soft2);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow2);
+      padding:14px;
+      position:relative;
+    }
+    .card h2{
+      margin:0 0 10px 0;
+      font-size:16px;
+      letter-spacing:.2px;
+    }
+    .hint{
+      margin:0 0 10px 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+      max-width:1050px;
+    }
+
+    .sectionTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:8px;
+    }
+    .sectionTools{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .miniBtn{
+      appearance:none;
+      border:1px solid var(--line);
+      background:#fff;
+      color:#0b0b0b;
+      padding:8px 10px;
+      border-radius:12px;
+      font-weight:950;
+      font-size:12px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      box-shadow:0 6px 14px rgba(0,0,0,.05);
+      user-select:none;
+    }
+    .miniBtn svg{ width:14px; height:14px; }
+
+    .rows{ display:grid; gap:10px; }
+    .row{
+      display:grid;
+      grid-template-columns: 1.25fr 1fr auto;
+      gap:10px;
+      align-items:center;
+      padding:10px;
+      border-radius:14px;
+      background:#fff;
+      border:1px solid var(--line);
+    }
+    @media (max-width:720px){
+      .row{ grid-template-columns: 1fr; }
+      .row .resetCell{ justify-content:flex-start; }
+    }
+    .lab{ font-weight:950; font-size:13px; }
+    .subLab{
+      margin-top:3px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.4;
+    }
+
+    .ctrl{ display:grid; gap:6px; }
+    input[type="number"], input[type="date"], select, input[type="range"]{
+      width:100%;
+      box-sizing:border-box;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:#0b0b0b;
+      font-size:14px;
+      outline:none;
+      font-family:var(--sans);
+    }
+    input[type="number"]:focus, input[type="date"]:focus, select:focus{
+      border-color:#0b0b0b;
+      box-shadow:0 0 0 3px rgba(0,0,0,.08);
+    }
+    .rangeWrap{ display:grid; gap:8px; }
+    .rangeLine{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      color:var(--muted);
+      font-size:12px;
+      font-family:var(--mono);
+    }
+
+    .resetCell{
+      display:flex;
+      justify-content:flex-end;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .resetOne{
+      appearance:none;
+      border:1px solid var(--line);
+      background:var(--soft);
+      color:#0b0b0b;
+      padding:8px 10px;
+      border-radius:12px;
+      font-weight:950;
+      font-size:12px;
+      cursor:pointer;
+      user-select:none;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .resetOne:hover{ background:#fff; }
+
+    .chips{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top:6px;
+    }
+    .chip{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#fff;
+      font-weight:950;
+      font-size:12px;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .chip .mono{ font-family:var(--mono); }
+
+    .kpiGrid{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:10px;
+      margin-top:10px;
+    }
+    @media (max-width:980px){ .kpiGrid{ grid-template-columns: repeat(2, 1fr);} }
+    @media (max-width:520px){ .kpiGrid{ grid-template-columns: 1fr;} }
+
+    .kpi{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      position:relative;
+      overflow:hidden;
+    }
+    .kpi::before{
+      content:"";
+      position:absolute; inset:-20px;
+      background: radial-gradient(420px 180px at 20% 20%, rgba(0,0,0,.05), transparent 60%);
+      pointer-events:none;
+      opacity:.85;
+    }
+    .kpi > *{ position:relative; z-index:1; }
+    .kpi .t{
+      margin:0 0 6px 0;
+      font-size:12px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      font-weight:950;
+    }
+    .kpi .v{
+      margin:0;
+      font-size:20px;
+      font-weight:1000;
+      letter-spacing:.2px;
+      font-family:var(--mono);
+    }
+    .kpi .d{
+      margin:6px 0 0 0;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .tableWrap{
+      margin-top:10px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      overflow:auto;
+      background:#fff;
+    }
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      min-width:940px;
+      table-layout:fixed;
+      font-family:var(--mono);
+      font-size:12px;
+    }
+    th, td{
+      padding:10px 10px;
+      border-bottom:1px solid var(--line);
+      text-align:left;
+      white-space:nowrap;
+    }
+    th{
+      background:var(--soft);
+      position:sticky;
+      top:0;
+      z-index:1;
+      font-size:12px;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      font-family:var(--sans);
+      font-weight:950;
+      color:#0b0b0b;
+    }
+    tr:last-child td{ border-bottom:0; }
+    .right{ text-align:right; }
+    .muted{ color:var(--muted); }
+
+    details.acc{
+      margin-top:10px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      overflow:hidden;
+    }
+    details.acc summary{
+      list-style:none;
+      cursor:pointer;
+      padding:12px 12px;
+      font-weight:1000;
+      font-size:13px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      user-select:none;
+    }
+    details.acc summary::-webkit-details-marker{ display:none; }
+    .chev{
+      width:18px; height:18px;
+      transition: transform .18s ease;
+      flex:0 0 auto;
+    }
+    details.acc[open] .chev{ transform: rotate(180deg); }
+    .accBody{
+      border-top:1px solid var(--line);
+      padding:0 12px 12px 12px;
+      font-size:13.5px;
+      line-height:1.6;
+      color:#0b0b0b;
+    }
+    .accBody p{ margin:10px 0 0 0; }
+
+    .notes{
+      margin-top:10px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+    }
+    textarea{
+      width:100%;
+      box-sizing:border-box;
+      min-height:150px;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      font-size:14px;
+      font-family:var(--sans);
+      outline:none;
+      resize:vertical;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      hyphens:auto;
+    }
+    textarea:focus{
+      border-color:#0b0b0b;
+      box-shadow:0 0 0 3px rgba(0,0,0,.08);
+    }
+    .noteRow{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:10px;
+    }
+    #saveHint{ color:var(--muted); font-size:13px; }
+
+    .footerNote{
+      margin-top:14px;
+      padding-top:12px;
+      border-top:1px solid var(--line);
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.6;
+    }
+
+    /* Print */
+    @page{ margin: 12mm; }
+    @media print{
+      *{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .noPrint{ display:none !important; }
+      body{ background:#fff !important; color:#000 !important; }
+      .card,.hero,.kpi,.row,.notes,details.acc,.tableWrap{
+        box-shadow:none !important;
+        border-color:#000 !important;
+      }
+      th{ position:static !important; background:#f0f0f0 !important; }
+      table{ min-width:0 !important; width:100% !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <header>
+      <div>
+        <h1 data-i18n="h1">Tragfähigkeits-Rechner (3 Ebenen) – 02</h1>
+        <p class="sub" data-i18n="sub">
+          Version 02: Du arbeitest mit Stunden pro Woche, einem Startdatum und einem Produktmix in Prozent.
+          Es werden nur ganze Mitglieder gerechnet (keine Dezimalwerte).
+        </p>
+      </div>
+
+      <div class="topRight noPrint">
+        <div class="pillRow" aria-label="Sprache">
+          <button class="pill" id="langDE" type="button" aria-pressed="true">DE</button>
+          <button class="pill" id="langEN" type="button" aria-pressed="false">EN</button>
+        </div>
+
+        <button class="btn secondary" id="btnCopy" type="button" aria-label="Ergebnis kopieren">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 9h10v12H9V9Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M5 3h10v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M5 7h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M5 7v14h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="copy">Kopieren</span>
+        </button>
+
+        <button class="btn secondary" id="btnPrint" type="button">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 8V3h10v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7 17h10v4H7v-4Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M6 18H5a3 3 0 0 1-3-3v-4a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3h-1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M18 12h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="print">Drucken</span>
+        </button>
+
+        <button class="btn" id="btnResetAll" type="button">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3 12a9 9 0 0 1 15.36-6.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M18 4v6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 12a9 9 0 0 1-15.36 6.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span data-i18n="resetAll">Alles auf 0</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="heroInner">
+        <div class="heroTitle" data-i18n="heroTitle">Wichtiger Hinweis</div>
+        <p class="heroText" data-i18n="heroText">
+          Diese Simulation ist eine Orientierung. Du stellst Annahmen ein (Zeit, Aktivität, Kaufquoten) und siehst,
+          wie sich Ebenen aufbauen können. Es gibt keine Garantie und keine Abrechnung.
+        </p>
+
+        <div class="chips" aria-label="Sätze">
+          <div class="chip"><span class="mono">20%</span> <span data-i18n="l1">Ebene 1</span></div>
+          <div class="chip"><span class="mono">15%</span> <span data-i18n="l2">Ebene 2</span></div>
+          <div class="chip"><span class="mono">10%</span> <span data-i18n="l3">Ebene 3</span></div>
+          <div class="chip"><span data-i18n="rounding">Rundung</span>: <span class="mono" data-i18n="roundingRule">Mitglieder werden immer nach unten gerundet</span></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid">
+
+      <!-- Eingaben -->
+      <section class="card">
+        <div class="sectionTop">
+          <div>
+            <h2 data-i18n="inputsTitle">Einstellungen (klar)</h2>
+            <p class="hint" data-i18n="inputsHint">
+              Du stellst ein: Startdatum + Dauer, Stunden pro Woche, wie viele neue Mitglieder pro Stunde entstehen,
+              und welche Anteile (Aktiv-Quoten) später selbst aktiv werden.
+            </p>
+          </div>
+          <div class="sectionTools noPrint">
+            <button class="miniBtn" id="resetTime" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M21 12a9 9 0 1 1-2.64-6.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M18 3v6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span data-i18n="resetTime">Zeit auf Beispiel</span>
+            </button>
+
+            <button class="miniBtn" id="resetBuild" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span data-i18n="resetBuild">Aufbau auf Beispiel</span>
+            </button>
+
+            <button class="miniBtn" id="resetMix" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M6 6h15l-2 9H8L6 6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M8 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" stroke="currentColor" stroke-width="2"/>
+                <path d="M18 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" stroke="currentColor" stroke-width="2"/>
+                <path d="M6 6 5 3H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span data-i18n="resetMix">Produktmix zurücksetzen</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="rows">
+
+          <!-- Startdatum -->
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="startDate">Startdatum</div>
+              <div class="subLab" data-i18n="startDateSub">Der erste Monat in der Tabelle</div>
+            </div>
+            <div class="ctrl">
+              <input id="startDate" type="date" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="startDate" type="button">↺ <span data-i18n="toToday">heute</span></button>
+            </div>
+          </div>
+
+          <!-- Dauer -->
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="months">Dauer (Monate)</div>
+              <div class="subLab" data-i18n="monthsSub">1–24 (du bestimmst die Zeit)</div>
+            </div>
+            <div class="ctrl rangeWrap">
+              <input id="months" type="range" min="1" max="24" step="1" value="12" data-store />
+              <div class="rangeLine"><span class="muted">1</span><span class="mono" id="monthsOut">12</span><span class="muted">24</span></div>
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="months" type="button">↺ <span data-i18n="toDemo">auf Beispiel</span></button>
+            </div>
+          </div>
+
+          <!-- Stunden/Woche -->
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="hoursWeek">Stunden pro Woche</div>
+              <div class="subLab" data-i18n="hoursWeekSub">Dein Einsatz (Basis für alle Ebenen)</div>
+            </div>
+            <div class="ctrl">
+              <input id="hoursWeek" type="number" min="0" max="80" step="0.5" value="10" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="hoursWeek" type="button">↺ <span data-i18n="toDemo">auf Beispiel</span></button>
+            </div>
+          </div>
+
+          <!-- Delay -->
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="delay">Aktivität startet</div>
+              <div class="subLab" data-i18n="delaySub">realistische Verzögerung (bis jemand selbst aktiv wird)</div>
+            </div>
+            <div class="ctrl">
+              <select id="delay" data-store>
+                <option value="0" selected data-i18n="delay0">sofort</option>
+                <option value="1" data-i18n="delay1">ab Folgemonat</option>
+                <option value="2" data-i18n="delay2">ab Monat 3</option>
+              </select>
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="delay" type="button">↺ <span data-i18n="toZeroSel">0/sofort</span></button>
+            </div>
+          </div>
+
+          <!-- Rate E1 -->
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="rateYou">Neue Mitglieder pro Stunde (du / Ebene 1)</div>
+              <div class="subLab" data-i18n="rateYouSub">Wie viele neue Mitglieder entstehen pro Stunde durch dich?</div>
+            </div>
+            <div class="ctrl">
+              <input id="rateYou" type="number" min="0" max="10" step="0.05" value="0.20" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="rateYou" type="button">↺ <span data-i18n="toDemo">auf Beispiel</span></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="e1Active">Aktiv-Quote Ebene 1</div>
+              <div class="subLab" data-i18n="e1ActiveSub">Wie viele deiner Ebene-1-Mitglieder werden selbst aktiv?</div>
+            </div>
+            <div class="ctrl">
+              <select id="e1Active" data-store>
+                <option value="10">10 %</option>
+                <option value="20" selected>20 %</option>
+                <option value="30">30 %</option>
+                <option value="40">40 %</option>
+                <option value="50">50 %</option>
+                <option value="60">60 %</option>
+                <option value="70">70 %</option>
+              </select>
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="e1Active" type="button">↺ <span data-i18n="toDemo">auf Beispiel</span></button>
+            </div>
+          </div>
+
+          <!-- Rate Active E1 -->
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="rateE1Active">Neue Mitglieder pro Stunde (aktive Ebene 1 → erzeugt Ebene 2)</div>
+              <div class="subLab" data-i18n="rateE1ActiveSub">Wie viele neue Mitglieder schaffen aktive aus Ebene 1 pro Stunde?</div>
+            </div>
+            <div class="ctrl">
+              <input id="rateE1Active" type="number" min="0" max="10" step="0.05" value="0.20" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="rateE1Active" type="button">↺ <span data-i18n="toDemo">auf Beispiel</span></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="e2Active">Aktiv-Quote Ebene 2</div>
+              <div class="subLab" data-i18n="e2ActiveSub">Wie viele deiner Ebene-2-Mitglieder werden selbst aktiv?</div>
+            </div>
+            <div class="ctrl">
+              <select id="e2Active" data-store>
+                <option value="10">10 %</option>
+                <option value="20" selected>20 %</option>
+                <option value="30">30 %</option>
+                <option value="40">40 %</option>
+                <option value="50">50 %</option>
+                <option value="60">60 %</option>
+                <option value="70">70 %</option>
+              </select>
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="e2Active" type="button">↺ <span data-i18n="toDemo">auf Beispiel</span></button>
+            </div>
+          </div>
+
+          <!-- Rate Active E2 -->
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="rateE2Active">Neue Mitglieder pro Stunde (aktive Ebene 2 → erzeugt Ebene 3)</div>
+              <div class="subLab" data-i18n="rateE2ActiveSub">Wie viele neue Mitglieder schaffen aktive aus Ebene 2 pro Stunde?</div>
+            </div>
+            <div class="ctrl">
+              <input id="rateE2Active" type="number" min="0" max="10" step="0.05" value="0.20" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="rateE2Active" type="button">↺ <span data-i18n="toDemo">auf Beispiel</span></button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="chips" style="margin-top:10px;">
+          <div class="chip">
+            <span data-i18n="assumption">Annahme</span>:
+            <span class="mono" id="assumptionOut">—</span>
+          </div>
+          <div class="chip">
+            <span data-i18n="hoursMonthInfo">Umrechnung</span>:
+            <span class="mono" id="hoursMonthOut">—</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Produktmix -->
+      <section class="card">
+        <div class="sectionTop">
+          <div>
+            <h2 data-i18n="mixTitle">Produktmix in Prozent (additiv)</h2>
+            <p class="hint" data-i18n="mixHint">
+              Du trägst ein, wie viele deiner neuen Mitglieder ein Produkt kaufen (Kaufquote).
+              Die Prozentwerte sind additiv (Mehrfachkäufe sind möglich).
+            </p>
+          </div>
+          <div class="sectionTools noPrint">
+            <button class="miniBtn" id="resetMix2" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M6 6h15l-2 9H8L6 6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M8 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" stroke="currentColor" stroke-width="2"/>
+                <path d="M18 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" stroke="currentColor" stroke-width="2"/>
+                <path d="M6 6 5 3H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span data-i18n="resetMix">Produktmix zurücksetzen</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="rows">
+
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="pMember">Mitgliedschaft (jährlich, 60 €)</div>
+              <div class="subLab" data-i18n="pMemberSub">Kaufquote: Wie viele deiner neuen Mitglieder nehmen die Mitgliedschaft?</div>
+            </div>
+            <div class="ctrl">
+              <input id="p_member" type="number" min="0" max="100" step="1" value="100" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="p_member" type="button">↺ <span data-i18n="toDemo">auf Beispiel</span></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="pLeadS">Kleine Leadmaschine (jährlich, 60 €)</div>
+              <div class="subLab" data-i18n="pLeadSSub">Kaufquote (additiv): z. B. 20 = 20% kaufen zusätzlich</div>
+            </div>
+            <div class="ctrl">
+              <input id="p_leadSmall" type="number" min="0" max="100" step="1" value="0" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="p_leadSmall" type="button">↺ <span data-i18n="toZero">auf 0</span></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="pLeadP">Profi Leadmaschine (jährlich, 298 €)</div>
+              <div class="subLab" data-i18n="pLeadPSub">Kaufquote (additiv): z. B. 10 = 10% kaufen zusätzlich</div>
+            </div>
+            <div class="ctrl">
+              <input id="p_leadPro" type="number" min="0" max="100" step="1" value="0" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="p_leadPro" type="button">↺ <span data-i18n="toZero">auf 0</span></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="pWeekend">Weekend-Setup (einmalig, 399 €)</div>
+              <div class="subLab" data-i18n="pWeekendSub">Kaufquote (additiv): z. B. 15 = 15% kaufen zusätzlich</div>
+            </div>
+            <div class="ctrl">
+              <input id="p_weekend" type="number" min="0" max="100" step="1" value="0" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="p_weekend" type="button">↺ <span data-i18n="toZero">auf 0</span></button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="chips" style="margin-top:10px;">
+          <div class="chip">
+            <span data-i18n="basketPerMember">Umsatz je neues Mitglied (Annahme)</span>:
+            <span class="mono" id="basketOut">0,00 €</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Ergebnis -->
+      <section class="card" id="results">
+        <div class="sectionTop">
+          <div>
+            <h2 data-i18n="resultsTitle">Ergebnis</h2>
+            <p class="hint" data-i18n="resultsHint">              Ebenen getrennt + Ertrag getrennt. Live, ohne Dezimal-Mitglieder.
+            </p>
+          </div>
+          <div class="sectionTools noPrint">
+            <button class="miniBtn" id="btnRecalc" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 4v16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span data-i18n="recalc">Neu berechnen</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="kpiGrid">
+          <div class="kpi">
+            <p class="t" data-i18n="kNew1">Neue Mitglieder – Ebene 1</p>
+            <p class="v" id="k_new1">0</p>
+            <p class="d" data-i18n="kNew1d">deine Erstlinie im Zeitraum</p>
+          </div>
+          <div class="kpi">
+            <p class="t" data-i18n="kNew2">Neue Mitglieder – Ebene 2</p>
+            <p class="v" id="k_new2">0</p>
+            <p class="d" data-i18n="kNew2d">entsteht aus aktiven Mitgliedern der Ebene 1</p>
+          </div>
+          <div class="kpi">
+            <p class="t" data-i18n="kNew3">Neue Mitglieder – Ebene 3</p>
+            <p class="v" id="k_new3">0</p>
+            <p class="d" data-i18n="kNew3d">entsteht aus aktiven Mitgliedern der Ebene 2</p>
+          </div>
+          <div class="kpi">
+            <p class="t" data-i18n="kNewT">Gesamt neue Mitglieder</p>
+            <p class="v" id="k_newT">0</p>
+            <p class="d" data-i18n="kNewTd">Summe Ebene 1–3</p>
+          </div>
+
+          <div class="kpi">
+            <p class="t" data-i18n="kEarn1">Ertrag – Ebene 1 (Orientierung)</p>
+            <p class="v" id="k_e1">0,00 €</p>
+            <p class="d" data-i18n="kEarn1d">20% vom angen. Umsatz</p>
+          </div>
+          <div class="kpi">
+            <p class="t" data-i18n="kEarn2">Ertrag – Ebene 2 (Orientierung)</p>
+            <p class="v" id="k_e2">0,00 €</p>
+            <p class="d" data-i18n="kEarn2d">15% vom angen. Umsatz</p>
+          </div>
+          <div class="kpi">
+            <p class="t" data-i18n="kEarn3">Ertrag – Ebene 3 (Orientierung)</p>
+            <p class="v" id="k_e3">0,00 €</p>
+            <p class="d" data-i18n="kEarn3d">10% vom angen. Umsatz</p>
+          </div>
+          <div class="kpi">
+            <p class="t" data-i18n="kEarnT">Gesamt-Ertrag (Orientierung)</p>
+            <p class="v" id="k_eT">0,00 €</p>
+            <p class="d" data-i18n="kEarnTd">Summe Ebene 1–3</p>
+          </div>
+        </div>
+
+        <div class="tableWrap" aria-label="Monats-Tabelle">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="thM">Monat</th>
+                <th data-i18n="th1">Neu E1</th>
+                <th data-i18n="th2">Neu E2</th>
+                <th data-i18n="th3">Neu E3</th>
+                <th class="right" data-i18n="thB">Umsatz je neues Mitglied</th>
+                <th class="right" data-i18n="thU">Umsatz gesamt</th>
+                <th class="right" data-i18n="thE1">Ertrag E1</th>
+                <th class="right" data-i18n="thE2">Ertrag E2</th>
+                <th class="right" data-i18n="thE3">Ertrag E3</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="footerNote" data-i18n="footerNote">
+          Hinweis: Simulation zur Orientierung. Keine Abrechnung, keine Steuer-/Rechtsberatung. Ergebnisse hängen von Tempo, Aktivität und Zeit ab.
+        </div>
+      </section>
+
+      <!-- Leser-Akkordeons -->
+      <section class="card">
+        <h2 data-i18n="readerTitle">Lesertext (kurz & klar)</h2>
+
+        <details class="acc" open>
+          <summary>
+            <span data-i18n="accA">Was du hier einträgst</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="accBody">
+            <p data-i18n="accA1">
+              Du gibst einen Zeitraum an, deinen wöchentlichen Zeiteinsatz (Stunden), wie viele neue Mitglieder pro Stunde entstehen,
+              sowie Aktiv-Quoten (wie viele später selbst aktiv werden).
+            </p>
+            <p data-i18n="accA2">
+              Im Produktmix trägst du Kaufquoten in Prozent ein. Diese Werte sind additiv: Ein Mitglied kann mehrere Produkte kaufen.
+            </p>
+          </div>
+        </details>
+
+        <details class="acc">
+          <summary>
+            <span data-i18n="accB">Warum Aktiv-Quoten nichts mit Preisen zu tun haben</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="accBody">
+            <p data-i18n="accB1">
+              Die Aktiv-Quote bestimmt nicht den Preis. Sie bestimmt nur, wie viele Personen aus einer Ebene später selbst aktiv werden und neue Mitglieder erzeugen.
+              Der Preis (Umsatz je neues Mitglied) kommt ausschließlich aus dem Produktmix.
+            </p>
+          </div>
+        </details>
+
+        <details class="acc">
+          <summary>
+            <span data-i18n="accC">Rundung: keine Komma-Mitglieder</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="accBody">
+            <p data-i18n="accC1">
+              Mitglieder sind in dieser Simulation immer ganze Personen. Deshalb werden Zwischenergebnisse (z. B. 2,8) konsequent nach unten gerundet (2).
+              So bleibt es realistisch und leicht verständlich.
+            </p>
+          </div>
+        </details>
+
+        <details class="acc">
+          <summary>
+            <span data-i18n="accD">Startdatum in der Tabelle</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="accBody">
+            <p data-i18n="accD1">
+              Das Startdatum legt nur fest, wie die Monatszeilen benannt werden (z. B. 03/2026). Es ändert nicht die Mathematik.
+            </p>
+          </div>
+        </details>
+      </section>
+
+      <!-- Notizen -->
+      <section class="card">
+        <div class="sectionTop">
+          <div>
+            <h2 data-i18n="notesTitle">Notizen</h2>
+            <p class="hint" data-i18n="notesHint">Bleibt nur auf deinem Gerät (LocalStorage).</p>
+          </div>
+          <div class="sectionTools noPrint">
+            <button class="miniBtn" id="clearNotes" type="button"><span data-i18n="clearNotes">Notizen löschen</span></button>
+            <button class="miniBtn" id="clearAll" type="button"><span data-i18n="clearAll">Alles löschen</span></button>
+          </div>
+        </div>
+
+        <div class="notes">
+          <textarea id="notes" placeholder="Deine Notizen …" aria-label="Notizen" data-store></textarea>
+          <div class="noteRow">
+            <div id="saveHint">Bereit.</div>
+            <div class="muted" style="font-family:var(--mono);" id="lastWow">—</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- TEIL 2 ENDE: Script kommt in TEIL 3 -->
+  <script>
+    /* TEIL 3 STARTET HIER */<script>
+(function(){
+  "use strict";
+
+  const PREFIX = "fsa_tc_trag3_v02_";
+  const KEY = PREFIX + "state";
+  const KEY_LANG = PREFIX + "lang";
+
+  // ---------- i18n ----------
+  const I18N = {
+    de: {
+      h1:"Tragfähigkeits-Rechner (3 Ebenen) – 02",
+      sub:"Version 02: Du arbeitest mit Stunden pro Woche, einem Startdatum und einem Produktmix in Prozent. Es werden nur ganze Mitglieder gerechnet (keine Dezimalwerte).",
+
+      copy:"Kopieren", print:"Drucken", resetAll:"Alles auf 0",
+
+      heroTitle:"Wichtiger Hinweis",
+      heroText:"Diese Simulation ist eine Orientierung. Du stellst Annahmen ein (Zeit, Aktivität, Kaufquoten) und siehst, wie sich Ebenen aufbauen können. Es gibt keine Garantie und keine Abrechnung.",
+      l1:"Ebene 1", l2:"Ebene 2", l3:"Ebene 3",
+      rounding:"Rundung",
+      roundingRule:"Mitglieder werden immer nach unten gerundet",
+
+      inputsTitle:"Einstellungen (klar)",
+      inputsHint:"Du stellst ein: Startdatum + Dauer, Stunden pro Woche, wie viele neue Mitglieder pro Stunde entstehen, und welche Anteile (Aktiv-Quoten) später selbst aktiv werden.",
+      resetTime:"Zeit auf Beispiel",
+      resetBuild:"Aufbau auf Beispiel",
+      resetMix:"Produktmix zurücksetzen",
+
+      startDate:"Startdatum",
+      startDateSub:"Der erste Monat in der Tabelle",
+      toToday:"heute",
+
+      months:"Dauer (Monate)",
+      monthsSub:"1–24 (du bestimmst die Zeit)",
+      toDemo:"auf Beispiel",
+      toZero:"auf 0",
+      toZeroSel:"0/sofort",
+
+      hoursWeek:"Stunden pro Woche",
+      hoursWeekSub:"Dein Einsatz (Basis für alle Ebenen)",
+
+      delay:"Aktivität startet",
+      delaySub:"realistische Verzögerung (bis jemand selbst aktiv wird)",
+      delay0:"sofort",
+      delay1:"ab Folgemonat",
+      delay2:"ab Monat 3",
+
+      rateYou:"Neue Mitglieder pro Stunde (du / Ebene 1)",
+      rateYouSub:"Wie viele neue Mitglieder entstehen pro Stunde durch dich?",
+
+      e1Active:"Aktiv-Quote Ebene 1",
+      e1ActiveSub:"Wie viele deiner Ebene-1-Mitglieder werden selbst aktiv?",
+
+      rateE1Active:"Neue Mitglieder pro Stunde (aktive Ebene 1 → erzeugt Ebene 2)",
+      rateE1ActiveSub:"Wie viele neue Mitglieder schaffen aktive aus Ebene 1 pro Stunde?",
+
+      e2Active:"Aktiv-Quote Ebene 2",
+      e2ActiveSub:"Wie viele deiner Ebene-2-Mitglieder werden selbst aktiv?",
+
+      rateE2Active:"Neue Mitglieder pro Stunde (aktive Ebene 2 → erzeugt Ebene 3)",
+      rateE2ActiveSub:"Wie viele neue Mitglieder schaffen aktive aus Ebene 2 pro Stunde?",
+
+      assumption:"Annahme",
+      hoursMonthInfo:"Umrechnung",
+
+      mixTitle:"Produktmix in Prozent (additiv)",
+      mixHint:"Du trägst ein, wie viele deiner neuen Mitglieder ein Produkt kaufen (Kaufquote). Die Prozentwerte sind additiv (Mehrfachkäufe sind möglich).",
+
+      pMember:"Mitgliedschaft (jährlich, 60 €)",
+      pMemberSub:"Kaufquote: Wie viele deiner neuen Mitglieder nehmen die Mitgliedschaft?",
+      pLeadS:"Kleine Leadmaschine (jährlich, 60 €)",
+      pLeadSSub:"Kaufquote (additiv): z. B. 20 = 20% kaufen zusätzlich",
+      pLeadP:"Profi Leadmaschine (jährlich, 298 €)",
+      pLeadPSub:"Kaufquote (additiv): z. B. 10 = 10% kaufen zusätzlich",
+      pWeekend:"Weekend-Setup (einmalig, 399 €)",
+      pWeekendSub:"Kaufquote (additiv): z. B. 15 = 15% kaufen zusätzlich",
+
+      basketPerMember:"Umsatz je neues Mitglied (Annahme)",
+
+      resultsTitle:"Ergebnis",
+      resultsHint:"Ebenen getrennt + Ertrag getrennt. Live, ohne Dezimal-Mitglieder.",
+      recalc:"Neu berechnen",
+
+      kNew1:"Neue Mitglieder – Ebene 1",
+      kNew1d:"deine Erstlinie im Zeitraum",
+      kNew2:"Neue Mitglieder – Ebene 2",
+      kNew2d:"entsteht aus aktiven Mitgliedern der Ebene 1",
+      kNew3:"Neue Mitglieder – Ebene 3",
+      kNew3d:"entsteht aus aktiven Mitgliedern der Ebene 2",
+      kNewT:"Gesamt neue Mitglieder",
+      kNewTd:"Summe Ebene 1–3",
+
+      kEarn1:"Ertrag – Ebene 1 (Orientierung)",
+      kEarn1d:"20% vom angen. Umsatz",
+      kEarn2:"Ertrag – Ebene 2 (Orientierung)",
+      kEarn2d:"15% vom angen. Umsatz",
+      kEarn3:"Ertrag – Ebene 3 (Orientierung)",
+      kEarn3d:"10% vom angen. Umsatz",
+      kEarnT:"Gesamt-Ertrag (Orientierung)",
+      kEarnTd:"Summe Ebene 1–3",
+
+      thM:"Monat",
+      th1:"Neu E1",
+      th2:"Neu E2",
+      th3:"Neu E3",
+      thB:"Umsatz je neues Mitglied",
+      thU:"Umsatz gesamt",
+      thE1:"Ertrag E1",
+      thE2:"Ertrag E2",
+      thE3:"Ertrag E3",
+
+      footerNote:"Hinweis: Simulation zur Orientierung. Keine Abrechnung, keine Steuer-/Rechtsberatung. Ergebnisse hängen von Tempo, Aktivität und Zeit ab.",
+
+      readerTitle:"Lesertext (kurz & klar)",
+      accA:"Was du hier einträgst",
+      accA1:"Du gibst einen Zeitraum an, deinen wöchentlichen Zeiteinsatz (Stunden), wie viele neue Mitglieder pro Stunde entstehen, sowie Aktiv-Quoten (wie viele später selbst aktiv werden).",
+      accA2:"Im Produktmix trägst du Kaufquoten in Prozent ein. Diese Werte sind additiv: Ein Mitglied kann mehrere Produkte kaufen.",
+      accB:"Warum Aktiv-Quoten nichts mit Preisen zu tun haben",
+      accB1:"Die Aktiv-Quote bestimmt nicht den Preis. Sie bestimmt nur, wie viele Personen aus einer Ebene später selbst aktiv werden und neue Mitglieder erzeugen. Der Preis (Umsatz je neues Mitglied) kommt ausschließlich aus dem Produktmix.",
+      accC:"Rundung: keine Komma-Mitglieder",
+      accC1:"Mitglieder sind in dieser Simulation immer ganze Personen. Deshalb werden Zwischenergebnisse (z. B. 2,8) konsequent nach unten gerundet (2). So bleibt es realistisch und leicht verständlich.",
+      accD:"Startdatum in der Tabelle",
+      accD1:"Das Startdatum legt nur fest, wie die Monatszeilen benannt werden (z. B. 03/2026). Es ändert nicht die Mathematik.",
+
+      notesTitle:"Notizen",
+      notesHint:"Bleibt nur auf deinem Gerät (LocalStorage).",
+      clearNotes:"Notizen löschen",
+      clearAll:"Alles löschen"
+    },
+
+    en: {
+      h1:"Sustainability Calculator (3 Levels) – 02",
+      sub:"Version 02: Use hours per week, a start date, and a product mix in percent. Only whole members are calculated (no decimals).",
+
+      copy:"Copy", print:"Print", resetAll:"Reset to 0",
+
+      heroTitle:"Important note",
+      heroText:"This simulation is for orientation. You set assumptions (time, activity, purchase rates) and see how levels can build over time. No guarantee and no billing.",
+      l1:"Level 1", l2:"Level 2", l3:"Level 3",
+      rounding:"Rounding",
+      roundingRule:"Members are always rounded down",
+
+      inputsTitle:"Settings (clear)",
+      inputsHint:"Set: start date + duration, hours per week, new members per hour, and active rates (who later becomes active).",
+      resetTime:"Time to example",
+      resetBuild:"Build to example",
+      resetMix:"Reset product mix",
+
+      startDate:"Start date",
+      startDateSub:"First month in the table",
+      toToday:"today",
+
+      months:"Duration (months)",
+      monthsSub:"1–24 (you set the time)",
+      toDemo:"to example",
+      toZero:"to 0",
+      toZeroSel:"0/immediate",
+
+      hoursWeek:"Hours per week",
+      hoursWeekSub:"Your effort (base for all levels)",
+
+      delay:"Activity starts",
+      delaySub:"realistic delay (until someone becomes active)",
+      delay0:"immediately",
+      delay1:"next month",
+      delay2:"month 3",
+
+      rateYou:"New members per hour (you / Level 1)",
+      rateYouSub:"How many new members per hour are created by you?",
+
+      e1Active:"Active rate Level 1",
+      e1ActiveSub:"How many of your Level-1 members become active?",
+
+      rateE1Active:"New members per hour (active Level 1 → creates Level 2)",
+      rateE1ActiveSub:"How many new members per hour can active Level 1 create?",
+
+      e2Active:"Active rate Level 2",
+      e2ActiveSub:"How many of your Level-2 members become active?",
+
+      rateE2Active:"New members per hour (active Level 2 → creates Level 3)",
+      rateE2ActiveSub:"How many new members per hour can active Level 2 create?",
+
+      assumption:"Assumption",
+      hoursMonthInfo:"Conversion",
+
+      mixTitle:"Product mix in percent (additive)",
+      mixHint:"Enter how many of your new members buy a product (purchase rate). Percent values are additive (multi-buy possible).",
+
+      pMember:"Membership (annual, €60)",
+      pMemberSub:"Purchase rate: how many of your new members take membership?",
+      pLeadS:"Small lead machine (annual, €60)",
+      pLeadSSub:"Purchase rate (additive): e.g. 20 = 20% additionally",
+      pLeadP:"Pro lead machine (annual, €298)",
+      pLeadPSub:"Purchase rate (additive): e.g. 10 = 10% additionally",
+      pWeekend:"Weekend setup (one-time, €399)",
+      pWeekendSub:"Purchase rate (additive): e.g. 15 = 15% additionally",
+
+      basketPerMember:"Revenue per new member (assumption)",
+
+      resultsTitle:"Results",
+      resultsHint:"Levels separated + earnings separated. Live, no decimal members.",
+      recalc:"Recalculate",
+
+      kNew1:"New members – Level 1",
+      kNew1d:"your direct line in timeframe",
+      kNew2:"New members – Level 2",
+      kNew2d:"created by active members of Level 1",
+      kNew3:"New members – Level 3",
+      kNew3d:"created by active members of Level 2",
+      kNewT:"Total new members",
+      kNewTd:"sum Level 1–3",
+
+      kEarn1:"Earnings – Level 1 (orientation)",
+      kEarn1d:"20% of assumed revenue",
+      kEarn2:"Earnings – Level 2 (orientation)",
+      kEarn2d:"15% of assumed revenue",
+      kEarn3:"Earnings – Level 3 (orientation)",
+      kEarn3d:"10% of assumed revenue",
+      kEarnT:"Total earnings (orientation)",
+      kEarnTd:"sum Level 1–3",
+
+      thM:"Month",
+      th1:"New L1",
+      th2:"New L2",
+      th3:"New L3",
+      thB:"Revenue per new member",
+      thU:"Total revenue",
+      thE1:"Earn L1",
+      thE2:"Earn L2",
+      thE3:"Earn L3",
+
+      footerNote:"Note: simulation for orientation. No billing, no tax/legal advice. Results depend on pace, activity and time.",
+
+      readerTitle:"Reader text (short & clear)",
+      accA:"What you enter here",
+      accA1:"You set a duration, your weekly effort (hours), new members per hour, and active rates (who later becomes active).",
+      accA2:"In the product mix you enter purchase rates in percent. These values are additive: one member can buy multiple products.",
+      accB:"Why active rates are unrelated to prices",
+      accB1:"The active rate does not set the price. It only sets how many people from a level later become active and create new members. Price (revenue per new member) comes only from the product mix.",
+      accC:"Rounding: no decimal members",
+      accC1:"Members are always whole persons in this simulation. Therefore intermediate values (e.g. 2.8) are always rounded down (2).",
+      accD:"Start date in the table",
+      accD1:"The start date only names the month rows (e.g. 03/2026). It does not change the math.",
+
+      notesTitle:"Notes",
+      notesHint:"Stored only on your device (LocalStorage).",
+      clearNotes:"Clear notes",
+      clearAll:"Clear everything"
+    }
+  };
+
+  function $(id){ return document.getElementById(id); }
+
+  function currentLang(){
+    return (document.documentElement.lang === "en") ? "en" : "de";
+  }
+
+  function setLang(lang){
+    const l = (lang === "en") ? "en" : "de";
+    const dict = I18N[l];
+
+    document.documentElement.lang = l;
+
+    document.querySelectorAll("[data-i18n]").forEach(el=>{
+      const k = el.getAttribute("data-i18n");
+      if(dict[k] != null) el.textContent = dict[k];
+    });
+
+    $("langDE")?.setAttribute("aria-pressed", String(l !== "en"));
+    $("langEN")?.setAttribute("aria-pressed", String(l === "en"));
+
+    try{ localStorage.setItem(KEY_LANG, l); }catch(e){}
+  }
+
+  // ---------- number helpers ----------
+  function toNum(v){
+    const n = Number(String(v).replace(",", "."));
+    return Number.isFinite(n) ? n : 0;
+  }
+  function clamp(n,min,max){ return Math.min(max, Math.max(min,n)); }
+  function pct(v){ return clamp(toNum(v), 0, 100) / 100; }
+  function floor0(x){ return Math.max(0, Math.floor(Number.isFinite(x) ? x : 0)); }
+
+  function fmtInt(x){
+    const v = Math.round(Number.isFinite(x) ? x : 0);
+    return v.toLocaleString(currentLang()==="en" ? "en-US" : "de-DE");
+  }
+  function fmtEUR(x){
+    const v = Number.isFinite(x) ? x : 0;
+    return v.toLocaleString(currentLang()==="en" ? "en-US" : "de-DE", {
+      style:"currency", currency:"EUR", minimumFractionDigits:2, maximumFractionDigits:2
+    });
+  }
+
+  function parseIntText(s){
+    const t = String(s).replace(/[^\d\-]/g,"");
+    const n = Number(t);
+    return Number.isFinite(n) ? n : 0;
+  }
+  function parseMoney(s){
+    const t = String(s).replace(/\./g,"").replace(",",".").replace(/[^\d\.\-]/g,"");
+    const n = Number(t);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  // ---------- state ----------
+  function readStateFromDom(){
+    const ids = [
+      "startDate","months","hoursWeek","delay",
+      "rateYou","e1Active","rateE1Active","e2Active","rateE2Active",
+      "p_member","p_leadSmall","p_leadPro","p_weekend",
+      "notes"
+    ];
+    const out = {};
+    ids.forEach(id=>{
+      const el = $(id);
+      if(!el) return;
+      out[id] = el.value;
+    });
+    return out;
+  }
+
+  function writeStateToDom(s){
+    if(!s || typeof s !== "object") return;
+    Object.keys(s).forEach(id=>{
+      const el = $(id);
+      if(!el) return;
+      el.value = String(s[id]);
+    });
+    updateMonthsOut();
+  }
+
+  function load(){
+    try{
+      const raw = localStorage.getItem(KEY);
+      if(!raw) return;
+      const obj = JSON.parse(raw);
+      writeStateToDom(obj);
+    }catch(e){}
+  }
+
+  const saveHintEl = $("saveHint");
+  function setSaveHint(msg){
+    if(saveHintEl) saveHintEl.textContent = msg;
+  }
+  let saveT = null;
+  function save(){
+    try{
+      localStorage.setItem(KEY, JSON.stringify(readStateFromDom()));
+      setSaveHint(currentLang()==="en" ? "Saved." : "Gespeichert.");
+    }catch(e){
+      setSaveHint(currentLang()==="en" ? "Save failed." : "Speichern fehlgeschlagen.");
+    }
+  }
+  function scheduleSave(){
+    setSaveHint(currentLang()==="en" ? "Saving…" : "Speichert…");
+    if(saveT) clearTimeout(saveT);
+    saveT = setTimeout(()=>{ save(); saveT=null; }, 220);
+  }
+
+  // ---------- reset ----------
+  function setToToday(){
+    const d = new Date();
+    const iso = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
+      .toISOString().slice(0,10);
+    $("startDate").value = iso;
+  }
+
+  function resetTimeBlock(){
+    // Beispiel: heute + 12 Monate
+    setToToday();
+    $("months").value = "12";
+    updateMonthsOut();
+    $("delay").value = "0";
+  }
+
+  function resetBuildBlock(){
+    $("hoursWeek").value = "10";
+    $("rateYou").value = "0.20";
+    $("e1Active").value = "20";
+    $("rateE1Active").value = "0.20";
+    $("e2Active").value = "20";
+    $("rateE2Active").value = "0.20";
+  }
+
+  function resetMixBlock(){
+    $("p_member").value = "100";
+    $("p_leadSmall").value = "0";
+    $("p_leadPro").value = "0";
+    $("p_weekend").value = "0";
+  }
+
+  function resetAll(){
+    resetTimeBlock();
+    resetBuildBlock();
+    resetMixBlock();
+    $("notes").value = "";
+    scheduleSave();
+    recalc(true);
+    setSaveHint(currentLang()==="en" ? "Reset." : "Alles auf 0.");
+  }
+
+  $("btnResetAll")?.addEventListener("click", resetAll);
+  $("resetTime")?.addEventListener("click", ()=>{ resetTimeBlock(); scheduleSave(); recalc(true); });
+  $("resetBuild")?.addEventListener("click", ()=>{ resetBuildBlock(); scheduleSave(); recalc(true); });
+  $("resetMix")?.addEventListener("click", ()=>{ resetMixBlock(); scheduleSave(); recalc(true); });
+  $("resetMix2")?.addEventListener("click", ()=>{ resetMixBlock(); scheduleSave(); recalc(true); });
+
+  document.querySelectorAll("[data-reset]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const id = btn.getAttribute("data-reset");
+      if(id === "startDate") setToToday();
+      if(id === "months") { $("months").value = "12"; updateMonthsOut(); }
+      if(id === "hoursWeek") $("hoursWeek").value = "10";
+      if(id === "delay") $("delay").value = "0";
+      if(id === "rateYou") $("rateYou").value = "0.20";
+      if(id === "e1Active") $("e1Active").value = "20";
+      if(id === "rateE1Active") $("rateE1Active").value = "0.20";
+      if(id === "e2Active") $("e2Active").value = "20";
+      if(id === "rateE2Active") $("rateE2Active").value = "0.20";
+
+      if(id === "p_member") $("p_member").value = "100";
+      if(id === "p_leadSmall") $("p_leadSmall").value = "0";
+      if(id === "p_leadPro") $("p_leadPro").value = "0";
+      if(id === "p_weekend") $("p_weekend").value = "0";
+
+      scheduleSave();
+      recalc(true);
+    });
+  });
+
+  // ---------- months out ----------
+  function updateMonthsOut(){
+    $("monthsOut").textContent = String($("months").value || "12");
+  }
+  $("months")?.addEventListener("input", ()=>{
+    updateMonthsOut();
+    scheduleSave();
+    recalc(true);
+  });
+
+  // ---------- basket (product mix, additive) ----------
+  function getBasket(){
+    const pM = pct($("p_member").value);
+    const pS = pct($("p_leadSmall").value);
+    const pP = pct($("p_leadPro").value);
+    const pW = pct($("p_weekend").value);
+
+    // additiv: jeder Anteil zählt zusätzlich
+    const basket =
+      (pM * 60) +
+      (pS * 60) +
+      (pP * 298) +
+      (pW * 399);
+
+    return basket;
+  }
+
+  function updateBasketOut(){
+    $("basketOut").textContent = fmtEUR(getBasket());
+  }
+
+  // ---------- derived text (assumptions) ----------
+  const lastWow = $("lastWow");
+  function setWow(msg){
+    if(lastWow) lastWow.textContent = msg;
+  }
+
+  function updateDerived(){
+    const hoursWeek = clamp(toNum($("hoursWeek").value), 0, 80);
+    const hoursMonth = hoursWeek * 4.345; // Durchschnitt Wochen/Monat
+    $("hoursMonthOut").textContent =
+      (currentLang()==="en"
+        ? `~${hoursMonth.toFixed(1)} h/month (hours/week × 4.345)`
+        : `~${hoursMonth.toFixed(1).replace(".", ",")} h/Monat (Stunden/Woche × 4,345)`);
+
+    const rateYou = clamp(toNum($("rateYou").value), 0, 10);
+    const q1 = $("e1Active").value;
+    const rateE1 = clamp(toNum($("rateE1Active").value), 0, 10);
+    const q2 = $("e2Active").value;
+    const rateE2 = clamp(toNum($("rateE2Active").value), 0, 10);
+
+    $("assumptionOut").textContent =
+      (currentLang()==="en"
+        ? `You: ${hoursWeek}h/week × ${rateYou}/h → L1 | Active: ${q1}% → L2 (rate ${rateE1}/h) | Active: ${q2}% → L3 (rate ${rateE2}/h)`
+        : `Du: ${String(hoursWeek).replace(".", ",")}h/Woche × ${String(rateYou).replace(".", ",")}/h → E1 | Aktiv: ${q1}% → E2 (Rate ${String(rateE1).replace(".", ",")}/h) | Aktiv: ${q2}% → E3 (Rate ${String(rateE2).replace(".", ",")}/h)`);
+  }
+
+  // ---------- table month labels ----------
+  function addMonths(date, m){
+    const d = new Date(date.getTime());
+    d.setMonth(d.getMonth() + m);
+    return d;
+  }
+
+  function monthLabel(d){
+    const mm = String(d.getMonth()+1).padStart(2,"0");
+    const yy = String(d.getFullYear());
+    return `${mm}/${yy}`;
+  }
+
+  // ---------- KPI animations ----------
+  function animateNumber(el, from, to, fmt){
+    const start = performance.now();
+    const dur = 520;
+    function step(t){
+      const p = Math.min(1, (t - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      const v = from + (to - from) * eased;
+      el.textContent = fmt(v);
+      if(p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function setKPI(id, val, isMoney){
+    const el = $(id);
+    if(!el) return;
+    const oldText = el.textContent || "0";
+    const oldVal = isMoney ? parseMoney(oldText) : parseIntText(oldText);
+    const fmt = isMoney ? (x)=>fmtEUR(x) : (x)=>fmtInt(x);
+    animateNumber(el, oldVal, val, fmt);
+  }
+
+  // ---------- core calc (whole members, rounded down) ----------
+  function calcScenario(){
+    const months = clamp(toNum($("months").value), 1, 24);
+    const delay = clamp(toNum($("delay").value), 0, 2);
+
+    const hoursWeek = clamp(toNum($("hoursWeek").value), 0, 80);
+    const hoursMonth = hoursWeek * 4.345;
+
+    const rateYou = clamp(toNum($("rateYou").value), 0, 10);
+    const e1Active = pct($("e1Active").value);
+
+    const rateE1Active = clamp(toNum($("rateE1Active").value), 0, 10);
+    const e2Active = pct($("e2Active").value);
+
+    const rateE2Active = clamp(toNum($("rateE2Active").value), 0, 10);
+
+    const basket = getBasket();
+
+    // feste Sätze
+    const r1 = 0.20, r2 = 0.15, r3 = 0.10;
+
+    let sum1=0, sum2=0, sum3=0;
+    let earn1=0, earn2=0, earn3=0;
+    let revTotal=0;
+
+    let cumE1 = 0;
+    let cumE2 = 0;
+
+    const rows = [];
+
+    const startDateRaw = $("startDate").value;
+    const baseDate = startDateRaw ? new Date(startDateRaw + "T00:00:00") : new Date();
+
+    for(let m=1; m<=months; m++){
+      const label = monthLabel(addMonths(baseDate, m-1));
+
+      // Ebene 1: du
+      const new1 = floor0(hoursMonth * rateYou);
+      cumE1 += new1;
+
+      // Rekrutierung startet nach Delay
+      const e1CanRecruit = (m > delay);
+      const e2CanRecruit = (m > delay);
+
+      // Ebene 2: aus aktiven von cumE1
+      const activeE1 = e1CanRecruit ? floor0(cumE1 * e1Active) : 0;
+      const new2 = floor0(activeE1 * hoursMonth * rateE1Active);
+      cumE2 += new2;
+
+      // Ebene 3: aus aktiven von cumE2
+      const activeE2 = e2CanRecruit ? floor0(cumE2 * e2Active) : 0;
+      const new3 = floor0(activeE2 * hoursMonth * rateE2Active);
+
+      const revMonth = (new1 + new2 + new3) * basket;
+
+      const e1 = new1 * basket * r1;
+      const e2 = new2 * basket * r2;
+      const e3 = new3 * basket * r3;
+
+      sum1 += new1; sum2 += new2; sum3 += new3;
+      earn1 += e1; earn2 += e2; earn3 += e3;
+      revTotal += revMonth;
+
+      rows.push({ label, new1, new2, new3, basket, revMonth, e1, e2, e3 });
+    }
+
+    return { months, delay, basket, sum1, sum2, sum3, earn1, earn2, earn3, revTotal, rows, hoursMonth };
+  }
+
+  function buildTable(rows){
+    const tbody = $("tbody");
+    tbody.innerHTML = "";
+    rows.forEach(r=>{
+      const tr = document.createElement("tr");
+
+      const tdM = document.createElement("td");
+      tdM.textContent = r.label;
+      tr.appendChild(tdM);
+
+      const td1 = document.createElement("td");
+      td1.textContent = fmtInt(r.new1);
+      tr.appendChild(td1);
+
+      const td2 = document.createElement("td");
+      td2.textContent = fmtInt(r.new2);
+      tr.appendChild(td2);
+
+      const td3 = document.createElement("td");
+      td3.textContent = fmtInt(r.new3);
+      tr.appendChild(td3);
+
+      const tdB = document.createElement("td");
+      tdB.className = "right";
+      tdB.textContent = fmtEUR(r.basket);
+      tr.appendChild(tdB);
+
+      const tdU = document.createElement("td");
+      tdU.className = "right";
+      tdU.textContent = fmtEUR(r.revMonth);
+      tr.appendChild(tdU);
+
+      const tdE1 = document.createElement("td");
+      tdE1.className = "right";
+      tdE1.textContent = fmtEUR(r.e1);
+      tr.appendChild(tdE1);
+
+      const tdE2 = document.createElement("td");
+      tdE2.className = "right";
+      tdE2.textContent = fmtEUR(r.e2);
+      tr.appendChild(tdE2);
+
+      const tdE3 = document.createElement("td");
+      tdE3.className = "right";
+      tdE3.textContent = fmtEUR(r.e3);
+      tr.appendChild(tdE3);
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  function recalc(showWow){
+    updateMonthsOut();
+    updateBasketOut();
+    updateDerived();
+
+    const main = calcScenario();
+
+    const totalNew = main.sum1 + main.sum2 + main.sum3;
+    const totalEarn = main.earn1 + main.earn2 + main.earn3;
+
+    setKPI("k_new1", main.sum1, false);
+    setKPI("k_new2", main.sum2, false);
+    setKPI("k_new3", main.sum3, false);
+    setKPI("k_newT", totalNew, false);
+
+    setKPI("k_e1", main.earn1, true);
+    setKPI("k_e2", main.earn2, true);
+    setKPI("k_e3", main.earn3, true);
+    setKPI("k_eT", totalEarn, true);
+
+    buildTable(main.rows);
+
+    if(showWow){
+      if(totalNew === 0){
+        setWow(currentLang()==="en" ? "Set your assumptions → then it becomes visible." : "Setze Annahmen → dann wird es sichtbar.");
+      }else{
+        if(main.sum3 > 0) setWow(currentLang()==="en" ? "Level 3 is active → now it becomes tangible." : "Ebene 3 ist aktiv → jetzt wird es greifbar.");
+        else if(main.sum2 > 0) setWow(currentLang()==="en" ? "Level 2 is building → time matters." : "Ebene 2 baut sich auf → Zeit wirkt.");
+        else if(main.sum1 > 0) setWow(currentLang()==="en" ? "Level 1 stands → repetition + time." : "Ebene 1 steht → Wiederholung + Zeit.");
+        else setWow(currentLang()==="en" ? "Set assumptions → see the effect." : "Setze Annahmen → Effekt sichtbar.");
+      }
+    }
+  }
+
+  // ---------- copy ----------
+  $("btnCopy")?.addEventListener("click", async ()=>{
+    const s = readStateFromDom();
+    const main = calcScenario();
+    const totalNew = main.sum1 + main.sum2 + main.sum3;
+    const totalEarn = main.earn1 + main.earn2 + main.earn3;
+
+    const lines = [];
+    lines.push(currentLang()==="en" ? "Sustainability Calculator (3 Levels) – 02" : "Tragfähigkeits-Rechner (3 Ebenen) – 02");
+    lines.push((currentLang()==="en" ? "Start date: " : "Startdatum: ") + (s.startDate || "—"));
+    lines.push((currentLang()==="en" ? "Months: " : "Monate: ") + s.months);
+    lines.push((currentLang()==="en" ? "Hours/week: " : "Stunden/Woche: ") + s.hoursWeek);
+    lines.push((currentLang()==="en" ? "Activity starts: " : "Aktivität startet: ") + (s.delay==="2" ? (currentLang()==="en"?"month 3":"ab Monat 3") : (s.delay==="1" ? (currentLang()==="en"?"next month":"ab Folgemonat") : (currentLang()==="en"?"immediately":"sofort"))));
+    lines.push("");
+    lines.push(currentLang()==="en" ? "Rates:" : "Raten:");
+    lines.push("  " + (currentLang()==="en" ? "You (L1): " : "Du (E1): ") + s.rateYou + "/h");
+    lines.push("  " + (currentLang()==="en" ? "Active L1: " : "Aktiv E1: ") + s.e1Active + "% | " + (currentLang()==="en" ? "Active L1 rate: " : "Rate aktive E1: ") + s.rateE1Active + "/h");
+    lines.push("  " + (currentLang()==="en" ? "Active L2: " : "Aktiv E2: ") + s.e2Active + "% | " + (currentLang()==="en" ? "Active L2 rate: " : "Rate aktive E2: ") + s.rateE2Active + "/h");
+    lines.push("");
+    lines.push(currentLang()==="en" ? "Product mix (additive purchase rates):" : "Produktmix (additive Kaufquoten):");
+    lines.push("  " + (currentLang()==="en" ? "Membership: " : "Mitgliedschaft: ") + s.p_member + "%");
+    lines.push("  " + (currentLang()==="en" ? "Small lead machine: " : "Kleine Leadmaschine: ") + s.p_leadSmall + "%");
+    lines.push("  " + (currentLang()==="en" ? "Pro lead machine: " : "Profi Leadmaschine: ") + s.p_leadPro + "%");
+    lines.push("  " + (currentLang()==="en" ? "Weekend setup: " : "Weekend-Setup: ") + s.p_weekend + "%");
+    lines.push("  " + (currentLang()==="en" ? "Revenue per new member: " : "Umsatz je neues Mitglied: ") + fmtEUR(main.basket));
+    lines.push("");
+    lines.push(currentLang()==="en" ? "Result (orientation):" : "Ergebnis (Orientierung):");
+    lines.push("  " + (currentLang()==="en" ? "New L1: " : "Neu E1: ") + fmtInt(main.sum1));
+    lines.push("  " + (currentLang()==="en" ? "New L2: " : "Neu E2: ") + fmtInt(main.sum2));
+    lines.push("  " + (currentLang()==="en" ? "New L3: " : "Neu E3: ") + fmtInt(main.sum3));
+    lines.push("  " + (currentLang()==="en" ? "Total new: " : "Gesamt neu: ") + fmtInt(totalNew));
+    lines.push("  " + (currentLang()==="en" ? "Earnings L1 (20%): " : "Ertrag E1 (20%): ") + fmtEUR(main.earn1));
+    lines.push("  " + (currentLang()==="en" ? "Earnings L2 (15%): " : "Ertrag E2 (15%): ") + fmtEUR(main.earn2));
+    lines.push("  " + (currentLang()==="en" ? "Earnings L3 (10%): " : "Ertrag E3 (10%): ") + fmtEUR(main.earn3));
+    lines.push("  " + (currentLang()==="en" ? "Total earnings: " : "Gesamt-Ertrag: ") + fmtEUR(totalEarn));
+    lines.push("");
+    lines.push(currentLang()==="en" ? "Note: simulation for orientation. No billing." : "Hinweis: Simulation zur Orientierung. Keine Abrechnung.");
+
+    const text = lines.join("\n");
+
+    try{
+      await navigator.clipboard.writeText(text);
+      setSaveHint(currentLang()==="en" ? "Copied." : "Kopiert.");
+    }catch(e){
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try{ document.execCommand("copy"); setSaveHint(currentLang()==="en" ? "Copied." : "Kopiert."); }
+      catch(err){ setSaveHint(currentLang()==="en" ? "Copy failed." : "Kopieren fehlgeschlagen."); }
+      document.body.removeChild(ta);
+    }
+  });
+
+  // ---------- print ----------
+  $("btnPrint")?.addEventListener("click", ()=>window.print());
+
+  // ---------- notes ----------
+  $("clearNotes")?.addEventListener("click", ()=>{
+    $("notes").value = "";
+    scheduleSave();
+  });
+
+  $("clearAll")?.addEventListener("click", ()=>{
+    try{
+      const keys = [];
+      for(let i=0;i<localStorage.length;i++){
+        const k = localStorage.key(i);
+        if(k && k.startsWith(PREFIX)) keys.push(k);
+      }
+      keys.forEach(k=>localStorage.removeItem(k));
+    }catch(e){}
+    resetAll();
+    setSaveHint(currentLang()==="en" ? "Cleared." : "Alles gelöscht.");
+  });
+
+  // ---------- live listeners ----------
+  const liveIds = [
+    "startDate","delay","hoursWeek","rateYou","e1Active","rateE1Active","e2Active","rateE2Active",
+    "p_member","p_leadSmall","p_leadPro","p_weekend","notes"
+  ];
+  liveIds.forEach(id=>{
+    const el = $(id);
+    if(!el) return;
+    const evt = (el.tagName === "SELECT") ? "change" : "input";
+    el.addEventListener(evt, ()=>{
+      scheduleSave();
+      recalc(true);
+    });
+  });
+
+  $("btnRecalc")?.addEventListener("click", ()=>recalc(true));
+
+  // ---------- language buttons ----------
+  $("langDE")?.addEventListener("click", ()=>{ setLang("de"); scheduleSave(); recalc(true); });
+  $("langEN")?.addEventListener("click", ()=>{ setLang("en"); scheduleSave(); recalc(true); });
+
+  // ---------- init ----------
+  const savedLang = (()=>{ try{ return localStorage.getItem(KEY_LANG) || "de"; }catch(e){ return "de"; } })();
+  setLang(savedLang === "en" ? "en" : "de");
+
+  // defaults if empty
+  if(!$("startDate").value) setToToday();
+
+  load();
+  updateMonthsOut();
+  updateBasketOut();
+  updateDerived();
+  recalc(true);
+  setSaveHint(currentLang()==="en" ? "Ready." : "Bereit.");
+})();
+</script>
+  </script>
+</body>
+</html>
