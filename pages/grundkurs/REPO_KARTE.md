@@ -1135,6 +1135,7 @@
     │   ├── social.html
     │   ├── souveraenitaet.html
     │   ├── timecells.html
+    │   ├── tragfaehigkeits-simulation-02.html
     │   ├── tragfaehigkeits-simulation.html
     │   ├── unikat-url-alexander-demo.html
     │   ├── unikat-url.html
@@ -1181,4 +1182,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.02.2026, 17:16)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.02.2026, 18:25)_
