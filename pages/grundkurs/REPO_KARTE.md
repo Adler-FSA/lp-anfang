@@ -1124,6 +1124,7 @@
     │   ├── affiliate-magazin.html
     │   ├── community.html
     │   ├── gut-zu-wissen.html
+    │   ├── karrierebooster-simulator.html
     │   ├── lesespuren-und-vertiefung.html
     │   ├── mentoren.html
     │   ├── neutral-zu-100.html
@@ -1183,4 +1184,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.03.2026, 11:16)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.03.2026, 12:36)_
