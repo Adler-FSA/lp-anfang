@@ -1,0 +1,864 @@
+<!doctype html>
+<!--
+  FSA-CLUB • KarriereBooster Simulator (nur Anzahl, kein Umsatz)
+  GitHub-Pfad: lp-anfang/pages/karrierebooster-simulator.html
+
+  Commit-Message: karrierebooster-simulator – KarriereBooster (TL/OL/VL/VD) als HTML-Simulator (E4–E7 Fixbetrag/Monat), DE/EN i18n, ohne Umsatz
+  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/karrierebooster-simulator.html?nocache=__TS__
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KarriereBooster Simulator (E4–E7) – Fixbetrag pro Mitglied</title>
+  <meta name="description" content="Simulator für KarriereBooster (TL/OL/VL/VD) mit Fixbetrag pro aktivem Mitglied in E4–E7, ohne Umsatz, DE/EN." />
+  <style>
+    :root{
+      --bg0:#07070a;
+      --bg1:#0d0c12;
+      --panel: rgba(255,255,255,.07);
+      --panel2: rgba(255,255,255,.10);
+      --line: rgba(255,255,255,.14);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.68);
+      --muted2: rgba(255,255,255,.55);
+      --gold: #d6b24c;
+      --gold2:#f1d07a;
+      --teal:#3fe0c2;
+      --warn:#ffcc66;
+      --ok:#79ffb0;
+      --bad:#ff7a7a;
+      --shadow: 0 18px 60px rgba(0,0,0,.55);
+      --radius: 18px;
+      --radius2: 14px;
+      --pad: 18px;
+      --pad2: 14px;
+      --max: 1100px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(1200px 800px at 15% 10%, rgba(214,178,76,.18), transparent 55%),
+        radial-gradient(900px 700px at 80% 15%, rgba(63,224,194,.16), transparent 55%),
+        radial-gradient(1100px 700px at 70% 95%, rgba(214,178,76,.10), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+    }
+
+    .wrap{
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 18px 14px 44px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 10px;
+      z-index: 5;
+      backdrop-filter: blur(8px);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+    }
+    .logo{
+      width: 34px; height: 34px; flex: 0 0 auto;
+      border-radius: 10px;
+      display:grid; place-items:center;
+      background: radial-gradient(circle at 30% 30%, rgba(241,208,122,.35), rgba(214,178,76,.10));
+      border: 1px solid rgba(214,178,76,.35);
+    }
+    .brand h1{
+      margin:0;
+      font-size: 14px;
+      letter-spacing: .2px;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .brand .sub{
+      margin:0;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+
+    .btnrow{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    button, .btn{
+      appearance:none;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 9px 11px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-size: 13px;
+      line-height:1;
+      transition: transform .08s ease, background .2s ease, border-color .2s ease;
+      user-select:none;
+      white-space:nowrap;
+    }
+    button:hover{ background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.20); }
+    button:active{ transform: translateY(1px); }
+
+    .grid{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 14px;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+      .topbar{ position: static; }
+    }
+
+    .card{
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: var(--pad);
+      backdrop-filter: blur(8px);
+    }
+
+    .card h2{
+      margin:0 0 10px;
+      font-size: 14px;
+      letter-spacing: .2px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .hint{
+      color: var(--muted);
+      font-size: 12px;
+      margin: 0 0 10px;
+      line-height: 1.45;
+    }
+
+    .form{
+      display:grid;
+      gap: 10px;
+    }
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 170px;
+      gap: 10px;
+      align-items:center;
+    }
+    @media (max-width: 560px){
+      .row{ grid-template-columns: 1fr; }
+    }
+    label{
+      font-size: 13px;
+      color: var(--text);
+    }
+    .muted{
+      display:block;
+      margin-top: 2px;
+      font-size: 12px;
+      color: var(--muted2);
+      line-height: 1.25;
+    }
+    input[type="number"], input[type="range"]{
+      width:100%;
+    }
+    input[type="number"]{
+      background: rgba(0,0,0,.25);
+      border: 1px solid rgba(255,255,255,.16);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 10px;
+      font-size: 14px;
+      outline: none;
+    }
+    input[type="number"]:focus{
+      border-color: rgba(63,224,194,.35);
+      box-shadow: 0 0 0 3px rgba(63,224,194,.10);
+    }
+
+    .rangeWrap{
+      display:grid;
+      grid-template-columns: 1fr 90px;
+      gap: 10px;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.25);
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text);
+      min-height: 34px;
+    }
+
+    .kpis{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+    @media (max-width: 760px){
+      .kpis{ grid-template-columns: 1fr; }
+    }
+    .kpi{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+      border-radius: 14px;
+      padding: 12px 12px;
+    }
+    .kpi .t{ font-size: 12px; color: var(--muted); margin:0 0 6px; }
+    .kpi .v{ margin:0; font-size: 18px; letter-spacing:.2px; }
+    .kpi .s{ margin-top:6px; font-size: 12px; color: var(--muted2); line-height:1.35; }
+
+    .status{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.22);
+      margin-top: 12px;
+    }
+    .dot{
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--bad);
+      box-shadow: 0 0 0 4px rgba(255,122,122,.14);
+      flex: 0 0 auto;
+    }
+    .status.good .dot{
+      background: var(--ok);
+      box-shadow: 0 0 0 4px rgba(121,255,176,.14);
+    }
+    .status.warn .dot{
+      background: var(--warn);
+      box-shadow: 0 0 0 4px rgba(255,204,102,.14);
+    }
+    .status .txt{
+      min-width:0;
+    }
+    .status .txt .h{
+      margin:0;
+      font-size: 13px;
+      color: var(--text);
+      line-height:1.2;
+    }
+    .status .txt .p{
+      margin:4px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height:1.35;
+    }
+
+    table{
+      width:100%;
+      border-collapse: collapse;
+      overflow:hidden;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+    }
+    th, td{
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      font-size: 13px;
+      text-align:left;
+      vertical-align: middle;
+    }
+    th{
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing:.2px;
+      background: rgba(255,255,255,.05);
+    }
+    tr:last-child td{ border-bottom:none; }
+    .right{ text-align:right; font-family: var(--mono); }
+    .mono{ font-family: var(--mono); }
+    .gold{ color: var(--gold2); }
+    .smallnote{
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted2);
+      line-height: 1.45;
+    }
+
+    .footer{
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px dashed rgba(255,255,255,.18);
+      background: rgba(0,0,0,.16);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    /* Inline SVG helper */
+    .ico{
+      width:18px; height:18px;
+      display:inline-block;
+      vertical-align:-3px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <!-- Inline SVG only -->
+          <svg class="ico" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2.5c4.8 0 8.7 3.9 8.7 8.7S16.8 19.9 12 19.9 3.3 16 3.3 11.2 7.2 2.5 12 2.5Z" stroke="rgba(214,178,76,.85)" stroke-width="1.7"/>
+            <path d="M7.2 12.2c2.2-2.6 3.7-3.4 6.1-3.4 2.5 0 3.9 1 5.5 3.2" stroke="rgba(63,224,194,.85)" stroke-width="1.7" stroke-linecap="round"/>
+            <path d="M8 15.2c1.2-1.1 2.5-1.6 4-1.6 1.7 0 3 .5 4.2 1.7" stroke="rgba(241,208,122,.9)" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="min-width:0">
+          <h1 data-i18n="title">KarriereBooster Simulator</h1>
+          <p class="sub" data-i18n="subtitle">Fixbetrag pro aktivem Mitglied in E4–E7 (ohne Umsatz)</p>
+        </div>
+      </div>
+
+      <div class="btnrow">
+        <button id="langBtn" type="button" title="Sprache wechseln">
+          <span class="mono" id="langLabel">DE</span> / <span class="mono">EN</span>
+        </button>
+        <button id="resetBtn" type="button" data-i18n="reset">Zurücksetzen</button>
+      </div>
+    </div>
+
+    <div class="grid">
+
+      <!-- INPUT -->
+      <section class="card" aria-label="Eingaben">
+        <h2>
+          <span data-i18n="inputs_head">Eingaben</span>
+          <span class="pill" title="Monatslogik" aria-hidden="true">
+            <span class="mono">monatlich</span>
+          </span>
+        </h2>
+        <p class="hint" data-i18n="inputs_hint">
+          Dieser Simulator rechnet nur den KarriereBooster (E4–E7) auf Basis der Anzahl aktiver Mitglieder. Umsätze spielen hier keine Rolle.
+        </p>
+
+        <div class="form">
+
+          <div class="row">
+            <label for="e1">
+              <span data-i18n="e1_label">Direkte Mitglieder (Ebene 1)</span>
+              <span class="muted" data-i18n="e1_note">Aktive direkte Mitglieder in deiner Ebene 1.</span>
+            </label>
+            <input id="e1" type="number" min="0" step="1" value="100" inputmode="numeric" />
+          </div>
+
+          <div class="row">
+            <label for="r">
+              <span data-i18n="r_label">Wachstumsfaktor pro Ebene (r)</span>
+              <span class="muted" data-i18n="r_note">Einfaches Modell: E2 = E1×r, E3 = E2×r, … bis E7. Ergebnisse werden gerundet.</span>
+            </label>
+            <div class="rangeWrap">
+              <input id="r" type="range" min="0" max="3" step="0.05" value="3" />
+              <div class="pill" aria-live="polite">
+                <span class="mono" id="rVal">3.00</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <label for="directTL">
+              <span data-i18n="dtl_label">Direkte Teamleiter in Ebene 1</span>
+              <span class="muted" data-i18n="dtl_note">Wie viele deiner direkten Partner (E1) haben bereits TL-Status erreicht?</span>
+            </label>
+            <input id="directTL" type="number" min="0" step="1" value="0" inputmode="numeric" />
+          </div>
+
+          <div class="row">
+            <label for="directOL">
+              <span data-i18n="dol_label">Direkte Organisationsleiter in Ebene 1</span>
+              <span class="muted" data-i18n="dol_note">Wie viele deiner direkten Partner (E1) haben bereits OL-Status erreicht?</span>
+            </label>
+            <input id="directOL" type="number" min="0" step="1" value="0" inputmode="numeric" />
+          </div>
+
+          <div class="row">
+            <label for="directVL">
+              <span data-i18n="dvl_label">Direkte Vertriebsleiter in Ebene 1</span>
+              <span class="muted" data-i18n="dvl_note">Wie viele deiner direkten Partner (E1) haben bereits VL-Status erreicht?</span>
+            </label>
+            <input id="directVL" type="number" min="0" step="1" value="0" inputmode="numeric" />
+          </div>
+
+        </div>
+
+        <div id="statusBox" class="status" role="status" aria-live="polite" style="margin-top:14px;">
+          <div class="dot" aria-hidden="true"></div>
+          <div class="txt">
+            <p class="h" id="statusHead">—</p>
+            <p class="p" id="statusText">—</p>
+          </div>
+        </div>
+
+        <div class="footer">
+          <div data-i18n="rule_head" style="color:rgba(255,255,255,.86); font-weight:700; margin-bottom:6px;">Regel (kurz)</div>
+          <div data-i18n="rule_text">
+            Ebenen werden immer relativ zur Person gezählt. Karriere wird ausschließlich über Ebene 1 freigeschaltet. Der KarriereBooster ist ein Fixbetrag pro aktivem Mitglied in der Tiefe (E4–E7) und wird monatlich berechnet.
+          </div>
+        </div>
+      </section>
+
+      <!-- OUTPUT -->
+      <section class="card" aria-label="Ausgabe">
+        <h2>
+          <span data-i18n="out_head">Ergebnis</span>
+          <span class="pill" title="Karriere-Stufe" aria-hidden="true">
+            <span class="mono" id="rankPill">—</span>
+          </span>
+        </h2>
+
+        <div class="kpis">
+          <div class="kpi">
+            <p class="t" data-i18n="kpi_rank">Karriere-Stufe</p>
+            <p class="v" id="rankName">—</p>
+            <div class="s" id="rankReq">—</div>
+          </div>
+          <div class="kpi">
+            <p class="t" data-i18n="kpi_unlock">Freigeschaltet</p>
+            <p class="v gold" id="unlockLevels">—</p>
+            <div class="s" data-i18n="kpi_unlock_note">Welche Tiefenebenen (E4–E7) zählen für deinen Fixbonus.</div>
+          </div>
+          <div class="kpi">
+            <p class="t" data-i18n="kpi_bonus">KarriereBooster (pro Monat)</p>
+            <p class="v gold" id="bonusTotal">—</p>
+            <div class="s" id="bonusBreak">—</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <table aria-label="Ebenen Tabelle">
+            <thead>
+              <tr>
+                <th data-i18n="tbl_level">Ebene</th>
+                <th data-i18n="tbl_members">Mitglieder (aktiv)</th>
+                <th class="right" data-i18n="tbl_rate">Fixbetrag</th>
+                <th class="right" data-i18n="tbl_pay">Bonus/Monat</th>
+              </tr>
+            </thead>
+            <tbody id="levelRows"></tbody>
+          </table>
+
+          <div class="smallnote" data-i18n="round_note">
+            Hinweis: Die Ebenen E2–E7 werden mit dem Wachstumsfaktor r gerechnet und anschließend auf ganze Mitglieder gerundet.
+          </div>
+        </div>
+
+        <div class="footer" style="margin-top:12px;">
+          <div data-i18n="logic_head" style="color:rgba(255,255,255,.86); font-weight:700; margin-bottom:6px;">Freischaltlogik (Ebene 1)</div>
+          <div data-i18n="logic_text">
+            Teamleiter (TL): 100 direkte aktive Mitglieder in E1. Organisationsleiter (OL): 3 direkte TL in E1. Vertriebsleiter (VL): 3 direkte OL in E1. Vertriebsdirektor (VD): 2 direkte VL in E1. Höhere Stufen enthalten die zuvor freigeschalteten Ebenen.
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      "use strict";
+
+      // i18n dictionary (DE/EN) — texts are neutral and exact
+      const I18N = {
+        de: {
+          title: "KarriereBooster Simulator",
+          subtitle: "Fixbetrag pro aktivem Mitglied in E4–E7 (ohne Umsatz)",
+          reset: "Zurücksetzen",
+          inputs_head: "Eingaben",
+          inputs_hint: "Dieser Simulator rechnet nur den KarriereBooster (E4–E7) auf Basis der Anzahl aktiver Mitglieder. Umsätze spielen hier keine Rolle.",
+          e1_label: "Direkte Mitglieder (Ebene 1)",
+          e1_note: "Aktive direkte Mitglieder in deiner Ebene 1.",
+          r_label: "Wachstumsfaktor pro Ebene (r)",
+          r_note: "Einfaches Modell: E2 = E1×r, E3 = E2×r, … bis E7. Ergebnisse werden gerundet.",
+          dtl_label: "Direkte Teamleiter in Ebene 1",
+          dtl_note: "Wie viele deiner direkten Partner (E1) haben bereits TL-Status erreicht?",
+          dol_label: "Direkte Organisationsleiter in Ebene 1",
+          dol_note: "Wie viele deiner direkten Partner (E1) haben bereits OL-Status erreicht?",
+          dvl_label: "Direkte Vertriebsleiter in Ebene 1",
+          dvl_note: "Wie viele deiner direkten Partner (E1) haben bereits VL-Status erreicht?",
+          rule_head: "Regel (kurz)",
+          rule_text: "Ebenen werden immer relativ zur Person gezählt. Karriere wird ausschließlich über Ebene 1 freigeschaltet. Der KarriereBooster ist ein Fixbetrag pro aktivem Mitglied in der Tiefe (E4–E7) und wird monatlich berechnet.",
+          out_head: "Ergebnis",
+          kpi_rank: "Karriere-Stufe",
+          kpi_unlock: "Freigeschaltet",
+          kpi_unlock_note: "Welche Tiefenebenen (E4–E7) zählen für deinen Fixbonus.",
+          kpi_bonus: "KarriereBooster (pro Monat)",
+          tbl_level: "Ebene",
+          tbl_members: "Mitglieder (aktiv)",
+          tbl_rate: "Fixbetrag",
+          tbl_pay: "Bonus/Monat",
+          round_note: "Hinweis: Die Ebenen E2–E7 werden mit dem Wachstumsfaktor r gerechnet und anschließend auf ganze Mitglieder gerundet.",
+          logic_head: "Freischaltlogik (Ebene 1)",
+          logic_text: "Teamleiter (TL): 100 direkte aktive Mitglieder in E1. Organisationsleiter (OL): 3 direkte TL in E1. Vertriebsleiter (VL): 3 direkte OL in E1. Vertriebsdirektor (VD): 2 direkte VL in E1. Höhere Stufen enthalten die zuvor freigeschalteten Ebenen.",
+          rank_none: "Kein Rang",
+          rank_tl: "Teamleiter (TL)",
+          rank_ol: "Organisationsleiter (OL)",
+          rank_vl: "Vertriebsleiter (VL)",
+          rank_vd: "Vertriebsdirektor (VD)",
+          rank_req_none: "Noch keine Freischaltung. Für TL brauchst du 100 direkte aktive Mitglieder in Ebene 1.",
+          rank_req_tl: "TL ist aktiv (E1 ≥ 100).",
+          rank_req_ol: "OL ist aktiv (mind. 3 direkte TL in E1).",
+          rank_req_vl: "VL ist aktiv (mind. 3 direkte OL in E1).",
+          rank_req_vd: "VD ist aktiv (mind. 2 direkte VL in E1).",
+          status_bad_h: "Noch keine Karriere-Stufe aktiv",
+          status_bad_p: "Erreiche zuerst Teamleiter: 100 direkte aktive Mitglieder in Ebene 1.",
+          status_good_h: "Karriere-Stufe aktiv",
+          status_good_p: "Die freigeschalteten Tiefenebenen werden mit Fixbetrag pro aktivem Mitglied monatlich berechnet.",
+          status_warn_h: "Hinweis zur Eingabe",
+          status_warn_p: "Direkte Leader-Zahlen sollten nicht größer sein als deine direkten Mitglieder (E1). Der Simulator rechnet trotzdem weiter.",
+          unlock_none: "—",
+          unlock_tl: "E4",
+          unlock_ol: "E4 + E5",
+          unlock_vl: "E4 + E5 + E6",
+          unlock_vd: "E4 + E5 + E6 + E7",
+          break_none: "Kein Fixbonus aktiv.",
+          money_per_member: "pro Mitglied"
+        },
+        en: {
+          title: "CareerBooster Simulator",
+          subtitle: "Fixed amount per active member in L4–L7 (no revenue)",
+          reset: "Reset",
+          inputs_head: "Inputs",
+          inputs_hint: "This simulator calculates the CareerBooster (L4–L7) based only on the number of active members. Revenue is not used here.",
+          e1_label: "Direct members (Level 1)",
+          e1_note: "Active direct members in your Level 1.",
+          r_label: "Growth factor per level (r)",
+          r_note: "Simple model: L2 = L1×r, L3 = L2×r, … up to L7. Results are rounded.",
+          dtl_label: "Direct Team Leaders in Level 1",
+          dtl_note: "How many of your direct partners (L1) already have TL status?",
+          dol_label: "Direct Organization Leaders in Level 1",
+          dol_note: "How many of your direct partners (L1) already have OL status?",
+          dvl_label: "Direct Sales Leaders in Level 1",
+          dvl_note: "How many of your direct partners (L1) already have VL status?",
+          rule_head: "Rule (short)",
+          rule_text: "Levels are always counted relative to the person. Career is unlocked only via Level 1. CareerBooster is a fixed amount per active member in depth (L4–L7) and is calculated monthly.",
+          out_head: "Result",
+          kpi_rank: "Career rank",
+          kpi_unlock: "Unlocked",
+          kpi_unlock_note: "Which deep levels (L4–L7) count toward your fixed bonus.",
+          kpi_bonus: "CareerBooster (per month)",
+          tbl_level: "Level",
+          tbl_members: "Members (active)",
+          tbl_rate: "Fixed rate",
+          tbl_pay: "Bonus/month",
+          round_note: "Note: Levels L2–L7 are computed using growth factor r and then rounded to whole members.",
+          logic_head: "Unlock rules (Level 1)",
+          logic_text: "Team Leader (TL): 100 active direct members in L1. Organization Leader (OL): 3 direct TL in L1. Sales Leader (VL): 3 direct OL in L1. Sales Director (VD): 2 direct VL in L1. Higher ranks include previously unlocked levels.",
+          rank_none: "No rank",
+          rank_tl: "Team Leader (TL)",
+          rank_ol: "Organization Leader (OL)",
+          rank_vl: "Sales Leader (VL)",
+          rank_vd: "Sales Director (VD)",
+          rank_req_none: "Not unlocked yet. For TL you need 100 active direct members in Level 1.",
+          rank_req_tl: "TL is active (L1 ≥ 100).",
+          rank_req_ol: "OL is active (at least 3 direct TL in L1).",
+          rank_req_vl: "VL is active (at least 3 direct OL in L1).",
+          rank_req_vd: "VD is active (at least 2 direct VL in L1).",
+          status_bad_h: "No career rank active yet",
+          status_bad_p: "Reach Team Leader first: 100 active direct members in Level 1.",
+          status_good_h: "Career rank active",
+          status_good_p: "Unlocked deep levels are calculated monthly using fixed amounts per active member.",
+          status_warn_h: "Input note",
+          status_warn_p: "Direct leader counts should not exceed your direct members (L1). The simulator will still calculate.",
+          unlock_none: "—",
+          unlock_tl: "L4",
+          unlock_ol: "L4 + L5",
+          unlock_vl: "L4 + L5 + L6",
+          unlock_vd: "L4 + L5 + L6 + L7",
+          break_none: "No fixed bonus active.",
+          money_per_member: "per member"
+        }
+      };
+
+      // Fixed amounts per level (E4–E7) in EUR/month per active member
+      const RATES = {
+        4: 0.50,
+        5: 0.50,
+        6: 0.30,
+        7: 0.20
+      };
+
+      // Elements
+      const el = {
+        e1: document.getElementById("e1"),
+        r: document.getElementById("r"),
+        rVal: document.getElementById("rVal"),
+        directTL: document.getElementById("directTL"),
+        directOL: document.getElementById("directOL"),
+        directVL: document.getElementById("directVL"),
+        resetBtn: document.getElementById("resetBtn"),
+        langBtn: document.getElementById("langBtn"),
+        langLabel: document.getElementById("langLabel"),
+
+        statusBox: document.getElementById("statusBox"),
+        statusHead: document.getElementById("statusHead"),
+        statusText: document.getElementById("statusText"),
+
+        rankPill: document.getElementById("rankPill"),
+        rankName: document.getElementById("rankName"),
+        rankReq: document.getElementById("rankReq"),
+        unlockLevels: document.getElementById("unlockLevels"),
+        bonusTotal: document.getElementById("bonusTotal"),
+        bonusBreak: document.getElementById("bonusBreak"),
+
+        levelRows: document.getElementById("levelRows"),
+      };
+
+      // Language state
+      let lang = "de";
+
+      function t(key){
+        return (I18N[lang] && I18N[lang][key]) ? I18N[lang][key] : key;
+      }
+
+      function applyI18n(){
+        document.documentElement.lang = (lang === "de") ? "de" : "en";
+        document.querySelectorAll("[data-i18n]").forEach(node => {
+          const k = node.getAttribute("data-i18n");
+          node.textContent = t(k);
+        });
+      }
+
+      function clampInt(v){
+        if (!Number.isFinite(v)) return 0;
+        v = Math.floor(v);
+        return v < 0 ? 0 : v;
+      }
+
+      function formatEUR(amount){
+        const nf = new Intl.NumberFormat(lang === "de" ? "de-DE" : "en-US", {
+          style: "currency",
+          currency: "EUR",
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        return nf.format(amount);
+      }
+
+      function formatNum(n){
+        const nf = new Intl.NumberFormat(lang === "de" ? "de-DE" : "en-US", { maximumFractionDigits: 0 });
+        return nf.format(n);
+      }
+
+      function computeLevels(e1, r){
+        // E1 is given; E2..E7 computed by multiplying with r and rounding
+        const levels = {};
+        levels[1] = e1;
+        let prev = e1;
+        for (let L = 2; L <= 7; L++){
+          const raw = prev * r;
+          const rounded = Math.round(raw);
+          levels[L] = (rounded < 0 ? 0 : rounded);
+          prev = levels[L];
+        }
+        return levels;
+      }
+
+      function computeRank(e1, directTL, directOL, directVL){
+        // Rank unlock rules: only via own Level 1 (directs)
+        const isTL = e1 >= 100;
+        const isOL = directTL >= 3;
+        const isVL = directOL >= 3;
+        const isVD = directVL >= 2;
+
+        // Highest achieved wins (VD > VL > OL > TL)
+        if (isVD) return "vd";
+        if (isVL) return "vl";
+        if (isOL) return "ol";
+        if (isTL) return "tl";
+        return "none";
+      }
+
+      function unlockedLevelsByRank(rank){
+        if (rank === "tl") return [4];
+        if (rank === "ol") return [4,5];
+        if (rank === "vl") return [4,5,6];
+        if (rank === "vd") return [4,5,6,7];
+        return [];
+      }
+
+      function recalc(){
+        const e1 = clampInt(parseFloat(el.e1.value));
+        const r = Math.max(0, Math.min(3, parseFloat(el.r.value)));
+        const directTL = clampInt(parseFloat(el.directTL.value));
+        const directOL = clampInt(parseFloat(el.directOL.value));
+        const directVL = clampInt(parseFloat(el.directVL.value));
+
+        el.rVal.textContent = r.toFixed(2);
+
+        // Levels
+        const levels = computeLevels(e1, r);
+
+        // Rank
+        const rank = computeRank(e1, directTL, directOL, directVL);
+        const unlock = unlockedLevelsByRank(rank);
+
+        // Warnings: leaders > e1
+        const hasWarn = (directTL > e1) || (directOL > e1) || (directVL > e1);
+
+        // Status UI
+        el.statusBox.classList.remove("good","warn");
+        if (rank === "none"){
+          el.statusBox.classList.add("warn" ? "" : ""); // no-op
+          el.statusHead.textContent = t("status_bad_h");
+          el.statusText.textContent = t("status_bad_p");
+        } else {
+          if (hasWarn){
+            el.statusBox.classList.add("warn");
+            el.statusHead.textContent = t("status_warn_h");
+            el.statusText.textContent = t("status_warn_p");
+          } else {
+            el.statusBox.classList.add("good");
+            el.statusHead.textContent = t("status_good_h");
+            el.statusText.textContent = t("status_good_p");
+          }
+        }
+
+        // Rank labels
+        const rankKey = rank === "none" ? "rank_none" : ("rank_" + rank);
+        const reqKey = rank === "none" ? "rank_req_none" : ("rank_req_" + rank);
+
+        el.rankPill.textContent = (rank === "none") ? "—" : rank.toUpperCase();
+        el.rankName.textContent = t(rankKey);
+        el.rankReq.textContent = t(reqKey);
+
+        // Unlock labels
+        let unlockLabel = t("unlock_none");
+        if (rank === "tl") unlockLabel = t("unlock_tl");
+        if (rank === "ol") unlockLabel = t("unlock_ol");
+        if (rank === "vl") unlockLabel = t("unlock_vl");
+        if (rank === "vd") unlockLabel = t("unlock_vd");
+        el.unlockLevels.textContent = unlockLabel;
+
+        // Bonus calculation
+        let total = 0;
+        const parts = [];
+
+        // Build table rows for E1..E7, but show rates+pay only for unlocked deep levels
+        el.levelRows.innerHTML = "";
+
+        for (let L = 1; L <= 7; L++){
+          const tr = document.createElement("tr");
+
+          const tdL = document.createElement("td");
+          tdL.textContent = (lang === "de") ? ("E" + L) : ("L" + L);
+          tdL.className = "mono";
+          tr.appendChild(tdL);
+
+          const tdM = document.createElement("td");
+          tdM.textContent = formatNum(levels[L]);
+          tdM.className = "mono";
+          tr.appendChild(tdM);
+
+          const tdR = document.createElement("td");
+          tdR.className = "right mono";
+          const tdP = document.createElement("td");
+          tdP.className = "right mono";
+
+          // Only for E4..E7 show rates; otherwise dashes
+          if (L >= 4 && L <= 7){
+            const rate = RATES[L];
+            tdR.textContent = formatEUR(rate) + " / " + t("money_per_member");
+            const pay = unlock.includes(L) ? (levels[L] * rate) : 0;
+            tdP.textContent = unlock.includes(L) ? formatEUR(pay) : "—";
+
+            if (unlock.includes(L)){
+              total += pay;
+              parts.push(((lang === "de") ? ("E"+L) : ("L"+L)) + ": " + formatEUR(pay));
+            }
+          } else {
+            tdR.textContent = "—";
+            tdP.textContent = "—";
+          }
+
+          tr.appendChild(tdR);
+          tr.appendChild(tdP);
+          el.levelRows.appendChild(tr);
+        }
+
+        el.bonusTotal.textContent = (rank === "none") ? "—" : formatEUR(total);
+        if (rank === "none"){
+          el.bonusBreak.textContent = t("break_none");
+        } else {
+          el.bonusBreak.textContent = parts.join(" · ");
+        }
+      }
+
+      function reset(){
+        el.e1.value = 100;
+        el.r.value = 3;
+        el.directTL.value = 0;
+        el.directOL.value = 0;
+        el.directVL.value = 0;
+        recalc();
+      }
+
+      // Events
+      ["input","change"].forEach(evt => {
+        el.e1.addEventListener(evt, recalc);
+        el.r.addEventListener(evt, recalc);
+        el.directTL.addEventListener(evt, recalc);
+        el.directOL.addEventListener(evt, recalc);
+        el.directVL.addEventListener(evt, recalc);
+      });
+
+      el.resetBtn.addEventListener("click", reset);
+
+      el.langBtn.addEventListener("click", () => {
+        lang = (lang === "de") ? "en" : "de";
+        el.langLabel.textContent = (lang === "de") ? "DE" : "EN";
+        applyI18n();
+        recalc();
+      });
+
+      // Init
+      applyI18n();
+      recalc();
+    })();
+  </script>
+</body>
+</html>
