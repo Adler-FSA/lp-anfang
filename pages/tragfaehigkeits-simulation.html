@@ -3,7 +3,7 @@
   FSA • Tragfähigkeits-Simulation (3 Ebenen)
   GitHub-Pfad: lp-anfang/pages/tragfaehigkeits-simulation.html
 
-  Commit-Message: tragfaehigkeits-simulation – Hebel entfernt, 3-Ebenen-Logik sauber (E1→E2→E3), Quoten+Arbeitstage als Auswahl, Profi-Leadmaschine ergänzt
+  Commit-Message: tragfaehigkeits-simulation – Hebel/Delay raus, 3-Ebenen-Konfiguration (E1/E2/E3) sauber, Ertrag/Orientierung -> Provision, Quoten+Arbeitseinheiten je Ebene, Wow/UI unverändert
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/tragfaehigkeits-simulation.html?nocache=__TS__
 -->
 <html lang="de">
@@ -11,7 +11,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tragfähigkeits-Rechner – 3 Ebenen</title>
-  <meta name="description" content="Tragfähigkeits-Rechner (3 Ebenen): einfache Tragfähigkeits-Simulation ohne Hebel. Quoten & Arbeitstage als Auswahl. Wow-UI, LocalStorage, Print, DE/EN." />
+  <meta name="description" content="Tragfähigkeits-Rechner (3 Ebenen): einfache Tragfähigkeits-Simulation ohne Hebel. Quoten & Arbeitseinheiten als Auswahl. Wow-UI, LocalStorage, Print, DE/EN." />
   <meta name="robots" content="noindex,nofollow" />
 
   <style>
@@ -637,7 +637,7 @@
           <div class="chip"><span class="mono">20%</span> <span data-i18n="l1">Ebene 1</span></div>
           <div class="chip"><span class="mono">15%</span> <span data-i18n="l2">Ebene 2</span></div>
           <div class="chip"><span class="mono">10%</span> <span data-i18n="l3">Ebene 3</span></div>
-          <div class="chip"><span data-i18n="demoDefaults">Beispiel-Start</span>: <span class="mono">20 Tage · 1/Tag · 20%</span></div>
+          <div class="chip"><span data-i18n="demoDefaults">Beispiel-Start</span>: <span class="mono">6 Monate · E1 20×1 · Quote 20%</span></div>
         </div>
       </div>
     </section>
@@ -650,8 +650,8 @@
           <div>
             <h2 data-i18n="inputsTitle">Einstellungen (einfach)</h2>
             <p class="hint" data-i18n="inputsHint">
-              Du stellst nur 3 Dinge ein: Zeitraum, Arbeitstage, neue Mitglieder pro Tag.
-              Danach wählst du pro Ebene die Aktiv-Quote. Mehr passiert hier nicht.
+              Du stellst den Zeitraum ein und konfigurierst pro Ebene: Arbeitseinheiten, neue Mitglieder pro Einheit und Aktiv-Quote.
+              Aktiv bedeutet: Dieses Mitglied macht selbst Werbung und baut seine erste Ebene auf.
             </p>
           </div>
           <div class="sectionTools noPrint">
@@ -668,7 +668,7 @@
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
-              <span data-i18n="resetBuild">Aufbau auf 0</span>
+              <span data-i18n="resetBuild">Aufbau auf Beispiel</span>
             </button>
 
             <button class="miniBtn" id="resetBasket" type="button">
@@ -700,13 +700,14 @@
             </div>
           </div>
 
+          <!-- Ebene 1 -->
           <div class="row">
             <div>
-              <div class="lab" data-i18n="workdays">Arbeitstage pro Monat</div>
-              <div class="subLab" data-i18n="workdaysSub">Auswahl (4/8/12/16/20/24)</div>
+              <div class="lab" data-i18n="e1Work">Arbeitseinheiten/Monat (Ebene 1)</div>
+              <div class="subLab" data-i18n="e1WorkSub">Anna / deine Aktivität (4/8/12/16/20/24)</div>
             </div>
             <div class="ctrl">
-              <select id="workdays" data-store>
+              <select id="e1Work" data-store>
                 <option value="4">4</option>
                 <option value="8">8</option>
                 <option value="12">12</option>
@@ -716,45 +717,27 @@
               </select>
             </div>
             <div class="resetCell noPrint">
-              <button class="resetOne" data-reset="workdays" type="button">↺ <span data-i18n="toDemo">auf Beispiel</span></button>
+              <button class="resetOne" data-reset="e1Work" type="button">↺ <span data-i18n="toDemo">auf Beispiel</span></button>
             </div>
           </div>
 
           <div class="row">
             <div>
-              <div class="lab" data-i18n="delay">Aktivität startet</div>
-              <div class="subLab" data-i18n="delaySub">realistische Verzögerung</div>
+              <div class="lab" data-i18n="e1PerUnit">Neue Mitglieder pro Einheit (Ebene 1)</div>
+              <div class="subLab" data-i18n="e1PerUnitSub">z. B. 1 pro Tag/Std → abhängig von deinem Tempo</div>
             </div>
             <div class="ctrl">
-              <select id="delay" data-store>
-                <option value="0" selected data-i18n="delay0">sofort</option>
-                <option value="1" data-i18n="delay1">ab Folgemonat</option>
-                <option value="2" data-i18n="delay2">ab Monat 3</option>
-              </select>
+              <input id="e1PerUnit" type="number" min="0" max="50" step="1" value="1" data-store />
             </div>
             <div class="resetCell noPrint">
-              <button class="resetOne" data-reset="delay" type="button">↺ <span data-i18n="toZeroSel">0/sofort</span></button>
-            </div>
-          </div>
-
-          <!-- Ebene 1 -->
-          <div class="row">
-            <div>
-              <div class="lab" data-i18n="e1PerDay">Neue Mitglieder pro Arbeitstag (Ebene 1)</div>
-              <div class="subLab" data-i18n="e1PerDaySub">Anna / deine Erstlinie</div>
-            </div>
-            <div class="ctrl">
-              <input id="e1PerDay" type="number" min="0" max="50" step="1" value="1" data-store />
-            </div>
-            <div class="resetCell noPrint">
-              <button class="resetOne" data-reset="e1PerDay" type="button">↺ <span data-i18n="toDemo">auf Beispiel</span></button>
+              <button class="resetOne" data-reset="e1PerUnit" type="button">↺ <span data-i18n="toDemo">auf Beispiel</span></button>
             </div>
           </div>
 
           <div class="row">
             <div>
               <div class="lab" data-i18n="e1Active">Aktiv-Quote Ebene 1</div>
-              <div class="subLab" data-i18n="e1ActiveSub">Wie viele deiner neuen Mitglieder machen aktiv weiter?</div>
+              <div class="subLab" data-i18n="e1ActiveSub">Wie viele deiner neuen Mitglieder werden selbst aktiv?</div>
             </div>
             <div class="ctrl">
               <select id="e1Active" data-store>
@@ -775,8 +758,41 @@
           <!-- Ebene 2 -->
           <div class="row">
             <div>
+              <div class="lab" data-i18n="e2Work">Arbeitseinheiten/Monat (aktive Ebene 2)</div>
+              <div class="subLab" data-i18n="e2WorkSub">Wie stark arbeiten die Aktiven aus Ebene 1?</div>
+            </div>
+            <div class="ctrl">
+              <select id="e2Work" data-store>
+                <option value="4">4</option>
+                <option value="8">8</option>
+                <option value="12">12</option>
+                <option value="16">16</option>
+                <option value="20" selected>20</option>
+                <option value="24">24</option>
+              </select>
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="e2Work" type="button">↺ <span data-i18n="toDemo">auf Beispiel</span></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="e2PerUnit">Neue Mitglieder pro Einheit (aktive Ebene 2)</div>
+              <div class="subLab" data-i18n="e2PerUnitSub">Standard: 1 (wie Anna) – oder realistisch niedriger</div>
+            </div>
+            <div class="ctrl">
+              <input id="e2PerUnit" type="number" min="0" max="50" step="1" value="1" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="e2PerUnit" type="button">↺ <span data-i18n="toDemo">auf Beispiel</span></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
               <div class="lab" data-i18n="e2Active">Aktiv-Quote Ebene 2</div>
-              <div class="subLab" data-i18n="e2ActiveSub">Wie viele in Ebene 2 machen aktiv weiter?</div>
+              <div class="subLab" data-i18n="e2ActiveSub">Wie viele der neuen Mitglieder in Ebene 2 werden selbst aktiv?</div>
             </div>
             <div class="ctrl">
               <select id="e2Active" data-store>
@@ -794,16 +810,37 @@
             </div>
           </div>
 
+          <!-- Ebene 3 -->
           <div class="row">
             <div>
-              <div class="lab" data-i18n="e2OutPerDay">Neue Mitglieder pro Arbeitstag (Aktive Ebene 2)</div>
-              <div class="subLab" data-i18n="e2OutPerDaySub">Standard wie Anna (wenn du willst)</div>
+              <div class="lab" data-i18n="e3Work">Arbeitseinheiten/Monat (aktive Ebene 3)</div>
+              <div class="subLab" data-i18n="e3WorkSub">Wie stark arbeiten die Aktiven aus Ebene 2?</div>
             </div>
             <div class="ctrl">
-              <input id="e2OutPerDay" type="number" min="0" max="50" step="1" value="1" data-store />
+              <select id="e3Work" data-store>
+                <option value="4">4</option>
+                <option value="8">8</option>
+                <option value="12">12</option>
+                <option value="16">16</option>
+                <option value="20" selected>20</option>
+                <option value="24">24</option>
+              </select>
             </div>
             <div class="resetCell noPrint">
-              <button class="resetOne" data-reset="e2OutPerDay" type="button">↺ <span data-i18n="toDemo">auf Beispiel</span></button>
+              <button class="resetOne" data-reset="e3Work" type="button">↺ <span data-i18n="toDemo">auf Beispiel</span></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="lab" data-i18n="e3PerUnit">Neue Mitglieder pro Einheit (aktive Ebene 3)</div>
+              <div class="subLab" data-i18n="e3PerUnitSub">Ebene 3 erzeugt noch Mitglieder, aber es gibt keine Ebene 4-Provision</div>
+            </div>
+            <div class="ctrl">
+              <input id="e3PerUnit" type="number" min="0" max="50" step="1" value="1" data-store />
+            </div>
+            <div class="resetCell noPrint">
+              <button class="resetOne" data-reset="e3PerUnit" type="button">↺ <span data-i18n="toDemo">auf Beispiel</span></button>
             </div>
           </div>
 
@@ -908,13 +945,13 @@
         </div>
       </section>
 
-      <!-- === TEIL 2 HIER EINFÜGEN === -->      <!-- Ergebnis -->
+      <!-- Ergebnis -->
       <section class="card" id="results">
         <div class="sectionTop">
           <div>
             <h2 data-i18n="resultsTitle">Ergebnis</h2>
             <p class="hint" data-i18n="resultsHint">
-              Ebenen getrennt + Ertrag getrennt. Live, mit sichtbarem Count-Up.
+              Ebenen getrennt + Provision getrennt. Live, mit sichtbarem Count-Up.
             </p>
           </div>
           <div class="sectionTools noPrint">
@@ -951,24 +988,24 @@
           </div>
 
           <div class="kpi">
-            <p class="t" data-i18n="kEarn1">Ertrag – Ebene 1 (Orientierung)</p>
-            <p class="v" id="k_e1">0,00 €</p>
-            <p class="d" data-i18n="kEarn1d">20% vom angen. Umsatz</p>
+            <p class="t" data-i18n="kProv1">Provision – Ebene 1</p>
+            <p class="v" id="k_p1">0,00 €</p>
+            <p class="d" data-i18n="kProv1d">20% vom angenommenen Umsatz</p>
           </div>
           <div class="kpi">
-            <p class="t" data-i18n="kEarn2">Ertrag – Ebene 2 (Orientierung)</p>
-            <p class="v" id="k_e2">0,00 €</p>
-            <p class="d" data-i18n="kEarn2d">15% vom angen. Umsatz</p>
+            <p class="t" data-i18n="kProv2">Provision – Ebene 2</p>
+            <p class="v" id="k_p2">0,00 €</p>
+            <p class="d" data-i18n="kProv2d">15% vom angenommenen Umsatz</p>
           </div>
           <div class="kpi">
-            <p class="t" data-i18n="kEarn3">Ertrag – Ebene 3 (Orientierung)</p>
-            <p class="v" id="k_e3">0,00 €</p>
-            <p class="d" data-i18n="kEarn3d">10% vom angen. Umsatz</p>
+            <p class="t" data-i18n="kProv3">Provision – Ebene 3</p>
+            <p class="v" id="k_p3">0,00 €</p>
+            <p class="d" data-i18n="kProv3d">10% vom angenommenen Umsatz</p>
           </div>
           <div class="kpi">
-            <p class="t" data-i18n="kEarnT">Gesamt-Ertrag (Orientierung)</p>
-            <p class="v" id="k_eT">0,00 €</p>
-            <p class="d" data-i18n="kEarnTd">Summe Ebene 1–3</p>
+            <p class="t" data-i18n="kProvT">Gesamt-Provision</p>
+            <p class="v" id="k_pT">0,00 €</p>
+            <p class="d" data-i18n="kProvTd">Summe Ebene 1–3</p>
           </div>
         </div>
 
@@ -981,9 +1018,9 @@
                 <th data-i18n="th2">Neu E2</th>
                 <th data-i18n="th3">Neu E3</th>
                 <th class="right" data-i18n="thB">Warenkorb</th>
-                <th class="right" data-i18n="thE1">Ertrag E1</th>
-                <th class="right" data-i18n="thE2">Ertrag E2</th>
-                <th class="right" data-i18n="thE3">Ertrag E3</th>
+                <th class="right" data-i18n="thP1">Prov E1</th>
+                <th class="right" data-i18n="thP2">Prov E2</th>
+                <th class="right" data-i18n="thP3">Prov E3</th>
               </tr>
             </thead>
             <tbody id="tbody"></tbody>
@@ -1009,7 +1046,7 @@
           <div class="accBody">
             <p data-i18n="accA1">
               Dieser Rechner zeigt, wie Tragfähigkeit entstehen kann, wenn ein Prozess konsequent wiederholt wird.
-              Du stellst Annahmen ein und siehst die Ebenen getrennt – inklusive Ertrag je Ebene (als Orientierung).
+              Du stellst Annahmen ein und siehst die Ebenen getrennt – inklusive Provision je Ebene.
             </p>
           </div>
         </details>
@@ -1023,8 +1060,9 @@
           </summary>
           <div class="accBody">
             <p data-i18n="accB1">
-              Ebene 1 entsteht durch deine eigene Aktivität. Ein Teil davon wird aktiv (Quote) und erzeugt Ebene 2.
-              Ein Teil von Ebene 2 wird aktiv (Quote) und erzeugt Ebene 3. Das ist der Kern – ohne Hebel und ohne Abkürzungen.
+              Ebene 1 entsteht durch deine eigene Aktivität. Ein Teil davon wird aktiv (Quote) und baut seine eigene Ebene 1 auf.
+              Diese Aktivität erzeugt aus deiner Sicht Ebene 2. Aus einem Teil von Ebene 2 wird wieder aktiv (Quote) – daraus entsteht Ebene 3.
+              Das ist der Kern – ohne Hebel und ohne Abkürzungen.
             </p>
           </div>
         </details>
@@ -1092,20 +1130,23 @@
           demoDefaults:"Beispiel-Start",
 
           inputsTitle:"Einstellungen (einfach)",
-          inputsHint:"Du stellst nur 3 Dinge ein: Zeitraum, Arbeitstage, neue Mitglieder pro Tag. Danach wählst du pro Ebene die Aktiv-Quote. Mehr passiert hier nicht.",
-          resetTime:"Zeitraum auf 0", resetBuild:"Aufbau auf 0", resetBasket:"Bausteine aus",
+          inputsHint:"Du stellst den Zeitraum ein und konfigurierst pro Ebene: Arbeitseinheiten, neue Mitglieder pro Einheit und Aktiv-Quote. Aktiv bedeutet: Dieses Mitglied macht selbst Werbung und baut seine erste Ebene auf.",
+          resetTime:"Zeitraum auf 0", resetBuild:"Aufbau auf Beispiel", resetBasket:"Bausteine aus",
 
           months:"Zeitraum (Monate)", monthsSub:"0–12 (du bestimmst die Zeit)",
-          workdays:"Arbeitstage pro Monat", workdaysSub:"Auswahl (4/8/12/16/20/24)",
-          delay:"Aktivität startet", delaySub:"realistische Verzögerung",
-          delay0:"sofort", delay1:"ab Folgemonat", delay2:"ab Monat 3",
 
-          e1PerDay:"Neue Mitglieder pro Arbeitstag (Ebene 1)", e1PerDaySub:"Anna / deine Erstlinie",
-          e1Active:"Aktiv-Quote Ebene 1", e1ActiveSub:"Wie viele deiner neuen Mitglieder machen aktiv weiter?",
-          e2Active:"Aktiv-Quote Ebene 2", e2ActiveSub:"Wie viele in Ebene 2 machen aktiv weiter?",
-          e2OutPerDay:"Neue Mitglieder pro Arbeitstag (Aktive Ebene 2)", e2OutPerDaySub:"Standard wie Anna (wenn du willst)",
+          e1Work:"Arbeitseinheiten/Monat (Ebene 1)", e1WorkSub:"Anna / deine Aktivität (4/8/12/16/20/24)",
+          e1PerUnit:"Neue Mitglieder pro Einheit (Ebene 1)", e1PerUnitSub:"z. B. 1 pro Tag/Std → abhängig von deinem Tempo",
+          e1Active:"Aktiv-Quote Ebene 1", e1ActiveSub:"Wie viele deiner neuen Mitglieder werden selbst aktiv?",
 
-          toZero:"auf 0", toZeroSel:"0/sofort",
+          e2Work:"Arbeitseinheiten/Monat (aktive Ebene 2)", e2WorkSub:"Wie stark arbeiten die Aktiven aus Ebene 1?",
+          e2PerUnit:"Neue Mitglieder pro Einheit (aktive Ebene 2)", e2PerUnitSub:"Standard: 1 (wie Anna) – oder realistisch niedriger",
+          e2Active:"Aktiv-Quote Ebene 2", e2ActiveSub:"Wie viele der neuen Mitglieder in Ebene 2 werden selbst aktiv?",
+
+          e3Work:"Arbeitseinheiten/Monat (aktive Ebene 3)", e3WorkSub:"Wie stark arbeiten die Aktiven aus Ebene 2?",
+          e3PerUnit:"Neue Mitglieder pro Einheit (aktive Ebene 3)", e3PerUnitSub:"Ebene 3 erzeugt noch Mitglieder, aber es gibt keine Ebene 4-Provision",
+
+          toZero:"auf 0",
           toDemo:"auf Beispiel",
 
           howItWorks:"So rechnet der Rechner",
@@ -1123,7 +1164,7 @@
           save:"Speichern", load:"Laden", clear:"Löschen",
 
           resultsTitle:"Ergebnis",
-          resultsHint:"Ebenen getrennt + Ertrag getrennt. Live, mit sichtbarem Count-Up.",
+          resultsHint:"Ebenen getrennt + Provision getrennt. Live, mit sichtbarem Count-Up.",
           recalc:"Neu berechnen",
 
           kNew1:"Neue Mitglieder – Ebene 1", kNew1d:"deine Erstlinie im Zeitraum",
@@ -1131,21 +1172,21 @@
           kNew3:"Neue Mitglieder – Ebene 3", kNew3d:"entsteht aus aktiven Mitgliedern der Ebene 2",
           kNewT:"Gesamt neue Mitglieder", kNewTd:"Summe Ebene 1–3",
 
-          kEarn1:"Ertrag – Ebene 1 (Orientierung)", kEarn1d:"20% vom angen. Umsatz",
-          kEarn2:"Ertrag – Ebene 2 (Orientierung)", kEarn2d:"15% vom angen. Umsatz",
-          kEarn3:"Ertrag – Ebene 3 (Orientierung)", kEarn3d:"10% vom angen. Umsatz",
-          kEarnT:"Gesamt-Ertrag (Orientierung)", kEarnTd:"Summe Ebene 1–3",
+          kProv1:"Provision – Ebene 1", kProv1d:"20% vom angenommenen Umsatz",
+          kProv2:"Provision – Ebene 2", kProv2d:"15% vom angenommenen Umsatz",
+          kProv3:"Provision – Ebene 3", kProv3d:"10% vom angenommenen Umsatz",
+          kProvT:"Gesamt-Provision", kProvTd:"Summe Ebene 1–3",
 
           thM:"Monat", th1:"Neu E1", th2:"Neu E2", th3:"Neu E3", thB:"Warenkorb",
-          thE1:"Ertrag E1", thE2:"Ertrag E2", thE3:"Ertrag E3",
+          thP1:"Prov E1", thP2:"Prov E2", thP3:"Prov E3",
 
           footerNote:"Hinweis: Simulation zur Orientierung. Keine Abrechnung, keine Steuer-/Rechtsberatung. Ergebnisse hängen von Tempo, Aktivität und Zeit ab.",
 
           readerTitle:"Lesertext (kurz & klar)",
           accA:"Was du hier siehst",
-          accA1:"Dieser Rechner zeigt, wie Tragfähigkeit entstehen kann, wenn ein Prozess konsequent wiederholt wird. Du stellst Annahmen ein und siehst die Ebenen getrennt – inklusive Ertrag je Ebene (als Orientierung).",
+          accA1:"Dieser Rechner zeigt, wie Tragfähigkeit entstehen kann, wenn ein Prozess konsequent wiederholt wird. Du stellst Annahmen ein und siehst die Ebenen getrennt – inklusive Provision je Ebene.",
           accB:"Die 3-Ebenen-Logik (einfach)",
-          accB1:"Ebene 1 entsteht durch deine eigene Aktivität. Ein Teil davon wird aktiv (Quote) und erzeugt Ebene 2. Ein Teil von Ebene 2 wird aktiv (Quote) und erzeugt Ebene 3. Das ist der Kern – ohne Hebel und ohne Abkürzungen.",
+          accB1:"Ebene 1 entsteht durch deine eigene Aktivität. Ein Teil davon wird aktiv (Quote) und baut seine eigene Ebene 1 auf. Diese Aktivität erzeugt aus deiner Sicht Ebene 2. Aus einem Teil von Ebene 2 wird wieder aktiv (Quote) – daraus entsteht Ebene 3. Das ist der Kern – ohne Hebel und ohne Abkürzungen.",
           accC:"Warum Zahlen wachsen können",
           accC1:"Wachstum ist eine Frage von Wiederholung und Zeit. Auch wenn Zahlen wachsen, heißt das nicht, dass alles so eintrifft. Jeder entwickelt sich im eigenen Tempo – die Simulation zeigt Möglichkeiten, wenn man dran bleibt.",
 
@@ -1165,20 +1206,23 @@
           demoDefaults:"Example start",
 
           inputsTitle:"Settings (simple)",
-          inputsHint:"You set only 3 things: timeframe, workdays, new members per day. Then choose the active rate per level. Nothing else.",
-          resetTime:"Timeframe to 0", resetBuild:"Build to 0", resetBasket:"Modules off",
+          inputsHint:"You set the timeframe and configure per level: work units, new members per unit, and active rate. Active means: this member promotes and builds their own first level.",
+          resetTime:"Timeframe to 0", resetBuild:"Build to example", resetBasket:"Modules off",
 
           months:"Timeframe (months)", monthsSub:"0–12 (you set the time)",
-          workdays:"Workdays per month", workdaysSub:"Selection (4/8/12/16/20/24)",
-          delay:"Activity starts", delaySub:"realistic delay",
-          delay0:"immediately", delay1:"next month", delay2:"month 3",
 
-          e1PerDay:"New members per workday (Level 1)", e1PerDaySub:"Anna / your direct line",
-          e1Active:"Active rate Level 1", e1ActiveSub:"How many of your new members continue actively?",
-          e2Active:"Active rate Level 2", e2ActiveSub:"How many in Level 2 continue actively?",
-          e2OutPerDay:"New members per workday (Active Level 2)", e2OutPerDaySub:"Default like Anna (optional)",
+          e1Work:"Work units/month (Level 1)", e1WorkSub:"Anna / your activity (4/8/12/16/20/24)",
+          e1PerUnit:"New members per unit (Level 1)", e1PerUnitSub:"e.g., 1 per day/hour — depends on your pace",
+          e1Active:"Active rate Level 1", e1ActiveSub:"How many of your new members become active?",
 
-          toZero:"to 0", toZeroSel:"0/immediate",
+          e2Work:"Work units/month (active Level 2)", e2WorkSub:"How strong do the actives from Level 1 work?",
+          e2PerUnit:"New members per unit (active Level 2)", e2PerUnitSub:"Default: 1 (like Anna) — or realistically lower",
+          e2Active:"Active rate Level 2", e2ActiveSub:"How many new members in Level 2 become active?",
+
+          e3Work:"Work units/month (active Level 3)", e3WorkSub:"How strong do the actives from Level 2 work?",
+          e3PerUnit:"New members per unit (active Level 3)", e3PerUnitSub:"Level 3 can still create members, but there is no Level 4 commission",
+
+          toZero:"to 0",
           toDemo:"to example",
 
           howItWorks:"How the calculator computes",
@@ -1196,7 +1240,7 @@
           save:"Save", load:"Load", clear:"Clear",
 
           resultsTitle:"Results",
-          resultsHint:"Levels separated + earnings separated. Live with visible count-up.",
+          resultsHint:"Levels separated + commission separated. Live with visible count-up.",
           recalc:"Recalculate",
 
           kNew1:"New members – Level 1", kNew1d:"your direct line in timeframe",
@@ -1204,21 +1248,21 @@
           kNew3:"New members – Level 3", kNew3d:"created by active members of Level 2",
           kNewT:"Total new members", kNewTd:"sum Level 1–3",
 
-          kEarn1:"Earnings – Level 1 (orientation)", kEarn1d:"20% of assumed revenue",
-          kEarn2:"Earnings – Level 2 (orientation)", kEarn2d:"15% of assumed revenue",
-          kEarn3:"Earnings – Level 3 (orientation)", kEarn3d:"10% of assumed revenue",
-          kEarnT:"Total earnings (orientation)", kEarnTd:"sum Level 1–3",
+          kProv1:"Commission – Level 1", kProv1d:"20% of assumed revenue",
+          kProv2:"Commission – Level 2", kProv2d:"15% of assumed revenue",
+          kProv3:"Commission – Level 3", kProv3d:"10% of assumed revenue",
+          kProvT:"Total commission", kProvTd:"sum Level 1–3",
 
           thM:"Month", th1:"New L1", th2:"New L2", th3:"New L3", thB:"Basket",
-          thE1:"Earn L1", thE2:"Earn L2", thE3:"Earn L3",
+          thP1:"Com L1", thP2:"Com L2", thP3:"Com L3",
 
           footerNote:"Note: Simulation for orientation. No billing, no tax/legal advice. Results depend on pace, activity and time.",
 
           readerTitle:"Reader text (short & clear)",
           accA:"What you see here",
-          accA1:"This calculator shows how sustainability can emerge when a process is repeated consistently. You set assumptions and see levels separated — including earnings per level (orientation).",
+          accA1:"This calculator shows how sustainability can emerge when a process is repeated consistently. You set assumptions and see levels separated — including commission per level.",
           accB:"The 3-level logic (simple)",
-          accB1:"Level 1 comes from your own activity. A share becomes active (rate) and creates Level 2. A share of Level 2 becomes active (rate) and creates Level 3. That’s the core — without multipliers or shortcuts.",
+          accB1:"Level 1 comes from your own activity. A share becomes active (rate) and builds their own Level 1. That activity creates Level 2 from your perspective. A share of Level 2 becomes active again (rate) — creating Level 3. That’s the core — without multipliers or shortcuts.",
           accC:"Why numbers can grow",
           accC1:"Growth is a question of repetition and time. Even if numbers grow, it doesn’t mean it will happen exactly like that. Everyone moves at their own pace — this shows what can be possible if you stay consistent.",
 
@@ -1263,8 +1307,10 @@
       // -------- state IO --------
       function readStateFromDom(){
         const ids = [
-          "months","workdays","delay","e1PerDay","e1Active",
-          "e2Active","e2OutPerDay",
+          "months",
+          "e1Work","e1PerUnit","e1Active",
+          "e2Work","e2PerUnit","e2Active",
+          "e3Work","e3PerUnit",
           "chkMember","chkLeadSmall","chkLeadPro","chkWeekend",
           "notes"
         ];
@@ -1325,7 +1371,6 @@
         const el = $(id);
         if(!el) return;
         if(el.tagName === "SELECT"){
-          // für selects setzen wir "0" wenn vorhanden, sonst erstes Element
           if ([...el.options].some(o=>o.value==="0")) el.value = "0";
           else el.selectedIndex = 0;
         } else if(el.type === "checkbox"){
@@ -1338,23 +1383,30 @@
       function setToDemo(id){
         const el = $(id);
         if(!el) return;
-        if(id === "workdays") el.value = "20";
-        if(id === "e1PerDay") el.value = "1";
+
+        // Demo: 6 Monate, überall 20 Einheiten, 1 pro Einheit, Quote 20%
+        if(id === "months") el.value = "6";
+
+        if(id === "e1Work") el.value = "20";
+        if(id === "e1PerUnit") el.value = "1";
         if(id === "e1Active") el.value = "20";
+
+        if(id === "e2Work") el.value = "20";
+        if(id === "e2PerUnit") el.value = "1";
         if(id === "e2Active") el.value = "20";
-        if(id === "e2OutPerDay") el.value = "1";
+
+        if(id === "e3Work") el.value = "20";
+        if(id === "e3PerUnit") el.value = "1";
       }
 
       function resetTimeBlock(){
-        setToZero("months");
-        setToDemo("workdays");
-        $("delay").value = "0";
+        $("months").value = "0";
         updateMonthsOut();
       }
 
       function resetBuildBlock(){
-        setToZero("e1PerDay"); setToZero("e1Active");
-        setToZero("e2Active"); setToZero("e2OutPerDay");
+        ["months","e1Work","e1PerUnit","e1Active","e2Work","e2PerUnit","e2Active","e3Work","e3PerUnit"].forEach(setToDemo);
+        updateMonthsOut();
       }
 
       function resetBasketBlock(){
@@ -1381,7 +1433,6 @@
         btn.addEventListener("click", ()=>{
           const id = btn.getAttribute("data-reset");
           if(id === "months"){ $("months").value = "0"; }
-          else if(id === "delay"){ $("delay").value = "0"; }
           else { setToDemo(id); }
           updateMonthsOut();
           scheduleSave();
@@ -1505,17 +1556,20 @@
         animateNumber(el, oldVal, val, fmt);
       }
 
-      // -------- core calc (OHNE Hebel) --------
+      // -------- core calc (3 Ebenen, ohne Hebel) --------
       function calcScenario(){
         const months = clamp(toNum($("months").value), 0, 12);
-        const workdays = clamp(toNum($("workdays").value), 0, 24);
-        const delay = clamp(toNum($("delay").value), 0, 2);
 
-        const e1PerDay = clamp(toNum($("e1PerDay").value), 0, 50);
-        const e1Active = pct($("e1Active").value);
+        const e1Work = clamp(toNum($("e1Work").value), 0, 24);
+        const e1PerUnit = clamp(toNum($("e1PerUnit").value), 0, 50);
+        const q1 = pct($("e1Active").value);
 
-        const e2Active = pct($("e2Active").value);
-        const e2OutPerDay = clamp(toNum($("e2OutPerDay").value), 0, 50);
+        const e2Work = clamp(toNum($("e2Work").value), 0, 24);
+        const e2PerUnit = clamp(toNum($("e2PerUnit").value), 0, 50);
+        const q2 = pct($("e2Active").value);
+
+        const e3Work = clamp(toNum($("e3Work").value), 0, 24);
+        const e3PerUnit = clamp(toNum($("e3PerUnit").value), 0, 50);
 
         const basket = getBasket();
 
@@ -1523,50 +1577,45 @@
         const r1 = 0.20, r2 = 0.15, r3 = 0.10;
 
         let sum1=0, sum2=0, sum3=0;
-        let earn1=0, earn2=0, earn3=0;
+        let prov1=0, prov2=0, prov3=0;
+
+        // Bestand aktiver Werber (Akkumulation über Monate)
+        let activeLvl1 = 0; // aktive Werber, die E2 erzeugen (aus Annas E1)
+        let activeLvl2 = 0; // aktive Werber, die E3 erzeugen (aus Annas E2)
 
         const rows = [];
 
-        // Monatliche E1-Neuzugänge (Anna)
-        const new1PerMonth = workdays * e1PerDay;
-
-        // Wir führen kumulative Bestände je Ebene, damit Aktivität aus Bestand entsteht.
-        let cumE1 = 0;
-        let cumE2 = 0;
-
         for(let m=1; m<=months; m++){
-          const new1 = new1PerMonth;
-          cumE1 += new1;
+          // E1: Anna wirbt konstant
+          const new1 = e1Work * e1PerUnit;
 
-          // Aktivität startet mit Delay (für die Ebene, aus der geworben wird)
-          const e1CanRecruit = (m > delay);
-          const e2CanRecruit = (m > delay);
+          // E2: entsteht aus aktiven Werbern aus Ebene 1 (accumulated)
+          const new2 = activeLvl1 * (e2Work * e2PerUnit);
 
-          // E2 entsteht aus aktivem Anteil von E1 (aktiv = Quote auf Bestand)
-          const activeE1 = e1CanRecruit ? (cumE1 * e1Active) : 0;
-          const new2 = activeE1 * workdays * e1PerDay; // aktive in E1 werben wie Anna (pro Tag)
-          cumE2 += new2;
+          // E3: entsteht aus aktiven Werbern aus Ebene 2 (accumulated)
+          const new3 = activeLvl2 * (e3Work * e3PerUnit);
 
-          // E3 entsteht aus aktivem Anteil von E2 (aktiv = Quote auf Bestand)
-          const activeE2 = e2CanRecruit ? (cumE2 * e2Active) : 0;
-          const new3 = activeE2 * workdays * e2OutPerDay;
-
-          // Ertrag (Orientierung) pro Ebene = neue Mitglieder dieser Ebene * Warenkorb * Satz
-          const e1 = new1 * basket * r1;
-          const e2 = new2 * basket * r2;
-          const e3 = new3 * basket * r3;
+          // Provision pro Ebene (auf neue Mitglieder dieser Ebene im Monat)
+          const p1 = new1 * basket * r1;
+          const p2 = new2 * basket * r2;
+          const p3 = new3 * basket * r3;
 
           sum1 += new1;
           sum2 += new2;
           sum3 += new3;
-          earn1 += e1;
-          earn2 += e2;
-          earn3 += e3;
 
-          rows.push({ m, new1, new2, new3, basket, e1, e2, e3 });
+          prov1 += p1;
+          prov2 += p2;
+          prov3 += p3;
+
+          rows.push({ m, new1, new2, new3, basket, p1, p2, p3 });
+
+          // Am Monatsende wird ein Anteil der neuen Mitglieder aktiv und kommt als Werber-Bestand dazu
+          activeLvl1 += (new1 * q1);
+          activeLvl2 += (new2 * q2);
         }
 
-        return { months, workdays, delay, basket, sum1, sum2, sum3, earn1, earn2, earn3, rows };
+        return { months, basket, sum1, sum2, sum3, prov1, prov2, prov3, rows };
       }
 
       function buildTable(rows){
@@ -1596,32 +1645,33 @@
           tdB.textContent = fmtEUR(r.basket);
           tr.appendChild(tdB);
 
-          const tdE1 = document.createElement("td");
-          tdE1.className = "right";
-          tdE1.textContent = fmtEUR(r.e1);
-          tr.appendChild(tdE1);
+          const tdP1 = document.createElement("td");
+          tdP1.className = "right";
+          tdP1.textContent = fmtEUR(r.p1);
+          tr.appendChild(tdP1);
 
-          const tdE2 = document.createElement("td");
-          tdE2.className = "right";
-          tdE2.textContent = fmtEUR(r.e2);
-          tr.appendChild(tdE2);
+          const tdP2 = document.createElement("td");
+          tdP2.className = "right";
+          tdP2.textContent = fmtEUR(r.p2);
+          tr.appendChild(tdP2);
 
-          const tdE3 = document.createElement("td");
-          tdE3.className = "right";
-          tdE3.textContent = fmtEUR(r.e3);
-          tr.appendChild(tdE3);
+          const tdP3 = document.createElement("td");
+          tdP3.className = "right";
+          tdP3.textContent = fmtEUR(r.p3);
+          tr.appendChild(tdP3);
 
           tbody.appendChild(tr);
         });
       }
 
       function updateHowOut(){
-        const workdays = $("workdays").value;
-        const perDay = $("e1PerDay").value;
-        const q1 = $("e1Active").value;
-        const q2 = $("e2Active").value;
+        const m = $("months").value;
+        const e1w = $("e1Work").value, e1p = $("e1PerUnit").value, q1 = $("e1Active").value;
+        const e2w = $("e2Work").value, e2p = $("e2PerUnit").value, q2 = $("e2Active").value;
+        const e3w = $("e3Work").value, e3p = $("e3PerUnit").value;
+
         $("howOut").textContent =
-          `E1: ${workdays}×${perDay} → E2: aktiv ${q1}% → E3: aktiv ${q2}%`;
+          `${m}M | E1: ${e1w}×${e1p} → aktiv ${q1}% | E2: ${e2w}×${e2p} → aktiv ${q2}% | E3: ${e3w}×${e3p}`;
       }
 
       function recalc(showWow){
@@ -1632,17 +1682,17 @@
         const main = calcScenario();
 
         const totalNew = main.sum1 + main.sum2 + main.sum3;
-        const totalEarn = main.earn1 + main.earn2 + main.earn3;
+        const totalProv = main.prov1 + main.prov2 + main.prov3;
 
         setKPI("k_new1", main.sum1, false);
         setKPI("k_new2", main.sum2, false);
         setKPI("k_new3", main.sum3, false);
         setKPI("k_newT", totalNew, false);
 
-        setKPI("k_e1", main.earn1, true);
-        setKPI("k_e2", main.earn2, true);
-        setKPI("k_e3", main.earn3, true);
-        setKPI("k_eT", totalEarn, true);
+        setKPI("k_p1", main.prov1, true);
+        setKPI("k_p2", main.prov2, true);
+        setKPI("k_p3", main.prov3, true);
+        setKPI("k_pT", totalProv, true);
 
         buildTable(main.rows);
 
@@ -1665,16 +1715,15 @@
         const s = readStateFromDom();
         const main = calcScenario();
         const totalNew = main.sum1 + main.sum2 + main.sum3;
-        const totalEarn = main.earn1 + main.earn2 + main.earn3;
+        const totalProv = main.prov1 + main.prov2 + main.prov3;
 
         const lines = [];
         lines.push("Tragfähigkeits-Rechner (3 Ebenen) – OHNE Hebel");
         lines.push("Zeitraum (Monate): " + s.months);
-        lines.push("Arbeitstage/Monat: " + s.workdays);
-        lines.push("Aktivität startet: " + (s.delay === "2" ? "ab Monat 3" : (s.delay === "1" ? "ab Folgemonat" : "sofort")));
         lines.push("");
-        lines.push("Ebene 1: neue/Tag=" + s.e1PerDay + " | Aktiv-Quote=" + s.e1Active + "%");
-        lines.push("Ebene 2: Aktiv-Quote=" + s.e2Active + "% | neue/Tag (aktive E2)=" + s.e2OutPerDay);
+        lines.push("Ebene 1: Einheiten/Monat=" + s.e1Work + " | neu/Einheit=" + s.e1PerUnit + " | Aktiv-Quote=" + s.e1Active + "%");
+        lines.push("Ebene 2: Einheiten/Monat=" + s.e2Work + " | neu/Einheit=" + s.e2PerUnit + " | Aktiv-Quote=" + s.e2Active + "%");
+        lines.push("Ebene 3: Einheiten/Monat=" + s.e3Work + " | neu/Einheit=" + s.e3PerUnit);
         lines.push("");
         lines.push("Bausteine:");
         lines.push("  Mitgliedschaft: " + (s.chkMember ? "ja" : "nein"));
@@ -1683,15 +1732,15 @@
         lines.push("  Weekend-Setup: " + (s.chkWeekend ? "ja" : "nein"));
         lines.push("  Warenkorb je neues Mitglied: " + fmtEUR(getBasket()));
         lines.push("");
-        lines.push("Ergebnis (Orientierung):");
+        lines.push("Ergebnis (Provision):");
         lines.push("  Neue Mitglieder E1: " + fmtInt(main.sum1));
         lines.push("  Neue Mitglieder E2: " + fmtInt(main.sum2));
         lines.push("  Neue Mitglieder E3: " + fmtInt(main.sum3));
         lines.push("  Gesamt neue Mitglieder: " + fmtInt(totalNew));
-        lines.push("  Ertrag E1 (20%): " + fmtEUR(main.earn1));
-        lines.push("  Ertrag E2 (15%): " + fmtEUR(main.earn2));
-        lines.push("  Ertrag E3 (10%): " + fmtEUR(main.earn3));
-        lines.push("  Gesamt-Ertrag: " + fmtEUR(totalEarn));
+        lines.push("  Provision E1 (20%): " + fmtEUR(main.prov1));
+        lines.push("  Provision E2 (15%): " + fmtEUR(main.prov2));
+        lines.push("  Provision E3 (10%): " + fmtEUR(main.prov3));
+        lines.push("  Gesamt-Provision: " + fmtEUR(totalProv));
         lines.push("");
         lines.push("Hinweis: Simulation zur Orientierung. Keine Abrechnung.");
 
@@ -1714,8 +1763,11 @@
 
       // input listeners (live)
       const liveIds = [
-        "workdays","delay","e1PerDay","e1Active","e2Active","e2OutPerDay",
-        "chkMember","chkLeadSmall","chkLeadPro","chkWeekend","notes"
+        "e1Work","e1PerUnit","e1Active",
+        "e2Work","e2PerUnit","e2Active",
+        "e3Work","e3PerUnit",
+        "chkMember","chkLeadSmall","chkLeadPro","chkWeekend",
+        "notes"
       ];
       liveIds.forEach(id=>{
         const el = $(id);
@@ -1744,5 +1796,156 @@
 
     })();
   </script>
-</body>
+<!-- === PATCH: Intro-Bedienungsanleitung (DE/EN) – nur Text, ohne Eingriff in Rest === -->
+<style>
+  /* Intro-Card im bestehenden Look */
+  .introCard{
+    border:1px solid var(--line);
+    background:var(--soft2);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow2);
+    padding:14px;
+    margin:12px 0 14px;
+  }
+  .introCard h2{
+    margin:0 0 8px 0;
+    font-size:16px;
+    letter-spacing:.2px;
+  }
+  .introCard p{
+    margin:8px 0 0 0;
+    color:#0b0b0b;
+    font-size:13.5px;
+    line-height:1.65;
+  }
+  .introCard .muted{
+    color:var(--muted);
+  }
+  .introSteps{
+    margin:10px 0 0 0;
+    padding:0 0 0 18px;
+  }
+  .introSteps li{
+    margin:6px 0;
+    font-size:13.5px;
+    line-height:1.6;
+  }
+</style>
+
+<script>
+  (function(){
+    "use strict";
+
+    // 1) Intro-Block in DOM einfügen (nach header)
+    function injectIntro(){
+      if(document.getElementById("introGuide")) return;
+
+      const header = document.querySelector("header");
+      if(!header || !header.parentNode) return;
+
+      const sec = document.createElement("section");
+      sec.className = "introCard";
+      sec.id = "introGuide";
+
+      sec.innerHTML = `
+        <h2 data-i18n="introTitle">Bedienungsanleitung – so liest du diese Simulation</h2>
+
+        <p class="muted" data-i18n="introLead">
+          In dieser Simulation geht es darum, Tragfähigkeit in einer 3-Ebenen-Struktur mathematisch sichtbar zu machen – ohne „reich rechnen“, ohne Hebel.
+          Nur mit Zeit, Aktivität und Wiederholung.
+        </p>
+
+        <p data-i18n="introIdea"><strong>Grundidee (Anna als Beispiel)</strong></p>
+        <ul class="introSteps">
+          <li data-i18n="introIdea1"><strong>Monat 1:</strong> Anna baut ihre Ebene 1 auf (sie wirbt neue Mitglieder).</li>
+          <li data-i18n="introIdea2"><strong>Monat 2:</strong> Ein Teil dieser neuen Mitglieder wird aktiv und baut seine eigene Ebene 1 auf → aus Annas Sicht entsteht Ebene 2.</li>
+          <li data-i18n="introIdea3"><strong>Monat 3:</strong> Ein Teil der neuen Mitglieder aus Ebene 2 wird ebenfalls aktiv und baut wieder seine eigene Ebene 1 auf → aus Annas Sicht entsteht Ebene 3.</li>
+        </ul>
+
+        <p data-i18n="introSlider"><strong>Wichtigster Schritt: der Zeit-Regler</strong></p>
+        <ul class="introSteps">
+          <li data-i18n="introSlider1"><strong>1 Monat:</strong> unten siehst du nur Ebene 1.</li>
+          <li data-i18n="introSlider2"><strong>2 Monate:</strong> du siehst, wie sich Ebene 1 und Ebene 2 aufbauen.</li>
+          <li data-i18n="introSlider3"><strong>3 Monate:</strong> du siehst, wie sich Ebene 1, Ebene 2 und Ebene 3 aufbauen.</li>
+        </ul>
+
+        <p data-i18n="introRecurring"><strong>Warum das langfristig tragfähig werden kann</strong></p>
+        <p data-i18n="introRecurring1">
+          Die drei Bausteine ohne Weekend-Setup sind wiederkehrend (jährlich): Mitgliedschaft, Kleine Leadmaschine, Profi Leadmaschine.
+          Bei aktiver Mitgliedschaft entsteht dadurch jährlich erneut Umsatz – das ist der Tragfähigkeits-Anker.
+        </p>
+        <p class="muted" data-i18n="introRecurring2">
+          Das Weekend-Setup ist ein Einmalprodukt. Es kann zusätzlich helfen, ist aber nicht der Kern der langfristigen Tragfähigkeit.
+        </p>
+      `;
+
+      // nach header einfügen
+      header.insertAdjacentElement("afterend", sec);
+    }
+
+    // 2) I18N erweitern (Variante A), ohne Originalcode umzubauen.
+    // Wir hängen uns an die bereits existierenden I18N-Daten ran:
+    function extendI18N(){
+      // I18N ist im Original-Script im IIFE-Scope – wir kommen von außen nicht direkt ran.
+      // Lösung: Wir definieren eine "Overlay" Map und setzen Texte beim Umschalten nach.
+      // Das bleibt trotzdem Variante A: data-i18n bleibt, Text kommt konsistent je Sprache.
+
+      const overlay = {
+        de: {
+          introTitle:"Bedienungsanleitung – so liest du diese Simulation",
+          introLead:"In dieser Simulation geht es darum, Tragfähigkeit in einer 3-Ebenen-Struktur mathematisch sichtbar zu machen – ohne „reich rechnen“, ohne Hebel. Nur mit Zeit, Aktivität und Wiederholung.",
+          introIdea:"Grundidee (Anna als Beispiel)",
+          introIdea1:"Monat 1: Anna baut ihre Ebene 1 auf (sie wirbt neue Mitglieder).",
+          introIdea2:"Monat 2: Ein Teil dieser neuen Mitglieder wird aktiv und baut seine eigene Ebene 1 auf → aus Annas Sicht entsteht Ebene 2.",
+          introIdea3:"Monat 3: Ein Teil der neuen Mitglieder aus Ebene 2 wird ebenfalls aktiv und baut wieder seine eigene Ebene 1 auf → aus Annas Sicht entsteht Ebene 3.",
+          introSlider:"Wichtigster Schritt: der Zeit-Regler",
+          introSlider1:"1 Monat: unten siehst du nur Ebene 1.",
+          introSlider2:"2 Monate: du siehst, wie sich Ebene 1 und Ebene 2 aufbauen.",
+          introSlider3:"3 Monate: du siehst, wie sich Ebene 1, Ebene 2 und Ebene 3 aufbauen.",
+          introRecurring:"Warum das langfristig tragfähig werden kann",
+          introRecurring1:"Die drei Bausteine ohne Weekend-Setup sind wiederkehrend (jährlich): Mitgliedschaft, Kleine Leadmaschine, Profi Leadmaschine. Bei aktiver Mitgliedschaft entsteht dadurch jährlich erneut Umsatz – das ist der Tragfähigkeits-Anker.",
+          introRecurring2:"Das Weekend-Setup ist ein Einmalprodukt. Es kann zusätzlich helfen, ist aber nicht der Kern der langfristigen Tragfähigkeit."
+        },
+        en: {
+          introTitle:"Quick guide – how to read this simulation",
+          introLead:"This simulation makes sustainability in a 3-level structure mathematically visible — without “get rich” promises and without multipliers. Only time, activity and repetition.",
+          introIdea:"Core idea (Anna as an example)",
+          introIdea1:"Month 1: Anna builds Level 1 (she invites new members).",
+          introIdea2:"Month 2: A share of those new members becomes active and starts building their own Level 1 → from Anna’s perspective, this creates Level 2.",
+          introIdea3:"Month 3: A share of the new members in Level 2 also becomes active and starts building their own Level 1 → from Anna’s perspective, this creates Level 3.",
+          introSlider:"Most important control: the time slider",
+          introSlider1:"1 month: you will see Level 1 only.",
+          introSlider2:"2 months: you will see Level 1 and Level 2 building up.",
+          introSlider3:"3 months: you will see Level 1, Level 2 and Level 3 building up.",
+          introRecurring:"Why this can become sustainable long-term",
+          introRecurring1:"The three modules without Weekend Setup are recurring (annual): Membership, Small Lead Machine, Pro Lead Machine. With an active membership, this can generate revenue again every year — that’s the sustainability anchor.",
+          introRecurring2:"Weekend Setup is a one-time product. It can help additionally, but it is not the core of long-term sustainability."
+        }
+      };
+
+      function applyOverlay(lang){
+        const dict = overlay[lang] || overlay.de;
+        document.querySelectorAll("#introGuide [data-i18n]").forEach(el=>{
+          const k = el.getAttribute("data-i18n");
+          if(dict[k] != null) el.textContent = dict[k];
+        });
+      }
+
+      // Initial anwenden
+      const initLang = (document.documentElement.lang === "en") ? "en" : "de";
+      applyOverlay(initLang);
+
+      // Auf Sprachwechsel reagieren (Buttons existieren im Dokument)
+      const btnDE = document.getElementById("langDE");
+      const btnEN = document.getElementById("langEN");
+      if(btnDE) btnDE.addEventListener("click", ()=>applyOverlay("de"));
+      if(btnEN) btnEN.addEventListener("click", ()=>applyOverlay("en"));
+    }
+
+    // Start
+    injectIntro();
+    extendI18N();
+  })();
+</script>
+<!-- === /PATCH === --></body>
 </html>
