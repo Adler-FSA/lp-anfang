@@ -989,6 +989,8 @@
     │   │   └── kickoff-sprecher-tools.html
     │   ├── statement/
     │   │   └── vow-power.html
+    │   ├── story/
+    │   │   └── anna-aufbruch.html
     │   ├── timecells/
     │   │   ├── index.html
     │   │   ├── mission.html
@@ -1184,4 +1186,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.03.2026, 23:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.03.2026, 01:45)_
