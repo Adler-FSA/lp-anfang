@@ -990,7 +990,8 @@
     │   ├── statement/
     │   │   └── vow-power.html
     │   ├── story/
-    │   │   └── anna-aufbruch.html
+    │   │   ├── anna-aufbruch.html
+    │   │   └── herbert-erkenntnis.html
     │   ├── timecells/
     │   │   ├── index.html
     │   │   ├── mission.html
@@ -1186,4 +1187,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.03.2026, 08:33)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.03.2026, 09:38)_
