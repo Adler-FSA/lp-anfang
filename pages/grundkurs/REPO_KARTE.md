@@ -995,7 +995,8 @@
     │   │   ├── anna-aufbruch.html
     │   │   ├── bernd-loyalitaet.html
     │   │   ├── frank-gefaengnis.html
-    │   │   └── herbert-erkenntnis.html
+    │   │   ├── herbert-erkenntnis.html
+    │   │   └── mike-wirbt-mitglieder.html
     │   ├── timecells/
     │   │   ├── index.html
     │   │   ├── mission.html
@@ -1191,4 +1192,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.03.2026, 13:53)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.03.2026, 14:34)_
