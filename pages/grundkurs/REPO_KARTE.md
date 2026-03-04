@@ -993,6 +993,7 @@
     │   │   ├── alfred-hamsterrad.html
     │   │   ├── anna-aufbruch.html
     │   │   ├── bernd-loyalitaet.html
+    │   │   ├── frank-gefaengnis.html
     │   │   └── herbert-erkenntnis.html
     │   ├── timecells/
     │   │   ├── index.html
@@ -1189,4 +1190,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.03.2026, 06:39)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.03.2026, 07:34)_
