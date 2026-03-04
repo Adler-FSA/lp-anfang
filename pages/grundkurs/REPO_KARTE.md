@@ -701,6 +701,7 @@
     │   │   ├── bestellung-mitgliedschaft.html
     │   │   ├── einkommen-auszahlung.html
     │   │   ├── index.html
+    │   │   ├── markenrecht-compliance.html
     │   │   └── marktplatz.html
     │   ├── footer/
     │   │   ├── community.html
@@ -1190,4 +1191,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.03.2026, 10:32)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.03.2026, 11:25)_
