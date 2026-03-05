@@ -573,6 +573,8 @@
     │   │   ├── akademie-trustyfy-ueberblick.html
     │   │   ├── fsa-akademie-flyer.html
     │   │   └── verdienst-rechner.html
+    │   ├── ankommen/
+    │   │   └── einfache-art-ueber-den-club-zu-sprechen.html
     │   ├── ansicht/
     │   │   ├── muster-system-02-hoersaal-hauptseite.html
     │   │   ├── muster-system-03-unterseite-1.html
@@ -1192,4 +1194,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 05.03.2026, 06:43)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 05.03.2026, 07:45)_
