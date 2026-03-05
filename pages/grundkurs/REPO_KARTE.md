@@ -574,9 +574,11 @@
     │   │   ├── fsa-akademie-flyer.html
     │   │   └── verdienst-rechner.html
     │   ├── ankommen/
+    │   │   ├── club-regelkarte-fuer-mitglieder.html
     │   │   ├── einfache-art-ueber-den-club-zu-sprechen.html
     │   │   ├── erste-schritte-im-club.html
     │   │   ├── mitgliedschaft-empfehlen-bildung-aktivitaet.html
+    │   │   ├── sehnsucht-aktiv-werden-empfehlung.html
     │   │   └── typische-fehler-neuer-mitglieder.html
     │   ├── ansicht/
     │   │   ├── muster-system-02-hoersaal-hauptseite.html
@@ -1197,4 +1199,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 05.03.2026, 08:34)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 05.03.2026, 09:36)_
