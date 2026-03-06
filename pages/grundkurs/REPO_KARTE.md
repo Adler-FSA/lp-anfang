@@ -1004,6 +1004,8 @@
     │   │   ├── frank-gefaengnis.html
     │   │   ├── herbert-erkenntnis.html
     │   │   └── mike-wirbt-mitglieder.html
+    │   ├── tagesbeginn/
+    │   │   └── index.html
     │   ├── timecells/
     │   │   ├── index.html
     │   │   ├── mission.html
@@ -1199,4 +1201,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.03.2026, 07:34)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.03.2026, 08:31)_
