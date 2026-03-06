@@ -874,6 +874,11 @@
     │   ├── liquiditybooster/
     │   │   ├── krypto-setup-intro-en.html
     │   │   ├── krypto-setup-intro.html
+    │   │   ├── onboarding-erste-tage-wochen.html
+    │   │   ├── onboarding-gespraechsleitfaden.html
+    │   │   ├── onboarding-nach-dem-ja.html
+    │   │   ├── onboarding-reaktionen-antworten.html
+    │   │   ├── onboarding.html
     │   │   └── termine.html
     │   ├── lp-anfang/
     │   │   └── pages/
@@ -1201,4 +1206,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.03.2026, 09:32)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.03.2026, 10:28)_
