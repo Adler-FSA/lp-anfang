@@ -879,6 +879,7 @@
     │   │   ├── onboarding-nach-dem-ja.html
     │   │   ├── onboarding-reaktionen-antworten.html
     │   │   ├── onboarding.html
+    │   │   ├── telefon-akquise.html
     │   │   └── termine.html
     │   ├── lp-anfang/
     │   │   └── pages/
@@ -1206,4 +1207,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 07.03.2026, 06:32)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 07.03.2026, 07:24)_
