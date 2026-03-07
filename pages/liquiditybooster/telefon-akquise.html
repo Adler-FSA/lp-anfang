@@ -1,0 +1,2074 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Telefon-Akquise – Gespräch führen, dokumentieren, nachfassen</title>
+  <meta name="description" content="Telefon-Akquise mit Gesprächsprotokoll, Kontaktliste, Wiedervorlage, LocalStorage, Filter und Druckansicht." />
+  <meta name="robots" content="index,follow" />
+  <style>
+    :root{
+      --bg:#f8f6f1;
+      --bg-soft:#fcfbf8;
+      --paper:#ffffff;
+      --paper-2:#f7f3ea;
+      --ink:#161616;
+      --muted:#57524a;
+      --gold:#b7902a;
+      --gold-soft:#e9dcc0;
+      --teal:#2b98a8;
+      --teal-soft:#dceff2;
+      --line:rgba(22,22,22,.10);
+      --shadow:0 18px 50px rgba(34,30,22,.08);
+      --radius:24px;
+      --max:1240px;
+
+      --ok-bg:#eaf7ee;
+      --ok-ink:#20633a;
+      --warn-bg:#fff6e6;
+      --warn-ink:#8a5a00;
+      --bad-bg:#fdecec;
+      --bad-ink:#8d2f2f;
+      --info-bg:#eaf4fb;
+      --info-ink:#1f5d80;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      color:var(--ink);
+      font-family:Georgia,"Times New Roman",serif;
+      line-height:1.7;
+      background:
+        radial-gradient(900px 580px at 0% 0%, rgba(43,152,168,.07), transparent 60%),
+        radial-gradient(900px 580px at 100% 0%, rgba(183,144,42,.09), transparent 58%),
+        linear-gradient(180deg,var(--bg-soft),var(--bg));
+      overflow-x:hidden;
+    }
+
+    .wrap{
+      width:min(var(--max), calc(100% - 32px));
+      margin:0 auto;
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:30;
+      backdrop-filter:blur(12px);
+      background:rgba(248,246,241,.88);
+      border-bottom:1px solid rgba(22,22,22,.06);
+    }
+
+    .topbar-inner{
+      width:min(var(--max), calc(100% - 32px));
+      margin:0 auto;
+      min-height:72px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:10px 0;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+
+    .brand-mark{
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(180deg, rgba(183,144,42,.10), rgba(43,152,168,.08));
+      border:1px solid rgba(22,22,22,.08);
+      box-shadow:var(--shadow);
+      flex:0 0 auto;
+    }
+
+    .brand-text{min-width:0}
+    .brand-kicker{
+      margin:0;
+      font:700 11px/1.1 Arial,Helvetica,sans-serif;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--gold);
+    }
+    .brand-title{
+      margin:3px 0 0;
+      font:700 17px/1.2 Arial,Helvetica,sans-serif;
+      color:var(--ink);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .lang-switch{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .lang-btn{
+      appearance:none;
+      border:1px solid rgba(22,22,22,.12);
+      background:#fff;
+      color:var(--ink);
+      border-radius:999px;
+      padding:10px 14px;
+      font:700 12px/1 Arial,Helvetica,sans-serif;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+
+    .lang-btn.active,
+    .lang-btn:hover{
+      border-color:rgba(183,144,42,.36);
+      background:rgba(183,144,42,.10);
+    }
+
+    .hero{
+      padding:42px 0 24px;
+    }
+
+    .hero-card{
+      border:1px solid rgba(22,22,22,.08);
+      border-radius:32px;
+      background:
+        radial-gradient(500px 260px at 100% 0%, rgba(183,144,42,.10), transparent 70%),
+        radial-gradient(460px 260px at 0% 100%, rgba(43,152,168,.08), transparent 68%),
+        var(--paper);
+      box-shadow:var(--shadow);
+      padding:34px 28px 28px;
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:9px 14px;
+      border:1px solid rgba(183,144,42,.24);
+      border-radius:999px;
+      background:rgba(183,144,42,.08);
+      font:700 12px/1 Arial,Helvetica,sans-serif;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:var(--gold);
+      margin-bottom:16px;
+    }
+
+    h1{
+      margin:0 0 12px;
+      font-size:clamp(34px,5vw,56px);
+      line-height:1.06;
+      letter-spacing:-.02em;
+      color:var(--ink);
+      max-width:980px;
+    }
+
+    .sub{
+      margin:0;
+      max-width:940px;
+      font-size:clamp(18px,2.2vw,24px);
+      color:var(--muted);
+    }
+
+    .quick-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:14px;
+      margin-top:28px;
+    }
+
+    .quick{
+      border:1px solid rgba(22,22,22,.08);
+      border-radius:20px;
+      padding:16px;
+      background:linear-gradient(180deg,#fff,#fbfaf7);
+    }
+
+    .quick .k{
+      margin:0 0 6px;
+      font:700 11px/1.2 Arial,Helvetica,sans-serif;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:var(--gold);
+    }
+
+    .quick .v{
+      margin:0;
+      font:700 16px/1.35 Arial,Helvetica,sans-serif;
+      color:var(--ink);
+    }
+
+    main{
+      padding:8px 0 72px;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:1.06fr .94fr;
+      gap:22px;
+      align-items:start;
+    }
+
+    .panel{
+      border:1px solid rgba(22,22,22,.08);
+      border-radius:var(--radius);
+      background:var(--paper);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .panel + .panel{
+      margin-top:22px;
+    }
+
+    .panel-head{
+      padding:18px 22px 0;
+    }
+
+    .section-kicker{
+      margin:0 0 8px;
+      font:700 11px/1.2 Arial,Helvetica,sans-serif;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--teal);
+    }
+
+    .panel h2{
+      margin:0;
+      font-size:clamp(24px,3vw,34px);
+      line-height:1.12;
+      color:var(--ink);
+    }
+
+    .panel-body{
+      padding:18px 22px 22px;
+    }
+
+    p{
+      margin:0 0 16px;
+      color:var(--ink);
+    }
+
+    .callout{
+      margin:18px 0;
+      padding:16px 18px;
+      border-left:4px solid var(--gold);
+      background:linear-gradient(180deg, rgba(183,144,42,.08), rgba(183,144,42,.04));
+      border-radius:16px;
+      color:var(--ink);
+    }
+
+    .local-note{
+      margin-top:16px;
+      padding:14px 16px;
+      border-radius:16px;
+      background:rgba(43,152,168,.08);
+      border-left:4px solid var(--teal);
+      color:var(--ink);
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:14px;
+    }
+
+    .form-grid-3{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:14px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+    }
+
+    .field.span-2{grid-column:span 2}
+    .field.span-3{grid-column:span 3}
+
+    label{
+      font:700 12px/1.2 Arial,Helvetica,sans-serif;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="date"],
+    input[type="time"],
+    select,
+    textarea{
+      width:100%;
+      min-height:48px;
+      border-radius:16px;
+      border:1px solid rgba(22,22,22,.12);
+      background:#fff;
+      color:var(--ink);
+      padding:12px 14px;
+      font:400 16px/1.4 Georgia,"Times New Roman",serif;
+      outline:none;
+    }
+
+    textarea{
+      min-height:120px;
+      resize:vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus{
+      border-color:rgba(43,152,168,.45);
+      box-shadow:0 0 0 4px rgba(43,152,168,.08);
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+      margin-top:2px;
+    }
+
+    .check{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      padding:12px 14px;
+      border:1px solid rgba(22,22,22,.08);
+      border-radius:16px;
+      background:linear-gradient(180deg,#fff,#fbfaf7);
+      min-height:54px;
+    }
+
+    .check input{
+      margin-top:3px;
+      transform:scale(1.12);
+      accent-color:#2b98a8;
+    }
+
+    .check span{
+      color:var(--ink);
+      font-size:15px;
+      line-height:1.4;
+    }
+
+    details{
+      border:1px solid rgba(22,22,22,.08);
+      border-radius:20px;
+      background:linear-gradient(180deg,#fff,#fbfaf7);
+      overflow:hidden;
+    }
+
+    details summary{
+      list-style:none;
+      cursor:pointer;
+      padding:16px 18px;
+      font:700 18px/1.35 Arial,Helvetica,sans-serif;
+      color:var(--ink);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    details summary::-webkit-details-marker{display:none}
+    .details-body{
+      padding:0 18px 18px;
+      color:var(--muted);
+    }
+
+    .details-body ul{
+      margin:0;
+      padding-left:18px;
+      color:var(--ink);
+    }
+
+    .details-body li + li{
+      margin-top:8px;
+    }
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:18px;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid rgba(22,22,22,.10);
+      background:#fff;
+      color:var(--ink);
+      min-height:46px;
+      padding:12px 16px;
+      border-radius:999px;
+      font:700 13px/1 Arial,Helvetica,sans-serif;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      cursor:pointer;
+      transition:.18s ease;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+    }
+
+    .btn:hover{
+      background:#fbfaf7;
+      border-color:rgba(183,144,42,.24);
+    }
+
+    .btn-primary{
+      background:#161616;
+      color:#fff;
+      border-color:#161616;
+    }
+
+    .btn-primary:hover{
+      background:#2b2b2b;
+      border-color:#2b2b2b;
+    }
+
+    .btn-accent{
+      background:rgba(183,144,42,.10);
+      border-color:rgba(183,144,42,.28);
+    }
+
+    .btn-danger{
+      background:rgba(141,47,47,.08);
+      border-color:rgba(141,47,47,.16);
+      color:#7b2929;
+    }
+
+    .filters{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:14px;
+    }
+
+    .filter-tools{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:16px;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      border:1px solid rgba(22,22,22,.08);
+      border-radius:20px;
+      background:#fff;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:980px;
+    }
+
+    th, td{
+      padding:12px 12px;
+      border-bottom:1px solid rgba(22,22,22,.08);
+      text-align:left;
+      vertical-align:top;
+    }
+
+    th{
+      position:sticky;
+      top:0;
+      background:#faf8f3;
+      z-index:1;
+      color:var(--muted);
+      font:700 12px/1.2 Arial,Helvetica,sans-serif;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    td{
+      color:var(--ink);
+      font-size:15px;
+      line-height:1.45;
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    .status-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:28px;
+      padding:6px 10px;
+      border-radius:999px;
+      font:700 12px/1 Arial,Helvetica,sans-serif;
+      letter-spacing:.04em;
+      white-space:nowrap;
+    }
+
+    .st-neu,.st-gesprochen,.st-abgeschlossen{background:var(--info-bg); color:var(--info-ink)}
+    .st-interessiert,.st-termin-vereinbart{background:var(--ok-bg); color:var(--ok-ink)}
+    .st-skeptisch,.st-rueckruf-offen,.st-nicht-erreicht{background:var(--warn-bg); color:var(--warn-ink)}
+    .st-kein-interesse{background:var(--bad-bg); color:var(--bad-ink)}
+
+    .row-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .row-btn{
+      appearance:none;
+      border:1px solid rgba(22,22,22,.10);
+      background:#fff;
+      color:var(--ink);
+      border-radius:999px;
+      padding:8px 10px;
+      font:700 11px/1 Arial,Helvetica,sans-serif;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      cursor:pointer;
+    }
+
+    .row-btn:hover{
+      background:#fbfaf7;
+    }
+
+    .muted{
+      color:var(--muted);
+    }
+
+    .empty-state{
+      padding:20px;
+      border:1px dashed rgba(22,22,22,.16);
+      border-radius:20px;
+      background:#fff;
+      color:var(--muted);
+      text-align:center;
+    }
+
+    .sticky-col{
+      position:sticky;
+      top:92px;
+    }
+
+    .summary-box{
+      padding:18px;
+      border-radius:20px;
+      background:
+        linear-gradient(180deg, rgba(183,144,42,.06), rgba(43,152,168,.05)),
+        #fff;
+      border:1px solid rgba(183,144,42,.16);
+    }
+
+    .summary-box + .summary-box{
+      margin-top:16px;
+    }
+
+    .summary-box h3{
+      margin:0 0 10px;
+      font:700 18px/1.25 Arial,Helvetica,sans-serif;
+      color:var(--ink);
+    }
+
+    .summary-box p{
+      margin:0 0 12px;
+      color:var(--muted);
+    }
+
+    .summary-box ul{
+      margin:0;
+      padding-left:18px;
+      color:var(--ink);
+    }
+
+    .summary-box li + li{
+      margin-top:8px;
+    }
+
+    .overview-list{
+      display:grid;
+      gap:10px;
+    }
+
+    .overview-item{
+      padding:12px 14px;
+      border:1px solid rgba(22,22,22,.08);
+      border-radius:16px;
+      background:#fff;
+    }
+
+    .overview-item strong{
+      display:block;
+      margin-bottom:4px;
+      font:700 13px/1.2 Arial,Helvetica,sans-serif;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      color:var(--gold);
+    }
+
+    .overview-item span{
+      color:var(--ink);
+    }
+
+    .quote{
+      margin-top:16px;
+      padding:16px 18px;
+      border-radius:18px;
+      background:linear-gradient(180deg,#fff,#f8f4eb);
+      border:1px solid rgba(183,144,42,.18);
+      color:var(--ink);
+      font-size:18px;
+      line-height:1.55;
+    }
+
+    .print-sheet{
+      display:none;
+    }
+
+    @media (max-width:1100px){
+      .layout{
+        grid-template-columns:1fr;
+      }
+      .sticky-col{
+        position:static;
+      }
+    }
+
+    @media (max-width:860px){
+      .quick-grid,
+      .form-grid,
+      .form-grid-3,
+      .filters,
+      .check-grid{
+        grid-template-columns:1fr;
+      }
+      .field.span-2,
+      .field.span-3{
+        grid-column:auto;
+      }
+    }
+
+    @media (max-width:640px){
+      .topbar-inner{
+        align-items:flex-start;
+        flex-direction:column;
+      }
+      .hero-card{
+        padding:26px 18px 20px;
+        border-radius:24px;
+      }
+      .panel-head,
+      .panel-body{
+        padding-left:16px;
+        padding-right:16px;
+      }
+      .actions,
+      .filter-tools{
+        flex-direction:column;
+      }
+      .btn{
+        width:100%;
+      }
+    }
+
+    @media print{
+      body{
+        background:#fff !important;
+        color:#111 !important;
+      }
+      .topbar,
+      .hero,
+      .sticky-col,
+      .no-print{
+        display:none !important;
+      }
+      .wrap{
+        width:100%;
+        max-width:none;
+      }
+      main{
+        padding:0;
+      }
+      .panel,
+      .table-wrap,
+      .summary-box{
+        background:#fff !important;
+        border:1px solid #ddd !important;
+        box-shadow:none !important;
+      }
+      .print-sheet{
+        display:block !important;
+      }
+      .print-sheet h1,
+      .print-sheet h2,
+      .print-sheet h3{
+        color:#111 !important;
+      }
+      .print-sheet p,
+      .print-sheet li,
+      .print-sheet td,
+      .print-sheet th{
+        color:#222 !important;
+      }
+      table{
+        min-width:0;
+      }
+      th{
+        background:#f5f5f5 !important;
+      }
+      .status-badge{
+        border:1px solid #ddd !important;
+        background:#fff !important;
+        color:#111 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar no-print">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" width="24" height="24" fill="none">
+            <path d="M32 8l16 8v12c0 10.5-6.6 20.2-16 24-9.4-3.8-16-13.5-16-24V16l16-8z" stroke="#b7902a" stroke-width="2.4"/>
+            <path d="M24 22c0 6 4 10 8 12 4-2 8-6 8-12" stroke="#2b98a8" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M28 38h8" stroke="#2b98a8" stroke-width="2.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <p class="brand-kicker">LiquidityBooster • FSA</p>
+          <p class="brand-title" data-i18n="brandTitle">Telefon-Akquise</p>
+        </div>
+      </div>
+
+      <div class="lang-switch" aria-label="Sprachauswahl">
+        <button class="lang-btn active" type="button" data-lang="de">DE</button>
+        <button class="lang-btn" type="button" data-lang="en">EN</button>
+      </div>
+    </div>
+  </div>
+
+  <header class="hero no-print">
+    <div class="wrap">
+      <div class="hero-card">
+        <div class="eyebrow" data-i18n="eyebrow">Arbeitsoberfläche</div>
+        <h1 data-i18n="heroTitle">Gespräch führen, dokumentieren, nachfassen</h1>
+        <p class="sub" data-i18n="heroSub">Diese Seite hilft dir dabei, Telefonate strukturiert zu führen, direkt zu dokumentieren und den nächsten Schritt sauber festzuhalten.</p>
+
+        <div class="quick-grid">
+          <div class="quick">
+            <p class="k" data-i18n="quick1k">Speicherung</p>
+            <p class="v" data-i18n="quick1v">Nur lokal im Browser</p>
+          </div>
+          <div class="quick">
+            <p class="k" data-i18n="quick2k">Ziel</p>
+            <p class="v" data-i18n="quick2v">Klare Telefonliste mit Wiedervorlage</p>
+          </div>
+          <div class="quick">
+            <p class="k" data-i18n="quick3k">Ausgabe</p>
+            <p class="v" data-i18n="quick3v">Einzelblatt oder Liste druckbar</p>
+          </div>
+          <div class="quick">
+            <p class="k" data-i18n="quick4k">Prinzip</p>
+            <p class="v" data-i18n="quick4v">Struktur statt Zettelchaos</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap layout">
+      <div>
+        <section class="panel no-print">
+          <div class="panel-head">
+            <p class="section-kicker" data-i18n="s1k">Erfassung</p>
+            <h2 data-i18n="s1h">Kontakt und Gespräch dokumentieren</h2>
+          </div>
+          <div class="panel-body">
+            <p data-i18n="s1p1">Diese Seite ist für den direkten Einsatz am Telefon gedacht. Nicht als Theorie-Seite, sondern als praktische Arbeitsoberfläche für den Alltag.</p>
+            <div class="callout" data-i18n="s1callout">Ziel ist, Telefongespräche nicht nur zu führen, sondern sie direkt sauber zu dokumentieren, den nächsten Schritt festzuhalten und Kontakte später strukturiert wiederzufinden.</div>
+            <div class="local-note" data-i18n="localNote">Alle Daten bleiben lokal auf deinem Gerät im Browser gespeichert. Es gibt keine zentrale Speicherung.</div>
+
+            <form id="callForm" autocomplete="on">
+              <input type="hidden" id="editId" value="" />
+
+              <div class="panel" style="margin-top:18px">
+                <div class="panel-head">
+                  <p class="section-kicker" data-i18n="f1k">Kontakt</p>
+                  <h2 data-i18n="f1h">Stammdaten</h2>
+                </div>
+                <div class="panel-body">
+                  <div class="form-grid">
+                    <div class="field">
+                      <label for="callDate" data-i18n="lblDate">Datum</label>
+                      <input id="callDate" type="date" required />
+                    </div>
+                    <div class="field">
+                      <label for="callTime" data-i18n="lblTime">Uhrzeit</label>
+                      <input id="callTime" type="time" required />
+                    </div>
+
+                    <div class="field">
+                      <label for="firstName" data-i18n="lblFirstName">Vorname</label>
+                      <input id="firstName" type="text" />
+                    </div>
+                    <div class="field">
+                      <label for="lastName" data-i18n="lblLastName">Nachname</label>
+                      <input id="lastName" type="text" />
+                    </div>
+
+                    <div class="field">
+                      <label for="phone" data-i18n="lblPhone">Telefonnummer</label>
+                      <input id="phone" type="tel" />
+                    </div>
+                    <div class="field">
+                      <label for="email" data-i18n="lblEmail">E-Mail</label>
+                      <input id="email" type="email" />
+                    </div>
+
+                    <div class="field">
+                      <label for="city" data-i18n="lblCity">Ort</label>
+                      <input id="city" type="text" />
+                    </div>
+                    <div class="field">
+                      <label for="company" data-i18n="lblCompany">Firma / Bezug</label>
+                      <input id="company" type="text" />
+                    </div>
+
+                    <div class="field span-2">
+                      <label for="source" data-i18n="lblSource">Quelle des Kontakts</label>
+                      <select id="source">
+                        <option value="" data-i18n="optPlease">Bitte wählen</option>
+                        <option value="eigene Liste" data-i18n="src1">eigene Liste</option>
+                        <option value="Empfehlung" data-i18n="src2">Empfehlung</option>
+                        <option value="Website" data-i18n="src3">Website</option>
+                        <option value="WhatsApp" data-i18n="src4">WhatsApp</option>
+                        <option value="Telegram" data-i18n="src5">Telegram</option>
+                        <option value="Veranstaltung" data-i18n="src6">Veranstaltung</option>
+                        <option value="Rückruf" data-i18n="src7">Rückruf</option>
+                        <option value="sonstiges" data-i18n="src8">sonstiges</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel" style="margin-top:18px">
+                <div class="panel-head">
+                  <p class="section-kicker" data-i18n="f2k">Gespräch</p>
+                  <h2 data-i18n="f2h">Anruf und Verlauf</h2>
+                </div>
+                <div class="panel-body">
+                  <div class="form-grid">
+                    <div class="field">
+                      <label for="callReason" data-i18n="lblReason">Grund des Anrufes</label>
+                      <select id="callReason">
+                        <option value="" data-i18n="optPlease2">Bitte wählen</option>
+                        <option value="Erstkontakt" data-i18n="reason1">Erstkontakt</option>
+                        <option value="Rückruf" data-i18n="reason2">Rückruf</option>
+                        <option value="Informationsgespräch" data-i18n="reason3">Informationsgespräch</option>
+                        <option value="Nachfassen nach Video" data-i18n="reason4">Nachfassen nach Video</option>
+                        <option value="Terminvereinbarung" data-i18n="reason5">Terminvereinbarung</option>
+                        <option value="Interesse an Club" data-i18n="reason6">Interesse an Club</option>
+                        <option value="Interesse an Kurs" data-i18n="reason7">Interesse an Kurs</option>
+                        <option value="Mentorengespräch" data-i18n="reason8">Mentorengespräch</option>
+                        <option value="Wiedervorlage" data-i18n="reason9">Wiedervorlage</option>
+                      </select>
+                    </div>
+
+                    <div class="field">
+                      <label for="goal" data-i18n="lblGoal">Ziel des Gesprächs</label>
+                      <input id="goal" type="text" />
+                    </div>
+
+                    <div class="field">
+                      <label for="duration" data-i18n="lblDuration">Gesprächsdauer</label>
+                      <input id="duration" type="text" placeholder="z. B. 6 Min." />
+                    </div>
+
+                    <div class="field">
+                      <label for="mood" data-i18n="lblMood">Gesprächsstimmung</label>
+                      <select id="mood">
+                        <option value="" data-i18n="optPlease3">Bitte wählen</option>
+                        <option value="offen" data-i18n="mood1">offen</option>
+                        <option value="ruhig" data-i18n="mood2">ruhig</option>
+                        <option value="interessiert" data-i18n="mood3">interessiert</option>
+                        <option value="skeptisch" data-i18n="mood4">skeptisch</option>
+                        <option value="zurückhaltend" data-i18n="mood5">zurückhaltend</option>
+                        <option value="ablehnend" data-i18n="mood6">ablehnend</option>
+                      </select>
+                    </div>
+
+                    <div class="field">
+                      <label for="status" data-i18n="lblStatus">Status</label>
+                      <select id="status">
+                        <option value="neu" data-i18n="status1">neu</option>
+                        <option value="nicht erreicht" data-i18n="status2">nicht erreicht</option>
+                        <option value="gesprochen" data-i18n="status3">gesprochen</option>
+                        <option value="interessiert" data-i18n="status4">interessiert</option>
+                        <option value="skeptisch" data-i18n="status5">skeptisch</option>
+                        <option value="Rückruf offen" data-i18n="status6">Rückruf offen</option>
+                        <option value="Termin vereinbart" data-i18n="status7">Termin vereinbart</option>
+                        <option value="abgeschlossen" data-i18n="status8">abgeschlossen</option>
+                        <option value="kein Interesse" data-i18n="status9">kein Interesse</option>
+                      </select>
+                    </div>
+
+                    <div class="field">
+                      <label data-i18n="lblFlags">Sofortmerkmale</label>
+                      <div class="check-grid">
+                        <label class="check"><input id="reached" type="checkbox" /><span data-i18n="flag1">Gespräch erreicht</span></label>
+                        <label class="check"><input id="mailbox" type="checkbox" /><span data-i18n="flag2">Mailbox</span></label>
+                        <label class="check"><input id="interest" type="checkbox" /><span data-i18n="flag3">Interesse vorhanden</span></label>
+                        <label class="check"><input id="skeptical" type="checkbox" /><span data-i18n="flag4">eher skeptisch</span></label>
+                        <label class="check"><input id="callback" type="checkbox" /><span data-i18n="flag5">Rückruf gewünscht</span></label>
+                        <label class="check"><input id="appointment" type="checkbox" /><span data-i18n="flag6">Termin vereinbart</span></label>
+                        <label class="check"><input id="videoRecommended" type="checkbox" /><span data-i18n="flag7">Video empfohlen</span></label>
+                        <label class="check"><input id="linkSent" type="checkbox" /><span data-i18n="flag8">Link gesendet</span></label>
+                        <label class="check"><input id="qrRecommended" type="checkbox" /><span data-i18n="flag9">QR-Code empfohlen</span></label>
+                        <label class="check"><input id="membershipMentioned" type="checkbox" /><span data-i18n="flag10">Mitgliedschaft angesprochen</span></label>
+                      </div>
+                    </div>
+
+                    <div class="field span-2">
+                      <label for="protocol" data-i18n="lblProtocol">Freies Gesprächsprotokoll</label>
+                      <textarea id="protocol"></textarea>
+                    </div>
+
+                    <div class="field span-2">
+                      <label for="questions" data-i18n="lblQuestions">Wichtige Fragen</label>
+                      <textarea id="questions"></textarea>
+                    </div>
+
+                    <div class="field span-2">
+                      <label for="wishes" data-i18n="lblWishes">Wünsche / Sorgen</label>
+                      <textarea id="wishes"></textarea>
+                    </div>
+
+                    <div class="field span-2">
+                      <label for="observations" data-i18n="lblObservations">Besondere Beobachtungen</label>
+                      <textarea id="observations"></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel" style="margin-top:18px">
+                <div class="panel-head">
+                  <p class="section-kicker" data-i18n="f3k">Nächster Schritt</p>
+                  <h2 data-i18n="f3h">Wiedervorlage und Aktion</h2>
+                </div>
+                <div class="panel-body">
+                  <div class="form-grid">
+                    <div class="field">
+                      <label for="nextStep" data-i18n="lblNextStep">Nächster Schritt</label>
+                      <select id="nextStep">
+                        <option value="" data-i18n="optPlease4">Bitte wählen</option>
+                        <option value="erneut anrufen" data-i18n="step1">erneut anrufen</option>
+                        <option value="Link senden" data-i18n="step2">Link senden</option>
+                        <option value="E-Mail senden" data-i18n="step3">E-Mail senden</option>
+                        <option value="Termin anbieten" data-i18n="step4">Termin anbieten</option>
+                        <option value="Mentorengespräch vorbereiten" data-i18n="step5">Mentorengespräch vorbereiten</option>
+                        <option value="nächste Woche nachfassen" data-i18n="step6">nächste Woche nachfassen</option>
+                        <option value="abgeschlossen" data-i18n="step7">abgeschlossen</option>
+                        <option value="kein weiterer Kontakt" data-i18n="step8">kein weiterer Kontakt</option>
+                      </select>
+                    </div>
+
+                    <div class="field">
+                      <label for="followDate" data-i18n="lblFollowDate">Wiedervorlage-Datum</label>
+                      <input id="followDate" type="date" />
+                    </div>
+
+                    <div class="field">
+                      <label for="followTime" data-i18n="lblFollowTime">Wiedervorlage-Uhrzeit</label>
+                      <input id="followTime" type="time" />
+                    </div>
+
+                    <div class="field">
+                      <label data-i18n="lblNextFlags">Aktion markieren</label>
+                      <div class="check-grid">
+                        <label class="check"><input id="needCallback" type="checkbox" /><span data-i18n="next1">Rückruf nötig</span></label>
+                        <label class="check"><input id="needInfo" type="checkbox" /><span data-i18n="next2">Info senden</span></label>
+                        <label class="check"><input id="needBook" type="checkbox" /><span data-i18n="next3">Termin buchen</span></label>
+                        <label class="check"><input id="done" type="checkbox" /><span data-i18n="next4">abgeschlossen</span></label>
+                      </div>
+                    </div>
+
+                    <div class="field span-2">
+                      <label for="nextActionText" data-i18n="lblActionText">Konkrete nächste Aktion</label>
+                      <textarea id="nextActionText"></textarea>
+                    </div>
+                  </div>
+
+                  <div class="actions">
+                    <button class="btn btn-primary" type="submit" id="saveBtn" data-i18n="btnSave">Eintrag speichern</button>
+                    <button class="btn" type="button" id="clearBtn" data-i18n="btnClear">Formular leeren</button>
+                    <button class="btn btn-accent" type="button" id="printCurrentBtn" data-i18n="btnPrintCurrent">PDF für Eintrag</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section class="panel no-print">
+          <div class="panel-head">
+            <p class="section-kicker" data-i18n="guideK">Gesprächshilfe</p>
+            <h2 data-i18n="guideH">Telefon-Leitfaden</h2>
+          </div>
+          <div class="panel-body">
+            <details>
+              <summary>
+                <span data-i18n="guideSummary">Einstieg, Bedarfsfrage und 20-Cent-Frage öffnen</span>
+                <span>+</span>
+              </summary>
+              <div class="details-body">
+                <p data-i18n="guideP1">Nutze diesen Block als kurzen Spickzettel beim Telefonieren. Er ist bewusst knapp gehalten.</p>
+                <ul>
+                  <li data-i18n="guide1">Einstieg: ruhig, freundlich und ohne Druck ins Gespräch kommen.</li>
+                  <li data-i18n="guide2">Bedarfsfrage: herausfinden, wo der andere steht, was ihn bewegt und was er lösen möchte.</li>
+                  <li data-i18n="guide3">20-Cent-Frage: Wenn ich einen Weg hätte, wie du das lösen kannst, wäre dir das 20 Cent am Tag wert?</li>
+                  <li data-i18n="guide4">Reaktion einordnen: neugierig, skeptisch, offen, abwehrend oder vorsichtig.</li>
+                  <li data-i18n="guide5">Nächster Schritt: Video, Link, Rückruf oder bewusste Entscheidung ruhig festhalten.</li>
+                </ul>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section class="panel no-print">
+          <div class="panel-head">
+            <p class="section-kicker" data-i18n="listK">Kontaktliste</p>
+            <h2 data-i18n="listH">Gespeicherte Telefonkontakte</h2>
+          </div>
+          <div class="panel-body">
+            <div class="filters">
+              <div class="field">
+                <label for="searchName" data-i18n="fltName">Suche nach Name</label>
+                <input id="searchName" type="text" />
+              </div>
+              <div class="field">
+                <label for="searchPhone" data-i18n="fltPhone">Suche nach Telefonnummer</label>
+                <input id="searchPhone" type="text" />
+              </div>
+              <div class="field">
+                <label for="filterStatus" data-i18n="fltStatus">Filter nach Status</label>
+                <select id="filterStatus">
+                  <option value="" data-i18n="all">Alle</option>
+                  <option value="neu" data-i18n="status1b">neu</option>
+                  <option value="nicht erreicht" data-i18n="status2b">nicht erreicht</option>
+                  <option value="gesprochen" data-i18n="status3b">gesprochen</option>
+                  <option value="interessiert" data-i18n="status4b">interessiert</option>
+                  <option value="skeptisch" data-i18n="status5b">skeptisch</option>
+                  <option value="Rückruf offen" data-i18n="status6b">Rückruf offen</option>
+                  <option value="Termin vereinbart" data-i18n="status7b">Termin vereinbart</option>
+                  <option value="abgeschlossen" data-i18n="status8b">abgeschlossen</option>
+                  <option value="kein Interesse" data-i18n="status9b">kein Interesse</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="filterDate" data-i18n="fltDate">Filter nach Datum</label>
+                <input id="filterDate" type="date" />
+              </div>
+            </div>
+
+            <div class="filter-tools">
+              <label class="check" style="min-height:auto"><input id="onlyCallbacks" type="checkbox" /><span data-i18n="fltOpenCallbacks">nur offene Rückrufe</span></label>
+              <label class="check" style="min-height:auto"><input id="onlyAppointments" type="checkbox" /><span data-i18n="fltAppointments">nur Termine</span></label>
+              <button class="btn" type="button" id="resetFiltersBtn" data-i18n="btnResetFilters">Filter zurücksetzen</button>
+              <button class="btn btn-accent" type="button" id="printListBtn" data-i18n="btnPrintList">PDF für Liste</button>
+              <button class="btn" type="button" id="printWindowBtn" data-i18n="btnPrintWindow">Druckansicht öffnen</button>
+              <button class="btn btn-danger" type="button" id="clearStorageBtn" data-i18n="btnDeleteLocal">Lokalen Speicher löschen</button>
+            </div>
+
+            <div id="listContainer" style="margin-top:18px">
+              <div class="empty-state" id="emptyState" data-i18n="emptyState">Noch keine Telefonkontakte gespeichert.</div>
+
+              <div class="table-wrap" id="tableWrap" hidden>
+                <table>
+                  <thead>
+                    <tr>
+                      <th data-i18n="th1">Datum</th>
+                      <th data-i18n="th2">Uhrzeit</th>
+                      <th data-i18n="th3">Name</th>
+                      <th data-i18n="th4">Telefon</th>
+                      <th data-i18n="th5">Grund</th>
+                      <th data-i18n="th6">Status</th>
+                      <th data-i18n="th7">Nächster Schritt</th>
+                      <th data-i18n="th8">Wiedervorlage</th>
+                      <th data-i18n="th9">Aktionen</th>
+                    </tr>
+                  </thead>
+                  <tbody id="contactTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="print-sheet" id="printSheet">
+          <h1 id="printTitle">Telefon-Akquise – Druckansicht</h1>
+          <div id="printContent"></div>
+        </section>
+      </div>
+
+      <aside class="sticky-col no-print">
+        <section class="panel">
+          <div class="panel-head">
+            <p class="section-kicker" data-i18n="sideK1">Übersicht</p>
+            <h2 data-i18n="sideH1">Was diese Seite verbindet</h2>
+          </div>
+          <div class="panel-body">
+            <div class="summary-box">
+              <h3 data-i18n="sideBoxH1">Der Ablauf</h3>
+              <ul>
+                <li data-i18n="side1a">Gespräch führen</li>
+                <li data-i18n="side1b">Gespräch dokumentieren</li>
+                <li data-i18n="side1c">Nächsten Schritt sichern</li>
+                <li data-i18n="side1d">Wiedervorlage setzen</li>
+                <li data-i18n="side1e">Kontakt wiederfinden</li>
+              </ul>
+            </div>
+
+            <div class="summary-box">
+              <h3 data-i18n="sideBoxH2">Statuslogik</h3>
+              <div class="overview-list">
+                <div class="overview-item"><strong data-i18n="ov1">Grün</strong><span data-i18n="ov1t">interessiert / Termin vereinbart</span></div>
+                <div class="overview-item"><strong data-i18n="ov2">Gelb</strong><span data-i18n="ov2t">skeptisch / Rückruf offen / nicht erreicht</span></div>
+                <div class="overview-item"><strong data-i18n="ov3">Blau</strong><span data-i18n="ov3t">neu / gesprochen / abgeschlossen</span></div>
+                <div class="overview-item"><strong data-i18n="ov4">Rot</strong><span data-i18n="ov4t">kein Interesse</span></div>
+              </div>
+            </div>
+
+            <div class="summary-box">
+              <h3 data-i18n="sideBoxH3">LocalStorage</h3>
+              <p data-i18n="sideP3">Alle Daten bleiben lokal im Browser gespeichert. Du behältst die Kontrolle und kannst Einträge jederzeit drucken oder löschen.</p>
+            </div>
+
+            <div class="quote" data-i18n="sideQuote">Eine gute Telefon-Akquise besteht nicht nur aus dem Anruf selbst. Sie besteht auch aus dem, was danach sauber festgehalten wird.</div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    (function(){
+      const STORAGE_KEY = 'fsa_liquiditybooster_telefon_akquise_v1';
+
+      const translations = {
+        de: {
+          brandTitle:'Telefon-Akquise',
+          eyebrow:'Arbeitsoberfläche',
+          heroTitle:'Gespräch führen, dokumentieren, nachfassen',
+          heroSub:'Diese Seite hilft dir dabei, Telefonate strukturiert zu führen, direkt zu dokumentieren und den nächsten Schritt sauber festzuhalten.',
+          quick1k:'Speicherung',
+          quick1v:'Nur lokal im Browser',
+          quick2k:'Ziel',
+          quick2v:'Klare Telefonliste mit Wiedervorlage',
+          quick3k:'Ausgabe',
+          quick3v:'Einzelblatt oder Liste druckbar',
+          quick4k:'Prinzip',
+          quick4v:'Struktur statt Zettelchaos',
+
+          s1k:'Erfassung',
+          s1h:'Kontakt und Gespräch dokumentieren',
+          s1p1:'Diese Seite ist für den direkten Einsatz am Telefon gedacht. Nicht als Theorie-Seite, sondern als praktische Arbeitsoberfläche für den Alltag.',
+          s1callout:'Ziel ist, Telefongespräche nicht nur zu führen, sondern sie direkt sauber zu dokumentieren, den nächsten Schritt festzuhalten und Kontakte später strukturiert wiederzufinden.',
+          localNote:'Alle Daten bleiben lokal auf deinem Gerät im Browser gespeichert. Es gibt keine zentrale Speicherung.',
+
+          f1k:'Kontakt',
+          f1h:'Stammdaten',
+          lblDate:'Datum',
+          lblTime:'Uhrzeit',
+          lblFirstName:'Vorname',
+          lblLastName:'Nachname',
+          lblPhone:'Telefonnummer',
+          lblEmail:'E-Mail',
+          lblCity:'Ort',
+          lblCompany:'Firma / Bezug',
+          lblSource:'Quelle des Kontakts',
+          optPlease:'Bitte wählen',
+          src1:'eigene Liste',
+          src2:'Empfehlung',
+          src3:'Website',
+          src4:'WhatsApp',
+          src5:'Telegram',
+          src6:'Veranstaltung',
+          src7:'Rückruf',
+          src8:'sonstiges',
+
+          f2k:'Gespräch',
+          f2h:'Anruf und Verlauf',
+          lblReason:'Grund des Anrufes',
+          lblGoal:'Ziel des Gesprächs',
+          lblDuration:'Gesprächsdauer',
+          lblMood:'Gesprächsstimmung',
+          lblStatus:'Status',
+          lblFlags:'Sofortmerkmale',
+          lblProtocol:'Freies Gesprächsprotokoll',
+          lblQuestions:'Wichtige Fragen',
+          lblWishes:'Wünsche / Sorgen',
+          lblObservations:'Besondere Beobachtungen',
+          optPlease2:'Bitte wählen',
+          optPlease3:'Bitte wählen',
+          reason1:'Erstkontakt',
+          reason2:'Rückruf',
+          reason3:'Informationsgespräch',
+          reason4:'Nachfassen nach Video',
+          reason5:'Terminvereinbarung',
+          reason6:'Interesse an Club',
+          reason7:'Interesse an Kurs',
+          reason8:'Mentorengespräch',
+          reason9:'Wiedervorlage',
+          mood1:'offen',
+          mood2:'ruhig',
+          mood3:'interessiert',
+          mood4:'skeptisch',
+          mood5:'zurückhaltend',
+          mood6:'ablehnend',
+          status1:'neu',
+          status2:'nicht erreicht',
+          status3:'gesprochen',
+          status4:'interessiert',
+          status5:'skeptisch',
+          status6:'Rückruf offen',
+          status7:'Termin vereinbart',
+          status8:'abgeschlossen',
+          status9:'kein Interesse',
+          flag1:'Gespräch erreicht',
+          flag2:'Mailbox',
+          flag3:'Interesse vorhanden',
+          flag4:'eher skeptisch',
+          flag5:'Rückruf gewünscht',
+          flag6:'Termin vereinbart',
+          flag7:'Video empfohlen',
+          flag8:'Link gesendet',
+          flag9:'QR-Code empfohlen',
+          flag10:'Mitgliedschaft angesprochen',
+
+          f3k:'Nächster Schritt',
+          f3h:'Wiedervorlage und Aktion',
+          lblNextStep:'Nächster Schritt',
+          lblFollowDate:'Wiedervorlage-Datum',
+          lblFollowTime:'Wiedervorlage-Uhrzeit',
+          lblNextFlags:'Aktion markieren',
+          lblActionText:'Konkrete nächste Aktion',
+          optPlease4:'Bitte wählen',
+          step1:'erneut anrufen',
+          step2:'Link senden',
+          step3:'E-Mail senden',
+          step4:'Termin anbieten',
+          step5:'Mentorengespräch vorbereiten',
+          step6:'nächste Woche nachfassen',
+          step7:'abgeschlossen',
+          step8:'kein weiterer Kontakt',
+          next1:'Rückruf nötig',
+          next2:'Info senden',
+          next3:'Termin buchen',
+          next4:'abgeschlossen',
+          btnSave:'Eintrag speichern',
+          btnClear:'Formular leeren',
+          btnPrintCurrent:'PDF für Eintrag',
+
+          guideK:'Gesprächshilfe',
+          guideH:'Telefon-Leitfaden',
+          guideSummary:'Einstieg, Bedarfsfrage und 20-Cent-Frage öffnen',
+          guideP1:'Nutze diesen Block als kurzen Spickzettel beim Telefonieren. Er ist bewusst knapp gehalten.',
+          guide1:'Einstieg: ruhig, freundlich und ohne Druck ins Gespräch kommen.',
+          guide2:'Bedarfsfrage: herausfinden, wo der andere steht, was ihn bewegt und was er lösen möchte.',
+          guide3:'20-Cent-Frage: Wenn ich einen Weg hätte, wie du das lösen kannst, wäre dir das 20 Cent am Tag wert?',
+          guide4:'Reaktion einordnen: neugierig, skeptisch, offen, abwehrend oder vorsichtig.',
+          guide5:'Nächster Schritt: Video, Link, Rückruf oder bewusste Entscheidung ruhig festhalten.',
+
+          listK:'Kontaktliste',
+          listH:'Gespeicherte Telefonkontakte',
+          fltName:'Suche nach Name',
+          fltPhone:'Suche nach Telefonnummer',
+          fltStatus:'Filter nach Status',
+          fltDate:'Filter nach Datum',
+          all:'Alle',
+          status1b:'neu',
+          status2b:'nicht erreicht',
+          status3b:'gesprochen',
+          status4b:'interessiert',
+          status5b:'skeptisch',
+          status6b:'Rückruf offen',
+          status7b:'Termin vereinbart',
+          status8b:'abgeschlossen',
+          status9b:'kein Interesse',
+          fltOpenCallbacks:'nur offene Rückrufe',
+          fltAppointments:'nur Termine',
+          btnResetFilters:'Filter zurücksetzen',
+          btnPrintList:'PDF für Liste',
+          btnPrintWindow:'Druckansicht öffnen',
+          btnDeleteLocal:'Lokalen Speicher löschen',
+          emptyState:'Noch keine Telefonkontakte gespeichert.',
+          th1:'Datum',
+          th2:'Uhrzeit',
+          th3:'Name',
+          th4:'Telefon',
+          th5:'Grund',
+          th6:'Status',
+          th7:'Nächster Schritt',
+          th8:'Wiedervorlage',
+          th9:'Aktionen',
+
+          sideK1:'Übersicht',
+          sideH1:'Was diese Seite verbindet',
+          sideBoxH1:'Der Ablauf',
+          side1a:'Gespräch führen',
+          side1b:'Gespräch dokumentieren',
+          side1c:'Nächsten Schritt sichern',
+          side1d:'Wiedervorlage setzen',
+          side1e:'Kontakt wiederfinden',
+          sideBoxH2:'Statuslogik',
+          ov1:'Grün',
+          ov1t:'interessiert / Termin vereinbart',
+          ov2:'Gelb',
+          ov2t:'skeptisch / Rückruf offen / nicht erreicht',
+          ov3:'Blau',
+          ov3t:'neu / gesprochen / abgeschlossen',
+          ov4:'Rot',
+          ov4t:'kein Interesse',
+          sideBoxH3:'LocalStorage',
+          sideP3:'Alle Daten bleiben lokal im Browser gespeichert. Du behältst die Kontrolle und kannst Einträge jederzeit drucken oder löschen.',
+          sideQuote:'Eine gute Telefon-Akquise besteht nicht nur aus dem Anruf selbst. Sie besteht auch aus dem, was danach sauber festgehalten wird.',
+
+          alertSaved:'Eintrag gespeichert.',
+          alertDeleted:'Eintrag gelöscht.',
+          alertStorageCleared:'Alle lokalen Daten wurden gelöscht.',
+          alertNeedSelection:'Bitte zuerst einen gespeicherten Eintrag auswählen oder speichern.',
+          confirmDelete:'Diesen Eintrag wirklich löschen?',
+          confirmStorageDelete:'Wirklich alle lokal gespeicherten Einträge löschen?',
+          actionView:'ansehen',
+          actionEdit:'bearbeiten',
+          actionDelete:'löschen',
+          actionPdf:'PDF',
+          noValue:'—',
+          printTitleOne:'Telefon-Akquise – Einzelprotokoll',
+          printTitleList:'Telefon-Akquise – Kontaktliste',
+          printMeta:'Druckdatum'
+        },
+        en: {
+          brandTitle:'Phone outreach',
+          eyebrow:'Workspace',
+          heroTitle:'Lead the call, document it, follow up',
+          heroSub:'This page helps you structure phone calls, document them directly and record the next step cleanly.',
+          quick1k:'Storage',
+          quick1v:'Only locally in the browser',
+          quick2k:'Goal',
+          quick2v:'Clear call list with follow-up',
+          quick3k:'Output',
+          quick3v:'Single sheet or list printable',
+          quick4k:'Principle',
+          quick4v:'Structure instead of note chaos',
+
+          s1k:'Capture',
+          s1h:'Document contact and conversation',
+          s1p1:'This page is designed for direct use on the phone. Not as a theory page, but as a practical working interface for everyday use.',
+          s1callout:'The goal is not only to conduct calls, but to document them cleanly right away, record the next step and find contacts again later in a structured way.',
+          localNote:'All data remains stored locally in your browser on your device. There is no central storage.',
+
+          f1k:'Contact',
+          f1h:'Basic data',
+          lblDate:'Date',
+          lblTime:'Time',
+          lblFirstName:'First name',
+          lblLastName:'Last name',
+          lblPhone:'Phone number',
+          lblEmail:'Email',
+          lblCity:'City',
+          lblCompany:'Company / relation',
+          lblSource:'Source of contact',
+          optPlease:'Please choose',
+          src1:'own list',
+          src2:'recommendation',
+          src3:'website',
+          src4:'WhatsApp',
+          src5:'Telegram',
+          src6:'event',
+          src7:'callback',
+          src8:'other',
+
+          f2k:'Conversation',
+          f2h:'Call and progress',
+          lblReason:'Reason for the call',
+          lblGoal:'Goal of the conversation',
+          lblDuration:'Call duration',
+          lblMood:'Conversation mood',
+          lblStatus:'Status',
+          lblFlags:'Immediate markers',
+          lblProtocol:'Free conversation record',
+          lblQuestions:'Important questions',
+          lblWishes:'Wishes / concerns',
+          lblObservations:'Special observations',
+          optPlease2:'Please choose',
+          optPlease3:'Please choose',
+          reason1:'first contact',
+          reason2:'callback',
+          reason3:'information call',
+          reason4:'follow-up after video',
+          reason5:'appointment scheduling',
+          reason6:'interest in club',
+          reason7:'interest in course',
+          reason8:'mentor conversation',
+          reason9:'follow-up file',
+          mood1:'open',
+          mood2:'calm',
+          mood3:'interested',
+          mood4:'skeptical',
+          mood5:'reserved',
+          mood6:'rejecting',
+          status1:'new',
+          status2:'not reached',
+          status3:'spoken',
+          status4:'interested',
+          status5:'skeptical',
+          status6:'callback open',
+          status7:'appointment arranged',
+          status8:'completed',
+          status9:'no interest',
+          flag1:'conversation reached',
+          flag2:'mailbox',
+          flag3:'interest exists',
+          flag4:'rather skeptical',
+          flag5:'callback requested',
+          flag6:'appointment arranged',
+          flag7:'video recommended',
+          flag8:'link sent',
+          flag9:'QR code recommended',
+          flag10:'membership mentioned',
+
+          f3k:'Next step',
+          f3h:'Follow-up and action',
+          lblNextStep:'Next step',
+          lblFollowDate:'Follow-up date',
+          lblFollowTime:'Follow-up time',
+          lblNextFlags:'Mark action',
+          lblActionText:'Concrete next action',
+          optPlease4:'Please choose',
+          step1:'call again',
+          step2:'send link',
+          step3:'send email',
+          step4:'offer appointment',
+          step5:'prepare mentor conversation',
+          step6:'follow up next week',
+          step7:'completed',
+          step8:'no further contact',
+          next1:'callback needed',
+          next2:'send info',
+          next3:'book appointment',
+          next4:'completed',
+          btnSave:'Save entry',
+          btnClear:'Clear form',
+          btnPrintCurrent:'PDF for entry',
+
+          guideK:'Conversation help',
+          guideH:'Phone guide',
+          guideSummary:'Open intro, needs question and 20-cent question',
+          guideP1:'Use this block as a short cheat sheet while calling. It is intentionally kept concise.',
+          guide1:'Intro: enter the conversation calmly, friendly and without pressure.',
+          guide2:'Needs question: find out where the other person stands, what moves them and what they want to solve.',
+          guide3:'20-cent question: If I had a way to solve this for you, would it be worth 20 cents a day to you?',
+          guide4:'Classify the reaction: curious, skeptical, open, defensive or cautious.',
+          guide5:'Next step: record video, link, callback or conscious decision calmly.',
+
+          listK:'Contact list',
+          listH:'Saved phone contacts',
+          fltName:'Search by name',
+          fltPhone:'Search by phone number',
+          fltStatus:'Filter by status',
+          fltDate:'Filter by date',
+          all:'All',
+          status1b:'new',
+          status2b:'not reached',
+          status3b:'spoken',
+          status4b:'interested',
+          status5b:'skeptical',
+          status6b:'callback open',
+          status7b:'appointment arranged',
+          status8b:'completed',
+          status9b:'no interest',
+          fltOpenCallbacks:'only open callbacks',
+          fltAppointments:'only appointments',
+          btnResetFilters:'Reset filters',
+          btnPrintList:'PDF for list',
+          btnPrintWindow:'Open print view',
+          btnDeleteLocal:'Delete local storage',
+          emptyState:'No phone contacts saved yet.',
+          th1:'Date',
+          th2:'Time',
+          th3:'Name',
+          th4:'Phone',
+          th5:'Reason',
+          th6:'Status',
+          th7:'Next step',
+          th8:'Follow-up',
+          th9:'Actions',
+
+          sideK1:'Overview',
+          sideH1:'What this page connects',
+          sideBoxH1:'The flow',
+          side1a:'Lead the conversation',
+          side1b:'Document the conversation',
+          side1c:'Secure the next step',
+          side1d:'Set follow-up',
+          side1e:'Find contact again',
+          sideBoxH2:'Status logic',
+          ov1:'Green',
+          ov1t:'interested / appointment arranged',
+          ov2:'Yellow',
+          ov2t:'skeptical / callback open / not reached',
+          ov3:'Blue',
+          ov3t:'new / spoken / completed',
+          ov4:'Red',
+          ov4t:'no interest',
+          sideBoxH3:'LocalStorage',
+          sideP3:'All data remains stored locally in the browser. You stay in control and can print or delete entries anytime.',
+          sideQuote:'Good phone outreach does not consist only of the call itself. It also consists of what is cleanly recorded afterwards.',
+
+          alertSaved:'Entry saved.',
+          alertDeleted:'Entry deleted.',
+          alertStorageCleared:'All local data has been deleted.',
+          alertNeedSelection:'Please first select or save a stored entry.',
+          confirmDelete:'Really delete this entry?',
+          confirmStorageDelete:'Really delete all locally stored entries?',
+          actionView:'view',
+          actionEdit:'edit',
+          actionDelete:'delete',
+          actionPdf:'PDF',
+          noValue:'—',
+          printTitleOne:'Phone outreach – single record',
+          printTitleList:'Phone outreach – contact list',
+          printMeta:'Print date'
+        }
+      };
+
+      const els = {
+        callForm: document.getElementById('callForm'),
+        editId: document.getElementById('editId'),
+
+        callDate: document.getElementById('callDate'),
+        callTime: document.getElementById('callTime'),
+        firstName: document.getElementById('firstName'),
+        lastName: document.getElementById('lastName'),
+        phone: document.getElementById('phone'),
+        email: document.getElementById('email'),
+        city: document.getElementById('city'),
+        company: document.getElementById('company'),
+        source: document.getElementById('source'),
+
+        callReason: document.getElementById('callReason'),
+        goal: document.getElementById('goal'),
+        duration: document.getElementById('duration'),
+        mood: document.getElementById('mood'),
+        status: document.getElementById('status'),
+
+        reached: document.getElementById('reached'),
+        mailbox: document.getElementById('mailbox'),
+        interest: document.getElementById('interest'),
+        skeptical: document.getElementById('skeptical'),
+        callback: document.getElementById('callback'),
+        appointment: document.getElementById('appointment'),
+        videoRecommended: document.getElementById('videoRecommended'),
+        linkSent: document.getElementById('linkSent'),
+        qrRecommended: document.getElementById('qrRecommended'),
+        membershipMentioned: document.getElementById('membershipMentioned'),
+
+        protocol: document.getElementById('protocol'),
+        questions: document.getElementById('questions'),
+        wishes: document.getElementById('wishes'),
+        observations: document.getElementById('observations'),
+
+        nextStep: document.getElementById('nextStep'),
+        followDate: document.getElementById('followDate'),
+        followTime: document.getElementById('followTime'),
+        needCallback: document.getElementById('needCallback'),
+        needInfo: document.getElementById('needInfo'),
+        needBook: document.getElementById('needBook'),
+        done: document.getElementById('done'),
+        nextActionText: document.getElementById('nextActionText'),
+
+        clearBtn: document.getElementById('clearBtn'),
+        printCurrentBtn: document.getElementById('printCurrentBtn'),
+        printListBtn: document.getElementById('printListBtn'),
+        printWindowBtn: document.getElementById('printWindowBtn'),
+        clearStorageBtn: document.getElementById('clearStorageBtn'),
+        resetFiltersBtn: document.getElementById('resetFiltersBtn'),
+
+        searchName: document.getElementById('searchName'),
+        searchPhone: document.getElementById('searchPhone'),
+        filterStatus: document.getElementById('filterStatus'),
+        filterDate: document.getElementById('filterDate'),
+        onlyCallbacks: document.getElementById('onlyCallbacks'),
+        onlyAppointments: document.getElementById('onlyAppointments'),
+
+        tableBody: document.getElementById('contactTableBody'),
+        tableWrap: document.getElementById('tableWrap'),
+        emptyState: document.getElementById('emptyState'),
+        printSheet: document.getElementById('printSheet'),
+        printTitle: document.getElementById('printTitle'),
+        printContent: document.getElementById('printContent'),
+        langBtns: document.querySelectorAll('.lang-btn')
+      };
+
+      let currentLang = localStorage.getItem('fsa_lang_liquiditybooster_telefon_akquise') || 'de';
+      let contacts = loadContacts();
+
+      function t(key){
+        return (translations[currentLang] && translations[currentLang][key]) || key;
+      }
+
+      function loadContacts(){
+        try{
+          const raw = localStorage.getItem(STORAGE_KEY);
+          const parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed) ? parsed : [];
+        }catch(e){
+          return [];
+        }
+      }
+
+      function saveContacts(){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(contacts));
+      }
+
+      function nowDate(){
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth()+1).padStart(2,'0');
+        const day = String(d.getDate()).padStart(2,'0');
+        return `${y}-${m}-${day}`;
+      }
+
+      function nowTime(){
+        const d = new Date();
+        const h = String(d.getHours()).padStart(2,'0');
+        const m = String(d.getMinutes()).padStart(2,'0');
+        return `${h}:${m}`;
+      }
+
+      function escapeHtml(value){
+        return String(value || '')
+          .replace(/&/g,'&amp;')
+          .replace(/</g,'&lt;')
+          .replace(/>/g,'&gt;')
+          .replace(/"/g,'&quot;')
+          .replace(/'/g,'&#39;');
+      }
+
+      function fullName(entry){
+        return [entry.firstName, entry.lastName].filter(Boolean).join(' ').trim() || t('noValue');
+      }
+
+      function normalizeStatus(status){
+        return String(status || '')
+          .toLowerCase()
+          .replace(/\s+/g,'-')
+          .replace(/ä/g,'ae')
+          .replace(/ö/g,'oe')
+          .replace(/ü/g,'ue');
+      }
+
+      function getFormData(){
+        return {
+          id: els.editId.value || `id_${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
+          callDate: els.callDate.value,
+          callTime: els.callTime.value,
+          firstName: els.firstName.value.trim(),
+          lastName: els.lastName.value.trim(),
+          phone: els.phone.value.trim(),
+          email: els.email.value.trim(),
+          city: els.city.value.trim(),
+          company: els.company.value.trim(),
+          source: els.source.value,
+
+          callReason: els.callReason.value,
+          goal: els.goal.value.trim(),
+          duration: els.duration.value.trim(),
+          mood: els.mood.value,
+          status: els.status.value,
+
+          reached: els.reached.checked,
+          mailbox: els.mailbox.checked,
+          interest: els.interest.checked,
+          skeptical: els.skeptical.checked,
+          callback: els.callback.checked,
+          appointment: els.appointment.checked,
+          videoRecommended: els.videoRecommended.checked,
+          linkSent: els.linkSent.checked,
+          qrRecommended: els.qrRecommended.checked,
+          membershipMentioned: els.membershipMentioned.checked,
+
+          protocol: els.protocol.value.trim(),
+          questions: els.questions.value.trim(),
+          wishes: els.wishes.value.trim(),
+          observations: els.observations.value.trim(),
+
+          nextStep: els.nextStep.value,
+          followDate: els.followDate.value,
+          followTime: els.followTime.value,
+          needCallback: els.needCallback.checked,
+          needInfo: els.needInfo.checked,
+          needBook: els.needBook.checked,
+          done: els.done.checked,
+          nextActionText: els.nextActionText.value.trim(),
+
+          updatedAt: new Date().toISOString()
+        };
+      }
+
+      function fillForm(entry){
+        els.editId.value = entry.id || '';
+        els.callDate.value = entry.callDate || '';
+        els.callTime.value = entry.callTime || '';
+        els.firstName.value = entry.firstName || '';
+        els.lastName.value = entry.lastName || '';
+        els.phone.value = entry.phone || '';
+        els.email.value = entry.email || '';
+        els.city.value = entry.city || '';
+        els.company.value = entry.company || '';
+        els.source.value = entry.source || '';
+
+        els.callReason.value = entry.callReason || '';
+        els.goal.value = entry.goal || '';
+        els.duration.value = entry.duration || '';
+        els.mood.value = entry.mood || '';
+        els.status.value = entry.status || 'neu';
+
+        els.reached.checked = !!entry.reached;
+        els.mailbox.checked = !!entry.mailbox;
+        els.interest.checked = !!entry.interest;
+        els.skeptical.checked = !!entry.skeptical;
+        els.callback.checked = !!entry.callback;
+        els.appointment.checked = !!entry.appointment;
+        els.videoRecommended.checked = !!entry.videoRecommended;
+        els.linkSent.checked = !!entry.linkSent;
+        els.qrRecommended.checked = !!entry.qrRecommended;
+        els.membershipMentioned.checked = !!entry.membershipMentioned;
+
+        els.protocol.value = entry.protocol || '';
+        els.questions.value = entry.questions || '';
+        els.wishes.value = entry.wishes || '';
+        els.observations.value = entry.observations || '';
+
+        els.nextStep.value = entry.nextStep || '';
+        els.followDate.value = entry.followDate || '';
+        els.followTime.value = entry.followTime || '';
+        els.needCallback.checked = !!entry.needCallback;
+        els.needInfo.checked = !!entry.needInfo;
+        els.needBook.checked = !!entry.needBook;
+        els.done.checked = !!entry.done;
+        els.nextActionText.value = entry.nextActionText || '';
+
+        window.scrollTo({top:0, behavior:'smooth'});
+      }
+
+      function clearForm(resetDefaults = true){
+        els.callForm.reset();
+        els.editId.value = '';
+        if(resetDefaults){
+          els.callDate.value = nowDate();
+          els.callTime.value = nowTime();
+          els.status.value = 'neu';
+        }
+      }
+
+      function filteredContacts(){
+        const name = els.searchName.value.trim().toLowerCase();
+        const phone = els.searchPhone.value.trim().toLowerCase();
+        const status = els.filterStatus.value;
+        const date = els.filterDate.value;
+        const callbacksOnly = els.onlyCallbacks.checked;
+        const appointmentsOnly = els.onlyAppointments.checked;
+
+        return contacts.filter(entry => {
+          const full = `${entry.firstName || ''} ${entry.lastName || ''}`.toLowerCase();
+          const matchesName = !name || full.includes(name);
+          const matchesPhone = !phone || String(entry.phone || '').toLowerCase().includes(phone);
+          const matchesStatus = !status || entry.status === status;
+          const matchesDate = !date || entry.callDate === date;
+          const matchesCallback = !callbacksOnly || entry.needCallback || entry.callback || entry.status === 'Rückruf offen';
+          const matchesAppointment = !appointmentsOnly || entry.needBook || entry.appointment || entry.status === 'Termin vereinbart';
+          return matchesName && matchesPhone && matchesStatus && matchesDate && matchesCallback && matchesAppointment;
+        }).sort((a,b) => {
+          const aKey = `${a.callDate || ''} ${a.callTime || ''}`;
+          const bKey = `${b.callDate || ''} ${b.callTime || ''}`;
+          return bKey.localeCompare(aKey);
+        });
+      }
+
+      function renderTable(){
+        const list = filteredContacts();
+        els.tableBody.innerHTML = '';
+
+        if(!list.length){
+          els.emptyState.hidden = false;
+          els.tableWrap.hidden = true;
+          return;
+        }
+
+        els.emptyState.hidden = true;
+        els.tableWrap.hidden = false;
+
+        list.forEach(entry => {
+          const tr = document.createElement('tr');
+          const follow = [entry.followDate || '', entry.followTime || ''].filter(Boolean).join(' ');
+          tr.innerHTML = `
+            <td>${escapeHtml(entry.callDate || t('noValue'))}</td>
+            <td>${escapeHtml(entry.callTime || t('noValue'))}</td>
+            <td><strong>${escapeHtml(fullName(entry))}</strong><br><span class="muted">${escapeHtml(entry.company || '')}</span></td>
+            <td>${escapeHtml(entry.phone || t('noValue'))}</td>
+            <td>${escapeHtml(entry.callReason || t('noValue'))}</td>
+            <td><span class="status-badge st-${normalizeStatus(entry.status)}">${escapeHtml(entry.status || t('noValue'))}</span></td>
+            <td>${escapeHtml(entry.nextStep || t('noValue'))}</td>
+            <td>${escapeHtml(follow || t('noValue'))}</td>
+            <td>
+              <div class="row-actions">
+                <button class="row-btn" type="button" data-action="view" data-id="${entry.id}">${escapeHtml(t('actionView'))}</button>
+                <button class="row-btn" type="button" data-action="edit" data-id="${entry.id}">${escapeHtml(t('actionEdit'))}</button>
+                <button class="row-btn" type="button" data-action="delete" data-id="${entry.id}">${escapeHtml(t('actionDelete'))}</button>
+                <button class="row-btn" type="button" data-action="pdf" data-id="${entry.id}">${escapeHtml(t('actionPdf'))}</button>
+              </div>
+            </td>
+          `;
+          els.tableBody.appendChild(tr);
+        });
+      }
+
+      function buildSinglePrint(entry){
+        const boolText = v => v ? 'Ja' : 'Nein';
+        const rows = [
+          ['Datum', entry.callDate],
+          ['Uhrzeit', entry.callTime],
+          ['Vorname', entry.firstName],
+          ['Nachname', entry.lastName],
+          ['Telefonnummer', entry.phone],
+          ['E-Mail', entry.email],
+          ['Ort', entry.city],
+          ['Firma / Bezug', entry.company],
+          ['Quelle des Kontakts', entry.source],
+          ['Grund des Anrufes', entry.callReason],
+          ['Ziel des Gesprächs', entry.goal],
+          ['Gesprächsdauer', entry.duration],
+          ['Gesprächsstimmung', entry.mood],
+          ['Status', entry.status],
+          ['Gespräch erreicht', boolText(entry.reached)],
+          ['Mailbox', boolText(entry.mailbox)],
+          ['Interesse vorhanden', boolText(entry.interest)],
+          ['eher skeptisch', boolText(entry.skeptical)],
+          ['Rückruf gewünscht', boolText(entry.callback)],
+          ['Termin vereinbart', boolText(entry.appointment)],
+          ['Video empfohlen', boolText(entry.videoRecommended)],
+          ['Link gesendet', boolText(entry.linkSent)],
+          ['QR-Code empfohlen', boolText(entry.qrRecommended)],
+          ['Mitgliedschaft angesprochen', boolText(entry.membershipMentioned)],
+          ['Nächster Schritt', entry.nextStep],
+          ['Wiedervorlage-Datum', entry.followDate],
+          ['Wiedervorlage-Uhrzeit', entry.followTime],
+          ['Rückruf nötig', boolText(entry.needCallback)],
+          ['Info senden', boolText(entry.needInfo)],
+          ['Termin buchen', boolText(entry.needBook)],
+          ['abgeschlossen', boolText(entry.done)],
+          ['Konkrete nächste Aktion', entry.nextActionText],
+          ['Freies Gesprächsprotokoll', entry.protocol],
+          ['Wichtige Fragen', entry.questions],
+          ['Wünsche / Sorgen', entry.wishes],
+          ['Besondere Beobachtungen', entry.observations]
+        ];
+
+        return `
+          <h1>${escapeHtml(t('printTitleOne'))}</h1>
+          <p><strong>${escapeHtml(t('printMeta'))}:</strong> ${escapeHtml(new Date().toLocaleString(currentLang === 'de' ? 'de-DE' : 'en-GB'))}</p>
+          <table style="width:100%;border-collapse:collapse;margin-top:16px">
+            <tbody>
+              ${rows.map(([label, value]) => `
+                <tr>
+                  <th style="width:32%;padding:10px;border:1px solid #ddd;text-align:left;background:#f5f5f5">${escapeHtml(label)}</th>
+                  <td style="padding:10px;border:1px solid #ddd">${escapeHtml(value || t('noValue'))}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+
+      function buildListPrint(list){
+        return `
+          <h1>${escapeHtml(t('printTitleList'))}</h1>
+          <p><strong>${escapeHtml(t('printMeta'))}:</strong> ${escapeHtml(new Date().toLocaleString(currentLang === 'de' ? 'de-DE' : 'en-GB'))}</p>
+          <table style="width:100%;border-collapse:collapse;margin-top:16px">
+            <thead>
+              <tr>
+                <th style="padding:10px;border:1px solid #ddd;background:#f5f5f5">${escapeHtml(t('th1'))}</th>
+                <th style="padding:10px;border:1px solid #ddd;background:#f5f5f5">${escapeHtml(t('th2'))}</th>
+                <th style="padding:10px;border:1px solid #ddd;background:#f5f5f5">${escapeHtml(t('th3'))}</th>
+                <th style="padding:10px;border:1px solid #ddd;background:#f5f5f5">${escapeHtml(t('th4'))}</th>
+                <th style="padding:10px;border:1px solid #ddd;background:#f5f5f5">${escapeHtml(t('th5'))}</th>
+                <th style="padding:10px;border:1px solid #ddd;background:#f5f5f5">${escapeHtml(t('th6'))}</th>
+                <th style="padding:10px;border:1px solid #ddd;background:#f5f5f5">${escapeHtml(t('th7'))}</th>
+                <th style="padding:10px;border:1px solid #ddd;background:#f5f5f5">${escapeHtml(t('th8'))}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${list.map(entry => `
+                <tr>
+                  <td style="padding:10px;border:1px solid #ddd">${escapeHtml(entry.callDate || t('noValue'))}</td>
+                  <td style="padding:10px;border:1px solid #ddd">${escapeHtml(entry.callTime || t('noValue'))}</td>
+                  <td style="padding:10px;border:1px solid #ddd">${escapeHtml(fullName(entry))}</td>
+                  <td style="padding:10px;border:1px solid #ddd">${escapeHtml(entry.phone || t('noValue'))}</td>
+                  <td style="padding:10px;border:1px solid #ddd">${escapeHtml(entry.callReason || t('noValue'))}</td>
+                  <td style="padding:10px;border:1px solid #ddd">${escapeHtml(entry.status || t('noValue'))}</td>
+                  <td style="padding:10px;border:1px solid #ddd">${escapeHtml(entry.nextStep || t('noValue'))}</td>
+                  <td style="padding:10px;border:1px solid #ddd">${escapeHtml(([entry.followDate, entry.followTime].filter(Boolean).join(' ')) || t('noValue'))}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+
+      function printHtml(html, title){
+        els.printTitle.textContent = title;
+        els.printContent.innerHTML = html;
+        window.print();
+      }
+
+      function handleRowAction(action, id){
+        const entry = contacts.find(item => item.id === id);
+        if(!entry) return;
+
+        if(action === 'view' || action === 'edit'){
+          fillForm(entry);
+          return;
+        }
+
+        if(action === 'delete'){
+          if(!confirm(t('confirmDelete'))) return;
+          contacts = contacts.filter(item => item.id !== id);
+          saveContacts();
+          renderTable();
+          alert(t('alertDeleted'));
+          return;
+        }
+
+        if(action === 'pdf'){
+          printHtml(buildSinglePrint(entry), t('printTitleOne'));
+        }
+      }
+
+      function setLang(lang){
+        currentLang = lang === 'en' ? 'en' : 'de';
+        document.documentElement.lang = currentLang;
+        localStorage.setItem('fsa_lang_liquiditybooster_telefon_akquise', currentLang);
+
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.getAttribute('data-i18n');
+          if(translations[currentLang] && translations[currentLang][key]){
+            el.textContent = translations[currentLang][key];
+          }
+        });
+
+        els.langBtns.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.lang === currentLang);
+        });
+
+        renderTable();
+      }
+
+      els.langBtns.forEach(btn => {
+        btn.addEventListener('click', () => setLang(btn.dataset.lang));
+      });
+
+      els.callForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const entry = getFormData();
+        const index = contacts.findIndex(item => item.id === entry.id);
+
+        if(index >= 0){
+          contacts[index] = entry;
+        }else{
+          contacts.push(entry);
+        }
+
+        saveContacts();
+        renderTable();
+        clearForm();
+        alert(t('alertSaved'));
+      });
+
+      els.clearBtn.addEventListener('click', () => clearForm());
+
+      els.printCurrentBtn.addEventListener('click', () => {
+        const currentId = els.editId.value;
+        if(!currentId){
+          alert(t('alertNeedSelection'));
+          return;
+        }
+        const entry = contacts.find(item => item.id === currentId);
+        if(!entry){
+          alert(t('alertNeedSelection'));
+          return;
+        }
+        printHtml(buildSinglePrint(entry), t('printTitleOne'));
+      });
+
+      els.printListBtn.addEventListener('click', () => {
+        const list = filteredContacts();
+        printHtml(buildListPrint(list), t('printTitleList'));
+      });
+
+      els.printWindowBtn.addEventListener('click', () => window.print());
+
+      els.clearStorageBtn.addEventListener('click', () => {
+        if(!confirm(t('confirmStorageDelete'))) return;
+        contacts = [];
+        saveContacts();
+        clearForm();
+        renderTable();
+        alert(t('alertStorageCleared'));
+      });
+
+      els.resetFiltersBtn.addEventListener('click', () => {
+        els.searchName.value = '';
+        els.searchPhone.value = '';
+        els.filterStatus.value = '';
+        els.filterDate.value = '';
+        els.onlyCallbacks.checked = false;
+        els.onlyAppointments.checked = false;
+        renderTable();
+      });
+
+      [els.searchName, els.searchPhone, els.filterStatus, els.filterDate, els.onlyCallbacks, els.onlyAppointments]
+        .forEach(el => el.addEventListener('input', renderTable));
+
+      els.tableBody.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action]');
+        if(!btn) return;
+        handleRowAction(btn.dataset.action, btn.dataset.id);
+      });
+
+      clearForm(true);
+      setLang(currentLang);
+    })();
+  </script>
+</body>
+</html>
