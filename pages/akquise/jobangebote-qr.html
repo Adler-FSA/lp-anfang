@@ -2,7 +2,7 @@
 <!--
   LiquidityBooster • Jobangebote QR-Seite
   GitHub-Pfad: lp-anfang/pages/akquise/jobangebote-qr.html
-  Commit-Message: akquise/jobangebote-qr – QR Werkstatt mit Generator und austauschbarem QR eingebaut
+  Commit-Message: akquise/jobangebote-qr – QR Werkstatt einklappbar gemacht
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/akquise/jobangebote-qr.html?nocache=__TS__
 -->
 <html lang="de">
@@ -146,9 +146,31 @@
       color:var(--teal);
     }
 
-    /* QR-Werkstatt */
-    .qr-panel{
+    .tool-toggle-wrap{
       margin-top:14px;
+      text-align:center;
+    }
+
+    .tool-toggle{
+      appearance:none;
+      border:1px solid #000;
+      background:#fff;
+      color:#000;
+      padding:10px 14px;
+      border-radius:10px;
+      font-weight:800;
+      font-size:13px;
+      cursor:pointer;
+      width:100%;
+      max-width:320px;
+    }
+
+    .tool-toggle:active{
+      transform:translateY(1px);
+    }
+
+    .tool-panel{
+      margin-top:12px;
       border:1px solid var(--line);
       border-radius:16px;
       background:#fff;
@@ -156,7 +178,11 @@
       padding:12px;
     }
 
-    .qr-panel h2{
+    .tool-panel[hidden]{
+      display:none !important;
+    }
+
+    .tool-panel h2{
       margin:0 0 10px;
       font-size:14px;
       font-weight:800;
@@ -292,6 +318,10 @@
         width:min(100%, 360px);
         min-height:360px;
       }
+
+      .tool-toggle{
+        max-width:360px;
+      }
     }
   </style>
 </head>
@@ -330,7 +360,13 @@
         <strong>Einfach mit der Smartphone-Kamera scannen.</strong>
       </p>
 
-      <section class="qr-panel" aria-label="QR Werkstatt">
+      <div class="tool-toggle-wrap">
+        <button class="tool-toggle" id="btnToggleWorkshop" type="button" aria-expanded="false" aria-controls="qrWorkshopPanel">
+          QR-Werkstatt öffnen
+        </button>
+      </div>
+
+      <section class="tool-panel" id="qrWorkshopPanel" aria-label="QR Werkstatt" hidden>
         <h2>QR-Werkstatt (Webadresse → QR → übernehmen)</h2>
 
         <div class="field">
@@ -907,6 +943,7 @@
 
       const LS_QR_IMPORTED = "jobangebote_qr_imported_png_v1";
       const LS_QR_WEBSITE = "jobangebote_qr_website_v1";
+      const LS_WORKSHOP_OPEN = "jobangebote_qr_workshop_open_v1";
 
       const els = {
         qrBox: document.getElementById("qrBox"),
@@ -917,7 +954,10 @@
         btnMakeQr: document.getElementById("btnMakeQr"),
         btnImportQr: document.getElementById("btnImportQr"),
         btnClearQr: document.getElementById("btnClearQr"),
-        qrStatusLine: document.getElementById("qrStatusLine")
+        qrStatusLine: document.getElementById("qrStatusLine"),
+
+        btnToggleWorkshop: document.getElementById("btnToggleWorkshop"),
+        qrWorkshopPanel: document.getElementById("qrWorkshopPanel")
       };
 
       function safe(v){
@@ -1022,11 +1062,20 @@
         setQrStatus("");
       }
 
+      function setWorkshopOpen(isOpen){
+        els.qrWorkshopPanel.hidden = !isOpen;
+        els.btnToggleWorkshop.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        els.btnToggleWorkshop.textContent = isOpen ? "QR-Werkstatt schließen" : "QR-Werkstatt öffnen";
+        localStorage.setItem(LS_WORKSHOP_OPEN, isOpen ? "1" : "0");
+      }
+
       function loadStoredQr(){
         const storedUrl = localStorage.getItem(LS_QR_WEBSITE) || "";
         const storedPng = localStorage.getItem(LS_QR_IMPORTED) || "";
+        const workshopOpen = localStorage.getItem(LS_WORKSHOP_OPEN) === "1";
 
         els.qrWebsite.value = storedUrl;
+        setWorkshopOpen(workshopOpen);
 
         if(storedPng){
           els.qrOnPage.innerHTML = '<img class="qr" alt="QR-Code zu unseren Jobangeboten" src="' + storedPng + '">';
@@ -1057,6 +1106,11 @@
 
       els.btnClearQr.addEventListener("click", function(){
         clearQr();
+      });
+
+      els.btnToggleWorkshop.addEventListener("click", function(){
+        const isOpen = els.qrWorkshopPanel.hidden;
+        setWorkshopOpen(isOpen);
       });
 
       loadStoredQr();
