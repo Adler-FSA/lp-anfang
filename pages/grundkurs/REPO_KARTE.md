@@ -990,6 +990,8 @@
     │   │   ├── index.html
     │   │   ├── pyramide.html
     │   │   └── treppe.html
+    │   ├── recht/
+    │   │   └── gwg-meldeverordnung-einfach-erklaert.html
     │   ├── schnellstart/
     │   │   ├── glossar.html
     │   │   ├── index.html
@@ -1212,4 +1214,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.03.2026, 09:24)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.03.2026, 10:19)_
