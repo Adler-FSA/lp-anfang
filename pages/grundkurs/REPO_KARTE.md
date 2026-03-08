@@ -236,6 +236,7 @@
     │   │   ├── kick-of-02.jpeg
     │   │   ├── michael-rau.jpeg
     │   │   ├── most innovative web3 project.jpeg
+    │   │   ├── qr-code.jpg
     │   │   ├── siegel.png
     │   │   ├── so-kaufst-du-ito-video06.jpeg
     │   │   ├── vertriebshandbuch-cover-index.jpeg
@@ -1207,4 +1208,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.03.2026, 05:39)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.03.2026, 06:35)_
