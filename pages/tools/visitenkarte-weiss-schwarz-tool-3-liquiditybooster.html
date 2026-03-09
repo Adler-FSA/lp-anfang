@@ -8,7 +8,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Visitenkarte – Weiß/Schwarz Generator</title>
-  <meta name="description" content="Visitenkarte Generator: Eingabefelder, QR-Werkstatt, Vorschau, Druckvorlage (weiß/schwarz), DE/EN, LocalStorage." />
+  <meta name="description" content="Visitenkarte Generator: Eingabefelder, QR-Werkstatt, Vorschau, Druckvorlage Vorderseite/Rückseite (weiß/schwarz), DE/EN, LocalStorage." />
   <meta name="robots" content="noindex,nofollow" />
 
   <style>
@@ -21,13 +21,13 @@
 
       --card-w:85mm;
       --card-h:55mm;
-      --card-pad:4.5mm;
+      --card-pad:4.6mm;
       --radius:2mm;
 
-      /* Tool 2: Brand Logo (lokal) */
       --brand-logo: "/lp-anfang/library/logos/liquiditybooster-logo.png";
-      --brand-logo-h: 7.8mm;   /* Höhe des Logos auf der Karte */
-      --brand-max-w: 30mm;     /* max Breite, damit es nicht in QR/Content läuft */
+      --brand-logo-h-front: 6.4mm;
+      --brand-logo-h-back: 8.2mm;
+      --brand-max-w: 34mm;
     }
 
     html,body{
@@ -109,6 +109,30 @@
       padding:12px;
       border:1px dashed #000;
       border-radius:12px;
+      width:100%;
+    }
+
+    .duoCards{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, max-content));
+      gap:14px;
+      align-items:start;
+      justify-content:start;
+    }
+
+    .cardBlock{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:flex-start;
+    }
+
+    .cardLabel{
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.3px;
+      color:var(--muted);
+      text-transform:uppercase;
     }
 
     .card{
@@ -116,7 +140,7 @@
       height:var(--card-h);
       border:1px solid #000;
       border-radius:var(--radius);
-      padding:4.2mm;
+      padding:var(--card-pad);
       box-sizing:border-box;
       background:#fff;
       color:#000;
@@ -124,73 +148,72 @@
       overflow:hidden;
     }
 
-    .cardGrid{
-      display:grid;
-      grid-template-columns: 1fr 20mm;
-      gap:3mm;
-      height:100%;
-    }
-
-    .cardMain{
-      min-width:0;
-      display:flex;
-      flex-direction:column;
-    }
-
-    .cardSide{
-      min-width:0;
+    /* Vorderseite */
+    .cardFront{
       display:flex;
       flex-direction:column;
       justify-content:space-between;
-      align-items:flex-end;
-      border-left:1px solid #000;
-      padding-left:2.4mm;
     }
 
-    /* Tool 2: Brand Logo statt Text */
-    .clubMark{
-      position:static;
-      line-height:1;
-      white-space:nowrap;
+    .frontTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:8mm;
+      min-height:8mm;
+    }
+
+    .clubMarkFront{
       display:flex;
       align-items:flex-start;
       justify-content:flex-end;
-      gap:0;
       width:100%;
-      max-width:none;
+      max-width:var(--brand-max-w);
+      margin-left:auto;
     }
-    .clubMark img{
-      height:5.8mm;
+
+    .clubMarkFront img{
+      height:var(--brand-logo-h-front);
       width:auto;
       max-width:100%;
       display:block;
       object-fit:contain;
       object-position:right top;
     }
-    .clubMark .brandFallback{
+
+    .clubMarkFront .brandFallback{
       display:none;
       font-weight:900;
-      font-size:8.6pt;
-      letter-spacing:.15px;
+      font-size:8.8pt;
+      letter-spacing:.12px;
       color:#000;
       text-align:right;
     }
-    .clubMark.isFallback img{ display:none; }
-    .clubMark.isFallback .brandFallback{ display:block; }
+
+    .clubMarkFront.isFallback img{ display:none; }
+    .clubMarkFront.isFallback .brandFallback{ display:block; }
+
+    .frontMain{
+      margin-top:1.2mm;
+      display:flex;
+      flex-direction:column;
+      flex:1;
+    }
 
     .cName{
       font-weight:900;
-      font-size:13pt;
+      font-size:13.2pt;
       line-height:1.02;
-      letter-spacing:.1px;
+      letter-spacing:.12px;
       margin:0;
       word-break:break-word;
       max-width:100%;
     }
-    .cRole{
-      margin:1.7mm 0 0;
+
+    .cStreet{
+      margin:2.1mm 0 0;
       font-weight:700;
-      font-size:9.2pt;
+      font-size:9.5pt;
       line-height:1.18;
       color:#000;
       word-break:break-word;
@@ -200,17 +223,17 @@
     .cLine{
       height:0;
       border-top:1px solid #000;
-      margin:3mm 0 2.7mm;
+      margin:3.1mm 0 2.7mm;
       opacity:1;
       width:100%;
     }
 
     .cInfo{
       display:grid;
-      grid-template-columns: 1fr;
-      gap:1.05mm;
-      font-size:8.9pt;
-      line-height:1.14;
+      grid-template-columns:1fr;
+      gap:1.2mm;
+      font-size:9pt;
+      line-height:1.16;
       color:#000;
       word-break:break-word;
       max-width:100%;
@@ -218,25 +241,84 @@
 
     .mono{ font-variant-numeric: tabular-nums; font-feature-settings:"tnum" 1; }
     .empty{ opacity:.35; font-style:italic; }
-    .footerNote{ font-size:12px; color:var(--muted); }
 
-    /* QR auf Karte */
-    .qrBox{
-      position:static;
-      width:18mm;
-      height:18mm;
+    /* Rückseite */
+    .cardBack{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:space-between;
+      text-align:center;
+    }
+
+    .clubMarkBack{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:10mm;
+    }
+
+    .clubMarkBack img{
+      height:var(--brand-logo-h-back);
+      width:auto;
+      max-width:44mm;
+      display:block;
+      object-fit:contain;
+    }
+
+    .clubMarkBack .brandFallback{
+      display:none;
+      font-weight:900;
+      font-size:10pt;
+      letter-spacing:.14px;
+      color:#000;
+      text-align:center;
+    }
+
+    .clubMarkBack.isFallback img{ display:none; }
+    .clubMarkBack.isFallback .brandFallback{ display:block; }
+
+    .backCenter{
+      flex:1;
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:2mm 0;
+    }
+
+    .qrBackBox{
+      width:28mm;
+      height:28mm;
       border:1px solid #000;
       box-sizing:border-box;
       display:flex;
       align-items:center;
       justify-content:center;
       background:#fff;
-      padding:1.2mm;
+      padding:1.4mm;
       overflow:hidden;
-      margin-top:auto;
     }
-    .qrBox.isEmpty{ opacity:.12; }
-    .qrBox img{ width:100%; height:100%; display:block; image-rendering:pixelated; }
+
+    .qrBackBox.isEmpty{ opacity:.12; }
+    .qrBackBox img{
+      width:100%;
+      height:100%;
+      display:block;
+      image-rendering:pixelated;
+    }
+
+    .backNote{
+      width:100%;
+      font-size:8.5pt;
+      line-height:1.15;
+      color:#000;
+      text-align:center;
+      min-height:4mm;
+    }
+
+    .footerNote{ font-size:12px; color:var(--muted); }
 
     /* QR Werkstatt */
     .qrWorkshopBox{
@@ -266,6 +348,10 @@
     @media (max-width: 980px){
       .grid{ grid-template-columns: 1fr; }
       .cardSheet{ width:100%; }
+      .duoCards{
+        grid-template-columns:1fr;
+        justify-content:start;
+      }
     }
 
     @media print{
@@ -276,7 +362,19 @@
       .grid{ display:block; }
       .panel{ border:none; padding:0; }
       .cardSheet{ border:none; padding:0; border-radius:0; }
-      .card{ margin:0 auto; }
+      .duoCards{
+        display:block;
+      }
+      .cardBlock{
+        display:block;
+        margin:0 0 8mm 0;
+      }
+      .cardLabel{
+        display:none !important;
+      }
+      .card{
+        margin:0 auto;
+      }
     }
   </style>
 </head>
@@ -286,7 +384,7 @@
     <header>
       <div class="title">
         <h1 data-i18n="h1">Visitenkarte – Weiß/Schwarz</h1>
-        <p data-i18n="sub">Eingaben → Vorschau → (optional QR importieren) → Drucken / als PDF speichern.</p>
+        <p data-i18n="sub">Eingaben → Vorschau → QR importieren → Drucken / als PDF speichern.</p>
       </div>
 
       <div class="lang">
@@ -325,13 +423,9 @@
             <label for="mobile" data-i18n="mobileLabel">Mobil</label>
             <input id="mobile" type="tel" placeholder="+49 170 1234567" autocomplete="tel" />
           </div>
-          <div class="field">
+          <div class="field full">
             <label for="email" data-i18n="emailLabel">E-Mail</label>
             <input id="email" type="email" placeholder="name@domain.de" autocomplete="email" />
-          </div>
-          <div class="field full">
-            <label for="status" data-i18n="statusLabel">Status</label>
-            <input id="status" type="text" data-i18n-ph="statusPH" placeholder="Mitglied, Mentor, Promotor, Sprecher, Dozent" autocomplete="off" />
           </div>
         </div>
 
@@ -347,32 +441,48 @@
 
         <div class="previewWrap">
           <div class="cardSheet">
-            <div class="card" id="card">
-              <div class="cardGrid">
-                <div class="cardMain">
-                  <p class="cName" id="pName">—</p>
-                  <p class="cRole" id="pAddr1">—</p>
+            <div class="duoCards">
+              <div class="cardBlock">
+                <div class="cardLabel" data-i18n="frontLabel">Vorderseite</div>
+                <div class="card cardFront" id="cardFront">
+                  <div class="frontTop">
+                    <div></div>
+                    <div class="clubMarkFront" id="brandMarkFront" aria-label="Brand">
+                      <img id="brandLogoFront" alt="liquiditybooster.de" src="/lp-anfang/library/logos/liquiditybooster-logo.png">
+                      <span class="brandFallback">liquidity booster.de</span>
+                    </div>
+                  </div>
 
-                  <div class="cLine"></div>
+                  <div class="frontMain">
+                    <p class="cName" id="pName">—</p>
+                    <p class="cStreet" id="pStreet">—</p>
 
-                  <div class="cInfo">
-                    <div class="mono" id="pAddr2">—</div>
-                    <div class="mono" id="pMobile">—</div>
-                    <div class="mono" id="pEmail">—</div>
-                    <div class="mono" id="pStatus">—</div>
+                    <div class="cLine"></div>
+
+                    <div class="cInfo">
+                      <div class="mono" id="pAddr2">—</div>
+                      <div class="mono" id="pMobile">—</div>
+                      <div class="mono" id="pEmail">—</div>
+                    </div>
                   </div>
                 </div>
+              </div>
 
-                <div class="cardSide">
-                  <!-- Tool 2: Brand Logo -->
-                  <div class="clubMark" id="brandMark" aria-label="Brand">
-                    <img id="brandLogo" alt="liquiditybooster.de" src="/lp-anfang/library/logos/liquiditybooster-logo.png">
+              <div class="cardBlock">
+                <div class="cardLabel" data-i18n="backLabel">Rückseite</div>
+                <div class="card cardBack" id="cardBack">
+                  <div class="clubMarkBack" id="brandMarkBack" aria-label="Brand">
+                    <img id="brandLogoBack" alt="liquiditybooster.de" src="/lp-anfang/library/logos/liquiditybooster-logo.png">
                     <span class="brandFallback">liquidity booster.de</span>
                   </div>
 
-                  <div class="qrBox isEmpty" id="qrBox" aria-label="QR Code">
-                    <div id="qrOnCard"></div>
+                  <div class="backCenter">
+                    <div class="qrBackBox isEmpty" id="qrBox" aria-label="QR Code">
+                      <div id="qrOnCard"></div>
+                    </div>
                   </div>
+
+                  <div class="backNote" data-i18n="backNote">Mehr Informationen per QR-Code</div>
                 </div>
               </div>
             </div>
@@ -399,7 +509,7 @@
 
           <div style="flex:1; min-width:240px;">
             <div class="hint" data-i18n="qrHint">
-              Hier wird der QR separat erzeugt. Erst mit „In Visitenkarte übernehmen“ wird er auf die Karte gesetzt.
+              Hier wird der QR separat erzeugt. Erst mit „In Visitenkarte übernehmen“ wird er auf die Rückseite gesetzt.
               Lange Webadressen müssen dann nicht mehr als Text gedruckt werden.
             </div>
 
@@ -516,7 +626,6 @@
           return list;
         },
 
-        // Original RS_BLOCK_TABLE (1..40) * (L,M,Q,H) => 160 Einträge
         RS_BLOCK_TABLE: [
           [1, 26, 19],[1, 26, 16],[1, 26, 13],[1, 26, 9],
           [1, 44, 34],[1, 44, 28],[1, 44, 22],[1, 44, 16],
@@ -572,126 +681,6 @@
               return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
             default:
               return undefined;
-          }
-        }
-      };
-
-      var QRUtil = {
-        PATTERN_POSITION_TABLE: [
-          [],
-          [6, 18],[6, 22],[6, 26],[6, 30],[6, 34],[6, 22, 38],[6, 24, 42],[6, 26, 46],[6, 28, 50],
-          [6, 30, 54],[6, 32, 58],[6, 34, 62],[6, 26, 46, 66],[6, 26, 48, 70],[6, 26, 50, 74],
-          [6, 30, 54, 78],[6, 30, 56, 82],[6, 30, 58, 86],[6, 34, 62, 90],[6, 28, 50, 72, 94],
-          [6, 26, 50, 74, 98],[6, 30, 54, 78, 102],[6, 28, 54, 80, 106],[6, 32, 58, 84, 110],
-          [6, 30, 58, 86, 114],[6, 34, 62, 90, 118],[6, 26, 50, 74, 98, 122],[6, 30, 54, 78, 102, 126],
-          [6, 26, 52, 78, 104, 130],[6, 30, 56, 82, 108, 134],[6, 34, 60, 86, 112, 138],[6, 30, 58, 86, 114, 142],
-          [6, 34, 62, 90, 118, 146],[6, 30, 54, 78, 102, 126, 150],[6, 24, 50, 76, 102, 128, 154],
-          [6, 28, 54, 80, 106, 132, 158],[6, 32, 58, 84, 110, 136, 162],[6, 26, 54, 82, 110, 138, 166],
-          [6, 30, 58, 86, 114, 142, 170]
-        ],
-        G15: (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0),
-        G18: (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0),
-        G15_MASK: (1 << 14) | (1 << 12) | (1 << 10) | (1 << 4) | (1 << 1),
-
-        getBCHTypeInfo: function(data) {
-          var d = data << 10;
-          while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) >= 0) {
-            d ^= (QRUtil.G15 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15)));
-          }
-          return ((data << 10) | d) ^ QRUtil.G15_MASK;
-        },
-
-        getBCHTypeNumber: function(data) {
-          var d = data << 12;
-          while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) >= 0) {
-            d ^= (QRUtil.G18 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18)));
-          }
-          return (data << 12) | d;
-        },
-
-        getBCHDigit: function(data) { var digit = 0; while (data != 0) { digit++; data >>>= 1; } return digit; },
-        getPatternPosition: function(typeNumber) { return QRUtil.PATTERN_POSITION_TABLE[typeNumber - 1]; },
-
-        getMask: function(maskPattern, i, j) {
-          switch (maskPattern) {
-            case 0: return (i + j) % 2 == 0;
-            case 1: return i % 2 == 0;
-            case 2: return j % 3 == 0;
-            case 3: return (i + j) % 3 == 0;
-            case 4: return (Math.floor(i / 2) + Math.floor(j / 3)) % 2 == 0;
-            case 5: return (i * j) % 2 + (i * j) % 3 == 0;
-            case 6: return ((i * j) % 2 + (i * j) % 3) % 2 == 0;
-            case 7: return ((i * j) % 3 + (i + j) % 2) == 0;
-            default: throw new Error("bad maskPattern:" + maskPattern);
-          }
-        },
-
-        getErrorCorrectPolynomial: function(errorCorrectLength) {
-          var a = new qrPolynomial([1], 0);
-          for (var i = 0; i < errorCorrectLength; i++) {
-            a = a.multiply(new qrPolynomial([1, QRMath.gexp(i)], 0));
-          }
-          return a;
-        },
-
-        getLengthInBits: function(mode, type) {
-          if (1 <= type && type < 10) return 8;
-          if (type < 27) return 16;
-          return 16;
-        },
-
-        getLostPoint: function(qrCode) {
-          var moduleCount = qrCode.getModuleCount();
-          var lostPoint = 0;
-          for (var row = 0; row < moduleCount; row++) {
-            for (var col = 0; col < moduleCount; col++) {
-              var sameCount = 0;
-              var dark = qrCode.isDark(row, col);
-              for (var r = -1; r <= 1; r++) {
-                if (row + r < 0 || moduleCount <= row + r) continue;
-                for (var c = -1; c <= 1; c++) {
-                  if (col + c < 0 || moduleCount <= col + c) continue;
-                  if (r == 0 && c == 0) continue;
-                  if (dark == qrCode.isDark(row + r, col + c)) sameCount++;
-                }
-              }
-              if (sameCount > 5) lostPoint += (3 + sameCount - 5);
-            }
-          }
-          return lostPoint;
-        },
-
-        getUTF8Length: function(s) {
-          var len = 0;
-          for (var i = 0; i < s.length; i++) {
-            var c = s.charCodeAt(i);
-            if (c < 0x80) len++;
-            else if (c < 0x800) len += 2;
-            else if (0xD800 <= c && c <= 0xDBFF) { len += 4; i++; }
-            else len += 3;
-          }
-          return len;
-        },
-
-        writeUTF8: function(buffer, s) {
-          for (var i = 0; i < s.length; i++) {
-            var c = s.charCodeAt(i);
-            if (c < 0x80) buffer.put(c, 8);
-            else if (c < 0x800) {
-              buffer.put(0xC0 | (c >>> 6), 8);
-              buffer.put(0x80 | (c & 0x3F), 8);
-            } else if (0xD800 <= c && c <= 0xDBFF) {
-              var c2 = s.charCodeAt(++i);
-              var cp = 0x10000 + (((c & 0x3FF) << 10) | (c2 & 0x3FF));
-              buffer.put(0xF0 | (cp >>> 18), 8);
-              buffer.put(0x80 | ((cp >>> 12) & 0x3F), 8);
-              buffer.put(0x80 | ((cp >>> 6) & 0x3F), 8);
-              buffer.put(0x80 | (cp & 0x3F), 8);
-            } else {
-              buffer.put(0xE0 | (c >>> 12), 8);
-              buffer.put(0x80 | ((c >>> 6) & 0x3F), 8);
-              buffer.put(0x80 | (c & 0x3F), 8);
-            }
           }
         }
       };
@@ -943,13 +932,10 @@
         };
       }
 
-      // Expose
       global.qrcode = function(typeNumber, errorCorrectionLevel){
         if (typeNumber === 0) typeNumber = -1;
         return new QRCode(typeNumber, errorCorrectionLevel);
       };
-      global.QRErrorCorrectionLevel = QRErrorCorrectionLevel;
-
     })(window);
   </script>
 
@@ -957,8 +943,7 @@
     (function(){
       "use strict";
 
-      /* Tool 2: eigener LocalStorage-Key (keine Kollision mit Tool 1) */
-      const LS_KEY = "fsa_vcard_white_black_v7_tool2";
+      const LS_KEY = "fsa_vcard_white_black_v8_tool2";
       const LS_LANG = "fsa_lang_vcard";
       const LS_QR_IMPORTED = "fsa_vcard_qr_imported_png_tool2";
       const LS_QR_WEBSITE = "fsa_vcard_qr_website_tool2";
@@ -971,14 +956,12 @@
         city: document.getElementById("city"),
         mobile: document.getElementById("mobile"),
         email: document.getElementById("email"),
-        status: document.getElementById("status"),
 
         pName: document.getElementById("pName"),
-        pAddr1: document.getElementById("pAddr1"),
+        pStreet: document.getElementById("pStreet"),
         pAddr2: document.getElementById("pAddr2"),
         pMobile: document.getElementById("pMobile"),
         pEmail: document.getElementById("pEmail"),
-        pStatus: document.getElementById("pStatus"),
 
         qrBox: document.getElementById("qrBox"),
         qrOnCard: document.getElementById("qrOnCard"),
@@ -996,14 +979,16 @@
         btnDE: document.getElementById("btnDE"),
         btnEN: document.getElementById("btnEN"),
 
-        brandMark: document.getElementById("brandMark"),
-        brandLogo: document.getElementById("brandLogo"),
+        brandMarkFront: document.getElementById("brandMarkFront"),
+        brandLogoFront: document.getElementById("brandLogoFront"),
+        brandMarkBack: document.getElementById("brandMarkBack"),
+        brandLogoBack: document.getElementById("brandLogoBack"),
       };
 
       const i18n = {
         de: {
           h1:"Visitenkarte – Weiß/Schwarz",
-          sub:"Eingaben → Vorschau → (optional QR importieren) → Drucken / als PDF speichern.",
+          sub:"Eingaben → Vorschau → QR importieren → Drucken / als PDF speichern.",
           formTitle:"Eingabefelder",
           firstNameLabel:"Vorname",
           lastNameLabel:"Nachname",
@@ -1012,8 +997,6 @@
           cityLabel:"Ort",
           mobileLabel:"Mobil",
           emailLabel:"E-Mail",
-          statusLabel:"Status",
-          statusPH:"Mitglied, Mentor, Promotor, Sprecher, Dozent",
           previewTitle:"Vorschau",
           printBtn:"Drucken / als PDF speichern",
           clearBtn:"Felder leeren",
@@ -1025,7 +1008,7 @@
           confirmClear:"Wirklich alle Felder leeren?",
           qrTitle:"QR-Werkstatt (Webadresse → QR → Import)",
           qrWebLabel:"Webadresse (für QR)",
-          qrHint:"Hier wird der QR separat erzeugt. Erst mit „In Visitenkarte übernehmen“ wird er auf die Karte gesetzt. Lange Webadressen müssen dann nicht mehr als Text gedruckt werden.",
+          qrHint:"Hier wird der QR separat erzeugt. Erst mit „In Visitenkarte übernehmen“ wird er auf die Rückseite gesetzt. Lange Webadressen müssen dann nicht mehr als Text gedruckt werden.",
           qrMakeBtn:"QR erzeugen",
           qrImportBtn:"In Visitenkarte übernehmen",
           qrClearBtn:"QR löschen",
@@ -1033,11 +1016,14 @@
           qrReady:"QR bereit. Jetzt „In Visitenkarte übernehmen“.",
           qrImported:"QR wurde in die Visitenkarte übernommen.",
           qrConfirm:"QR in die Visitenkarte übernehmen?",
-          qrErr:"QR Fehler (URL zu lang oder ungültig)."
+          qrErr:"QR Fehler (URL zu lang oder ungültig).",
+          frontLabel:"Vorderseite",
+          backLabel:"Rückseite",
+          backNote:"Mehr Informationen per QR-Code"
         },
         en: {
           h1:"Business Card – White/Black",
-          sub:"Inputs → Preview → (optional import QR) → Print / save as PDF.",
+          sub:"Inputs → Preview → import QR → Print / save as PDF.",
           formTitle:"Input fields",
           firstNameLabel:"First name",
           lastNameLabel:"Last name",
@@ -1046,8 +1032,6 @@
           cityLabel:"City",
           mobileLabel:"Mobile",
           emailLabel:"Email",
-          statusLabel:"Status",
-          statusPH:"Member, Mentor, Promoter, Speaker, Lecturer",
           previewTitle:"Preview",
           printBtn:"Print / save as PDF",
           clearBtn:"Clear fields",
@@ -1059,7 +1043,7 @@
           confirmClear:"Really clear all fields?",
           qrTitle:"QR Workshop (website → QR → import)",
           qrWebLabel:"Website (for QR)",
-          qrHint:"The QR is generated separately. Only with “Import to business card” it will be placed on the card. Long URLs do not need to be printed as text.",
+          qrHint:"The QR is generated separately. Only with “Import to business card” it will be placed on the back side. Long URLs do not need to be printed as text.",
           qrMakeBtn:"Generate QR",
           qrImportBtn:"Import to business card",
           qrClearBtn:"Clear QR",
@@ -1067,11 +1051,15 @@
           qrReady:"QR ready. Now click “Import to business card”.",
           qrImported:"QR imported into the business card.",
           qrConfirm:"Import QR into the business card?",
-          qrErr:"QR error (URL too long or invalid)."
+          qrErr:"QR error (URL too long or invalid).",
+          frontLabel:"Front side",
+          backLabel:"Back side",
+          backNote:"More information via QR code"
         }
       };
 
       function safe(v){ return (v||"").toString().trim(); }
+
       function normalizeWebsite(url){
         let v = safe(url);
         if(!v) return "";
@@ -1079,6 +1067,7 @@
         if(/^https?:\/\//i.test(v)) return v;
         return "https://" + v;
       }
+
       function setText(node, value, placeholder){
         const v = safe(value);
         if(v){ node.textContent = v; node.classList.remove("empty"); }
@@ -1089,10 +1078,12 @@
         const v = (localStorage.getItem(LS_LANG) || "de").toLowerCase();
         return (v === "en") ? "en" : "de";
       }
+
       function setLang(lang){
-        localStorage.setItem(LS_LANG, (lang==="en")?"en":"de");
+        localStorage.setItem(LS_LANG, (lang==="en") ? "en" : "de");
         applyI18n();
       }
+
       function applyI18n(){
         const lang = getLang();
         const dict = i18n[lang];
@@ -1101,10 +1092,6 @@
         document.querySelectorAll("[data-i18n]").forEach(n=>{
           const key = n.getAttribute("data-i18n");
           if(dict[key]) n.textContent = dict[key];
-        });
-        document.querySelectorAll("[data-i18n-ph]").forEach(n=>{
-          const key = n.getAttribute("data-i18n-ph");
-          if(dict[key]) n.setAttribute("placeholder", dict[key]);
         });
 
         els.btnDE.style.opacity = (lang === "de") ? "1" : ".55";
@@ -1124,7 +1111,6 @@
               els.city.value      = data.city      || "";
               els.mobile.value    = data.mobile    || "";
               els.email.value     = data.email     || "";
-              els.status.value    = data.status    || "";
             }
           }
         }catch(e){}
@@ -1149,8 +1135,7 @@
           zip:       safe(els.zip.value),
           city:      safe(els.city.value),
           mobile:    safe(els.mobile.value),
-          email:     safe(els.email.value),
-          status:    safe(els.status.value),
+          email:     safe(els.email.value)
         };
         try{ localStorage.setItem(LS_KEY, JSON.stringify(data)); }catch(e){}
       }
@@ -1167,22 +1152,22 @@
 
         const mobile = safe(els.mobile.value);
         const email  = safe(els.email.value);
-        const status = safe(els.status.value);
 
         setText(els.pName, fullName, "—");
-        setText(els.pAddr1, street, "—");
+        setText(els.pStreet, street, "—");
         setText(els.pAddr2, addr2, "—");
         setText(els.pMobile, mobile ? ("Mobil: " + mobile) : "", "—");
         setText(els.pEmail,  email  ? ("E-Mail: " + email)  : "", "—");
-        setText(els.pStatus, status ? ("Status: " + status) : "", "—");
 
         save();
       }
 
-      function setQrStatus(msg){ els.qrStatusLine.textContent = msg || ""; }
+      function setQrStatus(msg){
+        els.qrStatusLine.textContent = msg || "";
+      }
 
       function makeQrPngDataUrl(url, targetPx){
-        const qr = qrcode(0, 'Q');
+        const qr = qrcode(0, "Q");
         qr.addData(url);
         qr.make();
 
@@ -1199,15 +1184,15 @@
         const ctx = canvas.getContext("2d", { alpha:false });
 
         ctx.fillStyle = "#fff";
-        ctx.fillRect(0,0,size,size);
+        ctx.fillRect(0, 0, size, size);
 
         ctx.fillStyle = "#000";
-        for(let r=0; r<count; r++){
-          for(let c=0; c<count; c++){
-            if(qr.isDark(r,c)){
+        for(let r = 0; r < count; r++){
+          for(let c = 0; c < count; c++){
+            if(qr.isDark(r, c)){
               const x = (c + quiet) * scale;
               const y = (r + quiet) * scale;
-              ctx.fillRect(x,y,scale,scale);
+              ctx.fillRect(x, y, scale, scale);
             }
           }
         }
@@ -1223,6 +1208,7 @@
           setQrStatus(t.qrNoUrl);
           return "";
         }
+
         const url = normalizeWebsite(raw);
 
         try{
@@ -1248,7 +1234,7 @@
         const url = normalizeWebsite(raw);
 
         try{
-          const png = makeQrPngDataUrl(url, 420);
+          const png = makeQrPngDataUrl(url, 620);
           els.qrOnCard.innerHTML = `<img alt="QR" src="${png}">`;
           els.qrBox.classList.remove("isEmpty");
           localStorage.setItem(LS_QR_IMPORTED, png);
@@ -1266,22 +1252,30 @@
       }
 
       function wire(){
-        /* Brand Logo: falls Datei fehlt -> Fallback Text */
-        if(els.brandLogo && els.brandMark){
-          els.brandLogo.addEventListener("error", ()=>{ els.brandMark.classList.add("isFallback"); });
-          els.brandLogo.addEventListener("load",  ()=>{ els.brandMark.classList.remove("isFallback"); });
+        if(els.brandLogoFront && els.brandMarkFront){
+          els.brandLogoFront.addEventListener("error", ()=>{ els.brandMarkFront.classList.add("isFallback"); });
+          els.brandLogoFront.addEventListener("load",  ()=>{ els.brandMarkFront.classList.remove("isFallback"); });
         }
 
-        ["firstName","lastName","street","zip","city","mobile","email","status"].forEach(id=>{
+        if(els.brandLogoBack && els.brandMarkBack){
+          els.brandLogoBack.addEventListener("error", ()=>{ els.brandMarkBack.classList.add("isFallback"); });
+          els.brandLogoBack.addEventListener("load",  ()=>{ els.brandMarkBack.classList.remove("isFallback"); });
+        }
+
+        ["firstName","lastName","street","zip","city","mobile","email"].forEach(id=>{
           els[id].addEventListener("input", renderCard);
           els[id].addEventListener("change", renderCard);
         });
 
-        els.btnPrint.addEventListener("click", ()=>{ renderCard(); window.print(); });
+        els.btnPrint.addEventListener("click", ()=>{
+          renderCard();
+          window.print();
+        });
 
         els.btnClear.addEventListener("click", ()=>{
           const t = i18n[getLang()];
           if(!confirm(t.confirmClear)) return;
+
           els.firstName.value = "";
           els.lastName.value  = "";
           els.street.value    = "";
@@ -1289,7 +1283,7 @@
           els.city.value      = "";
           els.mobile.value    = "";
           els.email.value     = "";
-          els.status.value    = "";
+
           save();
           renderCard();
         });
@@ -1305,18 +1299,15 @@
           const addr2 = ((zip ? zip : "") + (zip && city ? " " : "") + (city ? city : "")).trim();
           const mobile = safe(els.mobile.value);
           const email  = safe(els.email.value);
-          const status = safe(els.status.value);
 
-          const lines = [
+          const text = [
             fullName || "",
             street || "",
             addr2 || "",
             mobile ? ("Mobil: " + mobile) : "",
-            email ? ("E-Mail: " + email) : "",
-            status ? ("Status: " + status) : ""
-          ].filter(Boolean);
+            email ? ("E-Mail: " + email) : ""
+          ].filter(Boolean).join("\n");
 
-          const text = lines.join("\n");
           try{
             if(navigator.clipboard && navigator.clipboard.writeText){
               await navigator.clipboard.writeText(text);
