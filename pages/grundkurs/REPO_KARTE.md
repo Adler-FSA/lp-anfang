@@ -1051,6 +1051,7 @@
     │   │   ├── visitenkarte-weiss-schwarz-tool-2-liquiditybooster-duplex.html
     │   │   ├── visitenkarte-weiss-schwarz-tool-2-liquiditybooster.html
     │   │   ├── visitenkarte-weiss-schwarz-tool-3-liquiditybooster.html
+    │   │   ├── visitenkarte-weiss-schwarz-tool-4-liquiditybooster.html
     │   │   ├── vorschau-einkommen.html
     │   │   └── zertifikat-krypto-fuehrerschein.html
     │   ├── trustyfy/
@@ -1215,4 +1216,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.03.2026, 07:47)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.03.2026, 08:37)_
