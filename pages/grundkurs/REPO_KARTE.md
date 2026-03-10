@@ -885,7 +885,8 @@
     │   │   ├── onboarding-reaktionen-antworten.html
     │   │   ├── onboarding.html
     │   │   ├── telefon-akquise.html
-    │   │   └── termine.html
+    │   │   ├── termine.html
+    │   │   └── warum-die-mitgliedschaft-den-empfehlenden-schuetzt.html
     │   ├── lp-anfang/
     │   │   └── pages/
     │   │       └── legal/
@@ -1216,4 +1217,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.03.2026, 23:22)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.03.2026, 01:26)_
