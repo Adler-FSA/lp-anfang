@@ -227,6 +227,7 @@
     │   │   │   └── solar-invest.jpg
     │   │   ├── timecells/
     │   │   │   └── onboarding/
+    │   │   ├── IMG_2976.jpeg
     │   │   ├── README.txt
     │   │   ├── ceo-bausteine.PNG
     │   │   ├── compliance.jpg
@@ -409,7 +410,8 @@
     │   │   │   ├── track-97.mp3
     │   │   │   ├── track-98.mp3
     │   │   │   └── track-99.mp3
-    │   │   └── playlist-01.json
+    │   │   ├── playlist-01.json
+    │   │   └── stille-revolution.mp3
     │   ├── pdf/
     │   │   ├── FSA-CLUB_D00_Basisbeschreibung.pdf
     │   │   ├── FSA-CLUB_D01.pdf
@@ -1168,6 +1170,7 @@
     │   ├── profi-nachweis.html
     │   ├── social.html
     │   ├── souveraenitaet.html
+    │   ├── stille-revolution.html
     │   ├── timecells.html
     │   ├── tragfaehigkeits-simulation-02.html
     │   ├── tragfaehigkeits-simulation-03.html
@@ -1217,4 +1220,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.03.2026, 06:43)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.03.2026, 07:39)_
