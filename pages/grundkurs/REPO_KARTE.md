@@ -228,6 +228,7 @@
     │   │   ├── timecells/
     │   │   │   └── onboarding/
     │   │   ├── IMG_2976.jpeg
+    │   │   ├── IMG_5924.jpeg
     │   │   ├── README.txt
     │   │   ├── ceo-bausteine.PNG
     │   │   ├── compliance.jpg
@@ -410,6 +411,7 @@
     │   │   │   ├── track-97.mp3
     │   │   │   ├── track-98.mp3
     │   │   │   └── track-99.mp3
+    │   │   ├── jetzt-nach-vorn.mp3
     │   │   ├── playlist-01.json
     │   │   └── stille-revolution.mp3
     │   ├── pdf/
@@ -1159,6 +1161,7 @@
     │   ├── affiliate-magazin.html
     │   ├── community.html
     │   ├── gut-zu-wissen.html
+    │   ├── jetzt-nach-vorn.html
     │   ├── karrierebooster-simulator.html
     │   ├── lesespuren-und-vertiefung.html
     │   ├── mentoren.html
@@ -1220,4 +1223,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.03.2026, 07:42)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.03.2026, 08:36)_
