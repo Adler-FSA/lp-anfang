@@ -229,6 +229,7 @@
     │   │   │   └── onboarding/
     │   │   ├── IMG_2976.jpeg
     │   │   ├── IMG_5924.jpeg
+    │   │   ├── IMG_5929.jpeg
     │   │   ├── README.txt
     │   │   ├── ceo-bausteine.PNG
     │   │   ├── compliance.jpg
@@ -411,8 +412,8 @@
     │   │   │   ├── track-97.mp3
     │   │   │   ├── track-98.mp3
     │   │   │   └── track-99.mp3
+    │   │   ├── feuer-unter-unserer-haut.mp3
     │   │   ├── jetzt-nach-vorn.mp3
-    │   │   ├── playlist-01.json
     │   │   └── stille-revolution.mp3
     │   ├── pdf/
     │   │   ├── FSA-CLUB_D00_Basisbeschreibung.pdf
@@ -1160,6 +1161,8 @@
     │   ├── admin-config.json
     │   ├── affiliate-magazin.html
     │   ├── community.html
+    │   ├── der-naechste-schritt.html
+    │   ├── drei-lieder-ein-gespraech.html
     │   ├── gut-zu-wissen.html
     │   ├── jetzt-nach-vorn.html
     │   ├── karrierebooster-simulator.html
@@ -1223,4 +1226,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.03.2026, 11:28)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.03.2026, 12:46)_
