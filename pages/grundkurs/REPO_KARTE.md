@@ -230,6 +230,7 @@
     │   │   ├── IMG_2976.jpeg
     │   │   ├── IMG_5924.jpeg
     │   │   ├── IMG_5929.jpeg
+    │   │   ├── IMG_5932.jpeg
     │   │   ├── README.txt
     │   │   ├── ceo-bausteine.PNG
     │   │   ├── compliance.jpg
@@ -414,7 +415,8 @@
     │   │   │   └── track-99.mp3
     │   │   ├── feuer-unter-unserer-haut.mp3
     │   │   ├── jetzt-nach-vorn.mp3
-    │   │   └── stille-revolution.mp3
+    │   │   ├── stille-revolution.mp3
+    │   │   └── wieder-aufstehen.mp3
     │   ├── pdf/
     │   │   ├── FSA-CLUB_D00_Basisbeschreibung.pdf
     │   │   ├── FSA-CLUB_D01.pdf
@@ -1186,7 +1188,8 @@
     │   ├── unikat-url.html
     │   ├── weihnachtsgeschenk-akademie-share-1.html
     │   ├── weihnachtsgeschenk-akademie-share-2.html
-    │   └── weihnachtsgeschenk-akademie.html
+    │   ├── weihnachtsgeschenk-akademie.html
+    │   └── wieder-ich.html
     ├── shows/
     │   ├── bastai.json
     │   ├── blockhaeuser.json
@@ -1227,4 +1230,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.03.2026, 07:42)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.03.2026, 08:34)_
