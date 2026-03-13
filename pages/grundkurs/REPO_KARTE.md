@@ -1165,6 +1165,7 @@
     │   │   └── wefi-zoom.html
     │   ├── admin-config.json
     │   ├── affiliate-magazin.html
+    │   ├── album-liquiditybooster.html
     │   ├── community.html
     │   ├── der-naechste-schritt.html
     │   ├── die-rueckeroberung-der-eigenen-souveraenitaet-song.html
@@ -1235,4 +1236,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.03.2026, 12:44)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.03.2026, 13:56)_
