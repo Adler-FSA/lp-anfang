@@ -414,7 +414,7 @@
     │   │   │   ├── track-97.mp3
     │   │   │   ├── track-98.mp3
     │   │   │   └── track-99.mp3
-    │   │   ├── die-rückeroberung-der-eignen-souveränität.mp3
+    │   │   ├── die-rueckeroberung-der-eigenen-souveraenitaet.mp3
     │   │   ├── feuer-unter-unserer-haut.mp3
     │   │   ├── jetzt-nach-vorn.mp3
     │   │   ├── stille-revolution.mp3
@@ -1167,6 +1167,7 @@
     │   ├── affiliate-magazin.html
     │   ├── community.html
     │   ├── der-naechste-schritt.html
+    │   ├── die-rueckeroberung-der-eigenen-souveraenitaet-song.html
     │   ├── drei-lieder-ein-gespraech.html
     │   ├── drei-lieder-ein-weg.html
     │   ├── gut-zu-wissen.html
@@ -1234,4 +1235,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.03.2026, 11:26)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.03.2026, 12:44)_
