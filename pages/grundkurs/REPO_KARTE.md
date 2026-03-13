@@ -231,6 +231,7 @@
     │   │   ├── IMG_5924.jpeg
     │   │   ├── IMG_5929.jpeg
     │   │   ├── IMG_5932.jpeg
+    │   │   ├── IMG_5935.jpeg
     │   │   ├── README.txt
     │   │   ├── ceo-bausteine.PNG
     │   │   ├── compliance.jpg
@@ -416,6 +417,7 @@
     │   │   ├── feuer-unter-unserer-haut.mp3
     │   │   ├── jetzt-nach-vorn.mp3
     │   │   ├── stille-revolution.mp3
+    │   │   ├── was-von-uns-bleibt.mp3
     │   │   └── wieder-aufstehen.mp3
     │   ├── pdf/
     │   │   ├── FSA-CLUB_D00_Basisbeschreibung.pdf
@@ -1186,6 +1188,7 @@
     │   ├── tragfaehigkeits-simulation.html
     │   ├── unikat-url-alexander-demo.html
     │   ├── unikat-url.html
+    │   ├── was-von-uns-bleibt.html
     │   ├── weihnachtsgeschenk-akademie-share-1.html
     │   ├── weihnachtsgeschenk-akademie-share-2.html
     │   ├── weihnachtsgeschenk-akademie.html
@@ -1230,4 +1233,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.03.2026, 08:34)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.03.2026, 09:34)_
