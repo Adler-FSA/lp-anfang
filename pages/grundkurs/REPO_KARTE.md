@@ -414,6 +414,7 @@
     │   │   │   ├── track-97.mp3
     │   │   │   ├── track-98.mp3
     │   │   │   └── track-99.mp3
+    │   │   ├── die-rückeroberung-der-eignen-souveränität.mp3
     │   │   ├── feuer-unter-unserer-haut.mp3
     │   │   ├── jetzt-nach-vorn.mp3
     │   │   ├── stille-revolution.mp3
@@ -1233,4 +1234,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.03.2026, 10:30)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.03.2026, 11:26)_
