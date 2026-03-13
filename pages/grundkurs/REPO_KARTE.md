@@ -1163,6 +1163,7 @@
     │   ├── community.html
     │   ├── der-naechste-schritt.html
     │   ├── drei-lieder-ein-gespraech.html
+    │   ├── drei-lieder-ein-weg.html
     │   ├── gut-zu-wissen.html
     │   ├── jetzt-nach-vorn.html
     │   ├── karrierebooster-simulator.html
@@ -1226,4 +1227,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.03.2026, 06:44)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.03.2026, 07:42)_
