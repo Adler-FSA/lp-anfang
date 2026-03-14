@@ -763,8 +763,11 @@
     │   │   ├── grundkurs1-prototyp.html
     │   │   └── page.json
     │   ├── gut-zu-wissen/
+    │   │   ├── beweisrealitaet-statisch.html
     │   │   ├── beweisrealitaet.html
+    │   │   ├── fallmuster-statisch.html
     │   │   ├── fallmuster.html
+    │   │   ├── mica-strafrecht-statisch.html
     │   │   └── mica-strafrecht.html
     │   ├── hoerbuch/
     │   │   └── kapitel-01.html
@@ -1242,4 +1245,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.03.2026, 10:22)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.03.2026, 11:19)_
