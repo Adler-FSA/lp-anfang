@@ -722,10 +722,14 @@
     │   ├── faq/
     │   │   ├── faq/
     │   │   │   └── einkommen-auszahlung.html
+    │   │   ├── bestellung-mitgliedschaft-statisch.html
     │   │   ├── bestellung-mitgliedschaft.html
+    │   │   ├── einkommen-auszahlung-statisch.html
     │   │   ├── einkommen-auszahlung.html
+    │   │   ├── index-statisch.html
     │   │   ├── index.html
     │   │   ├── markenrecht-compliance.html
+    │   │   ├── marktplatz-statisch.html
     │   │   └── marktplatz.html
     │   ├── footer/
     │   │   ├── community.html
@@ -1238,4 +1242,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.03.2026, 09:26)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.03.2026, 10:22)_
