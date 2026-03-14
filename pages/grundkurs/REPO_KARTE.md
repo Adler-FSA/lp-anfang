@@ -232,6 +232,7 @@
     │   │   ├── IMG_5929.jpeg
     │   │   ├── IMG_5932.jpeg
     │   │   ├── IMG_5935.jpeg
+    │   │   ├── IMG_5947.jpeg
     │   │   ├── README.txt
     │   │   ├── ceo-bausteine.PNG
     │   │   ├── compliance.jpg
@@ -419,7 +420,8 @@
     │   │   ├── jetzt-nach-vorn.mp3
     │   │   ├── stille-revolution.mp3
     │   │   ├── was-von-uns-bleibt.mp3
-    │   │   └── wieder-aufstehen.mp3
+    │   │   ├── wieder-aufstehen.mp3
+    │   │   └── wir-gehen-jetzt-los.mp3
     │   ├── pdf/
     │   │   ├── FSA-CLUB_D00_Basisbeschreibung.pdf
     │   │   ├── FSA-CLUB_D01.pdf
@@ -1236,4 +1238,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.03.2026, 05:40)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.03.2026, 06:38)_
