@@ -234,6 +234,7 @@
     │   │   ├── IMG_5935.jpeg
     │   │   ├── IMG_5947.jpeg
     │   │   ├── IMG_5952.jpeg
+    │   │   ├── IMG_5956.jpeg
     │   │   ├── README.txt
     │   │   ├── ceo-bausteine.PNG
     │   │   ├── compliance.jpg
@@ -416,6 +417,7 @@
     │   │   │   ├── track-97.mp3
     │   │   │   ├── track-98.mp3
     │   │   │   └── track-99.mp3
+    │   │   ├── botschafter-sein.mp3
     │   │   ├── die-rueckeroberung-der-eigenen-souveraenitaet.mp3
     │   │   ├── feuer-unter-unserer-haut.mp3
     │   │   ├── jetzt-nach-vorn.mp3
@@ -1177,6 +1179,7 @@
     │   ├── admin-config.json
     │   ├── affiliate-magazin.html
     │   ├── album-liquiditybooster.html
+    │   ├── botschafter-sein.html
     │   ├── community.html
     │   ├── das-was-war-ist-jetzt-vorbei.html
     │   ├── der-naechste-schritt.html
@@ -1248,4 +1251,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.03.2026, 11:21)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.03.2026, 12:40)_
