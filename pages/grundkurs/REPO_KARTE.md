@@ -233,6 +233,7 @@
     │   │   ├── IMG_5932.jpeg
     │   │   ├── IMG_5935.jpeg
     │   │   ├── IMG_5947.jpeg
+    │   │   ├── IMG_5952.jpeg
     │   │   ├── README.txt
     │   │   ├── ceo-bausteine.PNG
     │   │   ├── compliance.jpg
@@ -421,7 +422,8 @@
     │   │   ├── stille-revolution.mp3
     │   │   ├── was-von-uns-bleibt.mp3
     │   │   ├── wieder-aufstehen.mp3
-    │   │   └── wir-gehen-jetzt-los.mp3
+    │   │   ├── wir-gehen-jetzt-los.mp3
+    │   │   └── würdevoller-aufbruch.mp3
     │   ├── pdf/
     │   │   ├── FSA-CLUB_D00_Basisbeschreibung.pdf
     │   │   ├── FSA-CLUB_D01.pdf
@@ -1176,6 +1178,7 @@
     │   ├── affiliate-magazin.html
     │   ├── album-liquiditybooster.html
     │   ├── community.html
+    │   ├── das-was-war-ist-jetzt-vorbei.html
     │   ├── der-naechste-schritt.html
     │   ├── die-rueckeroberung-der-eigenen-souveraenitaet-song.html
     │   ├── drei-lieder-ein-gespraech.html
@@ -1245,4 +1248,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.03.2026, 08:30)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.03.2026, 09:28)_
