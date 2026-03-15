@@ -1034,6 +1034,13 @@
     │   │   └── kickoff-sprecher-tools.html
     │   ├── statement/
     │   │   └── vow-power.html
+    │   ├── steuer-starter/
+    │   │   ├── index.html
+    │   │   ├── modul-1-einstieg.html
+    │   │   ├── modul-2-ausgangslage.html
+    │   │   ├── modul-3-taetigkeit.html
+    │   │   ├── modul-4-ausfuellhilfe.html
+    │   │   └── modul-5-druckfassung.html
     │   ├── story/
     │   │   ├── alfred-hamsterrad.html
     │   │   ├── anna-aufbruch.html
@@ -1187,10 +1194,16 @@
     │   ├── drei-lieder-ein-gespraech.html
     │   ├── drei-lieder-ein-weg.html
     │   ├── gut-zu-wissen.html
+    │   ├── index.html
     │   ├── jetzt-nach-vorn.html
     │   ├── karrierebooster-simulator.html
     │   ├── lesespuren-und-vertiefung.html
     │   ├── mentoren.html
+    │   ├── modul-1-einstieg.html
+    │   ├── modul-2-ausgangslage.html
+    │   ├── modul-3-taetigkeit.html
+    │   ├── modul-4-ausfuellhilfe.html
+    │   ├── modul-5-druckfassung.html
     │   ├── neutral-zu-100.html
     │   ├── office-network.html
     │   ├── office-tools.html
@@ -1251,4 +1264,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.03.2026, 14:25)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.03.2026, 15:24)_
