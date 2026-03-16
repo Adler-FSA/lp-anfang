@@ -723,6 +723,11 @@
     │   │   ├── modul-4-verguetung-transparenz-grenzen.html
     │   │   ├── modul-5-neutralitaet-integritaet.html
     │   │   └── modul-6-veranstaltungen-verhaltenskodex.html
+    │   ├── dienstleistungen/
+    │   │   └── krypto-projektanalyse/
+    │   │       ├── abfragebogen.html
+    │   │       ├── index.html
+    │   │       └── wichtige-hinweise.html
     │   ├── faq/
     │   │   ├── faq/
     │   │   │   └── einkommen-auszahlung.html
@@ -1265,4 +1270,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.03.2026, 16:00)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.03.2026, 17:55)_
