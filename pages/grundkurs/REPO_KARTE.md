@@ -426,6 +426,12 @@
     │   │   ├── was-von-uns-bleibt.mp3
     │   │   ├── wieder-aufstehen.mp3
     │   │   └── wir-gehen-jetzt-los.mp3
+    │   ├── offizielle-sprecher/
+    │   │   ├── IMG_5983.jpeg
+    │   │   ├── IMG_5984.jpeg
+    │   │   ├── IMG_6010.jpeg
+    │   │   ├── IMG_6014.jpeg
+    │   │   └── webinarteam.html
     │   ├── pdf/
     │   │   ├── FSA-CLUB_D00_Basisbeschreibung.pdf
     │   │   ├── FSA-CLUB_D01.pdf
@@ -1270,4 +1276,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 17.03.2026, 14:19)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 17.03.2026, 15:59)_
