@@ -419,6 +419,7 @@
     │   │   │   ├── track-98.mp3
     │   │   │   └── track-99.mp3
     │   │   ├── die-rueckeroberung-der-eigenen-souveraenitaet.mp3
+    │   │   ├── dienstag-um-18-uhr.mp3
     │   │   ├── feuer-unter-unserer-haut.mp3
     │   │   ├── jetzt-nach-vorn.mp3
     │   │   ├── stille-revolution.mp3
@@ -1278,4 +1279,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 17.03.2026, 23:28)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 18.03.2026, 01:48)_
