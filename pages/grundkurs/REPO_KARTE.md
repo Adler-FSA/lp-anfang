@@ -433,6 +433,7 @@
     │   │   ├── IMG_6010.jpeg
     │   │   ├── IMG_6014.jpeg
     │   │   ├── IMG_6024.jpeg
+    │   │   ├── einladung-19-30-uhr.html
     │   │   ├── einladung.html
     │   │   └── webinar-team.html
     │   ├── pdf/
@@ -1279,4 +1280,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 18.03.2026, 14:22)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 18.03.2026, 16:04)_
