@@ -1031,6 +1031,8 @@
     │   │   ├── index.html
     │   │   ├── pyramide.html
     │   │   └── treppe.html
+    │   ├── projekt-analysen/
+    │   │   └── orange-cat-energy.html
     │   ├── recht/
     │   │   └── gwg-meldeverordnung-einfach-erklaert.html
     │   ├── schnellstart/
@@ -1283,4 +1285,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.03.2026, 09:37)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.03.2026, 10:34)_
