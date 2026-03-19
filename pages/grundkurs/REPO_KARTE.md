@@ -236,6 +236,7 @@
     │   │   ├── IMG_5952.jpeg
     │   │   ├── IMG_5956.jpeg
     │   │   ├── IMG_5968.jpeg
+    │   │   ├── IMG_6043.jpeg
     │   │   ├── README.txt
     │   │   ├── ceo-bausteine.PNG
     │   │   ├── compliance.jpg
@@ -419,6 +420,7 @@
     │   │   │   ├── track-98.mp3
     │   │   │   └── track-99.mp3
     │   │   ├── die-rueckeroberung-der-eigenen-souveraenitaet.mp3
+    │   │   ├── die-seele-erwacht.mp3
     │   │   ├── dienstag-um-18-uhr.mp3
     │   │   ├── feuer-unter-unserer-haut.mp3
     │   │   ├── jetzt-nach-vorn.mp3
@@ -1206,6 +1208,7 @@
     │   ├── das-was-war-ist-jetzt-vorbei.html
     │   ├── der-naechste-schritt.html
     │   ├── die-rueckeroberung-der-eigenen-souveraenitaet-song.html
+    │   ├── die-seele-erwacht.html
     │   ├── drei-lieder-ein-gespraech.html
     │   ├── drei-lieder-ein-weg.html
     │   ├── gut-zu-wissen.html
@@ -1280,4 +1283,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.03.2026, 07:43)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.03.2026, 08:36)_
