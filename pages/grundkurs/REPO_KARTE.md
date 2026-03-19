@@ -1032,9 +1032,13 @@
     │   │   ├── pyramide.html
     │   │   └── treppe.html
     │   ├── projekt-analysen/
+    │   │   ├── orange-cat-energy-eingereichte-angaben.html
     │   │   ├── orange-cat-energy-ergebnis.html
+    │   │   ├── orange-cat-energy-interne-auswertung.html
+    │   │   ├── orange-cat-energy-kundenergebnis.html
     │   │   ├── orange-cat-energy.html
-    │   │   └── projektpruefung-rechtsrahmen.html
+    │   │   ├── projektpruefung-rechtsrahmen.html
+    │   │   └── rechtsrahmen.html
     │   ├── recht/
     │   │   └── gwg-meldeverordnung-einfach-erklaert.html
     │   ├── schnellstart/
@@ -1287,4 +1291,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.03.2026, 11:32)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.03.2026, 12:54)_
