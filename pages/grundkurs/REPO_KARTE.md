@@ -237,6 +237,7 @@
     │   │   ├── IMG_5956.jpeg
     │   │   ├── IMG_5968.jpeg
     │   │   ├── IMG_6043.jpeg
+    │   │   ├── IMG_6050.jpeg
     │   │   ├── README.txt
     │   │   ├── ceo-bausteine.PNG
     │   │   ├── compliance.jpg
@@ -427,6 +428,7 @@
     │   │   ├── stille-revolution.mp3
     │   │   ├── the-power-of-liquiditybooster.mp3
     │   │   ├── was-von-uns-bleibt.mp3
+    │   │   ├── wenn-die-seele-wieder-tanzt.mp3
     │   │   ├── wieder-aufstehen.mp3
     │   │   └── wir-gehen-jetzt-los.mp3
     │   ├── offizielle-sprecher/
@@ -1291,4 +1293,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.03.2026, 15:53)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.03.2026, 16:52)_
