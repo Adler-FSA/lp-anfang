@@ -1227,6 +1227,7 @@
     │   ├── karrierebooster-simulator.html
     │   ├── lesespuren-und-vertiefung.html
     │   ├── mentoren.html
+    │   ├── mix-liquiditybooster-songs.html
     │   ├── modul-1-einstieg.html
     │   ├── modul-2-ausgangslage.html
     │   ├── modul-3-taetigkeit.html
@@ -1293,4 +1294,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.03.2026, 16:52)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.03.2026, 17:50)_
