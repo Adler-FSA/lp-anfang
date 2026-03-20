@@ -82,6 +82,46 @@
       z-index:1;
     }
 
+    .lang-toggle{
+      position:absolute;
+      top:18px;
+      right:18px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      z-index:5;
+    }
+
+    .lang-btn{
+      width:46px;
+      height:36px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:12px;
+      border:1px solid rgba(36,52,71,.10);
+      background:#ffffff;
+      box-shadow:var(--shadow-soft);
+      cursor:pointer;
+      padding:0;
+      transition:transform .12s ease, border-color .12s ease, box-shadow .12s ease, background .12s ease;
+    }
+
+    .lang-btn:hover{
+      transform:translateY(-1px);
+      border-color:rgba(52,168,184,.25);
+    }
+
+    .lang-btn[aria-pressed="true"]{
+      background:rgba(52,168,184,.08);
+      border-color:rgba(52,168,184,.35);
+      box-shadow:0 0 0 3px rgba(52,168,184,.08), var(--shadow-soft);
+    }
+
+    .lang-btn svg{
+      display:block;
+    }
+
     .hero-label{
       display:inline-flex;
       align-items:center;
@@ -285,6 +325,11 @@
       .modules-grid{grid-template-columns:1fr}
       .wrap{padding:28px 14px 60px}
       .hero,.section,.modules{padding:20px 16px 18px}
+      .lang-toggle{
+        position:static;
+        margin:0 0 14px 0;
+        justify-content:flex-end;
+      }
     }
 
     .mod-card{
@@ -383,6 +428,30 @@
 
   <div class="wrap">
     <section class="hero" id="hero">
+      <div class="lang-toggle" aria-label="Sprache / Language">
+        <button class="lang-btn" type="button" data-set-lang="de" aria-pressed="true" title="Deutsch" aria-label="Deutsch">
+          <svg width="28" height="18" viewBox="0 0 28 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="28" height="18" rx="3" fill="rgba(255,255,255,0.06)"/>
+            <rect x="1" y="1" width="26" height="16" rx="2" fill="#111827"/>
+            <rect x="1" y="6" width="26" height="6" fill="#dc2626"/>
+            <rect x="1" y="12" width="26" height="5" fill="#f59e0b"/>
+          </svg>
+        </button>
+
+        <button class="lang-btn" type="button" data-set-lang="en" aria-pressed="false" title="English" aria-label="English">
+          <svg width="28" height="18" viewBox="0 0 28 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="28" height="18" rx="3" fill="rgba(255,255,255,0.06)"/>
+            <rect x="1" y="1" width="26" height="16" rx="2" fill="#1f3b87"/>
+            <path d="M1 1 L27 17 M27 1 L1 17" stroke="#ffffff" stroke-width="3"/>
+            <path d="M1 1 L27 17 M27 1 L1 17" stroke="#dc2626" stroke-width="1.4"/>
+            <rect x="12" y="1" width="4" height="16" fill="#ffffff"/>
+            <rect x="1" y="7" width="26" height="4" fill="#ffffff"/>
+            <rect x="13" y="1" width="2" height="16" fill="#dc2626"/>
+            <rect x="1" y="8" width="26" height="2" fill="#dc2626"/>
+          </svg>
+        </button>
+      </div>
+
       <div class="hero-inner">
         <div class="hero-label">
           <span class="icon">★</span>
@@ -698,6 +767,52 @@
         card.addEventListener('click', function(){
           openModule(card);
         });
+      });
+    })();
+  </script>
+
+  <script>
+    (function(){
+      const KEY = 'fsa_lang';
+      const DE  = '/lp-anfang/pages/liquiditybooster/krypto-setup-intro.html';
+      const EN  = '/lp-anfang/pages/liquiditybooster/krypto-setup-intro-en.html';
+
+      function setPressed(lang){
+        document.querySelectorAll('[data-set-lang]').forEach(btn=>{
+          btn.setAttribute('aria-pressed', btn.getAttribute('data-set-lang') === lang ? 'true' : 'false');
+        });
+      }
+
+      function go(lang){
+        const target = (lang === 'en') ? EN : DE;
+        try{ localStorage.setItem(KEY, lang); }catch(e){}
+        location.assign(target + '?nocache=' + Date.now());
+      }
+
+      let pref = 'de';
+      try{
+        pref = (localStorage.getItem(KEY) || 'de').toLowerCase() === 'en' ? 'en' : 'de';
+      }catch(e){}
+
+      setPressed('de');
+
+      document.querySelectorAll('[data-set-lang]').forEach(btn=>{
+        btn.addEventListener('click', function(){
+          const lang = btn.getAttribute('data-set-lang') === 'en' ? 'en' : 'de';
+          if (lang === 'de'){
+            try{ localStorage.setItem(KEY, 'de'); }catch(e){}
+            setPressed('de');
+            return;
+          }
+          go(lang);
+        });
+      });
+
+      window.addEventListener('storage', function(ev){
+        if (ev.key === KEY){
+          const v = (ev.newValue || 'de').toLowerCase() === 'en' ? 'en' : 'de';
+          setPressed(v);
+        }
       });
     })();
   </script>
