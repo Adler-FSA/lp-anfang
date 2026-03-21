@@ -242,6 +242,7 @@
     │   │   ├── ceo-bausteine.PNG
     │   │   ├── compliance.jpg
     │   │   ├── frohe-weihnachten.jpg
+    │   │   ├── herz-aus-freiheit.jpg
     │   │   ├── index.json
     │   │   ├── kick-of-01.jpeg
     │   │   ├── kick-of-02.jpeg
@@ -424,6 +425,7 @@
     │   │   ├── die-seele-erwacht.mp3
     │   │   ├── dienstag-um-18-uhr.mp3
     │   │   ├── feuer-unter-unserer-haut.mp3
+    │   │   ├── herz-aus-freiheit.mp3
     │   │   ├── jetzt-nach-vorn.mp3
     │   │   ├── stille-revolution.mp3
     │   │   ├── the-power-of-liquiditybooster.mp3
@@ -1239,6 +1241,7 @@
     │   ├── office.html
     │   ├── presse.html
     │   ├── profi-nachweis.html
+    │   ├── so-erklaerst-du-den-weg.html
     │   ├── social.html
     │   ├── souveraenitaet.html
     │   ├── stille-revolution.html
@@ -1295,4 +1298,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.03.2026, 06:36)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.03.2026, 08:26)_
