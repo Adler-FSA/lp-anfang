@@ -815,6 +815,8 @@
     │   │   ├── timecells-handling.html
     │   │   ├── trusttipp-handling.html
     │   │   └── trustyfy-handling.html
+    │   ├── interview/
+    │   │   └── liquiditybooster-interview.html
     │   ├── jobangebote/
     │   │   ├── promotoren-stellenauschreibung.html
     │   │   ├── quereinsteiger-stellenausschreibung.html
@@ -1298,4 +1300,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.03.2026, 08:26)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.03.2026, 09:26)_
