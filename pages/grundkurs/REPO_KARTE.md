@@ -85,6 +85,8 @@
     │   │       ├── kapitel-20-bonus-rechtsrahmen-hinterfragen-voelkerrecht-menschenrechte-handelsrecht-und-die-schattenzone-der-zustaendigkeiten-de.jpg
     │   │       ├── kapitel-21-die-rueckeroberung-der-kontrolle-de.jpg
     │   │       └── kapitel-22-der-unsichtbare-druck-es-allen-recht-machen-wollen-de.jpg
+    │   ├── css/
+    │   │   └── liquiditybooster-course.css
     │   ├── images/
     │   │   ├── backgrounds/
     │   │   │   ├── hoersaal-timecells-bg-2.jpg
@@ -1300,4 +1302,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.03.2026, 19:19)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.03.2026, 21:19)_
