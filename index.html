@@ -77,30 +77,9 @@
   .acc-row.open .acc-body{display:block}
 
   /* ===== CTA ===== */
-  .btn{
-    display:inline-block;
-    background:var(--gold);
-    color:#000;
-    padding:14px 22px;
-    border-radius:999px;
-    font-weight:800;
-    text-decoration:none;
-    border:none;
-    font-family:inherit;
-    font-size:1rem;
-  }
+  .btn{display:inline-block;background:var(--gold);color:#000;padding:14px 22px;border-radius:999px;font-weight:800;text-decoration:none}
   .btn:hover{filter:brightness(1.05)}
   .btn.full{display:block;text-align:center}
-
-  .btn.is-disabled,
-  .btn[disabled]{
-    background:rgba(212,175,55,.45);
-    color:rgba(0,0,0,.65);
-    cursor:not-allowed;
-    pointer-events:none;
-    filter:none;
-    opacity:.85;
-  }
 
   /* ===== Kino-Frame ===== */
   #kino .frame{
@@ -111,11 +90,32 @@
 
   /* ===== Footer (getrennt) ===== */
   footer.site-footer{
-    background:#0b0f14;
-    text-align:center;
-    padding:60px 20px;
-    border-top:1px solid rgba(212,175,55,.2);
-    margin-top:4cm;
+    background:#0b0f14;text-align:center;padding:60px 20px;border-top:1px solid rgba(212,175,55,.2);
+    margin-top:4cm; /* Abstand zum Template */
+  }
+  footer.site-footer a{color:#facc15;text-decoration:none;font-weight:600;margin:0 6px}
+  footer.site-footer a:hover{color:#fff}
+  .footer-group{margin:12px 0}
+  .disclaimer-links{margin-top:20px;color:#facc15;display:flex;flex-wrap:wrap;justify-content:center;gap:1.2rem;font-weight:700}
+  .disclaimer-links button{all:unset;cursor:pointer;color:#facc15;font-weight:700}
+  .disc-wrap{max-width:900px;margin:10px auto 0;text-align:left}
+  .disc-item{display:none;color:#e5e7eb;line-height:1.7;border:1px solid rgba(212,175,55,.25);border-radius:10px;padding:14px 16px;background:rgba(0,0,0,.35)}
+  .disc-item.active{display:block}
+
+  /* Share-Button im Footer */
+  .share-btn{
+    padding:10px 20px;
+    border-radius:999px;
+    border:1px solid rgba(250,204,21,.8);
+    background:transparent;
+    color:#facc15;
+    font-weight:700;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .share-btn:hover{
+    background:#facc15;
+    color:#000;
   }
 
   /* Hilfsklasse für Sprache */
@@ -161,10 +161,10 @@
         <p class="de">Viele haben Angst – weil sie keine Ahnung haben. Genau deshalb gibt es die <strong>Finanzielle Souveränitäts Akademie</strong>.</p>
         <p class="en hidden">Many are afraid—because they lack knowledge. That’s exactly why the <strong>Financial Sovereignty Academy</strong> exists.</p>
 
-        <button type="button" class="btn is-disabled" disabled style="margin-top:10px" aria-disabled="true">
+        <a href="javascript:void(0)" class="btn" style="margin-top:10px; pointer-events:none; opacity:.45; cursor:default;">
           <span class="de">Jetzt starten</span>
           <span class="en hidden">Start now</span>
-        </button>
+        </a>
       </div>
 
       <div style="display:flex;flex-direction:column;gap:22px">
@@ -309,7 +309,7 @@
               <span class="en hidden">Here you get everything: clarity, practical knowledge and the tools for your freedom.</span>
             </div>
           </div>
-        </div>
+        </div><!-- /acc-box -->
       </div>
     </div>
   </section>
@@ -327,7 +327,7 @@
     </div>
   </section>
 
-  <!-- ===== Footer leer ===== -->
+  <!-- ===== Footer (getrennt, aber leer) ===== -->
   <footer class="site-footer"></footer>
 </main>
 
@@ -338,6 +338,12 @@
 
 <!-- ===== Seiten-Logik ===== -->
 <script>
+  /* ========= Jahr ========= */
+  const yearEl = document.getElementById('year');
+  if(yearEl){
+    yearEl.textContent = new Date().getFullYear();
+  }
+
   /* ========= Accordion ========= */
   document.querySelectorAll('.acc-head').forEach(h=>{
     h.addEventListener('click',()=>h.parentElement.classList.toggle('open'));
@@ -366,13 +372,10 @@
   ];
   function buildMarqueeLine(texts){
     const line = document.createElement('div');
-    line.style.display='flex';
-    line.style.alignItems='center';
+    line.style.display='flex'; line.style.alignItems='center';
     line.style.gap = getComputedStyle(document.documentElement).getPropertyValue('--marquee-gap') || '4cm';
     [...texts, ...texts].forEach(t=>{
-      const span=document.createElement('span');
-      span.textContent=t;
-      line.appendChild(span);
+      const span=document.createElement('span'); span.textContent=t; line.appendChild(span);
     });
     return line.innerHTML;
   }
@@ -398,11 +401,59 @@
   });
   renderMarqueeByLang(localStorage.getItem('fsa_lang') || 'de');
 
+  /* ========= Footer-Disclaimer (Toggle ohne Scroll) ========= */
+  (function(){
+    const links = document.getElementById('discLinks');
+    if(!links) return;
+    const items = {
+      disc1: document.getElementById('disc1'),
+      disc2: document.getElementById('disc2'),
+      disc3: document.getElementById('disc3')
+    };
+    links.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button[data-target]');
+      if(!btn) return;
+      e.preventDefault();
+      const id = btn.getAttribute('data-target');
+      Object.keys(items).forEach(k => {
+        if(items[k]){
+          items[k].classList.toggle('active', k===id && !items[k].classList.contains('active'));
+        }
+      });
+    });
+  })();
+
   /* ========= Scroll-Position bei Reload deaktivieren ========= */
   if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
   }
+
+  /* ========= Share-Button im Footer ========= */
+  (function(){
+    const btn = document.getElementById('shareBtn');
+    if(!btn) return;
+    btn.addEventListener('click', async ()=>{
+      const url   = location.href;
+      const isDE  = (document.documentElement.lang || 'de') === 'de';
+      const title = isDE ? 'Finanzielle Souveränitäts Akademie' : 'Financial Sovereignty Academy';
+      const text  = isDE
+        ? 'Einladung zur Akademie – Grundkurs & mehr.'
+        : 'Invitation to the Academy – basic course & more.';
+      try{
+        if(navigator.share){
+          await navigator.share({ title, text, url });
+        }else if(navigator.clipboard && navigator.clipboard.writeText){
+          await navigator.clipboard.writeText(url);
+          alert(isDE ? 'Link in die Zwischenablage kopiert.' : 'Link copied to clipboard.');
+        }else{
+          alert(url);
+        }
+      }catch(e){
+        /* Nutzer kann den Dialog einfach abbrechen – dann nichts tun */
+      }
+    });
+  })();
 </script>
 </body>
 </html>
