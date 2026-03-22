@@ -4,11 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
     <div class="topbar">
       <nav class="doors">
         <a class="door" href="/lp-anfang/index.html">🏠 Startseite</a>
-        <a class="door" href="/lp-anfang/krypto.html">💰 Krypto</a>
-        <a class="door" href="/lp-anfang/grundkurs.html">📘 Grundkurs</a>
-        <a class="door" href="/lp-anfang/office.html">📂 Office</a>
-        <a class="door" href="/lp-anfang/campus.html">🎓 Campus</a>
-        <a class="door" href="/lp-anfang/hoersaal.html">🏛️ Hörsaal</a>
         <a class="door" href="/lp-anfang/pages/footer/safety.html">🛡️ Hinweis</a>
       </nav>
 
@@ -78,14 +73,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
       /* 🔸 Responsive Regeln */
       @media (max-width: 720px) {
-        .door { flex: 1 1 45%; text-align: center; }
+        .door {
+          flex: 1 1 45%;
+          text-align: center;
+        }
       }
 
       @media (max-width: 420px) {
-        .door { flex: 1 1 100%; font-size: 0.95rem; }
-        #menu-helpers { flex-direction: column; gap: 6px; }
+        .door {
+          flex: 1 1 100%;
+          font-size: 0.95rem;
+        }
+
+        #menu-helpers {
+          flex-direction: column;
+          gap: 6px;
+        }
       }
     </style>
   `;
+
   document.body.insertAdjacentHTML("afterbegin", menuHTML);
 });
