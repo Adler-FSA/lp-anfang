@@ -1078,7 +1078,8 @@
     │   │   ├── modul-2-ausgangslage.html
     │   │   ├── modul-3-taetigkeit.html
     │   │   ├── modul-4-ausfuellhilfe.html
-    │   │   └── modul-5-druckfassung.html
+    │   │   ├── modul-5-druckfassung.html
+    │   │   └── ressourcen.html
     │   ├── story/
     │   │   ├── alfred-hamsterrad.html
     │   │   ├── anna-aufbruch.html
@@ -1307,4 +1308,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.03.2026, 18:45)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.03.2026, 19:43)_
