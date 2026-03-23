@@ -4,1127 +4,549 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Steuer-Starter – Modul 4 Ausfüllhilfe</title>
-  <meta name="description" content="Modul 4 des FSA Steuer-Starters – vorbereitende Ausfüllhilfe für den Fragebogen zur steuerlichen Erfassung, mit LocalStorage und druckoptimierter Ausgabe." />
+  <meta name="description" content="Modul 4 des Steuer-Starters. Hier bereitest du deine Angaben, Unterlagen, Einnahmen, mögliche Kosten und offenen Punkte geordnet für die spätere Druckfassung und die Vorlage beim Steuerberater vor." />
   <meta name="robots" content="index,follow" />
-
+  <link rel="stylesheet" href="../../library/css/liquiditybooster-course.css" />
   <style>
-    :root{
-      --bg:#f6f8fb;
-      --paper:#ffffff;
-      --ink:#0f172a;
-      --muted:#5b6472;
-      --line:rgba(15,23,42,.10);
-      --teal:#2aa8b8;
-      --teal2:#1b7f8c;
-      --gold:#c89b3c;
-      --gold2:#9f7a2c;
-      --danger:#a11d2f;
-      --ok:#0f766e;
-      --shadow:0 18px 44px rgba(15,23,42,.10);
-      --max:1180px;
+    .hero-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1.35fr) minmax(280px,.95fr);
+      gap:18px;
+      align-items:start;
+      margin-top:18px;
     }
 
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{
-      margin:0;
-      font-family:Arial,Helvetica,sans-serif;
-      color:var(--ink);
-      background:
-        radial-gradient(circle at top right, rgba(42,168,184,.10), transparent 28%),
-        radial-gradient(circle at top left, rgba(200,155,60,.08), transparent 22%),
-        var(--bg);
+    .hero-side{
+      display:grid;
+      gap:12px;
     }
 
-    a{color:inherit;text-decoration:none}
-    .wrap{width:min(var(--max),calc(100% - 28px));margin:0 auto}
-
-    .topbar{
-      position:sticky; top:0; z-index:40;
-      background:rgba(246,248,251,.88);
-      backdrop-filter:blur(10px);
-      border-bottom:1px solid var(--line);
-    }
-
-    .topbar-inner{
-      min-height:70px;
-      display:flex; align-items:center; justify-content:space-between; gap:14px;
-    }
-
-    .brand{display:flex; align-items:center; gap:12px}
-    .brand-mark{
-      width:44px; height:44px; border-radius:14px; flex:0 0 44px;
-      display:grid; place-items:center;
-      color:#fff; font-weight:900;
-      background:linear-gradient(135deg,var(--teal),var(--teal2));
-      box-shadow:var(--shadow);
-    }
-
-    .brand-title{font-weight:900; letter-spacing:.01em}
-    .brand-sub{display:block; color:var(--muted); font-size:12px; margin-top:2px}
-    .top-actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
-
-    .lang-switch{
-      display:inline-flex; gap:6px; padding:4px;
-      background:#fff; border:1px solid var(--line); border-radius:14px;
-    }
-
-    .lang-switch button{
-      min-height:36px; min-width:52px; border:0; border-radius:10px;
-      background:transparent; cursor:pointer; font-weight:800; color:var(--muted);
-    }
-
-    .lang-switch button.active{
-      color:#fff; background:linear-gradient(135deg,var(--gold),var(--gold2));
-    }
-
-    .btn{
-      display:inline-flex; align-items:center; justify-content:center; gap:10px;
-      min-height:44px; padding:0 16px; border-radius:14px;
-      border:1px solid transparent; cursor:pointer; font-weight:800;
-      background:linear-gradient(135deg,var(--teal),var(--teal2)); color:#fff;
-      box-shadow:var(--shadow);
-    }
-
-    .btn.alt{
-      background:#fff; color:var(--ink); border-color:var(--line); box-shadow:none;
-    }
-
-    .hero{padding:30px 0 18px}
-    .hero-card,.card{
-      background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,255,255,.94));
+    .quote-box,
+    .mini-card{
+      background:linear-gradient(180deg,#ffffff,#fbfdff);
       border:1px solid var(--line);
-      border-radius:28px;
-      box-shadow:var(--shadow);
+      border-radius:var(--radius-lg);
+      padding:18px;
+      box-shadow:var(--shadow-soft);
     }
 
-    .hero-card{padding:28px}
-    .eyebrow{
-      display:inline-flex; align-items:center; gap:8px;
-      font-size:12px; letter-spacing:.12em; text-transform:uppercase;
-      font-weight:900; color:var(--teal2);
-      padding:8px 12px; border-radius:999px;
-      background:rgba(42,168,184,.10); border:1px solid rgba(42,168,184,.16);
-    }
-
-    h1{
-      margin:14px 0 10px;
-      font-size:clamp(30px,4vw,46px);
-      line-height:1.05; letter-spacing:-.03em;
-    }
-
-    .lead{margin:0; color:var(--muted); font-size:17px; line-height:1.6}
-
-    .grid{
-      display:grid; gap:18px;
-      grid-template-columns:repeat(12,minmax(0,1fr));
-      padding:0 0 36px;
-    }
-
-    .card{grid-column:span 12; padding:22px}
-    .card h2{margin:0 0 12px; font-size:24px}
-    .card h3{margin:0 0 10px; font-size:18px}
-    .muted{color:var(--muted)}
-
-    .cards-2,.cards-3,.form-grid,.summary-grid,.step-grid{
-      display:grid; gap:16px;
-    }
-    .cards-2{grid-template-columns:repeat(2,minmax(0,1fr))}
-    .cards-3{grid-template-columns:repeat(3,minmax(0,1fr))}
-    .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-    .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-    .step-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-
-    .summary-box{
-      min-height:100%;
-      border:1px solid var(--line); border-radius:18px;
-      background:#fff; padding:16px;
-    }
-
-    .alert{
-      border:1px solid rgba(161,29,47,.16);
-      background:rgba(161,29,47,.05);
-      color:#5f1120;
-      border-radius:18px;
-      padding:16px 18px;
-    }
-
-    .okbox{
-      border:1px solid rgba(15,118,110,.18);
-      background:rgba(15,118,110,.06);
-      border-radius:18px; padding:16px 18px;
-    }
-
-    .step-box{
-      min-height:100%;
-      border:1px solid var(--line);
-      border-radius:18px;
-      background:#fff;
+    .mini-card{
       padding:16px;
+    }
+
+    .mini-card h3{
+      margin:0 0 8px 0;
+      font-size:16px;
+      line-height:1.35;
+    }
+
+    .mini-card p{
+      margin:0;
+      color:var(--muted);
+      font-size:14.6px;
+      line-height:1.65;
+    }
+
+    .quote-box p{
+      margin:0;
+      color:var(--ink-strong);
+      font-size:16px;
+      line-height:1.72;
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:16px;
+      margin-top:18px;
+    }
+
+    .step-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:16px;
+      margin-top:18px;
+    }
+
+    .step-card{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      min-height:210px;
+      padding:18px;
+      background:linear-gradient(180deg,#ffffff,#f9fcfe);
+      border:1px solid var(--line);
+      border-radius:var(--radius-lg);
+      box-shadow:var(--shadow-soft);
+      position:relative;
+      overflow:hidden;
+      color:inherit;
+    }
+
+    .step-card::before{
+      content:"";
+      position:absolute;
+      inset:0 auto 0 0;
+      width:5px;
+      background:linear-gradient(180deg,var(--turquoise),#79d7e2);
     }
 
     .step-no{
-      width:34px; height:34px; border-radius:10px;
-      display:grid; place-items:center;
-      font-weight:900; color:#fff;
-      background:linear-gradient(135deg,var(--gold),var(--gold2));
-      margin-bottom:10px;
-    }
-
-    .field{display:flex; flex-direction:column; gap:8px}
-    .field.full{grid-column:1/-1}
-    label{font-weight:800; font-size:14px}
-
-    input,select,textarea{
-      width:100%; min-height:48px;
-      border:1px solid var(--line);
+      width:42px;
+      height:42px;
+      min-width:42px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
       border-radius:14px;
-      padding:12px 14px;
-      font:inherit;
-      color:var(--ink);
-      background:#fff;
+      background:var(--turquoise-soft);
+      color:var(--turquoise-deep);
+      border:1px solid rgba(52,168,184,.18);
+      font-weight:850;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.75);
+      flex:0 0 auto;
     }
 
-    textarea{min-height:140px; resize:vertical}
-
-    .kv{display:grid; gap:10px}
-    .kv-item{
-      display:grid; grid-template-columns:200px 1fr; gap:10px;
-      padding:10px 0;
-      border-bottom:1px dashed rgba(15,23,42,.08);
-    }
-
-    .kv-item:last-child{border-bottom:0}
-    .kv-item b{color:var(--muted)}
-
-    .small{font-size:13px}
-    .list{margin:0; padding-left:18px; color:var(--muted); line-height:1.6}
-    .btn-row{display:flex; flex-wrap:wrap; gap:10px}
-    .footer{padding:10px 0 42px; color:var(--muted); font-size:14px}
-
-    .screen-only{display:block}
-    .print-only{display:none}
-
-    .print-sheet{
-      display:none;
-      background:#fff;
-      border:1px solid rgba(15,23,42,.08);
-      border-radius:20px;
-      padding:26px;
-      box-shadow:none;
-    }
-
-    .print-head{
-      display:flex;
-      justify-content:space-between;
-      gap:16px;
-      padding-bottom:14px;
-      border-bottom:2px solid rgba(15,23,42,.08);
-      margin-bottom:18px;
-    }
-
-    .print-head h1{
-      margin:0 0 6px;
-      font-size:28px;
-      line-height:1.1;
-      letter-spacing:-.02em;
-    }
-
-    .print-meta{
-      text-align:right;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.5;
-      min-width:180px;
-    }
-
-    .print-block{
-      margin-bottom:20px;
-      break-inside:avoid;
-      page-break-inside:avoid;
-    }
-
-    .print-block h2{
-      margin:0 0 10px;
+    .step-card h3{
+      margin:0;
+      color:var(--ink-strong);
       font-size:18px;
+      line-height:1.35;
     }
 
-    .print-note{
-      padding:12px 14px;
-      border:1px solid rgba(15,118,110,.18);
-      background:rgba(15,118,110,.05);
-      border-radius:14px;
-      color:#0f172a;
+    .step-card p{
+      margin:0;
+      color:var(--muted);
+      font-size:14.8px;
+      line-height:1.64;
+    }
+
+    .field-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:16px;
+      margin-top:18px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .field.full{
+      grid-column:1 / -1;
+    }
+
+    .field label{
+      color:var(--ink-strong);
+      font-weight:700;
       font-size:14px;
+      line-height:1.4;
+    }
+
+    .field input,
+    .field textarea{
+      width:100%;
+      padding:12px 12px;
+      border-radius:12px;
+      border:1px solid rgba(36,52,71,.12);
+      background:#ffffff;
+      color:var(--ink-strong);
+      outline:none;
+      font-size:15px;
+      box-shadow:var(--shadow-soft);
+      font-family:inherit;
+    }
+
+    .field textarea{
+      min-height:130px;
+      resize:vertical;
+    }
+
+    .field input:focus,
+    .field textarea:focus{
+      border-color:rgba(52,168,184,.35);
+      box-shadow:0 0 0 3px rgba(52,168,184,.08), var(--shadow-soft);
+    }
+
+    .save-note{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:13.5px;
+      line-height:1.6;
+    }
+
+    .status-line{
+      margin-top:12px;
+      color:var(--turquoise-deep);
+      font-size:13.5px;
+      line-height:1.6;
+      font-weight:700;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      margin-top:18px;
+      border:1px solid var(--line);
+      border-radius:var(--radius-lg);
+      box-shadow:var(--shadow-soft);
+      background:#fff;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:860px;
+    }
+
+    th, td{
+      padding:12px 12px;
+      text-align:left;
+      vertical-align:top;
+      border-bottom:1px solid var(--line);
+      font-size:14.5px;
       line-height:1.55;
     }
 
-    .print-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:18px;
-    }
-
-    .print-panel{
-      border:1px solid rgba(15,23,42,.08);
-      border-radius:16px;
-      padding:16px;
-      break-inside:avoid;
-      page-break-inside:avoid;
-    }
-
-    .print-list{
-      margin:0;
-      padding-left:18px;
-      line-height:1.6;
-      color:#334155;
-    }
-
-    .print-table{
-      width:100%;
-      border-collapse:collapse;
-      font-size:14px;
-    }
-
-    .print-table th,
-    .print-table td{
-      text-align:left;
-      vertical-align:top;
-      padding:9px 10px;
-      border-bottom:1px solid rgba(15,23,42,.08);
-    }
-
-    .print-table th{
-      width:34%;
-      color:#475569;
+    th{
+      background:var(--bg-soft);
+      color:var(--ink-strong);
       font-weight:800;
-      background:rgba(248,250,252,.8);
     }
 
-    .print-table td{
-      color:#0f172a;
+    td{
+      color:var(--muted);
     }
 
-    .print-links{
-      display:grid;
-      gap:8px;
-      font-size:14px;
-      line-height:1.5;
+    tr:last-child td{
+      border-bottom:0;
     }
 
-    .print-links div{
-      padding:10px 12px;
-      border:1px solid rgba(15,23,42,.08);
-      border-radius:12px;
-      background:#fff;
-    }
-
-    .print-footer{
-      margin-top:20px;
-      padding-top:12px;
-      border-top:1px solid rgba(15,23,42,.08);
-      font-size:12px;
-      color:#64748b;
-    }
-
-    @page{
-      size:A4;
-      margin:12mm;
-    }
-
-    @media print{
-      .topbar,.hero,.screen-only,.footer{
-        display:none!important;
+    @media (max-width:860px){
+      .hero-grid,
+      .grid-2,
+      .step-grid,
+      .field-grid{
+        grid-template-columns:1fr;
       }
-
-      html,body{
-        background:#fff!important;
-      }
-
-      body{
-        margin:0;
-        color:#000;
-      }
-
-      .wrap{
-        width:100%;
-        margin:0;
-      }
-
-      .grid{
-        display:block;
-        padding:0;
-      }
-
-      .card{
-        display:none!important;
-      }
-
-      .print-only{
-        display:block!important;
-      }
-
-      .print-sheet{
-        display:block!important;
-        border:0;
-        border-radius:0;
-        padding:0;
-      }
-
-      .print-block,
-      .print-panel,
-      .print-grid{
-        break-inside:avoid;
-        page-break-inside:avoid;
-      }
-
-      .print-page-break{
-        break-before:page;
-        page-break-before:always;
-      }
-    }
-
-    @media (max-width:920px){
-      .cards-2,.cards-3,.form-grid,.summary-grid,.step-grid,.print-grid{grid-template-columns:1fr}
-    }
-
-    @media (max-width:760px){
-      .hero-card,.card{padding:20px}
-      .topbar-inner{min-height:62px}
-      .kv-item{grid-template-columns:1fr}
     }
   </style>
 </head>
-<body data-lang="de">
-  <header class="topbar">
-    <div class="wrap topbar-inner">
-      <a class="brand" href="index.html" aria-label="Zur Kursübersicht">
-        <span class="brand-mark">FSA</span>
-        <span>
-          <span class="brand-title">Steuer-Starter</span>
-          <span class="brand-sub" data-i18n="brandSub">Modul 4 – Ausfüllhilfe</span>
-        </span>
-      </a>
-
-      <div class="top-actions">
-        <div class="lang-switch" aria-label="Sprachauswahl">
-          <button type="button" data-lang-btn="de" class="active">DE</button>
-          <button type="button" data-lang-btn="en">EN</button>
-        </div>
-        <a class="btn alt" href="index.html" data-i18n="backOverview">Zur Übersicht</a>
-      </div>
-    </div>
-  </header>
-
+<body>
   <main>
-    <section class="hero screen-only">
-      <div class="wrap">
-        <div class="hero-card">
-          <span class="eyebrow" data-i18n="eyebrow">Modul 4</span>
-          <h1 data-i18n="heroTitle">Die Angaben für den offiziellen Schritt vorsortieren</h1>
-          <p class="lead" data-i18n="heroLead">
-            Dieses Modul ist die Brücke zwischen deiner eigenen Beschreibung und dem späteren offiziellen Ablauf. Hier geht es nicht darum, den ELSTER-Prozess zu ersetzen. Es geht darum, die wichtigsten Punkte vorher so geordnet festzuhalten, dass der nächste Schritt ruhiger und klarer wird.
+    <div class="shell">
+
+      <section class="card hero">
+        <span class="hero-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12h14M12 5v14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          Steuer-Starter · Modul 4
+        </span>
+
+        <h1>Jetzt bereitest du deine Angaben so vor, dass daraus eine geordnete Vorlage für den nächsten Schritt wird.</h1>
+
+        <p class="lead">
+          In diesem Modul führst du die wichtigsten Punkte zusammen. Es geht nicht mehr nur um allgemeine Einordnung, sondern um eine saubere Vorbereitung: Einnahmen, mögliche Kosten, Unterlagen, offene Fragen und die Punkte, die für die spätere Druckfassung und die Vorlage beim Steuerberater wichtig sind.
+        </p>
+
+        <div class="hero-grid">
+          <div class="quote-box">
+            <p>
+              Dieses Modul ist der Übergang von der Einordnung zur praktischen Vorbereitung. Du bringst deine Angaben in eine Form, mit der du später weiterarbeiten kannst. Damit wird aus verstreuten Informationen eine geordnete Grundlage, die in Modul 5 als Druckfassung zusammengeführt wird.
+            </p>
+          </div>
+
+          <div class="hero-side">
+            <div class="mini-card">
+              <h3>Worum es hier geht</h3>
+              <p>Um die saubere Vorbereitung deiner Angaben für die weitere steuerliche Einordnung und die spätere Vorlage.</p>
+            </div>
+            <div class="mini-card">
+              <h3>Was du hier aufbaust</h3>
+              <p>Eine geordnete Zusammenstellung von Einnahmen, Unterlagen, möglichen Kosten und offenen Punkten.</p>
+            </div>
+            <div class="mini-card">
+              <h3>Was danach folgt</h3>
+              <p>Im nächsten Modul wird daraus die druckbare Gesamtfassung aufgebaut.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pill-row">
+          <span class="pill">Vorbereitung</span>
+          <span class="pill">Steuerberater-Vorlage</span>
+          <span class="pill">Grundlage für die Druckfassung</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Was du in diesem Modul zusammenführst</h2>
+        <div class="grid-2">
+          <div class="box">
+            <h2>Einnahmen</h2>
+            <p>Du hältst fest, wie deine zusätzlichen Einnahmen grob einzuordnen sind und was davon bereits erfasst werden kann.</p>
+          </div>
+          <div class="box">
+            <h2>Mögliche Kosten</h2>
+            <p>Du notierst, welche Ausgaben oder Aufwendungen im Zusammenhang mit deiner zusätzlichen Tätigkeit stehen können.</p>
+          </div>
+          <div class="box">
+            <h2>Unterlagen</h2>
+            <p>Du beschreibst, welche Nachweise, Abrechnungen und Dokumente bereits vorliegen oder noch ergänzt werden sollen.</p>
+          </div>
+          <div class="box">
+            <h2>Offene Punkte</h2>
+            <p>Du sammelst die Fragen, die später sauber mit einem Steuerberater oder im weiteren Verlauf geklärt werden sollen.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Die wichtigsten Schritte in dieser Vorbereitung</h2>
+        <div class="step-grid">
+          <div class="step-card">
+            <span class="step-no">1</span>
+            <h3>Einnahmen zusammenfassen</h3>
+            <p>Du hältst fest, in welchem Rahmen zusätzliche Einnahmen bereits vorhanden sind oder vorbereitet werden müssen.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-no">2</span>
+            <h3>Kosten mitdenken</h3>
+            <p>Du vergisst nicht nur die Einnahmenseite, sondern bereitest auch mögliche Ausgaben und Aufwendungen mit vor.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-no">3</span>
+            <h3>Unterlagen ordnen</h3>
+            <p>Du beschreibst, welche Nachweise, Abrechnungen oder Dokumente bereits vorhanden sind und welche noch fehlen.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-no">4</span>
+            <h3>Vorlage vorbereiten</h3>
+            <p>Du bringst alles in eine Form, die später in der Druckfassung und für den Steuerberater klar nutzbar ist.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Deine Ausfüllhilfe zur Vorbereitung</h2>
+        <div class="box">
+          <p>
+            Die Texte in den Feldern sind so formuliert, dass sie stehen bleiben können, wenn sie bereits zu deiner Situation passen.
+          </p>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="estimatedRevenue">Wie ordnest du deine bisherigen zusätzlichen Einnahmen grob ein?</label>
+              <input id="estimatedRevenue" type="text" value="Die bisherigen zusätzlichen Einnahmen sollen geordnet zusammengeführt und später in der Druckfassung klar dargestellt werden." />
+            </div>
+
+            <div class="field">
+              <label for="estimatedProfit">Wie ordnest du den möglichen Überschuss oder Gewinn grob ein?</label>
+              <input id="estimatedProfit" type="text" value="Der tatsächliche Überschuss soll später anhand der Einnahmen und möglicher Kosten sauber nachvollziehbar werden." />
+            </div>
+
+            <div class="field">
+              <label for="costTopics">Welche möglichen Kosten oder Aufwendungen sollen mitgedacht werden?</label>
+              <input id="costTopics" type="text" value="Mögliche Kosten, Hilfsmittel, Auslagen, Gebühren oder weitere Aufwendungen sollen geordnet mit vorbereitet werden." />
+            </div>
+
+            <div class="field">
+              <label for="documentsStatus">Wie ist der Stand bei deinen Unterlagen und Nachweisen?</label>
+              <input id="documentsStatus" type="text" value="Abrechnungen, Gutschriften, Kontoauszüge und weitere Unterlagen liegen ganz oder teilweise bereits vor oder sollen noch ergänzt werden." />
+            </div>
+
+            <div class="field">
+              <label for="bankReference">Wie sollen Zahlungen und Kontoauszüge später zugeordnet werden?</label>
+              <input id="bankReference" type="text" value="Die bisherigen Zahlungseingänge sollen später eindeutig den vorhandenen Unterlagen und Zeiträumen zugeordnet werden." />
+            </div>
+
+            <div class="field">
+              <label for="advisorPreparation">Was soll für den Steuerberater vorbereitet werden?</label>
+              <input id="advisorPreparation" type="text" value="Für den Steuerberater soll eine geordnete Übersicht aus Ausgangslage, Tätigkeit, Einnahmen, Unterlagen und offenen Punkten vorbereitet werden." />
+            </div>
+
+            <div class="field full">
+              <label for="clarificationPoints">Welche Punkte sollen später sauber geklärt werden?</label>
+              <textarea id="clarificationPoints">Später soll sauber geklärt werden, wie die zusätzlichen Einnahmen steuerlich einzuordnen sind, ob eine weitere steuerliche Erfassung ausreicht oder ob das Thema Gewerbe bzw. selbstständige Tätigkeit näher geprüft werden sollte.</textarea>
+            </div>
+
+            <div class="field full">
+              <label for="finalPreparationNote">Deine vorbereitende Zusammenfassung</label>
+              <textarea id="finalPreparationNote">Ich bereite meine Angaben, Unterlagen, Einnahmen, möglichen Kosten und offenen Punkte so vor, dass daraus im nächsten Schritt eine klare Druck- und PDF-Fassung für die weitere Nutzung entstehen kann.</textarea>
+            </div>
+          </div>
+
+          <div class="save-note">
+            Deine Eingaben werden lokal auf diesem Gerät gespeichert und im nächsten Modul für die Druckfassung weiterverwendet.
+          </div>
+          <div class="status-line" id="saveStatus">Deine Angaben werden lokal gespeichert.</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Was später in der Vorlage sichtbar sein soll</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Bereich</th>
+                <th>Worum es dabei geht</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Ausgangslage</td>
+                <td>Dein beruflicher Rahmen, der bisherige Verlauf und die grundlegende Einordnung deiner Situation.</td>
+              </tr>
+              <tr>
+                <td>Tätigkeit</td>
+                <td>Eine sachliche Beschreibung, wie deine zusätzlichen Einnahmen entstehen.</td>
+              </tr>
+              <tr>
+                <td>Einnahmen</td>
+                <td>Eine geordnete Zusammenfassung der zusätzlichen Einnahmen und vorhandenen Abrechnungen.</td>
+              </tr>
+              <tr>
+                <td>Kosten</td>
+                <td>Hinweise auf mögliche Ausgaben und Aufwendungen, die später berücksichtigt werden sollen.</td>
+              </tr>
+              <tr>
+                <td>Unterlagen</td>
+                <td>Der aktuelle Stand bei Nachweisen, Abrechnungen, Auszügen und weiteren Dokumenten.</td>
+              </tr>
+              <tr>
+                <td>Offene Punkte</td>
+                <td>Die Fragen, die für die weitere steuerliche Einordnung noch sauber geklärt werden sollen.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Warum dir diese Vorbereitung später viel Arbeit erspart</h2>
+        <div class="grid-2">
+          <div class="box">
+            <h2>Du sortierst im Vorfeld</h2>
+            <p>Die spätere Druckfassung wird dadurch klarer, weil du hier bereits sauber vorarbeitest.</p>
+          </div>
+          <div class="box">
+            <h2>Du schaffst eine brauchbare Grundlage</h2>
+            <p>Je besser deine Vorbereitung ist, desto leichter wird das Gespräch mit dem Steuerberater oder die weitere eigene Organisation.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Hilfreich für diesen Schritt</h2>
+        <p class="lead" style="max-width:none;">
+          Wenn du für die weitere Einordnung Begriffe oder offizielle Einstiege brauchst, helfen dir diese Module weiter.
+        </p>
+
+        <div class="grid-2">
+          <a class="help-card" href="glossar.html">
+            <span class="help-ico">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H20v16H7.5A2.5 2.5 0 0 0 5 21.5v-16Z" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M8 7h8M8 11h8M8 15h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <h3>Modul 6 – Glossar</h3>
+            <p>Hier findest du wichtige steuerliche Begriffe in einfacher Sprache erklärt, wenn du einzelne Wörter noch besser einordnen willst.</p>
+            <span class="hint-link">Zum Glossar</span>
+          </a>
+
+          <a class="help-card" href="downloads-formulare.html">
+            <span class="help-ico">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 19h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <h3>Modul 8 – Downloads &amp; Formulare</h3>
+            <p>Hier findest du hilfreiche Einstiege zu Formularen und offiziellen Seiten, die später wichtig werden können.</p>
+            <span class="hint-link">Zu Downloads &amp; Formularen</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Dein nächster Schritt</h2>
+        <div class="box">
+          <p>
+            Im nächsten Modul wird alles zusammengeführt. Dort entsteht aus deinen bisherigen Angaben die geordnete Druck- und PDF-Fassung.
           </p>
         </div>
-      </div>
-    </section>
-
-    <section>
-      <div class="wrap grid">
-        <div class="card screen-only">
-          <h2 data-i18n="introTitle">Warum dieses Modul sinnvoll ist</h2>
-          <div class="cards-2">
-            <div class="summary-box">
-              <h3 data-i18n="introBox1Title">Worum es hier geht</h3>
-              <p class="muted" data-i18n="introBox1Text">
-                Bevor du mit dem offiziellen Formular arbeitest, sammelst du hier die wichtigsten Angaben in einfacher Sprache und in einer logischen Reihenfolge.
-              </p>
-            </div>
-            <div class="summary-box">
-              <h3 data-i18n="introBox2Title">Was das bringt</h3>
-              <p class="muted" data-i18n="introBox2Text">
-                Dadurch wird sichtbar, was schon klar ist, was nur geschätzt werden kann und welche Punkte mit Steuerberater oder Finanzamt noch besprochen werden sollten.
-              </p>
-            </div>
-          </div>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="modul-5-druckfassung.html">Weiter zu Modul 5</a>
+          <a class="btn btn-ghost" href="modul-3-taetigkeit.html">Zurück zu Modul 3</a>
+          <a class="btn btn-ghost" href="index.html">Zur Kursübersicht</a>
         </div>
+      </section>
 
-        <div class="card screen-only">
-          <h2 data-i18n="flowTitle">So nutzt du dieses Modul</h2>
-          <div class="step-grid">
-            <div class="step-box">
-              <div class="step-no">1</div>
-              <h3 data-i18n="flow1Title">Bekanntes eintragen</h3>
-              <p class="muted" data-i18n="flow1Text">Trage nur das ein, was du aktuell wirklich weißt.</p>
-            </div>
-            <div class="step-box">
-              <div class="step-no">2</div>
-              <h3 data-i18n="flow2Title">Unsicheres offen lassen</h3>
-              <p class="muted" data-i18n="flow2Text">Wo du unsicher bist, markierst du den Punkt klar als offen oder noch zu klären.</p>
-            </div>
-            <div class="step-box">
-              <div class="step-no">3</div>
-              <h3 data-i18n="flow3Title">Sauber übergeben</h3>
-              <p class="muted" data-i18n="flow3Text">Diese Vorbereitung fließt danach in die Druckfassung ein und schafft eine geordnete Gesprächsgrundlage.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card screen-only">
-          <h2 data-i18n="carryTitle">Bisherige Grundlage</h2>
-          <div class="summary-grid">
-            <div class="summary-box">
-              <h3 data-i18n="carryBox1Title">Übernahme aus Modul 1 bis 3</h3>
-              <div class="kv" id="carryKv"></div>
-            </div>
-            <div class="summary-box">
-              <h3 data-i18n="carryBox2Title">Hinweis</h3>
-              <div class="okbox">
-                <strong data-i18n="carryStrong">Diese Angaben wurden bereits vorbereitet.</strong>
-                <div class="small" style="margin-top:8px" data-i18n="carryText">
-                  Modul 4 baut darauf auf und bringt jetzt Struktur in die Punkte, die später für den offiziellen Ablauf wichtig werden.
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card screen-only">
-          <h2 data-i18n="formTitle">Deine vorbereitende Ausfüllhilfe</h2>
-
-          <form id="module4Form" class="form-grid" autocomplete="on">
-            <div class="field">
-              <label for="activityStart" data-i18n="activityStartLabel">Beginn der Tätigkeit</label>
-              <input id="activityStart" name="activityStart" type="date" />
-            </div>
-
-            <div class="field">
-              <label for="activityType" data-i18n="activityTypeLabel">Art der Tätigkeit in einfachen Worten</label>
-              <input id="activityType" name="activityType" type="text" placeholder="z. B. Empfehlung von Mitgliedschaften gegen Provision" />
-            </div>
-
-            <div class="field">
-              <label for="expectedRevenue" data-i18n="expectedRevenueLabel">Geschätzter Umsatz / Einnahmen</label>
-              <input id="expectedRevenue" name="expectedRevenue" type="text" placeholder="z. B. 1.200 € jährlich / 100 € monatlich" />
-            </div>
-
-            <div class="field">
-              <label for="expectedProfit" data-i18n="expectedProfitLabel">Geschätzter Gewinn</label>
-              <input id="expectedProfit" name="expectedProfit" type="text" placeholder="z. B. ähnlich wie Einnahmen / noch unklar" />
-            </div>
-
-            <div class="field">
-              <label for="smallBusiness" data-i18n="smallBusinessLabel">Kleinunternehmerregelung gewünscht?</label>
-              <select id="smallBusiness" name="smallBusiness">
-                <option value="" data-i18n="choose">Bitte wählen</option>
-                <option value="Ja">Ja</option>
-                <option value="Nein">Nein</option>
-                <option value="Noch unklar" data-i18n="unclear">Noch unklar</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label for="vatSeen" data-i18n="vatSeenLabel">Umsatzsteuer bereits auf Abrechnungen gesehen?</label>
-              <select id="vatSeen" name="vatSeen">
-                <option value="" data-i18n="choose">Bitte wählen</option>
-                <option value="Ja">Ja</option>
-                <option value="Nein">Nein</option>
-                <option value="Weiß ich nicht" data-i18n="dontKnow">Weiß ich nicht</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label for="bankReady" data-i18n="bankReadyLabel">Bankverbindung für die Tätigkeit geklärt?</label>
-              <select id="bankReady" name="bankReady">
-                <option value="" data-i18n="choose">Bitte wählen</option>
-                <option value="Ja">Ja</option>
-                <option value="Nein">Nein</option>
-                <option value="Teilweise" data-i18n="partly">Teilweise</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label for="taxOfficeContact" data-i18n="taxOfficeContactLabel">Finanzamt oder Ansprechpartner bereits bekannt?</label>
-              <select id="taxOfficeContact" name="taxOfficeContact">
-                <option value="" data-i18n="choose">Bitte wählen</option>
-                <option value="Ja">Ja</option>
-                <option value="Nein">Nein</option>
-                <option value="Teilweise" data-i18n="partly">Teilweise</option>
-              </select>
-            </div>
-
-            <div class="field full">
-              <label for="openClarifications" data-i18n="openClarificationsLabel">Welche Punkte müssen noch geklärt werden?</label>
-              <textarea id="openClarifications" name="openClarifications" placeholder="z. B. Kleinunternehmerregelung, Umsatzsteuer, genaue Bezeichnung der Tätigkeit, Zuständigkeit Finanzamt"></textarea>
-            </div>
-
-            <div class="field full">
-              <label for="advisorNote" data-i18n="advisorNoteLabel">Kurze Notiz für Steuerberater oder Finanzamt</label>
-              <textarea id="advisorNote" name="advisorNote" placeholder="Hier kann kurz zusammengefasst werden, was schon bekannt ist und wo noch Klärungsbedarf besteht."></textarea>
-            </div>
-
-            <div class="field full">
-              <div class="btn-row">
-                <button type="button" class="btn" id="printBtn" data-i18n="printBtn">Druckansicht / Drucken</button>
-                <button type="button" class="btn alt" id="resetBtn" data-i18n="resetBtn">Lokale Daten löschen</button>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <div class="card screen-only">
-          <h2 data-i18n="linksTitle">Offizielle Einstiege</h2>
-          <div class="cards-3">
-            <div class="summary-box">
-              <h3 data-i18n="links1Title">ELSTER – Formularübersicht</h3>
-              <p class="muted" data-i18n="links1Text">Offizielle Übersicht aller Formulare.</p>
-              <div class="btn-row">
-                <a class="btn alt" href="https://www.elster.de/eportal/formulare-leistungen/alleformulare" target="_blank" rel="noopener">ELSTER</a>
-              </div>
-            </div>
-            <div class="summary-box">
-              <h3 data-i18n="links2Title">Fragebogen Einzelunternehmen</h3>
-              <p class="muted" data-i18n="links2Text">Direkter Einstieg für den Fragebogen zur steuerlichen Erfassung.</p>
-              <div class="btn-row">
-                <a class="btn alt" href="https://www.elster.de/eportal/formulare-leistungen/alleformulare/fseeun" target="_blank" rel="noopener">Fragebogen</a>
-              </div>
-            </div>
-            <div class="summary-box">
-              <h3 data-i18n="links3Title">ELSTER – Hilfe</h3>
-              <p class="muted" data-i18n="links3Text">Hilfe zur Unternehmensgründung und steuerlichen Erfassung.</p>
-              <div class="btn-row">
-                <a class="btn alt" href="https://www.elster.de/elsterweb/infoseite/unternehmensgruendung" target="_blank" rel="noopener">Hilfe</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card screen-only">
-          <h2 data-i18n="previewTitle">Deine aktuelle Vorschau</h2>
-          <div class="summary-grid">
-            <div class="summary-box">
-              <h3 data-i18n="previewBox1Title">Gespeicherte Ausfüllhilfe</h3>
-              <div class="kv" id="summaryKv"></div>
-            </div>
-            <div class="summary-box">
-              <h3 data-i18n="previewBox2Title">Wie es weitergeht</h3>
-              <div class="okbox">
-                <strong data-i18n="previewStrong">Im letzten Modul entsteht die Druckfassung.</strong>
-                <div class="small" style="margin-top:8px" data-i18n="previewText">
-                  Dort werden alle Angaben aus dem Kurs in einer kompakten Übersicht zusammengeführt.
-                </div>
-              </div>
-              <div class="btn-row" style="margin-top:12px">
-                <a class="btn alt" href="modul-3-taetigkeit.html" data-i18n="backMod3">Zurück zu Modul 3</a>
-                <a class="btn" href="modul-5-druckfassung.html" data-i18n="toMod5">Weiter zu Modul 5</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card screen-only">
-          <h2 data-i18n="academyTitle">Akademie-Hinweis</h2>
-          <div class="alert">
-            <strong data-i18n="academyStrong">Dieses Modul ist eine Ordnungs- und Vorbereitungshilfe.</strong>
-            <div class="small" style="margin-top:8px" data-i18n="academyText">
-              Die spätere verbindliche Eintragung erfolgt im offiziellen Formular oder gemeinsam mit Steuerberater bzw. Finanzamt.
-            </div>
-          </div>
-        </div>
-
-        <div class="print-only print-sheet" id="printSheet">
-          <div class="print-head">
-            <div>
-              <h1 data-i18n="printTitle">Steuer-Starter – Modul 4</h1>
-              <div class="muted" data-i18n="printSubtitle">Vorbereitende Ausfüllhilfe</div>
-            </div>
-            <div class="print-meta">
-              <div><strong>FSA Akademie</strong></div>
-              <div id="printDate">–</div>
-              <div data-i18n="printMetaHint">Druckfassung zur Vorbereitung</div>
-            </div>
-          </div>
-
-          <div class="print-block">
-            <div class="print-note" data-i18n="printIntro">
-              Diese Druckfassung fasst die vorbereitende Ausfüllhilfe aus Modul 4 zusammen. Sie dient als geordnete Brücke zwischen deiner bisherigen Beschreibung und dem späteren offiziellen Ablauf.
-            </div>
-          </div>
-
-          <div class="print-block">
-            <div class="print-grid">
-              <div class="print-panel">
-                <h2 data-i18n="printPanel1Title">Wie dieses Modul arbeitet</h2>
-                <ul class="print-list">
-                  <li data-i18n="flow1Text">Trage nur das ein, was du aktuell wirklich weißt.</li>
-                  <li data-i18n="flow2Text">Wo du unsicher bist, markierst du den Punkt klar als offen oder noch zu klären.</li>
-                  <li data-i18n="flow3Text">Diese Vorbereitung fließt danach in die Druckfassung ein und schafft eine geordnete Gesprächsgrundlage.</li>
-                </ul>
-              </div>
-              <div class="print-panel">
-                <h2 data-i18n="printPanel2Title">Bisherige Grundlage</h2>
-                <table class="print-table">
-                  <tbody id="printCarryBody"></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <div class="print-block print-page-break">
-            <div class="print-panel">
-              <h2 data-i18n="printValuesTitle">Erfasste Angaben aus Modul 4</h2>
-              <table class="print-table">
-                <tbody id="printTableBody"></tbody>
-              </table>
-            </div>
-          </div>
-
-          <div class="print-block">
-            <div class="print-grid">
-              <div class="print-panel">
-                <h2 data-i18n="printLinksTitle">Offizielle Einstiege</h2>
-                <div class="print-links">
-                  <div data-i18n="printLink1">ELSTER – Formularübersicht</div>
-                  <div data-i18n="printLink2">Fragebogen zur steuerlichen Erfassung für Einzelunternehmen</div>
-                  <div data-i18n="printLink3">ELSTER – Hilfe zur Unternehmensgründung und steuerlichen Erfassung</div>
-                </div>
-              </div>
-              <div class="print-panel">
-                <h2 data-i18n="printNextTitle">Nächster Schritt</h2>
-                <div class="print-note" data-i18n="previewText">
-                  Dort werden alle Angaben aus dem Kurs in einer kompakten Übersicht zusammengeführt.
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="print-block">
-            <div class="print-panel">
-              <h2 data-i18n="printAcademyTitle">Akademie-Hinweis</h2>
-              <div class="print-note" data-i18n="academyText">
-                Die spätere verbindliche Eintragung erfolgt im offiziellen Formular oder gemeinsam mit Steuerberater bzw. Finanzamt.
-              </div>
-            </div>
-          </div>
-
-          <div class="print-footer" data-i18n="printFooter">
-            FSA Akademie · Steuer-Starter · Modul 4 · Lokale Druckfassung
-          </div>
-        </div>
-      </div>
-    </section>
+    </div>
   </main>
-
-  <footer class="footer screen-only">
-    <div class="wrap">FSA Akademie · Steuer-Starter · Modul 4</div>
-  </footer>
 
   <script>
     (function(){
-      const translations = {
-        de:{
-          brandSub:"Modul 4 – Ausfüllhilfe",
-          backOverview:"Zur Übersicht",
-          eyebrow:"Modul 4",
-          heroTitle:"Die Angaben für den offiziellen Schritt vorsortieren",
-          heroLead:"Dieses Modul ist die Brücke zwischen deiner eigenen Beschreibung und dem späteren offiziellen Ablauf. Hier geht es nicht darum, den ELSTER-Prozess zu ersetzen. Es geht darum, die wichtigsten Punkte vorher so geordnet festzuhalten, dass der nächste Schritt ruhiger und klarer wird.",
-          introTitle:"Warum dieses Modul sinnvoll ist",
-          introBox1Title:"Worum es hier geht",
-          introBox1Text:"Bevor du mit dem offiziellen Formular arbeitest, sammelst du hier die wichtigsten Angaben in einfacher Sprache und in einer logischen Reihenfolge.",
-          introBox2Title:"Was das bringt",
-          introBox2Text:"Dadurch wird sichtbar, was schon klar ist, was nur geschätzt werden kann und welche Punkte mit Steuerberater oder Finanzamt noch besprochen werden sollten.",
-          flowTitle:"So nutzt du dieses Modul",
-          flow1Title:"Bekanntes eintragen",
-          flow1Text:"Trage nur das ein, was du aktuell wirklich weißt.",
-          flow2Title:"Unsicheres offen lassen",
-          flow2Text:"Wo du unsicher bist, markierst du den Punkt klar als offen oder noch zu klären.",
-          flow3Title:"Sauber übergeben",
-          flow3Text:"Diese Vorbereitung fließt danach in die Druckfassung ein und schafft eine geordnete Gesprächsgrundlage.",
-          carryTitle:"Bisherige Grundlage",
-          carryBox1Title:"Übernahme aus Modul 1 bis 3",
-          carryBox2Title:"Hinweis",
-          carryStrong:"Diese Angaben wurden bereits vorbereitet.",
-          carryText:"Modul 4 baut darauf auf und bringt jetzt Struktur in die Punkte, die später für den offiziellen Ablauf wichtig werden.",
-          formTitle:"Deine vorbereitende Ausfüllhilfe",
-          activityStartLabel:"Beginn der Tätigkeit",
-          activityTypeLabel:"Art der Tätigkeit in einfachen Worten",
-          expectedRevenueLabel:"Geschätzter Umsatz / Einnahmen",
-          expectedProfitLabel:"Geschätzter Gewinn",
-          smallBusinessLabel:"Kleinunternehmerregelung gewünscht?",
-          vatSeenLabel:"Umsatzsteuer bereits auf Abrechnungen gesehen?",
-          bankReadyLabel:"Bankverbindung für die Tätigkeit geklärt?",
-          taxOfficeContactLabel:"Finanzamt oder Ansprechpartner bereits bekannt?",
-          openClarificationsLabel:"Welche Punkte müssen noch geklärt werden?",
-          advisorNoteLabel:"Kurze Notiz für Steuerberater oder Finanzamt",
-          linksTitle:"Offizielle Einstiege",
-          links1Title:"ELSTER – Formularübersicht",
-          links1Text:"Offizielle Übersicht aller Formulare.",
-          links2Title:"Fragebogen Einzelunternehmen",
-          links2Text:"Direkter Einstieg für den Fragebogen zur steuerlichen Erfassung.",
-          links3Title:"ELSTER – Hilfe",
-          links3Text:"Hilfe zur Unternehmensgründung und steuerlichen Erfassung.",
-          previewTitle:"Deine aktuelle Vorschau",
-          previewBox1Title:"Gespeicherte Ausfüllhilfe",
-          previewBox2Title:"Wie es weitergeht",
-          previewStrong:"Im letzten Modul entsteht die Druckfassung.",
-          previewText:"Dort werden alle Angaben aus dem Kurs in einer kompakten Übersicht zusammengeführt.",
-          academyTitle:"Akademie-Hinweis",
-          academyStrong:"Dieses Modul ist eine Ordnungs- und Vorbereitungshilfe.",
-          academyText:"Die spätere verbindliche Eintragung erfolgt im offiziellen Formular oder gemeinsam mit Steuerberater bzw. Finanzamt.",
-          printBtn:"Druckansicht / Drucken",
-          resetBtn:"Lokale Daten löschen",
-          backMod3:"Zurück zu Modul 3",
-          toMod5:"Weiter zu Modul 5",
-          choose:"Bitte wählen",
-          unclear:"Noch unklar",
-          dontKnow:"Weiß ich nicht",
-          partly:"Teilweise",
-          placeholderActivityType:"z. B. Empfehlung von Mitgliedschaften gegen Provision",
-          placeholderRevenue:"z. B. 1.200 € jährlich / 100 € monatlich",
-          placeholderProfit:"z. B. ähnlich wie Einnahmen / noch unklar",
-          placeholderClarifications:"z. B. Kleinunternehmerregelung, Umsatzsteuer, genaue Bezeichnung der Tätigkeit, Zuständigkeit Finanzamt",
-          placeholderAdvisorNote:"Hier kann kurz zusammengefasst werden, was schon bekannt ist und wo noch Klärungsbedarf besteht.",
-          carryName:"Name",
-          carryActivity:"Tätigkeit",
-          carryIncome:"Einnahmen",
-          carryOpenPoints:"Offene Punkte",
-          sumActivityStart:"Beginn",
-          sumActivityType:"Art der Tätigkeit",
-          sumExpectedRevenue:"Geschätzte Einnahmen",
-          sumExpectedProfit:"Geschätzter Gewinn",
-          sumSmallBusiness:"Kleinunternehmerregelung",
-          sumVatSeen:"Umsatzsteuer gesehen",
-          sumBankReady:"Bankverbindung geklärt",
-          sumTaxOfficeContact:"Finanzamt bekannt",
-          sumOpenClarifications:"Noch zu klären",
-          sumAdvisorNote:"Notiz",
-          empty:"Noch offen",
+      const KEY_MOD4 = "fsa_steuerstarter_modul4";
 
-          printTitle:"Steuer-Starter – Modul 4",
-          printSubtitle:"Vorbereitende Ausfüllhilfe",
-          printMetaHint:"Druckfassung zur Vorbereitung",
-          printIntro:"Diese Druckfassung fasst die vorbereitende Ausfüllhilfe aus Modul 4 zusammen. Sie dient als geordnete Brücke zwischen deiner bisherigen Beschreibung und dem späteren offiziellen Ablauf.",
-          printPanel1Title:"Wie dieses Modul arbeitet",
-          printPanel2Title:"Bisherige Grundlage",
-          printValuesTitle:"Erfasste Angaben aus Modul 4",
-          printLinksTitle:"Offizielle Einstiege",
-          printLink1:"ELSTER – Formularübersicht",
-          printLink2:"Fragebogen zur steuerlichen Erfassung für Einzelunternehmen",
-          printLink3:"ELSTER – Hilfe zur Unternehmensgründung und steuerlichen Erfassung",
-          printNextTitle:"Nächster Schritt",
-          printAcademyTitle:"Akademie-Hinweis",
-          printFooter:"FSA Akademie · Steuer-Starter · Modul 4 · Lokale Druckfassung"
-        },
-        en:{
-          brandSub:"Module 4 – Form help",
-          backOverview:"Back to overview",
-          eyebrow:"Module 4",
-          heroTitle:"Sort the information before the official step",
-          heroLead:"This module is the bridge between your own description and the later official process. It is not about replacing the ELSTER process. It is about recording the most important points in advance in such an orderly way that the next step becomes calmer and clearer.",
-          introTitle:"Why this module is useful",
-          introBox1Title:"What this is about",
-          introBox1Text:"Before you work with the official form, you collect the most important details here in simple language and in a logical order.",
-          introBox2Title:"What this brings",
-          introBox2Text:"This makes visible what is already clear, what can only be estimated, and which points should still be discussed with the tax advisor or tax office.",
-          flowTitle:"How to use this module",
-          flow1Title:"Enter what is known",
-          flow1Text:"Only enter what you really know at the moment.",
-          flow2Title:"Leave uncertainty open",
-          flow2Text:"Where you are unsure, mark the point clearly as open or still to be clarified.",
-          flow3Title:"Hand over cleanly",
-          flow3Text:"This preparation then flows into the print version and creates an orderly basis for discussion.",
-          carryTitle:"Previous basis",
-          carryBox1Title:"Transfer from Modules 1 to 3",
-          carryBox2Title:"Notice",
-          carryStrong:"This information has already been prepared.",
-          carryText:"Module 4 builds on this and now brings structure to the points that will later become important for the official process.",
-          formTitle:"Your preparatory form help",
-          activityStartLabel:"Start of activity",
-          activityTypeLabel:"Type of activity in simple words",
-          expectedRevenueLabel:"Estimated revenue / income",
-          expectedProfitLabel:"Estimated profit",
-          smallBusinessLabel:"Small business rule desired?",
-          vatSeenLabel:"VAT already seen on statements?",
-          bankReadyLabel:"Bank details for the activity clarified?",
-          taxOfficeContactLabel:"Tax office or contact person already known?",
-          openClarificationsLabel:"Which points still need to be clarified?",
-          advisorNoteLabel:"Short note for tax advisor or tax office",
-          linksTitle:"Official entry points",
-          links1Title:"ELSTER – form overview",
-          links1Text:"Official overview of all forms.",
-          links2Title:"Questionnaire sole proprietorship",
-          links2Text:"Direct entry for the tax registration questionnaire.",
-          links3Title:"ELSTER – help",
-          links3Text:"Help with business startup and tax registration.",
-          previewTitle:"Your current preview",
-          previewBox1Title:"Saved form help",
-          previewBox2Title:"What happens next",
-          previewStrong:"The final module creates the print version.",
-          previewText:"There, all details from the course are combined into one compact overview.",
-          academyTitle:"Academy note",
-          academyStrong:"This module is an order and preparation aid.",
-          academyText:"The later binding entry is made in the official form or together with the tax advisor or tax office.",
-          printBtn:"Print view / Print",
-          resetBtn:"Delete local data",
-          backMod3:"Back to Module 3",
-          toMod5:"Continue to Module 5",
-          choose:"Please choose",
-          unclear:"Still unclear",
-          dontKnow:"I do not know",
-          partly:"Partly",
-          placeholderActivityType:"e.g. recommending memberships for commission",
-          placeholderRevenue:"e.g. €1,200 yearly / €100 monthly",
-          placeholderProfit:"e.g. similar to income / still unclear",
-          placeholderClarifications:"e.g. small business rule, VAT, exact designation of activity, responsible tax office",
-          placeholderAdvisorNote:"A short summary can be written here of what is already known and where clarification is still needed.",
-          carryName:"Name",
-          carryActivity:"Activity",
-          carryIncome:"Income",
-          carryOpenPoints:"Open points",
-          sumActivityStart:"Start",
-          sumActivityType:"Type of activity",
-          sumExpectedRevenue:"Estimated income",
-          sumExpectedProfit:"Estimated profit",
-          sumSmallBusiness:"Small business rule",
-          sumVatSeen:"VAT seen",
-          sumBankReady:"Bank details clarified",
-          sumTaxOfficeContact:"Tax office known",
-          sumOpenClarifications:"Still to clarify",
-          sumAdvisorNote:"Note",
-          empty:"Still open",
+      const fieldIds = [
+        "estimatedRevenue",
+        "estimatedProfit",
+        "costTopics",
+        "documentsStatus",
+        "bankReference",
+        "advisorPreparation",
+        "clarificationPoints",
+        "finalPreparationNote"
+      ];
 
-          printTitle:"Tax Starter – Module 4",
-          printSubtitle:"Preparatory form help",
-          printMetaHint:"Preparation print version",
-          printIntro:"This print version summarizes the preparatory form help from Module 4. It serves as an orderly bridge between your previous description and the later official process.",
-          printPanel1Title:"How this module works",
-          printPanel2Title:"Previous basis",
-          printValuesTitle:"Recorded details from Module 4",
-          printLinksTitle:"Official entry points",
-          printLink1:"ELSTER – form overview",
-          printLink2:"Tax registration questionnaire for sole proprietorships",
-          printLink3:"ELSTER – help for business startup and tax registration",
-          printNextTitle:"Next step",
-          printAcademyTitle:"Academy note",
-          printFooter:"FSA Academy · Tax Starter · Module 4 · Local print version"
+      function readJSON(key, fallback){
+        try{
+          const raw = localStorage.getItem(key);
+          if(!raw) return fallback;
+          const parsed = JSON.parse(raw);
+          return parsed ?? fallback;
+        }catch(e){
+          return fallback;
         }
-      };
-
-      const STORAGE_LANG = "fsa_steuerstarter_lang";
-      const STORAGE_KEY_MOD3 = "fsa_steuerstarter_modul3";
-      const STORAGE_KEY_MOD4 = "fsa_steuerstarter_modul4";
-
-      const form = document.getElementById("module4Form");
-      const summary = document.getElementById("summaryKv");
-      const carryKv = document.getElementById("carryKv");
-      const fields = [...form.querySelectorAll("input, select, textarea")];
-      const printCarryBody = document.getElementById("printCarryBody");
-      const printTableBody = document.getElementById("printTableBody");
-      const printDate = document.getElementById("printDate");
-
-      function t(key){
-        const lang = document.body.getAttribute("data-lang") || "de";
-        return (translations[lang] && translations[lang][key]) || key;
       }
 
-      function show(value){
-        return value && String(value).trim() ? String(value) : t("empty");
-      }
-
-      function escapeHtml(value){
-        return String(value).replace(/</g,"&lt;").replace(/>/g,"&gt;");
-      }
-
-      function applyLanguage(lang){
-        document.body.setAttribute("data-lang", lang);
-        document.documentElement.lang = lang;
-
-        document.querySelectorAll("[data-i18n]").forEach(el=>{
-          const key = el.getAttribute("data-i18n");
-          if(translations[lang] && translations[lang][key]){
-            el.textContent = translations[lang][key];
-          }
-        });
-
-        document.querySelectorAll("[data-lang-btn]").forEach(btn=>{
-          btn.classList.toggle("active", btn.getAttribute("data-lang-btn") === lang);
-        });
-
-        document.getElementById("activityType").placeholder = translations[lang].placeholderActivityType;
-        document.getElementById("expectedRevenue").placeholder = translations[lang].placeholderRevenue;
-        document.getElementById("expectedProfit").placeholder = translations[lang].placeholderProfit;
-        document.getElementById("openClarifications").placeholder = translations[lang].placeholderClarifications;
-        document.getElementById("advisorNote").placeholder = translations[lang].placeholderAdvisorNote;
-
-        const smallBusiness = document.getElementById("smallBusiness");
-        smallBusiness.options[0].text = translations[lang].choose;
-        smallBusiness.options[3].text = translations[lang].unclear;
-
-        const vatSeen = document.getElementById("vatSeen");
-        vatSeen.options[0].text = translations[lang].choose;
-        vatSeen.options[3].text = translations[lang].dontKnow;
-
-        const bankReady = document.getElementById("bankReady");
-        bankReady.options[0].text = translations[lang].choose;
-        bankReady.options[3].text = translations[lang].partly;
-
-        const taxOfficeContact = document.getElementById("taxOfficeContact");
-        taxOfficeContact.options[0].text = translations[lang].choose;
-        taxOfficeContact.options[3].text = translations[lang].partly;
-
-        localStorage.setItem(STORAGE_LANG, lang);
-        renderCarryData();
-        renderSummary();
-        renderPrintSheet();
-      }
-
-      function getData(){
-        const data = {};
-        fields.forEach(field => {
-          data[field.name] = field.value;
-        });
-        return data;
-      }
-
-      function saveData(){
-        localStorage.setItem(STORAGE_KEY_MOD4, JSON.stringify(getData()));
-        renderSummary();
-        renderPrintSheet();
+      function writeJSON(key, value){
+        localStorage.setItem(key, JSON.stringify(value));
       }
 
       function loadData(){
-        try{
-          const raw = localStorage.getItem(STORAGE_KEY_MOD4);
-          if(!raw) return;
-          const data = JSON.parse(raw);
-          fields.forEach(field => {
-            if(!(field.name in data)) return;
-            field.value = data[field.name] || "";
-          });
-        }catch(e){
-          console.warn(e);
-        }
-      }
-
-      function renderCarryData(){
-        let mod3 = {};
-        let mod2 = {};
-        try{ mod3 = JSON.parse(localStorage.getItem(STORAGE_KEY_MOD3) || "{}"); }catch(e){}
-        try{ mod2 = JSON.parse(localStorage.getItem("fsa_steuerstarter_modul2") || "{}"); }catch(e){}
-
-        const items = [
-          [t("carryName"), show(JSON.parse(localStorage.getItem("fsa_steuerstarter_modul1") || "{}").fullName)],
-          [t("carryActivity"), show(mod3.simpleDescription || mod3.activitySummary)],
-          [t("carryIncome"), show(mod2.incomeEstimate)],
-          [t("carryOpenPoints"), show(mod3.openPoints)]
-        ];
-
-        carryKv.innerHTML = items.map(item => `
-          <div class="kv-item">
-            <b>${escapeHtml(item[0])}</b>
-            <span>${escapeHtml(item[1])}</span>
-          </div>
-        `).join("");
-      }
-
-      function renderSummary(){
-        const data = getData();
-        const items = [
-          [t("sumActivityStart"), show(data.activityStart)],
-          [t("sumActivityType"), show(data.activityType)],
-          [t("sumExpectedRevenue"), show(data.expectedRevenue)],
-          [t("sumExpectedProfit"), show(data.expectedProfit)],
-          [t("sumSmallBusiness"), show(data.smallBusiness)],
-          [t("sumVatSeen"), show(data.vatSeen)],
-          [t("sumBankReady"), show(data.bankReady)],
-          [t("sumTaxOfficeContact"), show(data.taxOfficeContact)],
-          [t("sumOpenClarifications"), show(data.openClarifications)],
-          [t("sumAdvisorNote"), show(data.advisorNote)]
-        ];
-
-        summary.innerHTML = items.map(item => `
-          <div class="kv-item">
-            <b>${escapeHtml(item[0])}</b>
-            <span>${escapeHtml(item[1])}</span>
-          </div>
-        `).join("");
-      }
-
-      function renderPrintSheet(){
-        let mod3 = {};
-        let mod2 = {};
-        let mod1 = {};
-        try{ mod3 = JSON.parse(localStorage.getItem(STORAGE_KEY_MOD3) || "{}"); }catch(e){}
-        try{ mod2 = JSON.parse(localStorage.getItem("fsa_steuerstarter_modul2") || "{}"); }catch(e){}
-        try{ mod1 = JSON.parse(localStorage.getItem("fsa_steuerstarter_modul1") || "{}"); }catch(e){}
-
-        const carryItems = [
-          [t("carryName"), show(mod1.fullName)],
-          [t("carryActivity"), show(mod3.simpleDescription || mod3.activitySummary)],
-          [t("carryIncome"), show(mod2.incomeEstimate)],
-          [t("carryOpenPoints"), show(mod3.openPoints)]
-        ];
-
-        printCarryBody.innerHTML = carryItems.map(item => `
-          <tr>
-            <th>${escapeHtml(item[0])}</th>
-            <td>${escapeHtml(item[1])}</td>
-          </tr>
-        `).join("");
-
-        const data = getData();
-        const tableItems = [
-          [t("sumActivityStart"), show(data.activityStart)],
-          [t("sumActivityType"), show(data.activityType)],
-          [t("sumExpectedRevenue"), show(data.expectedRevenue)],
-          [t("sumExpectedProfit"), show(data.expectedProfit)],
-          [t("sumSmallBusiness"), show(data.smallBusiness)],
-          [t("sumVatSeen"), show(data.vatSeen)],
-          [t("sumBankReady"), show(data.bankReady)],
-          [t("sumTaxOfficeContact"), show(data.taxOfficeContact)],
-          [t("sumOpenClarifications"), show(data.openClarifications)],
-          [t("sumAdvisorNote"), show(data.advisorNote)]
-        ];
-
-        printTableBody.innerHTML = tableItems.map(item => `
-          <tr>
-            <th>${escapeHtml(item[0])}</th>
-            <td>${escapeHtml(item[1])}</td>
-          </tr>
-        `).join("");
-
-        const now = new Date();
-        const lang = document.body.getAttribute("data-lang") || "de";
-        printDate.textContent = now.toLocaleDateString(lang === "de" ? "de-DE" : "en-GB", {
-          day:"2-digit",
-          month:"2-digit",
-          year:"numeric"
+        const data = readJSON(KEY_MOD4, {});
+        fieldIds.forEach(id => {
+          const el = document.getElementById(id);
+          if(el && typeof data[id] !== "undefined"){
+            el.value = data[id];
+          }
         });
       }
 
-      fields.forEach(field => {
-        field.addEventListener("input", saveData);
-        field.addEventListener("change", saveData);
-      });
+      function saveData(){
+        const data = {};
+        fieldIds.forEach(id => {
+          const el = document.getElementById(id);
+          if(el) data[id] = el.value;
+        });
+        data.updatedAt = new Date().toISOString();
+        writeJSON(KEY_MOD4, data);
+      }
 
-      document.getElementById("resetBtn").addEventListener("click", function(){
-        localStorage.removeItem(STORAGE_KEY_MOD4);
-        fields.forEach(field => field.value = "");
-        renderSummary();
-        renderPrintSheet();
-      });
-
-      document.getElementById("printBtn").addEventListener("click", function(){
-        renderPrintSheet();
-        window.print();
-      });
-
-      document.querySelectorAll("[data-lang-btn]").forEach(btn => {
-        btn.addEventListener("click", ()=>applyLanguage(btn.getAttribute("data-lang-btn")));
+      fieldIds.forEach(id => {
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.addEventListener("input", saveData);
+        el.addEventListener("change", saveData);
       });
 
       loadData();
-      applyLanguage(localStorage.getItem(STORAGE_LANG) || "de");
+      saveData();
     })();
   </script>
 </body>
