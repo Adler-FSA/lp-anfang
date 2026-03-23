@@ -944,6 +944,7 @@
     │   ├── nachlass/
     │   │   ├── master-nachlass-kurs-struktur.html
     │   │   ├── modul-1-akutfall-erste-schritte.html
+    │   │   ├── modul-1-wie-finde-ich-nach-dem-schock-den-anfang.html
     │   │   └── nachlass-erbschaft-orientierung.html
     │   ├── neutral/
     │   │   ├── timecells-mission.html
@@ -1306,4 +1307,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.03.2026, 14:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.03.2026, 15:55)_
