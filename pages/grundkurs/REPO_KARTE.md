@@ -943,6 +943,7 @@
     │   │   └── trustyfy-bewusstsein.html
     │   ├── nachlass/
     │   │   ├── master-nachlass-kurs-struktur.html
+    │   │   ├── modul-1-akutfall-erste-schritte.html
     │   │   └── nachlass-erbschaft-orientierung.html
     │   ├── neutral/
     │   │   ├── timecells-mission.html
@@ -1305,4 +1306,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.03.2026, 11:39)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.03.2026, 12:55)_
