@@ -941,6 +941,9 @@
     │   ├── mentor/
     │   │   ├── lektion-souveraen.html
     │   │   └── trustyfy-bewusstsein.html
+    │   ├── nachlass/
+    │   │   ├── master-nachlass-kurs-struktur.html
+    │   │   └── nachlass-erbschaft-orientierung.html
     │   ├── neutral/
     │   │   ├── timecells-mission.html
     │   │   └── workflow-akademie.html
@@ -1302,4 +1305,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.03.2026, 06:07)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.03.2026, 07:58)_
