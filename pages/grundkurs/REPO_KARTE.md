@@ -1073,6 +1073,8 @@
     │   ├── statement/
     │   │   └── vow-power.html
     │   ├── steuer-starter/
+    │   │   ├── downloads-formulare.html
+    │   │   ├── glossar.html
     │   │   ├── index.html
     │   │   ├── modul-1-einstieg.html
     │   │   ├── modul-2-ausgangslage.html
@@ -1308,4 +1310,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.03.2026, 19:43)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.03.2026, 20:33)_
