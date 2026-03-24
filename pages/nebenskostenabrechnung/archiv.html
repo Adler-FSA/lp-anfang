@@ -1,0 +1,473 @@
+<!doctype html>
+<!--
+  Nebenkostenabrechnung – Archiv
+  GitHub-Pfad: lp-anfang/pages/nebenskostenabrechnung/archiv.html
+  Commit-Message: nebenskostenabrechnung – archiv struktur mit jahreskarten und localstorage logik vorbereitet
+  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/nebenskostenabrechnung/archiv.html?nocache=__TS__
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Meine Jahresarchive – Nebenkostenabrechnung</title>
+  <meta name="description" content="Archivbereich für gespeicherte Jahresstände im Kurs Nebenkostenabrechnung." />
+  <meta name="robots" content="index,follow" />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --bg-soft:#f8f8f8;
+      --panel:#ffffff;
+      --panel-soft:#f3f6f8;
+
+      --text:#111111;
+      --muted:#555555;
+      --line:#e7e7e7;
+
+      --mint:#20d8b2;
+      --mint-strong:#11b995;
+      --mint-soft:rgba(32,216,178,.10);
+
+      --magenta:#ff4fb3;
+      --magenta-strong:#e72897;
+      --magenta-soft:rgba(255,79,179,.10);
+
+      --shadow:0 10px 30px rgba(17,17,17,.06);
+
+      --radius:18px;
+      --radius-sm:12px;
+      --maxw:1100px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at top right, rgba(255,79,179,.10), transparent 24%),
+        radial-gradient(circle at top left, rgba(32,216,178,.10), transparent 24%),
+        var(--bg);
+      color:var(--text);
+      font-family:Arial, Helvetica, sans-serif;
+      font-size:18px;
+      line-height:1.65;
+    }
+
+    .container{
+      width:min(var(--maxw), calc(100% - 48px));
+      margin:0 auto;
+    }
+
+    .page{
+      padding:34px 0 48px;
+    }
+
+    .hero{
+      background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,248,248,.96));
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:28px;
+      margin-bottom:24px;
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 14px;
+      border-radius:999px;
+      background:var(--magenta-soft);
+      color:var(--magenta-strong);
+      font-size:13px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      margin-bottom:14px;
+    }
+
+    h1{
+      margin:0 0 12px;
+      font-size:42px;
+      line-height:1.15;
+      letter-spacing:-.02em;
+    }
+
+    .lead{
+      margin:0 0 12px;
+      font-size:21px;
+      color:var(--muted);
+      max-width:860px;
+    }
+
+    .storage-note{
+      margin-top:16px;
+      background:var(--mint-soft);
+      border:1px solid rgba(32,216,178,.22);
+      border-left:5px solid var(--mint);
+      border-radius:16px;
+      padding:16px 18px;
+    }
+
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:22px;
+    }
+
+    .toolbar-left,
+    .toolbar-right{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+    }
+
+    .btn,
+    button{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      font:inherit;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:46px;
+      padding:12px 16px;
+      border-radius:999px;
+      font-weight:700;
+      text-decoration:none;
+      transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+      white-space:nowrap;
+    }
+
+    .btn:hover{ transform:translateY(-1px); }
+
+    .btn-primary{
+      background:var(--mint);
+      color:#07261f;
+      box-shadow:0 10px 24px rgba(32,216,178,.20);
+    }
+
+    .btn-secondary{
+      background:#fff;
+      color:var(--magenta-strong);
+      border:1px solid rgba(255,79,179,.38);
+    }
+
+    .btn-ghost{
+      background:#fff;
+      color:var(--text);
+      border:1px solid rgba(17,17,17,.10);
+    }
+
+    .archive-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:18px;
+    }
+
+    .archive-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height:100%;
+    }
+
+    .archive-head{
+      display:flex;
+      align-items:start;
+      justify-content:space-between;
+      gap:14px;
+      padding:22px 22px 0;
+    }
+
+    .year-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:88px;
+      min-height:52px;
+      padding:10px 14px;
+      border-radius:16px;
+      background:var(--mint-soft);
+      color:var(--mint-strong);
+      font-size:24px;
+      font-weight:700;
+      line-height:1;
+    }
+
+    .archive-card:nth-child(even) .year-badge{
+      background:var(--magenta-soft);
+      color:var(--magenta-strong);
+    }
+
+    .status{
+      display:inline-flex;
+      align-items:center;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:700;
+      line-height:1.2;
+    }
+
+    .status-entwurf{
+      background:#f2f2f2;
+      color:#555;
+    }
+
+    .status-arbeit{
+      background:var(--mint-soft);
+      color:var(--mint-strong);
+    }
+
+    .status-fertig{
+      background:var(--magenta-soft);
+      color:var(--magenta-strong);
+    }
+
+    .status-exportiert{
+      background:#eef2f7;
+      color:#334155;
+    }
+
+    .archive-body{
+      padding:18px 22px 22px;
+      display:grid;
+      gap:14px;
+      height:100%;
+    }
+
+    .archive-title{
+      margin:0;
+      font-size:24px;
+      line-height:1.2;
+      letter-spacing:-.02em;
+    }
+
+    .archive-sub{
+      margin:0;
+      color:var(--muted);
+    }
+
+    .meta-list{
+      display:grid;
+      gap:10px;
+      margin:0;
+      padding:0;
+      list-style:none;
+    }
+
+    .meta-list li{
+      display:grid;
+      grid-template-columns:150px 1fr;
+      gap:12px;
+      align-items:start;
+      padding-top:10px;
+      border-top:1px solid var(--line);
+      font-size:16px;
+    }
+
+    .meta-label{
+      color:#666;
+      font-weight:700;
+    }
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:auto;
+      padding-top:6px;
+    }
+
+    .btn-small{
+      min-height:40px;
+      padding:10px 14px;
+      font-size:15px;
+      border-radius:12px;
+    }
+
+    .empty-state{
+      background:#fff;
+      border:1px dashed rgba(17,17,17,.18);
+      border-radius:24px;
+      padding:34px 24px;
+      text-align:center;
+      box-shadow:var(--shadow);
+    }
+
+    .empty-state h2{
+      margin:0 0 10px;
+      font-size:28px;
+      line-height:1.2;
+    }
+
+    .empty-state p{
+      margin:0 0 18px;
+      color:var(--muted);
+    }
+
+    .section-space{
+      margin-top:26px;
+    }
+
+    @media (max-width:980px){
+      .archive-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:780px){
+      body{font-size:17px}
+      .container{width:min(var(--maxw), calc(100% - 28px));}
+      h1{font-size:30px}
+      .lead{font-size:19px}
+      .toolbar{
+        align-items:stretch;
+      }
+      .toolbar-left,
+      .toolbar-right{
+        width:100%;
+      }
+      .btn{
+        width:100%;
+      }
+      .meta-list li{
+        grid-template-columns:1fr;
+        gap:4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="container">
+
+      <section class="hero">
+        <div class="eyebrow">Kursarchiv</div>
+        <h1>Meine Jahresarchive</h1>
+        <p class="lead">
+          Hier kannst du deine gespeicherten Jahresstände wieder öffnen, weiterbearbeiten,
+          duplizieren oder exportieren.
+        </p>
+        <div class="storage-note">
+          <strong>Hinweis zur Speicherung:</strong>
+          Deine Jahresarchive werden lokal auf diesem Gerät in deinem Browser gespeichert.
+          Zur zusätzlichen Sicherheit kannst du dein Archiv exportieren und später wieder importieren.
+        </div>
+      </section>
+
+      <section class="toolbar" aria-label="Archiv Aktionen">
+        <div class="toolbar-left">
+          <a class="btn btn-primary" href="#">Neues Jahr anlegen</a>
+          <button class="btn btn-secondary" type="button">Archiv sichern</button>
+          <button class="btn btn-ghost" type="button">Archiv importieren</button>
+        </div>
+
+        <div class="toolbar-right">
+          <button class="btn btn-ghost" type="button">Nach Jahr filtern</button>
+          <button class="btn btn-ghost" type="button">Nach Status filtern</button>
+        </div>
+      </section>
+
+      <section class="archive-grid" aria-label="Gespeicherte Jahresarchive">
+
+        <article class="archive-card">
+          <div class="archive-head">
+            <div class="year-badge">2025</div>
+            <div class="status status-arbeit">In Arbeit</div>
+          </div>
+          <div class="archive-body">
+            <h2 class="archive-title">Musterstraße 12</h2>
+            <p class="archive-sub">Einfamilienhaus – eigene Übersicht</p>
+
+            <ul class="meta-list">
+              <li>
+                <span class="meta-label">Zeitraum</span>
+                <span>01.01.2025 bis 31.12.2025</span>
+              </li>
+              <li>
+                <span class="meta-label">Letzte Änderung</span>
+                <span>25.03.2026 · 22:10 Uhr</span>
+              </li>
+              <li>
+                <span class="meta-label">Status</span>
+                <span>Zwischenstände gespeichert, Beträge noch nicht vollständig geprüft</span>
+              </li>
+            </ul>
+
+            <div class="actions">
+              <button class="btn btn-primary btn-small" type="button">Öffnen</button>
+              <button class="btn btn-ghost btn-small" type="button">Bearbeiten</button>
+              <button class="btn btn-secondary btn-small" type="button">Duplizieren</button>
+              <button class="btn btn-ghost btn-small" type="button">PDF</button>
+              <button class="btn btn-ghost btn-small" type="button">Excel</button>
+              <button class="btn btn-ghost btn-small" type="button">Sichern</button>
+              <button class="btn btn-ghost btn-small" type="button">Löschen</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="archive-card">
+          <div class="archive-head">
+            <div class="year-badge">2026</div>
+            <div class="status status-fertig">Fertig vorbereitet</div>
+          </div>
+          <div class="archive-body">
+            <h2 class="archive-title">Mietobjekt Lindenweg 8</h2>
+            <p class="archive-sub">Vermieter – Vorbereitung Mieterabrechnung</p>
+
+            <ul class="meta-list">
+              <li>
+                <span class="meta-label">Zeitraum</span>
+                <span>01.01.2026 bis 31.12.2026</span>
+              </li>
+              <li>
+                <span class="meta-label">Letzte Änderung</span>
+                <span>25.03.2026 · 22:26 Uhr</span>
+              </li>
+              <li>
+                <span class="meta-label">Status</span>
+                <span>Datensatz vollständig vorbereitet und für Ausdruck oder Export bereit</span>
+              </li>
+            </ul>
+
+            <div class="actions">
+              <button class="btn btn-primary btn-small" type="button">Öffnen</button>
+              <button class="btn btn-ghost btn-small" type="button">Bearbeiten</button>
+              <button class="btn btn-secondary btn-small" type="button">Duplizieren</button>
+              <button class="btn btn-ghost btn-small" type="button">PDF</button>
+              <button class="btn btn-ghost btn-small" type="button">Excel</button>
+              <button class="btn btn-ghost btn-small" type="button">Sichern</button>
+              <button class="btn btn-ghost btn-small" type="button">Löschen</button>
+            </div>
+          </div>
+        </article>
+
+      </section>
+
+      <section class="section-space">
+        <div class="empty-state">
+          <h2>Noch kein Jahresarchiv vorhanden</h2>
+          <p>
+            Lege dein erstes Jahr an, damit du später deine Nebenkostenstände lokal wieder öffnen,
+            weiterführen und exportieren kannst.
+          </p>
+          <a class="btn btn-primary" href="#">Erstes Jahr anlegen</a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</body>
+</html>
