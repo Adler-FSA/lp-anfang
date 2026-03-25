@@ -2,7 +2,7 @@
 <!--
   Nebenkostenabrechnung – Eigentümer-Erfassung
   GitHub-Pfad: lp-anfang/pages/nebenskostenabrechnung/erfassung-eigentuemer.html
-  Commit-Message: nebenkostenabrechnung – eigentuemer erfassung mit stammdaten kosten summen und archivanbindung
+  Commit-Message: nebenkostenabrechnung – eigentuemer erfassung um zaehlerstaende und verbrauchslogik erweitert
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/nebenskostenabrechnung/erfassung-eigentuemer.html?nocache=__TS__
 -->
 <html lang="de">
@@ -10,7 +10,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Eigentümer-Erfassung | Nebenkostenabrechnung</title>
-  <meta name="description" content="Eigentümer-Erfassung für Nebenkosten mit Stammdaten, Objektangaben, Kostenfeldern, Zusatzkosten, Summen und Archiv-Anbindung." />
+  <meta name="description" content="Eigentümer-Erfassung für Nebenkosten mit Stammdaten, Objektangaben, Zählerständen, Verbrauchslogik, Kostenfeldern, Zusatzkosten, Summen und Archiv-Anbindung." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -31,7 +31,7 @@
       --danger-soft:rgba(198,40,40,.08);
       --shadow:0 10px 30px rgba(17,17,17,.06);
       --radius:22px;
-      --maxw:1200px;
+      --maxw:1260px;
     }
 
     *{box-sizing:border-box}
@@ -285,7 +285,8 @@
     .mini-card,
     .panel,
     .sum-card,
-    .message{
+    .message,
+    .meter-card{
       background:#fff;
       border:1px solid var(--line);
       box-shadow:var(--shadow);
@@ -383,6 +384,12 @@
       gap:14px;
     }
 
+    .field-row-4{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:14px;
+    }
+
     .field{
       display:grid;
       gap:8px;
@@ -460,6 +467,62 @@
       display:grid;
       grid-template-columns:repeat(2,minmax(0,1fr));
       gap:14px;
+    }
+
+    .meter-grid{
+      display:grid;
+      gap:18px;
+    }
+
+    .meter-card{
+      border-radius:22px;
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(255,255,255,1), rgba(248,248,248,.95));
+    }
+
+    .meter-head{
+      padding:18px 18px 0;
+    }
+
+    .meter-body{
+      padding:18px;
+      display:grid;
+      gap:14px;
+    }
+
+    .meter-note{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .result-box{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px 16px;
+      background:var(--panel-soft);
+      display:grid;
+      gap:4px;
+    }
+
+    .result-label{
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      color:#666;
+      font-weight:700;
+    }
+
+    .result-value{
+      font-size:24px;
+      line-height:1.1;
+      color:var(--mint-strong);
+      font-weight:700;
+    }
+
+    .result-unit{
+      font-size:14px;
+      color:var(--muted);
     }
 
     .extra-wrap{
@@ -541,6 +604,7 @@
 
     @media (max-width:980px){
       .hero-inner,
+      .field-row-4,
       .field-row-3,
       .cost-grid,
       .checkbox-grid{
@@ -591,7 +655,8 @@
       }
       .hero,
       .panel,
-      .sum-card{
+      .sum-card,
+      .meter-card{
         box-shadow:none !important;
         border:1px solid #cfcfcf !important;
       }
@@ -642,10 +707,10 @@
             <p class="eyebrow">Nur für Eigentümer</p>
             <h1>Eigentümer-Erfassung</h1>
             <p class="lead">
-              Hier erfasst du deine Stammdaten, Objektangaben, Besonderheiten und alle laufenden sowie zusätzlichen Jahreskosten deines Hauses.
+              Hier erfasst du deine Stammdaten, Objektangaben, Zählerstände, Verbrauchswerte, Besonderheiten und alle laufenden sowie zusätzlichen Jahreskosten deines Hauses.
             </p>
             <p>
-              Ziel ist eine saubere digitale Übersicht, in der Zahlen geordnet, summiert und später wieder geöffnet oder ins Archiv übernommen werden können.
+              Kosten und Verbrauch bleiben dabei getrennt. So siehst du nicht nur Geldwerte, sondern auch, was bei Strom, Gas, Wasser und Heizöl tatsächlich im Jahr angefallen ist.
             </p>
 
             <div class="hero-actions">
@@ -664,8 +729,8 @@
                   </svg>
                 </div>
                 <div>
-                  <h3>Was hier drin ist</h3>
-                  <p>Stammdaten, Objekt, Ausstattung, Kostenblöcke, Zusatzkosten und Summen.</p>
+                  <h3>Neu dazugekommen</h3>
+                  <p>Zählerstände und Verbrauchsblöcke für Strom, Gas, Wasser und Heizöl.</p>
                 </div>
               </div>
             </div>
@@ -679,8 +744,8 @@
                   </svg>
                 </div>
                 <div>
-                  <h3>Wofür es gedacht ist</h3>
-                  <p>Für Einfamilienhäuser und Eigentümer, die ihre Jahreskosten digital und geordnet erfassen wollen.</p>
+                  <h3>Wichtig für die Übersicht</h3>
+                  <p>Verbrauchswerte und Kostenwerte werden nicht vermischt, sondern sauber nebeneinander erfasst.</p>
                 </div>
               </div>
             </div>
@@ -846,7 +911,150 @@
 
           <section class="panel">
             <div class="panel-head">
-              <h2>Kostenfelder</h2>
+              <h2>Zählerstände und Verbrauch</h2>
+            </div>
+            <div class="panel-body">
+              <div class="meter-grid">
+                <article class="meter-card">
+                  <div class="meter-head">
+                    <h3>Strom</h3>
+                  </div>
+                  <div class="meter-body">
+                    <div class="field-row-4">
+                      <div class="field">
+                        <label for="powerMeterNo">Zählernummer</label>
+                        <input id="powerMeterNo" type="text" placeholder="z. B. ST-45811" />
+                      </div>
+                      <div class="field">
+                        <label for="powerStart">Anfangsstand</label>
+                        <input id="powerStart" type="number" step="0.01" placeholder="0" />
+                      </div>
+                      <div class="field">
+                        <label for="powerEnd">Endstand</label>
+                        <input id="powerEnd" type="number" step="0.01" placeholder="0" />
+                      </div>
+                      <div class="field">
+                        <label for="powerCost">Kosten gesamt</label>
+                        <input id="powerCost" class="cost-input" type="number" min="0" step="0.01" placeholder="0,00" />
+                      </div>
+                    </div>
+                    <div class="result-box">
+                      <div class="result-label">Verbrauch Strom</div>
+                      <div class="result-value" id="powerUsage">0,00</div>
+                      <div class="result-unit">kWh / Verbrauch aus Endstand minus Anfangsstand</div>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="meter-card">
+                  <div class="meter-head">
+                    <h3>Gas</h3>
+                  </div>
+                  <div class="meter-body">
+                    <div class="field-row-4">
+                      <div class="field">
+                        <label for="gasMeterNo">Zählernummer</label>
+                        <input id="gasMeterNo" type="text" placeholder="z. B. GAS-22419" />
+                      </div>
+                      <div class="field">
+                        <label for="gasStart">Anfangsstand</label>
+                        <input id="gasStart" type="number" step="0.01" placeholder="0" />
+                      </div>
+                      <div class="field">
+                        <label for="gasEnd">Endstand</label>
+                        <input id="gasEnd" type="number" step="0.01" placeholder="0" />
+                      </div>
+                      <div class="field">
+                        <label for="gasCost">Kosten gesamt</label>
+                        <input id="gasCost" class="cost-input" type="number" min="0" step="0.01" placeholder="0,00" />
+                      </div>
+                    </div>
+                    <div class="result-box">
+                      <div class="result-label">Verbrauch Gas</div>
+                      <div class="result-value" id="gasUsage">0,00</div>
+                      <div class="result-unit">m³ oder eingetragene Einheit / Verbrauch aus Endstand minus Anfangsstand</div>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="meter-card">
+                  <div class="meter-head">
+                    <h3>Wasser</h3>
+                  </div>
+                  <div class="meter-body">
+                    <div class="field-row-4">
+                      <div class="field">
+                        <label for="waterMeterNo">Zählernummer</label>
+                        <input id="waterMeterNo" type="text" placeholder="z. B. WS-11982" />
+                      </div>
+                      <div class="field">
+                        <label for="waterStart">Anfangsstand</label>
+                        <input id="waterStart" type="number" step="0.01" placeholder="0" />
+                      </div>
+                      <div class="field">
+                        <label for="waterEnd">Endstand</label>
+                        <input id="waterEnd" type="number" step="0.01" placeholder="0" />
+                      </div>
+                      <div class="field">
+                        <label for="waterCost">Kosten gesamt</label>
+                        <input id="waterCost" class="cost-input" type="number" min="0" step="0.01" placeholder="0,00" />
+                      </div>
+                    </div>
+                    <div class="result-box">
+                      <div class="result-label">Verbrauch Wasser</div>
+                      <div class="result-value" id="waterUsage">0,00</div>
+                      <div class="result-unit">m³ / Verbrauch aus Endstand minus Anfangsstand</div>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="meter-card">
+                  <div class="meter-head">
+                    <h3>Heizöl</h3>
+                  </div>
+                  <div class="meter-body">
+                    <div class="field-row-4">
+                      <div class="field">
+                        <label for="oilTankNo">Tank / Bezeichnung</label>
+                        <input id="oilTankNo" type="text" placeholder="z. B. Tank Keller links" />
+                      </div>
+                      <div class="field">
+                        <label for="oilStart">Bestand Anfang</label>
+                        <input id="oilStart" type="number" step="0.01" placeholder="0" />
+                      </div>
+                      <div class="field">
+                        <label for="oilEnd">Bestand Ende</label>
+                        <input id="oilEnd" type="number" step="0.01" placeholder="0" />
+                      </div>
+                      <div class="field">
+                        <label for="oilRefill">Nachfüllmenge</label>
+                        <input id="oilRefill" type="number" step="0.01" placeholder="0" />
+                      </div>
+                    </div>
+                    <div class="field-row-2">
+                      <div class="field">
+                        <label for="oilCost">Kosten gesamt</label>
+                        <input id="oilCost" class="cost-input" type="number" min="0" step="0.01" placeholder="0,00" />
+                      </div>
+                      <div class="field">
+                        <label for="oilNote">Hinweis Heizöl</label>
+                        <input id="oilNote" type="text" placeholder="z. B. Lieferung im November" />
+                      </div>
+                    </div>
+                    <div class="result-box">
+                      <div class="result-label">Verbrauch Heizöl</div>
+                      <div class="result-value" id="oilUsage">0,00</div>
+                      <div class="result-unit">Liter / Anfangsbestand plus Nachfüllung minus Endbestand</div>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Weitere Kostenfelder</h2>
             </div>
             <div class="panel-body">
               <div class="cost-grid">
@@ -859,20 +1067,8 @@
                   <input id="costPropertyTax" class="cost-input" type="number" min="0" step="0.01" placeholder="0,00" />
                 </div>
                 <div class="field">
-                  <label for="costWater">Wasser / Abwasser</label>
-                  <input id="costWater" class="cost-input" type="number" min="0" step="0.01" placeholder="0,00" />
-                </div>
-                <div class="field">
                   <label for="costTrash">Müllabfuhr</label>
                   <input id="costTrash" class="cost-input" type="number" min="0" step="0.01" placeholder="0,00" />
-                </div>
-                <div class="field">
-                  <label for="costHeat">Heizung / Warmwasser</label>
-                  <input id="costHeat" class="cost-input" type="number" min="0" step="0.01" placeholder="0,00" />
-                </div>
-                <div class="field">
-                  <label for="costElectricity">Strom / Allgemeinstrom</label>
-                  <input id="costElectricity" class="cost-input" type="number" min="0" step="0.01" placeholder="0,00" />
                 </div>
                 <div class="field">
                   <label for="costChimney">Schornsteinfeger</label>
@@ -973,6 +1169,13 @@
       const sumYear = document.getElementById('sumYear');
       const sumGrand = document.getElementById('sumGrand');
 
+      const usageFields = {
+        powerUsage: document.getElementById('powerUsage'),
+        gasUsage: document.getElementById('gasUsage'),
+        waterUsage: document.getElementById('waterUsage'),
+        oilUsage: document.getElementById('oilUsage')
+      };
+
       const fields = {
         year: document.getElementById('year'),
         status: document.getElementById('status'),
@@ -982,6 +1185,7 @@
         zip: document.getElementById('zip'),
         city: document.getElementById('city'),
         ownerNote: document.getElementById('ownerNote'),
+
         objectTitle: document.getElementById('objectTitle'),
         buildYear: document.getElementById('buildYear'),
         objectStreet: document.getElementById('objectStreet'),
@@ -992,12 +1196,32 @@
         featAlarm: document.getElementById('featAlarm'),
         featSpecial: document.getElementById('featSpecial'),
         objectNote: document.getElementById('objectNote'),
+
+        powerMeterNo: document.getElementById('powerMeterNo'),
+        powerStart: document.getElementById('powerStart'),
+        powerEnd: document.getElementById('powerEnd'),
+        powerCost: document.getElementById('powerCost'),
+
+        gasMeterNo: document.getElementById('gasMeterNo'),
+        gasStart: document.getElementById('gasStart'),
+        gasEnd: document.getElementById('gasEnd'),
+        gasCost: document.getElementById('gasCost'),
+
+        waterMeterNo: document.getElementById('waterMeterNo'),
+        waterStart: document.getElementById('waterStart'),
+        waterEnd: document.getElementById('waterEnd'),
+        waterCost: document.getElementById('waterCost'),
+
+        oilTankNo: document.getElementById('oilTankNo'),
+        oilStart: document.getElementById('oilStart'),
+        oilEnd: document.getElementById('oilEnd'),
+        oilRefill: document.getElementById('oilRefill'),
+        oilCost: document.getElementById('oilCost'),
+        oilNote: document.getElementById('oilNote'),
+
         costInsurance: document.getElementById('costInsurance'),
         costPropertyTax: document.getElementById('costPropertyTax'),
-        costWater: document.getElementById('costWater'),
         costTrash: document.getElementById('costTrash'),
-        costHeat: document.getElementById('costHeat'),
-        costElectricity: document.getElementById('costElectricity'),
         costChimney: document.getElementById('costChimney'),
         costMaintenance: document.getElementById('costMaintenance'),
         costAlarm: document.getElementById('costAlarm'),
@@ -1015,6 +1239,11 @@
         return num.toLocaleString('de-DE', { minimumFractionDigits:2, maximumFractionDigits:2 }) + ' €';
       }
 
+      function formatPlain(value){
+        const num = Number(value || 0);
+        return num.toLocaleString('de-DE', { minimumFractionDigits:2, maximumFractionDigits:2 });
+      }
+
       function showMessage(text, type){
         messageBox.textContent = text;
         messageBox.className = 'message show ' + (type === 'error' ? 'message-error' : 'message-success');
@@ -1028,6 +1257,19 @@
       function toNumber(val){
         const n = parseFloat(String(val || '').replace(',', '.'));
         return Number.isFinite(n) ? n : 0;
+      }
+
+      function calculateDifference(start, end){
+        const s = toNumber(start);
+        const e = toNumber(end);
+        return Math.max(0, e - s);
+      }
+
+      function calculateOilUsage(start, refill, end){
+        const s = toNumber(start);
+        const r = toNumber(refill);
+        const e = toNumber(end);
+        return Math.max(0, (s + r) - e);
       }
 
       function addExtraRow(data){
@@ -1051,11 +1293,27 @@
         updateTotals();
       }
 
+      function updateUsages(){
+        const powerUsage = calculateDifference(fields.powerStart.value, fields.powerEnd.value);
+        const gasUsage = calculateDifference(fields.gasStart.value, fields.gasEnd.value);
+        const waterUsage = calculateDifference(fields.waterStart.value, fields.waterEnd.value);
+        const oilUsage = calculateOilUsage(fields.oilStart.value, fields.oilRefill.value, fields.oilEnd.value);
+
+        usageFields.powerUsage.textContent = formatPlain(powerUsage);
+        usageFields.gasUsage.textContent = formatPlain(gasUsage);
+        usageFields.waterUsage.textContent = formatPlain(waterUsage);
+        usageFields.oilUsage.textContent = formatPlain(oilUsage);
+
+        return { powerUsage, gasUsage, waterUsage, oilUsage };
+      }
+
       function updateTotals(){
+        updateUsages();
+
         let total = 0;
 
         Object.keys(fields).forEach(key => {
-          if(key.startsWith('cost')){
+          if(key.startsWith('cost') || key.endsWith('Cost')){
             total += toNumber(fields[key].value);
           }
         });
@@ -1069,6 +1327,8 @@
       }
 
       function collectData(){
+        const usages = updateUsages();
+
         return {
           archiveId: window.__archiveId || '',
           createdAt: window.__createdAt || '',
@@ -1097,13 +1357,42 @@
             },
             note: fields.objectNote.value.trim()
           },
+          meters: {
+            power: {
+              meterNo: fields.powerMeterNo.value.trim(),
+              start: fields.powerStart.value,
+              end: fields.powerEnd.value,
+              usage: usages.powerUsage,
+              cost: fields.powerCost.value
+            },
+            gas: {
+              meterNo: fields.gasMeterNo.value.trim(),
+              start: fields.gasStart.value,
+              end: fields.gasEnd.value,
+              usage: usages.gasUsage,
+              cost: fields.gasCost.value
+            },
+            water: {
+              meterNo: fields.waterMeterNo.value.trim(),
+              start: fields.waterStart.value,
+              end: fields.waterEnd.value,
+              usage: usages.waterUsage,
+              cost: fields.waterCost.value
+            },
+            oil: {
+              tankNo: fields.oilTankNo.value.trim(),
+              start: fields.oilStart.value,
+              end: fields.oilEnd.value,
+              refill: fields.oilRefill.value,
+              usage: usages.oilUsage,
+              cost: fields.oilCost.value,
+              note: fields.oilNote.value.trim()
+            }
+          },
           costs: {
             insurance: fields.costInsurance.value,
             propertyTax: fields.costPropertyTax.value,
-            water: fields.costWater.value,
             trash: fields.costTrash.value,
-            heat: fields.costHeat.value,
-            electricity: fields.costElectricity.value,
             chimney: fields.costChimney.value,
             maintenance: fields.costMaintenance.value,
             alarm: fields.costAlarm.value,
@@ -1184,12 +1473,31 @@
         fields.featSpecial.checked = !!data.object?.features?.special;
         fields.objectNote.value = data.object?.note || '';
 
+        fields.powerMeterNo.value = data.meters?.power?.meterNo || '';
+        fields.powerStart.value = data.meters?.power?.start || '';
+        fields.powerEnd.value = data.meters?.power?.end || '';
+        fields.powerCost.value = data.meters?.power?.cost || '';
+
+        fields.gasMeterNo.value = data.meters?.gas?.meterNo || '';
+        fields.gasStart.value = data.meters?.gas?.start || '';
+        fields.gasEnd.value = data.meters?.gas?.end || '';
+        fields.gasCost.value = data.meters?.gas?.cost || '';
+
+        fields.waterMeterNo.value = data.meters?.water?.meterNo || '';
+        fields.waterStart.value = data.meters?.water?.start || '';
+        fields.waterEnd.value = data.meters?.water?.end || '';
+        fields.waterCost.value = data.meters?.water?.cost || '';
+
+        fields.oilTankNo.value = data.meters?.oil?.tankNo || '';
+        fields.oilStart.value = data.meters?.oil?.start || '';
+        fields.oilEnd.value = data.meters?.oil?.end || '';
+        fields.oilRefill.value = data.meters?.oil?.refill || '';
+        fields.oilCost.value = data.meters?.oil?.cost || '';
+        fields.oilNote.value = data.meters?.oil?.note || '';
+
         fields.costInsurance.value = data.costs?.insurance || '';
         fields.costPropertyTax.value = data.costs?.propertyTax || '';
-        fields.costWater.value = data.costs?.water || '';
         fields.costTrash.value = data.costs?.trash || '';
-        fields.costHeat.value = data.costs?.heat || '';
-        fields.costElectricity.value = data.costs?.electricity || '';
         fields.costChimney.value = data.costs?.chimney || '';
         fields.costMaintenance.value = data.costs?.maintenance || '';
         fields.costAlarm.value = data.costs?.alarm || '';
@@ -1259,8 +1567,15 @@
 
       function sumFromData(data){
         let total = 0;
+
+        total += toNumber(data.meters?.power?.cost);
+        total += toNumber(data.meters?.gas?.cost);
+        total += toNumber(data.meters?.water?.cost);
+        total += toNumber(data.meters?.oil?.cost);
+
         Object.values(data.costs || {}).forEach(v => total += toNumber(v));
         (data.extras || []).forEach(extra => total += toNumber(extra.value));
+
         return total;
       }
 
@@ -1268,6 +1583,7 @@
         const ownerName = [data.master.firstName, data.master.lastName].filter(Boolean).join(' ').trim();
         const title = data.object.title || ownerName || 'Jahresstand';
         const total = sumFromData(data);
+
         return {
           id: data.archiveId || ('jahr_' + data.master.year + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,8)),
           jahr: data.master.year,
