@@ -948,7 +948,14 @@
     │   │   └── nachlass-erbschaft-orientierung.html
     │   ├── nebenskostenabrechnung/
     │   │   ├── archiv.html
-    │   │   └── index.html
+    │   │   ├── erfassung.html
+    │   │   ├── index.html
+    │   │   ├── modul-1-einfuehrung-und-ueberblick.html
+    │   │   ├── modul-2-kostenarten-verstehen.html
+    │   │   ├── modul-3-unterlagen-und-angaben-ordnen.html
+    │   │   ├── modul-4-jahresstand-aufbauen.html
+    │   │   ├── modul-5-besondere-faelle-und-offene-punkte.html
+    │   │   └── modul-6-druckfassung-und-ausgabe.html
     │   ├── neutral/
     │   │   ├── timecells-mission.html
     │   │   └── workflow-akademie.html
@@ -1316,4 +1323,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.03.2026, 23:26)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.03.2026, 01:47)_
