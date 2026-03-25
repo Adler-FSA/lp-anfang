@@ -2,7 +2,7 @@
 <!--
   Nebenkostenabrechnung – Vermieter-Erfassung
   GitHub-Pfad: lp-anfang/pages/nebenskostenabrechnung/erfassung-vermieter.html
-  Commit-Message: nebenkostenabrechnung – vermieter erfassung um zaehlerstaende und verbrauchslogik je objekt erweitert
+  Commit-Message: nebenkostenabrechnung – vermieter um abrechnungszeitraum ablesedaten einheiten versorger und vorauszahlungen erweitert
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/nebenskostenabrechnung/erfassung-vermieter.html?nocache=__TS__
 -->
 <html lang="de">
@@ -10,7 +10,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Vermieter-Erfassung | Nebenkostenabrechnung</title>
-  <meta name="description" content="Vermieter-Erfassung mit Stammdaten, mehreren Objekten, mehreren Mietern je Objekt, Zählerständen, Verbrauchslogik, Kostenfeldern, Summen und Archiv-Anbindung." />
+  <meta name="description" content="Vermieter-Erfassung mit Stammdaten, Abrechnungszeitraum, mehreren Objekten, Mietern, Zählerständen, Ablesedaten, Einheiten, Versorgern, Vorauszahlungen, Kosten und Archiv-Anbindung." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -30,13 +30,10 @@
       --danger:#c62828;
       --danger-soft:rgba(198,40,40,.08);
       --shadow:0 10px 30px rgba(17,17,17,.06);
-      --radius:22px;
-      --maxw:1320px;
+      --maxw:1340px;
     }
-
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
-
     body{
       margin:0;
       background:
@@ -44,658 +41,204 @@
         radial-gradient(circle at top left, rgba(32,216,178,.12), transparent 24%),
         var(--bg);
       color:var(--text);
-      font-family:Arial, Helvetica, sans-serif;
+      font-family:Arial,Helvetica,sans-serif;
       font-size:18px;
       line-height:1.65;
     }
-
     a{color:inherit;text-decoration:none}
-
-    .container{
-      width:min(var(--maxw), calc(100% - 48px));
-      margin:0 auto;
-    }
-
+    .container{width:min(var(--maxw), calc(100% - 48px));margin:0 auto}
     .topbar{
-      position:sticky;
-      top:0;
-      z-index:50;
+      position:sticky;top:0;z-index:50;
       backdrop-filter:blur(10px);
       background:rgba(255,255,255,.88);
       border-bottom:1px solid rgba(17,17,17,.08);
     }
-
     .topbar-inner{
-      width:min(var(--maxw), calc(100% - 48px));
-      margin:0 auto;
-      min-height:74px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
+      width:min(var(--maxw), calc(100% - 48px));margin:0 auto;min-height:74px;
+      display:flex;align-items:center;justify-content:space-between;gap:16px;
     }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:14px;
-      min-width:0;
-    }
-
+    .brand{display:flex;align-items:center;gap:14px;min-width:0}
     .brand-mark{
-      width:44px;
-      height:44px;
-      border-radius:14px;
+      width:44px;height:44px;border-radius:14px;
       background:linear-gradient(135deg, rgba(32,216,178,.10), rgba(255,79,179,.10));
       border:1px solid rgba(17,17,17,.08);
-      display:grid;
-      place-items:center;
-      box-shadow:var(--shadow);
-      flex:0 0 auto;
+      display:grid;place-items:center;box-shadow:var(--shadow);flex:0 0 auto;
     }
-
     .brand-mark svg{width:24px;height:24px;display:block}
-
     .brand-kicker{
-      margin:0 0 2px;
-      font-size:12px;
-      line-height:1.2;
-      letter-spacing:.10em;
-      text-transform:uppercase;
-      color:var(--magenta-strong);
-      font-weight:700;
+      margin:0 0 2px;font-size:12px;line-height:1.2;letter-spacing:.10em;
+      text-transform:uppercase;color:var(--magenta-strong);font-weight:700;
     }
-
-    .brand-title{
-      margin:0;
-      font-size:18px;
-      line-height:1.2;
-      font-weight:700;
-    }
-
-    .top-actions{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
-    .btn,
-    button{
-      appearance:none;
-      border:none;
-      cursor:pointer;
-      font:inherit;
-    }
-
+    .brand-title{margin:0;font-size:18px;line-height:1.2;font-weight:700}
+    .top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .btn,button{appearance:none;border:none;cursor:pointer;font:inherit}
     .btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      min-height:46px;
-      padding:12px 18px;
-      border-radius:999px;
+      display:inline-flex;align-items:center;justify-content:center;gap:10px;
+      min-height:46px;padding:12px 18px;border-radius:999px;
       transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
-      font-weight:700;
-      white-space:nowrap;
+      font-weight:700;white-space:nowrap;
     }
-
     .btn:hover{transform:translateY(-1px)}
-
-    .btn-primary{
-      background:var(--mint);
-      color:#05241d;
-      box-shadow:0 10px 24px rgba(32,216,178,.20);
-    }
-
-    .btn-secondary{
-      background:#fff;
-      color:var(--magenta-strong);
-      border:1px solid rgba(255,79,179,.40);
-    }
-
-    .btn-ghost{
-      background:#fff;
-      color:var(--text);
-      border:1px solid rgba(17,17,17,.10);
-    }
-
-    .btn-danger{
-      background:#fff;
-      color:var(--danger);
-      border:1px solid rgba(198,40,40,.25);
-    }
-
-    .btn-small{
-      min-height:40px;
-      padding:10px 14px;
-      border-radius:12px;
-      font-size:15px;
-    }
-
-    .page{
-      padding:34px 0 48px;
-    }
-
+    .btn-primary{background:var(--mint);color:#05241d;box-shadow:0 10px 24px rgba(32,216,178,.20)}
+    .btn-secondary{background:#fff;color:var(--magenta-strong);border:1px solid rgba(255,79,179,.40)}
+    .btn-ghost{background:#fff;color:var(--text);border:1px solid rgba(17,17,17,.10)}
+    .btn-danger{background:#fff;color:var(--danger);border:1px solid rgba(198,40,40,.25)}
+    .btn-small{min-height:40px;padding:10px 14px;border-radius:12px;font-size:15px}
+    .page{padding:34px 0 48px}
     .hero{
-      position:relative;
-      overflow:hidden;
+      position:relative;overflow:hidden;
       background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,248,248,.96));
-      border:1px solid var(--line);
-      border-radius:30px;
-      box-shadow:var(--shadow);
-      padding:34px;
-      margin-bottom:22px;
+      border:1px solid var(--line);border-radius:30px;box-shadow:var(--shadow);
+      padding:34px;margin-bottom:22px;
     }
-
-    .hero::before,
-    .hero::after{
-      content:"";
-      position:absolute;
-      border-radius:999px;
-      pointer-events:none;
-    }
-
+    .hero::before,.hero::after{content:"";position:absolute;border-radius:999px;pointer-events:none}
     .hero::before{
-      width:300px;
-      height:300px;
-      right:-100px;
-      top:-120px;
+      width:300px;height:300px;right:-100px;top:-120px;
       background:radial-gradient(circle, rgba(255,79,179,.18), transparent 68%);
     }
-
     .hero::after{
-      width:240px;
-      height:240px;
-      left:-70px;
-      bottom:-80px;
+      width:240px;height:240px;left:-70px;bottom:-80px;
       background:radial-gradient(circle, rgba(32,216,178,.18), transparent 68%);
     }
-
     .hero-inner{
-      position:relative;
-      z-index:1;
-      display:grid;
-      grid-template-columns:minmax(0,1.08fr) minmax(290px,.92fr);
-      gap:26px;
-      align-items:start;
+      position:relative;z-index:1;
+      display:grid;grid-template-columns:minmax(0,1.08fr) minmax(290px,.92fr);
+      gap:26px;align-items:start;
     }
-
     .eyebrow{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      margin:0 0 18px;
-      padding:8px 14px;
-      border-radius:999px;
-      background:var(--magenta-soft);
-      color:var(--magenta-strong);
-      font-size:13px;
-      line-height:1.2;
-      font-weight:700;
-      letter-spacing:.04em;
-      text-transform:uppercase;
+      display:inline-flex;align-items:center;gap:10px;margin:0 0 18px;
+      padding:8px 14px;border-radius:999px;background:var(--magenta-soft);
+      color:var(--magenta-strong);font-size:13px;line-height:1.2;font-weight:700;
+      letter-spacing:.04em;text-transform:uppercase;
     }
-
-    h1{
-      margin:0 0 16px;
-      font-size:42px;
-      line-height:1.15;
-      letter-spacing:-.02em;
-    }
-
-    h2{
-      margin:0 0 14px;
-      font-size:28px;
-      line-height:1.2;
-      letter-spacing:-.02em;
-    }
-
-    h3{
-      margin:0 0 10px;
-      font-size:20px;
-      line-height:1.2;
-      letter-spacing:-.02em;
-    }
-
-    .lead{
-      margin:0 0 16px;
-      font-size:21px;
-      line-height:1.55;
-      color:var(--muted);
-      max-width:760px;
-    }
-
+    h1{margin:0 0 16px;font-size:42px;line-height:1.15;letter-spacing:-.02em}
+    h2{margin:0 0 14px;font-size:28px;line-height:1.2;letter-spacing:-.02em}
+    h3{margin:0 0 10px;font-size:20px;line-height:1.2;letter-spacing:-.02em}
+    .lead{margin:0 0 16px;font-size:21px;line-height:1.55;color:var(--muted);max-width:760px}
     .hero-copy p{margin:0 0 14px}
-
-    .hero-actions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px;
-      margin-top:22px;
+    .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+    .hero-side{display:grid;gap:16px}
+    .mini-card,.panel,.object-card,.tenant-card,.sum-card,.message,.meter-card{
+      background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);
     }
-
-    .hero-side{
-      display:grid;
-      gap:16px;
-    }
-
-    .mini-card,
-    .panel,
-    .object-card,
-    .tenant-card,
-    .sum-card,
-    .message,
-    .meter-card{
-      background:#fff;
-      border:1px solid var(--line);
-      box-shadow:var(--shadow);
-    }
-
-    .mini-card{
-      border-radius:20px;
-      padding:20px;
-    }
-
-    .mini-card p{
-      margin:0;
-      color:var(--muted);
-      font-size:16px;
-      line-height:1.55;
-    }
-
-    .icon-line{
-      display:flex;
-      align-items:flex-start;
-      gap:12px;
-    }
-
+    .mini-card{border-radius:20px;padding:20px}
+    .mini-card p{margin:0;color:var(--muted);font-size:16px;line-height:1.55}
+    .icon-line{display:flex;align-items:flex-start;gap:12px}
     .icon-badge{
-      width:38px;
-      height:38px;
-      border-radius:12px;
-      display:grid;
-      place-items:center;
-      flex:0 0 auto;
-      background:var(--mint-soft);
-      border:1px solid rgba(32,216,178,.20);
+      width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:0 0 auto;
+      background:var(--mint-soft);border:1px solid rgba(32,216,178,.20);
     }
-
-    .icon-badge.magenta{
-      background:var(--magenta-soft);
-      border-color:rgba(255,79,179,.20);
-    }
-
+    .icon-badge.magenta{background:var(--magenta-soft);border-color:rgba(255,79,179,.20)}
     .icon-badge svg{width:20px;height:20px;display:block}
-
     .message{
-      display:none;
-      border-radius:18px;
-      padding:14px 16px;
-      font-size:15px;
-      font-weight:700;
-      margin-bottom:16px;
+      display:none;border-radius:18px;padding:14px 16px;font-size:15px;
+      font-weight:700;margin-bottom:16px;
     }
-
     .message.show{display:block}
-    .message-success{
-      background:var(--mint-soft);
-      border-color:rgba(32,216,178,.24);
-      color:#0b6b57;
-    }
-    .message-error{
-      background:var(--danger-soft);
-      border-color:rgba(198,40,40,.22);
-      color:var(--danger);
-    }
-
-    .layout{
-      display:grid;
-      grid-template-columns:minmax(320px, 430px) minmax(0, 1fr);
-      gap:22px;
-      align-items:start;
-    }
-
-    .panel{
-      border-radius:24px;
-      overflow:hidden;
-    }
-
-    .panel-head{
-      padding:22px 22px 0;
-    }
-
-    .panel-body{
-      padding:22px;
-    }
-
+    .message-success{background:var(--mint-soft);border-color:rgba(32,216,178,.24);color:#0b6b57}
+    .message-error{background:var(--danger-soft);border-color:rgba(198,40,40,.22);color:var(--danger)}
+    .layout{display:grid;grid-template-columns:minmax(320px, 430px) minmax(0, 1fr);gap:22px;align-items:start}
+    .panel{border-radius:24px;overflow:hidden}
+    .panel-head{padding:22px 22px 0}
+    .panel-body{padding:22px}
     .stack{display:grid;gap:22px}
     .objects-wrap{display:grid;gap:18px}
     .form-grid{display:grid;gap:14px}
-
-    .field-row-2{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:14px;
+    .field-row-2,.field-row-3,.field-row-4,.field-row-5{
+      display:grid;gap:14px;
     }
-
-    .field-row-3{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:14px;
+    .field-row-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .field-row-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .field-row-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .field-row-5{grid-template-columns:repeat(5,minmax(0,1fr))}
+    .field{display:grid;gap:8px}
+    .field label{font-size:14px;line-height:1.2;font-weight:700;color:#2a2a2a}
+    input,select,textarea{
+      width:100%;min-width:0;border:1px solid var(--line);border-radius:14px;
+      padding:14px 16px;background:#fff;color:var(--text);
+      transition:border-color .18s ease, box-shadow .18s ease;font:inherit;
     }
-
-    .field-row-4{
-      display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:14px;
+    textarea{min-height:110px;resize:vertical}
+    input::placeholder,textarea::placeholder{color:#9a9a9a}
+    input:focus,select:focus,textarea:focus{
+      outline:none;border-color:var(--mint);box-shadow:0 0 0 4px rgba(32,216,178,.14);
     }
-
-    .field{
-      display:grid;
-      gap:8px;
-    }
-
-    .field label{
-      font-size:14px;
-      line-height:1.2;
-      font-weight:700;
-      color:#2a2a2a;
-    }
-
-    input,
-    select,
-    textarea{
-      width:100%;
-      min-width:0;
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:14px 16px;
-      background:#fff;
-      color:var(--text);
-      transition:border-color .18s ease, box-shadow .18s ease;
-      font:inherit;
-    }
-
-    textarea{
-      min-height:110px;
-      resize:vertical;
-    }
-
-    input::placeholder,
-    textarea::placeholder{
-      color:#9a9a9a;
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus{
-      outline:none;
-      border-color:var(--mint);
-      box-shadow:0 0 0 4px rgba(32,216,178,.14);
-    }
-
-    .helper{
-      margin:0;
-      font-size:14px;
-      color:var(--muted);
-    }
-
-    .checkbox-grid{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:12px;
-    }
-
+    .helper{margin:0;font-size:14px;color:var(--muted)}
+    .checkbox-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
     .check{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:12px 14px;
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:#fff;
+      display:flex;align-items:center;gap:10px;padding:12px 14px;
+      border:1px solid var(--line);border-radius:14px;background:#fff;
     }
-
-    .check input{
-      width:18px;
-      height:18px;
-      margin:0;
-      box-shadow:none;
-    }
-
+    .check input{width:18px;height:18px;margin:0;box-shadow:none}
     .toolbar{
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px;
-      align-items:center;
-      justify-content:space-between;
-      margin-top:18px;
+      display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-top:18px;
     }
-
     .toolbar.compact{margin-top:0}
-    .toolbar-left,
-    .toolbar-right{
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px;
-      align-items:center;
-    }
-
-    .object-card{
-      border-radius:24px;
-      overflow:hidden;
-    }
-
+    .toolbar-left,.toolbar-right{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+    .object-card{border-radius:24px;overflow:hidden}
     .object-head{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:14px;
-      padding:22px 22px 0;
+      display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:22px 22px 0;
     }
-
     .object-badge{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-width:96px;
-      min-height:46px;
-      padding:10px 14px;
-      border-radius:14px;
-      background:var(--mint-soft);
-      color:var(--mint-strong);
-      font-size:20px;
-      font-weight:700;
-      line-height:1;
+      display:inline-flex;align-items:center;justify-content:center;min-width:96px;min-height:46px;
+      padding:10px 14px;border-radius:14px;background:var(--mint-soft);color:var(--mint-strong);
+      font-size:20px;font-weight:700;line-height:1;
     }
-
-    .object-card:nth-child(even) .object-badge{
-      background:var(--magenta-soft);
-      color:var(--magenta-strong);
-    }
-
-    .object-body{
-      padding:18px 22px 22px;
-      display:grid;
-      gap:18px;
-    }
-
+    .object-card:nth-child(even) .object-badge{background:var(--magenta-soft);color:var(--magenta-strong)}
+    .object-body{padding:18px 22px 22px;display:grid;gap:18px}
     .section-box{
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:18px;
-      background:#fff;
+      border:1px solid var(--line);border-radius:18px;padding:18px;background:#fff;
     }
-
-    .section-box h3{
-      font-size:18px;
-      margin:0 0 14px;
-    }
-
-    .tenant-wrap{
-      display:grid;
-      gap:12px;
-    }
-
-    .tenant-card{
-      border-radius:18px;
-      padding:16px;
-    }
-
-    .tenant-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:12px;
-    }
-
-    .cost-grid{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:14px;
-    }
-
-    .meter-grid{
-      display:grid;
-      gap:18px;
-    }
-
+    .section-box h3{font-size:18px;margin:0 0 14px}
+    .tenant-wrap{display:grid;gap:12px}
+    .tenant-card{border-radius:18px;padding:16px}
+    .tenant-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+    .cost-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .meter-grid{display:grid;gap:18px}
     .meter-card{
-      border-radius:22px;
-      overflow:hidden;
+      border-radius:22px;overflow:hidden;
       background:linear-gradient(180deg, rgba(255,255,255,1), rgba(248,248,248,.95));
     }
-
-    .meter-head{
-      padding:18px 18px 0;
-    }
-
-    .meter-body{
-      padding:18px;
-      display:grid;
-      gap:14px;
-    }
-
+    .meter-head{padding:18px 18px 0}
+    .meter-body{padding:18px;display:grid;gap:14px}
     .result-box{
-      border:1px solid var(--line);
-      border-radius:16px;
-      padding:14px 16px;
-      background:var(--panel-soft);
-      display:grid;
-      gap:4px;
+      border:1px solid var(--line);border-radius:16px;padding:14px 16px;
+      background:var(--panel-soft);display:grid;gap:4px;
     }
-
-    .result-label{
-      font-size:13px;
-      text-transform:uppercase;
-      letter-spacing:.04em;
-      color:#666;
-      font-weight:700;
-    }
-
-    .result-value{
-      font-size:24px;
-      line-height:1.1;
-      color:var(--mint-strong);
-      font-weight:700;
-    }
-
-    .result-unit{
-      font-size:14px;
-      color:var(--muted);
-    }
-
-    .extra-wrap{
-      display:grid;
-      gap:12px;
-    }
-
+    .result-label{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:#666;font-weight:700}
+    .result-value{font-size:24px;line-height:1.1;color:var(--mint-strong);font-weight:700}
+    .result-unit{font-size:14px;color:var(--muted)}
+    .extra-wrap{display:grid;gap:12px}
     .extra-row{
-      display:grid;
-      grid-template-columns:1.4fr .9fr auto;
-      gap:12px;
-      align-items:end;
-      padding:12px;
-      border:1px solid var(--line);
-      border-radius:16px;
-      background:var(--bg-soft);
+      display:grid;grid-template-columns:1.4fr .9fr auto;gap:12px;align-items:end;
+      padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--bg-soft);
     }
-
     .sum-card{
-      border-radius:22px;
-      overflow:hidden;
+      border-radius:22px;overflow:hidden;
       background:linear-gradient(180deg, rgba(32,216,178,.10), rgba(255,255,255,1));
     }
-
-    .sum-head{
-      padding:22px 22px 0;
-    }
-
-    .sum-body{
-      padding:22px;
-      display:grid;
-      gap:14px;
-    }
-
+    .sum-head{padding:22px 22px 0}
+    .sum-body{padding:22px;display:grid;gap:14px}
     .sum-row{
-      display:grid;
-      grid-template-columns:1fr auto;
-      gap:12px;
-      padding:12px 0;
-      border-top:1px solid var(--line);
-      align-items:center;
+      display:grid;grid-template-columns:1fr auto;gap:12px;padding:12px 0;
+      border-top:1px solid var(--line);align-items:center;
     }
-
-    .sum-row:first-child{
-      border-top:none;
-      padding-top:0;
-    }
-
+    .sum-row:first-child{border-top:none;padding-top:0}
     .sum-label{font-weight:700}
     .sum-value{font-weight:700}
     .object-total{color:var(--mint-strong)}
-    .grand-total{
-      font-size:28px;
-      color:var(--mint-strong);
-      letter-spacing:-.02em;
-    }
-
-    @media (max-width:1100px){
-      .layout{
-        grid-template-columns:1fr;
-      }
-    }
-
+    .grand-total{font-size:28px;color:var(--mint-strong);letter-spacing:-.02em}
+    .saldo-neg{color:#b42318}
+    .saldo-pos{color:#0b6b57}
+    @media (max-width:1100px){ .layout{grid-template-columns:1fr} }
     @media (max-width:980px){
-      .hero-inner,
-      .field-row-4,
-      .field-row-3,
-      .cost-grid,
-      .checkbox-grid{
-        grid-template-columns:1fr;
-      }
+      .hero-inner,.field-row-5,.field-row-4,.field-row-3,.cost-grid,.checkbox-grid{grid-template-columns:1fr}
     }
-
     @media (max-width:780px){
       body{font-size:17px}
-      .container,
-      .topbar-inner{
-        width:min(var(--maxw), calc(100% - 28px));
-      }
-      .topbar-inner{
-        min-height:unset;
-        padding:12px 0;
-        align-items:flex-start;
-        flex-direction:column;
-      }
-      .top-actions{
-        width:100%;
-        justify-content:flex-start;
-      }
+      .container,.topbar-inner{width:min(var(--maxw), calc(100% - 28px))}
+      .topbar-inner{min-height:unset;padding:12px 0;align-items:flex-start;flex-direction:column}
+      .top-actions{width:100%;justify-content:flex-start}
       .page{padding:20px 0 34px}
       .hero{padding:22px}
       h1{font-size:30px}
@@ -704,32 +247,12 @@
       .lead{font-size:19px}
       .btn{width:100%}
       .hero-actions{flex-direction:column}
-      .field-row-2,
-      .extra-row{
-        grid-template-columns:1fr;
-      }
+      .field-row-2,.extra-row{grid-template-columns:1fr}
     }
-
     @media print{
-      .topbar,
-      .hero-actions,
-      .toolbar,
-      .btn{
-        display:none !important;
-      }
-      body{
-        background:#fff;
-        font-size:12pt;
-      }
-      .hero,
-      .panel,
-      .object-card,
-      .tenant-card,
-      .sum-card,
-      .meter-card{
-        box-shadow:none !important;
-        border:1px solid #cfcfcf !important;
-      }
+      .topbar,.hero-actions,.toolbar,.btn{display:none !important}
+      body{background:#fff;font-size:12pt}
+      .hero,.panel,.object-card,.tenant-card,.sum-card,.meter-card{box-shadow:none !important;border:1px solid #cfcfcf !important}
       .container{width:100%}
       .page{padding:0}
     }
@@ -744,14 +267,8 @@
             <path d="M13 32c0-10.493 8.507-19 19-19h19v19c0 10.493-8.507 19-19 19H13V32Z" fill="url(#g1)"/>
             <path d="M13 13h19c10.493 0 19 8.507 19 19v19H32c-10.493 0-19-8.507-19-19V13Z" fill="url(#g2)" opacity=".78"/>
             <defs>
-              <linearGradient id="g1" x1="13" y1="13" x2="51" y2="51" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#20d8b2"/>
-                <stop offset="1" stop-color="#11b995"/>
-              </linearGradient>
-              <linearGradient id="g2" x1="13" y1="13" x2="51" y2="51" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#ff4fb3"/>
-                <stop offset="1" stop-color="#e72897"/>
-              </linearGradient>
+              <linearGradient id="g1" x1="13" y1="13" x2="51" y2="51"><stop stop-color="#20d8b2"/><stop offset="1" stop-color="#11b995"/></linearGradient>
+              <linearGradient id="g2" x1="13" y1="13" x2="51" y2="51"><stop stop-color="#ff4fb3"/><stop offset="1" stop-color="#e72897"/></linearGradient>
             </defs>
           </svg>
         </div>
@@ -760,7 +277,6 @@
           <p class="brand-title">Erfassung</p>
         </div>
       </div>
-
       <div class="top-actions">
         <a class="btn btn-secondary" href="index.html">Zur Steuerzentrale</a>
         <a class="btn btn-ghost" href="archiv.html">Archiv</a>
@@ -776,13 +292,8 @@
           <div class="hero-copy">
             <p class="eyebrow">Nur für Vermieter</p>
             <h1>Vermieter-Erfassung</h1>
-            <p class="lead">
-              Hier erfasst du deine Vermieter-Daten, mehrere Objekte, mehrere Mieter je Objekt sowie Zählerstände, Verbrauchswerte und Kosten sauber getrennt pro Jahresstand.
-            </p>
-            <p>
-              Jedes Objekt kann eigene Strom-, Gas-, Wasser- und Heizölwerte bekommen. So bleibt die Verbrauchs- und Kostenlogik je Objekt sauber nachvollziehbar.
-            </p>
-
+            <p class="lead">Hier erfasst du Vermieter-Daten, Abrechnungszeitraum, mehrere Objekte, mehrere Mieter je Objekt sowie Zählerstände, Verbrauch, Kosten und Vorauszahlungen getrennt pro Objekt.</p>
+            <p>Jedes Objekt bekommt eigene Versorger, Kundennummern, Ablesedaten und Abschläge. So bleibt die Logik je Objekt sauber nachvollziehbar.</p>
             <div class="hero-actions">
               <button type="button" class="btn btn-primary" id="addObjectHeroBtn">Neues Objekt anlegen</button>
               <button type="button" class="btn btn-ghost" id="saveArchiveHeroBtn">Ins Archiv übernehmen</button>
@@ -790,50 +301,9 @@
           </div>
 
           <div class="hero-side">
-            <div class="mini-card">
-              <div class="icon-line">
-                <div class="icon-badge" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M5 5h14v14H5z" stroke="#11b995" stroke-width="1.8"/>
-                    <path d="M8 9h8M8 12h8M8 15h5" stroke="#11b995" stroke-width="1.8" stroke-linecap="round"/>
-                  </svg>
-                </div>
-                <div>
-                  <h3>Neu dazugekommen</h3>
-                  <p>Zählerstände und Verbrauchsblöcke je Objekt für Strom, Gas, Wasser und Heizöl.</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="mini-card">
-              <div class="icon-line">
-                <div class="icon-badge magenta" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M12 4 5 8v4c0 4.2 3 8.1 7 9 4-0.9 7-4.8 7-9V8l-7-4Z" stroke="#e72897" stroke-width="1.8"/>
-                    <path d="m9.3 12 1.8 1.8 3.6-3.6" stroke="#e72897" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                <div>
-                  <h3>Wichtig für Vermieter</h3>
-                  <p>Jedes Objekt behält eigene Verbrauchswerte und eigene Kosten. Nichts wird zwischen Objekten vermischt.</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="mini-card">
-              <div class="icon-line">
-                <div class="icon-badge" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M7 5h10M7 12h10M7 19h10" stroke="#11b995" stroke-width="1.8" stroke-linecap="round"/>
-                    <path d="M4 5h.01M4 12h.01M4 19h.01" stroke="#11b995" stroke-width="2.6" stroke-linecap="round"/>
-                  </svg>
-                </div>
-                <div>
-                  <h3>Danach möglich</h3>
-                  <p>Speichern, drucken, später wieder öffnen und die Stände für das Archiv sichern.</p>
-                </div>
-              </div>
-            </div>
+            <div class="mini-card"><div class="icon-line"><div class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 5h14v14H5z" stroke="#11b995" stroke-width="1.8"/><path d="M8 9h8M8 12h8M8 15h5" stroke="#11b995" stroke-width="1.8" stroke-linecap="round"/></svg></div><div><h3>Neu dazugekommen</h3><p>Abrechnungszeitraum, Ablesedaten, Einheiten, Versorger, Kundennummern und Vorauszahlungen je Objekt.</p></div></div></div>
+            <div class="mini-card"><div class="icon-line"><div class="icon-badge magenta" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4 5 8v4c0 4.2 3 8.1 7 9 4-0.9 7-4.8 7-9V8l-7-4Z" stroke="#e72897" stroke-width="1.8"/><path d="m9.3 12 1.8 1.8 3.6-3.6" stroke="#e72897" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h3>Wichtig für Vermieter</h3><p>Du siehst jetzt je Objekt Kosten, Vorauszahlungen und den dazugehörigen Saldo.</p></div></div></div>
+            <div class="mini-card"><div class="icon-line"><div class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M7 5h10M7 12h10M7 19h10" stroke="#11b995" stroke-width="1.8" stroke-linecap="round"/><path d="M4 5h.01M4 12h.01M4 19h.01" stroke="#11b995" stroke-width="2.6" stroke-linecap="round"/></svg></div><div><h3>Danach möglich</h3><p>Speichern, drucken, später wieder öffnen und die Stände für das Archiv sichern.</p></div></div></div>
           </div>
         </div>
       </section>
@@ -843,89 +313,52 @@
       <div class="layout">
         <section class="stack">
           <section class="panel">
-            <div class="panel-head">
-              <h2>Vermieter-Stammdaten</h2>
-            </div>
+            <div class="panel-head"><h2>Vermieter-Stammdaten</h2></div>
             <div class="panel-body">
               <div class="form-grid">
                 <div class="field-row-2">
-                  <div class="field">
-                    <label for="year">Jahr</label>
-                    <input id="year" type="number" min="2000" max="2100" step="1" placeholder="z. B. 2026" />
-                  </div>
-                  <div class="field">
-                    <label for="status">Stand</label>
-                    <select id="status">
-                      <option value="Entwurf">Entwurf</option>
-                      <option value="In Arbeit">In Arbeit</option>
-                      <option value="Fertig vorbereitet">Fertig vorbereitet</option>
-                      <option value="Exportiert">Exportiert</option>
-                    </select>
-                  </div>
+                  <div class="field"><label for="year">Jahr</label><input id="year" type="number" min="2000" max="2100" step="1" placeholder="z. B. 2026" /></div>
+                  <div class="field"><label for="status">Stand</label><select id="status"><option value="Entwurf">Entwurf</option><option value="In Arbeit">In Arbeit</option><option value="Fertig vorbereitet">Fertig vorbereitet</option><option value="Exportiert">Exportiert</option></select></div>
                 </div>
 
                 <div class="field-row-2">
-                  <div class="field">
-                    <label for="firstName">Vorname</label>
-                    <input id="firstName" type="text" placeholder="Vorname" />
-                  </div>
-                  <div class="field">
-                    <label for="lastName">Nachname</label>
-                    <input id="lastName" type="text" placeholder="Nachname" />
-                  </div>
-                </div>
-
-                <div class="field">
-                  <label for="street">Anschrift</label>
-                  <input id="street" type="text" placeholder="Straße und Hausnummer" />
+                  <div class="field"><label for="periodFrom">Abrechnungszeitraum von</label><input id="periodFrom" type="date" /></div>
+                  <div class="field"><label for="periodTo">Abrechnungszeitraum bis</label><input id="periodTo" type="date" /></div>
                 </div>
 
                 <div class="field-row-2">
-                  <div class="field">
-                    <label for="zip">PLZ</label>
-                    <input id="zip" type="text" placeholder="PLZ" />
-                  </div>
-                  <div class="field">
-                    <label for="city">Ort</label>
-                    <input id="city" type="text" placeholder="Ort" />
-                  </div>
+                  <div class="field"><label for="createdDate">Erfassungsdatum</label><input id="createdDate" type="date" /></div>
+                  <div class="field"><label for="updatedDate">Letzte Aktualisierung</label><input id="updatedDate" type="date" /></div>
                 </div>
 
-                <div class="field">
-                  <label for="landlordNote">Allgemeine Notiz</label>
-                  <textarea id="landlordNote" placeholder="z. B. Hinweise zum Bestand oder allgemeine Jahresnotizen."></textarea>
+                <div class="field-row-2">
+                  <div class="field"><label for="firstName">Vorname</label><input id="firstName" type="text" placeholder="Vorname" /></div>
+                  <div class="field"><label for="lastName">Nachname</label><input id="lastName" type="text" placeholder="Nachname" /></div>
                 </div>
 
+                <div class="field"><label for="street">Anschrift</label><input id="street" type="text" placeholder="Straße und Hausnummer" /></div>
+
+                <div class="field-row-2">
+                  <div class="field"><label for="zip">PLZ</label><input id="zip" type="text" placeholder="PLZ" /></div>
+                  <div class="field"><label for="city">Ort</label><input id="city" type="text" placeholder="Ort" /></div>
+                </div>
+
+                <div class="field"><label for="landlordNote">Allgemeine Notiz</label><textarea id="landlordNote" placeholder="z. B. Hinweise zum Bestand oder allgemeine Jahresnotizen."></textarea></div>
                 <p class="helper">Diese Angaben gelten als Rahmen für den aktuellen Vermieter-Jahresstand.</p>
               </div>
             </div>
           </section>
 
           <section class="sum-card">
-            <div class="sum-head">
-              <h2>Gesamtübersicht</h2>
-            </div>
+            <div class="sum-head"><h2>Gesamtübersicht</h2></div>
             <div class="sum-body">
-              <div class="sum-row">
-                <div class="sum-label">Bereich</div>
-                <div class="sum-value">Vermieter</div>
-              </div>
-              <div class="sum-row">
-                <div class="sum-label">Jahr</div>
-                <div class="sum-value" id="sumYear">—</div>
-              </div>
-              <div class="sum-row">
-                <div class="sum-label">Objekte gesamt</div>
-                <div class="sum-value" id="sumObjects">0</div>
-              </div>
-              <div class="sum-row">
-                <div class="sum-label">Mieter gesamt</div>
-                <div class="sum-value" id="sumTenants">0</div>
-              </div>
-              <div class="sum-row">
-                <div class="sum-label">Gesamtsumme aller Objekte</div>
-                <div class="sum-value grand-total" id="sumGrand">0,00 €</div>
-              </div>
+              <div class="sum-row"><div class="sum-label">Bereich</div><div class="sum-value">Vermieter</div></div>
+              <div class="sum-row"><div class="sum-label">Jahr</div><div class="sum-value" id="sumYear">—</div></div>
+              <div class="sum-row"><div class="sum-label">Objekte gesamt</div><div class="sum-value" id="sumObjects">0</div></div>
+              <div class="sum-row"><div class="sum-label">Mieter gesamt</div><div class="sum-value" id="sumTenants">0</div></div>
+              <div class="sum-row"><div class="sum-label">Gesamtkosten</div><div class="sum-value grand-total" id="sumGrand">0,00 €</div></div>
+              <div class="sum-row"><div class="sum-label">Vorauszahlungen gesamt</div><div class="sum-value" id="sumAdvance">0,00 €</div></div>
+              <div class="sum-row"><div class="sum-label">Saldo</div><div class="sum-value" id="sumSaldo">0,00 €</div></div>
 
               <div class="toolbar">
                 <div class="toolbar-left">
@@ -944,12 +377,8 @@
         <section class="panel">
           <div class="panel-head">
             <div class="toolbar compact">
-              <div class="toolbar-left">
-                <h2>Objekte</h2>
-              </div>
-              <div class="toolbar-right">
-                <button type="button" class="btn btn-primary" id="addObjectBtn">Neues Objekt</button>
-              </div>
+              <div class="toolbar-left"><h2>Objekte</h2></div>
+              <div class="toolbar-right"><button type="button" class="btn btn-primary" id="addObjectBtn">Neues Objekt</button></div>
             </div>
           </div>
           <div class="panel-body">
@@ -973,14 +402,8 @@
           <h3>Objektdaten</h3>
           <div class="form-grid">
             <div class="field-row-2">
-              <div class="field">
-                <label>Objektbezeichnung</label>
-                <input type="text" class="obj-title" placeholder="z. B. Haus A oder Wohnung 2" />
-              </div>
-              <div class="field">
-                <label>Baujahr</label>
-                <input type="number" class="obj-build-year" min="1000" max="2100" step="1" placeholder="z. B. 2005" />
-              </div>
+              <div class="field"><label>Objektbezeichnung</label><input type="text" class="obj-title" placeholder="z. B. Haus A oder Wohnung 2" /></div>
+              <div class="field"><label>Baujahr</label><input type="number" class="obj-build-year" min="1000" max="2100" step="1" placeholder="z. B. 2005" /></div>
             </div>
 
             <div class="field">
@@ -989,14 +412,8 @@
             </div>
 
             <div class="field-row-2">
-              <div class="field">
-                <label>PLZ</label>
-                <input type="text" class="obj-zip" placeholder="PLZ" />
-              </div>
-              <div class="field">
-                <label>Ort</label>
-                <input type="text" class="obj-city" placeholder="Ort" />
-              </div>
+              <div class="field"><label>PLZ</label><input type="text" class="obj-zip" placeholder="PLZ" /></div>
+              <div class="field"><label>Ort</label><input type="text" class="obj-city" placeholder="Ort" /></div>
             </div>
 
             <div class="checkbox-grid">
@@ -1006,21 +423,14 @@
               <label class="check"><input type="checkbox" class="feat-special" /> <span>Besondere Haustechnik</span></label>
             </div>
 
-            <div class="field">
-              <label>Besonderheiten</label>
-              <textarea class="obj-note" placeholder="z. B. Anlagen, Außenbereiche oder objektspezifische Hinweise."></textarea>
-            </div>
+            <div class="field"><label>Besonderheiten</label><textarea class="obj-note" placeholder="z. B. Anlagen, Außenbereiche oder objektspezifische Hinweise."></textarea></div>
           </div>
         </section>
 
         <section class="section-box">
           <div class="toolbar compact">
-            <div class="toolbar-left">
-              <h3>Mieter</h3>
-            </div>
-            <div class="toolbar-right">
-              <button type="button" class="btn btn-secondary btn-small action-add-tenant">Weiteren Mieter hinzufügen</button>
-            </div>
+            <div class="toolbar-left"><h3>Mieter</h3></div>
+            <div class="toolbar-right"><button type="button" class="btn btn-secondary btn-small action-add-tenant">Weiteren Mieter hinzufügen</button></div>
           </div>
           <div class="tenant-wrap"></div>
         </section>
@@ -1029,130 +439,100 @@
           <h3>Zählerstände und Verbrauch</h3>
           <div class="meter-grid">
             <article class="meter-card">
-              <div class="meter-head">
-                <h3>Strom</h3>
-              </div>
+              <div class="meter-head"><h3>Strom</h3></div>
               <div class="meter-body">
-                <div class="field-row-4">
-                  <div class="field">
-                    <label>Zählernummer</label>
-                    <input type="text" class="meter-power-no" placeholder="z. B. ST-45811" />
-                  </div>
-                  <div class="field">
-                    <label>Anfangsstand</label>
-                    <input type="number" class="meter-power-start" step="0.01" placeholder="0" />
-                  </div>
-                  <div class="field">
-                    <label>Endstand</label>
-                    <input type="number" class="meter-power-end" step="0.01" placeholder="0" />
-                  </div>
-                  <div class="field">
-                    <label>Kosten gesamt</label>
-                    <input type="number" class="meter-power-cost cost-input" min="0" step="0.01" placeholder="0,00" />
-                  </div>
+                <div class="field-row-5">
+                  <div class="field"><label>Versorger</label><input type="text" class="meter-power-provider" placeholder="z. B. Stadtwerke" /></div>
+                  <div class="field"><label>Kunden-/Vertragsnummer</label><input type="text" class="meter-power-customer" placeholder="Nummer" /></div>
+                  <div class="field"><label>Zählernummer</label><input type="text" class="meter-power-no" placeholder="ST-45811" /></div>
+                  <div class="field"><label>Einheit</label><select class="meter-power-unit"><option value="kWh">kWh</option><option value="MWh">MWh</option></select></div>
+                  <div class="field"><label>Vorauszahlungen</label><input type="number" class="meter-power-advance advance-input" step="0.01" min="0" placeholder="0,00" /></div>
+                </div>
+                <div class="field-row-5">
+                  <div class="field"><label>Ablesedatum Anfang</label><input type="date" class="meter-power-read-start" /></div>
+                  <div class="field"><label>Ablesedatum Ende</label><input type="date" class="meter-power-read-end" /></div>
+                  <div class="field"><label>Anfangsstand</label><input type="number" class="meter-power-start" step="0.01" placeholder="0" /></div>
+                  <div class="field"><label>Endstand</label><input type="number" class="meter-power-end" step="0.01" placeholder="0" /></div>
+                  <div class="field"><label>Kosten gesamt</label><input type="number" class="meter-power-cost cost-input" min="0" step="0.01" placeholder="0,00" /></div>
                 </div>
                 <div class="result-box">
                   <div class="result-label">Verbrauch Strom</div>
                   <div class="result-value usage-power">0,00</div>
-                  <div class="result-unit">kWh / Verbrauch aus Endstand minus Anfangsstand</div>
+                  <div class="result-unit">Einheit laut Auswahl / Verbrauch aus Endstand minus Anfangsstand</div>
                 </div>
               </div>
             </article>
 
             <article class="meter-card">
-              <div class="meter-head">
-                <h3>Gas</h3>
-              </div>
+              <div class="meter-head"><h3>Gas</h3></div>
               <div class="meter-body">
-                <div class="field-row-4">
-                  <div class="field">
-                    <label>Zählernummer</label>
-                    <input type="text" class="meter-gas-no" placeholder="z. B. GAS-22419" />
-                  </div>
-                  <div class="field">
-                    <label>Anfangsstand</label>
-                    <input type="number" class="meter-gas-start" step="0.01" placeholder="0" />
-                  </div>
-                  <div class="field">
-                    <label>Endstand</label>
-                    <input type="number" class="meter-gas-end" step="0.01" placeholder="0" />
-                  </div>
-                  <div class="field">
-                    <label>Kosten gesamt</label>
-                    <input type="number" class="meter-gas-cost cost-input" min="0" step="0.01" placeholder="0,00" />
-                  </div>
+                <div class="field-row-5">
+                  <div class="field"><label>Versorger</label><input type="text" class="meter-gas-provider" placeholder="z. B. Stadtwerke" /></div>
+                  <div class="field"><label>Kunden-/Vertragsnummer</label><input type="text" class="meter-gas-customer" placeholder="Nummer" /></div>
+                  <div class="field"><label>Zählernummer</label><input type="text" class="meter-gas-no" placeholder="GAS-22419" /></div>
+                  <div class="field"><label>Einheit</label><select class="meter-gas-unit"><option value="m³">m³</option><option value="kWh">kWh</option></select></div>
+                  <div class="field"><label>Vorauszahlungen</label><input type="number" class="meter-gas-advance advance-input" step="0.01" min="0" placeholder="0,00" /></div>
+                </div>
+                <div class="field-row-5">
+                  <div class="field"><label>Ablesedatum Anfang</label><input type="date" class="meter-gas-read-start" /></div>
+                  <div class="field"><label>Ablesedatum Ende</label><input type="date" class="meter-gas-read-end" /></div>
+                  <div class="field"><label>Anfangsstand</label><input type="number" class="meter-gas-start" step="0.01" placeholder="0" /></div>
+                  <div class="field"><label>Endstand</label><input type="number" class="meter-gas-end" step="0.01" placeholder="0" /></div>
+                  <div class="field"><label>Kosten gesamt</label><input type="number" class="meter-gas-cost cost-input" min="0" step="0.01" placeholder="0,00" /></div>
                 </div>
                 <div class="result-box">
                   <div class="result-label">Verbrauch Gas</div>
                   <div class="result-value usage-gas">0,00</div>
-                  <div class="result-unit">m³ oder eingetragene Einheit / Verbrauch aus Endstand minus Anfangsstand</div>
+                  <div class="result-unit">Einheit laut Auswahl / Verbrauch aus Endstand minus Anfangsstand</div>
                 </div>
               </div>
             </article>
 
             <article class="meter-card">
-              <div class="meter-head">
-                <h3>Wasser</h3>
-              </div>
+              <div class="meter-head"><h3>Wasser</h3></div>
               <div class="meter-body">
-                <div class="field-row-4">
-                  <div class="field">
-                    <label>Zählernummer</label>
-                    <input type="text" class="meter-water-no" placeholder="z. B. WS-11982" />
-                  </div>
-                  <div class="field">
-                    <label>Anfangsstand</label>
-                    <input type="number" class="meter-water-start" step="0.01" placeholder="0" />
-                  </div>
-                  <div class="field">
-                    <label>Endstand</label>
-                    <input type="number" class="meter-water-end" step="0.01" placeholder="0" />
-                  </div>
-                  <div class="field">
-                    <label>Kosten gesamt</label>
-                    <input type="number" class="meter-water-cost cost-input" min="0" step="0.01" placeholder="0,00" />
-                  </div>
+                <div class="field-row-5">
+                  <div class="field"><label>Versorger</label><input type="text" class="meter-water-provider" placeholder="z. B. Stadtwerke" /></div>
+                  <div class="field"><label>Kunden-/Vertragsnummer</label><input type="text" class="meter-water-customer" placeholder="Nummer" /></div>
+                  <div class="field"><label>Zählernummer</label><input type="text" class="meter-water-no" placeholder="WS-11982" /></div>
+                  <div class="field"><label>Einheit</label><select class="meter-water-unit"><option value="m³">m³</option><option value="Liter">Liter</option></select></div>
+                  <div class="field"><label>Vorauszahlungen</label><input type="number" class="meter-water-advance advance-input" step="0.01" min="0" placeholder="0,00" /></div>
+                </div>
+                <div class="field-row-5">
+                  <div class="field"><label>Ablesedatum Anfang</label><input type="date" class="meter-water-read-start" /></div>
+                  <div class="field"><label>Ablesedatum Ende</label><input type="date" class="meter-water-read-end" /></div>
+                  <div class="field"><label>Anfangsstand</label><input type="number" class="meter-water-start" step="0.01" placeholder="0" /></div>
+                  <div class="field"><label>Endstand</label><input type="number" class="meter-water-end" step="0.01" placeholder="0" /></div>
+                  <div class="field"><label>Kosten gesamt</label><input type="number" class="meter-water-cost cost-input" min="0" step="0.01" placeholder="0,00" /></div>
                 </div>
                 <div class="result-box">
                   <div class="result-label">Verbrauch Wasser</div>
                   <div class="result-value usage-water">0,00</div>
-                  <div class="result-unit">m³ / Verbrauch aus Endstand minus Anfangsstand</div>
+                  <div class="result-unit">Einheit laut Auswahl / Verbrauch aus Endstand minus Anfangsstand</div>
                 </div>
               </div>
             </article>
 
             <article class="meter-card">
-              <div class="meter-head">
-                <h3>Heizöl</h3>
-              </div>
+              <div class="meter-head"><h3>Heizöl</h3></div>
               <div class="meter-body">
-                <div class="field-row-4">
-                  <div class="field">
-                    <label>Tank / Bezeichnung</label>
-                    <input type="text" class="meter-oil-no" placeholder="z. B. Tank Keller links" />
-                  </div>
-                  <div class="field">
-                    <label>Bestand Anfang</label>
-                    <input type="number" class="meter-oil-start" step="0.01" placeholder="0" />
-                  </div>
-                  <div class="field">
-                    <label>Bestand Ende</label>
-                    <input type="number" class="meter-oil-end" step="0.01" placeholder="0" />
-                  </div>
-                  <div class="field">
-                    <label>Nachfüllmenge</label>
-                    <input type="number" class="meter-oil-refill" step="0.01" placeholder="0" />
-                  </div>
+                <div class="field-row-5">
+                  <div class="field"><label>Lieferant</label><input type="text" class="meter-oil-provider" placeholder="z. B. Heizöl Müller" /></div>
+                  <div class="field"><label>Kunden-/Vertragsnummer</label><input type="text" class="meter-oil-customer" placeholder="Nummer" /></div>
+                  <div class="field"><label>Tank / Bezeichnung</label><input type="text" class="meter-oil-no" placeholder="Tank Keller links" /></div>
+                  <div class="field"><label>Einheit</label><select class="meter-oil-unit"><option value="Liter">Liter</option></select></div>
+                  <div class="field"><label>Vorauszahlungen</label><input type="number" class="meter-oil-advance advance-input" step="0.01" min="0" placeholder="0,00" /></div>
+                </div>
+                <div class="field-row-5">
+                  <div class="field"><label>Bestandsdatum Anfang</label><input type="date" class="meter-oil-read-start" /></div>
+                  <div class="field"><label>Bestandsdatum Ende</label><input type="date" class="meter-oil-read-end" /></div>
+                  <div class="field"><label>Bestand Anfang</label><input type="number" class="meter-oil-start" step="0.01" placeholder="0" /></div>
+                  <div class="field"><label>Bestand Ende</label><input type="number" class="meter-oil-end" step="0.01" placeholder="0" /></div>
+                  <div class="field"><label>Nachfüllmenge</label><input type="number" class="meter-oil-refill" step="0.01" placeholder="0" /></div>
                 </div>
                 <div class="field-row-2">
-                  <div class="field">
-                    <label>Kosten gesamt</label>
-                    <input type="number" class="meter-oil-cost cost-input" min="0" step="0.01" placeholder="0,00" />
-                  </div>
-                  <div class="field">
-                    <label>Hinweis Heizöl</label>
-                    <input type="text" class="meter-oil-note" placeholder="z. B. Lieferung im November" />
-                  </div>
+                  <div class="field"><label>Kosten gesamt</label><input type="number" class="meter-oil-cost cost-input" min="0" step="0.01" placeholder="0,00" /></div>
+                  <div class="field"><label>Hinweis Heizöl</label><input type="text" class="meter-oil-note" placeholder="z. B. Lieferung im November" /></div>
                 </div>
                 <div class="result-box">
                   <div class="result-label">Verbrauch Heizöl</div>
@@ -1167,82 +547,36 @@
         <section class="section-box">
           <h3>Weitere Kostenfelder</h3>
           <div class="cost-grid">
-            <div class="field">
-              <label>Versicherungen</label>
-              <input type="number" class="cost-insurance cost-input" min="0" step="0.01" placeholder="0,00" />
-            </div>
-            <div class="field">
-              <label>Grundsteuer</label>
-              <input type="number" class="cost-property-tax cost-input" min="0" step="0.01" placeholder="0,00" />
-            </div>
-            <div class="field">
-              <label>Müllabfuhr</label>
-              <input type="number" class="cost-trash cost-input" min="0" step="0.01" placeholder="0,00" />
-            </div>
-            <div class="field">
-              <label>Schornsteinfeger</label>
-              <input type="number" class="cost-chimney cost-input" min="0" step="0.01" placeholder="0,00" />
-            </div>
-            <div class="field">
-              <label>Wartung / Technik</label>
-              <input type="number" class="cost-maintenance cost-input" min="0" step="0.01" placeholder="0,00" />
-            </div>
-            <div class="field">
-              <label>Alarmanlage</label>
-              <input type="number" class="cost-alarm cost-input" min="0" step="0.01" placeholder="0,00" />
-            </div>
-            <div class="field">
-              <label>Gartenkosten</label>
-              <input type="number" class="cost-garden cost-input" min="0" step="0.01" placeholder="0,00" />
-            </div>
-            <div class="field">
-              <label>Poolkosten</label>
-              <input type="number" class="cost-pool cost-input" min="0" step="0.01" placeholder="0,00" />
-            </div>
-            <div class="field">
-              <label>Betriebskosten allgemein</label>
-              <input type="number" class="cost-operating cost-input" min="0" step="0.01" placeholder="0,00" />
-            </div>
-            <div class="field">
-              <label>Werke / Anlagen / Haussysteme</label>
-              <input type="number" class="cost-systems cost-input" min="0" step="0.01" placeholder="0,00" />
-            </div>
-            <div class="field">
-              <label>Reparaturen</label>
-              <input type="number" class="cost-repair cost-input" min="0" step="0.01" placeholder="0,00" />
-            </div>
-            <div class="field">
-              <label>Rücklagen</label>
-              <input type="number" class="cost-reserve cost-input" min="0" step="0.01" placeholder="0,00" />
-            </div>
-            <div class="field">
-              <label>Sonstige laufende Kosten</label>
-              <input type="number" class="cost-other cost-input" min="0" step="0.01" placeholder="0,00" />
-            </div>
+            <div class="field"><label>Versicherungen</label><input type="number" class="cost-insurance cost-input" min="0" step="0.01" placeholder="0,00" /></div>
+            <div class="field"><label>Grundsteuer</label><input type="number" class="cost-property-tax cost-input" min="0" step="0.01" placeholder="0,00" /></div>
+            <div class="field"><label>Müllabfuhr</label><input type="number" class="cost-trash cost-input" min="0" step="0.01" placeholder="0,00" /></div>
+            <div class="field"><label>Schornsteinfeger</label><input type="number" class="cost-chimney cost-input" min="0" step="0.01" placeholder="0,00" /></div>
+            <div class="field"><label>Wartung / Technik</label><input type="number" class="cost-maintenance cost-input" min="0" step="0.01" placeholder="0,00" /></div>
+            <div class="field"><label>Alarmanlage</label><input type="number" class="cost-alarm cost-input" min="0" step="0.01" placeholder="0,00" /></div>
+            <div class="field"><label>Gartenkosten</label><input type="number" class="cost-garden cost-input" min="0" step="0.01" placeholder="0,00" /></div>
+            <div class="field"><label>Poolkosten</label><input type="number" class="cost-pool cost-input" min="0" step="0.01" placeholder="0,00" /></div>
+            <div class="field"><label>Betriebskosten allgemein</label><input type="number" class="cost-operating cost-input" min="0" step="0.01" placeholder="0,00" /></div>
+            <div class="field"><label>Werke / Anlagen / Haussysteme</label><input type="number" class="cost-systems cost-input" min="0" step="0.01" placeholder="0,00" /></div>
+            <div class="field"><label>Reparaturen</label><input type="number" class="cost-repair cost-input" min="0" step="0.01" placeholder="0,00" /></div>
+            <div class="field"><label>Rücklagen</label><input type="number" class="cost-reserve cost-input" min="0" step="0.01" placeholder="0,00" /></div>
+            <div class="field"><label>Sonstige laufende Kosten</label><input type="number" class="cost-other cost-input" min="0" step="0.01" placeholder="0,00" /></div>
           </div>
         </section>
 
         <section class="section-box">
           <div class="toolbar compact">
-            <div class="toolbar-left">
-              <h3>Freie Zusatzkosten</h3>
-            </div>
-            <div class="toolbar-right">
-              <button type="button" class="btn btn-secondary btn-small action-add-extra">Zusatzkosten hinzufügen</button>
-            </div>
+            <div class="toolbar-left"><h3>Freie Zusatzkosten</h3></div>
+            <div class="toolbar-right"><button type="button" class="btn btn-secondary btn-small action-add-extra">Zusatzkosten hinzufügen</button></div>
           </div>
           <div class="extra-wrap"></div>
         </section>
 
         <section class="sum-card">
-          <div class="sum-head">
-            <h3>Objektsumme</h3>
-          </div>
+          <div class="sum-head"><h3>Objektsumme</h3></div>
           <div class="sum-body">
-            <div class="sum-row">
-              <div class="sum-label">Kosten gesamt</div>
-              <div class="sum-value object-total">0,00 €</div>
-            </div>
+            <div class="sum-row"><div class="sum-label">Kosten gesamt</div><div class="sum-value object-total">0,00 €</div></div>
+            <div class="sum-row"><div class="sum-label">Vorauszahlungen</div><div class="sum-value object-advance">0,00 €</div></div>
+            <div class="sum-row"><div class="sum-label">Saldo</div><div class="sum-value object-saldo">0,00 €</div></div>
           </div>
         </section>
       </div>
@@ -1257,34 +591,14 @@
       </div>
       <div class="form-grid">
         <div class="field-row-2">
-          <div class="field">
-            <label>Vorname</label>
-            <input type="text" class="tenant-first" placeholder="Vorname" />
-          </div>
-          <div class="field">
-            <label>Nachname</label>
-            <input type="text" class="tenant-last" placeholder="Nachname" />
-          </div>
+          <div class="field"><label>Vorname</label><input type="text" class="tenant-first" placeholder="Vorname" /></div>
+          <div class="field"><label>Nachname</label><input type="text" class="tenant-last" placeholder="Nachname" /></div>
         </div>
-
-        <div class="field">
-          <label>Anschrift der Wohnung</label>
-          <input type="text" class="tenant-street" placeholder="Straße und Hausnummer" />
-        </div>
-
+        <div class="field"><label>Anschrift der Wohnung</label><input type="text" class="tenant-street" placeholder="Straße und Hausnummer" /></div>
         <div class="field-row-3">
-          <div class="field">
-            <label>PLZ</label>
-            <input type="text" class="tenant-zip" placeholder="PLZ" />
-          </div>
-          <div class="field">
-            <label>Ort</label>
-            <input type="text" class="tenant-city" placeholder="Ort" />
-          </div>
-          <div class="field">
-            <label>Seit wann Mieter</label>
-            <input type="text" class="tenant-since" placeholder="z. B. 01.05.2022" />
-          </div>
+          <div class="field"><label>PLZ</label><input type="text" class="tenant-zip" placeholder="PLZ" /></div>
+          <div class="field"><label>Ort</label><input type="text" class="tenant-city" placeholder="Ort" /></div>
+          <div class="field"><label>Seit wann Mieter</label><input type="text" class="tenant-since" placeholder="z. B. 01.05.2022" /></div>
         </div>
       </div>
     </div>
@@ -1292,14 +606,8 @@
 
   <template id="extraTemplate">
     <div class="extra-row">
-      <div class="field">
-        <label>Bezeichnung</label>
-        <input type="text" class="extra-label" placeholder="z. B. Winterdienst oder Sonderwartung" />
-      </div>
-      <div class="field">
-        <label>Betrag</label>
-        <input type="number" class="extra-value cost-input" min="0" step="0.01" placeholder="0,00" />
-      </div>
+      <div class="field"><label>Bezeichnung</label><input type="text" class="extra-label" placeholder="z. B. Winterdienst oder Sonderwartung" /></div>
+      <div class="field"><label>Betrag</label><input type="number" class="extra-value cost-input" min="0" step="0.01" placeholder="0,00" /></div>
       <button type="button" class="btn btn-danger btn-small action-remove-extra">Entfernen</button>
     </div>
   </template>
@@ -1318,6 +626,10 @@
       const fields = {
         year: document.getElementById('year'),
         status: document.getElementById('status'),
+        periodFrom: document.getElementById('periodFrom'),
+        periodTo: document.getElementById('periodTo'),
+        createdDate: document.getElementById('createdDate'),
+        updatedDate: document.getElementById('updatedDate'),
         firstName: document.getElementById('firstName'),
         lastName: document.getElementById('lastName'),
         street: document.getElementById('street'),
@@ -1330,6 +642,8 @@
       const sumObjects = document.getElementById('sumObjects');
       const sumTenants = document.getElementById('sumTenants');
       const sumGrand = document.getElementById('sumGrand');
+      const sumAdvance = document.getElementById('sumAdvance');
+      const sumSaldo = document.getElementById('sumSaldo');
 
       const addObjectBtn = document.getElementById('addObjectBtn');
       const addObjectHeroBtn = document.getElementById('addObjectHeroBtn');
@@ -1340,16 +654,15 @@
       const resetBtn = document.getElementById('resetBtn');
       const printBtn = document.getElementById('printBtn');
 
+      function todayIso(){ return new Date().toISOString().slice(0,10); }
       function euro(value){
         const num = Number(value || 0);
         return num.toLocaleString('de-DE', { minimumFractionDigits:2, maximumFractionDigits:2 }) + ' €';
       }
-
       function formatPlain(value){
         const num = Number(value || 0);
         return num.toLocaleString('de-DE', { minimumFractionDigits:2, maximumFractionDigits:2 });
       }
-
       function showMessage(text, type){
         messageBox.textContent = text;
         messageBox.className = 'message show ' + (type === 'error' ? 'message-error' : 'message-success');
@@ -1359,74 +672,44 @@
           messageBox.textContent = '';
         }, 4200);
       }
-
       function toNumber(val){
         const n = parseFloat(String(val || '').replace(',', '.'));
         return Number.isFinite(n) ? n : 0;
       }
-
       function calculateDifference(start, end){
         const s = toNumber(start);
         const e = toNumber(end);
         return Math.max(0, e - s);
       }
-
       function calculateOilUsage(start, refill, end){
         const s = toNumber(start);
         const r = toNumber(refill);
         const e = toNumber(end);
         return Math.max(0, (s + r) - e);
       }
-
       function getArchive(){
         const raw = localStorage.getItem(ARCHIVE_KEY);
-        try{
-          return raw ? JSON.parse(raw) : [];
-        }catch(e){
-          return [];
-        }
+        try{ return raw ? JSON.parse(raw) : []; }catch(e){ return []; }
       }
-
       function saveArchiveRecord(record){
         const items = getArchive();
         const idx = items.findIndex(item => item.id === record.id);
-        if(idx >= 0){
-          items[idx] = record;
-        } else {
-          items.push(record);
-        }
+        if(idx >= 0) items[idx] = record;
+        else items.push(record);
         localStorage.setItem(ARCHIVE_KEY, JSON.stringify(items));
       }
-
       function updateObjectHead(card, index){
         const badge = card.querySelector('.object-badge');
-        if(badge){
-          badge.textContent = 'Objekt ' + (index + 1);
-        }
+        if(badge) badge.textContent = 'Objekt ' + (index + 1);
       }
-
       function refreshObjectIndices(){
         Array.from(objectsWrap.children).forEach((card, index) => updateObjectHead(card, index));
       }
-
       function updateUsageForCard(card){
-        const powerUsage = calculateDifference(
-          card.querySelector('.meter-power-start').value,
-          card.querySelector('.meter-power-end').value
-        );
-        const gasUsage = calculateDifference(
-          card.querySelector('.meter-gas-start').value,
-          card.querySelector('.meter-gas-end').value
-        );
-        const waterUsage = calculateDifference(
-          card.querySelector('.meter-water-start').value,
-          card.querySelector('.meter-water-end').value
-        );
-        const oilUsage = calculateOilUsage(
-          card.querySelector('.meter-oil-start').value,
-          card.querySelector('.meter-oil-refill').value,
-          card.querySelector('.meter-oil-end').value
-        );
+        const powerUsage = calculateDifference(card.querySelector('.meter-power-start').value, card.querySelector('.meter-power-end').value);
+        const gasUsage = calculateDifference(card.querySelector('.meter-gas-start').value, card.querySelector('.meter-gas-end').value);
+        const waterUsage = calculateDifference(card.querySelector('.meter-water-start').value, card.querySelector('.meter-water-end').value);
+        const oilUsage = calculateOilUsage(card.querySelector('.meter-oil-start').value, card.querySelector('.meter-oil-refill').value, card.querySelector('.meter-oil-end').value);
 
         card.querySelector('.usage-power').textContent = formatPlain(powerUsage);
         card.querySelector('.usage-gas').textContent = formatPlain(gasUsage);
@@ -1435,11 +718,9 @@
 
         return { powerUsage, gasUsage, waterUsage, oilUsage };
       }
-
       function addTenant(card, data){
         const wrap = card.querySelector('.tenant-wrap');
         const node = tenantTemplate.content.firstElementChild.cloneNode(true);
-
         if(data){
           node.querySelector('.tenant-first').value = data.firstName || '';
           node.querySelector('.tenant-last').value = data.lastName || '';
@@ -1448,56 +729,42 @@
           node.querySelector('.tenant-city').value = data.city || '';
           node.querySelector('.tenant-since').value = data.since || '';
         }
-
-        node.querySelectorAll('input').forEach(input => {
-          input.addEventListener('input', updateTotals);
-        });
-
+        node.querySelectorAll('input').forEach(input => input.addEventListener('input', touchAndUpdate));
         node.querySelector('.action-remove-tenant').addEventListener('click', () => {
           node.remove();
-          updateTotals();
+          touchAndUpdate();
         });
-
         wrap.appendChild(node);
         updateTotals();
       }
-
       function addExtraRow(card, data){
         const wrap = card.querySelector('.extra-wrap');
         const node = extraTemplate.content.firstElementChild.cloneNode(true);
-
         if(data){
           node.querySelector('.extra-label').value = data.label || '';
           node.querySelector('.extra-value').value = data.value || '';
         }
-
-        node.querySelectorAll('input').forEach(input => {
-          input.addEventListener('input', updateTotals);
-        });
-
+        node.querySelectorAll('input').forEach(input => input.addEventListener('input', touchAndUpdate));
         node.querySelector('.action-remove-extra').addEventListener('click', () => {
           node.remove();
-          updateTotals();
+          touchAndUpdate();
         });
-
         wrap.appendChild(node);
         updateTotals();
       }
-
       function addObject(data){
         const card = objectTemplate.content.firstElementChild.cloneNode(true);
 
         card.querySelectorAll('input, textarea, select').forEach(input => {
-          input.addEventListener('input', updateTotals);
-          input.addEventListener('change', updateTotals);
+          input.addEventListener('input', touchAndUpdate);
+          input.addEventListener('change', touchAndUpdate);
         });
 
         card.querySelector('.action-remove-object').addEventListener('click', () => {
           card.remove();
           refreshObjectIndices();
-          updateTotals();
+          touchAndUpdate();
         });
-
         card.querySelector('.action-add-tenant').addEventListener('click', () => addTenant(card));
         card.querySelector('.action-add-extra').addEventListener('click', () => addExtraRow(card));
 
@@ -1513,27 +780,55 @@
           card.querySelector('.feat-special').checked = !!data.features?.special;
           card.querySelector('.obj-note').value = data.note || '';
 
-          card.querySelector('.meter-power-no').value = data.meters?.power?.meterNo || '';
-          card.querySelector('.meter-power-start').value = data.meters?.power?.start || '';
-          card.querySelector('.meter-power-end').value = data.meters?.power?.end || '';
-          card.querySelector('.meter-power-cost').value = data.meters?.power?.cost || '';
+          const p = data.meters?.power || {};
+          card.querySelector('.meter-power-provider').value = p.provider || '';
+          card.querySelector('.meter-power-customer').value = p.customerNo || '';
+          card.querySelector('.meter-power-no').value = p.meterNo || '';
+          card.querySelector('.meter-power-unit').value = p.unit || 'kWh';
+          card.querySelector('.meter-power-advance').value = p.advance || '';
+          card.querySelector('.meter-power-read-start').value = p.readStartDate || '';
+          card.querySelector('.meter-power-read-end').value = p.readEndDate || '';
+          card.querySelector('.meter-power-start').value = p.start || '';
+          card.querySelector('.meter-power-end').value = p.end || '';
+          card.querySelector('.meter-power-cost').value = p.cost || '';
 
-          card.querySelector('.meter-gas-no').value = data.meters?.gas?.meterNo || '';
-          card.querySelector('.meter-gas-start').value = data.meters?.gas?.start || '';
-          card.querySelector('.meter-gas-end').value = data.meters?.gas?.end || '';
-          card.querySelector('.meter-gas-cost').value = data.meters?.gas?.cost || '';
+          const g = data.meters?.gas || {};
+          card.querySelector('.meter-gas-provider').value = g.provider || '';
+          card.querySelector('.meter-gas-customer').value = g.customerNo || '';
+          card.querySelector('.meter-gas-no').value = g.meterNo || '';
+          card.querySelector('.meter-gas-unit').value = g.unit || 'm³';
+          card.querySelector('.meter-gas-advance').value = g.advance || '';
+          card.querySelector('.meter-gas-read-start').value = g.readStartDate || '';
+          card.querySelector('.meter-gas-read-end').value = g.readEndDate || '';
+          card.querySelector('.meter-gas-start').value = g.start || '';
+          card.querySelector('.meter-gas-end').value = g.end || '';
+          card.querySelector('.meter-gas-cost').value = g.cost || '';
 
-          card.querySelector('.meter-water-no').value = data.meters?.water?.meterNo || '';
-          card.querySelector('.meter-water-start').value = data.meters?.water?.start || '';
-          card.querySelector('.meter-water-end').value = data.meters?.water?.end || '';
-          card.querySelector('.meter-water-cost').value = data.meters?.water?.cost || '';
+          const w = data.meters?.water || {};
+          card.querySelector('.meter-water-provider').value = w.provider || '';
+          card.querySelector('.meter-water-customer').value = w.customerNo || '';
+          card.querySelector('.meter-water-no').value = w.meterNo || '';
+          card.querySelector('.meter-water-unit').value = w.unit || 'm³';
+          card.querySelector('.meter-water-advance').value = w.advance || '';
+          card.querySelector('.meter-water-read-start').value = w.readStartDate || '';
+          card.querySelector('.meter-water-read-end').value = w.readEndDate || '';
+          card.querySelector('.meter-water-start').value = w.start || '';
+          card.querySelector('.meter-water-end').value = w.end || '';
+          card.querySelector('.meter-water-cost').value = w.cost || '';
 
-          card.querySelector('.meter-oil-no').value = data.meters?.oil?.tankNo || '';
-          card.querySelector('.meter-oil-start').value = data.meters?.oil?.start || '';
-          card.querySelector('.meter-oil-end').value = data.meters?.oil?.end || '';
-          card.querySelector('.meter-oil-refill').value = data.meters?.oil?.refill || '';
-          card.querySelector('.meter-oil-cost').value = data.meters?.oil?.cost || '';
-          card.querySelector('.meter-oil-note').value = data.meters?.oil?.note || '';
+          const o = data.meters?.oil || {};
+          card.querySelector('.meter-oil-provider').value = o.provider || '';
+          card.querySelector('.meter-oil-customer').value = o.customerNo || '';
+          card.querySelector('.meter-oil-no').value = o.tankNo || '';
+          card.querySelector('.meter-oil-unit').value = o.unit || 'Liter';
+          card.querySelector('.meter-oil-advance').value = o.advance || '';
+          card.querySelector('.meter-oil-read-start').value = o.readStartDate || '';
+          card.querySelector('.meter-oil-read-end').value = o.readEndDate || '';
+          card.querySelector('.meter-oil-start').value = o.start || '';
+          card.querySelector('.meter-oil-end').value = o.end || '';
+          card.querySelector('.meter-oil-refill').value = o.refill || '';
+          card.querySelector('.meter-oil-cost').value = o.cost || '';
+          card.querySelector('.meter-oil-note').value = o.note || '';
 
           card.querySelector('.cost-insurance').value = data.costs?.insurance || '';
           card.querySelector('.cost-property-tax').value = data.costs?.propertyTax || '';
@@ -1549,17 +844,11 @@
           card.querySelector('.cost-reserve').value = data.costs?.reserve || '';
           card.querySelector('.cost-other').value = data.costs?.other || '';
 
-          if(Array.isArray(data.tenants) && data.tenants.length){
-            data.tenants.forEach(tenant => addTenant(card, tenant));
-          } else {
-            addTenant(card);
-          }
+          if(Array.isArray(data.tenants) && data.tenants.length) data.tenants.forEach(tenant => addTenant(card, tenant));
+          else addTenant(card);
 
-          if(Array.isArray(data.extras) && data.extras.length){
-            data.extras.forEach(extra => addExtraRow(card, extra));
-          } else {
-            addExtraRow(card);
-          }
+          if(Array.isArray(data.extras) && data.extras.length) data.extras.forEach(extra => addExtraRow(card, extra));
+          else addExtraRow(card);
         } else {
           addTenant(card);
           addExtraRow(card);
@@ -1569,52 +858,70 @@
         refreshObjectIndices();
         updateTotals();
       }
-
-      function computeObjectTotal(card){
+      function computeObjectTotals(card){
         updateUsageForCard(card);
-
         let total = 0;
-        card.querySelectorAll('.cost-input').forEach(input => {
-          total += toNumber(input.value);
-        });
+        let advance = 0;
 
+        card.querySelectorAll('.cost-input').forEach(input => total += toNumber(input.value));
+        card.querySelectorAll('.advance-input').forEach(input => advance += toNumber(input.value));
+
+        const saldo = total - advance;
         card.querySelector('.object-total').textContent = euro(total);
-        return total;
-      }
+        card.querySelector('.object-advance').textContent = euro(advance);
+        const saldoEl = card.querySelector('.object-saldo');
+        saldoEl.textContent = euro(saldo);
+        saldoEl.classList.toggle('saldo-neg', saldo > 0);
+        saldoEl.classList.toggle('saldo-pos', saldo <= 0);
 
+        return { total, advance, saldo };
+      }
       function computeObjectTotalFromData(obj){
         let total = 0;
+        let advance = 0;
 
         total += toNumber(obj.meters?.power?.cost);
         total += toNumber(obj.meters?.gas?.cost);
         total += toNumber(obj.meters?.water?.cost);
         total += toNumber(obj.meters?.oil?.cost);
 
-        if(obj.costs){
-          Object.values(obj.costs).forEach(v => total += toNumber(v));
-        }
-        if(Array.isArray(obj.extras)){
-          obj.extras.forEach(extra => total += toNumber(extra.value));
-        }
-        return total;
-      }
+        advance += toNumber(obj.meters?.power?.advance);
+        advance += toNumber(obj.meters?.gas?.advance);
+        advance += toNumber(obj.meters?.water?.advance);
+        advance += toNumber(obj.meters?.oil?.advance);
 
+        if(obj.costs) Object.values(obj.costs).forEach(v => total += toNumber(v));
+        if(Array.isArray(obj.extras)) obj.extras.forEach(extra => total += toNumber(extra.value));
+
+        return { total, advance, saldo: total - advance };
+      }
       function updateTotals(){
         let grand = 0;
+        let advanceGrand = 0;
         let tenants = 0;
         const cards = Array.from(objectsWrap.querySelectorAll('.object-card'));
 
         cards.forEach(card => {
-          grand += computeObjectTotal(card);
+          const totals = computeObjectTotals(card);
+          grand += totals.total;
+          advanceGrand += totals.advance;
           tenants += card.querySelectorAll('.tenant-card').length;
         });
 
+        const saldo = grand - advanceGrand;
         sumYear.textContent = fields.year.value.trim() || '—';
         sumObjects.textContent = String(cards.length);
         sumTenants.textContent = String(tenants);
         sumGrand.textContent = euro(grand);
+        sumAdvance.textContent = euro(advanceGrand);
+        sumSaldo.textContent = euro(saldo);
+        sumSaldo.classList.toggle('saldo-neg', saldo > 0);
+        sumSaldo.classList.toggle('saldo-pos', saldo <= 0);
       }
-
+      function touchAndUpdate(){
+        fields.updatedDate.value = todayIso();
+        updateTotals();
+      }
       function collectData(){
         return {
           archiveId: window.__archiveId || '',
@@ -1623,6 +930,10 @@
           master: {
             year: fields.year.value.trim(),
             status: fields.status.value,
+            periodFrom: fields.periodFrom.value,
+            periodTo: fields.periodTo.value,
+            createdDate: fields.createdDate.value,
+            updatedDate: fields.updatedDate.value,
             firstName: fields.firstName.value.trim(),
             lastName: fields.lastName.value.trim(),
             street: fields.street.value.trim(),
@@ -1656,28 +967,52 @@
               })),
               meters: {
                 power: {
+                  provider: card.querySelector('.meter-power-provider').value.trim(),
+                  customerNo: card.querySelector('.meter-power-customer').value.trim(),
                   meterNo: card.querySelector('.meter-power-no').value.trim(),
+                  unit: card.querySelector('.meter-power-unit').value,
+                  advance: card.querySelector('.meter-power-advance').value,
+                  readStartDate: card.querySelector('.meter-power-read-start').value,
+                  readEndDate: card.querySelector('.meter-power-read-end').value,
                   start: card.querySelector('.meter-power-start').value,
                   end: card.querySelector('.meter-power-end').value,
                   usage: usages.powerUsage,
                   cost: card.querySelector('.meter-power-cost').value
                 },
                 gas: {
+                  provider: card.querySelector('.meter-gas-provider').value.trim(),
+                  customerNo: card.querySelector('.meter-gas-customer').value.trim(),
                   meterNo: card.querySelector('.meter-gas-no').value.trim(),
+                  unit: card.querySelector('.meter-gas-unit').value,
+                  advance: card.querySelector('.meter-gas-advance').value,
+                  readStartDate: card.querySelector('.meter-gas-read-start').value,
+                  readEndDate: card.querySelector('.meter-gas-read-end').value,
                   start: card.querySelector('.meter-gas-start').value,
                   end: card.querySelector('.meter-gas-end').value,
                   usage: usages.gasUsage,
                   cost: card.querySelector('.meter-gas-cost').value
                 },
                 water: {
+                  provider: card.querySelector('.meter-water-provider').value.trim(),
+                  customerNo: card.querySelector('.meter-water-customer').value.trim(),
                   meterNo: card.querySelector('.meter-water-no').value.trim(),
+                  unit: card.querySelector('.meter-water-unit').value,
+                  advance: card.querySelector('.meter-water-advance').value,
+                  readStartDate: card.querySelector('.meter-water-read-start').value,
+                  readEndDate: card.querySelector('.meter-water-read-end').value,
                   start: card.querySelector('.meter-water-start').value,
                   end: card.querySelector('.meter-water-end').value,
                   usage: usages.waterUsage,
                   cost: card.querySelector('.meter-water-cost').value
                 },
                 oil: {
+                  provider: card.querySelector('.meter-oil-provider').value.trim(),
+                  customerNo: card.querySelector('.meter-oil-customer').value.trim(),
                   tankNo: card.querySelector('.meter-oil-no').value.trim(),
+                  unit: card.querySelector('.meter-oil-unit').value,
+                  advance: card.querySelector('.meter-oil-advance').value,
+                  readStartDate: card.querySelector('.meter-oil-read-start').value,
+                  readEndDate: card.querySelector('.meter-oil-read-end').value,
                   start: card.querySelector('.meter-oil-start').value,
                   end: card.querySelector('.meter-oil-end').value,
                   refill: card.querySelector('.meter-oil-refill').value,
@@ -1709,23 +1044,21 @@
           })
         };
       }
-
       function validate(data){
-        if(!data.master.year || !/^\d{4}$/.test(data.master.year)){
-          return 'Bitte ein Jahr mit vier Ziffern eintragen.';
-        }
-        if(!data.objects.length){
-          return 'Bitte mindestens ein Objekt anlegen.';
-        }
+        if(!data.master.year || !/^\d{4}$/.test(data.master.year)) return 'Bitte ein Jahr mit vier Ziffern eintragen.';
+        if(!data.objects.length) return 'Bitte mindestens ein Objekt anlegen.';
         return '';
       }
-
       function fillAll(data){
         window.__archiveId = data.archiveId || '';
         window.__createdAt = data.createdAt || '';
 
         fields.year.value = data.master?.year || '';
         fields.status.value = data.master?.status || 'Entwurf';
+        fields.periodFrom.value = data.master?.periodFrom || '';
+        fields.periodTo.value = data.master?.periodTo || '';
+        fields.createdDate.value = data.master?.createdDate || todayIso();
+        fields.updatedDate.value = data.master?.updatedDate || todayIso();
         fields.firstName.value = data.master?.firstName || '';
         fields.lastName.value = data.master?.lastName || '';
         fields.street.value = data.master?.street || '';
@@ -1734,66 +1067,55 @@
         fields.landlordNote.value = data.master?.note || '';
 
         objectsWrap.innerHTML = '';
-        if(Array.isArray(data.objects) && data.objects.length){
-          data.objects.forEach(obj => addObject(obj));
-        } else {
-          addObject();
-        }
+        if(Array.isArray(data.objects) && data.objects.length) data.objects.forEach(obj => addObject(obj));
+        else addObject();
 
         updateTotals();
       }
-
       function resetAll(silent){
         window.__archiveId = '';
         window.__createdAt = '';
 
         Object.values(fields).forEach(el => {
-          if(el.tagName === 'SELECT'){
-            el.value = 'Entwurf';
-          } else {
-            el.value = '';
-          }
+          if(el.tagName === 'SELECT') el.value = 'Entwurf';
+          else el.value = '';
         });
+
+        fields.createdDate.value = todayIso();
+        fields.updatedDate.value = todayIso();
 
         objectsWrap.innerHTML = '';
         addObject();
         updateTotals();
 
-        if(!silent){
-          showMessage('Die Erfassung wurde zurückgesetzt.', 'success');
-        }
+        if(!silent) showMessage('Die Erfassung wurde zurückgesetzt.', 'success');
       }
-
       function saveDraft(){
         const data = collectData();
         const error = validate(data);
-        if(error){
-          showMessage(error, 'error');
-          return;
-        }
+        if(error){ showMessage(error, 'error'); return; }
         localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
         showMessage('Entwurf wurde lokal gespeichert.', 'success');
       }
-
       function loadDraft(){
         const raw = localStorage.getItem(DRAFT_KEY);
-        if(!raw){
-          showMessage('Es wurde noch kein Entwurf gespeichert.', 'error');
-          return;
-        }
+        if(!raw){ showMessage('Es wurde noch kein Entwurf gespeichert.', 'error'); return; }
         try{
-          const data = JSON.parse(raw);
-          fillAll(data);
+          fillAll(JSON.parse(raw));
           showMessage('Entwurf wurde geladen.', 'success');
         }catch(e){
           showMessage('Der gespeicherte Entwurf konnte nicht geladen werden.', 'error');
         }
       }
-
       function buildArchiveRecord(data){
         const year = data.master.year || String(new Date().getFullYear());
         const title = data.objects[0]?.title || [data.master.firstName, data.master.lastName].filter(Boolean).join(' ').trim() || 'Jahresstand';
-        const total = data.objects.reduce((acc, obj) => acc + computeObjectTotalFromData(obj), 0);
+        const totals = data.objects.reduce((acc, obj) => {
+          const t = computeObjectTotalFromData(obj);
+          acc.total += t.total;
+          acc.advance += t.advance;
+          return acc;
+        }, { total:0, advance:0 });
 
         return {
           id: data.archiveId || ('jahr_' + year + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,8)),
@@ -1801,40 +1123,31 @@
           status: data.master.status || 'Entwurf',
           titel: title,
           bereich: 'Vermieter – Vorbereitung Mieterabrechnung',
-          zeitraum: year ? ('01.01.' + year + ' bis 31.12.' + year) : '',
-          summe: total.toFixed(2),
+          zeitraum: data.master.periodFrom && data.master.periodTo ? (data.master.periodFrom + ' bis ' + data.master.periodTo) : (year ? ('01.01.' + year + ' bis 31.12.' + year) : ''),
+          summe: totals.total.toFixed(2),
           notiz: data.master.note || '',
           createdAt: data.createdAt || new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           details: data
         };
       }
-
       function saveToArchive(){
         const data = collectData();
         const error = validate(data);
-        if(error){
-          showMessage(error, 'error');
-          return;
-        }
+        if(error){ showMessage(error, 'error'); return; }
 
         const record = buildArchiveRecord(data);
         window.__archiveId = record.id;
         window.__createdAt = record.createdAt;
 
         saveArchiveRecord(record);
-        localStorage.setItem(DRAFT_KEY, JSON.stringify({
-          ...data,
-          archiveId: record.id,
-          createdAt: record.createdAt
-        }));
-
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...data, archiveId: record.id, createdAt: record.createdAt }));
         showMessage('Jahresstand wurde ins Archiv übernommen.', 'success');
       }
 
       Object.values(fields).forEach(el => {
-        el.addEventListener('input', updateTotals);
-        el.addEventListener('change', updateTotals);
+        el.addEventListener('input', touchAndUpdate);
+        el.addEventListener('change', touchAndUpdate);
       });
 
       addObjectBtn.addEventListener('click', () => addObject());
@@ -1844,8 +1157,7 @@
       saveArchiveHeroBtn.addEventListener('click', saveToArchive);
       loadDraftBtn.addEventListener('click', loadDraft);
       resetBtn.addEventListener('click', () => {
-        const ok = confirm('Möchtest du die aktuelle Erfassung wirklich komplett zurücksetzen?');
-        if(ok) resetAll(false);
+        if(confirm('Möchtest du die aktuelle Erfassung wirklich komplett zurücksetzen?')) resetAll(false);
       });
       printBtn.addEventListener('click', () => window.print());
 
