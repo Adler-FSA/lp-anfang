@@ -1,0 +1,1564 @@
+<!doctype html>
+<!--
+  Nebenkostenabrechnung – Vermieter-Erfassung
+  GitHub-Pfad: lp-anfang/pages/nebenskostenabrechnung/erfassung-vermieter.html
+  Commit-Message: nebenkostenabrechnung – vermieter erfassung mit objekten mietern kosten summen und archivanbindung
+  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/nebenskostenabrechnung/erfassung-vermieter.html?nocache=__TS__
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vermieter-Erfassung | Nebenkostenabrechnung</title>
+  <meta name="description" content="Vermieter-Erfassung mit Stammdaten, mehreren Objekten, mehreren Mietern je Objekt, Kostenfeldern, Summen und Archiv-Anbindung." />
+  <meta name="robots" content="index,follow" />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --bg-soft:#f8f8f8;
+      --panel:#ffffff;
+      --panel-soft:#f5f7f8;
+      --text:#111111;
+      --muted:#555555;
+      --line:#e7e7e7;
+      --mint:#20d8b2;
+      --mint-strong:#11b995;
+      --mint-soft:rgba(32,216,178,.10);
+      --magenta:#ff4fb3;
+      --magenta-strong:#e72897;
+      --magenta-soft:rgba(255,79,179,.10);
+      --danger:#c62828;
+      --danger-soft:rgba(198,40,40,.08);
+      --shadow:0 10px 30px rgba(17,17,17,.06);
+      --radius:22px;
+      --maxw:1280px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at top right, rgba(255,79,179,.10), transparent 24%),
+        radial-gradient(circle at top left, rgba(32,216,178,.12), transparent 24%),
+        var(--bg);
+      color:var(--text);
+      font-family:Arial, Helvetica, sans-serif;
+      font-size:18px;
+      line-height:1.65;
+    }
+
+    a{color:inherit;text-decoration:none}
+
+    .container{
+      width:min(var(--maxw), calc(100% - 48px));
+      margin:0 auto;
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      backdrop-filter:blur(10px);
+      background:rgba(255,255,255,.88);
+      border-bottom:1px solid rgba(17,17,17,.08);
+    }
+
+    .topbar-inner{
+      width:min(var(--maxw), calc(100% - 48px));
+      margin:0 auto;
+      min-height:74px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+
+    .brand-mark{
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      background:linear-gradient(135deg, rgba(32,216,178,.10), rgba(255,79,179,.10));
+      border:1px solid rgba(17,17,17,.08);
+      display:grid;
+      place-items:center;
+      box-shadow:var(--shadow);
+      flex:0 0 auto;
+    }
+
+    .brand-mark svg{width:24px;height:24px;display:block}
+
+    .brand-kicker{
+      margin:0 0 2px;
+      font-size:12px;
+      line-height:1.2;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      color:var(--magenta-strong);
+      font-weight:700;
+    }
+
+    .brand-title{
+      margin:0;
+      font-size:18px;
+      line-height:1.2;
+      font-weight:700;
+    }
+
+    .top-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .btn,
+    button{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      font:inherit;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      min-height:46px;
+      padding:12px 18px;
+      border-radius:999px;
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+      font-weight:700;
+      white-space:nowrap;
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+
+    .btn-primary{
+      background:var(--mint);
+      color:#05241d;
+      box-shadow:0 10px 24px rgba(32,216,178,.20);
+    }
+
+    .btn-secondary{
+      background:#fff;
+      color:var(--magenta-strong);
+      border:1px solid rgba(255,79,179,.40);
+    }
+
+    .btn-ghost{
+      background:#fff;
+      color:var(--text);
+      border:1px solid rgba(17,17,17,.10);
+    }
+
+    .btn-danger{
+      background:#fff;
+      color:var(--danger);
+      border:1px solid rgba(198,40,40,.25);
+    }
+
+    .btn-small{
+      min-height:40px;
+      padding:10px 14px;
+      border-radius:12px;
+      font-size:15px;
+    }
+
+    .page{
+      padding:34px 0 48px;
+    }
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,248,248,.96));
+      border:1px solid var(--line);
+      border-radius:30px;
+      box-shadow:var(--shadow);
+      padding:34px;
+      margin-bottom:22px;
+    }
+
+    .hero::before,
+    .hero::after{
+      content:"";
+      position:absolute;
+      border-radius:999px;
+      pointer-events:none;
+    }
+
+    .hero::before{
+      width:300px;
+      height:300px;
+      right:-100px;
+      top:-120px;
+      background:radial-gradient(circle, rgba(255,79,179,.18), transparent 68%);
+    }
+
+    .hero::after{
+      width:240px;
+      height:240px;
+      left:-70px;
+      bottom:-80px;
+      background:radial-gradient(circle, rgba(32,216,178,.18), transparent 68%);
+    }
+
+    .hero-inner{
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns:minmax(0,1.08fr) minmax(290px,.92fr);
+      gap:26px;
+      align-items:start;
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      margin:0 0 18px;
+      padding:8px 14px;
+      border-radius:999px;
+      background:var(--magenta-soft);
+      color:var(--magenta-strong);
+      font-size:13px;
+      line-height:1.2;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+
+    h1{
+      margin:0 0 16px;
+      font-size:42px;
+      line-height:1.15;
+      letter-spacing:-.02em;
+    }
+
+    h2{
+      margin:0 0 14px;
+      font-size:28px;
+      line-height:1.2;
+      letter-spacing:-.02em;
+    }
+
+    h3{
+      margin:0 0 10px;
+      font-size:20px;
+      line-height:1.2;
+      letter-spacing:-.02em;
+    }
+
+    .lead{
+      margin:0 0 16px;
+      font-size:21px;
+      line-height:1.55;
+      color:var(--muted);
+      max-width:760px;
+    }
+
+    .hero-copy p{margin:0 0 14px}
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:22px;
+    }
+
+    .hero-side{
+      display:grid;
+      gap:16px;
+    }
+
+    .mini-card,
+    .panel,
+    .object-card,
+    .tenant-card,
+    .sum-card,
+    .message{
+      background:#fff;
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+    }
+
+    .mini-card{
+      border-radius:20px;
+      padding:20px;
+    }
+
+    .mini-card p{
+      margin:0;
+      color:var(--muted);
+      font-size:16px;
+      line-height:1.55;
+    }
+
+    .icon-line{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .icon-badge{
+      width:38px;
+      height:38px;
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+      background:var(--mint-soft);
+      border:1px solid rgba(32,216,178,.20);
+    }
+
+    .icon-badge.magenta{
+      background:var(--magenta-soft);
+      border-color:rgba(255,79,179,.20);
+    }
+
+    .icon-badge svg{width:20px;height:20px;display:block}
+
+    .message{
+      display:none;
+      border-radius:18px;
+      padding:14px 16px;
+      font-size:15px;
+      font-weight:700;
+      margin-bottom:16px;
+    }
+
+    .message.show{display:block}
+    .message-success{
+      background:var(--mint-soft);
+      border-color:rgba(32,216,178,.24);
+      color:#0b6b57;
+    }
+    .message-error{
+      background:var(--danger-soft);
+      border-color:rgba(198,40,40,.22);
+      color:var(--danger);
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:minmax(320px, 430px) minmax(0, 1fr);
+      gap:22px;
+      align-items:start;
+    }
+
+    .panel{
+      border-radius:24px;
+      overflow:hidden;
+    }
+
+    .panel-head{
+      padding:22px 22px 0;
+    }
+
+    .panel-body{
+      padding:22px;
+    }
+
+    .stack{display:grid;gap:22px}
+    .objects-wrap{display:grid;gap:18px}
+    .form-grid{display:grid;gap:14px}
+
+    .field-row-2{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .field-row-3{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .field{
+      display:grid;
+      gap:8px;
+    }
+
+    .field label{
+      font-size:14px;
+      line-height:1.2;
+      font-weight:700;
+      color:#2a2a2a;
+    }
+
+    input,
+    select,
+    textarea{
+      width:100%;
+      min-width:0;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px 16px;
+      background:#fff;
+      color:var(--text);
+      transition:border-color .18s ease, box-shadow .18s ease;
+      font:inherit;
+    }
+
+    textarea{
+      min-height:110px;
+      resize:vertical;
+    }
+
+    input::placeholder,
+    textarea::placeholder{
+      color:#9a9a9a;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus{
+      outline:none;
+      border-color:var(--mint);
+      box-shadow:0 0 0 4px rgba(32,216,178,.14);
+    }
+
+    .helper{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .checkbox-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+    }
+
+    .check{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:12px 14px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#fff;
+    }
+
+    .check input{
+      width:18px;
+      height:18px;
+      margin:0;
+      box-shadow:none;
+    }
+
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      margin-top:18px;
+    }
+
+    .toolbar.compact{margin-top:0}
+    .toolbar-left,
+    .toolbar-right{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+    }
+
+    .object-card{
+      border-radius:24px;
+      overflow:hidden;
+    }
+
+    .object-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      padding:22px 22px 0;
+    }
+
+    .object-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:96px;
+      min-height:46px;
+      padding:10px 14px;
+      border-radius:14px;
+      background:var(--mint-soft);
+      color:var(--mint-strong);
+      font-size:20px;
+      font-weight:700;
+      line-height:1;
+    }
+
+    .object-card:nth-child(even) .object-badge{
+      background:var(--magenta-soft);
+      color:var(--magenta-strong);
+    }
+
+    .object-body{
+      padding:18px 22px 22px;
+      display:grid;
+      gap:18px;
+    }
+
+    .section-box{
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px;
+      background:#fff;
+    }
+
+    .section-box h3{
+      font-size:18px;
+      margin:0 0 14px;
+    }
+
+    .tenant-wrap{
+      display:grid;
+      gap:12px;
+    }
+
+    .tenant-card{
+      border-radius:18px;
+      padding:16px;
+    }
+
+    .tenant-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    .cost-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .extra-wrap{
+      display:grid;
+      gap:12px;
+    }
+
+    .extra-row{
+      display:grid;
+      grid-template-columns:1.4fr .9fr auto;
+      gap:12px;
+      align-items:end;
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--bg-soft);
+    }
+
+    .sum-card{
+      border-radius:22px;
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(32,216,178,.10), rgba(255,255,255,1));
+    }
+
+    .sum-head{
+      padding:22px 22px 0;
+    }
+
+    .sum-body{
+      padding:22px;
+      display:grid;
+      gap:14px;
+    }
+
+    .sum-row{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:12px;
+      padding:12px 0;
+      border-top:1px solid var(--line);
+      align-items:center;
+    }
+
+    .sum-row:first-child{
+      border-top:none;
+      padding-top:0;
+    }
+
+    .sum-label{font-weight:700}
+    .sum-value{font-weight:700}
+    .object-total{color:var(--mint-strong)}
+    .grand-total{
+      font-size:28px;
+      color:var(--mint-strong);
+      letter-spacing:-.02em;
+    }
+
+    @media (max-width:1100px){
+      .layout{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:980px){
+      .hero-inner,
+      .field-row-3,
+      .cost-grid,
+      .checkbox-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:780px){
+      body{font-size:17px}
+      .container,
+      .topbar-inner{
+        width:min(var(--maxw), calc(100% - 28px));
+      }
+      .topbar-inner{
+        min-height:unset;
+        padding:12px 0;
+        align-items:flex-start;
+        flex-direction:column;
+      }
+      .top-actions{
+        width:100%;
+        justify-content:flex-start;
+      }
+      .page{padding:20px 0 34px}
+      .hero{padding:22px}
+      h1{font-size:30px}
+      h2{font-size:24px}
+      h3{font-size:20px}
+      .lead{font-size:19px}
+      .btn{width:100%}
+      .hero-actions{flex-direction:column}
+      .field-row-2,
+      .extra-row{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media print{
+      .topbar,
+      .hero-actions,
+      .toolbar,
+      .btn{
+        display:none !important;
+      }
+      body{
+        background:#fff;
+        font-size:12pt;
+      }
+      .hero,
+      .panel,
+      .object-card,
+      .tenant-card,
+      .sum-card{
+        box-shadow:none !important;
+        border:1px solid #cfcfcf !important;
+      }
+      .container{width:100%}
+      .page{padding:0}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none">
+            <path d="M13 32c0-10.493 8.507-19 19-19h19v19c0 10.493-8.507 19-19 19H13V32Z" fill="url(#g1)"/>
+            <path d="M13 13h19c10.493 0 19 8.507 19 19v19H32c-10.493 0-19-8.507-19-19V13Z" fill="url(#g2)" opacity=".78"/>
+            <defs>
+              <linearGradient id="g1" x1="13" y1="13" x2="51" y2="51" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#20d8b2"/>
+                <stop offset="1" stop-color="#11b995"/>
+              </linearGradient>
+              <linearGradient id="g2" x1="13" y1="13" x2="51" y2="51" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#ff4fb3"/>
+                <stop offset="1" stop-color="#e72897"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <p class="brand-kicker">Vermieter</p>
+          <p class="brand-title">Erfassung</p>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <a class="btn btn-secondary" href="index.html">Zur Steuerzentrale</a>
+        <a class="btn btn-ghost" href="archiv.html">Archiv</a>
+        <button class="btn btn-primary" type="button" id="printBtn">Seite drucken / PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="page">
+    <div class="container">
+      <section class="hero">
+        <div class="hero-inner">
+          <div class="hero-copy">
+            <p class="eyebrow">Nur für Vermieter</p>
+            <h1>Vermieter-Erfassung</h1>
+            <p class="lead">
+              Hier erfasst du deine Vermieter-Daten, mehrere Objekte, mehrere Mieter je Objekt und alle Kosten sauber getrennt pro Jahresstand.
+            </p>
+            <p>
+              Ziel ist eine klare Struktur je Objekt, damit Zahlen, Anschriften, Mietverhältnisse und Kosten nicht vermischt werden und später sauber wieder geöffnet oder archiviert werden können.
+            </p>
+
+            <div class="hero-actions">
+              <button type="button" class="btn btn-primary" id="addObjectHeroBtn">Neues Objekt anlegen</button>
+              <button type="button" class="btn btn-ghost" id="saveArchiveHeroBtn">Ins Archiv übernehmen</button>
+            </div>
+          </div>
+
+          <div class="hero-side">
+            <div class="mini-card">
+              <div class="icon-line">
+                <div class="icon-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M5 5h14v14H5z" stroke="#11b995" stroke-width="1.8"/>
+                    <path d="M8 9h8M8 12h8M8 15h5" stroke="#11b995" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3>Was hier drin ist</h3>
+                  <p>Vermieter-Stammdaten, Objekte, Mieter, Kosten je Objekt, Zusatzkosten und Gesamtsummen.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mini-card">
+              <div class="icon-line">
+                <div class="icon-badge magenta" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 4 5 8v4c0 4.2 3 8.1 7 9 4-0.9 7-4.8 7-9V8l-7-4Z" stroke="#e72897" stroke-width="1.8"/>
+                    <path d="m9.3 12 1.8 1.8 3.6-3.6" stroke="#e72897" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3>Wofür es gedacht ist</h3>
+                  <p>Für Vermieter mit einem oder mehreren Objekten und getrennten Jahresständen pro Bestand.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mini-card">
+              <div class="icon-line">
+                <div class="icon-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M7 5h10M7 12h10M7 19h10" stroke="#11b995" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M4 5h.01M4 12h.01M4 19h.01" stroke="#11b995" stroke-width="2.6" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3>Danach möglich</h3>
+                  <p>Speichern, drucken, später wieder öffnen und die Stände für das Archiv sichern.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="messageBox" class="message" aria-live="polite"></div>
+
+      <div class="layout">
+        <section class="stack">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Vermieter-Stammdaten</h2>
+            </div>
+            <div class="panel-body">
+              <div class="form-grid">
+                <div class="field-row-2">
+                  <div class="field">
+                    <label for="year">Jahr</label>
+                    <input id="year" type="number" min="2000" max="2100" step="1" placeholder="z. B. 2026" />
+                  </div>
+                  <div class="field">
+                    <label for="status">Stand</label>
+                    <select id="status">
+                      <option value="Entwurf">Entwurf</option>
+                      <option value="In Arbeit">In Arbeit</option>
+                      <option value="Fertig vorbereitet">Fertig vorbereitet</option>
+                      <option value="Exportiert">Exportiert</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="field-row-2">
+                  <div class="field">
+                    <label for="firstName">Vorname</label>
+                    <input id="firstName" type="text" placeholder="Vorname" />
+                  </div>
+                  <div class="field">
+                    <label for="lastName">Nachname</label>
+                    <input id="lastName" type="text" placeholder="Nachname" />
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="street">Anschrift</label>
+                  <input id="street" type="text" placeholder="Straße und Hausnummer" />
+                </div>
+
+                <div class="field-row-2">
+                  <div class="field">
+                    <label for="zip">PLZ</label>
+                    <input id="zip" type="text" placeholder="PLZ" />
+                  </div>
+                  <div class="field">
+                    <label for="city">Ort</label>
+                    <input id="city" type="text" placeholder="Ort" />
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="landlordNote">Allgemeine Notiz</label>
+                  <textarea id="landlordNote" placeholder="z. B. Hinweise zum Bestand oder allgemeine Jahresnotizen."></textarea>
+                </div>
+
+                <p class="helper">Diese Angaben gelten als Rahmen für den aktuellen Vermieter-Jahresstand.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="sum-card">
+            <div class="sum-head">
+              <h2>Gesamtübersicht</h2>
+            </div>
+            <div class="sum-body">
+              <div class="sum-row">
+                <div class="sum-label">Bereich</div>
+                <div class="sum-value">Vermieter</div>
+              </div>
+              <div class="sum-row">
+                <div class="sum-label">Jahr</div>
+                <div class="sum-value" id="sumYear">—</div>
+              </div>
+              <div class="sum-row">
+                <div class="sum-label">Objekte gesamt</div>
+                <div class="sum-value" id="sumObjects">0</div>
+              </div>
+              <div class="sum-row">
+                <div class="sum-label">Mieter gesamt</div>
+                <div class="sum-value" id="sumTenants">0</div>
+              </div>
+              <div class="sum-row">
+                <div class="sum-label">Gesamtsumme aller Objekte</div>
+                <div class="sum-value grand-total" id="sumGrand">0,00 €</div>
+              </div>
+
+              <div class="toolbar">
+                <div class="toolbar-left">
+                  <button type="button" class="btn btn-primary" id="saveDraftBtn">Entwurf lokal speichern</button>
+                  <button type="button" class="btn btn-secondary" id="saveArchiveBtn">Ins Archiv übernehmen</button>
+                </div>
+                <div class="toolbar-right">
+                  <button type="button" class="btn btn-ghost" id="loadDraftBtn">Entwurf laden</button>
+                  <button type="button" class="btn btn-danger" id="resetBtn">Alles zurücksetzen</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="toolbar compact">
+              <div class="toolbar-left">
+                <h2>Objekte</h2>
+              </div>
+              <div class="toolbar-right">
+                <button type="button" class="btn btn-primary" id="addObjectBtn">Neues Objekt</button>
+              </div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="objectsWrap" class="objects-wrap"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <template id="objectTemplate">
+    <article class="object-card">
+      <div class="object-head">
+        <div class="object-badge">Objekt</div>
+        <div class="toolbar-right">
+          <button type="button" class="btn btn-danger btn-small action-remove-object">Objekt löschen</button>
+        </div>
+      </div>
+      <div class="object-body">
+        <section class="section-box">
+          <h3>Objektdaten</h3>
+          <div class="form-grid">
+            <div class="field-row-2">
+              <div class="field">
+                <label>Objektbezeichnung</label>
+                <input type="text" class="obj-title" placeholder="z. B. Haus A oder Wohnung 2" />
+              </div>
+              <div class="field">
+                <label>Baujahr</label>
+                <input type="number" class="obj-build-year" min="1000" max="2100" step="1" placeholder="z. B. 2005" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Objektanschrift</label>
+              <input type="text" class="obj-street" placeholder="Straße und Hausnummer" />
+            </div>
+
+            <div class="field-row-2">
+              <div class="field">
+                <label>PLZ</label>
+                <input type="text" class="obj-zip" placeholder="PLZ" />
+              </div>
+              <div class="field">
+                <label>Ort</label>
+                <input type="text" class="obj-city" placeholder="Ort" />
+              </div>
+            </div>
+
+            <div class="checkbox-grid">
+              <label class="check"><input type="checkbox" class="feat-garden" /> <span>Großer Garten</span></label>
+              <label class="check"><input type="checkbox" class="feat-pool" /> <span>Pool vorhanden</span></label>
+              <label class="check"><input type="checkbox" class="feat-alarm" /> <span>Alarmanlage</span></label>
+              <label class="check"><input type="checkbox" class="feat-special" /> <span>Besondere Haustechnik</span></label>
+            </div>
+
+            <div class="field">
+              <label>Besonderheiten</label>
+              <textarea class="obj-note" placeholder="z. B. Anlagen, Außenbereiche oder objektspezifische Hinweise."></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-box">
+          <div class="toolbar compact">
+            <div class="toolbar-left">
+              <h3>Mieter</h3>
+            </div>
+            <div class="toolbar-right">
+              <button type="button" class="btn btn-secondary btn-small action-add-tenant">Weiteren Mieter hinzufügen</button>
+            </div>
+          </div>
+          <div class="tenant-wrap"></div>
+        </section>
+
+        <section class="section-box">
+          <h3>Kostenfelder</h3>
+          <div class="cost-grid">
+            <div class="field">
+              <label>Versicherungen</label>
+              <input type="number" class="cost-insurance cost-input" min="0" step="0.01" placeholder="0,00" />
+            </div>
+            <div class="field">
+              <label>Grundsteuer</label>
+              <input type="number" class="cost-property-tax cost-input" min="0" step="0.01" placeholder="0,00" />
+            </div>
+            <div class="field">
+              <label>Wasser / Abwasser</label>
+              <input type="number" class="cost-water cost-input" min="0" step="0.01" placeholder="0,00" />
+            </div>
+            <div class="field">
+              <label>Müllabfuhr</label>
+              <input type="number" class="cost-trash cost-input" min="0" step="0.01" placeholder="0,00" />
+            </div>
+            <div class="field">
+              <label>Heizung / Warmwasser</label>
+              <input type="number" class="cost-heat cost-input" min="0" step="0.01" placeholder="0,00" />
+            </div>
+            <div class="field">
+              <label>Strom / Allgemeinstrom</label>
+              <input type="number" class="cost-electricity cost-input" min="0" step="0.01" placeholder="0,00" />
+            </div>
+            <div class="field">
+              <label>Schornsteinfeger</label>
+              <input type="number" class="cost-chimney cost-input" min="0" step="0.01" placeholder="0,00" />
+            </div>
+            <div class="field">
+              <label>Wartung / Technik</label>
+              <input type="number" class="cost-maintenance cost-input" min="0" step="0.01" placeholder="0,00" />
+            </div>
+            <div class="field">
+              <label>Alarmanlage</label>
+              <input type="number" class="cost-alarm cost-input" min="0" step="0.01" placeholder="0,00" />
+            </div>
+            <div class="field">
+              <label>Gartenkosten</label>
+              <input type="number" class="cost-garden cost-input" min="0" step="0.01" placeholder="0,00" />
+            </div>
+            <div class="field">
+              <label>Poolkosten</label>
+              <input type="number" class="cost-pool cost-input" min="0" step="0.01" placeholder="0,00" />
+            </div>
+            <div class="field">
+              <label>Betriebskosten allgemein</label>
+              <input type="number" class="cost-operating cost-input" min="0" step="0.01" placeholder="0,00" />
+            </div>
+            <div class="field">
+              <label>Werke / Anlagen / Haussysteme</label>
+              <input type="number" class="cost-systems cost-input" min="0" step="0.01" placeholder="0,00" />
+            </div>
+            <div class="field">
+              <label>Reparaturen</label>
+              <input type="number" class="cost-repair cost-input" min="0" step="0.01" placeholder="0,00" />
+            </div>
+            <div class="field">
+              <label>Rücklagen</label>
+              <input type="number" class="cost-reserve cost-input" min="0" step="0.01" placeholder="0,00" />
+            </div>
+            <div class="field">
+              <label>Sonstige laufende Kosten</label>
+              <input type="number" class="cost-other cost-input" min="0" step="0.01" placeholder="0,00" />
+            </div>
+          </div>
+        </section>
+
+        <section class="section-box">
+          <div class="toolbar compact">
+            <div class="toolbar-left">
+              <h3>Freie Zusatzkosten</h3>
+            </div>
+            <div class="toolbar-right">
+              <button type="button" class="btn btn-secondary btn-small action-add-extra">Zusatzkosten hinzufügen</button>
+            </div>
+          </div>
+          <div class="extra-wrap"></div>
+        </section>
+
+        <section class="sum-card">
+          <div class="sum-head">
+            <h3>Objektsumme</h3>
+          </div>
+          <div class="sum-body">
+            <div class="sum-row">
+              <div class="sum-label">Kosten gesamt</div>
+              <div class="sum-value object-total">0,00 €</div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </article>
+  </template>
+
+  <template id="tenantTemplate">
+    <div class="tenant-card">
+      <div class="tenant-head">
+        <strong>Mieter</strong>
+        <button type="button" class="btn btn-danger btn-small action-remove-tenant">Entfernen</button>
+      </div>
+      <div class="form-grid">
+        <div class="field-row-2">
+          <div class="field">
+            <label>Vorname</label>
+            <input type="text" class="tenant-first" placeholder="Vorname" />
+          </div>
+          <div class="field">
+            <label>Nachname</label>
+            <input type="text" class="tenant-last" placeholder="Nachname" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Anschrift der Wohnung</label>
+          <input type="text" class="tenant-street" placeholder="Straße und Hausnummer" />
+        </div>
+
+        <div class="field-row-3">
+          <div class="field">
+            <label>PLZ</label>
+            <input type="text" class="tenant-zip" placeholder="PLZ" />
+          </div>
+          <div class="field">
+            <label>Ort</label>
+            <input type="text" class="tenant-city" placeholder="Ort" />
+          </div>
+          <div class="field">
+            <label>Seit wann Mieter</label>
+            <input type="text" class="tenant-since" placeholder="z. B. 01.05.2022" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="extraTemplate">
+    <div class="extra-row">
+      <div class="field">
+        <label>Bezeichnung</label>
+        <input type="text" class="extra-label" placeholder="z. B. Winterdienst oder Sonderwartung" />
+      </div>
+      <div class="field">
+        <label>Betrag</label>
+        <input type="number" class="extra-value cost-input" min="0" step="0.01" placeholder="0,00" />
+      </div>
+      <button type="button" class="btn btn-danger btn-small action-remove-extra">Entfernen</button>
+    </div>
+  </template>
+
+  <script>
+    (function(){
+      const DRAFT_KEY = 'nebk_vermieter_draft_v1';
+      const ARCHIVE_KEY = 'nebk_archive_v1';
+
+      const messageBox = document.getElementById('messageBox');
+      const objectsWrap = document.getElementById('objectsWrap');
+      const objectTemplate = document.getElementById('objectTemplate');
+      const tenantTemplate = document.getElementById('tenantTemplate');
+      const extraTemplate = document.getElementById('extraTemplate');
+
+      const fields = {
+        year: document.getElementById('year'),
+        status: document.getElementById('status'),
+        firstName: document.getElementById('firstName'),
+        lastName: document.getElementById('lastName'),
+        street: document.getElementById('street'),
+        zip: document.getElementById('zip'),
+        city: document.getElementById('city'),
+        landlordNote: document.getElementById('landlordNote')
+      };
+
+      const sumYear = document.getElementById('sumYear');
+      const sumObjects = document.getElementById('sumObjects');
+      const sumTenants = document.getElementById('sumTenants');
+      const sumGrand = document.getElementById('sumGrand');
+
+      const addObjectBtn = document.getElementById('addObjectBtn');
+      const addObjectHeroBtn = document.getElementById('addObjectHeroBtn');
+      const saveDraftBtn = document.getElementById('saveDraftBtn');
+      const saveArchiveBtn = document.getElementById('saveArchiveBtn');
+      const saveArchiveHeroBtn = document.getElementById('saveArchiveHeroBtn');
+      const loadDraftBtn = document.getElementById('loadDraftBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const printBtn = document.getElementById('printBtn');
+
+      function euro(value){
+        const num = Number(value || 0);
+        return num.toLocaleString('de-DE', { minimumFractionDigits:2, maximumFractionDigits:2 }) + ' €';
+      }
+
+      function showMessage(text, type){
+        messageBox.textContent = text;
+        messageBox.className = 'message show ' + (type === 'error' ? 'message-error' : 'message-success');
+        clearTimeout(showMessage._timer);
+        showMessage._timer = setTimeout(() => {
+          messageBox.className = 'message';
+          messageBox.textContent = '';
+        }, 4200);
+      }
+
+      function toNumber(val){
+        const n = parseFloat(String(val || '').replace(',', '.'));
+        return Number.isFinite(n) ? n : 0;
+      }
+
+      function getArchive(){
+        const raw = localStorage.getItem(ARCHIVE_KEY);
+        try{
+          return raw ? JSON.parse(raw) : [];
+        }catch(e){
+          return [];
+        }
+      }
+
+      function saveArchiveRecord(record){
+        const items = getArchive();
+        const idx = items.findIndex(item => item.id === record.id);
+        if(idx >= 0){
+          items[idx] = record;
+        } else {
+          items.push(record);
+        }
+        localStorage.setItem(ARCHIVE_KEY, JSON.stringify(items));
+      }
+
+      function addTenant(card, data){
+        const wrap = card.querySelector('.tenant-wrap');
+        const node = tenantTemplate.content.firstElementChild.cloneNode(true);
+
+        if(data){
+          node.querySelector('.tenant-first').value = data.firstName || '';
+          node.querySelector('.tenant-last').value = data.lastName || '';
+          node.querySelector('.tenant-street').value = data.street || '';
+          node.querySelector('.tenant-zip').value = data.zip || '';
+          node.querySelector('.tenant-city').value = data.city || '';
+          node.querySelector('.tenant-since').value = data.since || '';
+        }
+
+        node.querySelectorAll('input').forEach(input => {
+          input.addEventListener('input', updateTotals);
+        });
+
+        node.querySelector('.action-remove-tenant').addEventListener('click', () => {
+          node.remove();
+          updateTotals();
+        });
+
+        wrap.appendChild(node);
+        updateTotals();
+      }
+
+      function addExtraRow(card, data){
+        const wrap = card.querySelector('.extra-wrap');
+        const node = extraTemplate.content.firstElementChild.cloneNode(true);
+
+        if(data){
+          node.querySelector('.extra-label').value = data.label || '';
+          node.querySelector('.extra-value').value = data.value || '';
+        }
+
+        node.querySelectorAll('input').forEach(input => {
+          input.addEventListener('input', updateTotals);
+        });
+
+        node.querySelector('.action-remove-extra').addEventListener('click', () => {
+          node.remove();
+          updateTotals();
+        });
+
+        wrap.appendChild(node);
+        updateTotals();
+      }
+
+      function updateObjectHead(card, index){
+        const badge = card.querySelector('.object-badge');
+        if(badge){
+          badge.textContent = 'Objekt ' + (index + 1);
+        }
+      }
+
+      function refreshObjectIndices(){
+        Array.from(objectsWrap.children).forEach((card, index) => updateObjectHead(card, index));
+      }
+
+      function addObject(data){
+        const card = objectTemplate.content.firstElementChild.cloneNode(true);
+
+        card.querySelectorAll('input, textarea, select').forEach(input => {
+          input.addEventListener('input', updateTotals);
+          input.addEventListener('change', updateTotals);
+        });
+
+        card.querySelector('.action-remove-object').addEventListener('click', () => {
+          card.remove();
+          refreshObjectIndices();
+          updateTotals();
+        });
+
+        card.querySelector('.action-add-tenant').addEventListener('click', () => addTenant(card));
+        card.querySelector('.action-add-extra').addEventListener('click', () => addExtraRow(card));
+
+        if(data){
+          card.querySelector('.obj-title').value = data.title || '';
+          card.querySelector('.obj-build-year').value = data.buildYear || '';
+          card.querySelector('.obj-street').value = data.street || '';
+          card.querySelector('.obj-zip').value = data.zip || '';
+          card.querySelector('.obj-city').value = data.city || '';
+          card.querySelector('.feat-garden').checked = !!data.features?.garden;
+          card.querySelector('.feat-pool').checked = !!data.features?.pool;
+          card.querySelector('.feat-alarm').checked = !!data.features?.alarm;
+          card.querySelector('.feat-special').checked = !!data.features?.special;
+          card.querySelector('.obj-note').value = data.note || '';
+
+          card.querySelector('.cost-insurance').value = data.costs?.insurance || '';
+          card.querySelector('.cost-property-tax').value = data.costs?.propertyTax || '';
+          card.querySelector('.cost-water').value = data.costs?.water || '';
+          card.querySelector('.cost-trash').value = data.costs?.trash || '';
+          card.querySelector('.cost-heat').value = data.costs?.heat || '';
+          card.querySelector('.cost-electricity').value = data.costs?.electricity || '';
+          card.querySelector('.cost-chimney').value = data.costs?.chimney || '';
+          card.querySelector('.cost-maintenance').value = data.costs?.maintenance || '';
+          card.querySelector('.cost-alarm').value = data.costs?.alarm || '';
+          card.querySelector('.cost-garden').value = data.costs?.garden || '';
+          card.querySelector('.cost-pool').value = data.costs?.pool || '';
+          card.querySelector('.cost-operating').value = data.costs?.operating || '';
+          card.querySelector('.cost-systems').value = data.costs?.systems || '';
+          card.querySelector('.cost-repair').value = data.costs?.repair || '';
+          card.querySelector('.cost-reserve').value = data.costs?.reserve || '';
+          card.querySelector('.cost-other').value = data.costs?.other || '';
+
+          if(Array.isArray(data.tenants)){
+            data.tenants.forEach(tenant => addTenant(card, tenant));
+          } else {
+            addTenant(card);
+          }
+
+          if(Array.isArray(data.extras) && data.extras.length){
+            data.extras.forEach(extra => addExtraRow(card, extra));
+          } else {
+            addExtraRow(card);
+          }
+        } else {
+          addTenant(card);
+          addExtraRow(card);
+        }
+
+        objectsWrap.appendChild(card);
+        refreshObjectIndices();
+        updateTotals();
+      }
+
+      function computeObjectTotal(card){
+        let total = 0;
+        card.querySelectorAll('.cost-input').forEach(input => {
+          total += toNumber(input.value);
+        });
+        card.querySelector('.object-total').textContent = euro(total);
+        return total;
+      }
+
+      function computeObjectTotalFromData(obj){
+        let total = 0;
+        if(obj.costs){
+          Object.values(obj.costs).forEach(v => total += toNumber(v));
+        }
+        if(Array.isArray(obj.extras)){
+          obj.extras.forEach(extra => total += toNumber(extra.value));
+        }
+        return total;
+      }
+
+      function updateTotals(){
+        let grand = 0;
+        let tenants = 0;
+        const cards = Array.from(objectsWrap.querySelectorAll('.object-card'));
+
+        cards.forEach(card => {
+          grand += computeObjectTotal(card);
+          tenants += card.querySelectorAll('.tenant-card').length;
+        });
+
+        sumYear.textContent = fields.year.value.trim() || '—';
+        sumObjects.textContent = String(cards.length);
+        sumTenants.textContent = String(tenants);
+        sumGrand.textContent = euro(grand);
+      }
+
+      function collectData(){
+        return {
+          archiveId: window.__archiveId || '',
+          createdAt: window.__createdAt || '',
+          mode: 'vermieter',
+          master: {
+            year: fields.year.value.trim(),
+            status: fields.status.value,
+            firstName: fields.firstName.value.trim(),
+            lastName: fields.lastName.value.trim(),
+            street: fields.street.value.trim(),
+            zip: fields.zip.value.trim(),
+            city: fields.city.value.trim(),
+            note: fields.landlordNote.value.trim()
+          },
+          objects: Array.from(objectsWrap.querySelectorAll('.object-card')).map(card => ({
+            title: card.querySelector('.obj-title').value.trim(),
+            buildYear: card.querySelector('.obj-build-year').value.trim(),
+            street: card.querySelector('.obj-street').value.trim(),
+            zip: card.querySelector('.obj-zip').value.trim(),
+            city: card.querySelector('.obj-city').value.trim(),
+            features: {
+              garden: card.querySelector('.feat-garden').checked,
+              pool: card.querySelector('.feat-pool').checked,
+              alarm: card.querySelector('.feat-alarm').checked,
+              special: card.querySelector('.feat-special').checked
+            },
+            note: card.querySelector('.obj-note').value.trim(),
+            tenants: Array.from(card.querySelectorAll('.tenant-card')).map(t => ({
+              firstName: t.querySelector('.tenant-first').value.trim(),
+              lastName: t.querySelector('.tenant-last').value.trim(),
+              street: t.querySelector('.tenant-street').value.trim(),
+              zip: t.querySelector('.tenant-zip').value.trim(),
+              city: t.querySelector('.tenant-city').value.trim(),
+              since: t.querySelector('.tenant-since').value.trim()
+            })),
+            costs: {
+              insurance: card.querySelector('.cost-insurance').value,
+              propertyTax: card.querySelector('.cost-property-tax').value,
+              water: card.querySelector('.cost-water').value,
+              trash: card.querySelector('.cost-trash').value,
+              heat: card.querySelector('.cost-heat').value,
+              electricity: card.querySelector('.cost-electricity').value,
+              chimney: card.querySelector('.cost-chimney').value,
+              maintenance: card.querySelector('.cost-maintenance').value,
+              alarm: card.querySelector('.cost-alarm').value,
+              garden: card.querySelector('.cost-garden').value,
+              pool: card.querySelector('.cost-pool').value,
+              operating: card.querySelector('.cost-operating').value,
+              systems: card.querySelector('.cost-systems').value,
+              repair: card.querySelector('.cost-repair').value,
+              reserve: card.querySelector('.cost-reserve').value,
+              other: card.querySelector('.cost-other').value
+            },
+            extras: Array.from(card.querySelectorAll('.extra-row')).map(row => ({
+              label: row.querySelector('.extra-label').value.trim(),
+              value: row.querySelector('.extra-value').value
+            }))
+          }))
+        };
+      }
+
+      function validate(data){
+        if(!data.master.year || !/^\d{4}$/.test(data.master.year)){
+          return 'Bitte ein Jahr mit vier Ziffern eintragen.';
+        }
+        if(!data.objects.length){
+          return 'Bitte mindestens ein Objekt anlegen.';
+        }
+        return '';
+      }
+
+      function fillAll(data){
+        window.__archiveId = data.archiveId || '';
+        window.__createdAt = data.createdAt || '';
+
+        fields.year.value = data.master?.year || '';
+        fields.status.value = data.master?.status || 'Entwurf';
+        fields.firstName.value = data.master?.firstName || '';
+        fields.lastName.value = data.master?.lastName || '';
+        fields.street.value = data.master?.street || '';
+        fields.zip.value = data.master?.zip || '';
+        fields.city.value = data.master?.city || '';
+        fields.landlordNote.value = data.master?.note || '';
+
+        objectsWrap.innerHTML = '';
+        if(Array.isArray(data.objects) && data.objects.length){
+          data.objects.forEach(obj => addObject(obj));
+        } else {
+          addObject();
+        }
+
+        updateTotals();
+      }
+
+      function resetAll(silent){
+        window.__archiveId = '';
+        window.__createdAt = '';
+
+        Object.values(fields).forEach(el => {
+          if(el.tagName === 'SELECT'){
+            el.value = 'Entwurf';
+          } else {
+            el.value = '';
+          }
+        });
+
+        objectsWrap.innerHTML = '';
+        addObject();
+        updateTotals();
+
+        if(!silent){
+          showMessage('Die Erfassung wurde zurückgesetzt.', 'success');
+        }
+      }
+
+      function saveDraft(){
+        const data = collectData();
+        const error = validate(data);
+        if(error){
+          showMessage(error, 'error');
+          return;
+        }
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+        showMessage('Entwurf wurde lokal gespeichert.', 'success');
+      }
+
+      function loadDraft(){
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if(!raw){
+          showMessage('Es wurde noch kein Entwurf gespeichert.', 'error');
+          return;
+        }
+        try{
+          const data = JSON.parse(raw);
+          fillAll(data);
+          showMessage('Entwurf wurde geladen.', 'success');
+        }catch(e){
+          showMessage('Der gespeicherte Entwurf konnte nicht geladen werden.', 'error');
+        }
+      }
+
+      function buildArchiveRecord(data){
+        const year = data.master.year || String(new Date().getFullYear());
+        const title = data.objects[0]?.title || [data.master.firstName, data.master.lastName].filter(Boolean).join(' ').trim() || 'Jahresstand';
+        const total = data.objects.reduce((acc, obj) => acc + computeObjectTotalFromData(obj), 0);
+
+        return {
+          id: data.archiveId || ('jahr_' + year + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,8)),
+          jahr: year,
+          status: data.master.status || 'Entwurf',
+          titel: title,
+          bereich: 'Vermieter – Vorbereitung Mieterabrechnung',
+          zeitraum: year ? ('01.01.' + year + ' bis 31.12.' + year) : '',
+          summe: total.toFixed(2),
+          notiz: data.master.note || '',
+          createdAt: data.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          details: data
+        };
+      }
+
+      function saveToArchive(){
+        const data = collectData();
+        const error = validate(data);
+        if(error){
+          showMessage(error, 'error');
+          return;
+        }
+
+        const record = buildArchiveRecord(data);
+        window.__archiveId = record.id;
+        window.__createdAt = record.createdAt;
+
+        saveArchiveRecord(record);
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({
+          ...data,
+          archiveId: record.id,
+          createdAt: record.createdAt
+        }));
+
+        showMessage('Jahresstand wurde ins Archiv übernommen.', 'success');
+      }
+
+      Object.values(fields).forEach(el => {
+        el.addEventListener('input', updateTotals);
+        el.addEventListener('change', updateTotals);
+      });
+
+      addObjectBtn.addEventListener('click', () => addObject());
+      addObjectHeroBtn.addEventListener('click', () => addObject());
+      saveDraftBtn.addEventListener('click', saveDraft);
+      saveArchiveBtn.addEventListener('click', saveToArchive);
+      saveArchiveHeroBtn.addEventListener('click', saveToArchive);
+      loadDraftBtn.addEventListener('click', loadDraft);
+      resetBtn.addEventListener('click', () => {
+        const ok = confirm('Möchtest du die aktuelle Erfassung wirklich komplett zurücksetzen?');
+        if(ok) resetAll(false);
+      });
+      printBtn.addEventListener('click', () => window.print());
+
+      resetAll(true);
+    })();
+  </script>
+</body>
+</html>
