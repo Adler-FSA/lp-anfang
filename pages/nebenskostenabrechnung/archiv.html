@@ -1,1 +1,1302 @@
+<!doctype html>
+<!--
+  Nebenkostenabrechnung – Archiv
+  GitHub-Pfad: lp-anfang/pages/nebenskostenabrechnung/archiv.html
+  Commit-Message: nebenkostenabrechnung – archiv um flaechen mieterlogik vorauszahlungen und saldo erweitert
+  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/nebenskostenabrechnung/archiv.html?nocache=__TS__
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Archiv | Nebenkostenabrechnung</title>
+  <meta name="description" content="Archiv für Eigentümer- und Vermieter-Jahresstände mit Bereich, Flächen, Mieterlogik, Vorauszahlungen, Saldo, Öffnen, Duplizieren, Export und Löschfunktion." />
+  <meta name="robots" content="index,follow" />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --bg-soft:#f8f8f8;
+      --panel:#ffffff;
+      --text:#111111;
+      --muted:#555555;
+      --line:#e7e7e7;
+
+      --mint:#20d8b2;
+      --mint-strong:#11b995;
+      --mint-soft:rgba(32,216,178,.10);
+
+      --magenta:#ff4fb3;
+      --magenta-strong:#e72897;
+      --magenta-soft:rgba(255,79,179,.10);
+
+      --danger:#c62828;
+      --danger-soft:rgba(198,40,40,.08);
+
+      --shadow:0 10px 30px rgba(17,17,17,.06);
+      --maxw:1260px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at top right, rgba(255,79,179,.10), transparent 24%),
+        radial-gradient(circle at top left, rgba(32,216,178,.12), transparent 24%),
+        var(--bg);
+      color:var(--text);
+      font-family:Arial, Helvetica, sans-serif;
+      font-size:18px;
+      line-height:1.65;
+    }
+
+    a{color:inherit;text-decoration:none}
+
+    .container{
+      width:min(var(--maxw), calc(100% - 48px));
+      margin:0 auto;
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      backdrop-filter:blur(10px);
+      background:rgba(255,255,255,.88);
+      border-bottom:1px solid rgba(17,17,17,.08);
+    }
+
+    .topbar-inner{
+      width:min(var(--maxw), calc(100% - 48px));
+      margin:0 auto;
+      min-height:74px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+
+    .brand-mark{
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      background:linear-gradient(135deg, rgba(32,216,178,.10), rgba(255,79,179,.10));
+      border:1px solid rgba(17,17,17,.08);
+      display:grid;
+      place-items:center;
+      box-shadow:var(--shadow);
+      flex:0 0 auto;
+    }
+
+    .brand-mark svg{width:24px;height:24px;display:block}
+
+    .brand-kicker{
+      margin:0 0 2px;
+      font-size:12px;
+      line-height:1.2;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      color:var(--magenta-strong);
+      font-weight:700;
+    }
+
+    .brand-title{
+      margin:0;
+      font-size:18px;
+      line-height:1.2;
+      font-weight:700;
+    }
+
+    .top-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .btn,
+    button{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      font:inherit;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      min-height:46px;
+      padding:12px 18px;
+      border-radius:999px;
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+      font-weight:700;
+      white-space:nowrap;
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--mint);color:#05241d;box-shadow:0 10px 24px rgba(32,216,178,.20)}
+    .btn-secondary{background:#fff;color:var(--magenta-strong);border:1px solid rgba(255,79,179,.40)}
+    .btn-ghost{background:#fff;color:var(--text);border:1px solid rgba(17,17,17,.10)}
+    .btn-danger{background:#fff;color:var(--danger);border:1px solid rgba(198,40,40,.24)}
+    .btn-small{min-height:40px;padding:10px 14px;border-radius:12px;font-size:15px}
+
+    .page{padding:34px 0 48px}
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,248,248,.96));
+      border:1px solid var(--line);
+      border-radius:30px;
+      box-shadow:var(--shadow);
+      padding:34px;
+      margin-bottom:22px;
+    }
+
+    .hero::before,
+    .hero::after{
+      content:"";
+      position:absolute;
+      border-radius:999px;
+      pointer-events:none;
+    }
+
+    .hero::before{
+      width:300px;
+      height:300px;
+      right:-100px;
+      top:-120px;
+      background:radial-gradient(circle, rgba(255,79,179,.18), transparent 68%);
+    }
+
+    .hero::after{
+      width:240px;
+      height:240px;
+      left:-70px;
+      bottom:-80px;
+      background:radial-gradient(circle, rgba(32,216,178,.18), transparent 68%);
+    }
+
+    .hero-inner{
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns:minmax(0,1.08fr) minmax(290px,.92fr);
+      gap:26px;
+      align-items:start;
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      margin:0 0 18px;
+      padding:8px 14px;
+      border-radius:999px;
+      background:var(--magenta-soft);
+      color:var(--magenta-strong);
+      font-size:13px;
+      line-height:1.2;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+
+    h1{margin:0 0 16px;font-size:42px;line-height:1.15;letter-spacing:-.02em}
+    h2{margin:0 0 14px;font-size:28px;line-height:1.2;letter-spacing:-.02em}
+    h3{margin:0 0 10px;font-size:22px;line-height:1.2;letter-spacing:-.02em}
+
+    .lead{
+      margin:0 0 16px;
+      font-size:21px;
+      line-height:1.55;
+      color:var(--muted);
+      max-width:760px;
+    }
+
+    .hero-copy p{margin:0 0 14px}
+    .hero-side{display:grid;gap:16px}
+
+    .mini-card,
+    .panel,
+    .archive-card,
+    .empty-state,
+    .message,
+    .summary-card{
+      background:#fff;
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+    }
+
+    .mini-card{border-radius:20px;padding:20px}
+    .mini-card p{margin:0;color:var(--muted);font-size:16px;line-height:1.55}
+
+    .icon-line{display:flex;align-items:flex-start;gap:12px}
+    .icon-badge{
+      width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:0 0 auto;
+      background:var(--mint-soft);border:1px solid rgba(32,216,178,.20);
+    }
+    .icon-badge.magenta{background:var(--magenta-soft);border-color:rgba(255,79,179,.20)}
+    .icon-badge svg{width:20px;height:20px;display:block}
+
+    .message{
+      display:none;
+      border-radius:18px;
+      padding:14px 16px;
+      font-size:15px;
+      font-weight:700;
+      margin-bottom:16px;
+    }
+    .message.show{display:block}
+    .message-success{background:var(--mint-soft);border-color:rgba(32,216,178,.24);color:#0b6b57}
+    .message-error{background:var(--danger-soft);border-color:rgba(198,40,40,.22);color:var(--danger)}
+
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:16px;
+      margin-bottom:22px;
+    }
+
+    .summary-card{
+      border-radius:22px;
+      padding:20px;
+    }
+
+    .summary-card p{
+      margin:0;
+      color:var(--muted);
+      font-size:15px;
+    }
+
+    .summary-value{
+      font-size:30px;
+      line-height:1.1;
+      font-weight:700;
+      margin:6px 0 4px;
+      color:var(--text);
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:minmax(320px, 380px) minmax(0,1fr);
+      gap:22px;
+      align-items:start;
+    }
+
+    .panel{
+      border-radius:24px;
+      overflow:hidden;
+    }
+
+    .panel-head{padding:22px 22px 0}
+    .panel-body{padding:22px}
+
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:18px;
+    }
+
+    .toolbar-left,
+    .toolbar-right{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+    }
+
+    .form-grid{display:grid;gap:14px}
+
+    .field-row-2{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .field{
+      display:grid;
+      gap:8px;
+    }
+
+    .field label{
+      font-size:14px;
+      line-height:1.2;
+      font-weight:700;
+      color:#2a2a2a;
+    }
+
+    input,
+    select{
+      width:100%;
+      min-width:0;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px 16px;
+      background:#fff;
+      color:var(--text);
+      transition:border-color .18s ease, box-shadow .18s ease;
+      font:inherit;
+    }
+
+    input::placeholder{color:#9a9a9a}
+    input:focus,
+    select:focus{
+      outline:none;
+      border-color:var(--mint);
+      box-shadow:0 0 0 4px rgba(32,216,178,.14);
+    }
+
+    .archive-sections{display:grid;gap:22px}
+    .archive-section{display:grid;gap:16px}
+
+    .section-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .section-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:34px;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+
+    .pill-owner{background:var(--mint-soft);color:var(--mint-strong)}
+    .pill-landlord{background:var(--magenta-soft);color:var(--magenta-strong)}
+
+    .archive-grid{display:grid;grid-template-columns:1fr;gap:16px}
+
+    .archive-card{
+      border-radius:24px;
+      overflow:hidden;
+    }
+
+    .archive-head{
+      display:flex;
+      align-items:start;
+      justify-content:space-between;
+      gap:14px;
+      padding:22px 22px 0;
+    }
+
+    .year-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:88px;
+      min-height:52px;
+      padding:10px 14px;
+      border-radius:16px;
+      background:var(--mint-soft);
+      color:var(--mint-strong);
+      font-size:24px;
+      font-weight:700;
+      line-height:1;
+    }
+
+    .archive-card.landlord .year-badge{
+      background:var(--magenta-soft);
+      color:var(--magenta-strong);
+    }
+
+    .status-pill{
+      display:inline-flex;
+      align-items:center;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:700;
+      line-height:1.2;
+      background:#f2f2f2;
+      color:#555;
+    }
+
+    .archive-body{
+      padding:18px 22px 22px;
+      display:grid;
+      gap:14px;
+    }
+
+    .archive-sub{
+      margin:0;
+      color:var(--muted);
+    }
+
+    .logic-pills{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .logic-pill{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      background:#f5f5f5;
+      color:#555;
+    }
+
+    .logic-pill.mint{
+      background:var(--mint-soft);
+      color:var(--mint-strong);
+    }
+
+    .logic-pill.magenta{
+      background:var(--magenta-soft);
+      color:var(--magenta-strong);
+    }
+
+    .mini-stats{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .mini-stat{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px;
+      background:var(--bg-soft);
+    }
+
+    .mini-stat-label{
+      font-size:12px;
+      line-height:1.2;
+      color:#666;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      font-weight:700;
+      margin-bottom:6px;
+    }
+
+    .mini-stat-value{
+      font-size:20px;
+      line-height:1.1;
+      font-weight:700;
+    }
+
+    .meta-list{
+      display:grid;
+      gap:10px;
+      margin:0;
+      padding:0;
+      list-style:none;
+    }
+
+    .meta-list li{
+      display:grid;
+      grid-template-columns:190px 1fr;
+      gap:12px;
+      align-items:start;
+      padding-top:10px;
+      border-top:1px solid var(--line);
+      font-size:16px;
+    }
+
+    .meta-label{
+      color:#666;
+      font-weight:700;
+    }
+
+    .saldo-neg{color:#b42318}
+    .saldo-pos{color:#0b6b57}
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:auto;
+      padding-top:6px;
+    }
+
+    .empty-state{
+      border-style:dashed;
+      border-radius:24px;
+      padding:34px 24px;
+      text-align:center;
+    }
+
+    .empty-state h3{
+      margin:0 0 10px;
+      font-size:26px;
+    }
+
+    .empty-state p{
+      margin:0 0 18px;
+      color:var(--muted);
+    }
+
+    .hidden{display:none !important}
+
+    .file-input{
+      position:absolute;
+      left:-9999px;
+      width:1px;
+      height:1px;
+      opacity:0;
+      pointer-events:none;
+    }
+
+    .footer-note{
+      margin-top:14px;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    @media (max-width:1100px){
+      .layout{grid-template-columns:1fr}
+      .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .mini-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+
+    @media (max-width:980px){
+      .hero-inner{grid-template-columns:1fr}
+    }
+
+    @media (max-width:780px){
+      body{font-size:17px}
+      .container,.topbar-inner{width:min(var(--maxw), calc(100% - 28px))}
+      .topbar-inner{
+        min-height:unset;
+        padding:12px 0;
+        align-items:flex-start;
+        flex-direction:column;
+      }
+      .top-actions{width:100%;justify-content:flex-start}
+      .page{padding:20px 0 34px}
+      .hero{padding:22px}
+      h1{font-size:30px}
+      h2{font-size:24px}
+      h3{font-size:20px}
+      .lead{font-size:19px}
+      .btn{width:100%}
+      .field-row-2{grid-template-columns:1fr}
+      .meta-list li{grid-template-columns:1fr;gap:4px}
+      .summary-grid,
+      .mini-stats{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media print{
+      .topbar,.btn,.toolbar,.field{display:none !important}
+      body{background:#fff;font-size:12pt}
+      .hero,.summary-card,.panel,.archive-card,.empty-state{
+        box-shadow:none !important;
+        border:1px solid #cfcfcf !important;
+      }
+      .container{width:100%}
+      .page{padding:0}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none">
+            <path d="M13 32c0-10.493 8.507-19 19-19h19v19c0 10.493-8.507 19-19 19H13V32Z" fill="url(#g1)"/>
+            <path d="M13 13h19c10.493 0 19 8.507 19 19v19H32c-10.493 0-19-8.507-19-19V13Z" fill="url(#g2)" opacity=".78"/>
+            <defs>
+              <linearGradient id="g1" x1="13" y1="13" x2="51" y2="51"><stop stop-color="#20d8b2"/><stop offset="1" stop-color="#11b995"/></linearGradient>
+              <linearGradient id="g2" x1="13" y1="13" x2="51" y2="51"><stop stop-color="#ff4fb3"/><stop offset="1" stop-color="#e72897"/></linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <p class="brand-kicker">Archiv</p>
+          <p class="brand-title">Jahresstände</p>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <a class="btn btn-secondary" href="index.html">Zur Steuerzentrale</a>
+        <button class="btn btn-primary" type="button" id="printBtn">Seite drucken / PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="page">
+    <div class="container">
+      <section class="hero">
+        <div class="hero-inner">
+          <div class="hero-copy">
+            <p class="eyebrow">Getrennt speichern · öffnen · weiterführen</p>
+            <h1>Archiv für Eigentümer und Vermieter</h1>
+            <p class="lead">Hier werden deine Jahresstände klar getrennt gespeichert. Zusätzlich siehst du jetzt sofort, welche Flächen-, Mieter- und Vorauszahlungslogik in einem Stand steckt.</p>
+            <p>So erkennst du schneller, ob ein Eintrag nur Eigentümerdaten enthält oder bereits mit Vermieter-, Mieter- und Umlageschlüssellogik aufgebaut ist.</p>
+          </div>
+
+          <div class="hero-side">
+            <div class="mini-card">
+              <div class="icon-line">
+                <div class="icon-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M5 5h14v14H5z" stroke="#11b995" stroke-width="1.8"/><path d="M8 9h8M8 12h8M8 15h5" stroke="#11b995" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </div>
+                <div><h3>Getrennte Bereiche</h3><p>Eigentümer und Vermieter bleiben sauber getrennt sichtbar.</p></div>
+              </div>
+            </div>
+
+            <div class="mini-card">
+              <div class="icon-line">
+                <div class="icon-badge magenta" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 4 5 8v4c0 4.2 3 8.1 7 9 4-0.9 7-4.8 7-9V8l-7-4Z" stroke="#e72897" stroke-width="1.8"/><path d="m9.3 12 1.8 1.8 3.6-3.6" stroke="#e72897" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div><h3>Mehr Übersicht</h3><p>Wohnflächen, Mieteranzahl, Umlageschlüssel, Vorauszahlungen und Saldo werden direkt mit angezeigt.</p></div>
+              </div>
+            </div>
+
+            <div class="mini-card">
+              <div class="icon-line">
+                <div class="icon-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M7 5h10M7 12h10M7 19h10" stroke="#11b995" stroke-width="1.8" stroke-linecap="round"/><path d="M4 5h.01M4 12h.01M4 19h.01" stroke="#11b995" stroke-width="2.6" stroke-linecap="round"/></svg>
+                </div>
+                <div><h3>Weiterarbeit</h3><p>Jeder Stand lässt sich weiter öffnen, kopieren, exportieren oder wiederverwenden.</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="messageBox" class="message" aria-live="polite"></div>
+
+      <div class="summary-grid">
+        <article class="summary-card">
+          <p>Eigentümer-Stände</p>
+          <div class="summary-value" id="summaryOwnerCount">0</div>
+          <p>Sauber getrennte Eigentümer-Jahre</p>
+        </article>
+        <article class="summary-card">
+          <p>Vermieter-Stände</p>
+          <div class="summary-value" id="summaryLandlordCount">0</div>
+          <p>Mit Objekt- und Mieterlogik</p>
+        </article>
+        <article class="summary-card">
+          <p>Wohnfläche gesamt</p>
+          <div class="summary-value" id="summaryAreaTotal">0,00</div>
+          <p>Flächen aus vermieteten Objekten</p>
+        </article>
+        <article class="summary-card">
+          <p>Archiv gesamt</p>
+          <div class="summary-value" id="summaryAllCount">0</div>
+          <p>Alle gespeicherten Jahresstände</p>
+        </article>
+      </div>
+
+      <div class="layout">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Filter und Sicherung</h2>
+          </div>
+          <div class="panel-body">
+            <div class="form-grid">
+              <div class="field">
+                <label for="filterYear">Nach Jahr filtern</label>
+                <input id="filterYear" type="text" placeholder="z. B. 2026" />
+              </div>
+
+              <div class="field">
+                <label for="filterStatus">Nach Stand filtern</label>
+                <select id="filterStatus">
+                  <option value="">Alle Stände</option>
+                  <option value="Entwurf">Entwurf</option>
+                  <option value="In Arbeit">In Arbeit</option>
+                  <option value="Fertig vorbereitet">Fertig vorbereitet</option>
+                  <option value="Exportiert">Exportiert</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="filterMode">Nach Bereich filtern</label>
+                <select id="filterMode">
+                  <option value="">Alle Bereiche</option>
+                  <option value="eigentuemer">Eigentümer</option>
+                  <option value="vermieter">Vermieter</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="toolbar">
+              <div class="toolbar-left">
+                <button type="button" class="btn btn-primary" id="newOwnerBtn">Neuer Eigentümer-Stand</button>
+                <button type="button" class="btn btn-secondary" id="newLandlordBtn">Neuer Vermieter-Stand</button>
+              </div>
+            </div>
+
+            <div class="toolbar">
+              <div class="toolbar-left">
+                <button type="button" class="btn btn-secondary" id="exportAllBtn">Alle sichern</button>
+                <button type="button" class="btn btn-ghost" id="importBtn">Sicherung einlesen</button>
+              </div>
+              <div class="toolbar-right">
+                <button type="button" class="btn btn-danger" id="clearAllBtn">Alles löschen</button>
+              </div>
+            </div>
+
+            <p class="footer-note">CSV-Dateien lassen sich in Excel oder anderen Tabellenprogrammen öffnen.</p>
+          </div>
+        </section>
+
+        <section class="archive-sections">
+          <section class="archive-section">
+            <div class="section-title">
+              <h2>Eigentümer</h2>
+              <span class="section-pill pill-owner">Getrennt geführt</span>
+            </div>
+            <div id="ownerGrid" class="archive-grid"></div>
+            <div id="ownerEmpty" class="empty-state hidden">
+              <h3>Keine Eigentümer-Stände gefunden</h3>
+              <p>Lege einen neuen Eigentümer-Jahresstand an oder ändere die Filter.</p>
+              <a class="btn btn-primary" href="erfassung-eigentuemer.html">Zur Eigentümer-Erfassung</a>
+            </div>
+          </section>
+
+          <section class="archive-section">
+            <div class="section-title">
+              <h2>Vermieter</h2>
+              <span class="section-pill pill-landlord">Getrennt geführt</span>
+            </div>
+            <div id="landlordGrid" class="archive-grid"></div>
+            <div id="landlordEmpty" class="empty-state hidden">
+              <h3>Keine Vermieter-Stände gefunden</h3>
+              <p>Lege einen neuen Vermieter-Jahresstand an oder ändere die Filter.</p>
+              <a class="btn btn-secondary" href="erfassung-vermieter.html">Zur Vermieter-Erfassung</a>
+            </div>
+          </section>
+        </section>
+      </div>
+
+      <input id="importInput" class="file-input" type="file" accept=".json,application/json" />
+    </div>
+  </main>
+
+  <script>
+    (function(){
+      const ARCHIVE_KEY = 'nebk_archive_v1';
+      const OWNER_DRAFT_KEY = 'nebk_eigentuemer_draft_v1';
+      const LANDLORD_DRAFT_KEY = 'nebk_vermieter_draft_v1';
+
+      const messageBox = document.getElementById('messageBox');
+      const filterYear = document.getElementById('filterYear');
+      const filterStatus = document.getElementById('filterStatus');
+      const filterMode = document.getElementById('filterMode');
+
+      const ownerGrid = document.getElementById('ownerGrid');
+      const landlordGrid = document.getElementById('landlordGrid');
+      const ownerEmpty = document.getElementById('ownerEmpty');
+      const landlordEmpty = document.getElementById('landlordEmpty');
+
+      const summaryOwnerCount = document.getElementById('summaryOwnerCount');
+      const summaryLandlordCount = document.getElementById('summaryLandlordCount');
+      const summaryAreaTotal = document.getElementById('summaryAreaTotal');
+      const summaryAllCount = document.getElementById('summaryAllCount');
+
+      const exportAllBtn = document.getElementById('exportAllBtn');
+      const importBtn = document.getElementById('importBtn');
+      const importInput = document.getElementById('importInput');
+      const clearAllBtn = document.getElementById('clearAllBtn');
+      const newOwnerBtn = document.getElementById('newOwnerBtn');
+      const newLandlordBtn = document.getElementById('newLandlordBtn');
+      const printBtn = document.getElementById('printBtn');
+
+      function showMessage(text, type){
+        messageBox.textContent = text;
+        messageBox.className = 'message show ' + (type === 'error' ? 'message-error' : 'message-success');
+        clearTimeout(showMessage._timer);
+        showMessage._timer = setTimeout(() => {
+          messageBox.className = 'message';
+          messageBox.textContent = '';
+        }, 4200);
+      }
+
+      function safeParse(json){
+        try{return JSON.parse(json);}catch(error){return null;}
+      }
+
+      function getArchive(){
+        const raw = localStorage.getItem(ARCHIVE_KEY);
+        if(!raw) return [];
+        const parsed = safeParse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      }
+
+      function saveArchive(items){
+        localStorage.setItem(ARCHIVE_KEY, JSON.stringify(items));
+      }
+
+      function formatDateTime(iso){
+        if(!iso) return '—';
+        const date = new Date(iso);
+        if(Number.isNaN(date.getTime())) return '—';
+        return date.toLocaleString('de-DE', {
+          day:'2-digit',
+          month:'2-digit',
+          year:'numeric',
+          hour:'2-digit',
+          minute:'2-digit'
+        }).replace(',', ' ·');
+      }
+
+      function formatEuro(value){
+        const num = Number(value);
+        if(!Number.isFinite(num)) return '—';
+        return num.toLocaleString('de-DE', {
+          minimumFractionDigits:2,
+          maximumFractionDigits:2
+        }) + ' €';
+      }
+
+      function formatNumber(value){
+        const num = Number(value);
+        if(!Number.isFinite(num)) return '0,00';
+        return num.toLocaleString('de-DE', {
+          minimumFractionDigits:2,
+          maximumFractionDigits:2
+        });
+      }
+
+      function escapeHtml(value){
+        return String(value || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function toNumber(val){
+        const n = parseFloat(String(val || '').replace(',', '.'));
+        return Number.isFinite(n) ? n : 0;
+      }
+
+      function getModeFromRecord(record){
+        const detailsMode = record.details && record.details.mode ? record.details.mode : '';
+        if(detailsMode === 'eigentuemer' || record.bereich === 'Einfamilienhaus – eigene Übersicht') return 'eigentuemer';
+        if(detailsMode === 'vermieter' || record.bereich === 'Vermieter – Vorbereitung Mieterabrechnung') return 'vermieter';
+        return '';
+      }
+
+      function summarizeRecord(record){
+        const mode = getModeFromRecord(record);
+        const details = record.details || {};
+        const summary = {
+          mode,
+          objects: 0,
+          tenants: 0,
+          area: 0,
+          advance: 0,
+          total: toNumber(record.summe),
+          saldo: 0,
+          allocation: '—',
+          logicText: mode === 'vermieter' ? 'Vermieter-/Mieterlogik' : 'Eigentümerlogik'
+        };
+
+        if(mode === 'eigentuemer'){
+          summary.area = 0;
+          const totalsAdvance = toNumber(details.totals?.advance);
+          summary.advance = totalsAdvance;
+          summary.saldo = summary.total - summary.advance;
+          summary.logicText = 'Eigene Jahresübersicht';
+          return summary;
+        }
+
+        if(mode === 'vermieter'){
+          const objects = Array.isArray(details.objects) ? details.objects : [];
+          summary.objects = objects.length;
+
+          const allocationSet = new Set();
+
+          objects.forEach(obj => {
+            summary.area += toNumber(obj.area);
+            if(obj.allocation) allocationSet.add(obj.allocation);
+
+            summary.advance += toNumber(obj.meters?.power?.advance);
+            summary.advance += toNumber(obj.meters?.gas?.advance);
+            summary.advance += toNumber(obj.meters?.water?.advance);
+            summary.advance += toNumber(obj.meters?.oil?.advance);
+
+            const tenants = Array.isArray(obj.tenants) ? obj.tenants : [];
+            summary.tenants += tenants.length;
+
+            tenants.forEach(tenant => {
+              summary.area += 0;
+              summary.advance += toNumber(tenant.annualAdvance);
+            });
+          });
+
+          summary.saldo = summary.total - summary.advance;
+          summary.allocation = allocationSet.size ? Array.from(allocationSet).join(', ') : '—';
+        }
+
+        return summary;
+      }
+
+      function matchesFilters(record){
+        const yearFilter = filterYear.value.trim().toLowerCase();
+        const statusFilter = filterStatus.value.trim();
+        const modeFilter = filterMode.value.trim();
+
+        const mode = getModeFromRecord(record);
+        const yearOk = !yearFilter || String(record.jahr || '').toLowerCase().includes(yearFilter);
+        const statusOk = !statusFilter || record.status === statusFilter;
+        const modeOk = !modeFilter || mode === modeFilter;
+
+        return yearOk && statusOk && modeOk;
+      }
+
+      function logicPills(record, summary){
+        const pills = [];
+
+        if(summary.mode === 'eigentuemer'){
+          pills.push('<span class="logic-pill mint">Eigentümer-Logik</span>');
+          if(record.details?.meters) pills.push('<span class="logic-pill">Zählerstände</span>');
+          if(summary.advance > 0) pills.push('<span class="logic-pill">Vorauszahlungen</span>');
+        }
+
+        if(summary.mode === 'vermieter'){
+          pills.push('<span class="logic-pill magenta">Vermieter-Logik</span>');
+          if(summary.objects > 0) pills.push('<span class="logic-pill">Objekte</span>');
+          if(summary.tenants > 0) pills.push('<span class="logic-pill">Mieter</span>');
+          if(summary.area > 0) pills.push('<span class="logic-pill">Flächen</span>');
+          if(summary.allocation !== '—') pills.push('<span class="logic-pill">Umlage</span>');
+        }
+
+        return pills.join('');
+      }
+
+      function buildCard(record, mode){
+        const cssClass = mode === 'vermieter' ? 'archive-card landlord' : 'archive-card';
+        const roleLabel = mode === 'vermieter' ? 'Vermieter' : 'Eigentümer';
+        const summary = summarizeRecord(record);
+        const saldoClass = summary.saldo > 0 ? 'saldo-neg' : 'saldo-pos';
+
+        return [
+          '<article class="', cssClass, '">',
+            '<div class="archive-head">',
+              '<div class="year-badge">', escapeHtml(record.jahr || '—'), '</div>',
+              '<div class="status-pill">', escapeHtml(record.status || 'Entwurf'), '</div>',
+            '</div>',
+            '<div class="archive-body">',
+              '<h3>', escapeHtml(record.titel || 'Ohne Bezeichnung'), '</h3>',
+              '<p class="archive-sub">', escapeHtml(roleLabel), ' · ', escapeHtml(record.bereich || '—'), '</p>',
+              '<div class="logic-pills">', logicPills(record, summary), '</div>',
+              '<div class="mini-stats">',
+                '<div class="mini-stat"><div class="mini-stat-label">Objekte</div><div class="mini-stat-value">', escapeHtml(String(summary.objects || 0)), '</div></div>',
+                '<div class="mini-stat"><div class="mini-stat-label">Mieter</div><div class="mini-stat-value">', escapeHtml(String(summary.tenants || 0)), '</div></div>',
+                '<div class="mini-stat"><div class="mini-stat-label">Wohnfläche</div><div class="mini-stat-value">', escapeHtml(formatNumber(summary.area)), ' m²</div></div>',
+                '<div class="mini-stat"><div class="mini-stat-label">Saldo</div><div class="mini-stat-value ', saldoClass, '">', escapeHtml(formatEuro(summary.saldo)), '</div></div>',
+              '</div>',
+              '<ul class="meta-list">',
+                '<li><span class="meta-label">Zeitraum</span><span>', escapeHtml(record.zeitraum || '—'), '</span></li>',
+                '<li><span class="meta-label">Gesamtkosten</span><span>', escapeHtml(formatEuro(summary.total)), '</span></li>',
+                '<li><span class="meta-label">Vorauszahlungen</span><span>', escapeHtml(formatEuro(summary.advance)), '</span></li>',
+                '<li><span class="meta-label">Umlageschlüssel</span><span>', escapeHtml(summary.allocation), '</span></li>',
+                '<li><span class="meta-label">Logik</span><span>', escapeHtml(summary.logicText), '</span></li>',
+                '<li><span class="meta-label">Letzte Änderung</span><span>', escapeHtml(formatDateTime(record.updatedAt)), '</span></li>',
+                '<li><span class="meta-label">Hinweis</span><span>', escapeHtml(record.notiz || '—'), '</span></li>',
+              '</ul>',
+              '<div class="actions">',
+                '<button type="button" class="btn btn-primary btn-small" data-action="open" data-id="', escapeHtml(record.id), '">Öffnen</button>',
+                '<button type="button" class="btn btn-secondary btn-small" data-action="duplicate" data-id="', escapeHtml(record.id), '">Duplizieren</button>',
+                '<button type="button" class="btn btn-ghost btn-small" data-action="csv" data-id="', escapeHtml(record.id), '">Tabelle</button>',
+                '<button type="button" class="btn btn-ghost btn-small" data-action="export" data-id="', escapeHtml(record.id), '">Sichern</button>',
+                '<button type="button" class="btn btn-danger btn-small" data-action="delete" data-id="', escapeHtml(record.id), '">Löschen</button>',
+              '</div>',
+            '</div>',
+          '</article>'
+        ].join('');
+      }
+
+      function updateSummaries(allItems){
+        const owners = allItems.filter(item => getModeFromRecord(item) === 'eigentuemer');
+        const landlords = allItems.filter(item => getModeFromRecord(item) === 'vermieter');
+
+        let areaTotal = 0;
+        landlords.forEach(item => {
+          areaTotal += summarizeRecord(item).area;
+        });
+
+        summaryOwnerCount.textContent = String(owners.length);
+        summaryLandlordCount.textContent = String(landlords.length);
+        summaryAreaTotal.textContent = formatNumber(areaTotal);
+        summaryAllCount.textContent = String(allItems.length);
+      }
+
+      function renderArchive(){
+        const items = getArchive().sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+        updateSummaries(items);
+
+        const filtered = items.filter(matchesFilters);
+        const owners = filtered.filter(item => getModeFromRecord(item) === 'eigentuemer');
+        const landlords = filtered.filter(item => getModeFromRecord(item) === 'vermieter');
+
+        ownerGrid.innerHTML = owners.map(item => buildCard(item, 'eigentuemer')).join('');
+        landlordGrid.innerHTML = landlords.map(item => buildCard(item, 'vermieter')).join('');
+
+        ownerEmpty.classList.toggle('hidden', owners.length > 0);
+        landlordEmpty.classList.toggle('hidden', landlords.length > 0);
+      }
+
+      function downloadFile(filename, content, mimeType){
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 500);
+      }
+
+      function recordToCsv(record){
+        const summary = summarizeRecord(record);
+        const rows = [
+          ['Feld', 'Wert'],
+          ['Bereich', getModeFromRecord(record) === 'vermieter' ? 'Vermieter' : 'Eigentümer'],
+          ['Jahr', record.jahr || ''],
+          ['Bezeichnung', record.titel || ''],
+          ['Stand', record.status || ''],
+          ['Zeitraum', record.zeitraum || ''],
+          ['Gesamtkosten', summary.total],
+          ['Vorauszahlungen', summary.advance],
+          ['Saldo', summary.saldo],
+          ['Objekte', summary.objects],
+          ['Mieter', summary.tenants],
+          ['Wohnfläche gesamt', summary.area],
+          ['Umlageschlüssel', summary.allocation],
+          ['Logik', summary.logicText],
+          ['Hinweis', record.notiz || ''],
+          ['Erstellt am', formatDateTime(record.createdAt)],
+          ['Letzte Änderung', formatDateTime(record.updatedAt)]
+        ];
+
+        return rows.map(row =>
+          row.map(cell => `"${String(cell == null ? '' : cell).replace(/"/g, '""')}"`).join(';')
+        ).join('\n');
+      }
+
+      function findRecordById(id){
+        return getArchive().find(item => item.id === id) || null;
+      }
+
+      function saveDraftAndOpen(record){
+        const mode = getModeFromRecord(record);
+        if(mode === 'eigentuemer'){
+          localStorage.setItem(OWNER_DRAFT_KEY, JSON.stringify(record.details || {}));
+          window.location.href = 'erfassung-eigentuemer.html';
+          return;
+        }
+        if(mode === 'vermieter'){
+          localStorage.setItem(LANDLORD_DRAFT_KEY, JSON.stringify(record.details || {}));
+          window.location.href = 'erfassung-vermieter.html';
+          return;
+        }
+        showMessage('Der Bereich dieses Eintrags konnte nicht erkannt werden.', 'error');
+      }
+
+      function duplicateRecord(record){
+        const mode = getModeFromRecord(record);
+        const suggested = String(Number(record.jahr || new Date().getFullYear()) + 1);
+        const newYear = window.prompt('Bitte neues Jahr für die Kopie eingeben:', suggested);
+        if(newYear === null) return;
+
+        const yearValue = String(newYear).trim();
+        if(!/^\d{4}$/.test(yearValue)){
+          showMessage('Bitte ein gültiges Jahr mit vier Ziffern eingeben.', 'error');
+          return;
+        }
+
+        const copiedDetails = safeParse(JSON.stringify(record.details || {})) || {};
+        if(copiedDetails.master){
+          copiedDetails.master.year = yearValue;
+          copiedDetails.master.status = 'Entwurf';
+        }
+
+        const copy = {
+          ...record,
+          id: 'jahr_' + yearValue + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+          jahr: yearValue,
+          status: 'Entwurf',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          details: copiedDetails
+        };
+
+        const items = getArchive();
+        items.push(copy);
+        saveArchive(items);
+        renderArchive();
+        showMessage((mode === 'vermieter' ? 'Vermieter-' : 'Eigentümer-') + 'Stand wurde kopiert.', 'success');
+      }
+
+      function exportRecord(record){
+        const filename =
+          (getModeFromRecord(record) === 'vermieter' ? 'vermieter-' : 'eigentuemer-') +
+          (record.jahr || 'jahr') + '.json';
+
+        downloadFile(filename, JSON.stringify(record, null, 2), 'application/json;charset=utf-8');
+        showMessage('Der Jahresstand wurde gesichert.', 'success');
+      }
+
+      function exportAll(){
+        const items = getArchive();
+        if(!items.length){
+          showMessage('Es gibt noch keine Jahresstände zum Sichern.', 'error');
+          return;
+        }
+        const payload = {
+          exportType: 'nebk_archive_export',
+          version: 3,
+          exportedAt: new Date().toISOString(),
+          items: items
+        };
+        const filename = 'nebenkosten-archiv-' + new Date().toISOString().slice(0,10) + '.json';
+        downloadFile(filename, JSON.stringify(payload, null, 2), 'application/json;charset=utf-8');
+        showMessage('Das Archiv wurde gesichert.', 'success');
+      }
+
+      function importArchiveFromFile(file){
+        const reader = new FileReader();
+
+        reader.onload = function(){
+          const parsed = safeParse(reader.result);
+          if(!parsed){
+            showMessage('Die gewählte Datei konnte nicht gelesen werden.', 'error');
+            return;
+          }
+
+          const imported = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.items) ? parsed.items : []);
+          if(!imported.length){
+            showMessage('Die Datei enthält keine passenden Archivdaten.', 'error');
+            return;
+          }
+
+          const cleaned = imported.filter(item => item && typeof item === 'object' && item.id && item.jahr);
+          if(!cleaned.length){
+            showMessage('In der Datei wurden keine nutzbaren Jahresstände gefunden.', 'error');
+            return;
+          }
+
+          const current = getArchive();
+          const byId = new Map();
+          current.forEach(item => byId.set(item.id, item));
+          cleaned.forEach(item => byId.set(item.id, item));
+
+          saveArchive(Array.from(byId.values()));
+          renderArchive();
+          showMessage('Die Sicherung wurde eingelesen.', 'success');
+        };
+
+        reader.onerror = function(){
+          showMessage('Die Datei konnte nicht eingelesen werden.', 'error');
+        };
+
+        reader.readAsText(file, 'utf-8');
+      }
+
+      function deleteRecord(id){
+        const ok = window.confirm('Möchtest du diesen Jahresstand wirklich löschen?');
+        if(!ok) return;
+        saveArchive(getArchive().filter(item => item.id !== id));
+        renderArchive();
+        showMessage('Der Jahresstand wurde gelöscht.', 'success');
+      }
+
+      function clearAll(){
+        const items = getArchive();
+        if(!items.length){
+          showMessage('Es gibt noch keine Jahresstände im Archiv.', 'error');
+          return;
+        }
+        const ok = window.confirm('Möchtest du wirklich das komplette Archiv löschen?');
+        if(!ok) return;
+        localStorage.removeItem(ARCHIVE_KEY);
+        renderArchive();
+        showMessage('Das komplette Archiv wurde gelöscht.', 'success');
+      }
+
+      function handleAction(event){
+        const button = event.target.closest('[data-action]');
+        if(!button) return;
+
+        const action = button.getAttribute('data-action');
+        const id = button.getAttribute('data-id');
+        const record = findRecordById(id);
+
+        if(!record){
+          showMessage('Der ausgewählte Jahresstand wurde nicht gefunden.', 'error');
+          renderArchive();
+          return;
+        }
+
+        if(action === 'open'){ saveDraftAndOpen(record); return; }
+        if(action === 'duplicate'){ duplicateRecord(record); return; }
+        if(action === 'csv'){
+          const csv = recordToCsv(record);
+          const prefix = getModeFromRecord(record) === 'vermieter' ? 'vermieter-' : 'eigentuemer-';
+          downloadFile(prefix + (record.jahr || 'jahr') + '.csv', '\uFEFF' + csv, 'text/csv;charset=utf-8');
+          showMessage('Die Tabellen-Datei wurde heruntergeladen.', 'success');
+          return;
+        }
+        if(action === 'export'){ exportRecord(record); return; }
+        if(action === 'delete'){ deleteRecord(id); }
+      }
+
+      [filterYear, filterStatus, filterMode].forEach(el => {
+        el.addEventListener('input', renderArchive);
+        el.addEventListener('change', renderArchive);
+      });
+
+      ownerGrid.addEventListener('click', handleAction);
+      landlordGrid.addEventListener('click', handleAction);
+
+      exportAllBtn.addEventListener('click', exportAll);
+      importBtn.addEventListener('click', () => importInput.click());
+      importInput.addEventListener('change', event => {
+        const file = event.target.files && event.target.files[0];
+        if(file) importArchiveFromFile(file);
+        event.target.value = '';
+      });
+
+      clearAllBtn.addEventListener('click', clearAll);
+      newOwnerBtn.addEventListener('click', () => window.location.href = 'erfassung-eigentuemer.html');
+      newLandlordBtn.addEventListener('click', () => window.location.href = 'erfassung-vermieter.html');
+      printBtn.addEventListener('click', () => window.print());
+
+      renderArchive();
+    })();
+  </script>
+</body>
+</html>
 
