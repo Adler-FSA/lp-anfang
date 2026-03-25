@@ -953,6 +953,7 @@
     │   │   ├── erfassung.html
     │   │   ├── hilfe-und-hinweise.html
     │   │   ├── index.html
+    │   │   ├── kontakte-und-dienstleister.html
     │   │   ├── modul-1-einfuehrung-und-ueberblick.html
     │   │   ├── modul-2-kostenarten-verstehen.html
     │   │   ├── modul-3-unterlagen-und-angaben-ordnen.html
@@ -1326,4 +1327,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.03.2026, 10:42)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.03.2026, 11:37)_
