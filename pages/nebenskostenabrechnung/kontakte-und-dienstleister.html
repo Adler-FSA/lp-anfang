@@ -1,0 +1,1466 @@
+<!doctype html>
+<!--
+  Nebenkostenabrechnung – Kontakte und Dienstleister
+  GitHub-Pfad: lp-anfang/pages/nebenskostenabrechnung/kontakte-und-dienstleister.html
+  Commit-Message: nebenkostenabrechnung – kontakte und dienstleister als eigener kursbaustein mit localstorage filter export import und druck aufgebaut
+  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/nebenskostenabrechnung/kontakte-und-dienstleister.html?nocache=__TS__
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kontakte und Dienstleister | Nebenkostenabrechnung</title>
+  <meta name="description" content="Kontaktzentrale für Eigentümer und Vermieter mit Dienstleistern, Objektzuordnung, Prioritäten, Notizen, Filter, Export, Import und Druckfunktion." />
+  <meta name="robots" content="index,follow" />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --bg-soft:#f8f8f8;
+      --panel:#ffffff;
+      --panel-soft:#f5f7f8;
+      --text:#111111;
+      --muted:#555555;
+      --line:#e7e7e7;
+      --mint:#20d8b2;
+      --mint-strong:#11b995;
+      --mint-soft:rgba(32,216,178,.10);
+      --magenta:#ff4fb3;
+      --magenta-strong:#e72897;
+      --magenta-soft:rgba(255,79,179,.10);
+      --danger:#c62828;
+      --danger-soft:rgba(198,40,40,.08);
+      --warn:#b26a00;
+      --warn-soft:rgba(178,106,0,.08);
+      --shadow:0 10px 30px rgba(17,17,17,.06);
+      --maxw:1300px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at top right, rgba(255,79,179,.10), transparent 24%),
+        radial-gradient(circle at top left, rgba(32,216,178,.12), transparent 24%),
+        var(--bg);
+      color:var(--text);
+      font-family:Arial, Helvetica, sans-serif;
+      font-size:18px;
+      line-height:1.65;
+    }
+
+    a{color:inherit;text-decoration:none}
+
+    .container{
+      width:min(var(--maxw), calc(100% - 48px));
+      margin:0 auto;
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      backdrop-filter:blur(10px);
+      background:rgba(255,255,255,.88);
+      border-bottom:1px solid rgba(17,17,17,.08);
+    }
+
+    .topbar-inner{
+      width:min(var(--maxw), calc(100% - 48px));
+      margin:0 auto;
+      min-height:74px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+
+    .brand-mark{
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      background:linear-gradient(135deg, rgba(32,216,178,.10), rgba(255,79,179,.10));
+      border:1px solid rgba(17,17,17,.08);
+      display:grid;
+      place-items:center;
+      box-shadow:var(--shadow);
+      flex:0 0 auto;
+    }
+
+    .brand-mark svg{width:24px;height:24px;display:block}
+
+    .brand-kicker{
+      margin:0 0 2px;
+      font-size:12px;
+      line-height:1.2;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      color:var(--magenta-strong);
+      font-weight:700;
+    }
+
+    .brand-title{
+      margin:0;
+      font-size:18px;
+      line-height:1.2;
+      font-weight:700;
+    }
+
+    .top-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .btn,
+    button{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      font:inherit;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      min-height:46px;
+      padding:12px 18px;
+      border-radius:999px;
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+      font-weight:700;
+      white-space:nowrap;
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--mint);color:#05241d;box-shadow:0 10px 24px rgba(32,216,178,.20)}
+    .btn-secondary{background:#fff;color:var(--magenta-strong);border:1px solid rgba(255,79,179,.40)}
+    .btn-ghost{background:#fff;color:var(--text);border:1px solid rgba(17,17,17,.10)}
+    .btn-danger{background:#fff;color:var(--danger);border:1px solid rgba(198,40,40,.25)}
+    .btn-small{min-height:40px;padding:10px 14px;border-radius:12px;font-size:15px}
+
+    .page{padding:34px 0 48px}
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,248,248,.96));
+      border:1px solid var(--line);
+      border-radius:30px;
+      box-shadow:var(--shadow);
+      padding:34px;
+      margin-bottom:22px;
+    }
+
+    .hero::before,
+    .hero::after{
+      content:"";
+      position:absolute;
+      border-radius:999px;
+      pointer-events:none;
+    }
+
+    .hero::before{
+      width:300px;
+      height:300px;
+      right:-100px;
+      top:-120px;
+      background:radial-gradient(circle, rgba(255,79,179,.18), transparent 68%);
+    }
+
+    .hero::after{
+      width:240px;
+      height:240px;
+      left:-70px;
+      bottom:-80px;
+      background:radial-gradient(circle, rgba(32,216,178,.18), transparent 68%);
+    }
+
+    .hero-inner{
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns:minmax(0,1.08fr) minmax(290px,.92fr);
+      gap:26px;
+      align-items:start;
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      margin:0 0 18px;
+      padding:8px 14px;
+      border-radius:999px;
+      background:var(--magenta-soft);
+      color:var(--magenta-strong);
+      font-size:13px;
+      line-height:1.2;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+
+    h1{margin:0 0 16px;font-size:42px;line-height:1.15;letter-spacing:-.02em}
+    h2{margin:0 0 14px;font-size:28px;line-height:1.2;letter-spacing:-.02em}
+    h3{margin:0 0 10px;font-size:21px;line-height:1.2;letter-spacing:-.02em}
+
+    .lead{
+      margin:0 0 16px;
+      font-size:21px;
+      line-height:1.55;
+      color:var(--muted);
+      max-width:760px;
+    }
+
+    .hero-copy p{margin:0 0 14px}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+    .hero-side{display:grid;gap:16px}
+
+    .mini-card,
+    .panel,
+    .summary-card,
+    .contact-card,
+    .empty-state,
+    .message,
+    .mode-card{
+      background:#fff;
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+    }
+
+    .mini-card{
+      border-radius:20px;
+      padding:20px;
+    }
+
+    .mini-card p{
+      margin:0;
+      color:var(--muted);
+      font-size:16px;
+      line-height:1.55;
+    }
+
+    .icon-line{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .icon-badge{
+      width:38px;
+      height:38px;
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+      background:var(--mint-soft);
+      border:1px solid rgba(32,216,178,.20);
+    }
+
+    .icon-badge.magenta{
+      background:var(--magenta-soft);
+      border-color:rgba(255,79,179,.20);
+    }
+
+    .icon-badge svg{width:20px;height:20px;display:block}
+
+    .message{
+      display:none;
+      border-radius:18px;
+      padding:14px 16px;
+      font-size:15px;
+      font-weight:700;
+      margin-bottom:16px;
+    }
+    .message.show{display:block}
+    .message-success{background:var(--mint-soft);border-color:rgba(32,216,178,.24);color:#0b6b57}
+    .message-error{background:var(--danger-soft);border-color:rgba(198,40,40,.22);color:var(--danger)}
+
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:16px;
+      margin-bottom:22px;
+    }
+
+    .summary-card{
+      border-radius:22px;
+      padding:20px;
+    }
+
+    .summary-label{
+      font-size:14px;
+      color:#666;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      font-weight:700;
+      margin-bottom:6px;
+    }
+
+    .summary-value{
+      font-size:30px;
+      line-height:1.1;
+      font-weight:700;
+    }
+
+    .summary-note{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:15px;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:minmax(340px,420px) minmax(0,1fr);
+      gap:22px;
+      align-items:start;
+    }
+
+    .panel{
+      border-radius:24px;
+      overflow:hidden;
+    }
+
+    .panel-head{padding:22px 22px 0}
+    .panel-body{padding:22px}
+
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:18px;
+    }
+
+    .toolbar.compact{margin-bottom:0}
+    .toolbar-left,
+    .toolbar-right{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+    }
+
+    .form-grid{display:grid;gap:14px}
+    .field-row-2,
+    .field-row-3{
+      display:grid;
+      gap:14px;
+    }
+    .field-row-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .field-row-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+    .field{
+      display:grid;
+      gap:8px;
+    }
+
+    .field label{
+      font-size:14px;
+      line-height:1.2;
+      font-weight:700;
+      color:#2a2a2a;
+    }
+
+    input,
+    select,
+    textarea{
+      width:100%;
+      min-width:0;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px 16px;
+      background:#fff;
+      color:var(--text);
+      transition:border-color .18s ease, box-shadow .18s ease;
+      font:inherit;
+    }
+
+    textarea{
+      min-height:110px;
+      resize:vertical;
+    }
+
+    input::placeholder,
+    textarea::placeholder{
+      color:#9a9a9a;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus{
+      outline:none;
+      border-color:var(--mint);
+      box-shadow:0 0 0 4px rgba(32,216,178,.14);
+    }
+
+    .mode-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .mode-card{
+      border-radius:18px;
+      padding:18px;
+      cursor:pointer;
+      transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    }
+
+    .mode-card:hover{transform:translateY(-1px)}
+    .mode-card.active.owner{
+      border-color:rgba(32,216,178,.40);
+      box-shadow:0 0 0 4px rgba(32,216,178,.12), var(--shadow);
+    }
+    .mode-card.active.landlord{
+      border-color:rgba(255,79,179,.40);
+      box-shadow:0 0 0 4px rgba(255,79,179,.12), var(--shadow);
+    }
+
+    .mode-card h3{font-size:18px;margin:0 0 6px}
+    .mode-card p{margin:0;color:var(--muted);font-size:15px}
+
+    .helper{
+      margin:0;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .contact-grid{
+      display:grid;
+      gap:16px;
+    }
+
+    .contact-card{
+      border-radius:24px;
+      overflow:hidden;
+    }
+
+    .contact-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      padding:22px 22px 0;
+    }
+
+    .contact-body{
+      padding:18px 22px 22px;
+      display:grid;
+      gap:14px;
+    }
+
+    .contact-title{
+      margin:0;
+      font-size:24px;
+      line-height:1.2;
+    }
+
+    .contact-sub{
+      margin:4px 0 0;
+      color:var(--muted);
+    }
+
+    .pill-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+      background:#f3f3f3;
+      color:#555;
+    }
+
+    .pill.owner{background:var(--mint-soft);color:var(--mint-strong)}
+    .pill.landlord{background:var(--magenta-soft);color:var(--magenta-strong)}
+    .pill.priority-emergency{background:var(--danger-soft);color:var(--danger)}
+    .pill.priority-regular{background:var(--mint-soft);color:var(--mint-strong)}
+    .pill.priority-occasionally{background:var(--warn-soft);color:var(--warn)}
+
+    .meta-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .meta-box{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px;
+      background:var(--bg-soft);
+    }
+
+    .meta-label{
+      font-size:12px;
+      line-height:1.2;
+      color:#666;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      font-weight:700;
+      margin-bottom:6px;
+    }
+
+    .meta-value{
+      font-size:18px;
+      line-height:1.2;
+      font-weight:700;
+      word-break:break-word;
+    }
+
+    .contact-note{
+      margin:0;
+      color:var(--muted);
+    }
+
+    .empty-state{
+      border-style:dashed;
+      border-radius:24px;
+      padding:34px 24px;
+      text-align:center;
+    }
+
+    .empty-state h3{
+      margin:0 0 10px;
+      font-size:26px;
+    }
+
+    .empty-state p{
+      margin:0 0 18px;
+      color:var(--muted);
+    }
+
+    .file-input{
+      position:absolute;
+      left:-9999px;
+      width:1px;
+      height:1px;
+      opacity:0;
+      pointer-events:none;
+    }
+
+    .hidden{display:none !important}
+
+    @media (max-width:1150px){
+      .layout{grid-template-columns:1fr}
+      .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .meta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+
+    @media (max-width:980px){
+      .hero-inner,
+      .mode-grid,
+      .field-row-3,
+      .field-row-2{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:780px){
+      body{font-size:17px}
+      .container,.topbar-inner{width:min(var(--maxw), calc(100% - 28px))}
+      .topbar-inner{
+        min-height:unset;
+        padding:12px 0;
+        align-items:flex-start;
+        flex-direction:column;
+      }
+      .top-actions{width:100%;justify-content:flex-start}
+      .page{padding:20px 0 34px}
+      .hero{padding:22px}
+      h1{font-size:30px}
+      h2{font-size:24px}
+      h3{font-size:20px}
+      .lead{font-size:19px}
+      .btn{width:100%}
+      .hero-actions{flex-direction:column}
+      .summary-grid,
+      .meta-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media print{
+      .topbar,.btn,.toolbar,.panel:first-of-type{display:none !important}
+      body{background:#fff;font-size:12pt}
+      .hero,.summary-card,.panel,.contact-card,.empty-state,.mode-card,.mini-card{
+        box-shadow:none !important;
+        border:1px solid #cfcfcf !important;
+      }
+      .container{width:100%}
+      .page{padding:0}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none">
+            <path d="M13 32c0-10.493 8.507-19 19-19h19v19c0 10.493-8.507 19-19 19H13V32Z" fill="url(#g1)"/>
+            <path d="M13 13h19c10.493 0 19 8.507 19 19v19H32c-10.493 0-19-8.507-19-19V13Z" fill="url(#g2)" opacity=".78"/>
+            <defs>
+              <linearGradient id="g1" x1="13" y1="13" x2="51" y2="51"><stop stop-color="#20d8b2"/><stop offset="1" stop-color="#11b995"/></linearGradient>
+              <linearGradient id="g2" x1="13" y1="13" x2="51" y2="51"><stop stop-color="#ff4fb3"/><stop offset="1" stop-color="#e72897"/></linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <p class="brand-kicker">Kontaktzentrale</p>
+          <p class="brand-title">Kontakte und Dienstleister</p>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <a class="btn btn-secondary" href="index.html">Zur Steuerzentrale</a>
+        <a class="btn btn-ghost" href="archiv.html">Archiv</a>
+        <button class="btn btn-primary" type="button" id="printBtn">Seite drucken / PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="page">
+    <div class="container">
+      <section class="hero">
+        <div class="hero-inner">
+          <div class="hero-copy">
+            <p class="eyebrow">Ansprechpartner · Wartung · Notfälle</p>
+            <h1>Kontakte und Dienstleister</h1>
+            <p class="lead">Hier sammelst du wichtige Kontakte rund um Haus, Objekt, Wartung, Versorgung, Prüfungen und Notfälle.</p>
+            <p>Die Seite passt als eigener Baustein zum Kurs: Zahlen, Dokumente und Jahresstände bleiben sauber organisiert — und zusätzlich sind die richtigen Ansprechpartner direkt mit erfasst.</p>
+
+            <div class="hero-actions">
+              <button type="button" class="btn btn-primary" id="saveBtnTop">Kontakt speichern</button>
+              <button type="button" class="btn btn-secondary" id="resetBtnTop">Formular zurücksetzen</button>
+            </div>
+          </div>
+
+          <div class="hero-side">
+            <div class="mini-card">
+              <div class="icon-line">
+                <div class="icon-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M5 5h14v14H5z" stroke="#11b995" stroke-width="1.8"/><path d="M8 9h8M8 12h8M8 15h5" stroke="#11b995" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </div>
+                <div><h3>Eigentümer oder Vermieter</h3><p>Kontakte können für Eigentümer direkt oder für Vermieter objektbezogen geführt werden.</p></div>
+              </div>
+            </div>
+
+            <div class="mini-card">
+              <div class="icon-line">
+                <div class="icon-badge magenta" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 4 5 8v4c0 4.2 3 8.1 7 9 4-0.9 7-4.8 7-9V8l-7-4Z" stroke="#e72897" stroke-width="1.8"/><path d="m9.3 12 1.8 1.8 3.6-3.6" stroke="#e72897" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div><h3>Wirklich praktisch</h3><p>So entsteht eine Sammlung für Gärtner, Wartung, Strom, Wasser, Gas, Heizöl, Pool, Prüfdienste und weitere Ansprechpartner.</p></div>
+              </div>
+            </div>
+
+            <div class="mini-card">
+              <div class="icon-line">
+                <div class="icon-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M7 5h10M7 12h10M7 19h10" stroke="#11b995" stroke-width="1.8" stroke-linecap="round"/><path d="M4 5h.01M4 12h.01M4 19h.01" stroke="#11b995" stroke-width="2.6" stroke-linecap="round"/></svg>
+                </div>
+                <div><h3>Erweiterbar</h3><p>Kontakte lassen sich filtern, exportieren, importieren, drucken und später weiter ausbauen.</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="messageBox" class="message" aria-live="polite"></div>
+
+      <div class="summary-grid">
+        <article class="summary-card">
+          <div class="summary-label">Kontakte gesamt</div>
+          <div class="summary-value" id="summaryTotal">0</div>
+          <div class="summary-note">Alle gespeicherten Ansprechpartner</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Notfallkontakte</div>
+          <div class="summary-value" id="summaryEmergency">0</div>
+          <div class="summary-note">Schnell auffindbare Notfallkontakte</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Aktive Kontakte</div>
+          <div class="summary-value" id="summaryActive">0</div>
+          <div class="summary-note">Aktuell genutzte Einträge</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Objektkontakte</div>
+          <div class="summary-value" id="summaryObject">0</div>
+          <div class="summary-note">Mit konkreter Objektzuordnung</div>
+        </article>
+      </div>
+
+      <div class="layout">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Kontakt anlegen oder bearbeiten</h2>
+          </div>
+          <div class="panel-body">
+            <div class="form-grid">
+              <div class="mode-grid">
+                <button type="button" class="mode-card owner active" id="modeOwnerBtn">
+                  <h3>Eigentümer</h3>
+                  <p>Eigene Hauskontakte und direkte Ansprechpartner</p>
+                </button>
+                <button type="button" class="mode-card landlord" id="modeLandlordBtn">
+                  <h3>Vermieter</h3>
+                  <p>Objektbezogene Kontakte und Dienstleister</p>
+                </button>
+              </div>
+
+              <div class="field-row-2">
+                <div class="field">
+                  <label for="contactCategory">Kategorie</label>
+                  <select id="contactCategory">
+                    <option value="Strom">Strom</option>
+                    <option value="Gas">Gas</option>
+                    <option value="Wasser">Wasser</option>
+                    <option value="Heizöl">Heizöl</option>
+                    <option value="Heizung / Wartung">Heizung / Wartung</option>
+                    <option value="Sanitär / Gas / Wasser">Sanitär / Gas / Wasser</option>
+                    <option value="Elektriker">Elektriker</option>
+                    <option value="Schornsteinfeger">Schornsteinfeger</option>
+                    <option value="TÜV / Prüfungen">TÜV / Prüfungen</option>
+                    <option value="Gärtner">Gärtner</option>
+                    <option value="Winterdienst">Winterdienst</option>
+                    <option value="Pool / Poolwartung">Pool / Poolwartung</option>
+                    <option value="Dach / Fassade">Dach / Fassade</option>
+                    <option value="Reinigung">Reinigung</option>
+                    <option value="Hausmeister">Hausmeister</option>
+                    <option value="Sicherheit / Alarmanlage">Sicherheit / Alarmanlage</option>
+                    <option value="Versicherung">Versicherung</option>
+                    <option value="Steuerberater">Steuerberater</option>
+                    <option value="Anwalt">Anwalt</option>
+                    <option value="Sonstiges">Sonstiges</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="contactPriority">Priorität</label>
+                  <select id="contactPriority">
+                    <option value="Regelmäßig">Regelmäßig</option>
+                    <option value="Notfall">Notfall</option>
+                    <option value="Gelegentlich">Gelegentlich</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field-row-2">
+                <div class="field">
+                  <label for="companyName">Firmenname</label>
+                  <input id="companyName" type="text" placeholder="z. B. Stadtwerke oder Gartenservice Müller" />
+                </div>
+                <div class="field">
+                  <label for="contactPerson">Ansprechpartner</label>
+                  <input id="contactPerson" type="text" placeholder="Name Ansprechpartner" />
+                </div>
+              </div>
+
+              <div class="field-row-3">
+                <div class="field">
+                  <label for="phone">Telefon</label>
+                  <input id="phone" type="text" placeholder="Telefonnummer" />
+                </div>
+                <div class="field">
+                  <label for="mobile">Mobil</label>
+                  <input id="mobile" type="text" placeholder="Mobilnummer" />
+                </div>
+                <div class="field">
+                  <label for="email">E-Mail</label>
+                  <input id="email" type="email" placeholder="E-Mail-Adresse" />
+                </div>
+              </div>
+
+              <div class="field-row-2">
+                <div class="field">
+                  <label for="website">Website</label>
+                  <input id="website" type="text" placeholder="z. B. https://..." />
+                </div>
+                <div class="field">
+                  <label for="serviceArea">Leistung / Aufgabenbereich</label>
+                  <input id="serviceArea" type="text" placeholder="z. B. Wartung, Reparatur, Prüfung" />
+                </div>
+              </div>
+
+              <div class="field-row-3">
+                <div class="field">
+                  <label for="street">Straße / Hausnummer</label>
+                  <input id="street" type="text" placeholder="Straße und Hausnummer" />
+                </div>
+                <div class="field">
+                  <label for="zip">PLZ</label>
+                  <input id="zip" type="text" placeholder="PLZ" />
+                </div>
+                <div class="field">
+                  <label for="city">Ort</label>
+                  <input id="city" type="text" placeholder="Ort" />
+                </div>
+              </div>
+
+              <div class="field-row-3">
+                <div class="field">
+                  <label for="objectAssignment">Objektzuordnung</label>
+                  <input id="objectAssignment" type="text" placeholder="z. B. alle Objekte oder Haus A" />
+                </div>
+                <div class="field">
+                  <label for="customerNumber">Kunden-/Vertragsnummer</label>
+                  <input id="customerNumber" type="text" placeholder="Nummer" />
+                </div>
+                <div class="field">
+                  <label for="cycle">Rhythmus</label>
+                  <select id="cycle">
+                    <option value="nach Bedarf">nach Bedarf</option>
+                    <option value="einmalig">einmalig</option>
+                    <option value="monatlich">monatlich</option>
+                    <option value="quartalsweise">quartalsweise</option>
+                    <option value="halbjährlich">halbjährlich</option>
+                    <option value="jährlich">jährlich</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field-row-3">
+                <div class="field">
+                  <label for="lastAction">Letzter Einsatz / letzter Termin</label>
+                  <input id="lastAction" type="date" />
+                </div>
+                <div class="field">
+                  <label for="nextAction">Nächster geplanter Termin</label>
+                  <input id="nextAction" type="date" />
+                </div>
+                <div class="field">
+                  <label for="activeState">Status</label>
+                  <select id="activeState">
+                    <option value="aktiv">aktiv</option>
+                    <option value="inaktiv">inaktiv</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="contactNote">Notiz</label>
+                <textarea id="contactNote" placeholder="Freie Notiz, Besonderheiten, Erreichbarkeit, Hinweise zum Objekt oder zu wiederkehrenden Leistungen."></textarea>
+              </div>
+
+              <p class="helper">Alles wird lokal auf diesem Gerät gespeichert.</p>
+
+              <div class="toolbar compact">
+                <div class="toolbar-left">
+                  <button type="button" class="btn btn-primary" id="saveBtn">Kontakt speichern</button>
+                  <button type="button" class="btn btn-secondary" id="duplicateBtn">Kontakt duplizieren</button>
+                </div>
+                <div class="toolbar-right">
+                  <button type="button" class="btn btn-ghost" id="resetBtn">Formular zurücksetzen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="toolbar compact">
+              <div class="toolbar-left"><h2>Gespeicherte Kontakte</h2></div>
+              <div class="toolbar-right">
+                <button type="button" class="btn btn-secondary btn-small" id="exportBtn">Alle sichern</button>
+                <button type="button" class="btn btn-ghost btn-small" id="importBtn">Sicherung einlesen</button>
+                <button type="button" class="btn btn-danger btn-small" id="clearBtn">Alle löschen</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <div class="toolbar">
+              <div class="toolbar-left">
+                <div class="field" style="min-width:220px;">
+                  <label for="searchInput">Suche</label>
+                  <input id="searchInput" type="text" placeholder="Name, Firma, Kategorie, Ort ..." />
+                </div>
+              </div>
+              <div class="toolbar-right">
+                <div class="field" style="min-width:180px;">
+                  <label for="filterMode">Bereich</label>
+                  <select id="filterMode">
+                    <option value="">Alle Bereiche</option>
+                    <option value="eigentuemer">Eigentümer</option>
+                    <option value="vermieter">Vermieter</option>
+                  </select>
+                </div>
+                <div class="field" style="min-width:180px;">
+                  <label for="filterCategory">Kategorie</label>
+                  <select id="filterCategory">
+                    <option value="">Alle Kategorien</option>
+                  </select>
+                </div>
+                <div class="field" style="min-width:180px;">
+                  <label for="filterPriority">Priorität</label>
+                  <select id="filterPriority">
+                    <option value="">Alle Prioritäten</option>
+                    <option value="Notfall">Notfall</option>
+                    <option value="Regelmäßig">Regelmäßig</option>
+                    <option value="Gelegentlich">Gelegentlich</option>
+                  </select>
+                </div>
+                <div class="field" style="min-width:180px;">
+                  <label for="filterState">Status</label>
+                  <select id="filterState">
+                    <option value="">Alle</option>
+                    <option value="aktiv">aktiv</option>
+                    <option value="inaktiv">inaktiv</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div id="contactGrid" class="contact-grid"></div>
+
+            <div id="emptyState" class="empty-state hidden">
+              <h3>Noch keine Kontakte vorhanden</h3>
+              <p>Lege den ersten Ansprechpartner an, damit deine Kontaktzentrale wächst.</p>
+              <button type="button" class="btn btn-primary" id="emptyCreateBtn">Jetzt Kontakt anlegen</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <input id="importInput" class="file-input" type="file" accept=".json,application/json" />
+    </div>
+  </main>
+
+  <script>
+    (function(){
+      const STORAGE_KEY = 'nebk_contacts_v1';
+
+      const messageBox = document.getElementById('messageBox');
+
+      const modeOwnerBtn = document.getElementById('modeOwnerBtn');
+      const modeLandlordBtn = document.getElementById('modeLandlordBtn');
+
+      const contactCategory = document.getElementById('contactCategory');
+      const contactPriority = document.getElementById('contactPriority');
+      const companyName = document.getElementById('companyName');
+      const contactPerson = document.getElementById('contactPerson');
+      const phone = document.getElementById('phone');
+      const mobile = document.getElementById('mobile');
+      const email = document.getElementById('email');
+      const website = document.getElementById('website');
+      const serviceArea = document.getElementById('serviceArea');
+      const street = document.getElementById('street');
+      const zip = document.getElementById('zip');
+      const city = document.getElementById('city');
+      const objectAssignment = document.getElementById('objectAssignment');
+      const customerNumber = document.getElementById('customerNumber');
+      const cycle = document.getElementById('cycle');
+      const lastAction = document.getElementById('lastAction');
+      const nextAction = document.getElementById('nextAction');
+      const activeState = document.getElementById('activeState');
+      const contactNote = document.getElementById('contactNote');
+
+      const saveBtn = document.getElementById('saveBtn');
+      const saveBtnTop = document.getElementById('saveBtnTop');
+      const resetBtn = document.getElementById('resetBtn');
+      const resetBtnTop = document.getElementById('resetBtnTop');
+      const duplicateBtn = document.getElementById('duplicateBtn');
+
+      const searchInput = document.getElementById('searchInput');
+      const filterMode = document.getElementById('filterMode');
+      const filterCategory = document.getElementById('filterCategory');
+      const filterPriority = document.getElementById('filterPriority');
+      const filterState = document.getElementById('filterState');
+
+      const contactGrid = document.getElementById('contactGrid');
+      const emptyState = document.getElementById('emptyState');
+      const emptyCreateBtn = document.getElementById('emptyCreateBtn');
+
+      const exportBtn = document.getElementById('exportBtn');
+      const importBtn = document.getElementById('importBtn');
+      const importInput = document.getElementById('importInput');
+      const clearBtn = document.getElementById('clearBtn');
+      const printBtn = document.getElementById('printBtn');
+
+      const summaryTotal = document.getElementById('summaryTotal');
+      const summaryEmergency = document.getElementById('summaryEmergency');
+      const summaryActive = document.getElementById('summaryActive');
+      const summaryObject = document.getElementById('summaryObject');
+
+      let currentMode = 'eigentuemer';
+      let currentEditId = '';
+
+      function showMessage(text, type){
+        messageBox.textContent = text;
+        messageBox.className = 'message show ' + (type === 'error' ? 'message-error' : 'message-success');
+        clearTimeout(showMessage._timer);
+        showMessage._timer = setTimeout(() => {
+          messageBox.className = 'message';
+          messageBox.textContent = '';
+        }, 4200);
+      }
+
+      function getContacts(){
+        try{
+          const raw = localStorage.getItem(STORAGE_KEY);
+          const parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed) ? parsed : [];
+        }catch(error){
+          return [];
+        }
+      }
+
+      function saveContacts(items){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      }
+
+      function setMode(mode){
+        currentMode = mode;
+        modeOwnerBtn.classList.toggle('active', mode === 'eigentuemer');
+        modeLandlordBtn.classList.toggle('active', mode === 'vermieter');
+        modeOwnerBtn.classList.toggle('owner', true);
+        modeLandlordBtn.classList.toggle('landlord', true);
+        objectAssignment.placeholder = mode === 'vermieter' ? 'z. B. Haus A, Wohnung 2 oder alle Objekte' : 'z. B. eigenes Haus oder allgemein';
+      }
+
+      function escapeHtml(value){
+        return String(value || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function formatDate(value){
+        if(!value) return '—';
+        const date = new Date(value + 'T00:00:00');
+        if(Number.isNaN(date.getTime())) return '—';
+        return date.toLocaleDateString('de-DE');
+      }
+
+      function normalizeText(value){
+        return String(value || '').toLowerCase();
+      }
+
+      function collectFormData(){
+        return {
+          id: currentEditId || ('contact_' + Date.now() + '_' + Math.random().toString(36).slice(2,8)),
+          mode: currentMode,
+          category: contactCategory.value,
+          priority: contactPriority.value,
+          companyName: companyName.value.trim(),
+          contactPerson: contactPerson.value.trim(),
+          phone: phone.value.trim(),
+          mobile: mobile.value.trim(),
+          email: email.value.trim(),
+          website: website.value.trim(),
+          serviceArea: serviceArea.value.trim(),
+          street: street.value.trim(),
+          zip: zip.value.trim(),
+          city: city.value.trim(),
+          objectAssignment: objectAssignment.value.trim(),
+          customerNumber: customerNumber.value.trim(),
+          cycle: cycle.value,
+          lastAction: lastAction.value,
+          nextAction: nextAction.value,
+          state: activeState.value,
+          note: contactNote.value.trim(),
+          createdAt: '',
+          updatedAt: new Date().toISOString()
+        };
+      }
+
+      function validateContact(contact){
+        if(!contact.companyName){
+          return 'Bitte mindestens einen Firmennamen eintragen.';
+        }
+        if(!contact.category){
+          return 'Bitte eine Kategorie wählen.';
+        }
+        return '';
+      }
+
+      function resetForm(silent){
+        currentEditId = '';
+        setMode('eigentuemer');
+        contactCategory.selectedIndex = 0;
+        contactPriority.value = 'Regelmäßig';
+        companyName.value = '';
+        contactPerson.value = '';
+        phone.value = '';
+        mobile.value = '';
+        email.value = '';
+        website.value = '';
+        serviceArea.value = '';
+        street.value = '';
+        zip.value = '';
+        city.value = '';
+        objectAssignment.value = '';
+        customerNumber.value = '';
+        cycle.value = 'nach Bedarf';
+        lastAction.value = '';
+        nextAction.value = '';
+        activeState.value = 'aktiv';
+        contactNote.value = '';
+        duplicateBtn.disabled = true;
+
+        if(!silent){
+          showMessage('Das Formular wurde zurückgesetzt.', 'success');
+        }
+      }
+
+      function fillForm(contact){
+        currentEditId = contact.id || '';
+        setMode(contact.mode || 'eigentuemer');
+        contactCategory.value = contact.category || 'Sonstiges';
+        contactPriority.value = contact.priority || 'Regelmäßig';
+        companyName.value = contact.companyName || '';
+        contactPerson.value = contact.contactPerson || '';
+        phone.value = contact.phone || '';
+        mobile.value = contact.mobile || '';
+        email.value = contact.email || '';
+        website.value = contact.website || '';
+        serviceArea.value = contact.serviceArea || '';
+        street.value = contact.street || '';
+        zip.value = contact.zip || '';
+        city.value = contact.city || '';
+        objectAssignment.value = contact.objectAssignment || '';
+        customerNumber.value = contact.customerNumber || '';
+        cycle.value = contact.cycle || 'nach Bedarf';
+        lastAction.value = contact.lastAction || '';
+        nextAction.value = contact.nextAction || '';
+        activeState.value = contact.state || 'aktiv';
+        contactNote.value = contact.note || '';
+        duplicateBtn.disabled = false;
+      }
+
+      function saveCurrentContact(duplicate){
+        const contacts = getContacts();
+        const data = collectFormData();
+        const error = validateContact(data);
+
+        if(error){
+          showMessage(error, 'error');
+          return;
+        }
+
+        if(duplicate){
+          data.id = 'contact_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+          data.createdAt = new Date().toISOString();
+        }
+
+        const existingIndex = contacts.findIndex(item => item.id === data.id);
+
+        if(existingIndex >= 0 && !duplicate){
+          data.createdAt = contacts[existingIndex].createdAt || new Date().toISOString();
+          contacts[existingIndex] = data;
+        } else {
+          data.createdAt = new Date().toISOString();
+          contacts.push(data);
+        }
+
+        saveContacts(contacts);
+        render();
+        fillForm(data);
+        showMessage(duplicate ? 'Kontakt wurde dupliziert.' : 'Kontakt wurde gespeichert.', 'success');
+      }
+
+      function deleteContact(id){
+        const ok = window.confirm('Möchtest du diesen Kontakt wirklich löschen?');
+        if(!ok) return;
+        const contacts = getContacts().filter(item => item.id !== id);
+        saveContacts(contacts);
+        if(currentEditId === id){
+          resetForm(true);
+        }
+        render();
+        showMessage('Kontakt wurde gelöscht.', 'success');
+      }
+
+      function buildCard(contact){
+        const priorityClass =
+          contact.priority === 'Notfall' ? 'priority-emergency' :
+          contact.priority === 'Gelegentlich' ? 'priority-occasionally' :
+          'priority-regular';
+
+        return [
+          '<article class="contact-card">',
+            '<div class="contact-head">',
+              '<div>',
+                '<h3 class="contact-title">', escapeHtml(contact.companyName || 'Ohne Firma'), '</h3>',
+                '<p class="contact-sub">', escapeHtml(contact.contactPerson || 'Ohne Ansprechpartner'), '</p>',
+              '</div>',
+            '</div>',
+            '<div class="contact-body">',
+              '<div class="pill-row">',
+                '<span class="pill ', contact.mode === 'vermieter' ? 'landlord' : 'owner', '">', contact.mode === 'vermieter' ? 'Vermieter' : 'Eigentümer', '</span>',
+                '<span class="pill">', escapeHtml(contact.category || '—'), '</span>',
+                '<span class="pill ', priorityClass, '">', escapeHtml(contact.priority || '—'), '</span>',
+                '<span class="pill">', escapeHtml(contact.state || 'aktiv'), '</span>',
+              '</div>',
+              '<div class="meta-grid">',
+                '<div class="meta-box"><div class="meta-label">Telefon</div><div class="meta-value">', escapeHtml(contact.phone || contact.mobile || '—'), '</div></div>',
+                '<div class="meta-box"><div class="meta-label">Objekt</div><div class="meta-value">', escapeHtml(contact.objectAssignment || '—'), '</div></div>',
+                '<div class="meta-box"><div class="meta-label">Rhythmus</div><div class="meta-value">', escapeHtml(contact.cycle || '—'), '</div></div>',
+                '<div class="meta-box"><div class="meta-label">E-Mail</div><div class="meta-value">', escapeHtml(contact.email || '—'), '</div></div>',
+                '<div class="meta-box"><div class="meta-label">Leistung</div><div class="meta-value">', escapeHtml(contact.serviceArea || '—'), '</div></div>',
+                '<div class="meta-box"><div class="meta-label">Letzter Termin</div><div class="meta-value">', escapeHtml(formatDate(contact.lastAction)), '</div></div>',
+              '</div>',
+              '<p class="contact-note">', escapeHtml(contact.note || 'Keine zusätzliche Notiz.'), '</p>',
+              '<div class="toolbar compact">',
+                '<div class="toolbar-left">',
+                  '<button type="button" class="btn btn-primary btn-small" data-action="edit" data-id="', escapeHtml(contact.id), '">Bearbeiten</button>',
+                  '<button type="button" class="btn btn-secondary btn-small" data-action="copy" data-id="', escapeHtml(contact.id), '">Duplizieren</button>',
+                '</div>',
+                '<div class="toolbar-right">',
+                  '<button type="button" class="btn btn-ghost btn-small" data-action="export" data-id="', escapeHtml(contact.id), '">Sichern</button>',
+                  '<button type="button" class="btn btn-danger btn-small" data-action="delete" data-id="', escapeHtml(contact.id), '">Löschen</button>',
+                '</div>',
+              '</div>',
+            '</div>',
+          '</article>'
+        ].join('');
+      }
+
+      function updateFilterCategoryOptions(contacts){
+        const categories = Array.from(new Set(contacts.map(item => item.category).filter(Boolean))).sort();
+        const currentValue = filterCategory.value;
+
+        filterCategory.innerHTML = '<option value="">Alle Kategorien</option>' +
+          categories.map(cat => '<option value="' + escapeHtml(cat) + '">' + escapeHtml(cat) + '</option>').join('');
+
+        if(categories.includes(currentValue)){
+          filterCategory.value = currentValue;
+        }
+      }
+
+      function matchesFilters(contact){
+        const text = normalizeText([
+          contact.companyName,
+          contact.contactPerson,
+          contact.category,
+          contact.city,
+          contact.objectAssignment,
+          contact.serviceArea,
+          contact.note
+        ].join(' '));
+
+        const searchOk = !searchInput.value.trim() || text.includes(normalizeText(searchInput.value.trim()));
+        const modeOk = !filterMode.value || contact.mode === filterMode.value;
+        const categoryOk = !filterCategory.value || contact.category === filterCategory.value;
+        const priorityOk = !filterPriority.value || contact.priority === filterPriority.value;
+        const stateOk = !filterState.value || contact.state === filterState.value;
+
+        return searchOk && modeOk && categoryOk && priorityOk && stateOk;
+      }
+
+      function updateSummary(contacts){
+        summaryTotal.textContent = String(contacts.length);
+        summaryEmergency.textContent = String(contacts.filter(item => item.priority === 'Notfall').length);
+        summaryActive.textContent = String(contacts.filter(item => item.state === 'aktiv').length);
+        summaryObject.textContent = String(contacts.filter(item => item.objectAssignment && item.objectAssignment.trim()).length);
+      }
+
+      function render(){
+        const contacts = getContacts().sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+        updateFilterCategoryOptions(contacts);
+        updateSummary(contacts);
+
+        const filtered = contacts.filter(matchesFilters);
+        contactGrid.innerHTML = filtered.map(buildCard).join('');
+        emptyState.classList.toggle('hidden', filtered.length > 0);
+      }
+
+      function findContact(id){
+        return getContacts().find(item => item.id === id) || null;
+      }
+
+      function exportJsonFile(filename, payload){
+        const blob = new Blob([payload], { type:'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 500);
+      }
+
+      function exportAll(){
+        const contacts = getContacts();
+        if(!contacts.length){
+          showMessage('Es gibt noch keine Kontakte zum Sichern.', 'error');
+          return;
+        }
+
+        const payload = {
+          exportType: 'nebk_contacts_export',
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          items: contacts
+        };
+
+        exportJsonFile(
+          'kontakte-und-dienstleister-' + new Date().toISOString().slice(0,10) + '.json',
+          JSON.stringify(payload, null, 2)
+        );
+        showMessage('Die Kontakte wurden gesichert.', 'success');
+      }
+
+      function exportSingle(contact){
+        exportJsonFile(
+          'kontakt-' + (contact.companyName || 'eintrag').replace(/[^a-zA-Z0-9-_]+/g, '-').toLowerCase() + '.json',
+          JSON.stringify(contact, null, 2)
+        );
+        showMessage('Der Kontakt wurde gesichert.', 'success');
+      }
+
+      function importContacts(file){
+        const reader = new FileReader();
+
+        reader.onload = function(){
+          try{
+            const parsed = JSON.parse(reader.result);
+            const imported = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.items) ? parsed.items : []);
+            if(!imported.length){
+              showMessage('Die Datei enthält keine passenden Kontaktdaten.', 'error');
+              return;
+            }
+
+            const cleaned = imported.filter(item => item && typeof item === 'object' && item.id && item.companyName);
+            if(!cleaned.length){
+              showMessage('In der Datei wurden keine nutzbaren Kontakte gefunden.', 'error');
+              return;
+            }
+
+            const current = getContacts();
+            const byId = new Map();
+            current.forEach(item => byId.set(item.id, item));
+            cleaned.forEach(item => byId.set(item.id, item));
+
+            saveContacts(Array.from(byId.values()));
+            render();
+            showMessage('Die Sicherung wurde eingelesen.', 'success');
+          }catch(error){
+            showMessage('Die gewählte Datei konnte nicht eingelesen werden.', 'error');
+          }
+        };
+
+        reader.onerror = function(){
+          showMessage('Die Datei konnte nicht gelesen werden.', 'error');
+        };
+
+        reader.readAsText(file, 'utf-8');
+      }
+
+      function clearAll(){
+        const contacts = getContacts();
+        if(!contacts.length){
+          showMessage('Es gibt noch keine Kontakte.', 'error');
+          return;
+        }
+
+        const ok = window.confirm('Möchtest du wirklich alle Kontakte löschen?');
+        if(!ok) return;
+
+        localStorage.removeItem(STORAGE_KEY);
+        resetForm(true);
+        render();
+        showMessage('Alle Kontakte wurden gelöscht.', 'success');
+      }
+
+      modeOwnerBtn.addEventListener('click', () => setMode('eigentuemer'));
+      modeLandlordBtn.addEventListener('click', () => setMode('vermieter'));
+
+      saveBtn.addEventListener('click', () => saveCurrentContact(false));
+      saveBtnTop.addEventListener('click', () => saveCurrentContact(false));
+      resetBtn.addEventListener('click', () => resetForm(false));
+      resetBtnTop.addEventListener('click', () => resetForm(false));
+      duplicateBtn.addEventListener('click', () => saveCurrentContact(true));
+
+      [searchInput, filterMode, filterCategory, filterPriority, filterState].forEach(el => {
+        el.addEventListener('input', render);
+        el.addEventListener('change', render);
+      });
+
+      contactGrid.addEventListener('click', function(event){
+        const button = event.target.closest('[data-action]');
+        if(!button) return;
+
+        const action = button.getAttribute('data-action');
+        const id = button.getAttribute('data-id');
+        const contact = findContact(id);
+
+        if(!contact){
+          showMessage('Der Kontakt wurde nicht gefunden.', 'error');
+          render();
+          return;
+        }
+
+        if(action === 'edit'){
+          fillForm(contact);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          showMessage('Kontakt wurde ins Formular geladen.', 'success');
+          return;
+        }
+
+        if(action === 'copy'){
+          fillForm(contact);
+          currentEditId = '';
+          showMessage('Kontakt wurde als Vorlage geladen. Beim Speichern entsteht ein neuer Eintrag.', 'success');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+
+        if(action === 'export'){
+          exportSingle(contact);
+          return;
+        }
+
+        if(action === 'delete'){
+          deleteContact(id);
+        }
+      });
+
+      exportBtn.addEventListener('click', exportAll);
+      importBtn.addEventListener('click', () => importInput.click());
+      importInput.addEventListener('change', function(event){
+        const file = event.target.files && event.target.files[0];
+        if(file) importContacts(file);
+        event.target.value = '';
+      });
+
+      clearBtn.addEventListener('click', clearAll);
+      emptyCreateBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      printBtn.addEventListener('click', () => window.print());
+
+      duplicateBtn.disabled = true;
+      resetForm(true);
+      render();
+    })();
+  </script>
+</body>
+</html>
