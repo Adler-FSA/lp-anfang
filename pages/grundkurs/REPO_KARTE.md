@@ -948,7 +948,10 @@
     │   │   └── nachlass-erbschaft-orientierung.html
     │   ├── nebenskostenabrechnung/
     │   │   ├── archiv.html
+    │   │   ├── erfassung-eigentuemer.html
+    │   │   ├── erfassung-vermieter.html
     │   │   ├── erfassung.html
+    │   │   ├── hilfe-und-hinweise.html
     │   │   ├── index.html
     │   │   ├── modul-1-einfuehrung-und-ueberblick.html
     │   │   ├── modul-2-kostenarten-verstehen.html
@@ -1323,4 +1326,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.03.2026, 07:02)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.03.2026, 08:42)_
