@@ -2,7 +2,7 @@
 <!--
   Nebenkostenabrechnung – Vermieter-Erfassung
   GitHub-Pfad: lp-anfang/pages/nebenskostenabrechnung/erfassung-vermieter.html
-  Commit-Message: nebenkostenabrechnung – vermieter erfassung mit objekten mietern kosten summen und archivanbindung
+  Commit-Message: nebenkostenabrechnung – vermieter erfassung um zaehlerstaende und verbrauchslogik je objekt erweitert
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/nebenskostenabrechnung/erfassung-vermieter.html?nocache=__TS__
 -->
 <html lang="de">
@@ -10,7 +10,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Vermieter-Erfassung | Nebenkostenabrechnung</title>
-  <meta name="description" content="Vermieter-Erfassung mit Stammdaten, mehreren Objekten, mehreren Mietern je Objekt, Kostenfeldern, Summen und Archiv-Anbindung." />
+  <meta name="description" content="Vermieter-Erfassung mit Stammdaten, mehreren Objekten, mehreren Mietern je Objekt, Zählerständen, Verbrauchslogik, Kostenfeldern, Summen und Archiv-Anbindung." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -31,7 +31,7 @@
       --danger-soft:rgba(198,40,40,.08);
       --shadow:0 10px 30px rgba(17,17,17,.06);
       --radius:22px;
-      --maxw:1280px;
+      --maxw:1320px;
     }
 
     *{box-sizing:border-box}
@@ -287,7 +287,8 @@
     .object-card,
     .tenant-card,
     .sum-card,
-    .message{
+    .message,
+    .meter-card{
       background:#fff;
       border:1px solid var(--line);
       box-shadow:var(--shadow);
@@ -383,6 +384,12 @@
     .field-row-3{
       display:grid;
       grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .field-row-4{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
       gap:14px;
     }
 
@@ -552,6 +559,56 @@
       gap:14px;
     }
 
+    .meter-grid{
+      display:grid;
+      gap:18px;
+    }
+
+    .meter-card{
+      border-radius:22px;
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(255,255,255,1), rgba(248,248,248,.95));
+    }
+
+    .meter-head{
+      padding:18px 18px 0;
+    }
+
+    .meter-body{
+      padding:18px;
+      display:grid;
+      gap:14px;
+    }
+
+    .result-box{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px 16px;
+      background:var(--panel-soft);
+      display:grid;
+      gap:4px;
+    }
+
+    .result-label{
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      color:#666;
+      font-weight:700;
+    }
+
+    .result-value{
+      font-size:24px;
+      line-height:1.1;
+      color:var(--mint-strong);
+      font-weight:700;
+    }
+
+    .result-unit{
+      font-size:14px;
+      color:var(--muted);
+    }
+
     .extra-wrap{
       display:grid;
       gap:12px;
@@ -615,6 +672,7 @@
 
     @media (max-width:980px){
       .hero-inner,
+      .field-row-4,
       .field-row-3,
       .cost-grid,
       .checkbox-grid{
@@ -667,7 +725,8 @@
       .panel,
       .object-card,
       .tenant-card,
-      .sum-card{
+      .sum-card,
+      .meter-card{
         box-shadow:none !important;
         border:1px solid #cfcfcf !important;
       }
@@ -718,10 +777,10 @@
             <p class="eyebrow">Nur für Vermieter</p>
             <h1>Vermieter-Erfassung</h1>
             <p class="lead">
-              Hier erfasst du deine Vermieter-Daten, mehrere Objekte, mehrere Mieter je Objekt und alle Kosten sauber getrennt pro Jahresstand.
+              Hier erfasst du deine Vermieter-Daten, mehrere Objekte, mehrere Mieter je Objekt sowie Zählerstände, Verbrauchswerte und Kosten sauber getrennt pro Jahresstand.
             </p>
             <p>
-              Ziel ist eine klare Struktur je Objekt, damit Zahlen, Anschriften, Mietverhältnisse und Kosten nicht vermischt werden und später sauber wieder geöffnet oder archiviert werden können.
+              Jedes Objekt kann eigene Strom-, Gas-, Wasser- und Heizölwerte bekommen. So bleibt die Verbrauchs- und Kostenlogik je Objekt sauber nachvollziehbar.
             </p>
 
             <div class="hero-actions">
@@ -740,8 +799,8 @@
                   </svg>
                 </div>
                 <div>
-                  <h3>Was hier drin ist</h3>
-                  <p>Vermieter-Stammdaten, Objekte, Mieter, Kosten je Objekt, Zusatzkosten und Gesamtsummen.</p>
+                  <h3>Neu dazugekommen</h3>
+                  <p>Zählerstände und Verbrauchsblöcke je Objekt für Strom, Gas, Wasser und Heizöl.</p>
                 </div>
               </div>
             </div>
@@ -755,8 +814,8 @@
                   </svg>
                 </div>
                 <div>
-                  <h3>Wofür es gedacht ist</h3>
-                  <p>Für Vermieter mit einem oder mehreren Objekten und getrennten Jahresständen pro Bestand.</p>
+                  <h3>Wichtig für Vermieter</h3>
+                  <p>Jedes Objekt behält eigene Verbrauchswerte und eigene Kosten. Nichts wird zwischen Objekten vermischt.</p>
                 </div>
               </div>
             </div>
@@ -967,7 +1026,146 @@
         </section>
 
         <section class="section-box">
-          <h3>Kostenfelder</h3>
+          <h3>Zählerstände und Verbrauch</h3>
+          <div class="meter-grid">
+            <article class="meter-card">
+              <div class="meter-head">
+                <h3>Strom</h3>
+              </div>
+              <div class="meter-body">
+                <div class="field-row-4">
+                  <div class="field">
+                    <label>Zählernummer</label>
+                    <input type="text" class="meter-power-no" placeholder="z. B. ST-45811" />
+                  </div>
+                  <div class="field">
+                    <label>Anfangsstand</label>
+                    <input type="number" class="meter-power-start" step="0.01" placeholder="0" />
+                  </div>
+                  <div class="field">
+                    <label>Endstand</label>
+                    <input type="number" class="meter-power-end" step="0.01" placeholder="0" />
+                  </div>
+                  <div class="field">
+                    <label>Kosten gesamt</label>
+                    <input type="number" class="meter-power-cost cost-input" min="0" step="0.01" placeholder="0,00" />
+                  </div>
+                </div>
+                <div class="result-box">
+                  <div class="result-label">Verbrauch Strom</div>
+                  <div class="result-value usage-power">0,00</div>
+                  <div class="result-unit">kWh / Verbrauch aus Endstand minus Anfangsstand</div>
+                </div>
+              </div>
+            </article>
+
+            <article class="meter-card">
+              <div class="meter-head">
+                <h3>Gas</h3>
+              </div>
+              <div class="meter-body">
+                <div class="field-row-4">
+                  <div class="field">
+                    <label>Zählernummer</label>
+                    <input type="text" class="meter-gas-no" placeholder="z. B. GAS-22419" />
+                  </div>
+                  <div class="field">
+                    <label>Anfangsstand</label>
+                    <input type="number" class="meter-gas-start" step="0.01" placeholder="0" />
+                  </div>
+                  <div class="field">
+                    <label>Endstand</label>
+                    <input type="number" class="meter-gas-end" step="0.01" placeholder="0" />
+                  </div>
+                  <div class="field">
+                    <label>Kosten gesamt</label>
+                    <input type="number" class="meter-gas-cost cost-input" min="0" step="0.01" placeholder="0,00" />
+                  </div>
+                </div>
+                <div class="result-box">
+                  <div class="result-label">Verbrauch Gas</div>
+                  <div class="result-value usage-gas">0,00</div>
+                  <div class="result-unit">m³ oder eingetragene Einheit / Verbrauch aus Endstand minus Anfangsstand</div>
+                </div>
+              </div>
+            </article>
+
+            <article class="meter-card">
+              <div class="meter-head">
+                <h3>Wasser</h3>
+              </div>
+              <div class="meter-body">
+                <div class="field-row-4">
+                  <div class="field">
+                    <label>Zählernummer</label>
+                    <input type="text" class="meter-water-no" placeholder="z. B. WS-11982" />
+                  </div>
+                  <div class="field">
+                    <label>Anfangsstand</label>
+                    <input type="number" class="meter-water-start" step="0.01" placeholder="0" />
+                  </div>
+                  <div class="field">
+                    <label>Endstand</label>
+                    <input type="number" class="meter-water-end" step="0.01" placeholder="0" />
+                  </div>
+                  <div class="field">
+                    <label>Kosten gesamt</label>
+                    <input type="number" class="meter-water-cost cost-input" min="0" step="0.01" placeholder="0,00" />
+                  </div>
+                </div>
+                <div class="result-box">
+                  <div class="result-label">Verbrauch Wasser</div>
+                  <div class="result-value usage-water">0,00</div>
+                  <div class="result-unit">m³ / Verbrauch aus Endstand minus Anfangsstand</div>
+                </div>
+              </div>
+            </article>
+
+            <article class="meter-card">
+              <div class="meter-head">
+                <h3>Heizöl</h3>
+              </div>
+              <div class="meter-body">
+                <div class="field-row-4">
+                  <div class="field">
+                    <label>Tank / Bezeichnung</label>
+                    <input type="text" class="meter-oil-no" placeholder="z. B. Tank Keller links" />
+                  </div>
+                  <div class="field">
+                    <label>Bestand Anfang</label>
+                    <input type="number" class="meter-oil-start" step="0.01" placeholder="0" />
+                  </div>
+                  <div class="field">
+                    <label>Bestand Ende</label>
+                    <input type="number" class="meter-oil-end" step="0.01" placeholder="0" />
+                  </div>
+                  <div class="field">
+                    <label>Nachfüllmenge</label>
+                    <input type="number" class="meter-oil-refill" step="0.01" placeholder="0" />
+                  </div>
+                </div>
+                <div class="field-row-2">
+                  <div class="field">
+                    <label>Kosten gesamt</label>
+                    <input type="number" class="meter-oil-cost cost-input" min="0" step="0.01" placeholder="0,00" />
+                  </div>
+                  <div class="field">
+                    <label>Hinweis Heizöl</label>
+                    <input type="text" class="meter-oil-note" placeholder="z. B. Lieferung im November" />
+                  </div>
+                </div>
+                <div class="result-box">
+                  <div class="result-label">Verbrauch Heizöl</div>
+                  <div class="result-value usage-oil">0,00</div>
+                  <div class="result-unit">Liter / Anfangsbestand plus Nachfüllung minus Endbestand</div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section-box">
+          <h3>Weitere Kostenfelder</h3>
           <div class="cost-grid">
             <div class="field">
               <label>Versicherungen</label>
@@ -978,20 +1176,8 @@
               <input type="number" class="cost-property-tax cost-input" min="0" step="0.01" placeholder="0,00" />
             </div>
             <div class="field">
-              <label>Wasser / Abwasser</label>
-              <input type="number" class="cost-water cost-input" min="0" step="0.01" placeholder="0,00" />
-            </div>
-            <div class="field">
               <label>Müllabfuhr</label>
               <input type="number" class="cost-trash cost-input" min="0" step="0.01" placeholder="0,00" />
-            </div>
-            <div class="field">
-              <label>Heizung / Warmwasser</label>
-              <input type="number" class="cost-heat cost-input" min="0" step="0.01" placeholder="0,00" />
-            </div>
-            <div class="field">
-              <label>Strom / Allgemeinstrom</label>
-              <input type="number" class="cost-electricity cost-input" min="0" step="0.01" placeholder="0,00" />
             </div>
             <div class="field">
               <label>Schornsteinfeger</label>
@@ -1159,6 +1345,11 @@
         return num.toLocaleString('de-DE', { minimumFractionDigits:2, maximumFractionDigits:2 }) + ' €';
       }
 
+      function formatPlain(value){
+        const num = Number(value || 0);
+        return num.toLocaleString('de-DE', { minimumFractionDigits:2, maximumFractionDigits:2 });
+      }
+
       function showMessage(text, type){
         messageBox.textContent = text;
         messageBox.className = 'message show ' + (type === 'error' ? 'message-error' : 'message-success');
@@ -1172,6 +1363,19 @@
       function toNumber(val){
         const n = parseFloat(String(val || '').replace(',', '.'));
         return Number.isFinite(n) ? n : 0;
+      }
+
+      function calculateDifference(start, end){
+        const s = toNumber(start);
+        const e = toNumber(end);
+        return Math.max(0, e - s);
+      }
+
+      function calculateOilUsage(start, refill, end){
+        const s = toNumber(start);
+        const r = toNumber(refill);
+        const e = toNumber(end);
+        return Math.max(0, (s + r) - e);
       }
 
       function getArchive(){
@@ -1192,6 +1396,44 @@
           items.push(record);
         }
         localStorage.setItem(ARCHIVE_KEY, JSON.stringify(items));
+      }
+
+      function updateObjectHead(card, index){
+        const badge = card.querySelector('.object-badge');
+        if(badge){
+          badge.textContent = 'Objekt ' + (index + 1);
+        }
+      }
+
+      function refreshObjectIndices(){
+        Array.from(objectsWrap.children).forEach((card, index) => updateObjectHead(card, index));
+      }
+
+      function updateUsageForCard(card){
+        const powerUsage = calculateDifference(
+          card.querySelector('.meter-power-start').value,
+          card.querySelector('.meter-power-end').value
+        );
+        const gasUsage = calculateDifference(
+          card.querySelector('.meter-gas-start').value,
+          card.querySelector('.meter-gas-end').value
+        );
+        const waterUsage = calculateDifference(
+          card.querySelector('.meter-water-start').value,
+          card.querySelector('.meter-water-end').value
+        );
+        const oilUsage = calculateOilUsage(
+          card.querySelector('.meter-oil-start').value,
+          card.querySelector('.meter-oil-refill').value,
+          card.querySelector('.meter-oil-end').value
+        );
+
+        card.querySelector('.usage-power').textContent = formatPlain(powerUsage);
+        card.querySelector('.usage-gas').textContent = formatPlain(gasUsage);
+        card.querySelector('.usage-water').textContent = formatPlain(waterUsage);
+        card.querySelector('.usage-oil').textContent = formatPlain(oilUsage);
+
+        return { powerUsage, gasUsage, waterUsage, oilUsage };
       }
 
       function addTenant(card, data){
@@ -1242,17 +1484,6 @@
         updateTotals();
       }
 
-      function updateObjectHead(card, index){
-        const badge = card.querySelector('.object-badge');
-        if(badge){
-          badge.textContent = 'Objekt ' + (index + 1);
-        }
-      }
-
-      function refreshObjectIndices(){
-        Array.from(objectsWrap.children).forEach((card, index) => updateObjectHead(card, index));
-      }
-
       function addObject(data){
         const card = objectTemplate.content.firstElementChild.cloneNode(true);
 
@@ -1282,12 +1513,31 @@
           card.querySelector('.feat-special').checked = !!data.features?.special;
           card.querySelector('.obj-note').value = data.note || '';
 
+          card.querySelector('.meter-power-no').value = data.meters?.power?.meterNo || '';
+          card.querySelector('.meter-power-start').value = data.meters?.power?.start || '';
+          card.querySelector('.meter-power-end').value = data.meters?.power?.end || '';
+          card.querySelector('.meter-power-cost').value = data.meters?.power?.cost || '';
+
+          card.querySelector('.meter-gas-no').value = data.meters?.gas?.meterNo || '';
+          card.querySelector('.meter-gas-start').value = data.meters?.gas?.start || '';
+          card.querySelector('.meter-gas-end').value = data.meters?.gas?.end || '';
+          card.querySelector('.meter-gas-cost').value = data.meters?.gas?.cost || '';
+
+          card.querySelector('.meter-water-no').value = data.meters?.water?.meterNo || '';
+          card.querySelector('.meter-water-start').value = data.meters?.water?.start || '';
+          card.querySelector('.meter-water-end').value = data.meters?.water?.end || '';
+          card.querySelector('.meter-water-cost').value = data.meters?.water?.cost || '';
+
+          card.querySelector('.meter-oil-no').value = data.meters?.oil?.tankNo || '';
+          card.querySelector('.meter-oil-start').value = data.meters?.oil?.start || '';
+          card.querySelector('.meter-oil-end').value = data.meters?.oil?.end || '';
+          card.querySelector('.meter-oil-refill').value = data.meters?.oil?.refill || '';
+          card.querySelector('.meter-oil-cost').value = data.meters?.oil?.cost || '';
+          card.querySelector('.meter-oil-note').value = data.meters?.oil?.note || '';
+
           card.querySelector('.cost-insurance').value = data.costs?.insurance || '';
           card.querySelector('.cost-property-tax').value = data.costs?.propertyTax || '';
-          card.querySelector('.cost-water').value = data.costs?.water || '';
           card.querySelector('.cost-trash').value = data.costs?.trash || '';
-          card.querySelector('.cost-heat').value = data.costs?.heat || '';
-          card.querySelector('.cost-electricity').value = data.costs?.electricity || '';
           card.querySelector('.cost-chimney').value = data.costs?.chimney || '';
           card.querySelector('.cost-maintenance').value = data.costs?.maintenance || '';
           card.querySelector('.cost-alarm').value = data.costs?.alarm || '';
@@ -1299,7 +1549,7 @@
           card.querySelector('.cost-reserve').value = data.costs?.reserve || '';
           card.querySelector('.cost-other').value = data.costs?.other || '';
 
-          if(Array.isArray(data.tenants)){
+          if(Array.isArray(data.tenants) && data.tenants.length){
             data.tenants.forEach(tenant => addTenant(card, tenant));
           } else {
             addTenant(card);
@@ -1321,16 +1571,25 @@
       }
 
       function computeObjectTotal(card){
+        updateUsageForCard(card);
+
         let total = 0;
         card.querySelectorAll('.cost-input').forEach(input => {
           total += toNumber(input.value);
         });
+
         card.querySelector('.object-total').textContent = euro(total);
         return total;
       }
 
       function computeObjectTotalFromData(obj){
         let total = 0;
+
+        total += toNumber(obj.meters?.power?.cost);
+        total += toNumber(obj.meters?.gas?.cost);
+        total += toNumber(obj.meters?.water?.cost);
+        total += toNumber(obj.meters?.oil?.cost);
+
         if(obj.costs){
           Object.values(obj.costs).forEach(v => total += toNumber(v));
         }
@@ -1371,50 +1630,83 @@
             city: fields.city.value.trim(),
             note: fields.landlordNote.value.trim()
           },
-          objects: Array.from(objectsWrap.querySelectorAll('.object-card')).map(card => ({
-            title: card.querySelector('.obj-title').value.trim(),
-            buildYear: card.querySelector('.obj-build-year').value.trim(),
-            street: card.querySelector('.obj-street').value.trim(),
-            zip: card.querySelector('.obj-zip').value.trim(),
-            city: card.querySelector('.obj-city').value.trim(),
-            features: {
-              garden: card.querySelector('.feat-garden').checked,
-              pool: card.querySelector('.feat-pool').checked,
-              alarm: card.querySelector('.feat-alarm').checked,
-              special: card.querySelector('.feat-special').checked
-            },
-            note: card.querySelector('.obj-note').value.trim(),
-            tenants: Array.from(card.querySelectorAll('.tenant-card')).map(t => ({
-              firstName: t.querySelector('.tenant-first').value.trim(),
-              lastName: t.querySelector('.tenant-last').value.trim(),
-              street: t.querySelector('.tenant-street').value.trim(),
-              zip: t.querySelector('.tenant-zip').value.trim(),
-              city: t.querySelector('.tenant-city').value.trim(),
-              since: t.querySelector('.tenant-since').value.trim()
-            })),
-            costs: {
-              insurance: card.querySelector('.cost-insurance').value,
-              propertyTax: card.querySelector('.cost-property-tax').value,
-              water: card.querySelector('.cost-water').value,
-              trash: card.querySelector('.cost-trash').value,
-              heat: card.querySelector('.cost-heat').value,
-              electricity: card.querySelector('.cost-electricity').value,
-              chimney: card.querySelector('.cost-chimney').value,
-              maintenance: card.querySelector('.cost-maintenance').value,
-              alarm: card.querySelector('.cost-alarm').value,
-              garden: card.querySelector('.cost-garden').value,
-              pool: card.querySelector('.cost-pool').value,
-              operating: card.querySelector('.cost-operating').value,
-              systems: card.querySelector('.cost-systems').value,
-              repair: card.querySelector('.cost-repair').value,
-              reserve: card.querySelector('.cost-reserve').value,
-              other: card.querySelector('.cost-other').value
-            },
-            extras: Array.from(card.querySelectorAll('.extra-row')).map(row => ({
-              label: row.querySelector('.extra-label').value.trim(),
-              value: row.querySelector('.extra-value').value
-            }))
-          }))
+          objects: Array.from(objectsWrap.querySelectorAll('.object-card')).map(card => {
+            const usages = updateUsageForCard(card);
+
+            return {
+              title: card.querySelector('.obj-title').value.trim(),
+              buildYear: card.querySelector('.obj-build-year').value.trim(),
+              street: card.querySelector('.obj-street').value.trim(),
+              zip: card.querySelector('.obj-zip').value.trim(),
+              city: card.querySelector('.obj-city').value.trim(),
+              features: {
+                garden: card.querySelector('.feat-garden').checked,
+                pool: card.querySelector('.feat-pool').checked,
+                alarm: card.querySelector('.feat-alarm').checked,
+                special: card.querySelector('.feat-special').checked
+              },
+              note: card.querySelector('.obj-note').value.trim(),
+              tenants: Array.from(card.querySelectorAll('.tenant-card')).map(t => ({
+                firstName: t.querySelector('.tenant-first').value.trim(),
+                lastName: t.querySelector('.tenant-last').value.trim(),
+                street: t.querySelector('.tenant-street').value.trim(),
+                zip: t.querySelector('.tenant-zip').value.trim(),
+                city: t.querySelector('.tenant-city').value.trim(),
+                since: t.querySelector('.tenant-since').value.trim()
+              })),
+              meters: {
+                power: {
+                  meterNo: card.querySelector('.meter-power-no').value.trim(),
+                  start: card.querySelector('.meter-power-start').value,
+                  end: card.querySelector('.meter-power-end').value,
+                  usage: usages.powerUsage,
+                  cost: card.querySelector('.meter-power-cost').value
+                },
+                gas: {
+                  meterNo: card.querySelector('.meter-gas-no').value.trim(),
+                  start: card.querySelector('.meter-gas-start').value,
+                  end: card.querySelector('.meter-gas-end').value,
+                  usage: usages.gasUsage,
+                  cost: card.querySelector('.meter-gas-cost').value
+                },
+                water: {
+                  meterNo: card.querySelector('.meter-water-no').value.trim(),
+                  start: card.querySelector('.meter-water-start').value,
+                  end: card.querySelector('.meter-water-end').value,
+                  usage: usages.waterUsage,
+                  cost: card.querySelector('.meter-water-cost').value
+                },
+                oil: {
+                  tankNo: card.querySelector('.meter-oil-no').value.trim(),
+                  start: card.querySelector('.meter-oil-start').value,
+                  end: card.querySelector('.meter-oil-end').value,
+                  refill: card.querySelector('.meter-oil-refill').value,
+                  usage: usages.oilUsage,
+                  cost: card.querySelector('.meter-oil-cost').value,
+                  note: card.querySelector('.meter-oil-note').value.trim()
+                }
+              },
+              costs: {
+                insurance: card.querySelector('.cost-insurance').value,
+                propertyTax: card.querySelector('.cost-property-tax').value,
+                trash: card.querySelector('.cost-trash').value,
+                chimney: card.querySelector('.cost-chimney').value,
+                maintenance: card.querySelector('.cost-maintenance').value,
+                alarm: card.querySelector('.cost-alarm').value,
+                garden: card.querySelector('.cost-garden').value,
+                pool: card.querySelector('.cost-pool').value,
+                operating: card.querySelector('.cost-operating').value,
+                systems: card.querySelector('.cost-systems').value,
+                repair: card.querySelector('.cost-repair').value,
+                reserve: card.querySelector('.cost-reserve').value,
+                other: card.querySelector('.cost-other').value
+              },
+              extras: Array.from(card.querySelectorAll('.extra-row')).map(row => ({
+                label: row.querySelector('.extra-label').value.trim(),
+                value: row.querySelector('.extra-value').value
+              }))
+            };
+          })
         };
       }
 
