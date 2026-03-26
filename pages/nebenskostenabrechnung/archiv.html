@@ -1,8 +1,29 @@
+Ja, auf dem Screenshot sieht man es: der Code war nicht vollständig bis unten durch.
+Hier ist jetzt der komplette, durchgehende HTML-Code für archiv.html — mit:
+	•	sichtbarer Download-/CSV-Rückmeldung
+	•	Anzeige von Dateiname
+	•	Hinweis, wo die Datei auf dem iPad zu finden ist
+	•	„Zuletzt exportiert“-Hinweis
+	•	bestehender Archivlogik
+	•	kompletter Datei von <!doctype html> bis </html>
+
+Datei
+
+lp-anfang/pages/nebenskostenabrechnung/archiv.html
+
+Commit-Message
+
+nebenkostenabrechnung – archiv csv export mit sichtbarer download rueckmeldung und dateiname erweitert
+
+Testlink
+
+https://adler-fsa.github.io/lp-anfang/pages/nebenskostenabrechnung/archiv.html?nocache=__TS__
+
 <!doctype html>
 <!--
   Nebenkostenabrechnung – Archiv
   GitHub-Pfad: lp-anfang/pages/nebenskostenabrechnung/archiv.html
-  Commit-Message: nebenkostenabrechnung – archiv um flaechen mieterlogik vorauszahlungen und saldo erweitert
+  Commit-Message: nebenkostenabrechnung – archiv csv export mit sichtbarer download rueckmeldung und dateiname erweitert
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/nebenskostenabrechnung/archiv.html?nocache=__TS__
 -->
 <html lang="de">
@@ -233,7 +254,8 @@
     .archive-card,
     .empty-state,
     .message,
-    .summary-card{
+    .summary-card,
+    .download-feedback{
       background:#fff;
       border:1px solid var(--line);
       box-shadow:var(--shadow);
@@ -261,6 +283,40 @@
     .message.show{display:block}
     .message-success{background:var(--mint-soft);border-color:rgba(32,216,178,.24);color:#0b6b57}
     .message-error{background:var(--danger-soft);border-color:rgba(198,40,40,.22);color:var(--danger)}
+
+    .download-feedback{
+      display:none;
+      border-radius:22px;
+      padding:20px;
+      margin-bottom:18px;
+      background:linear-gradient(180deg, rgba(32,216,178,.08), #fff);
+    }
+
+    .download-feedback.show{
+      display:block;
+    }
+
+    .download-feedback h3{
+      margin:0 0 8px;
+      font-size:22px;
+      color:#0b6b57;
+    }
+
+    .download-feedback p{
+      margin:0 0 8px;
+      color:var(--muted);
+    }
+
+    .download-feedback strong{
+      color:var(--text);
+    }
+
+    .download-feedback-meta{
+      display:grid;
+      gap:6px;
+      margin-top:10px;
+      font-size:15px;
+    }
 
     .summary-grid{
       display:grid;
@@ -608,7 +664,7 @@
     }
 
     @media print{
-      .topbar,.btn,.toolbar,.field{display:none !important}
+      .topbar,.btn,.toolbar,.field,.download-feedback{display:none !important}
       body{background:#fff;font-size:12pt}
       .hero,.summary-card,.panel,.archive-card,.empty-state{
         box-shadow:none !important;
@@ -689,6 +745,15 @@
       </section>
 
       <div id="messageBox" class="message" aria-live="polite"></div>
+
+      <div id="downloadFeedback" class="download-feedback" aria-live="polite">
+        <h3>Datei wurde vorbereitet</h3>
+        <p><strong>Dateiname:</strong> <span id="downloadFilename">—</span></p>
+        <div class="download-feedback-meta">
+          <div><strong>Hinweis:</strong> Auf dem iPad findest du Downloads meist in der App „Dateien“ im Bereich „Downloads“.</div>
+          <div><strong>Zuletzt exportiert:</strong> <span id="downloadTime">—</span></div>
+        </div>
+      </div>
 
       <div class="summary-grid">
         <article class="summary-card">
@@ -805,6 +870,7 @@
       const ARCHIVE_KEY = 'nebk_archive_v1';
       const OWNER_DRAFT_KEY = 'nebk_eigentuemer_draft_v1';
       const LANDLORD_DRAFT_KEY = 'nebk_vermieter_draft_v1';
+      const LAST_DOWNLOAD_KEY = 'nebk_last_download_v1';
 
       const messageBox = document.getElementById('messageBox');
       const filterYear = document.getElementById('filterYear');
@@ -828,6 +894,10 @@
       const newOwnerBtn = document.getElementById('newOwnerBtn');
       const newLandlordBtn = document.getElementById('newLandlordBtn');
       const printBtn = document.getElementById('printBtn');
+
+      const downloadFeedback = document.getElementById('downloadFeedback');
+      const downloadFilename = document.getElementById('downloadFilename');
+      const downloadTime = document.getElementById('downloadTime');
 
       function showMessage(text, type){
         messageBox.textContent = text;
@@ -867,15 +937,6 @@
         }).replace(',', ' ·');
       }
 
-      function formatEuro(value){
-        const num = Number(value);
-        if(!Number.isFinite(num)) return '—';
-        return num.toLocaleString('de-DE', {
-          minimumFractionDigits:2,
-          maximumFractionDigits:2
-        }) + ' €';
-      }
-
       function formatNumber(value){
         const num = Number(value);
         if(!Number.isFinite(num)) return '0,00';
@@ -883,6 +944,15 @@
           minimumFractionDigits:2,
           maximumFractionDigits:2
         });
+      }
+
+      function formatEuro(value){
+        const num = Number(value);
+        if(!Number.isFinite(num)) return '—';
+        return num.toLocaleString('de-DE', {
+          minimumFractionDigits:2,
+          maximumFractionDigits:2
+        }) + ' €';
       }
 
       function escapeHtml(value){
@@ -922,9 +992,7 @@
         };
 
         if(mode === 'eigentuemer'){
-          summary.area = 0;
-          const totalsAdvance = toNumber(details.totals?.advance);
-          summary.advance = totalsAdvance;
+          summary.advance = toNumber(details.totals?.advance);
           summary.saldo = summary.total - summary.advance;
           summary.logicText = 'Eigene Jahresübersicht';
           return summary;
@@ -949,7 +1017,6 @@
             summary.tenants += tenants.length;
 
             tenants.forEach(tenant => {
-              summary.area += 0;
               summary.advance += toNumber(tenant.annualAdvance);
             });
           });
@@ -1065,6 +1132,8 @@
 
         ownerEmpty.classList.toggle('hidden', owners.length > 0);
         landlordEmpty.classList.toggle('hidden', landlords.length > 0);
+
+        renderLastDownloadInfo();
       }
 
       function downloadFile(filename, content, mimeType){
@@ -1077,6 +1146,38 @@
         a.click();
         a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 500);
+        saveLastDownload(filename);
+      }
+
+      function saveLastDownload(filename){
+        const payload = {
+          filename: filename,
+          exportedAt: new Date().toISOString()
+        };
+        localStorage.setItem(LAST_DOWNLOAD_KEY, JSON.stringify(payload));
+        renderLastDownloadInfo();
+      }
+
+      function renderLastDownloadInfo(){
+        const raw = localStorage.getItem(LAST_DOWNLOAD_KEY);
+        const parsed = raw ? safeParse(raw) : null;
+
+        if(!parsed || !parsed.filename){
+          downloadFeedback.classList.remove('show');
+          downloadFilename.textContent = '—';
+          downloadTime.textContent = '—';
+          return;
+        }
+
+        downloadFilename.textContent = parsed.filename;
+        downloadTime.textContent = formatDateTime(parsed.exportedAt);
+        downloadFeedback.classList.add('show');
+      }
+
+      function buildTimestampString(){
+        const d = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + '_' + pad(d.getHours()) + '-' + pad(d.getMinutes());
       }
 
       function recordToCsv(record){
@@ -1163,7 +1264,7 @@
       function exportRecord(record){
         const filename =
           (getModeFromRecord(record) === 'vermieter' ? 'vermieter-' : 'eigentuemer-') +
-          (record.jahr || 'jahr') + '.json';
+          (record.jahr || 'jahr') + '-' + buildTimestampString() + '.json';
 
         downloadFile(filename, JSON.stringify(record, null, 2), 'application/json;charset=utf-8');
         showMessage('Der Jahresstand wurde gesichert.', 'success');
@@ -1181,7 +1282,7 @@
           exportedAt: new Date().toISOString(),
           items: items
         };
-        const filename = 'nebenkosten-archiv-' + new Date().toISOString().slice(0,10) + '.json';
+        const filename = 'nebenkosten-archiv-' + buildTimestampString() + '.json';
         downloadFile(filename, JSON.stringify(payload, null, 2), 'application/json;charset=utf-8');
         showMessage('Das Archiv wurde gesichert.', 'success');
       }
@@ -1265,7 +1366,8 @@
         if(action === 'csv'){
           const csv = recordToCsv(record);
           const prefix = getModeFromRecord(record) === 'vermieter' ? 'vermieter-' : 'eigentuemer-';
-          downloadFile(prefix + (record.jahr || 'jahr') + '.csv', '\uFEFF' + csv, 'text/csv;charset=utf-8');
+          const filename = prefix + (record.jahr || 'jahr') + '-' + buildTimestampString() + '.csv';
+          downloadFile(filename, '\uFEFF' + csv, 'text/csv;charset=utf-8');
           showMessage('Die Tabellen-Datei wurde heruntergeladen.', 'success');
           return;
         }
@@ -1297,130 +1399,133 @@
       renderArchive();
     })();
   </script>
-<style>
-  .archive-contact-note-wrap{
-    width:min(var(--maxw), calc(100% - 48px));
-    margin:0 auto 22px;
-  }
 
-  .archive-contact-note{
-    position:relative;
-    overflow:hidden;
-    background:#fff;
-    border:1px solid var(--line);
-    border-radius:24px;
-    box-shadow:var(--shadow);
-    padding:22px 22px 22px 26px;
-  }
-
-  .archive-contact-note::before{
-    content:"";
-    position:absolute;
-    left:0;
-    top:0;
-    bottom:0;
-    width:6px;
-    background:linear-gradient(180deg, var(--magenta), var(--mint));
-  }
-
-  .archive-contact-note h2{
-    margin:0 0 10px;
-    font-size:24px;
-    line-height:1.2;
-    letter-spacing:-.02em;
-  }
-
-  .archive-contact-note p{
-    margin:0;
-    color:var(--muted);
-  }
-
-  .archive-contact-note-actions{
-    display:flex;
-    flex-wrap:wrap;
-    gap:12px;
-    margin-top:18px;
-  }
-
-  .course-footer{
-    padding:0 0 46px;
-  }
-
-  .course-footer-card{
-    width:min(var(--maxw), calc(100% - 48px));
-    margin:0 auto;
-    border-radius:24px;
-    padding:22px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:18px;
-    flex-wrap:wrap;
-    background:#fff;
-    border:1px solid var(--line);
-    box-shadow:var(--shadow);
-  }
-
-  .course-footer-card p{
-    margin:0;
-    color:var(--muted);
-    font-size:15px;
-  }
-
-  .course-footer-links{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    align-items:center;
-  }
-
-  @media (max-width:780px){
-    .archive-contact-note-wrap,
-    .course-footer-card{
-      width:min(var(--maxw), calc(100% - 28px));
+  <style>
+    .archive-contact-note-wrap{
+      width:min(var(--maxw), calc(100% - 48px));
+      margin:0 auto 22px;
     }
 
-    .archive-contact-note-actions,
-    .course-footer-links{
-      flex-direction:column;
-      width:100%;
+    .archive-contact-note{
+      position:relative;
+      overflow:hidden;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      padding:22px 22px 22px 26px;
     }
-  }
 
-  @media print{
-    .archive-contact-note-wrap,
+    .archive-contact-note::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:0;
+      bottom:0;
+      width:6px;
+      background:linear-gradient(180deg, var(--magenta), var(--mint));
+    }
+
+    .archive-contact-note h2{
+      margin:0 0 10px;
+      font-size:24px;
+      line-height:1.2;
+      letter-spacing:-.02em;
+    }
+
+    .archive-contact-note p{
+      margin:0;
+      color:var(--muted);
+    }
+
+    .archive-contact-note-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+
     .course-footer{
-      display:none !important;
+      padding:0 0 46px;
     }
-  }
-</style>
 
-<section class="archive-contact-note-wrap">
-  <div class="archive-contact-note">
-    <h2>Neu im Kurs: Kontakte und Dienstleister</h2>
-    <p>
-      Neben Jahresständen, Flächen, Mieterlogik, Vorauszahlungen und Saldo gibt es jetzt auch eine eigene Kontaktzentrale.
-      Dort kannst du wichtige Ansprechpartner wie Gärtner, Elektriker, Gas, Wasser, Heizöl, Wartung, Prüfdienste,
-      Hausmeister oder Notfallkontakte zentral sammeln und später wieder öffnen.
-    </p>
-    <div class="archive-contact-note-actions">
-      <a class="btn btn-secondary" href="kontakte-und-dienstleister.html">Kontaktzentrale öffnen</a>
-      <a class="btn btn-ghost" href="index.html">Zur Steuerzentrale</a>
-    </div>
-  </div>
-</section>
+    .course-footer-card{
+      width:min(var(--maxw), calc(100% - 48px));
+      margin:0 auto;
+      border-radius:24px;
+      padding:22px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      flex-wrap:wrap;
+      background:#fff;
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+    }
 
-<footer class="course-footer">
-  <div class="course-footer-card">
-    <p>Archiv – Nebenkostenabrechnung</p>
-    <div class="course-footer-links">
-      <a class="btn btn-ghost" href="index.html">Steuerzentrale</a>
-      <a class="btn btn-ghost" href="erfassung-eigentuemer.html">Eigentümer</a>
-      <a class="btn btn-ghost" href="erfassung-vermieter.html">Vermieter</a>
-      <a class="btn btn-ghost" href="hilfe-und-hinweise.html">Hilfe</a>
-      <a class="btn btn-ghost" href="kontakte-und-dienstleister.html">Kontakte</a>
+    .course-footer-card p{
+      margin:0;
+      color:var(--muted);
+      font-size:15px;
+    }
+
+    .course-footer-links{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
+
+    @media (max-width:780px){
+      .archive-contact-note-wrap,
+      .course-footer-card{
+        width:min(var(--maxw), calc(100% - 28px));
+      }
+
+      .archive-contact-note-actions,
+      .course-footer-links{
+        flex-direction:column;
+        width:100%;
+      }
+    }
+
+    @media print{
+      .archive-contact-note-wrap,
+      .course-footer{
+        display:none !important;
+      }
+    }
+  </style>
+
+  <section class="archive-contact-note-wrap">
+    <div class="archive-contact-note">
+      <h2>Neu im Kurs: Kontakte und Dienstleister</h2>
+      <p>
+        Neben Jahresständen, Flächen, Mieterlogik, Vorauszahlungen und Saldo gibt es jetzt auch eine eigene Kontaktzentrale.
+        Dort kannst du wichtige Ansprechpartner wie Gärtner, Elektriker, Gas, Wasser, Heizöl, Wartung, Prüfdienste,
+        Hausmeister oder Notfallkontakte zentral sammeln und später wieder öffnen.
+      </p>
+      <div class="archive-contact-note-actions">
+        <a class="btn btn-secondary" href="kontakte-und-dienstleister.html">Kontaktzentrale öffnen</a>
+        <a class="btn btn-ghost" href="index.html">Zur Steuerzentrale</a>
+      </div>
     </div>
-  </div>
-</footer></body>
+  </section>
+
+  <footer class="course-footer">
+    <div class="course-footer-card">
+      <p>Archiv – Nebenkostenabrechnung</p>
+      <div class="course-footer-links">
+        <a class="btn btn-ghost" href="index.html">Steuerzentrale</a>
+        <a class="btn btn-ghost" href="erfassung-eigentuemer.html">Eigentümer</a>
+        <a class="btn btn-ghost" href="erfassung-vermieter.html">Vermieter</a>
+        <a class="btn btn-ghost" href="hilfe-und-hinweise.html">Hilfe</a>
+        <a class="btn btn-ghost" href="kontakte-und-dienstleister.html">Kontakte</a>
+      </div>
+    </div>
+  </footer>
+</body>
 </html>
 
+Als Nächstes solltest du auf der Archiv-Seite einmal bei einem Eintrag auf „Tabelle“ drücken und prüfen, ob jetzt oben die Export-Info mit Dateiname erscheint.
