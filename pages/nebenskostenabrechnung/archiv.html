@@ -1,8 +1,18 @@
+Ja — ich baue es direkt sauber in deinen Stand ein.
+
+Datei
+lp-anfang/pages/nebenskostenabrechnung/archiv.html
+
+Commit-Message
+nebenkostenabrechnung – archiv excel csv json buttons sauber getrennt und downloadhinweis verbessert
+
+Als Nächstes wäre dann der Test auf der echten Seite: Excel, CSV und JSON jeweils einmal anklicken und prüfen, ob die Dateinamen und Rückmeldungen sauber passen.
+
 <!doctype html>
 <!--
   Nebenkostenabrechnung – Archiv
   GitHub-Pfad: lp-anfang/pages/nebenskostenabrechnung/archiv.html
-  Commit-Message: nebenkostenabrechnung – archiv globale csv exportfunktion und downloadhinweis ergänzt
+  Commit-Message: nebenkostenabrechnung – archiv excel csv json buttons sauber getrennt und downloadhinweis verbessert
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/nebenskostenabrechnung/archiv.html?nocache=__TS__
 -->
 <html lang="de">
@@ -10,7 +20,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Archiv | Nebenkostenabrechnung</title>
-  <meta name="description" content="Archiv für Eigentümer- und Vermieter-Jahresstände mit Bereich, Flächen, Mieterlogik, Vorauszahlungen, Saldo, Öffnen, Duplizieren, Export, globaler CSV-Funktion und Löschfunktion." />
+  <meta name="description" content="Archiv für Eigentümer- und Vermieter-Jahresstände mit Bereich, Flächen, Mieterlogik, Vorauszahlungen, Saldo, Öffnen, Duplizieren, Export, Excel-, CSV- und Sicherungsfunktion." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -235,7 +245,9 @@
     .empty-state,
     .message,
     .summary-card,
-    .download-feedback{
+    .download-feedback,
+    .archive-contact-note,
+    .course-footer-card{
       background:#fff;
       border:1px solid var(--line);
       box-shadow:var(--shadow);
@@ -324,7 +336,7 @@
 
     .layout{
       display:grid;
-      grid-template-columns:minmax(320px, 380px) minmax(0,1fr);
+      grid-template-columns:minmax(320px, 420px) minmax(0,1fr);
       gap:22px;
       align-items:start;
     }
@@ -618,10 +630,7 @@
     .archive-contact-note{
       position:relative;
       overflow:hidden;
-      background:#fff;
-      border:1px solid var(--line);
       border-radius:24px;
-      box-shadow:var(--shadow);
       padding:22px 22px 22px 26px;
     }
 
@@ -668,9 +677,6 @@
       justify-content:space-between;
       gap:18px;
       flex-wrap:wrap;
-      background:#fff;
-      border:1px solid var(--line);
-      box-shadow:var(--shadow);
     }
 
     .course-footer-card p{
@@ -892,8 +898,14 @@
 
             <div class="toolbar">
               <div class="toolbar-left">
-                <button type="button" class="btn btn-secondary" id="exportAllBtn">Alle sichern</button>
-                <button type="button" class="btn btn-ghost" id="exportAllCsvBtn">Excel / CSV gesamt</button>
+                <button type="button" class="btn btn-secondary" id="exportExcelBtn">Excel gesamt</button>
+                <button type="button" class="btn btn-ghost" id="exportCsvBtn">CSV gesamt</button>
+              </div>
+            </div>
+
+            <div class="toolbar">
+              <div class="toolbar-left">
+                <button type="button" class="btn btn-secondary" id="exportAllBtn">Komplett sichern</button>
                 <button type="button" class="btn btn-ghost" id="importBtn">Sicherung einlesen</button>
               </div>
               <div class="toolbar-right">
@@ -901,7 +913,7 @@
               </div>
             </div>
 
-            <p class="footer-note"><strong>Hinweis:</strong> Einzelne Einträge haben zusätzlich ihren eigenen Tabellen-Button direkt in der jeweiligen Karte.</p>
+            <p class="footer-note"><strong>Hinweis:</strong> Excel und CSV sind für Tabellenprüfung und Weiterbearbeitung. <strong>Komplett sichern</strong> ist für Gerätewechsel und Rückimport.</p>
           </div>
         </section>
 
@@ -992,8 +1004,9 @@
       const summaryAreaTotal = document.getElementById('summaryAreaTotal');
       const summaryAllCount = document.getElementById('summaryAllCount');
 
+      const exportExcelBtn = document.getElementById('exportExcelBtn');
+      const exportCsvBtn = document.getElementById('exportCsvBtn');
       const exportAllBtn = document.getElementById('exportAllBtn');
-      const exportAllCsvBtn = document.getElementById('exportAllCsvBtn');
       const importBtn = document.getElementById('importBtn');
       const importInput = document.getElementById('importInput');
       const clearAllBtn = document.getElementById('clearAllBtn');
@@ -1210,7 +1223,8 @@
               '<div class="actions">',
                 '<button type="button" class="btn btn-primary btn-small" data-action="open" data-id="', escapeHtml(record.id), '">Öffnen</button>',
                 '<button type="button" class="btn btn-secondary btn-small" data-action="duplicate" data-id="', escapeHtml(record.id), '">Duplizieren</button>',
-                '<button type="button" class="btn btn-ghost btn-small" data-action="csv" data-id="', escapeHtml(record.id), '">Tabelle</button>',
+                '<button type="button" class="btn btn-ghost btn-small" data-action="excel" data-id="', escapeHtml(record.id), '">Excel</button>',
+                '<button type="button" class="btn btn-ghost btn-small" data-action="csv" data-id="', escapeHtml(record.id), '">CSV</button>',
                 '<button type="button" class="btn btn-ghost btn-small" data-action="export" data-id="', escapeHtml(record.id), '">Sichern</button>',
                 '<button type="button" class="btn btn-danger btn-small" data-action="delete" data-id="', escapeHtml(record.id), '">Löschen</button>',
               '</div>',
@@ -1421,13 +1435,41 @@
       function exportAllCsv(){
         const items = getArchive();
         if(!items.length){
-          showMessage('Es gibt noch keine Jahresstände für eine Excel- oder CSV-Datei.', 'error');
+          showMessage('Es gibt noch keine Jahresstände für eine CSV-Datei.', 'error');
           return;
         }
         const filename = 'nebenkosten-archiv-gesamt-' + new Date().toISOString().slice(0,10) + '.csv';
         const csv = allRecordsToCsv(items);
-        downloadFile(filename, '\uFEFF' + csv, 'text/csv;charset=utf-8', 'Excel / CSV');
-        showMessage('Die Gesamt-Tabelle wurde heruntergeladen.', 'success');
+        downloadFile(filename, '\uFEFF' + csv, 'text/csv;charset=utf-8', 'CSV-Datei');
+        showMessage('Die Gesamt-CSV wurde heruntergeladen.', 'success');
+      }
+
+      function exportAllExcel(){
+        const items = getArchive();
+        if(!items.length){
+          showMessage('Es gibt noch keine Jahresstände für eine Excel-Datei.', 'error');
+          return;
+        }
+        const filename = 'nebenkosten-archiv-gesamt-' + new Date().toISOString().slice(0,10) + '.xls';
+        const csv = allRecordsToCsv(items);
+        downloadFile(filename, '\uFEFF' + csv, 'application/vnd.ms-excel;charset=utf-8', 'Excel-Datei');
+        showMessage('Die Gesamt-Excel-Datei wurde heruntergeladen.', 'success');
+      }
+
+      function exportRecordExcel(record){
+        const csv = recordToCsv(record);
+        const prefix = getModeFromRecord(record) === 'vermieter' ? 'vermieter-' : 'eigentuemer-';
+        const filename = prefix + (record.jahr || 'jahr') + '.xls';
+        downloadFile(filename, '\uFEFF' + csv, 'application/vnd.ms-excel;charset=utf-8', 'Excel-Datei');
+        showMessage('Die Excel-Datei wurde heruntergeladen.', 'success');
+      }
+
+      function exportRecordCsv(record){
+        const csv = recordToCsv(record);
+        const prefix = getModeFromRecord(record) === 'vermieter' ? 'vermieter-' : 'eigentuemer-';
+        const filename = prefix + (record.jahr || 'jahr') + '.csv';
+        downloadFile(filename, '\uFEFF' + csv, 'text/csv;charset=utf-8', 'CSV-Datei');
+        showMessage('Die CSV-Datei wurde heruntergeladen.', 'success');
       }
 
       function importArchiveFromFile(file){
@@ -1506,14 +1548,8 @@
 
         if(action === 'open'){ saveDraftAndOpen(record); return; }
         if(action === 'duplicate'){ duplicateRecord(record); return; }
-        if(action === 'csv'){
-          const csv = recordToCsv(record);
-          const prefix = getModeFromRecord(record) === 'vermieter' ? 'vermieter-' : 'eigentuemer-';
-          const filename = prefix + (record.jahr || 'jahr') + '.csv';
-          downloadFile(filename, '\uFEFF' + csv, 'text/csv;charset=utf-8', 'Excel / CSV');
-          showMessage('Die Tabellen-Datei wurde heruntergeladen.', 'success');
-          return;
-        }
+        if(action === 'excel'){ exportRecordExcel(record); return; }
+        if(action === 'csv'){ exportRecordCsv(record); return; }
         if(action === 'export'){ exportRecord(record); return; }
         if(action === 'delete'){ deleteRecord(id); }
       }
@@ -1526,8 +1562,10 @@
       ownerGrid.addEventListener('click', handleAction);
       landlordGrid.addEventListener('click', handleAction);
 
+      exportExcelBtn.addEventListener('click', exportAllExcel);
+      exportCsvBtn.addEventListener('click', exportAllCsv);
       exportAllBtn.addEventListener('click', exportAll);
-      exportAllCsvBtn.addEventListener('click', exportAllCsv);
+
       importBtn.addEventListener('click', () => importInput.click());
       importInput.addEventListener('change', event => {
         const file = event.target.files && event.target.files[0];
