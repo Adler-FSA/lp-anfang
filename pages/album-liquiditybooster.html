@@ -2,7 +2,7 @@
 <!--
   Album LiquidityBooster
   GitHub-Pfad: lp-anfang/pages/album-liquiditybooster.html
-  Commit-Message: album lyrics pro song mit aufklapp-button und auto-open beim start
+  Commit-Message: album erweitert mit auto-close lyrics random custom order playlist loop und lesefreundlicheren lyrics
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/album-liquiditybooster.html?nocache=__TS__
 -->
 <html lang="de">
@@ -58,7 +58,8 @@
       text-decoration:none;
     }
 
-    button{
+    button,
+    input{
       font:inherit;
     }
 
@@ -153,7 +154,7 @@
       border:1px solid transparent;
       font-weight:700;
       cursor:pointer;
-      transition:transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+      transition:transform .2s ease, box-shadow .2s ease, opacity .2s ease, background .2s ease;
       box-shadow:var(--shadow-soft);
     }
 
@@ -171,10 +172,79 @@
       border-color:rgba(15,23,42,.10);
     }
 
+    .btn-soft{
+      color:#0f172a;
+      background:linear-gradient(135deg, rgba(244,226,160,.34), rgba(42,168,184,.12));
+      border-color:rgba(15,23,42,.10);
+    }
+
+    .btn-dark{
+      color:#fff;
+      background:linear-gradient(135deg, #111827, #334155);
+      border-color:rgba(15,23,42,.16);
+    }
+
+    .btn.is-active{
+      color:#111827;
+      background:linear-gradient(135deg, #ffe2a8, #bff4eb);
+      border-color:rgba(42,168,184,.24);
+    }
+
     .btn[disabled]{
       cursor:default;
       opacity:.82;
       transform:none;
+    }
+
+    .control-panel{
+      margin-top:18px;
+      padding:18px;
+      border-radius:24px;
+      border:1px solid rgba(15,23,42,.08);
+      background:rgba(255,255,255,.86);
+      box-shadow:var(--shadow-soft);
+      display:grid;
+      gap:14px;
+    }
+
+    .control-title{
+      margin:0;
+      font-size:15px;
+      font-weight:800;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      color:#475569;
+    }
+
+    .control-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
+
+    .order-field{
+      width:min(100%, 440px);
+      min-height:52px;
+      padding:0 16px;
+      border-radius:16px;
+      border:1px solid rgba(15,23,42,.12);
+      background:#fff;
+      color:#0f172a;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .status-pill{
+      display:inline-flex;
+      align-items:center;
+      min-height:46px;
+      padding:0 16px;
+      border-radius:999px;
+      background:linear-gradient(135deg, rgba(244,226,160,.28), rgba(42,168,184,.14));
+      border:1px solid rgba(15,23,42,.08);
+      color:#1f2937;
+      font-size:14px;
+      font-weight:700;
     }
 
     .section{
@@ -194,6 +264,7 @@
       border:1px solid var(--line);
       box-shadow:var(--shadow-soft);
       margin-bottom:22px;
+      transition:box-shadow .2s ease, transform .2s ease, border-color .2s ease;
     }
 
     .song-card::before{
@@ -203,6 +274,12 @@
       width:100%;
       height:6px;
       background:linear-gradient(90deg, var(--gold), var(--orange), var(--teal));
+    }
+
+    .song-card.is-current{
+      border-color:rgba(212,175,55,.32);
+      box-shadow:0 20px 48px rgba(212,175,55,.14);
+      transform:translateY(-2px);
     }
 
     .song-card.finale-card{
@@ -284,8 +361,8 @@
     }
 
     .lyrics-toggle{
-      min-height:46px;
-      padding:0 16px;
+      min-height:48px;
+      padding:0 18px;
       border-radius:14px;
       border:1px solid rgba(15,23,42,.10);
       background:linear-gradient(180deg, #ffffff, #f7f8fb);
@@ -308,7 +385,7 @@
     .lyrics-panel{
       display:none;
       margin-top:2px;
-      padding:20px;
+      padding:24px;
       border-radius:22px;
       border:1px solid rgba(15,23,42,.08);
       background:
@@ -322,8 +399,8 @@
     }
 
     .lyrics-title{
-      margin:0 0 12px;
-      font-size:16px;
+      margin:0 0 14px;
+      font-size:17px;
       font-weight:800;
       letter-spacing:.08em;
       text-transform:uppercase;
@@ -332,10 +409,14 @@
 
     .lyrics-text{
       margin:0;
-      color:#1f2937;
-      font-size:17px;
-      line-height:1.9;
+      max-width:760px;
+      color:#111827;
+      font-size:23px;
+      line-height:2.0;
+      letter-spacing:.01em;
       white-space:pre-line;
+      text-wrap:pretty;
+      -webkit-text-size-adjust:100%;
     }
 
     .summary{
@@ -417,6 +498,11 @@
       .song-card{
         grid-template-columns:1fr;
       }
+
+      .lyrics-text{
+        font-size:21px;
+        line-height:1.95;
+      }
     }
 
     @media (max-width:640px){
@@ -427,24 +513,39 @@
         padding:18px;
       }
 
-      .hero-actions{
-        flex-direction:column;
+      .control-panel{
+        padding:14px;
       }
 
-      .btn,
-      .lyrics-toggle{
-        width:100%;
-      }
-
+      .hero-actions,
+      .control-row,
       .song-actions{
         flex-direction:column;
       }
 
+      .btn,
+      .lyrics-toggle,
+      .order-field{
+        width:100%;
+      }
+
       .lead,
       .text,
-      .summary p,
-      .lyrics-text{
+      .summary p{
         font-size:17px;
+      }
+
+      .lyrics-panel{
+        padding:18px;
+      }
+
+      .lyrics-title{
+        font-size:15px;
+      }
+
+      .lyrics-text{
+        font-size:20px;
+        line-height:1.95;
       }
     }
   </style>
@@ -467,8 +568,32 @@
         </p>
 
         <div class="hero-actions">
-          <button class="btn btn-primary" type="button" id="playAllBtn">Album komplett hören</button>
+          <button class="btn btn-primary" type="button" id="playAllBtn">Normal abspielen</button>
+          <button class="btn btn-secondary" type="button" id="playRandomBtn">Zufall / Random Mix</button>
           <button class="btn btn-secondary" type="button" onclick="document.getElementById('song1').scrollIntoView({behavior:'smooth', block:'start'})">Mit Titel 1 starten</button>
+        </div>
+
+        <div class="control-panel">
+          <p class="control-title">Playlist Steuerung</p>
+
+          <div class="control-row">
+            <button class="btn btn-soft" type="button" id="playlistLoopBtn" aria-pressed="false">Playlist-Loop aus</button>
+            <button class="btn btn-soft" type="button" id="stopAllBtn">Alles stoppen</button>
+            <div class="status-pill" id="modeInfo">Modus: Normal</div>
+          </div>
+
+          <div class="control-row">
+            <input
+              class="order-field"
+              type="text"
+              id="customOrderInput"
+              inputmode="numeric"
+              autocomplete="off"
+              placeholder="Eigene Reihenfolge z. B. 7,4,1,6,2,3,5"
+            />
+            <button class="btn btn-dark" type="button" id="applyCustomOrderBtn">Eigene Reihenfolge abspielen</button>
+            <button class="btn btn-secondary" type="button" id="resetCustomOrderBtn">Reihenfolge zurücksetzen</button>
+          </div>
         </div>
       </div>
     </div>
@@ -477,7 +602,7 @@
   <main class="section">
     <div class="wrap">
 
-      <section class="song-card fade-up delay-1" id="song1">
+      <section class="song-card fade-up delay-1" id="song1" data-song-number="1">
         <div class="cover">
           <img src="../library/images/IMG_2976.jpeg" alt="Coverbild Stille Revolution" />
         </div>
@@ -491,7 +616,7 @@
             nicht zuerst außen, sondern im Inneren beginnt.
           </p>
           <div class="audio-wrap">
-            <audio controls preload="metadata" id="audio1">
+            <audio controls preload="metadata" id="audio1" data-song-id="1">
               <source src="../library/music/stille-revolution.mp3" type="audio/mpeg" />
               Dein Browser unterstützt das Audio-Element nicht.
             </audio>
@@ -597,7 +722,7 @@ in Bewegung.</p>
         </div>
       </section>
 
-      <section class="song-card fade-up delay-2" id="song2">
+      <section class="song-card fade-up delay-2" id="song2" data-song-number="2">
         <div class="cover">
           <img src="../library/images/IMG_5924.jpeg" alt="Coverbild Jetzt nach vorn" />
         </div>
@@ -611,7 +736,7 @@ in Bewegung.</p>
             nach vorn zu gehen.
           </p>
           <div class="audio-wrap">
-            <audio controls preload="metadata" id="audio2">
+            <audio controls preload="metadata" id="audio2" data-song-id="2">
               <source src="../library/music/jetzt-nach-vorn.mp3" type="audio/mpeg" />
               Dein Browser unterstützt das Audio-Element nicht.
             </audio>
@@ -719,7 +844,7 @@ Und wir gehen los.</p>
         </div>
       </section>
 
-      <section class="song-card fade-up delay-3" id="song3">
+      <section class="song-card fade-up delay-3" id="song3" data-song-number="3">
         <div class="cover">
           <img src="../library/images/IMG_5929.jpeg" alt="Coverbild Der nächste Schritt" />
         </div>
@@ -733,7 +858,7 @@ Und wir gehen los.</p>
             klaren, machbaren nächsten Schritt beginnt.
           </p>
           <div class="audio-wrap">
-            <audio controls preload="metadata" id="audio3">
+            <audio controls preload="metadata" id="audio3" data-song-id="3">
               <source src="../library/music/feuer-unter-unserer-haut.mp3" type="audio/mpeg" />
               Dein Browser unterstützt das Audio-Element nicht.
             </audio>
@@ -825,7 +950,7 @@ der Menschen weiterführt und Freiheit lebt.</p>
         </div>
       </section>
 
-      <section class="song-card fade-up delay-4" id="song4">
+      <section class="song-card fade-up delay-4" id="song4" data-song-number="4">
         <div class="cover">
           <img src="../library/images/IMG_5932.jpeg" alt="Coverbild Wieder ich" />
         </div>
@@ -839,7 +964,7 @@ der Menschen weiterführt und Freiheit lebt.</p>
             wieder näher zu sich selbst zu finden.
           </p>
           <div class="audio-wrap">
-            <audio controls preload="metadata" id="audio4">
+            <audio controls preload="metadata" id="audio4" data-song-id="4">
               <source src="../library/music/wieder-aufstehen.mp3" type="audio/mpeg" />
               Dein Browser unterstützt das Audio-Element nicht.
             </audio>
@@ -971,7 +1096,7 @@ sondern weil mein Herz wieder Hoffnung hat.</p>
         </div>
       </section>
 
-      <section class="song-card fade-up delay-5" id="song5">
+      <section class="song-card fade-up delay-5" id="song5" data-song-number="5">
         <div class="cover">
           <img src="../library/images/IMG_5935.jpeg" alt="Coverbild Unsichtbares Gefängnis" />
         </div>
@@ -985,7 +1110,7 @@ sondern weil mein Herz wieder Hoffnung hat.</p>
             dass daraus wieder ein Weg entstehen kann.
           </p>
           <div class="audio-wrap">
-            <audio controls preload="metadata" id="audio5">
+            <audio controls preload="metadata" id="audio5" data-song-id="5">
               <source src="../library/music/was-von-uns-bleibt.mp3" type="audio/mpeg" />
               Dein Browser unterstützt das Audio-Element nicht.
             </audio>
@@ -1063,7 +1188,7 @@ sondern weil du endlich wieder Richtung spürst.</p>
         </div>
       </section>
 
-      <section class="song-card fade-up delay-6" id="song6">
+      <section class="song-card fade-up delay-6" id="song6" data-song-number="6">
         <div class="cover">
           <img src="../library/images/produkte/geschenk-01.jpg" alt="Coverbild Die Rückeroberung der eigenen Souveränität" />
         </div>
@@ -1077,7 +1202,7 @@ sondern weil du endlich wieder Richtung spürst.</p>
             dass ein neuer Blick auch neue Richtung eröffnen kann.
           </p>
           <div class="audio-wrap">
-            <audio controls preload="metadata" id="audio6">
+            <audio controls preload="metadata" id="audio6" data-song-id="6">
               <source src="../library/music/die-rueckeroberung-der-eigenen-souveraenitaet.mp3" type="audio/mpeg" />
               Dein Browser unterstützt das Audio-Element nicht.
             </audio>
@@ -1225,7 +1350,7 @@ der wieder aufrecht stehen lässt.</p>
         </div>
       </section>
 
-      <section class="song-card finale-card fade-up delay-7" id="song7">
+      <section class="song-card finale-card fade-up delay-7" id="song7" data-song-number="7">
         <div class="cover">
           <img src="../library/images/IMG_5947.jpeg" alt="Coverbild Wir gehen jetzt los" />
         </div>
@@ -1239,7 +1364,7 @@ der wieder aufrecht stehen lässt.</p>
             inneren Frage wird, ob jetzt ein eigener Schritt folgen soll.
           </p>
           <div class="audio-wrap">
-            <audio controls preload="metadata" id="audio7">
+            <audio controls preload="metadata" id="audio7" data-song-id="7">
               <source src="../library/music/wir-gehen-jetzt-los.mp3" type="audio/mpeg" />
               Dein Browser unterstützt das Audio-Element nicht.
             </audio>
@@ -1365,8 +1490,77 @@ in ein finanziell souveränes Leben</p>
       ].filter(Boolean);
 
       const playAllBtn = document.getElementById('playAllBtn');
+      const playRandomBtn = document.getElementById('playRandomBtn');
+      const stopAllBtn = document.getElementById('stopAllBtn');
+      const playlistLoopBtn = document.getElementById('playlistLoopBtn');
+      const applyCustomOrderBtn = document.getElementById('applyCustomOrderBtn');
+      const resetCustomOrderBtn = document.getElementById('resetCustomOrderBtn');
+      const customOrderInput = document.getElementById('customOrderInput');
+      const modeInfo = document.getElementById('modeInfo');
+
       const lyricsButtons = Array.from(document.querySelectorAll('[data-lyrics-toggle]'));
+      const songCards = Array.from(document.querySelectorAll('.song-card'));
+
+      const songMap = {
+        1:{ title:'Stille Revolution', audio:document.getElementById('audio1') },
+        2:{ title:'Jetzt nach vorn', audio:document.getElementById('audio2') },
+        3:{ title:'Der nächste Schritt', audio:document.getElementById('audio3') },
+        4:{ title:'Wieder ich', audio:document.getElementById('audio4') },
+        5:{ title:'Unsichtbares Gefängnis', audio:document.getElementById('audio5') },
+        6:{ title:'Die Rückeroberung der eigenen Souveränität', audio:document.getElementById('audio6') },
+        7:{ title:'Wir gehen jetzt los', audio:document.getElementById('audio7') }
+      };
+
       let sequenceRunning = false;
+      let playlistLoop = false;
+      let playlistMode = 'normal';
+      let activeQueue = [1,2,3,4,5,6,7];
+      let currentQueueIndex = -1;
+
+      function shuffle(array){
+        const copy = array.slice();
+        for(let i = copy.length - 1; i > 0; i--){
+          const j = Math.floor(Math.random() * (i + 1));
+          const temp = copy[i];
+          copy[i] = copy[j];
+          copy[j] = temp;
+        }
+        return copy;
+      }
+
+      function parseCustomOrder(value){
+        const parts = String(value || '')
+          .split(/[^\d]+/)
+          .map(function(item){ return Number(item.trim()); })
+          .filter(function(item){ return item >= 1 && item <= 7; });
+
+        if(parts.length !== 7) return null;
+
+        const unique = Array.from(new Set(parts));
+        if(unique.length !== 7) return null;
+
+        return unique;
+      }
+
+      function updateModeInfo(){
+        const titles = activeQueue.map(function(n){ return n; }).join(' → ');
+        let label = 'Modus: Normal';
+        if(playlistMode === 'random') label = 'Modus: Zufall';
+        if(playlistMode === 'custom') label = 'Modus: Eigene Reihenfolge';
+        modeInfo.textContent = label + ' · Folge: ' + titles;
+      }
+
+      function updateLoopButton(){
+        playlistLoopBtn.classList.toggle('is-active', playlistLoop);
+        playlistLoopBtn.setAttribute('aria-pressed', String(playlistLoop));
+        playlistLoopBtn.textContent = playlistLoop ? 'Playlist-Loop an' : 'Playlist-Loop aus';
+      }
+
+      function updateModeButtons(){
+        playAllBtn.classList.toggle('is-active', playlistMode === 'normal');
+        playRandomBtn.classList.toggle('is-active', playlistMode === 'random');
+        applyCustomOrderBtn.classList.toggle('is-active', playlistMode === 'custom');
+      }
 
       function pauseOthers(current){
         audios.forEach(function(audio){
@@ -1374,6 +1568,20 @@ in ein finanziell souveränes Leben</p>
             audio.pause();
           }
         });
+      }
+
+      function clearCurrentCards(){
+        songCards.forEach(function(card){
+          card.classList.remove('is-current');
+        });
+      }
+
+      function setCurrentCardForAudio(audio){
+        clearCurrentCards();
+        const card = audio.closest('.song-card');
+        if(card){
+          card.classList.add('is-current');
+        }
       }
 
       function setLyricsState(button, panel, open){
@@ -1384,7 +1592,16 @@ in ein finanziell souveränes Leben</p>
         panel.classList.toggle('open', open);
       }
 
+      function closeAllLyrics(){
+        lyricsButtons.forEach(function(button){
+          const panelId = button.getAttribute('data-lyrics-toggle');
+          const panel = document.getElementById(panelId);
+          setLyricsState(button, panel, false);
+        });
+      }
+
       function openLyricsForAudio(audio){
+        closeAllLyrics();
         const card = audio.closest('.song-card');
         if(!card) return;
         const button = card.querySelector('[data-lyrics-toggle]');
@@ -1393,66 +1610,207 @@ in ein finanziell souveränes Leben</p>
         setLyricsState(button, panel, true);
       }
 
+      function stopSequence(){
+        sequenceRunning = false;
+        currentQueueIndex = -1;
+        playAllBtn.textContent = 'Normal abspielen';
+        playAllBtn.disabled = false;
+        playRandomBtn.disabled = false;
+        applyCustomOrderBtn.disabled = false;
+      }
+
+      function stopAllPlayback(){
+        stopSequence();
+        audios.forEach(function(audio){
+          audio.pause();
+          audio.currentTime = 0;
+        });
+        clearCurrentCards();
+        closeAllLyrics();
+      }
+
+      function getAudioBySongNumber(songNumber){
+        return songMap[songNumber] ? songMap[songNumber].audio : null;
+      }
+
+      async function waitForAudioToFinish(audio){
+        return new Promise(function(resolve){
+          let resolved = false;
+
+          function cleanup(){
+            audio.removeEventListener('ended', onEnded);
+            audio.removeEventListener('pause', onPauseCheck);
+          }
+
+          function finish(reason){
+            if(resolved) return;
+            resolved = true;
+            cleanup();
+            resolve(reason);
+          }
+
+          function onEnded(){
+            finish('ended');
+          }
+
+          function onPauseCheck(){
+            setTimeout(function(){
+              if(sequenceRunning && audio.paused && !audio.ended){
+                finish('paused');
+              }
+            }, 0);
+          }
+
+          audio.addEventListener('ended', onEnded, { once:true });
+          audio.addEventListener('pause', onPauseCheck);
+        });
+      }
+
+      async function playQueue(queue, modeName){
+        if(!Array.isArray(queue) || !queue.length) return;
+
+        stopAllPlayback();
+
+        sequenceRunning = true;
+        playlistMode = modeName;
+        activeQueue = queue.slice();
+        updateModeButtons();
+        updateModeInfo();
+
+        playAllBtn.textContent = 'Playlist läuft …';
+        playAllBtn.disabled = true;
+        playRandomBtn.disabled = true;
+        applyCustomOrderBtn.disabled = true;
+
+        while(sequenceRunning){
+          for(let i = 0; i < activeQueue.length; i++){
+            if(!sequenceRunning) break;
+
+            currentQueueIndex = i;
+            const songNumber = activeQueue[i];
+            const current = getAudioBySongNumber(songNumber);
+            if(!current) continue;
+
+            pauseOthers(current);
+            openLyricsForAudio(current);
+            setCurrentCardForAudio(current);
+
+            const card = current.closest('.song-card');
+            if(card){
+              card.scrollIntoView({ behavior:'smooth', block:'center' });
+            }
+
+            try{
+              current.currentTime = 0;
+              await current.play();
+            }catch(err){
+              stopSequence();
+              closeAllLyrics();
+              clearCurrentCards();
+              return;
+            }
+
+            const reason = await waitForAudioToFinish(current);
+
+            closeAllLyrics();
+
+            if(!sequenceRunning) break;
+            if(reason === 'paused') break;
+          }
+
+          if(!sequenceRunning) break;
+          if(playlistLoop){
+            continue;
+          }
+          break;
+        }
+
+        stopSequence();
+        closeAllLyrics();
+        clearCurrentCards();
+      }
+
       lyricsButtons.forEach(function(button){
         button.addEventListener('click', function(){
           const panelId = button.getAttribute('data-lyrics-toggle');
           const panel = document.getElementById(panelId);
           const isOpen = button.getAttribute('aria-expanded') === 'true';
-          setLyricsState(button, panel, !isOpen);
+
+          if(isOpen){
+            setLyricsState(button, panel, false);
+          }else{
+            closeAllLyrics();
+            setLyricsState(button, panel, true);
+          }
         });
       });
 
       audios.forEach(function(audio){
         audio.addEventListener('play', function(){
-          pauseOthers(audio);
+          if(!sequenceRunning){
+            pauseOthers(audio);
+          }
           openLyricsForAudio(audio);
+          setCurrentCardForAudio(audio);
+        });
+
+        audio.addEventListener('ended', function(){
+          if(!sequenceRunning){
+            closeAllLyrics();
+            clearCurrentCards();
+          }
+        });
+
+        audio.addEventListener('pause', function(){
+          if(!sequenceRunning && !audio.ended){
+            clearCurrentCards();
+          }
         });
       });
 
-      async function playSequentially(){
-        if(sequenceRunning) return;
-        sequenceRunning = true;
-        playAllBtn.textContent = 'Album läuft …';
-        playAllBtn.disabled = true;
+      playAllBtn.addEventListener('click', function(){
+        playQueue([1,2,3,4,5,6,7], 'normal');
+      });
 
-        for(let i = 0; i < audios.length; i++){
-          const current = audios[i];
-          if(!current) continue;
+      playRandomBtn.addEventListener('click', function(){
+        playQueue(shuffle([1,2,3,4,5,6,7]), 'random');
+      });
 
-          pauseOthers(current);
-          openLyricsForAudio(current);
-
-          const card = current.closest('.song-card');
-          if(card){
-            card.scrollIntoView({ behavior:'smooth', block:'center' });
-          }
-
-          try{
-            current.currentTime = 0;
-            await current.play();
-          }catch(err){
-            break;
-          }
-
-          await new Promise(function(resolve){
-            const done = function(){
-              current.removeEventListener('ended', done);
-              resolve();
-            };
-            current.addEventListener('ended', done, { once:true });
-          });
+      applyCustomOrderBtn.addEventListener('click', function(){
+        const parsed = parseCustomOrder(customOrderInput.value);
+        if(!parsed){
+          alert('Bitte gib genau sieben unterschiedliche Zahlen zwischen 1 und 7 ein, zum Beispiel: 7,4,1,6,2,3,5');
+          return;
         }
+        localStorage.setItem('lb_album_custom_order', parsed.join(','));
+        playQueue(parsed, 'custom');
+      });
 
-        playAllBtn.textContent = 'Album komplett hören';
-        playAllBtn.disabled = false;
-        sequenceRunning = false;
-      }
+      resetCustomOrderBtn.addEventListener('click', function(){
+        customOrderInput.value = '1,2,3,4,5,6,7';
+        localStorage.setItem('lb_album_custom_order', '1,2,3,4,5,6,7');
+        playlistMode = 'normal';
+        activeQueue = [1,2,3,4,5,6,7];
+        updateModeButtons();
+        updateModeInfo();
+      });
 
-      if(playAllBtn){
-        playAllBtn.addEventListener('click', function(){
-          playSequentially();
-        });
-      }
+      playlistLoopBtn.addEventListener('click', function(){
+        playlistLoop = !playlistLoop;
+        updateLoopButton();
+      });
+
+      stopAllBtn.addEventListener('click', function(){
+        stopAllPlayback();
+      });
+
+      const storedOrder = localStorage.getItem('lb_album_custom_order');
+      customOrderInput.value = storedOrder || '1,2,3,4,5,6,7';
+      activeQueue = [1,2,3,4,5,6,7];
+      updateLoopButton();
+      updateModeButtons();
+      updateModeInfo();
+      closeAllLyrics();
     })();
   </script>
 
