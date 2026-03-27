@@ -2,7 +2,7 @@
 <!--
   LiquidityBooster – Song Banner – Die Seele erwacht
   GitHub-Pfad: lp-anfang/pages/song-banner/die-seele-erwacht-banner.html
-  Commit-Message: song banner fuer die seele erwacht mit cover kleinem player und loop button
+  Commit-Message: song banner die seele erwacht mit lyrics button auto-open beim start und auto-close am ende
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/song-banner/die-seele-erwacht-banner.html?nocache=__TS__
 -->
 <html lang="de">
@@ -10,7 +10,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Die Seele erwacht – Song Banner</title>
-  <meta name="description" content="Einfacher iframe-fähiger Song-Banner mit Cover, Audio-Player und Endlos-Button." />
+  <meta name="description" content="Einfacher iframe-fähiger Song-Banner mit Cover, Audio-Player, Endlos-Button und aufklappbaren Lyrics." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -50,11 +50,11 @@
       border:1px solid var(--line);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
-      padding:16px 18px;
+      padding:16px 18px 18px;
       display:grid;
       grid-template-columns:132px minmax(0,1fr);
       gap:16px;
-      align-items:center;
+      align-items:start;
       overflow:hidden;
       position:relative;
       isolation:isolate;
@@ -92,7 +92,7 @@
       min-width:0;
       display:grid;
       gap:10px;
-      align-items:center;
+      align-items:start;
     }
 
     .eyebrow{
@@ -134,34 +134,86 @@
       flex:1 1 300px;
     }
 
-    .loop-btn{
+    .loop-btn,
+    .lyrics-btn{
       appearance:none;
       border:0;
       border-radius:999px;
-      background:linear-gradient(135deg,var(--pink),var(--mint));
-      color:#111111;
       font-weight:800;
       font-size:14px;
       line-height:1;
       padding:12px 16px;
       cursor:pointer;
       box-shadow:0 10px 24px rgba(0,0,0,.12);
-      transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+      transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease, background .15s ease, color .15s ease;
       white-space:nowrap;
     }
 
-    .loop-btn:hover{
+    .loop-btn{
+      background:linear-gradient(135deg,var(--pink),var(--mint));
+      color:#111111;
+    }
+
+    .lyrics-btn{
+      background:#ffffff;
+      color:#111111;
+      border:1px solid rgba(17,17,17,.10);
+      box-shadow:0 8px 20px rgba(0,0,0,.08);
+    }
+
+    .loop-btn:hover,
+    .lyrics-btn:hover{
       transform:translateY(-1px);
       box-shadow:0 14px 30px rgba(0,0,0,.16);
     }
 
-    .loop-btn:active{
+    .loop-btn:active,
+    .lyrics-btn:active{
       transform:translateY(0);
     }
 
     .loop-btn.is-active{
       background:linear-gradient(135deg,#111111,#2d343f);
       color:#ffffff;
+    }
+
+    .lyrics-btn.is-open{
+      background:linear-gradient(135deg, rgba(255,79,179,.18), rgba(32,216,178,.18));
+      color:#111111;
+    }
+
+    .lyrics-panel{
+      display:none;
+      margin-top:6px;
+      padding:16px;
+      border:1px solid rgba(17,17,17,.08);
+      border-radius:18px;
+      background:
+        linear-gradient(135deg, rgba(255,79,179,.06), rgba(32,216,178,.08)),
+        #ffffff;
+      box-shadow:0 10px 24px rgba(0,0,0,.06);
+    }
+
+    .lyrics-panel.open{
+      display:block;
+    }
+
+    .lyrics-label{
+      margin:0 0 10px;
+      font-size:12px;
+      line-height:1.2;
+      font-weight:800;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    .lyrics-text{
+      margin:0;
+      font-size:15px;
+      line-height:1.8;
+      color:#111111;
+      white-space:pre-line;
     }
 
     .hint{
@@ -190,6 +242,15 @@
         flex:1 1 100%;
         width:100%;
       }
+
+      .loop-btn,
+      .lyrics-btn{
+        width:100%;
+      }
+
+      .lyrics-panel{
+        text-align:left;
+      }
     }
   </style>
 </head>
@@ -206,7 +267,7 @@
     <div class="content">
       <p class="eyebrow">LiquidityBooster Song</p>
       <h1 class="title">Die Seele erwacht</h1>
-      <p class="subtitle">Einfach anhören, starten und bei Bedarf im Endloslauf laufen lassen.</p>
+      <p class="subtitle">Einfach anhören, starten, Lyrics mitlesen und bei Bedarf im Endloslauf laufen lassen.</p>
 
       <div class="player-row">
         <audio id="songPlayer" controls preload="metadata">
@@ -217,9 +278,81 @@
         <button id="loopToggle" class="loop-btn" type="button" aria-pressed="false">
           Endloslauf aus
         </button>
+
+        <button id="lyricsToggle" class="lyrics-btn" type="button" aria-expanded="false" aria-controls="lyricsPanel">
+          Lyrics anzeigen
+        </button>
       </div>
 
-      <p class="hint">Tipp: Der Button schaltet den Loop-Modus direkt für dieses Lied ein oder aus.</p>
+      <div id="lyricsPanel" class="lyrics-panel" hidden>
+        <p class="lyrics-label">Lyrics</p>
+        <p class="lyrics-text">Tief in unserem Inneren
+fühlen wir das Leben neu
+LiquidityBooster trägt den Schritt
+und daraus wächst ein neuer Wert
+
+Gemeinschaft wächst nicht aus dem Druck
+Gemeinschaft wächst aus dem Gefühl
+Jeder hat es selbst in der Hand
+wenn Erkenntnis Zukunft will
+
+Aus stiller Revolution
+wird eine Seele neu entfacht
+Tief in uns brennt dieses Licht
+und trägt uns durch die dunkle Nacht
+
+Wie ein Leuchtturm voller Hoffnung
+steht ein Zeichen fest und klar
+Es zeigt uns einen neuen Hafen
+und sagt uns leise wir sind da
+
+Ein neuer Anfang wird jetzt wahr
+aus dem ersten kleinen Schritt
+Erst ein Blick und dann Vertrauen
+und auf einmal gehen wir mit
+
+Wo Klarheit neue Wege öffnet
+und ein Mensch den andern sieht
+wächst aus vielen kleinen Funken
+eine Kraft die weiterzieht
+
+Aus stiller Revolution
+wird eine Seele neu entfacht
+Tief in uns brennt dieses Licht
+und trägt uns durch die dunkle Nacht
+
+Wie ein Leuchtturm voller Hoffnung
+steht ein Zeichen fest und klar
+Es zeigt uns einen neuen Hafen
+und sagt uns leise wir sind da
+
+Jetzt heben wir die Herzen höher
+jetzt geht der Blick nach vorn und weit
+Was in uns so lang verborgen war
+wird zu Mut und Wirklichkeit
+
+Wenn wir Schulter an Schulter gehen
+wird aus Hoffnung Zuversicht
+Und aus allem was uns heute stärkt
+wird ein neues großes Licht
+
+Aus stiller Revolution
+wird eine Seele neu entfacht
+Tief in uns brennt dieses Licht
+und trägt uns durch die dunkle Nacht
+
+Wie ein Leuchtturm voller Hoffnung
+steht ein Zeichen fest und klar
+Es zeigt uns einen neuen Hafen
+und sagt uns leise wir sind da
+
+Gemeinschaft trägt uns durch die Zeit
+Gemeinschaft trägt uns in das Licht
+Und was heute in uns neu erwacht
+verliert sich morgen nicht</p>
+      </div>
+
+      <p class="hint">Tipp: Beim Start des Liedes öffnen sich die Lyrics automatisch. Sobald das Lied endet, schließen sie sich wieder selbst.</p>
     </div>
   </section>
 
@@ -227,6 +360,8 @@
     (function(){
       const player = document.getElementById('songPlayer');
       const loopToggle = document.getElementById('loopToggle');
+      const lyricsToggle = document.getElementById('lyricsToggle');
+      const lyricsPanel = document.getElementById('lyricsPanel');
 
       function updateLoopButton(){
         const active = !!player.loop;
@@ -235,12 +370,46 @@
         loopToggle.textContent = active ? 'Endloslauf an' : 'Endloslauf aus';
       }
 
+      function openLyrics(){
+        lyricsPanel.hidden = false;
+        lyricsPanel.classList.add('open');
+        lyricsToggle.classList.add('is-open');
+        lyricsToggle.setAttribute('aria-expanded', 'true');
+        lyricsToggle.textContent = 'Lyrics ausblenden';
+      }
+
+      function closeLyrics(){
+        lyricsPanel.classList.remove('open');
+        lyricsPanel.hidden = true;
+        lyricsToggle.classList.remove('is-open');
+        lyricsToggle.setAttribute('aria-expanded', 'false');
+        lyricsToggle.textContent = 'Lyrics anzeigen';
+      }
+
       loopToggle.addEventListener('click', function(){
         player.loop = !player.loop;
         updateLoopButton();
       });
 
+      lyricsToggle.addEventListener('click', function(){
+        const isOpen = lyricsToggle.getAttribute('aria-expanded') === 'true';
+        if(isOpen){
+          closeLyrics();
+        }else{
+          openLyrics();
+        }
+      });
+
+      player.addEventListener('play', function(){
+        openLyrics();
+      });
+
+      player.addEventListener('ended', function(){
+        closeLyrics();
+      });
+
       updateLoopButton();
+      closeLyrics();
     })();
   </script>
 </body>
