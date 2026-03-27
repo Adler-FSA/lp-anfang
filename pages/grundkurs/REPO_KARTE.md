@@ -241,6 +241,8 @@
     │   │   ├── IMG_6043.jpeg
     │   │   ├── IMG_6050.jpeg
     │   │   ├── README.txt
+    │   │   ├── botschafter-sein.jpeg
+    │   │   ├── botschafter.PNG
     │   │   ├── ceo-bausteine.PNG
     │   │   ├── compliance.jpg
     │   │   ├── frohe-weihnachten.jpg
@@ -423,6 +425,7 @@
     │   │   │   ├── track-97.mp3
     │   │   │   ├── track-98.mp3
     │   │   │   └── track-99.mp3
+    │   │   ├── botschafter-sein.mp3
     │   │   ├── die-rueckeroberung-der-eigenen-souveraenitaet.mp3
     │   │   ├── die-seele-erwacht.mp3
     │   │   ├── dienstag-um-18-uhr.mp3
@@ -1329,4 +1332,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.03.2026, 22:26)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.03.2026, 23:27)_
