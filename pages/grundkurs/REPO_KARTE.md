@@ -1082,6 +1082,8 @@
     │   │   ├── share-adler.html
     │   │   ├── share-akademie.html
     │   │   └── share-netzwerk.html
+    │   ├── song-banner/
+    │   │   └── die-seele-erwacht-banner.html
     │   ├── sprecher/
     │   │   └── kickoff-sprecher-tools.html
     │   ├── statement/
@@ -1327,4 +1329,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.03.2026, 07:56)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.03.2026, 08:52)_
