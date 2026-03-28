@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Mix LiquidityBooster Songs</title>
-  <meta name="description" content="Eigene LiquidityBooster Playlist zusammenstellen, Songs auswählen und nacheinander abspielen." />
+  <meta name="description" content="Eigene LiquidityBooster Playlist zusammenstellen, Songs auswählen, Reihenfolge frei festlegen und nacheinander abspielen." />
   <meta name="robots" content="index,follow" />
 
   <style>
@@ -33,7 +33,7 @@
       --radius-md:16px;
       --radius-sm:12px;
 
-      --max:1380px;
+      --max:1440px;
     }
 
     *{box-sizing:border-box}
@@ -237,6 +237,12 @@
       border-color:rgba(255,107,107,.22);
     }
 
+    .btn-ok{
+      background:linear-gradient(135deg, #5cf0cf, #21e6b6);
+      color:#07131a;
+      border-color:rgba(33,230,182,.22);
+    }
+
     .toggle-row{
       display:flex;
       flex-wrap:wrap;
@@ -264,7 +270,7 @@
 
     .stats{
       display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
+      grid-template-columns:repeat(4,minmax(0,1fr));
       gap:12px;
       margin-top:16px;
     }
@@ -326,11 +332,14 @@
       letter-spacing:-.02em;
     }
 
-    .now-sub,
-    .now-file{
+    .now-sub{
       color:var(--muted);
       font-size:13px;
       word-break:break-word;
+    }
+
+    .now-file{
+      display:none;
     }
 
     audio{
@@ -341,7 +350,7 @@
 
     .layout{
       display:grid;
-      grid-template-columns:1.2fr .8fr;
+      grid-template-columns:1.12fr .88fr;
       gap:18px;
       padding-bottom:44px;
     }
@@ -440,10 +449,7 @@
     }
 
     .song-file{
-      color:#bfcddd;
-      font-size:13px;
-      word-break:break-word;
-      margin-bottom:10px;
+      display:none;
     }
 
     .song-actions{
@@ -487,14 +493,14 @@
       display:grid;
       gap:10px;
       margin-top:14px;
-      max-height:700px;
+      max-height:760px;
       overflow:auto;
       padding-right:4px;
     }
 
     .queue-item{
       display:grid;
-      grid-template-columns:42px 1fr;
+      grid-template-columns:42px 1fr auto;
       gap:10px;
       align-items:center;
       padding:12px;
@@ -521,15 +527,42 @@
     }
 
     .queue-title{
-      margin:0 0 4px;
+      margin:0;
       font-size:16px;
       line-height:1.2;
     }
 
     .queue-file{
-      color:var(--muted);
-      font-size:12px;
-      word-break:break-word;
+      display:none;
+    }
+
+    .queue-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      justify-content:flex-end;
+    }
+
+    .queue-btn{
+      min-width:38px;
+      min-height:38px;
+      padding:0 10px;
+      border-radius:10px;
+      border:1px solid var(--line-strong);
+      background:#111824;
+      color:var(--text);
+      font-weight:800;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .queue-btn.play{
+      background:linear-gradient(135deg, #44f2cf, #22d3ee);
+      color:#07131a;
+    }
+
+    .queue-btn.remove{
+      background:linear-gradient(135deg, #ff8a8a, #ff6b6b);
+      color:#fff;
     }
 
     .empty{
@@ -574,6 +607,7 @@
 
     @media (max-width:860px){
       .songs-grid{grid-template-columns:1fr}
+      .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
     }
 
     @media (max-width:640px){
@@ -594,6 +628,14 @@
       }
       .btn-row{flex-direction:column}
       .btn{width:100%}
+      .queue-item{
+        grid-template-columns:42px 1fr;
+      }
+      .queue-actions{
+        grid-column:1 / -1;
+        justify-content:flex-start;
+        margin-top:6px;
+      }
     }
   </style>
 </head>
@@ -606,7 +648,7 @@
             <div class="eyebrow" data-i18n="eyebrow">LiquidityBooster · Mix</div>
             <h1><span class="title-accent" data-i18n="title">Mix LiquidityBooster Songs</span></h1>
             <p class="lead" data-i18n="lead">
-              Wähle deine Songs per Haken aus, stelle dir deine eigene Mischung zusammen und höre alle ausgewählten Titel nacheinander. Mit Alle auswählen, Endlos-Modus und direktem Start.
+              Wähle Songs per Haken aus, übernimm sie in deine Queue, verschiebe sie frei nach oben oder unten und spiele deine eigene Reihenfolge ab. Mit Random-Funktion, Endlos-Modus und direktem Start.
             </p>
           </div>
 
@@ -625,15 +667,19 @@
         <div>
           <h2 data-i18n="controlsTitle">Playlist-Steuerung</h2>
           <p data-i18n="controlsText">
-            Markiere deine Wunschlieder und starte danach nur die ausgewählten Titel als eigene Playlist.
+            Markiere zuerst deine Wunschlieder und übernimm sie danach in deine Queue. Dort kannst du die Reihenfolge frei umbauen oder zufällig mischen.
           </p>
         </div>
 
         <div class="btn-row">
           <button class="btn btn-gold" id="selectAllBtn" type="button" data-i18n="selectAll">Alle auswählen</button>
           <button class="btn" id="clearAllBtn" type="button" data-i18n="clearAll">Alle abwählen</button>
-          <button class="btn btn-teal" id="playSelectedBtn" type="button" data-i18n="playSelected">Auswahl abspielen</button>
+          <button class="btn btn-ok" id="replaceQueueBtn" type="button" data-i18n="replaceQueue">Auswahl als Queue setzen</button>
+          <button class="btn" id="appendQueueBtn" type="button" data-i18n="appendQueue">Auswahl an Queue anhängen</button>
+          <button class="btn btn-teal" id="shuffleQueueBtn" type="button" data-i18n="shuffleQueue">Queue mischen</button>
+          <button class="btn btn-gold" id="playSelectedBtn" type="button" data-i18n="playSelected">Queue abspielen</button>
           <button class="btn" id="nextBtn" type="button" data-i18n="nextTrack">Nächster Titel</button>
+          <button class="btn btn-danger" id="clearQueueBtn" type="button" data-i18n="clearQueue">Queue leeren</button>
           <button class="btn btn-danger" id="stopBtn" type="button" data-i18n="stop">Stop</button>
         </div>
 
@@ -650,8 +696,12 @@
             <div class="stat-value" id="selectedCount">0</div>
           </div>
           <div class="stat">
-            <div class="stat-label" data-i18n="statQueue">Playlist</div>
+            <div class="stat-label" data-i18n="statQueue">Queue</div>
             <div class="stat-value" id="queueCount">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label" data-i18n="statCurrent">Position</div>
+            <div class="stat-value" id="currentPosition">—</div>
           </div>
           <div class="stat">
             <div class="stat-label" data-i18n="statStatus">Status</div>
@@ -664,7 +714,7 @@
     <div class="panel fade-up delay-2">
       <div class="panel-inner">
         <h2 data-i18n="playerTitle">Player</h2>
-        <p data-i18n="playerText">Die ausgewählten Titel laufen nacheinander.</p>
+        <p data-i18n="playerText">Die Queue läuft in genau der Reihenfolge, die du festgelegt hast.</p>
 
         <div class="player-box">
           <div class="now-cover">
@@ -689,7 +739,7 @@
         <div class="songs-head">
           <div>
             <h2 data-i18n="songsTitle">Alle Songs</h2>
-            <p data-i18n="songsText">Alle Titel im Mix. Cover werden angezeigt, wenn eins hinterlegt ist.</p>
+            <p data-i18n="songsText">Markiere Songs per Haken und übernimm sie danach in deine Queue.</p>
           </div>
         </div>
 
@@ -703,8 +753,8 @@
 
     <aside class="panel queue-panel fade-up delay-4">
       <div class="panel-inner">
-        <h2 data-i18n="queueTitle">Aktuelle Playlist</h2>
-        <p data-i18n="queueText">Die Reihenfolge entspricht deiner Auswahl auf der Seite.</p>
+        <h2 data-i18n="queueTitle">Aktuelle Queue</h2>
+        <p data-i18n="queueText">Mit ↑ und ↓ verschiebst du die Reihenfolge. ▶ startet direkt ab diesem Titel.</p>
         <div class="queue-list" id="queueList"></div>
       </div>
     </aside>
@@ -820,6 +870,15 @@
           subtitleEn:'No cover, but fully selectable.',
           audio:'../library/music/dienstag-um-18-uhr.mp3',
           cover:''
+        },
+        {
+          id:'botschafter-sein',
+          titleDe:'Botschafter sein',
+          titleEn:'Being an Ambassador',
+          subtitleDe:'Groß, aufrichtig und voller gemeinsamer Bewegung.',
+          subtitleEn:'Big, sincere and full of shared momentum.',
+          audio:'../library/music/botschafter-sein.mp3',
+          cover:'../library/images/botschafter-sein.jpeg'
         }
       ];
 
@@ -827,72 +886,102 @@
         de: {
           eyebrow:'LiquidityBooster · Mix',
           title:'Mix LiquidityBooster Songs',
-          lead:'Wähle deine Songs per Haken aus, stelle dir deine eigene Mischung zusammen und höre alle ausgewählten Titel nacheinander. Mit Alle auswählen, Endlos-Modus und direktem Start.',
+          lead:'Wähle Songs per Haken aus, übernimm sie in deine Queue, verschiebe sie frei nach oben oder unten und spiele deine eigene Reihenfolge ab. Mit Random-Funktion, Endlos-Modus und direktem Start.',
           controlsTitle:'Playlist-Steuerung',
-          controlsText:'Markiere deine Wunschlieder und starte danach nur die ausgewählten Titel als eigene Playlist.',
+          controlsText:'Markiere zuerst deine Wunschlieder und übernimm sie danach in deine Queue. Dort kannst du die Reihenfolge frei umbauen oder zufällig mischen.',
           selectAll:'Alle auswählen',
           clearAll:'Alle abwählen',
-          playSelected:'Auswahl abspielen',
+          replaceQueue:'Auswahl als Queue setzen',
+          appendQueue:'Auswahl an Queue anhängen',
+          shuffleQueue:'Queue mischen',
+          playSelected:'Queue abspielen',
           nextTrack:'Nächster Titel',
+          clearQueue:'Queue leeren',
           stop:'Stop',
           loop:'Endlos abspielen',
           statSelected:'Ausgewählt',
-          statQueue:'Playlist',
+          statQueue:'Queue',
+          statCurrent:'Position',
           statStatus:'Status',
           playerTitle:'Player',
-          playerText:'Die ausgewählten Titel laufen nacheinander.',
+          playerText:'Die Queue läuft in genau der Reihenfolge, die du festgelegt hast.',
           nowTitleEmpty:'Noch kein Titel gestartet',
           nowSubEmpty:'Bitte zuerst eine Auswahl treffen oder einen Titel direkt starten.',
           songsTitle:'Alle Songs',
-          songsText:'Alle Titel im Mix. Cover werden angezeigt, wenn eins hinterlegt ist.',
+          songsText:'Markiere Songs per Haken und übernimm sie danach in deine Queue.',
           footerNote:'Hinweis: Titel ohne Bildpfad werden automatisch mit einem sauberen Platzhalter dargestellt und bleiben trotzdem vollständig auswählbar.',
-          queueTitle:'Aktuelle Playlist',
-          queueText:'Die Reihenfolge entspricht deiner Auswahl auf der Seite.',
+          queueTitle:'Aktuelle Queue',
+          queueText:'Mit ↑ und ↓ verschiebst du die Reihenfolge. ▶ startet direkt ab diesem Titel.',
           choose:'Auswählen',
           playSingle:'Einzeln abspielen',
+          addSelectedCard:'Ausgewählte in Queue',
           statusReady:'Bereit',
-          statusPlaylist:'Playlist läuft',
+          statusQueueRunning:'Queue läuft',
           statusSingle:'Einzeltitel läuft',
           statusStopped:'Gestoppt',
-          statusFinished:'Playlist beendet',
+          statusFinished:'Queue beendet',
           statusNeedSelection:'Bitte erst Titel auswählen',
-          queueEmpty:'Noch keine Titel ausgewählt.',
-          noCover:'Kein Cover'
+          statusNeedQueue:'Bitte erst Queue füllen',
+          statusQueueUpdated:'Queue aktualisiert',
+          statusQueueShuffled:'Queue gemischt',
+          statusQueueCleared:'Queue geleert',
+          queueEmpty:'Noch keine Titel in der Queue.',
+          noCover:'Kein Cover',
+          moveUp:'Nach oben',
+          moveDown:'Nach unten',
+          remove:'Entfernen',
+          playFromHere:'Hier starten',
+          positionNone:'—'
         },
         en: {
           eyebrow:'LiquidityBooster · Mix',
           title:'Mix LiquidityBooster Songs',
-          lead:'Select your songs with checkmarks, build your own mix and listen to all selected tracks in sequence. Includes select all, loop mode and direct start.',
+          lead:'Select songs with checkmarks, transfer them into your queue, move them up or down freely and play your own sequence. Includes random function, loop mode and direct start.',
           controlsTitle:'Playlist Controls',
-          controlsText:'Mark the songs you want and start only the selected tracks as your own playlist.',
+          controlsText:'First mark your desired songs and then transfer them into your queue. There you can freely reorder them or shuffle them randomly.',
           selectAll:'Select all',
           clearAll:'Clear all',
-          playSelected:'Play selection',
+          replaceQueue:'Set selection as queue',
+          appendQueue:'Append selection to queue',
+          shuffleQueue:'Shuffle queue',
+          playSelected:'Play queue',
           nextTrack:'Next track',
+          clearQueue:'Clear queue',
           stop:'Stop',
           loop:'Loop playback',
           statSelected:'Selected',
-          statQueue:'Playlist',
+          statQueue:'Queue',
+          statCurrent:'Position',
           statStatus:'Status',
           playerTitle:'Player',
-          playerText:'The selected tracks will play one after another.',
+          playerText:'The queue plays in exactly the order you defined.',
           nowTitleEmpty:'No track started yet',
           nowSubEmpty:'Please select tracks first or start one directly.',
           songsTitle:'All Songs',
-          songsText:'All tracks in the mix. Covers are shown when one is assigned.',
+          songsText:'Mark songs with checkmarks and then transfer them into your queue.',
           footerNote:'Note: Tracks without an image path automatically get a clean placeholder and remain fully selectable.',
-          queueTitle:'Current Playlist',
-          queueText:'The order follows your selection on the page.',
+          queueTitle:'Current Queue',
+          queueText:'Use ↑ and ↓ to move the order. ▶ starts directly from this track.',
           choose:'Select',
           playSingle:'Play single',
+          addSelectedCard:'Add selected to queue',
           statusReady:'Ready',
-          statusPlaylist:'Playlist running',
+          statusQueueRunning:'Queue running',
           statusSingle:'Single track running',
           statusStopped:'Stopped',
-          statusFinished:'Playlist finished',
+          statusFinished:'Queue finished',
           statusNeedSelection:'Please select tracks first',
-          queueEmpty:'No tracks selected yet.',
-          noCover:'No Cover'
+          statusNeedQueue:'Please fill the queue first',
+          statusQueueUpdated:'Queue updated',
+          statusQueueShuffled:'Queue shuffled',
+          statusQueueCleared:'Queue cleared',
+          queueEmpty:'No tracks in the queue yet.',
+          noCover:'No Cover',
+          moveUp:'Move up',
+          moveDown:'Move down',
+          remove:'Remove',
+          playFromHere:'Play from here',
+          positionNone:'—'
         }
       };
 
@@ -905,6 +994,7 @@
       const queueList = document.getElementById('queueList');
       const selectedCount = document.getElementById('selectedCount');
       const queueCount = document.getElementById('queueCount');
+      const currentPosition = document.getElementById('currentPosition');
       const playerStatus = document.getElementById('playerStatus');
       const audioPlayer = document.getElementById('audioPlayer');
       const nowCover = document.getElementById('nowCover');
@@ -915,8 +1005,12 @@
 
       const selectAllBtn = document.getElementById('selectAllBtn');
       const clearAllBtn = document.getElementById('clearAllBtn');
+      const replaceQueueBtn = document.getElementById('replaceQueueBtn');
+      const appendQueueBtn = document.getElementById('appendQueueBtn');
+      const shuffleQueueBtn = document.getElementById('shuffleQueueBtn');
       const playSelectedBtn = document.getElementById('playSelectedBtn');
       const nextBtn = document.getElementById('nextBtn');
+      const clearQueueBtn = document.getElementById('clearQueueBtn');
       const stopBtn = document.getElementById('stopBtn');
 
       const langDeBtn = document.getElementById('langDeBtn');
@@ -940,8 +1034,9 @@
         langEnBtn.classList.toggle('active', lang === 'en');
 
         renderSongs();
-        rebuildQueue();
+        renderQueue();
         refreshNowBoxTextIfEmpty();
+        updateCurrentPosition();
       }
 
       function getTrackTitle(track){
@@ -991,6 +1086,15 @@
         return makeFallbackSvg(getTrackTitle(track));
       }
 
+      function getSelectedTracks(){
+        const boxes = songsGrid.querySelectorAll('.track-check');
+        const selected = [];
+        boxes.forEach((box, i) => {
+          if(box.checked) selected.push(tracks[i]);
+        });
+        return selected;
+      }
+
       function renderSongs(){
         songsGrid.innerHTML = tracks.map((track, index) => {
           const title = getTrackTitle(track);
@@ -1018,6 +1122,10 @@
                   <button class="btn mini-btn" type="button" data-play-index="${index}">
                     ${escapeHtml(t('playSingle'))}
                   </button>
+
+                  <button class="btn mini-btn btn-teal" type="button" data-add-index="${index}">
+                    ${escapeHtml(t('addSelectedCard'))}
+                  </button>
                 </div>
               </div>
             </article>
@@ -1032,13 +1140,23 @@
         songsGrid.querySelectorAll('.track-check').forEach(box => {
           box.addEventListener('change', function(){
             updateSelectionState();
-            rebuildQueue();
           });
         });
 
         songsGrid.querySelectorAll('[data-play-index]').forEach(btn => {
           btn.addEventListener('click', function(){
             playSingle(Number(btn.getAttribute('data-play-index')));
+          });
+        });
+
+        songsGrid.querySelectorAll('[data-add-index]').forEach(btn => {
+          btn.addEventListener('click', function(){
+            const track = tracks[Number(btn.getAttribute('data-add-index'))];
+            queue.push(track);
+            syncCurrentIndexAfterQueueChange();
+            updateQueueStats();
+            renderQueue();
+            setStatus(t('statusQueueUpdated'));
           });
         });
       }
@@ -1060,19 +1178,22 @@
         selectedCount.textContent = String(count);
       }
 
-      function rebuildQueue(){
-        const boxes = songsGrid.querySelectorAll('.track-check');
-        queue = [];
-
-        boxes.forEach((box, i) => {
-          if(box.checked) queue.push(tracks[i]);
-        });
-
+      function updateQueueStats(){
         queueCount.textContent = String(queue.length);
-        renderQueue();
+        updateCurrentPosition();
+      }
+
+      function updateCurrentPosition(){
+        if(queue.length && currentQueueIndex >= 0 && currentQueueIndex < queue.length){
+          currentPosition.textContent = String(currentQueueIndex + 1);
+        }else{
+          currentPosition.textContent = t('positionNone');
+        }
       }
 
       function renderQueue(){
+        updateQueueStats();
+
         if(!queue.length){
           queueList.innerHTML = `<div class="empty">${escapeHtml(t('queueEmpty'))}</div>`;
           return;
@@ -1085,8 +1206,46 @@
               <h4 class="queue-title">${escapeHtml(getTrackTitle(track))}</h4>
               <div class="queue-file">${escapeHtml(track.audio)}</div>
             </div>
+            <div class="queue-actions">
+              <button class="queue-btn play" type="button" data-queue-play="${index}" title="${escapeHtml(t('playFromHere'))}">▶</button>
+              <button class="queue-btn" type="button" data-queue-up="${index}" title="${escapeHtml(t('moveUp'))}">↑</button>
+              <button class="queue-btn" type="button" data-queue-down="${index}" title="${escapeHtml(t('moveDown'))}">↓</button>
+              <button class="queue-btn remove" type="button" data-queue-remove="${index}" title="${escapeHtml(t('remove'))}">✕</button>
+            </div>
           </div>
         `).join('');
+
+        bindQueueEvents();
+      }
+
+      function bindQueueEvents(){
+        queueList.querySelectorAll('[data-queue-play]').forEach(btn => {
+          btn.addEventListener('click', function(){
+            const index = Number(btn.getAttribute('data-queue-play'));
+            playQueueAt(index);
+          });
+        });
+
+        queueList.querySelectorAll('[data-queue-up]').forEach(btn => {
+          btn.addEventListener('click', function(){
+            const index = Number(btn.getAttribute('data-queue-up'));
+            moveQueueItem(index, index - 1);
+          });
+        });
+
+        queueList.querySelectorAll('[data-queue-down]').forEach(btn => {
+          btn.addEventListener('click', function(){
+            const index = Number(btn.getAttribute('data-queue-down'));
+            moveQueueItem(index, index + 1);
+          });
+        });
+
+        queueList.querySelectorAll('[data-queue-remove]').forEach(btn => {
+          btn.addEventListener('click', function(){
+            const index = Number(btn.getAttribute('data-queue-remove'));
+            removeQueueItem(index);
+          });
+        });
       }
 
       function setStatus(text){
@@ -1098,7 +1257,7 @@
         nowCover.alt = getTrackTitle(track);
         nowTitle.textContent = getTrackTitle(track);
         nowSubtitle.textContent = getTrackSubtitle(track);
-        nowFile.textContent = track.audio;
+        nowFile.textContent = '';
       }
 
       function refreshNowBoxTextIfEmpty(){
@@ -1123,6 +1282,7 @@
         currentQueueIndex = -1;
         playTrack(track);
         setStatus(t('statusSingle'));
+        updateCurrentPosition();
         renderQueue();
       }
 
@@ -1134,19 +1294,19 @@
         currentQueueIndex = index;
         const track = queue[index];
         playTrack(track);
-        setStatus(t('statusPlaylist'));
+        setStatus(t('statusQueueRunning'));
+        updateCurrentPosition();
         renderQueue();
       }
 
       function playSelectedQueue(){
-        rebuildQueue();
-
         if(!queue.length){
-          setStatus(t('statusNeedSelection'));
+          setStatus(t('statusNeedQueue'));
           nowTitle.textContent = t('nowTitleEmpty');
           nowSubtitle.textContent = t('nowSubEmpty');
           nowFile.textContent = '';
           nowCover.src = makeFallbackSvg('LiquidityBooster');
+          updateCurrentPosition();
           return;
         }
 
@@ -1163,6 +1323,7 @@
           }else{
             currentQueueIndex = -1;
             setStatus(t('statusFinished'));
+            updateCurrentPosition();
             renderQueue();
           }
           return;
@@ -1170,7 +1331,128 @@
 
         if(queue.length && currentQueueIndex === -1){
           playQueueAt(0);
+          return;
         }
+
+        setStatus(t('statusNeedQueue'));
+      }
+
+      function moveQueueItem(fromIndex, toIndex){
+        if(fromIndex < 0 || fromIndex >= queue.length) return;
+        if(toIndex < 0 || toIndex >= queue.length) return;
+
+        const movedTrack = queue[fromIndex];
+        queue.splice(fromIndex, 1);
+        queue.splice(toIndex, 0, movedTrack);
+
+        if(currentQueueIndex === fromIndex){
+          currentQueueIndex = toIndex;
+        }else if(fromIndex < currentQueueIndex && toIndex >= currentQueueIndex){
+          currentQueueIndex -= 1;
+        }else if(fromIndex > currentQueueIndex && toIndex <= currentQueueIndex){
+          currentQueueIndex += 1;
+        }
+
+        updateQueueStats();
+        renderQueue();
+        setStatus(t('statusQueueUpdated'));
+      }
+
+      function removeQueueItem(index){
+        if(index < 0 || index >= queue.length) return;
+
+        queue.splice(index, 1);
+
+        if(currentQueueIndex === index){
+          if(queue.length){
+            if(index >= queue.length){
+              currentQueueIndex = queue.length - 1;
+            }
+          }else{
+            currentQueueIndex = -1;
+          }
+        }else if(index < currentQueueIndex){
+          currentQueueIndex -= 1;
+        }
+
+        updateQueueStats();
+        renderQueue();
+
+        if(!queue.length){
+          setStatus(t('statusQueueCleared'));
+          currentQueueIndex = -1;
+          updateCurrentPosition();
+        }else{
+          setStatus(t('statusQueueUpdated'));
+        }
+      }
+
+      function syncCurrentIndexAfterQueueChange(){
+        if(!queue.length){
+          currentQueueIndex = -1;
+        }else if(currentQueueIndex >= queue.length){
+          currentQueueIndex = queue.length - 1;
+        }
+      }
+
+      function replaceQueueWithSelection(){
+        const selected = getSelectedTracks();
+        if(!selected.length){
+          setStatus(t('statusNeedSelection'));
+          return;
+        }
+        queue = selected.slice();
+        currentQueueIndex = -1;
+        currentSingleTrackId = '';
+        updateQueueStats();
+        renderQueue();
+        setStatus(t('statusQueueUpdated'));
+      }
+
+      function appendSelectionToQueue(){
+        const selected = getSelectedTracks();
+        if(!selected.length){
+          setStatus(t('statusNeedSelection'));
+          return;
+        }
+        queue = queue.concat(selected);
+        syncCurrentIndexAfterQueueChange();
+        updateQueueStats();
+        renderQueue();
+        setStatus(t('statusQueueUpdated'));
+      }
+
+      function shuffleQueue(){
+        if(queue.length < 2){
+          setStatus(t('statusNeedQueue'));
+          return;
+        }
+
+        const currentTrack = (currentQueueIndex >= 0 && currentQueueIndex < queue.length) ? queue[currentQueueIndex] : null;
+
+        for(let i = queue.length - 1; i > 0; i--){
+          const j = Math.floor(Math.random() * (i + 1));
+          [queue[i], queue[j]] = [queue[j], queue[i]];
+        }
+
+        if(currentTrack){
+          currentQueueIndex = queue.findIndex(track => track.id === currentTrack.id && track.audio === currentTrack.audio);
+        }else{
+          currentQueueIndex = -1;
+        }
+
+        updateQueueStats();
+        renderQueue();
+        setStatus(t('statusQueueShuffled'));
+      }
+
+      function clearQueue(){
+        queue = [];
+        currentQueueIndex = -1;
+        currentSingleTrackId = '';
+        updateQueueStats();
+        renderQueue();
+        setStatus(t('statusQueueCleared'));
       }
 
       audioPlayer.addEventListener('ended', function(){
@@ -1184,6 +1466,7 @@
           }else{
             currentQueueIndex = -1;
             setStatus(t('statusFinished'));
+            updateCurrentPosition();
             renderQueue();
           }
         }
@@ -1192,18 +1475,19 @@
       selectAllBtn.addEventListener('click', function(){
         songsGrid.querySelectorAll('.track-check').forEach(box => box.checked = true);
         updateSelectionState();
-        rebuildQueue();
       });
 
       clearAllBtn.addEventListener('click', function(){
         songsGrid.querySelectorAll('.track-check').forEach(box => box.checked = false);
         updateSelectionState();
-        rebuildQueue();
       });
 
+      replaceQueueBtn.addEventListener('click', replaceQueueWithSelection);
+      appendQueueBtn.addEventListener('click', appendSelectionToQueue);
+      shuffleQueueBtn.addEventListener('click', shuffleQueue);
       playSelectedBtn.addEventListener('click', playSelectedQueue);
-
       nextBtn.addEventListener('click', nextTrack);
+      clearQueueBtn.addEventListener('click', clearQueue);
 
       stopBtn.addEventListener('click', function(){
         audioPlayer.pause();
@@ -1211,6 +1495,7 @@
         currentQueueIndex = -1;
         currentSingleTrackId = '';
         setStatus(t('statusStopped'));
+        updateCurrentPosition();
         renderQueue();
       });
 
@@ -1227,6 +1512,7 @@
       setStaticTexts();
       setStatus(t('statusReady'));
       refreshNowBoxTextIfEmpty();
+      renderQueue();
     })();
   </script>
 </body>
