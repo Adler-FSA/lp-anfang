@@ -1222,6 +1222,8 @@
 
       const LS_KEY = "fsa_vcard_white_black_v11_tool4";
       const LS_LANG = "fsa_lang_vcard";
+      const LS_QR_IMPORTED = "fsa_vcard_white_black_v11_tool4_qr_imported_png";
+      const LS_QR_WEBSITE = "fsa_vcard_white_black_v11_tool4_qr_website";
 
       const els = {
         firstName: document.getElementById("firstName"),
@@ -1290,7 +1292,6 @@
           qrNoUrl:"Bitte Webadresse eintragen.",
           qrReady:"QR bereit. Jetzt „In Visitenkarte übernehmen“.",
           qrImported:"QR wurde in die Visitenkarte übernommen.",
-          qrConfirm:"QR in die Visitenkarte übernehmen?",
           qrErr:"QR Fehler (URL zu lang oder ungültig).",
           frontLabel:"Vorderseite",
           backLabel:"Rückseite",
@@ -1325,7 +1326,6 @@
           qrNoUrl:"Please enter a website.",
           qrReady:"QR ready. Now click “Import to business card”.",
           qrImported:"QR imported into the business card.",
-          qrConfirm:"Import QR into the business card?",
           qrErr:"QR error (URL too long or invalid).",
           frontLabel:"Front side",
           backLabel:"Back side",
@@ -1381,26 +1381,6 @@
 
         els.btnDE.style.opacity = (lang === "de") ? "1" : ".55";
         els.btnEN.style.opacity = (lang === "en") ? "1" : ".55";
-      }
-
-      function load(){
-        try{
-          const raw = localStorage.getItem(LS_KEY);
-          if(raw){
-            const data = JSON.parse(raw);
-            if(data && typeof data === "object"){
-              els.firstName.value = data.firstName || "";
-              els.lastName.value  = data.lastName  || "";
-              els.street.value    = data.street    || "";
-              els.zip.value       = data.zip       || "";
-              els.city.value      = data.city      || "";
-              els.mobile.value    = data.mobile    || "";
-              els.email.value     = data.email     || "";
-            }
-          }
-        }catch(e){}
-
-        clearQrVisuals(true);
       }
 
       function save(){
@@ -1486,9 +1466,8 @@
         const t = i18n[getLang()];
         const raw = safe(els.qrWebsite.value);
 
-        clearQrVisuals(true);
-
         if(!raw){
+          els.qrPreview.innerHTML = "";
           setQrStatus(t.qrNoUrl);
           return "";
         }
@@ -1498,6 +1477,7 @@
         try{
           const png = makeQrPngDataUrl(url, 900);
           els.qrPreview.innerHTML = '<img alt="QR" src="' + png + '">';
+          localStorage.setItem(LS_QR_WEBSITE, raw);
           setQrStatus(t.qrReady);
           return png;
         }catch(e){
@@ -1516,14 +1496,14 @@
           return;
         }
 
-        if(!confirm(t.qrConfirm)) return;
-
         const url = normalizeWebsite(raw);
 
         try{
-          const png = makeQrPngDataUrl(url, 620);
+          const png = makeQrPngDataUrl(url, 900);
           els.qrOnCard.innerHTML = '<img alt="QR" src="' + png + '">';
           els.qrBox.classList.remove("isEmpty");
+          localStorage.setItem(LS_QR_IMPORTED, png);
+          localStorage.setItem(LS_QR_WEBSITE, raw);
           setQrStatus(t.qrImported);
         }catch(e){
           els.qrOnCard.innerHTML = "";
@@ -1533,8 +1513,57 @@
       }
 
       function clearQr(){
-        clearQrVisuals(false);
+        els.qrPreview.innerHTML = "";
+        els.qrOnCard.innerHTML = "";
+        els.qrBox.classList.add("isEmpty");
         els.qrWebsite.value = "";
+        try{
+          localStorage.removeItem(LS_QR_IMPORTED);
+          localStorage.removeItem(LS_QR_WEBSITE);
+        }catch(e){}
+        setQrStatus("");
+      }
+
+      function loadStoredQr(){
+        const storedUrl = localStorage.getItem(LS_QR_WEBSITE) || "";
+        const storedPng = localStorage.getItem(LS_QR_IMPORTED) || "";
+
+        els.qrWebsite.value = storedUrl;
+
+        if(storedPng){
+          els.qrOnCard.innerHTML = '<img alt="QR" src="' + storedPng + '">';
+          els.qrBox.classList.remove("isEmpty");
+        }else{
+          els.qrOnCard.innerHTML = "";
+          els.qrBox.classList.add("isEmpty");
+        }
+
+        if(storedUrl){
+          try{
+            const previewPng = makeQrPngDataUrl(normalizeWebsite(storedUrl), 900);
+            els.qrPreview.innerHTML = '<img alt="QR" src="' + previewPng + '">';
+          }catch(e){}
+        }
+      }
+
+      function load(){
+        try{
+          const raw = localStorage.getItem(LS_KEY);
+          if(raw){
+            const data = JSON.parse(raw);
+            if(data && typeof data === "object"){
+              els.firstName.value = data.firstName || "";
+              els.lastName.value  = data.lastName  || "";
+              els.street.value    = data.street    || "";
+              els.zip.value       = data.zip       || "";
+              els.city.value      = data.city      || "";
+              els.mobile.value    = data.mobile    || "";
+              els.email.value     = data.email     || "";
+            }
+          }
+        }catch(e){}
+
+        loadStoredQr();
       }
 
       function wire(){
@@ -1554,8 +1583,11 @@
         });
 
         els.qrWebsite.addEventListener("input", function(){
-          clearQrVisuals(true);
+          els.qrPreview.innerHTML = "";
           setQrStatus("");
+          try{
+            localStorage.setItem(LS_QR_WEBSITE, safe(els.qrWebsite.value));
+          }catch(e){}
         });
 
         els.btnPrint.addEventListener("click", function(){
@@ -1620,6 +1652,9 @@
         });
 
         els.btnImportQr.addEventListener("click", function(){
+          if(!els.qrPreview.querySelector("img")){
+            makeQrPreview();
+          }
           importQrToCard();
         });
 
