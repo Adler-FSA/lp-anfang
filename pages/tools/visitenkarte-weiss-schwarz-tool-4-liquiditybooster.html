@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="de">
 <head>
@@ -459,6 +460,7 @@
       box-sizing:border-box;
       padding:2mm;
       overflow:hidden;
+      flex:0 0 auto;
     }
 
     .qrLarge img{
@@ -809,6 +811,126 @@
         }
       };
 
+      var QRUtil = {
+        PATTERN_POSITION_TABLE: [
+          [],
+          [6, 18],[6, 22],[6, 26],[6, 30],[6, 34],[6, 22, 38],[6, 24, 42],[6, 26, 46],[6, 28, 50],
+          [6, 30, 54],[6, 32, 58],[6, 34, 62],[6, 26, 46, 66],[6, 26, 48, 70],[6, 26, 50, 74],
+          [6, 30, 54, 78],[6, 30, 56, 82],[6, 30, 58, 86],[6, 34, 62, 90],[6, 28, 50, 72, 94],
+          [6, 26, 50, 74, 98],[6, 30, 54, 78, 102],[6, 28, 54, 80, 106],[6, 32, 58, 84, 110],
+          [6, 30, 58, 86, 114],[6, 34, 62, 90, 118],[6, 26, 50, 74, 98, 122],[6, 30, 54, 78, 102, 126],
+          [6, 26, 52, 78, 104, 130],[6, 30, 56, 82, 108, 134],[6, 34, 60, 86, 112, 138],[6, 30, 58, 86, 114, 142],
+          [6, 34, 62, 90, 118, 146],[6, 30, 54, 78, 102, 126, 150],[6, 24, 50, 76, 102, 128, 154],
+          [6, 28, 54, 80, 106, 132, 158],[6, 32, 58, 84, 110, 136, 162],[6, 26, 54, 82, 110, 138, 166],
+          [6, 30, 58, 86, 114, 142, 170]
+        ],
+        G15: (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0),
+        G18: (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0),
+        G15_MASK: (1 << 14) | (1 << 12) | (1 << 10) | (1 << 4) | (1 << 1),
+
+        getBCHTypeInfo: function(data) {
+          var d = data << 10;
+          while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) >= 0) {
+            d ^= (QRUtil.G15 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15)));
+          }
+          return ((data << 10) | d) ^ QRUtil.G15_MASK;
+        },
+
+        getBCHTypeNumber: function(data) {
+          var d = data << 12;
+          while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) >= 0) {
+            d ^= (QRUtil.G18 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18)));
+          }
+          return (data << 12) | d;
+        },
+
+        getBCHDigit: function(data) { var digit = 0; while (data != 0) { digit++; data >>>= 1; } return digit; },
+        getPatternPosition: function(typeNumber) { return QRUtil.PATTERN_POSITION_TABLE[typeNumber - 1]; },
+
+        getMask: function(maskPattern, i, j) {
+          switch (maskPattern) {
+            case 0: return (i + j) % 2 == 0;
+            case 1: return i % 2 == 0;
+            case 2: return j % 3 == 0;
+            case 3: return (i + j) % 3 == 0;
+            case 4: return (Math.floor(i / 2) + Math.floor(j / 3)) % 2 == 0;
+            case 5: return (i * j) % 2 + (i * j) % 3 == 0;
+            case 6: return ((i * j) % 2 + (i * j) % 3) % 2 == 0;
+            case 7: return ((i * j) % 3 + (i + j) % 2) == 0;
+            default: throw new Error("bad maskPattern:" + maskPattern);
+          }
+        },
+
+        getErrorCorrectPolynomial: function(errorCorrectLength) {
+          var a = new qrPolynomial([1], 0);
+          for (var i = 0; i < errorCorrectLength; i++) {
+            a = a.multiply(new qrPolynomial([1, QRMath.gexp(i)], 0));
+          }
+          return a;
+        },
+
+        getLengthInBits: function(mode, type) {
+          if (1 <= type && type < 10) return 8;
+          if (type < 27) return 16;
+          return 16;
+        },
+
+        getLostPoint: function(qrCode) {
+          var moduleCount = qrCode.getModuleCount();
+          var lostPoint = 0;
+          for (var row = 0; row < moduleCount; row++) {
+            for (var col = 0; col < moduleCount; col++) {
+              var sameCount = 0;
+              var dark = qrCode.isDark(row, col);
+              for (var r = -1; r <= 1; r++) {
+                if (row + r < 0 || moduleCount <= row + r) continue;
+                for (var c = -1; c <= 1; c++) {
+                  if (col + c < 0 || moduleCount <= col + c) continue;
+                  if (r == 0 && c == 0) continue;
+                  if (dark == qrCode.isDark(row + r, col + c)) sameCount++;
+                }
+              }
+              if (sameCount > 5) lostPoint += (3 + sameCount - 5);
+            }
+          }
+          return lostPoint;
+        },
+
+        getUTF8Length: function(s) {
+          var len = 0;
+          for (var i = 0; i < s.length; i++) {
+            var c = s.charCodeAt(i);
+            if (c < 0x80) len++;
+            else if (c < 0x800) len += 2;
+            else if (0xD800 <= c && c <= 0xDBFF) { len += 4; i++; }
+            else len += 3;
+          }
+          return len;
+        },
+
+        writeUTF8: function(buffer, s) {
+          for (var i = 0; i < s.length; i++) {
+            var c = s.charCodeAt(i);
+            if (c < 0x80) buffer.put(c, 8);
+            else if (c < 0x800) {
+              buffer.put(0xC0 | (c >>> 6), 8);
+              buffer.put(0x80 | (c & 0x3F), 8);
+            } else if (0xD800 <= c && c <= 0xDBFF) {
+              var c2 = s.charCodeAt(++i);
+              var cp = 0x10000 + (((c & 0x3FF) << 10) | (c2 & 0x3FF));
+              buffer.put(0xF0 | (cp >>> 18), 8);
+              buffer.put(0x80 | ((cp >>> 12) & 0x3F), 8);
+              buffer.put(0x80 | ((cp >>> 6) & 0x3F), 8);
+              buffer.put(0x80 | (cp & 0x3F), 8);
+            } else {
+              buffer.put(0xE0 | (c >>> 12), 8);
+              buffer.put(0x80 | ((c >>> 6) & 0x3F), 8);
+              buffer.put(0x80 | (c & 0x3F), 8);
+            }
+          }
+        }
+      };
+
       function QRCode(typeNumber, errorCorrectionLevel) {
         var PAD0 = 0xEC;
         var PAD1 = 0x11;
@@ -837,6 +959,7 @@
           setupTypeInfo(test, maskPattern);
 
           if (_typeNumber >= 7) setupTypeNumber(test);
+
           if (_dataCache == null) _dataCache = createData(_typeNumber, _errorCorrectionLevel, _dataList);
           mapData(_dataCache, maskPattern);
         };
@@ -1069,8 +1192,8 @@
 
       const LS_KEY = "fsa_vcard_white_black_v11_tool4";
       const LS_LANG = "fsa_lang_vcard";
-      const LS_QR_IMPORTED = "fsa_vcard_white_black_v11_tool4_qr_imported_png";
-      const LS_QR_WEBSITE = "fsa_vcard_white_black_v11_tool4_qr_website";
+      const LS_QR_IMPORTED = "fsa_vcard_qr_imported_png_v1";
+      const LS_QR_WEBSITE = "fsa_vcard_qr_website_v1";
 
       const els = {
         firstName: document.getElementById("firstName"),
@@ -1137,7 +1260,7 @@
           qrNoUrl:"Bitte Webadresse eintragen.",
           qrReady:"QR bereit. Jetzt „In Visitenkarte übernehmen“.",
           qrImported:"QR wurde in die Visitenkarte übernommen.",
-          qrErr:"QR Fehler (URL ungültig oder Generatorfehler).",
+          qrErr:"QR Fehler (URL zu lang oder ungültig).",
           frontLabel:"Vorderseite",
           backLabel:"Rückseite",
           backNote:"Mehr Freiheit , mehr Geld , mehr vom Leben"
@@ -1171,14 +1294,16 @@
           qrNoUrl:"Please enter a website.",
           qrReady:"QR ready. Now click “Import to business card”.",
           qrImported:"QR imported into the business card.",
-          qrErr:"QR error (invalid URL or generator error).",
+          qrErr:"QR error (URL too long or invalid).",
           frontLabel:"Front side",
           backLabel:"Back side",
           backNote:"More freedom, more money, more out of life"
         }
       };
 
-      function safe(v){ return (v || "").toString().trim(); }
+      function safe(v){
+        return (v || "").toString().trim();
+      }
 
       function normalizeWebsite(url){
         let v = safe(url);
@@ -1275,6 +1400,7 @@
         const count = qr.getModuleCount();
         const quiet = 4;
         const dim = count + quiet * 2;
+
         const scale = Math.max(1, Math.floor(targetPx / dim));
         const size = dim * scale;
 
@@ -1303,7 +1429,6 @@
       function makeQrPreview(){
         const t = i18n[getLang()];
         const raw = safe(els.qrWebsite.value);
-
         if(!raw){
           els.qrPreview.innerHTML = "";
           setQrStatus(t.qrNoUrl);
@@ -1314,13 +1439,13 @@
 
         try{
           const png = makeQrPngDataUrl(url, 900);
-          els.qrPreview.innerHTML = '<img alt="QR" src="' + png + '">';
+          els.qrPreview.innerHTML = '<img alt="QR Vorschau" src="' + png + '">';
           localStorage.setItem(LS_QR_WEBSITE, raw);
           setQrStatus(t.qrReady);
           return png;
         }catch(e){
           els.qrPreview.innerHTML = "";
-          setQrStatus(t.qrErr + (e && e.message ? (" (" + e.message + ")") : ""));
+          setQrStatus(t.qrErr + (e && e.message ? " (" + e.message + ")" : ""));
           return "";
         }
       }
@@ -1328,7 +1453,6 @@
       function importQrToCard(){
         const t = i18n[getLang()];
         const raw = safe(els.qrWebsite.value);
-
         if(!raw){
           setQrStatus(t.qrNoUrl);
           return;
@@ -1346,7 +1470,7 @@
         }catch(e){
           els.qrOnCard.innerHTML = "";
           els.qrBox.classList.add("isEmpty");
-          setQrStatus(t.qrErr + (e && e.message ? (" (" + e.message + ")") : ""));
+          setQrStatus(t.qrErr + (e && e.message ? " (" + e.message + ")" : ""));
         }
       }
 
@@ -1354,10 +1478,8 @@
         els.qrPreview.innerHTML = "";
         els.qrOnCard.innerHTML = "";
         els.qrBox.classList.add("isEmpty");
-        els.qrWebsite.value = "";
         try{
           localStorage.removeItem(LS_QR_IMPORTED);
-          localStorage.removeItem(LS_QR_WEBSITE);
         }catch(e){}
         setQrStatus("");
       }
@@ -1379,7 +1501,7 @@
         if(storedUrl){
           try{
             const previewPng = makeQrPngDataUrl(normalizeWebsite(storedUrl), 900);
-            els.qrPreview.innerHTML = '<img alt="QR" src="' + previewPng + '">';
+            els.qrPreview.innerHTML = '<img alt="QR Vorschau" src="' + previewPng + '">';
           }catch(e){}
         }
       }
