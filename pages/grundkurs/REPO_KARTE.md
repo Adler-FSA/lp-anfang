@@ -1088,6 +1088,7 @@
     │   │   ├── share-akademie.html
     │   │   └── share-netzwerk.html
     │   ├── song-banner/
+    │   │   ├── der-club-marktplatz-banner.html
     │   │   └── die-seele-erwacht-banner.html
     │   ├── sprecher/
     │   │   └── kickoff-sprecher-tools.html
@@ -1334,4 +1335,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.03.2026, 04:36)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.03.2026, 06:09)_
