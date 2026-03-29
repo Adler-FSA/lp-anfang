@@ -244,6 +244,7 @@
     │   │   ├── botschafter-sein.jpeg
     │   │   ├── botschafter.PNG
     │   │   ├── ceo-bausteine.PNG
+    │   │   ├── club-marktplatz.jpeg
     │   │   ├── compliance.jpg
     │   │   ├── frohe-weihnachten.jpg
     │   │   ├── herz-aus-freiheit.jpg
@@ -426,6 +427,7 @@
     │   │   │   ├── track-98.mp3
     │   │   │   └── track-99.mp3
     │   │   ├── botschafter-sein.mp3
+    │   │   ├── der-club-marktplatz.mp3
     │   │   ├── die-rueckeroberung-der-eigenen-souveraenitaet.mp3
     │   │   ├── die-seele-erwacht.mp3
     │   │   ├── dienstag-um-18-uhr.mp3
@@ -1332,4 +1334,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.03.2026, 01:56)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.03.2026, 04:36)_
