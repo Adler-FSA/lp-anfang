@@ -944,7 +944,13 @@
     │   │   └── pages/
     │   │       └── legal/
     │   ├── mein-erbe/
-    │   │   └── index.html
+    │   │   ├── index.html
+    │   │   ├── personen.html
+    │   │   ├── stammdaten.html
+    │   │   ├── vermoegen.html
+    │   │   ├── versicherungen.html
+    │   │   ├── verteilung.html
+    │   │   └── vertraege.html
     │   ├── mentor/
     │   │   ├── lektion-souveraen.html
     │   │   └── trustyfy-bewusstsein.html
@@ -1338,4 +1344,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.04.2026, 06:09)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.04.2026, 08:02)_
