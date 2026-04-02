@@ -944,9 +944,13 @@
     │   │   └── pages/
     │   │       └── legal/
     │   ├── mein-erbe/
+    │   │   ├── ausgabe.html
+    │   │   ├── digitaler-nachlass.html
     │   │   ├── index.html
+    │   │   ├── notfallplan.html
     │   │   ├── personen.html
     │   │   ├── stammdaten.html
+    │   │   ├── unterlagen.html
     │   │   ├── vermoegen.html
     │   │   ├── versicherungen.html
     │   │   ├── verteilung.html
@@ -1344,4 +1348,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.04.2026, 08:02)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.04.2026, 09:56)_
