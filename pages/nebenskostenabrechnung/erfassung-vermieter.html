@@ -2,7 +2,7 @@
 <!--
   Nebenkostenabrechnung – Vermieter-Erfassung
   GitHub-Pfad: lp-anfang/pages/nebenskostenabrechnung/erfassung-vermieter.html
-  Commit-Message: nebenkostenabrechnung – vermieterlogik um eigentuemerfelder grundsteuer und nicht passende kosten bereinigt
+  Commit-Message: nebenkostenabrechnung – vermieterseite auf bedarfslogik fuer versorgung umgebaut und unpassende felder entfernt
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/nebenskostenabrechnung/erfassung-vermieter.html?nocache=__TS__
 -->
 <html lang="de">
@@ -10,7 +10,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Vermieter-Erfassung | Nebenkostenabrechnung</title>
-  <meta name="description" content="Vermieter-Erfassung mit Objekten, Mietern, Wohnflächen, Einzügen, Auszügen, Personenzahl, Kaltmiete, Nebenkostenvorauszahlungen, Umlageschlüssel, zentralen Versorgungen und umlagefähigen laufenden Nebenkosten." />
+  <meta name="description" content="Vermieter-Erfassung mit Objekten, Mietern, Kaltmiete, Nebenkostenvorauszahlungen, Wohnflächen, Umlageschlüsseln und nur bei Bedarf aktivierten Versorgungsblöcken." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -89,6 +89,7 @@
       min-height:46px;padding:12px 18px;border-radius:999px;
       transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
       font-weight:700;white-space:nowrap;
+      text-align:center;
     }
     .btn:hover{transform:translateY(-1px)}
     .btn-primary{background:var(--mint);color:#05241d;box-shadow:0 10px 24px rgba(32,216,178,.20)}
@@ -136,7 +137,7 @@
     .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
     .hero-side{display:grid;gap:16px}
 
-    .mini-card,.panel,.object-card,.tenant-card,.sum-card,.message,.meter-card,.logic-card{
+    .mini-card,.panel,.object-card,.tenant-card,.sum-card,.message,.meter-card,.logic-card,.hint-card{
       background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);
     }
     .mini-card{border-radius:20px;padding:20px}
@@ -187,6 +188,7 @@
       outline:none;border-color:var(--mint);box-shadow:0 0 0 4px rgba(32,216,178,.14);
     }
 
+    .helper{margin:0;font-size:14px;color:var(--muted)}
     .checkbox-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
     .check{
       display:flex;align-items:flex-start;gap:10px;padding:12px 14px;
@@ -223,6 +225,12 @@
       background:linear-gradient(180deg, rgba(32,216,178,.08), rgba(255,255,255,1));
     }
     .logic-card p{margin:0;color:var(--muted)}
+    .hint-card{
+      border-radius:18px;
+      padding:16px 18px;
+      background:linear-gradient(180deg, rgba(255,79,179,.08), rgba(255,255,255,1));
+    }
+    .hint-card p{margin:0;color:var(--muted)}
 
     .tenant-wrap{display:grid;gap:12px}
     .tenant-card{border-radius:18px;padding:16px}
@@ -265,10 +273,13 @@
     .sum-row:first-child{border-top:none;padding-top:0}
     .sum-label{font-weight:700}
     .sum-value{font-weight:700}
+    .object-rent{color:var(--magenta-strong)}
     .object-total{color:var(--mint-strong)}
     .grand-total{font-size:28px;color:var(--mint-strong);letter-spacing:-.02em}
     .saldo-neg{color:#b42318}
     .saldo-pos{color:#0b6b57}
+
+    .hidden{display:none !important}
 
     @media (max-width:1100px){
       .layout{grid-template-columns:1fr}
@@ -409,9 +420,11 @@
 
       .lead,
       .mini-card p,
+      .helper,
       .result-unit,
       .course-footer-card p,
-      .logic-card p{
+      .logic-card p,
+      .hint-card p{
         font-size:9pt !important;
         line-height:1.35 !important;
         color:#333 !important;
@@ -432,7 +445,8 @@
       .meter-card,
       .section-box,
       .result-box,
-      .logic-card{
+      .logic-card,
+      .hint-card{
         background:#fff !important;
         box-shadow:none !important;
         border:1px solid #cfcfcf !important;
@@ -459,7 +473,8 @@
       .tenant-card,
       .mini-card,
       .result-box,
-      .logic-card{
+      .logic-card,
+      .hint-card{
         padding:10px !important;
       }
 
@@ -580,6 +595,7 @@
       .object-card,
       .object-card > .object-body > .section-box,
       .object-card > .object-body > .logic-card,
+      .object-card > .object-body > .hint-card,
       .object-card > .object-body > .sum-card,
       .tenant-wrap .tenant-card,
       .meter-grid .meter-card,
@@ -638,8 +654,8 @@
           <div class="hero-copy">
             <p class="eyebrow">Nur für Vermieter</p>
             <h1>Vermieter-Erfassung</h1>
-            <p class="lead">Hier erfasst du Vermieter-Daten, Objekte, Mieter, Wohnflächen, Einzüge, Auszüge, Personenzahlen, Kaltmiete, Nebenkostenvorauszahlungen, Umlageschlüssel, zentrale Versorgungen und umlagefähige laufende Nebenkosten.</p>
-            <p>Direkt von Mietern selbst bezahlte Verträge wie eigener Strom oder eigenes Gas werden hier bewusst nicht als Vermieterkosten behandelt.</p>
+            <p class="lead">Hier erfasst du Vermieter-Daten, Objekte, Mieter, Wohnflächen, Einzüge, Auszüge, Personenzahlen, Kaltmiete, Nebenkostenvorauszahlungen und nur die Versorgungsbereiche, die für das jeweilige Objekt wirklich gebraucht werden.</p>
+            <p>Strom, Gas, Wasser und Heizöl werden nicht mehr fest eingeblendet. Pro Objekt aktivierst du nur die Bereiche, die wirklich über dich als Vermieter laufen.</p>
 
             <div class="hero-actions">
               <button type="button" class="btn btn-primary" id="addObjectHeroBtn">Neues Objekt anlegen</button>
@@ -653,7 +669,7 @@
                 <div class="icon-badge" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none"><path d="M5 5h14v14H5z" stroke="#11b995" stroke-width="1.8"/><path d="M8 9h8M8 12h8M8 15h5" stroke="#11b995" stroke-width="1.8" stroke-linecap="round"/></svg>
                 </div>
-                <div><h3>Neu dazugekommen</h3><p>Kaltmiete, NK-Vorauszahlung und die klare Unterscheidung, welche Versorgung wirklich über dich als Vermieter läuft.</p></div>
+                <div><h3>Jetzt sauber getrennt</h3><p>Direkt vom Mieter selbst bezahlte Verträge bleiben draußen. Nur wirklich zentrale Vermieterlogik wird erfasst.</p></div>
               </div>
             </div>
 
@@ -662,7 +678,7 @@
                 <div class="icon-badge magenta" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none"><path d="M12 4 5 8v4c0 4.2 3 8.1 7 9 4-0.9 7-4.8 7-9V8l-7-4Z" stroke="#e72897" stroke-width="1.8"/><path d="m9.3 12 1.8 1.8 3.6-3.6" stroke="#e72897" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
-                <div><h3>Wichtig für Vermieter</h3><p>Es bleiben nur Felder drin, die zur laufenden Nebenkostenlogik und zur Vorbereitung einer Mieterabrechnung passen.</p></div>
+                <div><h3>Nur bei Bedarf sichtbar</h3><p>Pro Objekt steuerst du jetzt selbst, ob Strom, Gas, Wasser oder Heizöl überhaupt eingeblendet werden sollen.</p></div>
               </div>
             </div>
 
@@ -671,7 +687,7 @@
                 <div class="icon-badge" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none"><path d="M7 5h10M7 12h10M7 19h10" stroke="#11b995" stroke-width="1.8" stroke-linecap="round"/><path d="M4 5h.01M4 12h.01M4 19h.01" stroke="#11b995" stroke-width="2.6" stroke-linecap="round"/></svg>
                 </div>
-                <div><h3>Danach möglich</h3><p>Speichern, drucken, später wieder öffnen und für das Archiv sichern.</p></div>
+                <div><h3>Klarer Ablauf</h3><p>Objekt anlegen, Mieter erfassen, nur nötige Bereiche aktivieren, Kosten sammeln, Summe prüfen und ins Archiv übernehmen.</p></div>
               </div>
             </div>
           </div>
@@ -801,14 +817,47 @@
         </section>
 
         <section class="logic-card">
-          <h3>Abrechnungslogik dieses Objekts</h3>
-          <p>Hier legst du fest, welche Versorgungen tatsächlich über dich als Vermieter laufen. Nur aktivierte Versorgungen fließen in die Nebenkostenlogik dieses Objekts ein. Direkt vom Mieter selbst bezahlte Verträge bleiben draußen.</p>
+          <h3>Welche Bereiche braucht dieses Objekt wirklich?</h3>
+          <p>Aktiviere nur die Versorgungen, die in diesem Objekt tatsächlich über dich als Vermieter laufen. Nur aktivierte Bereiche werden eingeblendet und in die Nebenkostenlogik eingerechnet.</p>
+
           <div class="checkbox-grid" style="margin-top:14px">
-            <label class="check"><input type="checkbox" class="logic-power-central" /> <span><strong>Strom läuft zentral über Vermieter</strong><small>Nur aktivieren, wenn Strom nicht direkt vom Mieter selbst bezahlt wird.</small></span></label>
-            <label class="check"><input type="checkbox" class="logic-gas-central" /> <span><strong>Gas läuft zentral über Vermieter</strong><small>Nur aktivieren, wenn Gas nicht direkt vom Mieter selbst bezahlt wird.</small></span></label>
-            <label class="check"><input type="checkbox" class="logic-water-central" checked /> <span><strong>Wasser läuft über Vermieter</strong><small>Typisch umlagefähig, wenn zentral abgerechnet.</small></span></label>
-            <label class="check"><input type="checkbox" class="logic-oil-central" /> <span><strong>Heizöl / zentrale Heizung läuft über Vermieter</strong><small>Aktivieren, wenn das Objekt zentral mit Heizöl oder zentraler Wärme versorgt wird.</small></span></label>
+            <label class="check">
+              <input type="checkbox" class="logic-power-central" data-toggle-target="power" />
+              <span>
+                <strong>Strom zentral über Vermieter</strong>
+                <small>Nur aktivieren, wenn Strom nicht direkt vom Mieter selbst bezahlt wird.</small>
+              </span>
+            </label>
+
+            <label class="check">
+              <input type="checkbox" class="logic-gas-central" data-toggle-target="gas" />
+              <span>
+                <strong>Gas zentral über Vermieter</strong>
+                <small>Nur aktivieren, wenn Gas nicht direkt vom Mieter selbst bezahlt wird.</small>
+              </span>
+            </label>
+
+            <label class="check">
+              <input type="checkbox" class="logic-water-central" data-toggle-target="water" />
+              <span>
+                <strong>Wasser über Vermieter</strong>
+                <small>Typisch umlagefähig, wenn zentral abgerechnet.</small>
+              </span>
+            </label>
+
+            <label class="check">
+              <input type="checkbox" class="logic-oil-central" data-toggle-target="oil" />
+              <span>
+                <strong>Heizöl / zentrale Heizung über Vermieter</strong>
+                <small>Aktivieren, wenn das Objekt zentral mit Heizöl oder zentraler Wärme versorgt wird.</small>
+              </span>
+            </label>
           </div>
+        </section>
+
+        <section class="hint-card">
+          <h3>Merke</h3>
+          <p>Diese Seite soll nicht alles zeigen, sondern nur das, was für das jeweilige Objekt gebraucht wird. Deshalb erscheinen Strom, Gas, Wasser und Heizöl erst nach deiner Auswahl.</p>
         </section>
 
         <section class="section-box">
@@ -819,11 +868,10 @@
           <div class="tenant-wrap"></div>
         </section>
 
-        <section class="section-box">
-          <h3>Zählerstände und Verbrauch</h3>
+        <section class="section-box meter-section meter-section-power hidden" data-meter-section="power">
+          <h3>Strom</h3>
           <div class="meter-grid">
             <article class="meter-card">
-              <div class="meter-head"><h3>Strom</h3></div>
               <div class="meter-body">
                 <div class="field-row-5">
                   <div class="field"><label>Versorger</label><input type="text" class="meter-power-provider" placeholder="z. B. Stadtwerke" /></div>
@@ -846,9 +894,13 @@
                 </div>
               </div>
             </article>
+          </div>
+        </section>
 
+        <section class="section-box meter-section meter-section-gas hidden" data-meter-section="gas">
+          <h3>Gas</h3>
+          <div class="meter-grid">
             <article class="meter-card">
-              <div class="meter-head"><h3>Gas</h3></div>
               <div class="meter-body">
                 <div class="field-row-5">
                   <div class="field"><label>Versorger</label><input type="text" class="meter-gas-provider" placeholder="z. B. Stadtwerke" /></div>
@@ -871,9 +923,13 @@
                 </div>
               </div>
             </article>
+          </div>
+        </section>
 
+        <section class="section-box meter-section meter-section-water hidden" data-meter-section="water">
+          <h3>Wasser</h3>
+          <div class="meter-grid">
             <article class="meter-card">
-              <div class="meter-head"><h3>Wasser</h3></div>
               <div class="meter-body">
                 <div class="field-row-5">
                   <div class="field"><label>Versorger</label><input type="text" class="meter-water-provider" placeholder="z. B. Stadtwerke" /></div>
@@ -896,9 +952,13 @@
                 </div>
               </div>
             </article>
+          </div>
+        </section>
 
+        <section class="section-box meter-section meter-section-oil hidden" data-meter-section="oil">
+          <h3>Heizöl / zentrale Heizung</h3>
+          <div class="meter-grid">
             <article class="meter-card">
-              <div class="meter-head"><h3>Heizöl / zentrale Heizung</h3></div>
               <div class="meter-body">
                 <div class="field-row-5">
                   <div class="field"><label>Lieferant</label><input type="text" class="meter-oil-provider" placeholder="z. B. Heizöl Müller" /></div>
@@ -1205,6 +1265,27 @@
         };
       }
 
+      function updateMeterSectionVisibility(card){
+        const sections = {
+          power: card.querySelector('[data-meter-section="power"]'),
+          gas: card.querySelector('[data-meter-section="gas"]'),
+          water: card.querySelector('[data-meter-section="water"]'),
+          oil: card.querySelector('[data-meter-section="oil"]')
+        };
+
+        const toggles = {
+          power: card.querySelector('.logic-power-central'),
+          gas: card.querySelector('.logic-gas-central'),
+          water: card.querySelector('.logic-water-central'),
+          oil: card.querySelector('.logic-oil-central')
+        };
+
+        Object.keys(sections).forEach(key => {
+          if(!sections[key] || !toggles[key]) return;
+          sections[key].classList.toggle('hidden', !toggles[key].checked);
+        });
+      }
+
       function addTenant(card, data){
         const wrap = card.querySelector('.tenant-wrap');
         const node = tenantTemplate.content.firstElementChild.cloneNode(true);
@@ -1266,6 +1347,13 @@
           input.addEventListener('change', touchAndUpdate);
         });
 
+        card.querySelectorAll('[data-toggle-target]').forEach(toggle => {
+          toggle.addEventListener('change', () => {
+            updateMeterSectionVisibility(card);
+            touchAndUpdate();
+          });
+        });
+
         card.querySelector('.action-remove-object').addEventListener('click', () => {
           card.remove();
           refreshObjectIndices();
@@ -1286,7 +1374,7 @@
 
           card.querySelector('.logic-power-central').checked = !!data.billingLogic?.powerCentral;
           card.querySelector('.logic-gas-central').checked = !!data.billingLogic?.gasCentral;
-          card.querySelector('.logic-water-central').checked = data.billingLogic?.waterCentral !== false;
+          card.querySelector('.logic-water-central').checked = !!data.billingLogic?.waterCentral;
           card.querySelector('.logic-oil-central').checked = !!data.billingLogic?.oilCentral;
 
           const p = data.meters?.power || {};
@@ -1370,6 +1458,7 @@
         }
 
         objectsWrap.appendChild(card);
+        updateMeterSectionVisibility(card);
         refreshObjectIndices();
         updateTotals();
       }
@@ -1451,7 +1540,7 @@
         const logic = {
           powerCentral: !!obj.billingLogic?.powerCentral,
           gasCentral: !!obj.billingLogic?.gasCentral,
-          waterCentral: obj.billingLogic?.waterCentral !== false,
+          waterCentral: !!obj.billingLogic?.waterCentral,
           oilCentral: !!obj.billingLogic?.oilCentral
         };
 
