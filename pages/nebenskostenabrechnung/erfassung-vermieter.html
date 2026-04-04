@@ -2,7 +2,7 @@
 <!--
   Nebenkostenabrechnung – Vermieter-Erfassung
   GitHub-Pfad: lp-anfang/pages/nebenskostenabrechnung/erfassung-vermieter.html
-  Commit-Message: nebenkostenabrechnung – pdf drucklogik pro block auf eigene seite umgebaut mit sichtbaren beispieltexten
+  Commit-Message: nebenkostenabrechnung – vermieterlogik um miete nk vorauszahlung und zentrale versorgung erweitert
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/nebenskostenabrechnung/erfassung-vermieter.html?nocache=__TS__
 -->
 <html lang="de">
@@ -10,7 +10,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Vermieter-Erfassung | Nebenkostenabrechnung</title>
-  <meta name="description" content="Vermieter-Erfassung mit Objekten, Mietern, Wohnfläche, Personenzahl, Einzug, Auszug, Umlageschlüssel, Zählerständen, Verbrauch, Kosten und Vorauszahlungen." />
+  <meta name="description" content="Vermieter-Erfassung mit Objekten, Mietern, Wohnfläche, Personenzahl, Einzug, Auszug, Umlageschlüssel, Miete, Nebenkostenvorauszahlungen, Zählerständen, Kosten und Vorauszahlungen." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -136,7 +136,7 @@
     .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
     .hero-side{display:grid;gap:16px}
 
-    .mini-card,.panel,.object-card,.tenant-card,.sum-card,.message,.meter-card{
+    .mini-card,.panel,.object-card,.tenant-card,.sum-card,.message,.meter-card,.logic-card{
       background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);
     }
     .mini-card{border-radius:20px;padding:20px}
@@ -190,10 +190,12 @@
     .helper{margin:0;font-size:14px;color:var(--muted)}
     .checkbox-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
     .check{
-      display:flex;align-items:center;gap:10px;padding:12px 14px;
+      display:flex;align-items:flex-start;gap:10px;padding:12px 14px;
       border:1px solid var(--line);border-radius:14px;background:#fff;
     }
-    .check input{width:18px;height:18px;margin:0;box-shadow:none}
+    .check input{width:18px;height:18px;margin:2px 0 0 0;box-shadow:none;flex:0 0 auto}
+    .check strong{display:block;font-size:14px;line-height:1.25}
+    .check small{display:block;color:var(--muted);line-height:1.35}
 
     .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-top:18px}
     .toolbar.compact{margin-top:0}
@@ -215,6 +217,13 @@
       border:1px solid var(--line);border-radius:18px;padding:18px;background:#fff;
     }
     .section-box h3{font-size:18px;margin:0 0 14px}
+
+    .logic-card{
+      border-radius:18px;
+      padding:18px;
+      background:linear-gradient(180deg, rgba(32,216,178,.08), rgba(255,255,255,1));
+    }
+    .logic-card p{margin:0;color:var(--muted)}
 
     .tenant-wrap{display:grid;gap:12px}
     .tenant-card{border-radius:18px;padding:16px}
@@ -403,7 +412,8 @@
       .mini-card p,
       .helper,
       .result-unit,
-      .course-footer-card p{
+      .course-footer-card p,
+      .logic-card p{
         font-size:9pt !important;
         line-height:1.35 !important;
         color:#333 !important;
@@ -423,7 +433,8 @@
       .message,
       .meter-card,
       .section-box,
-      .result-box{
+      .result-box,
+      .logic-card{
         background:#fff !important;
         box-shadow:none !important;
         border:1px solid #cfcfcf !important;
@@ -449,7 +460,8 @@
       .section-box,
       .tenant-card,
       .mini-card,
-      .result-box{
+      .result-box,
+      .logic-card{
         padding:10px !important;
       }
 
@@ -599,7 +611,8 @@
         padding-top:10px !important;
       }
 
-      .object-card > .object-body > .section-box{
+      .object-card > .object-body > .section-box,
+      .object-card > .object-body > .logic-card{
         break-before:page !important;
         page-break-before:always !important;
         margin:0 !important;
@@ -704,7 +717,7 @@
           <div class="hero-copy">
             <p class="eyebrow">Nur für Vermieter</p>
             <h1>Vermieter-Erfassung</h1>
-            <p class="lead">Hier erfasst du Vermieter-Daten, Objekte, Mieter, Wohnflächen, Einzüge, Auszüge, Personenzahlen, Umlageschlüssel, Zählerstände, Kosten und Vorauszahlungen.</p>
+            <p class="lead">Hier erfasst du Vermieter-Daten, Objekte, Mieter, Wohnflächen, Einzüge, Auszüge, Personenzahlen, Miete, Nebenkostenvorauszahlungen, Umlageschlüssel, Zählerstände, Kosten und Vorauszahlungen.</p>
             <p>So entsteht pro Objekt eine saubere Struktur für spätere Nebenkostenabrechnungen und Jahresübersichten.</p>
 
             <div class="hero-actions">
@@ -719,7 +732,7 @@
                 <div class="icon-badge" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none"><path d="M5 5h14v14H5z" stroke="#11b995" stroke-width="1.8"/><path d="M8 9h8M8 12h8M8 15h5" stroke="#11b995" stroke-width="1.8" stroke-linecap="round"/></svg>
                 </div>
-                <div><h3>Neu dazugekommen</h3><p>Wohnfläche, Personenzahl, Einzug, Auszug, Umlageschlüssel und Mietervorauszahlungen.</p></div>
+                <div><h3>Neu dazugekommen</h3><p>Miete, Nebenkostenvorauszahlung und die Unterscheidung, ob Strom, Gas, Wasser oder Heizöl zentral über den Vermieter laufen.</p></div>
               </div>
             </div>
 
@@ -728,7 +741,7 @@
                 <div class="icon-badge magenta" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none"><path d="M12 4 5 8v4c0 4.2 3 8.1 7 9 4-0.9 7-4.8 7-9V8l-7-4Z" stroke="#e72897" stroke-width="1.8"/><path d="m9.3 12 1.8 1.8 3.6-3.6" stroke="#e72897" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
-                <div><h3>Wichtig für Vermieter</h3><p>Je Objekt bleiben Fläche, Bewohner, Vorauszahlungen und Kosten klar getrennt.</p></div>
+                <div><h3>Wichtig für Vermieter</h3><p>Je Objekt bleiben Fläche, Bewohner, Kaltmiete, Vorauszahlungen und nur die wirklich relevanten Kosten sauber getrennt.</p></div>
               </div>
             </div>
 
@@ -791,9 +804,10 @@
               <div class="sum-row"><div class="sum-label">Jahr</div><div class="sum-value" id="sumYear">—</div></div>
               <div class="sum-row"><div class="sum-label">Objekte gesamt</div><div class="sum-value" id="sumObjects">0</div></div>
               <div class="sum-row"><div class="sum-label">Mieter gesamt</div><div class="sum-value" id="sumTenants">0</div></div>
-              <div class="sum-row"><div class="sum-label">Gesamtkosten</div><div class="sum-value grand-total" id="sumGrand">0,00 €</div></div>
-              <div class="sum-row"><div class="sum-label">Vorauszahlungen gesamt</div><div class="sum-value" id="sumAdvance">0,00 €</div></div>
-              <div class="sum-row"><div class="sum-label">Saldo</div><div class="sum-value" id="sumSaldo">0,00 €</div></div>
+              <div class="sum-row"><div class="sum-label">Kaltmiete gesamt</div><div class="sum-value" id="sumRent">0,00 €</div></div>
+              <div class="sum-row"><div class="sum-label">Nebenkosten gesamt</div><div class="sum-value grand-total" id="sumGrand">0,00 €</div></div>
+              <div class="sum-row"><div class="sum-label">NK-Vorauszahlungen gesamt</div><div class="sum-value" id="sumAdvance">0,00 €</div></div>
+              <div class="sum-row"><div class="sum-label">Saldo Nebenkosten</div><div class="sum-value" id="sumSaldo">0,00 €</div></div>
 
               <div class="toolbar">
                 <div class="toolbar-left">
@@ -850,8 +864,8 @@
             <div class="field-row-4">
               <div class="field"><label>PLZ</label><input type="text" class="obj-zip" placeholder="PLZ" /></div>
               <div class="field"><label>Ort</label><input type="text" class="obj-city" placeholder="Ort" /></div>
-              <div class="field"><label>Wohnfläche (m²)</label><input type="number" class="obj-area" min="0" step="0.01" placeholder="z. B. 84,5" /></div>
-              <div class="field"><label>Umlageschlüssel</label>
+              <div class="field"><label>Wohnfläche gesamt (m²)</label><input type="number" class="obj-area" min="0" step="0.01" placeholder="z. B. 420,0" /></div>
+              <div class="field"><label>Umlageschlüssel Hauptlogik</label>
                 <select class="obj-allocation">
                   <option value="nach-flaeche">nach Fläche</option>
                   <option value="nach-personen">nach Personenzahl</option>
@@ -863,13 +877,24 @@
             </div>
 
             <div class="checkbox-grid">
-              <label class="check"><input type="checkbox" class="feat-garden" /> <span>Großer Garten</span></label>
-              <label class="check"><input type="checkbox" class="feat-pool" /> <span>Pool vorhanden</span></label>
-              <label class="check"><input type="checkbox" class="feat-alarm" /> <span>Alarmanlage</span></label>
-              <label class="check"><input type="checkbox" class="feat-special" /> <span>Besondere Haustechnik</span></label>
+              <label class="check"><input type="checkbox" class="feat-garden" /> <span><strong>Großer Garten</strong><small>Gartenkosten können separat miterfasst werden.</small></span></label>
+              <label class="check"><input type="checkbox" class="feat-pool" /> <span><strong>Pool vorhanden</strong><small>Poolkosten können separat miterfasst werden.</small></span></label>
+              <label class="check"><input type="checkbox" class="feat-alarm" /> <span><strong>Alarmanlage</strong><small>Technik- und Sicherheitskosten gesondert notieren.</small></span></label>
+              <label class="check"><input type="checkbox" class="feat-special" /> <span><strong>Besondere Haustechnik</strong><small>Freie Zusatzkosten und Hinweise möglich.</small></span></label>
             </div>
 
             <div class="field"><label>Besonderheiten</label><textarea class="obj-note" placeholder="z. B. Anlagen, Außenbereiche oder objektspezifische Hinweise."></textarea></div>
+          </div>
+        </section>
+
+        <section class="logic-card">
+          <h3>Abrechnungslogik dieses Objekts</h3>
+          <p>Hier legst du fest, welche Versorgungen tatsächlich über dich als Vermieter laufen. Nur aktivierte Versorgungen fließen in die Nebenkostenlogik dieses Objekts ein. Direkt vom Mieter selbst bezahlte Verträge bleiben draußen.</p>
+          <div class="checkbox-grid" style="margin-top:14px">
+            <label class="check"><input type="checkbox" class="logic-power-central" /> <span><strong>Strom läuft zentral über Vermieter</strong><small>Nur aktivieren, wenn Strom nicht direkt vom Mieter selbst bezahlt wird.</small></span></label>
+            <label class="check"><input type="checkbox" class="logic-gas-central" /> <span><strong>Gas läuft zentral über Vermieter</strong><small>Nur aktivieren, wenn Gas nicht direkt vom Mieter selbst bezahlt wird.</small></span></label>
+            <label class="check"><input type="checkbox" class="logic-water-central" checked /> <span><strong>Wasser läuft über Vermieter</strong><small>Typisch umlagefähig, wenn zentral abgerechnet.</small></span></label>
+            <label class="check"><input type="checkbox" class="logic-oil-central" /> <span><strong>Heizöl / zentrale Heizung läuft über Vermieter</strong><small>Aktivieren, wenn das Objekt zentral mit Heizöl oder zentraler Wärme versorgt wird.</small></span></label>
           </div>
         </section>
 
@@ -892,7 +917,7 @@
                   <div class="field"><label>Kunden-/Vertragsnummer</label><input type="text" class="meter-power-customer" placeholder="Nummer" /></div>
                   <div class="field"><label>Zählernummer</label><input type="text" class="meter-power-no" placeholder="ST-45811" /></div>
                   <div class="field"><label>Einheit</label><select class="meter-power-unit"><option value="kWh">kWh</option><option value="MWh">MWh</option></select></div>
-                  <div class="field"><label>Vorauszahlungen</label><input type="number" class="meter-power-advance advance-input" step="0.01" min="0" placeholder="0,00" /></div>
+                  <div class="field"><label>Vorauszahlungen Vermieter</label><input type="number" class="meter-power-advance advance-input" step="0.01" min="0" placeholder="0,00" /></div>
                 </div>
                 <div class="field-row-5">
                   <div class="field"><label>Ablesedatum Anfang</label><input type="date" class="meter-power-read-start" /></div>
@@ -917,7 +942,7 @@
                   <div class="field"><label>Kunden-/Vertragsnummer</label><input type="text" class="meter-gas-customer" placeholder="Nummer" /></div>
                   <div class="field"><label>Zählernummer</label><input type="text" class="meter-gas-no" placeholder="GAS-22419" /></div>
                   <div class="field"><label>Einheit</label><select class="meter-gas-unit"><option value="m³">m³</option><option value="kWh">kWh</option></select></div>
-                  <div class="field"><label>Vorauszahlungen</label><input type="number" class="meter-gas-advance advance-input" step="0.01" min="0" placeholder="0,00" /></div>
+                  <div class="field"><label>Vorauszahlungen Vermieter</label><input type="number" class="meter-gas-advance advance-input" step="0.01" min="0" placeholder="0,00" /></div>
                 </div>
                 <div class="field-row-5">
                   <div class="field"><label>Ablesedatum Anfang</label><input type="date" class="meter-gas-read-start" /></div>
@@ -942,7 +967,7 @@
                   <div class="field"><label>Kunden-/Vertragsnummer</label><input type="text" class="meter-water-customer" placeholder="Nummer" /></div>
                   <div class="field"><label>Zählernummer</label><input type="text" class="meter-water-no" placeholder="WS-11982" /></div>
                   <div class="field"><label>Einheit</label><select class="meter-water-unit"><option value="m³">m³</option><option value="Liter">Liter</option></select></div>
-                  <div class="field"><label>Vorauszahlungen</label><input type="number" class="meter-water-advance advance-input" step="0.01" min="0" placeholder="0,00" /></div>
+                  <div class="field"><label>Vorauszahlungen Vermieter</label><input type="number" class="meter-water-advance advance-input" step="0.01" min="0" placeholder="0,00" /></div>
                 </div>
                 <div class="field-row-5">
                   <div class="field"><label>Ablesedatum Anfang</label><input type="date" class="meter-water-read-start" /></div>
@@ -960,14 +985,14 @@
             </article>
 
             <article class="meter-card">
-              <div class="meter-head"><h3>Heizöl</h3></div>
+              <div class="meter-head"><h3>Heizöl / zentrale Heizung</h3></div>
               <div class="meter-body">
                 <div class="field-row-5">
                   <div class="field"><label>Lieferant</label><input type="text" class="meter-oil-provider" placeholder="z. B. Heizöl Müller" /></div>
                   <div class="field"><label>Kunden-/Vertragsnummer</label><input type="text" class="meter-oil-customer" placeholder="Nummer" /></div>
                   <div class="field"><label>Tank / Bezeichnung</label><input type="text" class="meter-oil-no" placeholder="Tank Keller links" /></div>
                   <div class="field"><label>Einheit</label><select class="meter-oil-unit"><option value="Liter">Liter</option></select></div>
-                  <div class="field"><label>Vorauszahlungen</label><input type="number" class="meter-oil-advance advance-input" step="0.01" min="0" placeholder="0,00" /></div>
+                  <div class="field"><label>Vorauszahlungen Vermieter</label><input type="number" class="meter-oil-advance advance-input" step="0.01" min="0" placeholder="0,00" /></div>
                 </div>
                 <div class="field-row-5">
                   <div class="field"><label>Bestandsdatum Anfang</label><input type="date" class="meter-oil-read-start" /></div>
@@ -991,7 +1016,7 @@
         </section>
 
         <section class="section-box">
-          <h3>Weitere Kostenfelder</h3>
+          <h3>Weitere Nebenkostenfelder</h3>
           <div class="cost-grid">
             <div class="field"><label>Versicherungen</label><input type="number" class="cost-insurance cost-input" min="0" step="0.01" placeholder="0,00" /></div>
             <div class="field"><label>Grundsteuer</label><input type="number" class="cost-property-tax cost-input" min="0" step="0.01" placeholder="0,00" /></div>
@@ -1020,9 +1045,10 @@
         <section class="sum-card">
           <div class="sum-head"><h3>Objektsumme</h3></div>
           <div class="sum-body">
-            <div class="sum-row"><div class="sum-label">Kosten gesamt</div><div class="sum-value object-total">0,00 €</div></div>
-            <div class="sum-row"><div class="sum-label">Vorauszahlungen gesamt</div><div class="sum-value object-advance">0,00 €</div></div>
-            <div class="sum-row"><div class="sum-label">Saldo</div><div class="sum-value object-saldo">0,00 €</div></div>
+            <div class="sum-row"><div class="sum-label">Kaltmiete gesamt</div><div class="sum-value object-rent">0,00 €</div></div>
+            <div class="sum-row"><div class="sum-label">Nebenkosten gesamt</div><div class="sum-value object-total">0,00 €</div></div>
+            <div class="sum-row"><div class="sum-label">NK-Vorauszahlungen gesamt</div><div class="sum-value object-advance">0,00 €</div></div>
+            <div class="sum-row"><div class="sum-label">Saldo Nebenkosten</div><div class="sum-value object-saldo">0,00 €</div></div>
           </div>
         </section>
       </div>
@@ -1051,11 +1077,23 @@
           <div class="field"><label>Personenzahl</label><input type="number" class="tenant-persons" min="0" step="1" placeholder="z. B. 2" /></div>
         </div>
 
-        <div class="field-row-3">
+        <div class="field-row-4">
           <div class="field"><label>Wohnfläche Einheit (m²)</label><input type="number" class="tenant-area" min="0" step="0.01" placeholder="z. B. 62,5" /></div>
-          <div class="field"><label>Monatliche Vorauszahlung</label><input type="number" class="tenant-monthly-advance tenant-advance-input" min="0" step="0.01" placeholder="0,00" /></div>
+          <div class="field"><label>Monatliche Kaltmiete</label><input type="number" class="tenant-monthly-rent tenant-rent-input" min="0" step="0.01" placeholder="0,00" /></div>
+          <div class="field"><label>Monatliche NK-Vorauszahlung</label><input type="number" class="tenant-monthly-nk-advance tenant-advance-input" min="0" step="0.01" placeholder="0,00" /></div>
           <div class="field">
-            <label>Jahres-Vorauszahlung</label>
+            <label>Monate im Zeitraum</label>
+            <input type="text" class="tenant-active-months-display" value="12" readonly />
+          </div>
+        </div>
+
+        <div class="field-row-2">
+          <div class="field">
+            <label>Jahres-Kaltmiete</label>
+            <input type="text" class="tenant-year-rent-display" value="0,00 €" readonly />
+          </div>
+          <div class="field">
+            <label>Jahres-NK-Vorauszahlung</label>
             <input type="text" class="tenant-year-advance-display" value="0,00 €" readonly />
           </div>
         </div>
@@ -1100,6 +1138,7 @@
       const sumYear = document.getElementById('sumYear');
       const sumObjects = document.getElementById('sumObjects');
       const sumTenants = document.getElementById('sumTenants');
+      const sumRent = document.getElementById('sumRent');
       const sumGrand = document.getElementById('sumGrand');
       const sumAdvance = document.getElementById('sumAdvance');
       const sumSaldo = document.getElementById('sumSaldo');
@@ -1232,17 +1271,29 @@
         return { powerUsage, gasUsage, waterUsage, oilUsage };
       }
 
-      function computeTenantYearAdvanceNode(node){
+      function computeTenantMoneyNode(node){
         const months = countActiveMonths(
           fields.periodFrom.value,
           fields.periodTo.value,
           node.querySelector('.tenant-move-in').value,
           node.querySelector('.tenant-move-out').value
         );
-        const monthly = toNumber(node.querySelector('.tenant-monthly-advance').value);
-        const total = monthly * months;
-        node.querySelector('.tenant-year-advance-display').value = euro(total);
-        return total;
+
+        const monthlyRent = toNumber(node.querySelector('.tenant-monthly-rent').value);
+        const monthlyNkAdvance = toNumber(node.querySelector('.tenant-monthly-nk-advance').value);
+
+        const annualRent = monthlyRent * months;
+        const annualNkAdvance = monthlyNkAdvance * months;
+
+        node.querySelector('.tenant-active-months-display').value = String(months);
+        node.querySelector('.tenant-year-rent-display').value = euro(annualRent);
+        node.querySelector('.tenant-year-advance-display').value = euro(annualNkAdvance);
+
+        return {
+          months,
+          annualRent,
+          annualNkAdvance
+        };
       }
 
       function addTenant(card, data){
@@ -1259,7 +1310,8 @@
           node.querySelector('.tenant-move-out').value = data.moveOut || '';
           node.querySelector('.tenant-persons').value = data.persons || '';
           node.querySelector('.tenant-area').value = data.area || '';
-          node.querySelector('.tenant-monthly-advance').value = data.monthlyAdvance || '';
+          node.querySelector('.tenant-monthly-rent').value = data.monthlyRent || '';
+          node.querySelector('.tenant-monthly-nk-advance').value = data.monthlyNkAdvance || '';
         }
 
         node.querySelectorAll('input').forEach(input => {
@@ -1273,7 +1325,7 @@
         });
 
         wrap.appendChild(node);
-        computeTenantYearAdvanceNode(node);
+        computeTenantMoneyNode(node);
         updateTotals();
       }
 
@@ -1327,6 +1379,11 @@
           card.querySelector('.feat-alarm').checked = !!data.features?.alarm;
           card.querySelector('.feat-special').checked = !!data.features?.special;
           card.querySelector('.obj-note').value = data.note || '';
+
+          card.querySelector('.logic-power-central').checked = !!data.billingLogic?.powerCentral;
+          card.querySelector('.logic-gas-central').checked = !!data.billingLogic?.gasCentral;
+          card.querySelector('.logic-water-central').checked = data.billingLogic?.waterCentral !== false;
+          card.querySelector('.logic-oil-central').checked = !!data.billingLogic?.oilCentral;
 
           const p = data.meters?.power || {};
           card.querySelector('.meter-power-provider').value = p.provider || '';
@@ -1404,6 +1461,10 @@
             addExtraRow(card);
           }
         } else {
+          card.querySelector('.logic-power-central').checked = false;
+          card.querySelector('.logic-gas-central').checked = false;
+          card.querySelector('.logic-water-central').checked = true;
+          card.querySelector('.logic-oil-central').checked = false;
           addTenant(card);
           addExtraRow(card);
         }
@@ -1413,26 +1474,68 @@
         updateTotals();
       }
 
+      function getObjectBillingLogic(card){
+        return {
+          powerCentral: card.querySelector('.logic-power-central').checked,
+          gasCentral: card.querySelector('.logic-gas-central').checked,
+          waterCentral: card.querySelector('.logic-water-central').checked,
+          oilCentral: card.querySelector('.logic-oil-central').checked
+        };
+      }
+
       function computeObjectTotals(card){
         updateUsageForCard(card);
 
         let total = 0;
         let advance = 0;
+        let rent = 0;
 
-        card.querySelectorAll('.cost-input').forEach(input => {
-          total += toNumber(input.value);
-        });
+        const logic = getObjectBillingLogic(card);
 
-        card.querySelectorAll('.advance-input').forEach(input => {
-          advance += toNumber(input.value);
+        if(logic.powerCentral){
+          total += toNumber(card.querySelector('.meter-power-cost').value);
+          advance += toNumber(card.querySelector('.meter-power-advance').value);
+        }
+        if(logic.gasCentral){
+          total += toNumber(card.querySelector('.meter-gas-cost').value);
+          advance += toNumber(card.querySelector('.meter-gas-advance').value);
+        }
+        if(logic.waterCentral){
+          total += toNumber(card.querySelector('.meter-water-cost').value);
+          advance += toNumber(card.querySelector('.meter-water-advance').value);
+        }
+        if(logic.oilCentral){
+          total += toNumber(card.querySelector('.meter-oil-cost').value);
+          advance += toNumber(card.querySelector('.meter-oil-advance').value);
+        }
+
+        total += toNumber(card.querySelector('.cost-insurance').value);
+        total += toNumber(card.querySelector('.cost-property-tax').value);
+        total += toNumber(card.querySelector('.cost-trash').value);
+        total += toNumber(card.querySelector('.cost-chimney').value);
+        total += toNumber(card.querySelector('.cost-maintenance').value);
+        total += toNumber(card.querySelector('.cost-alarm').value);
+        total += toNumber(card.querySelector('.cost-garden').value);
+        total += toNumber(card.querySelector('.cost-pool').value);
+        total += toNumber(card.querySelector('.cost-operating').value);
+        total += toNumber(card.querySelector('.cost-systems').value);
+        total += toNumber(card.querySelector('.cost-repair').value);
+        total += toNumber(card.querySelector('.cost-reserve').value);
+        total += toNumber(card.querySelector('.cost-other').value);
+
+        card.querySelectorAll('.extra-row').forEach(row => {
+          total += toNumber(row.querySelector('.extra-value').value);
         });
 
         card.querySelectorAll('.tenant-card').forEach(tenantNode => {
-          advance += computeTenantYearAdvanceNode(tenantNode);
+          const money = computeTenantMoneyNode(tenantNode);
+          rent += money.annualRent;
+          advance += money.annualNkAdvance;
         });
 
         const saldo = total - advance;
 
+        card.querySelector('.object-rent').textContent = euro(rent);
         card.querySelector('.object-total').textContent = euro(total);
         card.querySelector('.object-advance').textContent = euro(advance);
 
@@ -1441,22 +1544,37 @@
         saldoEl.classList.toggle('saldo-neg', saldo > 0);
         saldoEl.classList.toggle('saldo-pos', saldo <= 0);
 
-        return { total, advance, saldo };
+        return { rent, total, advance, saldo };
       }
 
       function computeObjectTotalFromData(obj, periodFrom, periodTo){
         let total = 0;
         let advance = 0;
+        let rent = 0;
 
-        total += toNumber(obj.meters?.power?.cost);
-        total += toNumber(obj.meters?.gas?.cost);
-        total += toNumber(obj.meters?.water?.cost);
-        total += toNumber(obj.meters?.oil?.cost);
+        const logic = {
+          powerCentral: !!obj.billingLogic?.powerCentral,
+          gasCentral: !!obj.billingLogic?.gasCentral,
+          waterCentral: obj.billingLogic?.waterCentral !== false,
+          oilCentral: !!obj.billingLogic?.oilCentral
+        };
 
-        advance += toNumber(obj.meters?.power?.advance);
-        advance += toNumber(obj.meters?.gas?.advance);
-        advance += toNumber(obj.meters?.water?.advance);
-        advance += toNumber(obj.meters?.oil?.advance);
+        if(logic.powerCentral){
+          total += toNumber(obj.meters?.power?.cost);
+          advance += toNumber(obj.meters?.power?.advance);
+        }
+        if(logic.gasCentral){
+          total += toNumber(obj.meters?.gas?.cost);
+          advance += toNumber(obj.meters?.gas?.advance);
+        }
+        if(logic.waterCentral){
+          total += toNumber(obj.meters?.water?.cost);
+          advance += toNumber(obj.meters?.water?.advance);
+        }
+        if(logic.oilCentral){
+          total += toNumber(obj.meters?.oil?.cost);
+          advance += toNumber(obj.meters?.oil?.advance);
+        }
 
         if(obj.costs) Object.values(obj.costs).forEach(v => total += toNumber(v));
         if(Array.isArray(obj.extras)) obj.extras.forEach(extra => total += toNumber(extra.value));
@@ -1464,22 +1582,25 @@
         if(Array.isArray(obj.tenants)){
           obj.tenants.forEach(tenant => {
             const months = countActiveMonths(periodFrom, periodTo, tenant.moveIn, tenant.moveOut);
-            advance += toNumber(tenant.monthlyAdvance) * months;
+            rent += toNumber(tenant.monthlyRent) * months;
+            advance += toNumber(tenant.monthlyNkAdvance) * months;
           });
         }
 
-        return { total, advance, saldo: total - advance };
+        return { rent, total, advance, saldo: total - advance };
       }
 
       function updateTotals(){
         let grand = 0;
         let advanceGrand = 0;
+        let rentGrand = 0;
         let tenants = 0;
 
         const cards = Array.from(objectsWrap.querySelectorAll('.object-card'));
 
         cards.forEach(card => {
           const totals = computeObjectTotals(card);
+          rentGrand += totals.rent;
           grand += totals.total;
           advanceGrand += totals.advance;
           tenants += card.querySelectorAll('.tenant-card').length;
@@ -1490,6 +1611,7 @@
         sumYear.textContent = fields.year.value.trim() || '—';
         sumObjects.textContent = String(cards.length);
         sumTenants.textContent = String(tenants);
+        sumRent.textContent = euro(rentGrand);
         sumGrand.textContent = euro(grand);
         sumAdvance.textContent = euro(advanceGrand);
 
@@ -1540,15 +1662,15 @@
                 alarm: card.querySelector('.feat-alarm').checked,
                 special: card.querySelector('.feat-special').checked
               },
+              billingLogic: {
+                powerCentral: card.querySelector('.logic-power-central').checked,
+                gasCentral: card.querySelector('.logic-gas-central').checked,
+                waterCentral: card.querySelector('.logic-water-central').checked,
+                oilCentral: card.querySelector('.logic-oil-central').checked
+              },
               note: card.querySelector('.obj-note').value.trim(),
               tenants: Array.from(card.querySelectorAll('.tenant-card')).map(t => {
-                const months = countActiveMonths(
-                  fields.periodFrom.value,
-                  fields.periodTo.value,
-                  t.querySelector('.tenant-move-in').value,
-                  t.querySelector('.tenant-move-out').value
-                );
-                const monthlyAdvance = t.querySelector('.tenant-monthly-advance').value;
+                const money = computeTenantMoneyNode(t);
                 return {
                   firstName: t.querySelector('.tenant-first').value.trim(),
                   lastName: t.querySelector('.tenant-last').value.trim(),
@@ -1559,8 +1681,11 @@
                   moveOut: t.querySelector('.tenant-move-out').value,
                   persons: t.querySelector('.tenant-persons').value,
                   area: t.querySelector('.tenant-area').value,
-                  monthlyAdvance: monthlyAdvance,
-                  annualAdvance: (toNumber(monthlyAdvance) * months).toFixed(2)
+                  monthlyRent: t.querySelector('.tenant-monthly-rent').value,
+                  monthlyNkAdvance: t.querySelector('.tenant-monthly-nk-advance').value,
+                  activeMonths: money.months,
+                  annualRent: money.annualRent.toFixed(2),
+                  annualNkAdvance: money.annualNkAdvance.toFixed(2)
                 };
               }),
               meters: {
@@ -1732,10 +1857,11 @@
 
         const totals = data.objects.reduce((acc, obj) => {
           const t = computeObjectTotalFromData(obj, data.master.periodFrom, data.master.periodTo);
+          acc.rent += t.rent;
           acc.total += t.total;
           acc.advance += t.advance;
           return acc;
-        }, { total:0, advance:0 });
+        }, { rent:0, total:0, advance:0 });
 
         return {
           id: data.archiveId || ('jahr_' + year + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,8)),
@@ -1748,6 +1874,7 @@
             : (year ? ('01.01.' + year + ' bis 31.12.' + year) : ''),
           summe: totals.total.toFixed(2),
           notiz: data.master.note || '',
+          kaltmiete: totals.rent.toFixed(2),
           createdAt: data.createdAt || new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           details: data
