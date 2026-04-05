@@ -1,1 +1,1488 @@
+<!doctype html>
+<!--
+  Nebenkostenabrechnung – Eigentümer-Erfassung
+  GitHub-Pfad: lp-anfang/pages/nebenskostenabrechnung/erfassung-eigentuemer.html
+  Commit-Message: nebenkostenabrechnung – eigentuemer eingabedaten in zwei saubere reihen gestellt und ipad layout beruhigt
+  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/nebenskostenabrechnung/erfassung-eigentuemer.html?nocache=1743924000
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Eigentümer-Erfassung | Nebenkostenabrechnung</title>
+  <meta name="description" content="Eigentümer-Erfassung für laufende Wohnnebenkosten mit Eingabedaten, Kostenpositionen, Rhythmen, Jahreswerten, Monatswerten und Archiv-Anbindung." />
+  <meta name="robots" content="index,follow" />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --bg-soft:#f8f8f8;
+      --panel:#ffffff;
+      --panel-soft:#f6f7f8;
+      --text:#111111;
+      --muted:#555555;
+      --line:#e7e7e7;
 
+      --mint:#20d8b2;
+      --mint-strong:#11b995;
+      --mint-soft:rgba(32,216,178,.10);
+
+      --magenta:#ff4fb3;
+      --magenta-strong:#e72897;
+      --magenta-soft:rgba(255,79,179,.10);
+
+      --danger:#c62828;
+      --danger-soft:rgba(198,40,40,.08);
+
+      --shadow:0 10px 30px rgba(17,17,17,.06);
+      --maxw:1380px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at top right, rgba(255,79,179,.10), transparent 24%),
+        radial-gradient(circle at top left, rgba(32,216,178,.12), transparent 24%),
+        var(--bg);
+      color:var(--text);
+      font-family:Arial, Helvetica, sans-serif;
+      font-size:18px;
+      line-height:1.65;
+    }
+
+    a{color:inherit;text-decoration:none}
+
+    .container{
+      width:min(var(--maxw), calc(100% - 48px));
+      margin:0 auto;
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      backdrop-filter:blur(10px);
+      background:rgba(255,255,255,.88);
+      border-bottom:1px solid rgba(17,17,17,.08);
+    }
+
+    .topbar-inner{
+      width:min(var(--maxw), calc(100% - 48px));
+      margin:0 auto;
+      min-height:74px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+
+    .brand-mark{
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      background:linear-gradient(135deg, rgba(32,216,178,.10), rgba(255,79,179,.10));
+      border:1px solid rgba(17,17,17,.08);
+      display:grid;
+      place-items:center;
+      box-shadow:var(--shadow);
+      flex:0 0 auto;
+    }
+
+    .brand-mark svg{
+      width:24px;
+      height:24px;
+      display:block;
+    }
+
+    .brand-kicker{
+      margin:0 0 2px;
+      font-size:12px;
+      line-height:1.2;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      color:var(--magenta-strong);
+      font-weight:700;
+    }
+
+    .brand-title{
+      margin:0;
+      font-size:18px;
+      line-height:1.2;
+      font-weight:700;
+      color:var(--text);
+    }
+
+    .top-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .btn,
+    button{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      font:inherit;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      min-height:46px;
+      padding:12px 18px;
+      border-radius:999px;
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+      font-weight:700;
+      white-space:nowrap;
+      text-align:center;
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--mint);color:#05241d;box-shadow:0 10px 24px rgba(32,216,178,.20)}
+    .btn-secondary{background:#fff;color:var(--magenta-strong);border:1px solid rgba(255,79,179,.40)}
+    .btn-ghost{background:#fff;color:var(--text);border:1px solid rgba(17,17,17,.10)}
+    .btn-danger{background:#fff;color:var(--danger);border:1px solid rgba(198,40,40,.24)}
+    .btn-small{min-height:40px;padding:10px 14px;border-radius:12px;font-size:15px}
+
+    .page{
+      padding:34px 0 48px;
+    }
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,248,248,.96));
+      border:1px solid var(--line);
+      border-radius:32px;
+      box-shadow:var(--shadow);
+      padding:38px;
+      margin-bottom:22px;
+    }
+
+    .hero::before,
+    .hero::after{
+      content:"";
+      position:absolute;
+      border-radius:999px;
+      pointer-events:none;
+    }
+
+    .hero::before{
+      width:320px;
+      height:320px;
+      right:-110px;
+      top:-130px;
+      background:radial-gradient(circle, rgba(255,79,179,.18), transparent 68%);
+    }
+
+    .hero::after{
+      width:260px;
+      height:260px;
+      left:-70px;
+      bottom:-90px;
+      background:radial-gradient(circle, rgba(32,216,178,.18), transparent 68%);
+    }
+
+    .hero-inner{
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns:minmax(0,1.06fr) minmax(320px,.94fr);
+      gap:28px;
+      align-items:start;
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      margin:0 0 18px;
+      padding:8px 14px;
+      border-radius:999px;
+      background:var(--magenta-soft);
+      color:var(--magenta-strong);
+      font-size:13px;
+      line-height:1.2;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+
+    h1{
+      margin:0 0 16px;
+      font-size:42px;
+      line-height:1.12;
+      letter-spacing:-.02em;
+    }
+
+    h2{
+      margin:0 0 12px;
+      font-size:30px;
+      line-height:1.2;
+      letter-spacing:-.02em;
+    }
+
+    h3{
+      margin:0 0 10px;
+      font-size:22px;
+      line-height:1.2;
+      letter-spacing:-.02em;
+    }
+
+    .lead{
+      margin:0 0 16px;
+      font-size:21px;
+      line-height:1.55;
+      color:var(--muted);
+      max-width:760px;
+    }
+
+    .hero-copy p{margin:0 0 14px}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+    .hero-side{display:grid;gap:16px}
+
+    .mini-card,
+    .panel,
+    .message,
+    .sum-card,
+    .position-card,
+    .course-footer-card{
+      background:#fff;
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+    }
+
+    .mini-card{
+      border-radius:22px;
+      padding:20px;
+    }
+
+    .mini-card p{
+      margin:0;
+      color:var(--muted);
+      font-size:16px;
+      line-height:1.55;
+    }
+
+    .icon-line{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .icon-badge{
+      width:38px;
+      height:38px;
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+      background:var(--mint-soft);
+      border:1px solid rgba(32,216,178,.20);
+    }
+
+    .icon-badge.magenta{
+      background:var(--magenta-soft);
+      border-color:rgba(255,79,179,.20);
+    }
+
+    .icon-badge svg{
+      width:20px;
+      height:20px;
+      display:block;
+    }
+
+    .message{
+      display:none;
+      border-radius:18px;
+      padding:14px 16px;
+      font-size:15px;
+      font-weight:700;
+      margin-bottom:16px;
+    }
+
+    .message.show{display:block}
+    .message-success{background:var(--mint-soft);border-color:rgba(32,216,178,.24);color:#0b6b57}
+    .message-error{background:var(--danger-soft);border-color:rgba(198,40,40,.22);color:var(--danger)}
+
+    .layout{
+      display:grid;
+      grid-template-columns:minmax(360px, 460px) minmax(0,1fr);
+      gap:22px;
+      align-items:start;
+    }
+
+    .panel,
+    .sum-card{
+      border-radius:28px;
+      overflow:hidden;
+    }
+
+    .panel-head,
+    .sum-head{
+      padding:22px 22px 0;
+    }
+
+    .panel-body,
+    .sum-body{
+      padding:22px;
+    }
+
+    .form-grid{
+      display:grid;
+      gap:16px;
+    }
+
+    .field{
+      display:grid;
+      gap:8px;
+      min-width:0;
+      align-content:start;
+    }
+
+    .field label{
+      font-size:14px;
+      line-height:1.28;
+      font-weight:700;
+      color:#2a2a2a;
+      display:block;
+      word-break:normal;
+      overflow-wrap:anywhere;
+    }
+
+    .field-row-2,
+    .field-row-3{
+      display:grid;
+      gap:14px;
+      align-items:start;
+    }
+
+    .field-row-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .field-row-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+    input,
+    select,
+    textarea{
+      width:100%;
+      min-width:0;
+      min-height:58px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px 16px;
+      background:#fff;
+      color:var(--text);
+      transition:border-color .18s ease, box-shadow .18s ease;
+      font:inherit;
+      font-size:17px;
+    }
+
+    select{
+      padding-right:42px;
+    }
+
+    textarea{
+      min-height:110px;
+      resize:vertical;
+    }
+
+    input::placeholder,
+    textarea::placeholder{
+      color:#9a9a9a;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus{
+      outline:none;
+      border-color:var(--mint);
+      box-shadow:0 0 0 4px rgba(32,216,178,.14);
+    }
+
+    .input-help{
+      margin:-2px 0 0;
+      font-size:13px;
+      line-height:1.45;
+      color:var(--muted);
+    }
+
+    .hint-box{
+      border:1px solid rgba(255,79,179,.18);
+      background:rgba(255,79,179,.06);
+      border-radius:18px;
+      padding:16px 18px;
+      color:var(--muted);
+    }
+
+    .position-list{
+      display:grid;
+      gap:14px;
+    }
+
+    .position-card{
+      border-radius:22px;
+      padding:14px;
+      background:linear-gradient(180deg, rgba(255,255,255,1), rgba(248,248,248,.96));
+    }
+
+    .position-grid{
+      display:grid;
+      grid-template-columns:76px minmax(210px,1.2fr) minmax(180px,.9fr) minmax(160px,.8fr);
+      gap:12px;
+      align-items:end;
+    }
+
+    .position-number{
+      min-height:58px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:32px;
+      font-weight:700;
+      background:#fff;
+    }
+
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      margin-top:18px;
+    }
+
+    .toolbar-left,
+    .toolbar-right{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+    }
+
+    .sum-card{
+      background:linear-gradient(180deg, rgba(32,216,178,.10), rgba(255,255,255,1));
+      margin-top:22px;
+    }
+
+    .sum-body{
+      display:grid;
+      gap:14px;
+    }
+
+    .sum-row{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:12px;
+      padding:12px 0;
+      border-top:1px solid var(--line);
+      align-items:center;
+    }
+
+    .sum-row:first-child{
+      border-top:none;
+      padding-top:0;
+    }
+
+    .sum-label{font-weight:700}
+    .sum-value{font-weight:700}
+    .sum-big{
+      font-size:28px;
+      color:var(--mint-strong);
+      letter-spacing:-.02em;
+    }
+
+    .sum-mid{
+      font-size:22px;
+      color:var(--text);
+    }
+
+    .course-footer{
+      padding:0 0 46px;
+    }
+
+    .course-footer-card{
+      width:min(var(--maxw), calc(100% - 48px));
+      margin:0 auto;
+      border-radius:24px;
+      padding:22px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      flex-wrap:wrap;
+      background:#fff;
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+    }
+
+    .course-footer-card p{
+      margin:0;
+      color:var(--muted);
+      font-size:15px;
+    }
+
+    .course-footer-links{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
+
+    @media (max-width:1240px){
+      .layout{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:1080px){
+      .hero-inner{
+        grid-template-columns:1fr;
+      }
+
+      .position-grid{
+        grid-template-columns:76px 1fr 1fr;
+      }
+
+      .position-grid .field:last-child{
+        grid-column:2 / span 2;
+      }
+    }
+
+    @media (max-width:780px){
+      body{font-size:17px}
+      .container,.topbar-inner{width:min(var(--maxw), calc(100% - 28px))}
+      .course-footer-card{width:min(var(--maxw), calc(100% - 28px))}
+      .topbar-inner{
+        min-height:unset;
+        padding:12px 0;
+        align-items:flex-start;
+        flex-direction:column;
+      }
+      .top-actions{
+        width:100%;
+        justify-content:flex-start;
+      }
+      .page{
+        padding:20px 0 34px;
+      }
+      .hero{
+        padding:22px;
+        border-radius:24px;
+      }
+      h1{font-size:30px}
+      h2{font-size:24px}
+      h3{font-size:20px}
+      .lead{font-size:19px}
+      .btn{width:100%}
+      .hero-actions,
+      .course-footer-links,
+      .toolbar-left,
+      .toolbar-right{
+        flex-direction:column;
+        width:100%;
+      }
+      .field-row-2,
+      .field-row-3,
+      .position-grid{
+        grid-template-columns:1fr !important;
+      }
+      .position-grid .field:last-child{
+        grid-column:auto;
+      }
+      .position-number{
+        min-height:54px;
+        font-size:26px;
+      }
+    }
+
+    @media print{
+      @page{
+        size:A4 portrait;
+        margin:12mm;
+      }
+
+      html,body{
+        background:#fff !important;
+        color:#000 !important;
+        font-size:10.5pt !important;
+        line-height:1.35 !important;
+        -webkit-print-color-adjust:exact;
+        print-color-adjust:exact;
+      }
+
+      body{
+        margin:0 !important;
+        padding:0 !important;
+        background-image:none !important;
+      }
+
+      .topbar,
+      .hero-actions,
+      .course-footer,
+      #messageBox,
+      .toolbar-right,
+      .btn,
+      button{
+        display:none !important;
+      }
+
+      .container,
+      .topbar-inner,
+      .course-footer-card{
+        width:100% !important;
+        max-width:none !important;
+        margin:0 !important;
+        padding:0 !important;
+      }
+
+      .page{
+        padding:0 !important;
+      }
+
+      .layout,
+      .hero-inner,
+      .field-row-2,
+      .field-row-3,
+      .position-grid{
+        display:grid !important;
+        grid-template-columns:1fr !important;
+        gap:8px !important;
+      }
+
+      .hero,
+      .panel,
+      .sum-card,
+      .mini-card,
+      .position-card,
+      .hint-box{
+        box-shadow:none !important;
+        border:1px solid #cfcfcf !important;
+        border-radius:0 !important;
+        background:#fff !important;
+        break-inside:avoid !important;
+        page-break-inside:avoid !important;
+      }
+
+      .hero{
+        padding:12px 14px !important;
+        margin:0 0 10px 0 !important;
+      }
+
+      .hero::before,
+      .hero::after,
+      .brand-mark,
+      .icon-badge{
+        display:none !important;
+      }
+
+      .panel-head,
+      .panel-body,
+      .sum-head,
+      .sum-body,
+      .mini-card,
+      .position-card{
+        padding:10px !important;
+      }
+
+      h1{
+        font-size:18pt !important;
+        margin:0 0 6px 0 !important;
+      }
+
+      h2{
+        font-size:14pt !important;
+        margin:0 0 8px 0 !important;
+      }
+
+      h3{
+        font-size:11.5pt !important;
+        margin:0 0 6px 0 !important;
+      }
+
+      .lead,
+      .mini-card p,
+      .hint-box,
+      .course-footer-card p,
+      .input-help{
+        font-size:9pt !important;
+        color:#333 !important;
+      }
+
+      .eyebrow{
+        margin:0 0 6px 0 !important;
+        padding:0 !important;
+        background:none !important;
+        color:#000 !important;
+        font-size:9pt !important;
+        border-radius:0 !important;
+      }
+
+      input,
+      select,
+      textarea{
+        min-height:auto !important;
+        padding:7px 8px !important;
+        border:1px solid #bdbdbd !important;
+        border-radius:0 !important;
+        background:#fff !important;
+        color:#000 !important;
+        box-shadow:none !important;
+        font-size:9pt !important;
+      }
+
+      .sum-big,
+      .sum-mid{
+        font-size:11pt !important;
+        color:#000 !important;
+      }
+
+      .position-number{
+        min-height:auto !important;
+        padding:6px 8px !important;
+        border-radius:0 !important;
+        font-size:12pt !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none">
+            <path d="M13 32c0-10.493 8.507-19 19-19h19v19c0 10.493-8.507 19-19 19H13V32Z" fill="url(#g1)"/>
+            <path d="M13 13h19c10.493 0 19 8.507 19 19v19H32c-10.493 0-19-8.507-19-19V13Z" fill="url(#g2)" opacity=".78"/>
+            <defs>
+              <linearGradient id="g1" x1="13" y1="13" x2="51" y2="51"><stop stop-color="#20d8b2"/><stop offset="1" stop-color="#11b995"/></linearGradient>
+              <linearGradient id="g2" x1="13" y1="13" x2="51" y2="51"><stop stop-color="#ff4fb3"/><stop offset="1" stop-color="#e72897"/></linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <p class="brand-kicker">Eigentümer</p>
+          <p class="brand-title">Erfassung</p>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <a class="btn btn-secondary" href="index.html">Zur Steuerzentrale</a>
+        <a class="btn btn-ghost" href="archiv.html">Archiv</a>
+        <button class="btn btn-primary" type="button" id="printBtn">Seite drucken / PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="page">
+    <div class="container">
+      <section class="hero">
+        <div class="hero-inner">
+          <div class="hero-copy">
+            <p class="eyebrow">Für das eigene Objekt</p>
+            <h1>Laufende Wohnnebenkosten erfassen und auswerten</h1>
+            <p class="lead">Hier werden laufende Wohnnebenkosten als klare Positionsliste mit Rhythmus, Betrag, Jahreswert und Monatswert erfasst.</p>
+            <p>So entsteht eine übersichtliche Auswertung für das eigene Objekt. Die Angaben bleiben lokal auf dem Gerät, können später wieder geöffnet und als Jahresstand ins Archiv übernommen werden.</p>
+
+            <div class="hero-actions">
+              <button type="button" class="btn btn-primary" id="saveDraftHeroBtn">Entwurf lokal speichern</button>
+              <button type="button" class="btn btn-secondary" id="saveArchiveHeroBtn">Ins Archiv übernehmen</button>
+            </div>
+          </div>
+
+          <div class="hero-side">
+            <div class="mini-card">
+              <div class="icon-line">
+                <div class="icon-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M5 5h14v14H5z" stroke="#11b995" stroke-width="1.8"/>
+                    <path d="M8 9h8M8 12h8M8 15h5" stroke="#11b995" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3>Klare Eingaben</h3>
+                  <p>Bewohner, Wohnfläche, Nutzungsdauer und frei benennbare Kostenpositionen lassen sich direkt erfassen.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mini-card">
+              <div class="icon-line">
+                <div class="icon-badge magenta" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 4 5 8v4c0 4.2 3 8.1 7 9 4-0.9 7-4.8 7-9V8l-7-4Z" stroke="#e72897" stroke-width="1.8"/>
+                    <path d="m9.3 12 1.8 1.8 3.6-3.6" stroke="#e72897" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3>Automatische Umrechnung</h3>
+                  <p>Aus Rhythmus und Betrag werden Monatswerte, Jahreswerte und Vergleichswerte automatisch berechnet.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mini-card">
+              <div class="icon-line">
+                <div class="icon-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M7 5h10M7 12h10M7 19h10" stroke="#11b995" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M4 5h.01M4 12h.01M4 19h.01" stroke="#11b995" stroke-width="2.6" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3>Danach möglich</h3>
+                  <p>Entwurf speichern, ins Archiv übernehmen, als PDF drucken und später wieder öffnen.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="messageBox" class="message" aria-live="polite"></div>
+
+      <div class="layout">
+        <section>
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Eingabedaten</h2>
+            </div>
+            <div class="panel-body">
+              <div class="form-grid">
+                <div class="field-row-2">
+                  <div class="field">
+                    <label for="title">Titel / Bezeichnung (optional)</label>
+                    <input id="title" type="text" placeholder="z. B. Wohnkosten 2026" />
+                  </div>
+                  <div class="field">
+                    <label for="year">Jahr</label>
+                    <input id="year" type="number" min="2000" max="2100" step="1" placeholder="z. B. 2026" />
+                  </div>
+                </div>
+
+                <div class="field-row-2">
+                  <div class="field">
+                    <label for="residents">Anzahl Bewohner (optional)</label>
+                    <input id="residents" type="number" min="0" step="1" placeholder="z. B. 2" />
+                  </div>
+                  <div class="field">
+                    <label for="livingArea">Wohnfläche in m² (optional)</label>
+                    <input id="livingArea" type="number" min="0" step="0.01" placeholder="z. B. 105,34" />
+                  </div>
+                </div>
+
+                <div class="field-row-2">
+                  <div class="field">
+                    <label for="usageYears">Gesamtnutzungsdauer in Jahren (optional)</label>
+                    <input id="usageYears" type="number" min="0" step="0.01" placeholder="z. B. 8" />
+                  </div>
+                  <div class="field">
+                    <label for="status">Status</label>
+                    <select id="status">
+                      <option value="Entwurf">Entwurf</option>
+                      <option value="In Arbeit">In Arbeit</option>
+                      <option value="Fertig vorbereitet">Fertig vorbereitet</option>
+                      <option value="Exportiert">Exportiert</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="field-row-2">
+                  <div class="field">
+                    <label for="createdDate">Erfassungsdatum</label>
+                    <input id="createdDate" type="date" />
+                  </div>
+                  <div class="field">
+                    <label for="updatedDate">Letzte Aktualisierung</label>
+                    <input id="updatedDate" type="date" />
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="note">Freie Notiz</label>
+                  <textarea id="note" placeholder="z. B. Hinweise zum Jahr, zum Objekt oder zu einzelnen Positionen."></textarea>
+                </div>
+
+                <div class="field-row-2">
+                  <div class="field">
+                    <label for="positionCount">Anzahl Positionen</label>
+                    <select id="positionCount"></select>
+                  </div>
+                  <div class="field">
+                    <label for="resetBtn">Eingaben löschen</label>
+                    <button type="button" class="btn btn-danger" id="resetBtn">Eingaben löschen</button>
+                  </div>
+                </div>
+
+                <p class="input-help">Die voreingetragenen Positionen dienen der Orientierung und können jederzeit geändert werden.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="sum-card">
+            <div class="sum-head">
+              <h2>Ergebnisübersicht</h2>
+            </div>
+            <div class="sum-body">
+              <div class="sum-row"><div class="sum-label">Bereich</div><div class="sum-value">Eigentümer</div></div>
+              <div class="sum-row"><div class="sum-label">Jahr</div><div class="sum-value" id="sumYear">—</div></div>
+              <div class="sum-row"><div class="sum-label">Positionen gesamt</div><div class="sum-value sum-mid" id="sumPositions">16</div></div>
+              <div class="sum-row"><div class="sum-label">Gesamtkosten pro Jahr</div><div class="sum-value sum-big" id="sumYearly">0,00 €</div></div>
+              <div class="sum-row"><div class="sum-label">Gesamtkosten pro Monat</div><div class="sum-value sum-mid" id="sumMonthly">0,00 €</div></div>
+              <div class="sum-row"><div class="sum-label">Kosten pro Bewohner / Monat</div><div class="sum-value" id="sumPerResident">—</div></div>
+              <div class="sum-row"><div class="sum-label">Kosten pro m² / Monat</div><div class="sum-value" id="sumPerSqm">—</div></div>
+              <div class="sum-row"><div class="sum-label">Kosten über Nutzungsdauer</div><div class="sum-value" id="sumUsage">—</div></div>
+
+              <div class="toolbar">
+                <div class="toolbar-left">
+                  <button type="button" class="btn btn-primary" id="saveDraftBtn">Entwurf lokal speichern</button>
+                  <button type="button" class="btn btn-secondary" id="saveArchiveBtn">Ins Archiv übernehmen</button>
+                </div>
+                <div class="toolbar-right">
+                  <button type="button" class="btn btn-ghost" id="loadDraftBtn">Entwurf laden</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Positionen</h2>
+          </div>
+
+          <div class="panel-body">
+            <div class="hint-box">
+              Jede Position besteht aus Kostenart, Rhythmus und Betrag. Daraus werden Monatswert und Jahreswert automatisch umgerechnet.
+            </div>
+
+            <div class="position-list" id="positionList" style="margin-top:16px;"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <template id="positionTemplate">
+    <article class="position-card">
+      <div class="position-grid">
+        <div class="field">
+          <label>Position</label>
+          <div class="position-number position-index">1</div>
+        </div>
+
+        <div class="field">
+          <label>Kostenart</label>
+          <input type="text" class="pos-label" />
+        </div>
+
+        <div class="field">
+          <label>Rhythmus</label>
+          <select class="pos-frequency">
+            <option value="daily">täglich</option>
+            <option value="weekly">wöchentlich</option>
+            <option value="biweekly">alle 2 Wochen</option>
+            <option value="monthly">monatlich</option>
+            <option value="quarterly">vierteljährlich</option>
+            <option value="halfyearly">halbjährlich</option>
+            <option value="yearly">jährlich</option>
+            <option value="every2years">alle 2 Jahre</option>
+            <option value="every3years">alle 3 Jahre</option>
+            <option value="every4years">alle 4 Jahre</option>
+            <option value="every5years">alle 5 Jahre</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Betrag in Euro</label>
+          <input type="number" class="pos-amount" min="0" step="0.01" placeholder="0,00" />
+        </div>
+      </div>
+
+      <div class="field-row-2" style="margin-top:12px;">
+        <div class="field">
+          <label>Monatswert</label>
+          <input type="text" class="pos-monthly" value="0,00 €" readonly />
+        </div>
+        <div class="field">
+          <label>Jahreswert</label>
+          <input type="text" class="pos-yearly" value="0,00 €" readonly />
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <script>
+    (function(){
+      const DRAFT_KEY = 'nebk_eigentuemer_draft_v1';
+      const ARCHIVE_KEY = 'nebk_archive_v1';
+
+      const DEFAULT_POSITIONS = [
+        { label:'Wasser (inkl. Abwasser, Entwässerung)', frequency:'monthly', amount:'' },
+        { label:'Strom', frequency:'monthly', amount:'' },
+        { label:'Heizung (Gas, Heizöl, etc.)', frequency:'monthly', amount:'' },
+        { label:'Schornsteinfeger', frequency:'yearly', amount:'' },
+        { label:'Müllabfuhr', frequency:'yearly', amount:'' },
+        { label:'Hausmeister', frequency:'yearly', amount:'' },
+        { label:'Winterdienst', frequency:'yearly', amount:'' },
+        { label:'Reinigung', frequency:'monthly', amount:'' },
+        { label:'Instandhaltung / Reparaturen', frequency:'yearly', amount:'' },
+        { label:'Grundsteuer / Erbpacht', frequency:'yearly', amount:'' },
+        { label:'Versicherung', frequency:'yearly', amount:'' },
+        { label:'Telefon / Internet', frequency:'monthly', amount:'' },
+        { label:'Rundfunkbeitrag / Kabel', frequency:'quarterly', amount:'' },
+        { label:'Rücklage', frequency:'yearly', amount:'' },
+        { label:'Wertverlust', frequency:'yearly', amount:'' },
+        { label:'Sonstiges', frequency:'yearly', amount:'' }
+      ];
+
+      const fields = {
+        title: document.getElementById('title'),
+        year: document.getElementById('year'),
+        residents: document.getElementById('residents'),
+        livingArea: document.getElementById('livingArea'),
+        usageYears: document.getElementById('usageYears'),
+        status: document.getElementById('status'),
+        createdDate: document.getElementById('createdDate'),
+        updatedDate: document.getElementById('updatedDate'),
+        note: document.getElementById('note')
+      };
+
+      const messageBox = document.getElementById('messageBox');
+      const positionList = document.getElementById('positionList');
+      const positionTemplate = document.getElementById('positionTemplate');
+      const positionCount = document.getElementById('positionCount');
+
+      const sumYear = document.getElementById('sumYear');
+      const sumPositions = document.getElementById('sumPositions');
+      const sumYearly = document.getElementById('sumYearly');
+      const sumMonthly = document.getElementById('sumMonthly');
+      const sumPerResident = document.getElementById('sumPerResident');
+      const sumPerSqm = document.getElementById('sumPerSqm');
+      const sumUsage = document.getElementById('sumUsage');
+
+      const saveDraftBtn = document.getElementById('saveDraftBtn');
+      const saveArchiveBtn = document.getElementById('saveArchiveBtn');
+      const loadDraftBtn = document.getElementById('loadDraftBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const saveDraftHeroBtn = document.getElementById('saveDraftHeroBtn');
+      const saveArchiveHeroBtn = document.getElementById('saveArchiveHeroBtn');
+      const printBtn = document.getElementById('printBtn');
+
+      function todayIso(){
+        return new Date().toISOString().slice(0,10);
+      }
+
+      function euro(value){
+        const num = Number(value || 0);
+        return num.toLocaleString('de-DE', {
+          minimumFractionDigits:2,
+          maximumFractionDigits:2
+        }) + ' €';
+      }
+
+      function formatPlain(value){
+        const num = Number(value || 0);
+        return num.toLocaleString('de-DE', {
+          minimumFractionDigits:2,
+          maximumFractionDigits:2
+        });
+      }
+
+      function toNumber(val){
+        const n = parseFloat(String(val || '').replace(',', '.'));
+        return Number.isFinite(n) ? n : 0;
+      }
+
+      function showMessage(text, type){
+        messageBox.textContent = text;
+        messageBox.className = 'message show ' + (type === 'error' ? 'message-error' : 'message-success');
+        clearTimeout(showMessage._timer);
+        showMessage._timer = setTimeout(() => {
+          messageBox.className = 'message';
+          messageBox.textContent = '';
+        }, 4200);
+      }
+
+      function getFactorPerYear(freq){
+        const map = {
+          daily:365,
+          weekly:52,
+          biweekly:26,
+          monthly:12,
+          quarterly:4,
+          halfyearly:2,
+          yearly:1,
+          every2years:0.5,
+          every3years:1/3,
+          every4years:0.25,
+          every5years:0.2
+        };
+        return map[freq] || 0;
+      }
+
+      function fillPositionCountOptions(){
+        const frag = document.createDocumentFragment();
+        for(let i=1;i<=50;i++){
+          const opt = document.createElement('option');
+          opt.value = String(i);
+          opt.textContent = String(i);
+          frag.appendChild(opt);
+        }
+        positionCount.appendChild(frag);
+      }
+
+      function createPositionCard(index, data){
+        const node = positionTemplate.content.firstElementChild.cloneNode(true);
+
+        node.querySelector('.position-index').textContent = String(index + 1);
+
+        const labelInput = node.querySelector('.pos-label');
+        const frequencySelect = node.querySelector('.pos-frequency');
+        const amountInput = node.querySelector('.pos-amount');
+
+        labelInput.value = data && data.label ? data.label : '';
+        frequencySelect.value = data && data.frequency ? data.frequency : 'monthly';
+        amountInput.value = data && data.amount !== undefined ? data.amount : '';
+
+        [labelInput, frequencySelect, amountInput].forEach(el => {
+          el.addEventListener('input', touchAndUpdate);
+          el.addEventListener('change', touchAndUpdate);
+        });
+
+        positionList.appendChild(node);
+      }
+
+      function rebuildPositions(items){
+        positionList.innerHTML = '';
+        items.forEach((item, index) => createPositionCard(index, item));
+        sumPositions.textContent = String(items.length);
+        updateTotals();
+      }
+
+      function getCurrentPositions(){
+        return Array.from(positionList.querySelectorAll('.position-card')).map(card => ({
+          label: card.querySelector('.pos-label').value.trim(),
+          frequency: card.querySelector('.pos-frequency').value,
+          amount: card.querySelector('.pos-amount').value
+        }));
+      }
+
+      function updatePositionOutputs(){
+        const positions = [];
+
+        Array.from(positionList.querySelectorAll('.position-card')).forEach((card, index) => {
+          card.querySelector('.position-index').textContent = String(index + 1);
+
+          const label = card.querySelector('.pos-label').value.trim();
+          const frequency = card.querySelector('.pos-frequency').value;
+          const amount = toNumber(card.querySelector('.pos-amount').value);
+
+          const yearly = amount * getFactorPerYear(frequency);
+          const monthly = yearly / 12;
+
+          card.querySelector('.pos-monthly').value = euro(monthly);
+          card.querySelector('.pos-yearly').value = euro(yearly);
+
+          positions.push({
+            label,
+            frequency,
+            amount,
+            yearly,
+            monthly
+          });
+        });
+
+        return positions;
+      }
+
+      function updateTotals(){
+        const positions = updatePositionOutputs();
+
+        const yearlyTotal = positions.reduce((sum, item) => sum + item.yearly, 0);
+        const monthlyTotal = yearlyTotal / 12;
+        const residents = toNumber(fields.residents.value);
+        const livingArea = toNumber(fields.livingArea.value);
+        const usageYears = toNumber(fields.usageYears.value);
+
+        sumYear.textContent = fields.year.value.trim() || '—';
+        sumPositions.textContent = String(positions.length);
+        sumYearly.textContent = euro(yearlyTotal);
+        sumMonthly.textContent = euro(monthlyTotal);
+        sumPerResident.textContent = residents > 0 ? euro(monthlyTotal / residents) : '—';
+        sumPerSqm.textContent = livingArea > 0 ? (formatPlain(monthlyTotal / livingArea) + ' €') : '—';
+        sumUsage.textContent = usageYears > 0 ? euro(yearlyTotal * usageYears) : '—';
+      }
+
+      function touchAndUpdate(){
+        fields.updatedDate.value = todayIso();
+        updateTotals();
+      }
+
+      function collectData(){
+        const positions = updatePositionOutputs();
+        const yearlyTotal = positions.reduce((sum, item) => sum + item.yearly, 0);
+        const monthlyTotal = yearlyTotal / 12;
+        const residents = toNumber(fields.residents.value);
+        const livingArea = toNumber(fields.livingArea.value);
+        const usageYears = toNumber(fields.usageYears.value);
+
+        return {
+          archiveId: window.__archiveId || '',
+          createdAt: window.__createdAt || '',
+          mode:'eigentuemer',
+          master:{
+            year: fields.year.value.trim(),
+            status: fields.status.value,
+            createdDate: fields.createdDate.value,
+            updatedDate: fields.updatedDate.value,
+            note: fields.note.value.trim()
+          },
+          object:{
+            title: fields.title.value.trim(),
+            residents: fields.residents.value,
+            livingArea: fields.livingArea.value,
+            usageYears: fields.usageYears.value
+          },
+          calculator:{
+            title: fields.title.value.trim(),
+            residents: fields.residents.value,
+            livingArea: fields.livingArea.value,
+            usageYears: fields.usageYears.value,
+            positions: positions.map(item => ({
+              label:item.label,
+              frequency:item.frequency,
+              amount:Number(item.amount || 0).toFixed(2),
+              monthly:item.monthly.toFixed(2),
+              yearly:item.yearly.toFixed(2)
+            }))
+          },
+          positions: positions.map(item => ({
+            label:item.label,
+            frequency:item.frequency,
+            amount:Number(item.amount || 0).toFixed(2),
+            monthly:item.monthly.toFixed(2),
+            yearly:item.yearly.toFixed(2)
+          })),
+          totals:{
+            annualTotal: yearlyTotal.toFixed(2),
+            monthlyTotal: monthlyTotal.toFixed(2),
+            residents: residents ? String(residents) : '',
+            livingArea: livingArea ? String(livingArea) : '',
+            usageYears: usageYears ? String(usageYears) : '',
+            perResidentMonthly: residents > 0 ? (monthlyTotal / residents).toFixed(2) : '',
+            perSqmMonthly: livingArea > 0 ? (monthlyTotal / livingArea).toFixed(2) : '',
+            usageTotal: usageYears > 0 ? (yearlyTotal * usageYears).toFixed(2) : ''
+          }
+        };
+      }
+
+      function validate(data){
+        if(!data.master.year || !/^\d{4}$/.test(data.master.year)){
+          return 'Bitte ein Jahr mit vier Ziffern eintragen.';
+        }
+        if(!data.calculator.positions.length){
+          return 'Bitte mindestens eine Position anlegen.';
+        }
+        return '';
+      }
+
+      function getArchive(){
+        const raw = localStorage.getItem(ARCHIVE_KEY);
+        try{
+          return raw ? JSON.parse(raw) : [];
+        }catch(e){
+          return [];
+        }
+      }
+
+      function saveArchiveRecord(record){
+        const items = getArchive();
+        const idx = items.findIndex(item => item.id === record.id);
+        if(idx >= 0) items[idx] = record;
+        else items.push(record);
+        localStorage.setItem(ARCHIVE_KEY, JSON.stringify(items));
+      }
+
+      function buildArchiveRecord(data){
+        return {
+          id: data.archiveId || ('jahr_' + data.master.year + '_' + Date.now() + '_' + Math.random().toString(36).slice(2,8)),
+          jahr: data.master.year,
+          status: data.master.status || 'Entwurf',
+          titel: data.object.title || 'Wohnnebenkosten',
+          bereich: 'Einfamilienhaus – eigene Übersicht',
+          zeitraum: data.master.year ? ('01.01.' + data.master.year + ' bis 31.12.' + data.master.year) : '',
+          summe: data.totals.annualTotal || '0.00',
+          notiz: data.master.note || '',
+          createdAt: data.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          details: data
+        };
+      }
+
+      function saveDraft(){
+        const data = collectData();
+        const error = validate(data);
+        if(error){
+          showMessage(error, 'error');
+          return;
+        }
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+        showMessage('Entwurf wurde lokal gespeichert.', 'success');
+      }
+
+      function saveToArchive(){
+        const data = collectData();
+        const error = validate(data);
+        if(error){
+          showMessage(error, 'error');
+          return;
+        }
+
+        const record = buildArchiveRecord(data);
+        window.__archiveId = record.id;
+        window.__createdAt = record.createdAt;
+
+        saveArchiveRecord(record);
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({
+          ...data,
+          archiveId: record.id,
+          createdAt: record.createdAt
+        }));
+
+        showMessage('Jahresstand wurde ins Archiv übernommen.', 'success');
+      }
+
+      function fillAll(data){
+        window.__archiveId = data.archiveId || '';
+        window.__createdAt = data.createdAt || '';
+
+        fields.title.value = data.object?.title || data.calculator?.title || '';
+        fields.year.value = data.master?.year || '';
+        fields.residents.value = data.object?.residents || data.calculator?.residents || '';
+        fields.livingArea.value = data.object?.livingArea || data.calculator?.livingArea || '';
+        fields.usageYears.value = data.object?.usageYears || data.calculator?.usageYears || '';
+        fields.status.value = data.master?.status || 'Entwurf';
+        fields.createdDate.value = data.master?.createdDate || todayIso();
+        fields.updatedDate.value = data.master?.updatedDate || todayIso();
+        fields.note.value = data.master?.note || '';
+
+        const items = Array.isArray(data.positions) && data.positions.length
+          ? data.positions
+          : (Array.isArray(data.calculator?.positions) && data.calculator.positions.length
+            ? data.calculator.positions
+            : DEFAULT_POSITIONS);
+
+        positionCount.value = String(items.length);
+        rebuildPositions(items.map(item => ({
+          label:item.label || '',
+          frequency:item.frequency || 'monthly',
+          amount:item.amount || ''
+        })));
+      }
+
+      function loadDraft(){
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if(!raw){
+          showMessage('Es wurde noch kein Entwurf gespeichert.', 'error');
+          return;
+        }
+        try{
+          fillAll(JSON.parse(raw));
+          showMessage('Entwurf wurde geladen.', 'success');
+        }catch(e){
+          showMessage('Der gespeicherte Entwurf konnte nicht geladen werden.', 'error');
+        }
+      }
+
+      function resetAll(silent){
+        window.__archiveId = '';
+        window.__createdAt = '';
+
+        fields.title.value = '';
+        fields.year.value = '';
+        fields.residents.value = '';
+        fields.livingArea.value = '';
+        fields.usageYears.value = '';
+        fields.status.value = 'Entwurf';
+        fields.createdDate.value = todayIso();
+        fields.updatedDate.value = todayIso();
+        fields.note.value = '';
+
+        positionCount.value = String(DEFAULT_POSITIONS.length);
+        rebuildPositions(DEFAULT_POSITIONS);
+
+        if(!silent){
+          showMessage('Die Eingaben wurden zurückgesetzt.', 'success');
+        }
+      }
+
+      function handlePositionCountChange(){
+        const targetCount = Math.max(1, Math.min(50, parseInt(positionCount.value, 10) || DEFAULT_POSITIONS.length));
+        const current = getCurrentPositions();
+        const next = [];
+
+        for(let i=0;i<targetCount;i++){
+          if(current[i]){
+            next.push(current[i]);
+          }else if(DEFAULT_POSITIONS[i]){
+            next.push(DEFAULT_POSITIONS[i]);
+          }else{
+            next.push({ label:'', frequency:'yearly', amount:'' });
+          }
+        }
+
+        rebuildPositions(next);
+      }
+
+      fillPositionCountOptions();
+
+      Object.values(fields).forEach(el => {
+        el.addEventListener('input', touchAndUpdate);
+        el.addEventListener('change', touchAndUpdate);
+      });
+
+      positionCount.addEventListener('change', handlePositionCountChange);
+      saveDraftBtn.addEventListener('click', saveDraft);
+      saveDraftHeroBtn.addEventListener('click', saveDraft);
+      saveArchiveBtn.addEventListener('click', saveToArchive);
+      saveArchiveHeroBtn.addEventListener('click', saveToArchive);
+      loadDraftBtn.addEventListener('click', loadDraft);
+      resetBtn.addEventListener('click', () => {
+        if(confirm('Möchtest du die aktuellen Eingaben wirklich löschen?')){
+          resetAll(false);
+        }
+      });
+      printBtn.addEventListener('click', () => window.print());
+
+      resetAll(true);
+    })();
+  </script>
+
+  <footer class="course-footer">
+    <div class="course-footer-card">
+      <p>Eigentümer-Erfassung – Nebenkostenabrechnung</p>
+      <div class="course-footer-links">
+        <a class="btn btn-ghost" href="index.html">Steuerzentrale</a>
+        <a class="btn btn-ghost" href="archiv.html">Archiv</a>
+        <a class="btn btn-ghost" href="hilfe-und-hinweise.html">Hilfe</a>
+        <a class="btn btn-ghost" href="kontakte-und-dienstleister.html">Kontakte</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
