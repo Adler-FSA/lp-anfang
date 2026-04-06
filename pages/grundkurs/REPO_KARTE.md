@@ -636,6 +636,7 @@
     │   ├── buch/
     │   │   ├── buch-video-intro.html
     │   │   ├── index.html
+    │   │   ├── kapitel-01-der-unsichtbare-vertrag-test.html
     │   │   ├── kapitel-01-der-unsichtbare-vertrag.html
     │   │   ├── kapitel-02-abhaengigkeit-als-design.html
     │   │   ├── kapitel-03-fremdbestimmung-die-leise-form-der-kontrolle.html
@@ -659,7 +660,8 @@
     │   │   ├── kapitel-21-die-rueckeroberung-der-kontrolle.html
     │   │   ├── kapitel-22-der-unsichtbare-druck-es-allen-recht-machen-wollen.html
     │   │   ├── lesespuren-und-vertiefung.html
-    │   │   └── template-kapitel.html
+    │   │   ├── template-kapitel.html
+    │   │   └── test-index.html
     │   ├── campus/
     │   │   └── page.json
     │   ├── ceo/
@@ -1350,4 +1352,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.04.2026, 06:28)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.04.2026, 08:20)_
