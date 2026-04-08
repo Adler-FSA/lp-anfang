@@ -930,9 +930,16 @@
     │   │   ├── modul-3-risiken-szenarien.html
     │   │   └── modul-4-empfehlungen-grenzen.html
     │   ├── krypto-steuer-ordnung/
+    │   │   ├── forms/
+    │   │   │   ├── form-fiat-zu-krypto.html
+    │   │   │   └── form-krypto-zu-fiat.html
     │   │   ├── module/
     │   │   │   ├── 01-einstieg.html
-    │   │   │   └── 01-fallstart-stammdaten.html
+    │   │   │   ├── 01-fallstart-stammdaten.html
+    │   │   │   ├── 02-wallets-boersen-chains.html
+    │   │   │   ├── 03-wallets-blockchains-verstehen.html
+    │   │   │   ├── 04-datenquellen-unterlagen.html
+    │   │   │   └── 05-transaktionen.html
     │   │   ├── dashboard.html
     │   │   └── index.html
     │   ├── liquiditybooster/
@@ -1356,4 +1363,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.04.2026, 21:37)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.04.2026, 22:33)_
