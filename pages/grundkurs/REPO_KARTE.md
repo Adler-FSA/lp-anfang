@@ -932,7 +932,8 @@
     │   ├── krypto-steuer-ordnung/
     │   │   ├── forms/
     │   │   │   ├── form-fiat-zu-krypto.html
-    │   │   │   └── form-krypto-zu-fiat.html
+    │   │   │   ├── form-krypto-zu-fiat.html
+    │   │   │   └── form-krypto-zu-krypto.html
     │   │   ├── module/
     │   │   │   ├── 01-einstieg.html
     │   │   │   ├── 01-fallstart-stammdaten.html
@@ -1363,4 +1364,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.04.2026, 22:33)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.04.2026, 23:33)_
