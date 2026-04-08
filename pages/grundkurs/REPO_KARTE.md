@@ -930,6 +930,9 @@
     │   │   ├── modul-3-risiken-szenarien.html
     │   │   └── modul-4-empfehlungen-grenzen.html
     │   ├── krypto-steuer-ordnung/
+    │   │   ├── module/
+    │   │   │   └── 01-einstieg.html
+    │   │   ├── dashboard.html
     │   │   └── index.html
     │   ├── liquiditybooster/
     │   │   ├── krypto-setup-intro-en.html
@@ -1352,4 +1355,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.04.2026, 16:55)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.04.2026, 18:04)_
