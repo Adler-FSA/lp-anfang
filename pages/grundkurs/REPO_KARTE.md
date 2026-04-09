@@ -933,10 +933,14 @@
     │   │   ├── archiv/
     │   │   │   └── jahresarchiv.html
     │   │   ├── explorer/
+    │   │   │   ├── bitcoin-explorer.html
     │   │   │   ├── blockchain.html
     │   │   │   ├── bnb-bscscan.html
+    │   │   │   ├── daten-fuer-excel.html
     │   │   │   ├── ethereum-etherscan.html
     │   │   │   ├── explorer-grundlagen.html
+    │   │   │   ├── kein-export.html
+    │   │   │   ├── pdf-fuer-steuerberater.html
     │   │   │   ├── solana-solscan.html
     │   │   │   └── wallet-adresse.html
     │   │   ├── export/
@@ -1385,4 +1389,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.04.2026, 20:01)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.04.2026, 21:40)_
