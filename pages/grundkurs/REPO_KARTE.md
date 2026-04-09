@@ -948,7 +948,8 @@
     │   │   │   ├── 04-datenquellen-unterlagen.html
     │   │   │   ├── 05-transaktionen.html
     │   │   │   ├── 06-wertermittlung.html
-    │   │   │   └── 07-problemfaelle.html
+    │   │   │   ├── 07-problemfaelle.html
+    │   │   │   └── 08-fragen-steuerberater.html
     │   │   ├── dashboard.html
     │   │   └── index.html
     │   ├── liquiditybooster/
@@ -1372,4 +1373,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.04.2026, 15:17)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.04.2026, 17:01)_
