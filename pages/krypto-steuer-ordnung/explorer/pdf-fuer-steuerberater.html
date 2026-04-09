@@ -1,0 +1,1148 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Wie man eine PDF für den Steuerberater erzeugt – Krypto-Steuer-Ordnung</title>
+  <meta name="description" content="Einfach erklärt, wie aus geordneten Krypto-Daten eine brauchbare PDF-Vorlage für den Steuerberater entsteht und wie du deine Struktur mit LocalStorage festhältst." />
+  <meta name="robots" content="index,follow" />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --bg-soft:#f8fafc;
+      --panel:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --line-strong:#cbd5e1;
+      --mint:#20d8b2;
+      --mint-soft:#e7fbf7;
+      --magenta:#ff4fb3;
+      --magenta-soft:#ffeaf5;
+      --warn:#f59e0b;
+      --warn-soft:#fff4d6;
+      --ok:#16a34a;
+      --ok-soft:#dcfce7;
+      --danger:#dc2626;
+      --danger-soft:#fee2e2;
+      --shadow:0 18px 44px rgba(15,23,42,.08);
+      --shadow-soft:0 10px 26px rgba(15,23,42,.05);
+      --radius-xl:30px;
+      --radius-lg:22px;
+      --radius-md:16px;
+      --max:1280px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(32,216,178,.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(255,79,179,.08), transparent 24%),
+        linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+      line-height:1.56;
+    }
+
+    a{color:inherit;text-decoration:none}
+    button,input,textarea,select{font:inherit}
+
+    .shell{min-height:100vh;display:flex;flex-direction:column}
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:rgba(255,255,255,.92);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(226,232,240,.9);
+    }
+
+    .topbar-inner{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:14px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+
+    .brand-mark{
+      width:48px;
+      height:48px;
+      border-radius:16px;
+      padding:9px;
+      background:linear-gradient(135deg,var(--mint-soft),var(--magenta-soft));
+      border:1px solid rgba(203,213,225,.9);
+      box-shadow:var(--shadow-soft);
+      flex:0 0 auto;
+    }
+
+    .brand-mark svg{
+      width:100%;
+      height:100%;
+      stroke:var(--text);
+      stroke-width:2.2;
+      fill:none;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .brand-kicker{
+      margin:0 0 2px;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.15em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    .brand-title{
+      margin:0;
+      font-size:18px;
+      font-weight:800;
+      letter-spacing:.01em;
+    }
+
+    .topnav{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .topnav a{
+      padding:10px 14px;
+      border-radius:999px;
+      font-size:14px;
+      font-weight:700;
+      border:1px solid transparent;
+      transition:.18s ease;
+    }
+
+    .topnav a:hover{
+      background:#fff;
+      border-color:var(--line);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .topnav .nav-cta{
+      color:#fff;
+      background:linear-gradient(135deg,var(--mint),var(--magenta));
+      box-shadow:0 14px 30px rgba(255,79,179,.18);
+    }
+
+    .section-inner{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:30px 20px;
+    }
+
+    .hero{padding:28px 0 10px}
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.08fr .92fr;
+      gap:22px;
+      align-items:stretch;
+    }
+
+    .hero-box,
+    .side-box,
+    .card,
+    .footer-panel{
+      background:var(--panel);
+      border:1px solid rgba(226,232,240,.95);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius-xl);
+    }
+
+    .hero-box{
+      padding:38px;
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.99),rgba(255,255,255,.99)),
+        linear-gradient(135deg,rgba(32,216,178,.12),rgba(255,79,179,.12));
+    }
+
+    .hero-box::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 10% 12%, rgba(32,216,178,.10), transparent 25%),
+        radial-gradient(circle at 88% 16%, rgba(255,79,179,.10), transparent 22%);
+      pointer-events:none;
+    }
+
+    .hero-box>*{position:relative;z-index:1}
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      width:max-content;
+      margin:0 0 16px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid rgba(226,232,240,.95);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+
+    .eyebrow::before{
+      content:"";
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:linear-gradient(135deg,var(--mint),var(--magenta));
+      flex:0 0 auto;
+    }
+
+    h1,h2,h3{
+      margin:0;
+      line-height:1.12;
+      color:var(--text);
+    }
+
+    h1{
+      font-size:clamp(34px,5vw,58px);
+      letter-spacing:-.035em;
+      max-width:900px;
+    }
+
+    .hero-subtitle{
+      margin:18px 0 0;
+      max-width:960px;
+      font-size:clamp(18px,2vw,24px);
+      font-weight:700;
+    }
+
+    .hero-copy{
+      margin:16px 0 0;
+      max-width:940px;
+      font-size:18px;
+      color:var(--muted);
+    }
+
+    .hero-points{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-top:22px;
+    }
+
+    .hero-point{
+      padding:14px;
+      border-radius:18px;
+      background:#fff;
+      border:1px solid rgba(226,232,240,.95);
+    }
+
+    .hero-point strong{
+      display:block;
+      margin-bottom:4px;
+      font-size:14px;
+    }
+
+    .hero-point span{
+      display:block;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .side-box{
+      padding:24px;
+      display:grid;
+      gap:14px;
+      align-content:start;
+      background:
+        linear-gradient(180deg,#fff,#fff),
+        linear-gradient(135deg,rgba(32,216,178,.10),rgba(255,79,179,.10));
+    }
+
+    .mini-box{
+      padding:18px;
+      border-radius:20px;
+      background:#fff;
+      border:1px solid rgba(226,232,240,.95);
+    }
+
+    .mini-box h3{
+      font-size:17px;
+      margin-bottom:8px;
+    }
+
+    .mini-box p{
+      margin:0;
+      color:var(--muted);
+      font-size:15px;
+    }
+
+    .grid-main{
+      display:grid;
+      grid-template-columns:1.06fr .94fr;
+      gap:22px;
+      align-items:start;
+    }
+
+    .card{
+      position:relative;
+      overflow:hidden;
+      box-shadow:var(--shadow-soft);
+      padding:24px;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:0;
+      width:100%;
+      height:4px;
+      background:linear-gradient(90deg,var(--mint),var(--magenta));
+    }
+
+    .section-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:24px;
+      margin:0 0 20px;
+    }
+
+    .section-head h2{
+      font-size:clamp(26px,3vw,40px);
+      letter-spacing:-.03em;
+    }
+
+    .section-head p{
+      margin:0;
+      max-width:760px;
+      color:var(--muted);
+      font-size:17px;
+    }
+
+    .list{
+      display:grid;
+      gap:12px;
+    }
+
+    .list-item{
+      padding:14px;
+      border-radius:16px;
+      background:var(--bg-soft);
+      border:1px solid var(--line);
+    }
+
+    .list-item strong{
+      display:block;
+      margin-bottom:4px;
+      font-size:14px;
+    }
+
+    .list-item span{
+      display:block;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .note-box{
+      padding:16px 18px;
+      border-radius:18px;
+      border:1px solid #fde68a;
+      background:var(--warn-soft);
+      color:#8a5a00;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .table-wrap{
+      width:100%;
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:880px;
+    }
+
+    th,td{
+      border-bottom:1px solid var(--line);
+      padding:12px;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+    }
+
+    th{
+      background:var(--bg-soft);
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      color:var(--muted);
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-bottom:16px;
+    }
+
+    .field:last-child{margin-bottom:0}
+
+    .field label{
+      font-size:14px;
+      font-weight:800;
+      color:var(--text);
+    }
+
+    .field input,
+    .field textarea,
+    .field select{
+      width:100%;
+      min-height:52px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+      color:var(--text);
+      padding:14px 16px;
+      outline:none;
+      transition:border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .field textarea{
+      min-height:120px;
+      resize:vertical;
+    }
+
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus{
+      border-color:rgba(32,216,178,.9);
+      box-shadow:0 0 0 4px rgba(32,216,178,.12);
+    }
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      margin-top:18px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      min-height:52px;
+      padding:14px 22px;
+      border-radius:999px;
+      border:1px solid transparent;
+      font-size:15px;
+      font-weight:800;
+      letter-spacing:.01em;
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+      text-align:center;
+      cursor:pointer;
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+
+    .btn-primary{
+      color:#fff;
+      background:linear-gradient(135deg,var(--mint),var(--magenta));
+      box-shadow:0 16px 34px rgba(255,79,179,.18);
+    }
+
+    .btn-secondary{
+      color:var(--text);
+      background:#fff;
+      border-color:var(--line);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .btn-danger{
+      color:var(--danger);
+      background:#fff;
+      border-color:#fecaca;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .message{
+      display:none;
+      margin-top:16px;
+      padding:14px 16px;
+      border-radius:16px;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .message.show{display:block}
+    .message.success{
+      background:var(--ok-soft);
+      color:#166534;
+      border:1px solid #86efac;
+    }
+
+    .message.error{
+      background:var(--danger-soft);
+      color:#991b1b;
+      border:1px solid #fca5a5;
+    }
+
+    .status-list{
+      display:grid;
+      gap:12px;
+      margin:0;
+      padding:0;
+      list-style:none;
+    }
+
+    .status-item{
+      padding:14px;
+      border-radius:16px;
+      background:var(--bg-soft);
+      border:1px solid rgba(226,232,240,.95);
+    }
+
+    .status-item strong{
+      display:block;
+      font-size:14px;
+      margin-bottom:4px;
+    }
+
+    .status-item span{
+      display:block;
+      font-size:14px;
+      color:var(--muted);
+      word-break:break-word;
+    }
+
+    .pdf-preview{
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:#fff;
+      padding:22px;
+    }
+
+    .pdf-preview h3{
+      font-size:22px;
+      margin-bottom:14px;
+    }
+
+    .pdf-block{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      background:var(--bg-soft);
+      margin-bottom:12px;
+    }
+
+    .pdf-block:last-child{
+      margin-bottom:0;
+    }
+
+    .footer{
+      margin-top:auto;
+      padding:0 0 34px;
+    }
+
+    .footer-inner{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:0 20px;
+    }
+
+    .footer-panel{
+      padding:22px 24px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+      flex-wrap:wrap;
+    }
+
+    .footer-links{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .footer-links a{
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .footer-note{
+      margin:0;
+      max-width:760px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    code{
+      padding:2px 6px;
+      border-radius:8px;
+      background:#f1f5f9;
+      border:1px solid #e2e8f0;
+      font-family:Consolas,monospace;
+      font-size:13px;
+    }
+
+    @media (max-width:1120px){
+      .hero-grid,
+      .grid-main{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:900px){
+      .topbar-inner{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .topnav{
+        width:100%;
+        justify-content:flex-start;
+      }
+
+      .section-inner{
+        padding:24px 16px;
+      }
+
+      .hero-box,
+      .side-box,
+      .card,
+      .footer-panel{
+        padding:22px;
+        border-radius:22px;
+      }
+
+      .section-head{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .hero-points{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:620px){
+      h1{font-size:34px}
+      .hero-subtitle{font-size:18px}
+      .hero-copy{font-size:16px}
+      .btn{width:100%}
+      .actions,.footer-links{width:100%}
+      .footer-links a{flex:1 1 100%;text-align:center}
+    }
+
+    @media print{
+      .topbar,
+      .actions,
+      .footer-links{
+        display:none !important;
+      }
+      body{background:#fff}
+      .hero-box,.side-box,.card,.footer-panel,.pdf-preview{
+        box-shadow:none;
+        border:1px solid #d1d5db;
+      }
+      .section-inner,.footer-inner{
+        max-width:none;
+        padding:12px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="../index.html" aria-label="Zur Kurszentrale">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48">
+              <rect x="6" y="8" width="36" height="32" rx="10"></rect>
+              <path d="M15 18h18M15 24h11M15 30h18"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="brand-kicker">Explorer-Hilfe</p>
+            <p class="brand-title">PDF für Steuerberater</p>
+          </div>
+        </a>
+
+        <nav class="topnav" aria-label="Seitennavigation">
+          <a href="./daten-fuer-excel.html">Zurück zu Daten für Excel</a>
+          <a href="../hilfe.html">Zur Hilfe</a>
+          <a class="nav-cta" href="../index.html">Zur Kurszentrale</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="section-inner">
+          <div class="hero-grid">
+            <div class="hero-box">
+              <p class="eyebrow">Explorer 10</p>
+              <h1>Wie man eine PDF für den Steuerberater erzeugt</h1>
+              <p class="hero-subtitle">Wenn deine Daten geordnet sind, muss daraus eine saubere Leseransicht entstehen. Genau darum geht es hier: nicht um Technik-Spielerei, sondern um eine nachvollziehbare PDF-Vorlage für die Übergabe.</p>
+              <p class="hero-copy">Für Laien ist die wichtigste Regel: Die PDF soll nicht alles chaotisch zeigen, sondern den Fall klar lesbar machen. Deckblatt, Überblick, geordnete Tabellen, Problemfälle und offene Fragen gehören getrennt und verständlich aufgebaut.</p>
+
+              <div class="hero-points">
+                <div class="hero-point">
+                  <strong>Lesbarkeit vor Masse</strong>
+                  <span>Eine gute PDF ist klar gegliedert und nicht nur eine Datenwand.</span>
+                </div>
+                <div class="hero-point">
+                  <strong>Problemfälle sichtbar machen</strong>
+                  <span>Offene oder schwache Daten dürfen nicht versteckt werden.</span>
+                </div>
+                <div class="hero-point">
+                  <strong>Vorlage für Übergabe</strong>
+                  <span>Das Ziel ist ein geordnetes Paket für den Steuerberater.</span>
+                </div>
+              </div>
+            </div>
+
+            <aside class="side-box">
+              <div class="mini-box">
+                <h3>Wofür diese Seite da ist</h3>
+                <p>Sie hilft dir, aus deinen geordneten Daten eine sinnvolle PDF-Struktur zu bauen.</p>
+              </div>
+              <div class="mini-box">
+                <h3>Wichtige Regel</h3>
+                <p>Die PDF ist eine Leseransicht. Sie soll verständlich führen, nicht nur Daten abkippen.</p>
+              </div>
+              <div class="mini-box">
+                <h3>Wie es jetzt weitergeht</h3>
+                <p>Nach dieser Seite ist der Explorer-Block vollständig und danach kommt die Live-Prüfung samt Verdrahtungs-Feinschliff.</p>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-inner">
+          <div class="section-head">
+            <div>
+              <h2>Empfohlene PDF-Struktur</h2>
+            </div>
+            <p>So wird aus Excel, Explorer-Funden und Notizen eine geordnete PDF, die ein Steuerberater lesen kann.</p>
+          </div>
+
+          <div class="grid-main">
+            <div class="card">
+              <div class="list">
+                <div class="list-item">
+                  <strong>1. Deckblatt</strong>
+                  <span>Name, Zeitraum, Zweck der Unterlagen und ein kurzer Hinweis zur Datenlage.</span>
+                </div>
+                <div class="list-item">
+                  <strong>2. Überblick</strong>
+                  <span>Welche Wallets, Plattformen, Chains und Zeiträume im Paket enthalten sind.</span>
+                </div>
+                <div class="list-item">
+                  <strong>3. Geordnete Vorgangstabellen</strong>
+                  <span>Die eigentlichen Tabellen mit Datum, Vorgangsart, Coin, Menge, Quelle und Datenlage.</span>
+                </div>
+                <div class="list-item">
+                  <strong>4. Problemfälle extra Abschnitt</strong>
+                  <span>Offene, schwache oder nur teilweise rekonstruierte Fälle klar gesondert aufführen.</span>
+                </div>
+                <div class="list-item">
+                  <strong>5. Fragen an den Steuerberater</strong>
+                  <span>Am Ende ein klarer Fragenblock statt lose verteilte Anmerkungen im Dokument.</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3 style="margin-bottom:12px">Was die PDF nicht werden soll</h3>
+              <div class="note-box">Die PDF soll keine wilde Sammlung aus Screenshots, halben Tabellen und spontanen Kommentaren sein. Sie muss lesbar, geordnet und möglichst klar in sichere, teilweise und offene Punkte gegliedert sein.</div>
+              <div class="list" style="margin-top:16px">
+                <div class="list-item">
+                  <strong>Keine Datenwand ohne Führung</strong>
+                  <span>Auch viele Daten brauchen Abschnitte, Titel und Reihenfolge.</span>
+                </div>
+                <div class="list-item">
+                  <strong>Keine versteckten Problemfälle</strong>
+                  <span>Offene Punkte gehören sichtbar ausgewiesen und nicht irgendwo zwischen sichere Daten gemischt.</span>
+                </div>
+                <div class="list-item">
+                  <strong>Keine internen Chaos-Notizen mitten in Tabellen</strong>
+                  <span>Längere Erklärungen lieber in eigene Hinweise oder Kommentare bündeln.</span>
+                </div>
+                <div class="list-item">
+                  <strong>Keine falsche Sicherheit</strong>
+                  <span>Wenn Werte rekonstruiert oder nur teilweise sicher sind, muss das klar lesbar bleiben.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-inner">
+          <div class="section-head">
+            <div>
+              <h2>Beispiel für einen PDF-Aufbau</h2>
+            </div>
+            <p>So könnte eine einfache und lesbare PDF-Struktur aussehen.</p>
+          </div>
+
+          <div class="card">
+            <div class="pdf-preview">
+              <h3>Übergabepaket Krypto-Steuer-Ordnung</h3>
+
+              <div class="pdf-block">
+                <strong>Deckblatt</strong><br>
+                Name / Mandant, Jahr oder Zeitraum, kurze Einordnung und Hinweis zur Datenlage.
+              </div>
+
+              <div class="pdf-block">
+                <strong>Überblick</strong><br>
+                Enthaltene Wallets, Plattformen, Chains, Zeiträume und kurze Zusammenfassung.
+              </div>
+
+              <div class="pdf-block">
+                <strong>Vorgangstabellen</strong><br>
+                Geordnete Tabellen mit Datum, Vorgangsart, Coin, Menge, Gegenwert, Quelle, Hash und Datenlage.
+              </div>
+
+              <div class="pdf-block">
+                <strong>Problemfälle</strong><br>
+                Getrennter Abschnitt für unklare, schwache oder nur teilweise rekonstruierte Fälle.
+              </div>
+
+              <div class="pdf-block">
+                <strong>Fragen an den Steuerberater</strong><br>
+                Klare Fragen am Ende, sauber nach Themen oder Jahren gebündelt.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-inner">
+          <div class="section-head">
+            <div>
+              <h2>Welche Inhalte wohin gehören</h2>
+            </div>
+            <p>Mit dieser Trennung bleibt die PDF für Dritte viel leichter lesbar.</p>
+          </div>
+
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Bereich</th>
+                    <th>Was gehört hinein?</th>
+                    <th>Was lieber nicht?</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Deckblatt</td>
+                    <td>Name, Zeitraum, kurzer Zweck, Einordnung der Datenlage</td>
+                    <td>Lange technische Details</td>
+                  </tr>
+                  <tr>
+                    <td>Überblick</td>
+                    <td>Wallets, Plattformen, Chains, Jahre, Umfang</td>
+                    <td>Einzelne Deep-Dive-Erklärungen</td>
+                  </tr>
+                  <tr>
+                    <td>Tabellen</td>
+                    <td>Klare Datenspalten, kurze Kommentare, Quellen</td>
+                    <td>Lange Geschichten mitten in Datenspalten</td>
+                  </tr>
+                  <tr>
+                    <td>Problemfälle</td>
+                    <td>Offene oder schwache Fälle, Rekonstruktionshinweise</td>
+                    <td>Verstecken zwischen sicheren Daten</td>
+                  </tr>
+                  <tr>
+                    <td>Fragenblock</td>
+                    <td>Klare konkrete Fragen an den Steuerberater</td>
+                    <td>Lose verstreute Anmerkungen im ganzen Dokument</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-inner">
+          <div class="section-head">
+            <div>
+              <h2>Dein persönlicher Arbeitsbereich</h2>
+            </div>
+            <p>Hier kannst du festhalten, wie deine PDF aufgebaut sein soll und was darin unbedingt enthalten sein muss.</p>
+          </div>
+
+          <div class="grid-main">
+            <div class="card">
+              <form id="notesForm" novalidate>
+                <div class="field">
+                  <label for="fallName">Meine Bezeichnung</label>
+                  <input id="fallName" type="text" placeholder="z. B. PDF Altjahre, Übergabepaket Wallet A, Jahrespaket 2024" />
+                </div>
+
+                <div class="field">
+                  <label for="deckblattPlan">Was soll auf das Deckblatt?</label>
+                  <textarea id="deckblattPlan" placeholder="Beispiel: Name, Jahr, kurze Beschreibung, Hinweis auf teilweise rekonstruierte Daten"></textarea>
+                </div>
+
+                <div class="field">
+                  <label for="overviewPlan">Was gehört in den Überblick?</label>
+                  <textarea id="overviewPlan" placeholder="Beispiel: Wallets, Plattformen, Chains, enthaltene Jahre, kurze Zusammenfassung"></textarea>
+                </div>
+
+                <div class="field">
+                  <label for="tablePlan">Wie sollen die Tabellen aufgebaut sein?</label>
+                  <textarea id="tablePlan" placeholder="Beispiel: Datum, Vorgangsart, Coin, Menge, Gegenwert, Quelle, Datenlage, Kommentar"></textarea>
+                </div>
+
+                <div class="field">
+                  <label for="problemPlan">Wie markiere ich Problemfälle?</label>
+                  <textarea id="problemPlan" placeholder="Beispiel: eigener Problemfall-Abschnitt mit Datenlage teilweise oder schwach"></textarea>
+                </div>
+
+                <div class="field">
+                  <label for="questionPlan">Wie sammle ich die Fragen für den Steuerberater?</label>
+                  <textarea id="questionPlan" placeholder="Beispiel: am Ende nach Themenblöcken oder Jahren geordnet"></textarea>
+                </div>
+
+                <div class="field">
+                  <label for="nextStep">Mein nächster Schritt</label>
+                  <textarea id="nextStep" placeholder="Beispiel: PDF Druck Seite nutzen, Problemfälle ergänzen, Fragenblock fertigziehen"></textarea>
+                </div>
+
+                <div class="actions">
+                  <button class="btn btn-primary" type="submit">Notizen speichern</button>
+                  <button class="btn btn-secondary" type="button" id="resetBtn">Felder leeren</button>
+                  <button class="btn btn-danger" type="button" id="deleteBtn">Alles löschen</button>
+                </div>
+
+                <div id="messageBox" class="message" aria-live="polite"></div>
+              </form>
+            </div>
+
+            <div class="grid">
+              <div class="card">
+                <h3 style="margin-bottom:12px">Status deiner Notizen</h3>
+                <ul class="status-list">
+                  <li class="status-item">
+                    <strong>Gespeicherte Bezeichnung</strong>
+                    <span id="statusName">Noch nichts gespeichert</span>
+                  </li>
+                  <li class="status-item">
+                    <strong>Deckblatt notiert</strong>
+                    <span id="statusDeckblatt">nein</span>
+                  </li>
+                  <li class="status-item">
+                    <strong>Nächster Schritt notiert</strong>
+                    <span id="statusNext">nein</span>
+                  </li>
+                  <li class="status-item">
+                    <strong>Letzte Speicherung</strong>
+                    <span id="statusUpdated">Noch nichts gespeichert</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="card">
+                <h3 style="margin-bottom:12px">Praktischer Tipp</h3>
+                <div class="note-box">Eine gute PDF ist am Ende wie ein sauber geführtes Gespräch auf Papier. Wer sie liest, sollte schnell verstehen, was sicher ist, was offen ist und wo gezielt Fragen bestehen.</div>
+                <div class="list" style="margin-top:16px">
+                  <div class="list-item">
+                    <strong>1. Erst Struktur festziehen</strong>
+                    <span>Dann fällt dir die spätere Zusammenstellung deutlich leichter.</span>
+                  </div>
+                  <div class="list-item">
+                    <strong>2. Problemfälle bewusst trennen</strong>
+                    <span>So wird die PDF glaubwürdiger und klarer lesbar.</span>
+                  </div>
+                  <div class="list-item">
+                    <strong>3. Fragenblock bündeln</strong>
+                    <span>Der Steuerberater soll nicht im Dokument nach verstreuten Fragen suchen müssen.</span>
+                  </div>
+                  <div class="list-item">
+                    <strong>4. Danach live prüfen</strong>
+                    <span>Jetzt ist der Explorer-Block komplett und der nächste Schritt ist die Live-Prüfung samt Verdrahtungs-Feinschliff.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-panel">
+          <div class="footer-links">
+            <a href="./daten-fuer-excel.html">Zurück zu Daten für Excel</a>
+            <a href="../hilfe.html">Zur Hilfe</a>
+            <a href="../index.html">Zur Kurszentrale</a>
+          </div>
+          <p class="footer-note">Diese Explorer-Seite hilft dabei, aus geordneten Daten eine lesbare PDF-Vorlage für den Steuerberater aufzubauen und die eigene Struktur mit LocalStorage festzuhalten.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    (function(){
+      const STORAGE_KEY = 'kso_explorer_pdf_steuerberater_notes_v1';
+
+      const fallName = document.getElementById('fallName');
+      const deckblattPlan = document.getElementById('deckblattPlan');
+      const overviewPlan = document.getElementById('overviewPlan');
+      const tablePlan = document.getElementById('tablePlan');
+      const problemPlan = document.getElementById('problemPlan');
+      const questionPlan = document.getElementById('questionPlan');
+      const nextStep = document.getElementById('nextStep');
+
+      const resetBtn = document.getElementById('resetBtn');
+      const deleteBtn = document.getElementById('deleteBtn');
+      const notesForm = document.getElementById('notesForm');
+      const messageBox = document.getElementById('messageBox');
+
+      const statusName = document.getElementById('statusName');
+      const statusDeckblatt = document.getElementById('statusDeckblatt');
+      const statusNext = document.getElementById('statusNext');
+      const statusUpdated = document.getElementById('statusUpdated');
+
+      function showMessage(text, type){
+        messageBox.textContent = text;
+        messageBox.className = 'message show ' + type;
+      }
+
+      function formatDate(value){
+        if(!value) return 'Noch nichts gespeichert';
+        const d = new Date(value);
+        if(Number.isNaN(d.getTime())) return 'Noch nichts gespeichert';
+        return d.toLocaleString('de-DE');
+      }
+
+      function loadData(){
+        try{
+          const raw = localStorage.getItem(STORAGE_KEY);
+          const parsed = raw ? JSON.parse(raw) : null;
+          return parsed && typeof parsed === 'object' ? parsed : null;
+        }catch(error){
+          return null;
+        }
+      }
+
+      function saveData(data){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      }
+
+      function applyData(data){
+        fallName.value = data.fallName || '';
+        deckblattPlan.value = data.deckblattPlan || '';
+        overviewPlan.value = data.overviewPlan || '';
+        tablePlan.value = data.tablePlan || '';
+        problemPlan.value = data.problemPlan || '';
+        questionPlan.value = data.questionPlan || '';
+        nextStep.value = data.nextStep || '';
+
+        statusName.textContent = data.fallName || 'Noch nichts gespeichert';
+        statusDeckblatt.textContent = data.deckblattPlan && data.deckblattPlan.trim() ? 'ja' : 'nein';
+        statusNext.textContent = data.nextStep && data.nextStep.trim() ? 'ja' : 'nein';
+        statusUpdated.textContent = formatDate(data.updatedAt);
+      }
+
+      function resetFields(){
+        fallName.value = '';
+        deckblattPlan.value = '';
+        overviewPlan.value = '';
+        tablePlan.value = '';
+        problemPlan.value = '';
+        questionPlan.value = '';
+        nextStep.value = '';
+      }
+
+      notesForm.addEventListener('submit', function(event){
+        event.preventDefault();
+
+        const data = {
+          fallName: fallName.value.trim(),
+          deckblattPlan: deckblattPlan.value.trim(),
+          overviewPlan: overviewPlan.value.trim(),
+          tablePlan: tablePlan.value.trim(),
+          problemPlan: problemPlan.value.trim(),
+          questionPlan: questionPlan.value.trim(),
+          nextStep: nextStep.value.trim(),
+          updatedAt: new Date().toISOString()
+        };
+
+        saveData(data);
+        applyData(data);
+        showMessage('Deine Notizen wurden gespeichert.', 'success');
+      });
+
+      resetBtn.addEventListener('click', function(){
+        resetFields();
+        showMessage('Die Eingabefelder wurden geleert. Bereits gespeicherte Notizen bleiben erhalten, bis du sie löschst oder neu speicherst.', 'error');
+      });
+
+      deleteBtn.addEventListener('click', function(){
+        localStorage.removeItem(STORAGE_KEY);
+        resetFields();
+        applyData({});
+        showMessage('Die gespeicherten Notizen wurden gelöscht.', 'success');
+      });
+
+      const existing = loadData();
+      if(existing){
+        applyData(existing);
+      } else {
+        applyData({});
+      }
+    })();
+  </script>
+</body>
+</html>
