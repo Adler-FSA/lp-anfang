@@ -931,9 +931,11 @@
     │   │   └── modul-4-empfehlungen-grenzen.html
     │   ├── krypto-steuer-ordnung/
     │   │   ├── forms/
+    │   │   │   ├── form-eigenuebertrag.html
     │   │   │   ├── form-fiat-zu-krypto.html
     │   │   │   ├── form-krypto-zu-fiat.html
-    │   │   │   └── form-krypto-zu-krypto.html
+    │   │   │   ├── form-krypto-zu-krypto.html
+    │   │   │   └── form-reward-bonus-ertrag.html
     │   │   ├── module/
     │   │   │   ├── 01-einstieg.html
     │   │   │   ├── 01-fallstart-stammdaten.html
@@ -1364,4 +1366,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.04.2026, 04:29)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.04.2026, 06:17)_
