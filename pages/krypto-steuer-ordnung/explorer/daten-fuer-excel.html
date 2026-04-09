@@ -1,0 +1,1104 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Daten für Excel vorbereiten – Krypto-Steuer-Ordnung</title>
+  <meta name="description" content="Einfach erklärt, wie gefundene Krypto-Daten für Excel vorbereitet werden und wie du deine eigene Struktur mit LocalStorage festhältst." />
+  <meta name="robots" content="index,follow" />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --bg-soft:#f8fafc;
+      --panel:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --line-strong:#cbd5e1;
+      --mint:#20d8b2;
+      --mint-soft:#e7fbf7;
+      --magenta:#ff4fb3;
+      --magenta-soft:#ffeaf5;
+      --warn:#f59e0b;
+      --warn-soft:#fff4d6;
+      --ok:#16a34a;
+      --ok-soft:#dcfce7;
+      --danger:#dc2626;
+      --danger-soft:#fee2e2;
+      --shadow:0 18px 44px rgba(15,23,42,.08);
+      --shadow-soft:0 10px 26px rgba(15,23,42,.05);
+      --radius-xl:30px;
+      --radius-lg:22px;
+      --radius-md:16px;
+      --max:1280px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(32,216,178,.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(255,79,179,.08), transparent 24%),
+        linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+      line-height:1.56;
+    }
+
+    a{color:inherit;text-decoration:none}
+    button,input,textarea,select{font:inherit}
+
+    .shell{min-height:100vh;display:flex;flex-direction:column}
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:rgba(255,255,255,.92);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(226,232,240,.9);
+    }
+
+    .topbar-inner{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:14px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+
+    .brand-mark{
+      width:48px;
+      height:48px;
+      border-radius:16px;
+      padding:9px;
+      background:linear-gradient(135deg,var(--mint-soft),var(--magenta-soft));
+      border:1px solid rgba(203,213,225,.9);
+      box-shadow:var(--shadow-soft);
+      flex:0 0 auto;
+    }
+
+    .brand-mark svg{
+      width:100%;
+      height:100%;
+      stroke:var(--text);
+      stroke-width:2.2;
+      fill:none;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .brand-kicker{
+      margin:0 0 2px;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.15em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    .brand-title{
+      margin:0;
+      font-size:18px;
+      font-weight:800;
+      letter-spacing:.01em;
+    }
+
+    .topnav{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .topnav a{
+      padding:10px 14px;
+      border-radius:999px;
+      font-size:14px;
+      font-weight:700;
+      border:1px solid transparent;
+      transition:.18s ease;
+    }
+
+    .topnav a:hover{
+      background:#fff;
+      border-color:var(--line);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .topnav .nav-cta{
+      color:#fff;
+      background:linear-gradient(135deg,var(--mint),var(--magenta));
+      box-shadow:0 14px 30px rgba(255,79,179,.18);
+    }
+
+    .section-inner{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:30px 20px;
+    }
+
+    .hero{padding:28px 0 10px}
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.08fr .92fr;
+      gap:22px;
+      align-items:stretch;
+    }
+
+    .hero-box,
+    .side-box,
+    .card,
+    .footer-panel{
+      background:var(--panel);
+      border:1px solid rgba(226,232,240,.95);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius-xl);
+    }
+
+    .hero-box{
+      padding:38px;
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.99),rgba(255,255,255,.99)),
+        linear-gradient(135deg,rgba(32,216,178,.12),rgba(255,79,179,.12));
+    }
+
+    .hero-box::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 10% 12%, rgba(32,216,178,.10), transparent 25%),
+        radial-gradient(circle at 88% 16%, rgba(255,79,179,.10), transparent 22%);
+      pointer-events:none;
+    }
+
+    .hero-box>*{position:relative;z-index:1}
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      width:max-content;
+      margin:0 0 16px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid rgba(226,232,240,.95);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+
+    .eyebrow::before{
+      content:"";
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:linear-gradient(135deg,var(--mint),var(--magenta));
+      flex:0 0 auto;
+    }
+
+    h1,h2,h3{
+      margin:0;
+      line-height:1.12;
+      color:var(--text);
+    }
+
+    h1{
+      font-size:clamp(34px,5vw,58px);
+      letter-spacing:-.035em;
+      max-width:860px;
+    }
+
+    .hero-subtitle{
+      margin:18px 0 0;
+      max-width:940px;
+      font-size:clamp(18px,2vw,24px);
+      font-weight:700;
+    }
+
+    .hero-copy{
+      margin:16px 0 0;
+      max-width:920px;
+      font-size:18px;
+      color:var(--muted);
+    }
+
+    .hero-points{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-top:22px;
+    }
+
+    .hero-point{
+      padding:14px;
+      border-radius:18px;
+      background:#fff;
+      border:1px solid rgba(226,232,240,.95);
+    }
+
+    .hero-point strong{
+      display:block;
+      margin-bottom:4px;
+      font-size:14px;
+    }
+
+    .hero-point span{
+      display:block;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .side-box{
+      padding:24px;
+      display:grid;
+      gap:14px;
+      align-content:start;
+      background:
+        linear-gradient(180deg,#fff,#fff),
+        linear-gradient(135deg,rgba(32,216,178,.10),rgba(255,79,179,.10));
+    }
+
+    .mini-box{
+      padding:18px;
+      border-radius:20px;
+      background:#fff;
+      border:1px solid rgba(226,232,240,.95);
+    }
+
+    .mini-box h3{
+      font-size:17px;
+      margin-bottom:8px;
+    }
+
+    .mini-box p{
+      margin:0;
+      color:var(--muted);
+      font-size:15px;
+    }
+
+    .grid-main{
+      display:grid;
+      grid-template-columns:1.06fr .94fr;
+      gap:22px;
+      align-items:start;
+    }
+
+    .card{
+      position:relative;
+      overflow:hidden;
+      box-shadow:var(--shadow-soft);
+      padding:24px;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:0;
+      width:100%;
+      height:4px;
+      background:linear-gradient(90deg,var(--mint),var(--magenta));
+    }
+
+    .section-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:24px;
+      margin:0 0 20px;
+    }
+
+    .section-head h2{
+      font-size:clamp(26px,3vw,40px);
+      letter-spacing:-.03em;
+    }
+
+    .section-head p{
+      margin:0;
+      max-width:760px;
+      color:var(--muted);
+      font-size:17px;
+    }
+
+    .list{
+      display:grid;
+      gap:12px;
+    }
+
+    .list-item{
+      padding:14px;
+      border-radius:16px;
+      background:var(--bg-soft);
+      border:1px solid var(--line);
+    }
+
+    .list-item strong{
+      display:block;
+      margin-bottom:4px;
+      font-size:14px;
+    }
+
+    .list-item span{
+      display:block;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .note-box{
+      padding:16px 18px;
+      border-radius:18px;
+      border:1px solid #fde68a;
+      background:var(--warn-soft);
+      color:#8a5a00;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .table-wrap{
+      width:100%;
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:880px;
+    }
+
+    th,td{
+      border-bottom:1px solid var(--line);
+      padding:12px;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+    }
+
+    th{
+      background:var(--bg-soft);
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      color:var(--muted);
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-bottom:16px;
+    }
+
+    .field:last-child{margin-bottom:0}
+
+    .field label{
+      font-size:14px;
+      font-weight:800;
+      color:var(--text);
+    }
+
+    .field input,
+    .field textarea,
+    .field select{
+      width:100%;
+      min-height:52px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+      color:var(--text);
+      padding:14px 16px;
+      outline:none;
+      transition:border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .field textarea{
+      min-height:120px;
+      resize:vertical;
+    }
+
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus{
+      border-color:rgba(32,216,178,.9);
+      box-shadow:0 0 0 4px rgba(32,216,178,.12);
+    }
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      margin-top:18px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      min-height:52px;
+      padding:14px 22px;
+      border-radius:999px;
+      border:1px solid transparent;
+      font-size:15px;
+      font-weight:800;
+      letter-spacing:.01em;
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+      text-align:center;
+      cursor:pointer;
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+
+    .btn-primary{
+      color:#fff;
+      background:linear-gradient(135deg,var(--mint),var(--magenta));
+      box-shadow:0 16px 34px rgba(255,79,179,.18);
+    }
+
+    .btn-secondary{
+      color:var(--text);
+      background:#fff;
+      border-color:var(--line);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .btn-danger{
+      color:var(--danger);
+      background:#fff;
+      border-color:#fecaca;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .message{
+      display:none;
+      margin-top:16px;
+      padding:14px 16px;
+      border-radius:16px;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .message.show{display:block}
+    .message.success{
+      background:var(--ok-soft);
+      color:#166534;
+      border:1px solid #86efac;
+    }
+
+    .message.error{
+      background:var(--danger-soft);
+      color:#991b1b;
+      border:1px solid #fca5a5;
+    }
+
+    .status-list{
+      display:grid;
+      gap:12px;
+      margin:0;
+      padding:0;
+      list-style:none;
+    }
+
+    .status-item{
+      padding:14px;
+      border-radius:16px;
+      background:var(--bg-soft);
+      border:1px solid rgba(226,232,240,.95);
+    }
+
+    .status-item strong{
+      display:block;
+      font-size:14px;
+      margin-bottom:4px;
+    }
+
+    .status-item span{
+      display:block;
+      font-size:14px;
+      color:var(--muted);
+      word-break:break-word;
+    }
+
+    .footer{
+      margin-top:auto;
+      padding:0 0 34px;
+    }
+
+    .footer-inner{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:0 20px;
+    }
+
+    .footer-panel{
+      padding:22px 24px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+      flex-wrap:wrap;
+    }
+
+    .footer-links{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .footer-links a{
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .footer-note{
+      margin:0;
+      max-width:760px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    code{
+      padding:2px 6px;
+      border-radius:8px;
+      background:#f1f5f9;
+      border:1px solid #e2e8f0;
+      font-family:Consolas,monospace;
+      font-size:13px;
+    }
+
+    @media (max-width:1120px){
+      .hero-grid,
+      .grid-main{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:900px){
+      .topbar-inner{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .topnav{
+        width:100%;
+        justify-content:flex-start;
+      }
+
+      .section-inner{
+        padding:24px 16px;
+      }
+
+      .hero-box,
+      .side-box,
+      .card,
+      .footer-panel{
+        padding:22px;
+        border-radius:22px;
+      }
+
+      .section-head{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .hero-points{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:620px){
+      h1{font-size:34px}
+      .hero-subtitle{font-size:18px}
+      .hero-copy{font-size:16px}
+      .btn{width:100%}
+      .actions,.footer-links{width:100%}
+      .footer-links a{flex:1 1 100%;text-align:center}
+    }
+
+    @media print{
+      .topbar,
+      .actions,
+      .footer-links{
+        display:none !important;
+      }
+      body{background:#fff}
+      .hero-box,.side-box,.card,.footer-panel{
+        box-shadow:none;
+        border:1px solid #d1d5db;
+      }
+      .section-inner,.footer-inner{
+        max-width:none;
+        padding:12px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="../index.html" aria-label="Zur Kurszentrale">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48">
+              <rect x="6" y="8" width="36" height="32" rx="10"></rect>
+              <path d="M15 18h18M15 24h11M15 30h18"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="brand-kicker">Explorer-Hilfe</p>
+            <p class="brand-title">Daten für Excel</p>
+          </div>
+        </a>
+
+        <nav class="topnav" aria-label="Seitennavigation">
+          <a href="./kein-export.html">Zurück zu Kein Export</a>
+          <a href="./pdf-fuer-steuerberater.html">Nächste Explorer-Seite</a>
+          <a class="nav-cta" href="../index.html">Zur Kurszentrale</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="section-inner">
+          <div class="hero-grid">
+            <div class="hero-box">
+              <p class="eyebrow">Explorer 09</p>
+              <h1>Wie man Daten für Excel vorbereitet</h1>
+              <p class="hero-subtitle">Wenn du Informationen aus Explorer, Plattform, Screenshots oder alten Hinweisen gesammelt hast, musst du sie in eine saubere Arbeitsstruktur bringen. Genau dafür ist diese Seite da.</p>
+              <p class="hero-copy">Für Laien ist die wichtigste Regel: Nicht alles ungeordnet in eine Tabelle werfen. Erst sauber entscheiden, welche Spalten gebraucht werden und was sicher, teilweise oder unklar ist.</p>
+
+              <div class="hero-points">
+                <div class="hero-point">
+                  <strong>Erst Struktur, dann Masse</strong>
+                  <span>Eine gute Tabellenlogik spart später enorm viel Zeit.</span>
+                </div>
+                <div class="hero-point">
+                  <strong>Sicher und unklar trennen</strong>
+                  <span>Excel wird besser, wenn nicht alles so aussieht, als wäre es hundertprozentig sicher.</span>
+                </div>
+                <div class="hero-point">
+                  <strong>Vorarbeit für Steuerberater</strong>
+                  <span>Eine saubere Excel-Struktur erleichtert die spätere Übergabe deutlich.</span>
+                </div>
+              </div>
+            </div>
+
+            <aside class="side-box">
+              <div class="mini-box">
+                <h3>Wofür diese Seite da ist</h3>
+                <p>Sie hilft dir, aus losen Funden eine brauchbare Tabellenstruktur für Excel oder CSV zu machen.</p>
+              </div>
+              <div class="mini-box">
+                <h3>Wichtige Regel</h3>
+                <p>Jeder Vorgang braucht möglichst eine klare Zeile. Keine langen Fließtexte mitten in die Datenspalten mischen.</p>
+              </div>
+              <div class="mini-box">
+                <h3>Wie es weitergeht</h3>
+                <p>Danach folgt die Seite, wie daraus eine PDF für den Steuerberater gebaut wird.</p>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-inner">
+          <div class="section-head">
+            <div>
+              <h2>Grundlogik für Excel</h2>
+            </div>
+            <p>Die folgende Reihenfolge hilft dir, aus unordentlichen Daten eine saubere Tabelle zu machen.</p>
+          </div>
+
+          <div class="grid-main">
+            <div class="card">
+              <div class="list">
+                <div class="list-item">
+                  <strong>1. Eine Zeile = ein Vorgang</strong>
+                  <span>Wenn möglich, sollte jeder einzelne Vorgang in eine eigene Zeile geschrieben werden.</span>
+                </div>
+                <div class="list-item">
+                  <strong>2. Saubere Kernspalten definieren</strong>
+                  <span>Zum Beispiel Datum, Vorgangsart, Coin oder Token, Menge, Gegenwert, Quelle, Wallet, Plattform, Hash und Kommentar.</span>
+                </div>
+                <div class="list-item">
+                  <strong>3. Datenlage sichtbar machen</strong>
+                  <span>Markiere, ob ein Eintrag sicher, teilweise oder unklar ist.</span>
+                </div>
+                <div class="list-item">
+                  <strong>4. Quelle mitschreiben</strong>
+                  <span>Explorer, Screenshot, E-Mail, Plattform oder eigene Rekonstruktion sollten notiert werden.</span>
+                </div>
+                <div class="list-item">
+                  <strong>5. Lange Erklärung in Kommentarspalte</strong>
+                  <span>Die eigentlichen Daten bleiben knapp, zusätzliche Erklärung kommt in eine eigene Kommentarspalte.</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3 style="margin-bottom:12px">Was du vermeiden solltest</h3>
+              <div class="note-box">Excel wird unbrauchbar, wenn in einer einzigen Spalte gleichzeitig Datum, Coin, Story und offene Fragen gemischt werden. Die Tabelle muss klar lesbar bleiben.</div>
+              <div class="list" style="margin-top:16px">
+                <div class="list-item">
+                  <strong>Keine Mischzeilen</strong>
+                  <span>Nicht mehrere Vorgänge in eine einzige Zeile drücken.</span>
+                </div>
+                <div class="list-item">
+                  <strong>Keine Fantasie-Werte</strong>
+                  <span>Unklare Dinge klar markieren statt sie als sichere Werte auszugeben.</span>
+                </div>
+                <div class="list-item">
+                  <strong>Keine Quellenlosigkeit</strong>
+                  <span>Wenn möglich immer notieren, woher die Information stammt.</span>
+                </div>
+                <div class="list-item">
+                  <strong>Keine Kommentar-Flut in Datenspalten</strong>
+                  <span>Kommentare gehören in Kommentar oder Hinweis, nicht mitten in Coin oder Betrag.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-inner">
+          <div class="section-head">
+            <div>
+              <h2>Beispiel für eine saubere Excel-Struktur</h2>
+            </div>
+            <p>So kann eine einfache Struktur aussehen, mit der man später weiterarbeiten oder exportieren kann.</p>
+          </div>
+
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Datum</th>
+                    <th>Vorgangsart</th>
+                    <th>Coin / Token</th>
+                    <th>Menge</th>
+                    <th>Gegenwert</th>
+                    <th>Chain</th>
+                    <th>Wallet / Plattform</th>
+                    <th>Hash / ID</th>
+                    <th>Quelle</th>
+                    <th>Datenlage</th>
+                    <th>Kommentar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>12.03.2024</td>
+                    <td>Reward</td>
+                    <td>ABC Token</td>
+                    <td>125,00</td>
+                    <td>unklar</td>
+                    <td>BNB Chain</td>
+                    <td>Wallet A / BscScan</td>
+                    <td>Hash vorhanden</td>
+                    <td>Explorer</td>
+                    <td>teilweise</td>
+                    <td>Token-Menge sicher, Gegenwert noch offen</td>
+                  </tr>
+                  <tr>
+                    <td>15.03.2024</td>
+                    <td>Tausch</td>
+                    <td>ETH zu USDT</td>
+                    <td>0,50</td>
+                    <td>rekonstruiert</td>
+                    <td>Ethereum</td>
+                    <td>Wallet B / Etherscan</td>
+                    <td>Hash vorhanden</td>
+                    <td>Explorer + Screenshot</td>
+                    <td>teilweise</td>
+                    <td>Wert aus Kombination mehrerer Hinweise abgeleitet</td>
+                  </tr>
+                  <tr>
+                    <td>unklar</td>
+                    <td>Zufluss</td>
+                    <td>BTC</td>
+                    <td>0,015</td>
+                    <td>unklar</td>
+                    <td>Bitcoin</td>
+                    <td>Adresse C</td>
+                    <td>noch offen</td>
+                    <td>alte E-Mail</td>
+                    <td>schwach</td>
+                    <td>Transaktions-ID noch nicht sicher gefunden</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-inner">
+          <div class="section-head">
+            <div>
+              <h2>Dein persönlicher Arbeitsbereich</h2>
+            </div>
+            <p>Hier kannst du deine geplante Excel-Struktur, wichtige Spalten und deine eigene Sortierlogik direkt auf dieser Seite speichern.</p>
+          </div>
+
+          <div class="grid-main">
+            <div class="card">
+              <form id="notesForm" novalidate>
+                <div class="field">
+                  <label for="fallName">Meine Bezeichnung</label>
+                  <input id="fallName" type="text" placeholder="z. B. Excel-Vorbereitung Altjahre, Reward-Daten sortieren, Wallet A Tabellenlogik" />
+                </div>
+
+                <div class="field">
+                  <label for="mustColumns">Welche Spalten brauche ich unbedingt?</label>
+                  <textarea id="mustColumns" placeholder="Beispiel: Datum, Vorgangsart, Coin, Menge, Gegenwert, Chain, Wallet, Hash, Quelle, Datenlage, Kommentar"></textarea>
+                </div>
+
+                <div class="field">
+                  <label for="safeRule">Wie trenne ich sicher / teilweise / unklar?</label>
+                  <textarea id="safeRule" placeholder="Beispiel: sicher = durch Explorer oder Beleg bestätigt, teilweise = Mischung aus Hinweisen, unklar = noch offen"></textarea>
+                </div>
+
+                <div class="field">
+                  <label for="sortRule">Wie will ich sortieren?</label>
+                  <textarea id="sortRule" placeholder="Beispiel: erst nach Jahr, dann nach Wallet, dann nach Datum oder erst nach Plattform und dann nach Vorgangsart"></textarea>
+                </div>
+
+                <div class="field">
+                  <label for="sourceRule">Wie notiere ich Quellen?</label>
+                  <textarea id="sourceRule" placeholder="Beispiel: Explorer, Screenshot, E-Mail, Wallet-App, Plattform, eigene Rekonstruktion"></textarea>
+                </div>
+
+                <div class="field">
+                  <label for="openPoints">Welche Punkte sind noch offen?</label>
+                  <textarea id="openPoints" placeholder="Hier notieren, was dir für die Excel-Struktur noch fehlt oder was du noch unsicher findest."></textarea>
+                </div>
+
+                <div class="field">
+                  <label for="nextStep">Mein nächster Schritt</label>
+                  <textarea id="nextStep" placeholder="Beispiel: echte Zeilen aufbauen, Problemfälle markieren, PDF-Struktur vorbereiten"></textarea>
+                </div>
+
+                <div class="actions">
+                  <button class="btn btn-primary" type="submit">Notizen speichern</button>
+                  <button class="btn btn-secondary" type="button" id="resetBtn">Felder leeren</button>
+                  <button class="btn btn-danger" type="button" id="deleteBtn">Alles löschen</button>
+                </div>
+
+                <div id="messageBox" class="message" aria-live="polite"></div>
+              </form>
+            </div>
+
+            <div class="grid">
+              <div class="card">
+                <h3 style="margin-bottom:12px">Status deiner Notizen</h3>
+                <ul class="status-list">
+                  <li class="status-item">
+                    <strong>Gespeicherte Bezeichnung</strong>
+                    <span id="statusName">Noch nichts gespeichert</span>
+                  </li>
+                  <li class="status-item">
+                    <strong>Spalten notiert</strong>
+                    <span id="statusColumns">nein</span>
+                  </li>
+                  <li class="status-item">
+                    <strong>Nächster Schritt notiert</strong>
+                    <span id="statusNext">nein</span>
+                  </li>
+                  <li class="status-item">
+                    <strong>Letzte Speicherung</strong>
+                    <span id="statusUpdated">Noch nichts gespeichert</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="card">
+                <h3 style="margin-bottom:12px">Praktischer Tipp</h3>
+                <div class="note-box">Wenn du die Excel-Logik hier zuerst sauber planst, wird später auch CSV, PDF und das Gespräch mit dem Steuerberater deutlich einfacher. Gute Vorarbeit spart oft mehr Zeit als jede hektische Nachsortierung.</div>
+                <div class="list" style="margin-top:16px">
+                  <div class="list-item">
+                    <strong>1. Spalten zuerst festziehen</strong>
+                    <span>Dann weißt du bei jedem Fund sofort, wohin er gehört.</span>
+                  </div>
+                  <div class="list-item">
+                    <strong>2. Datenlage sichtbar machen</strong>
+                    <span>So bleiben schwache oder offene Punkte sofort erkennbar.</span>
+                  </div>
+                  <div class="list-item">
+                    <strong>3. Quellen mitführen</strong>
+                    <span>Damit die spätere Nachprüfung einfacher wird.</span>
+                  </div>
+                  <div class="list-item">
+                    <strong>4. Danach PDF vorbereiten</strong>
+                    <span>Der nächste sinnvolle Schritt ist dann die PDF für den Steuerberater.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-panel">
+          <div class="footer-links">
+            <a href="./kein-export.html">Zurück zu Kein Export</a>
+            <a href="./pdf-fuer-steuerberater.html">Weiter zu PDF für Steuerberater</a>
+            <a href="../hilfe.html">Zur Hilfe</a>
+          </div>
+          <p class="footer-note">Diese Explorer-Seite hilft dabei, gefundene Daten sauber für Excel vorzubereiten und die eigene Struktur mit LocalStorage festzuhalten.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    (function(){
+      const STORAGE_KEY = 'kso_explorer_daten_excel_notes_v1';
+
+      const fallName = document.getElementById('fallName');
+      const mustColumns = document.getElementById('mustColumns');
+      const safeRule = document.getElementById('safeRule');
+      const sortRule = document.getElementById('sortRule');
+      const sourceRule = document.getElementById('sourceRule');
+      const openPoints = document.getElementById('openPoints');
+      const nextStep = document.getElementById('nextStep');
+
+      const resetBtn = document.getElementById('resetBtn');
+      const deleteBtn = document.getElementById('deleteBtn');
+      const notesForm = document.getElementById('notesForm');
+      const messageBox = document.getElementById('messageBox');
+
+      const statusName = document.getElementById('statusName');
+      const statusColumns = document.getElementById('statusColumns');
+      const statusNext = document.getElementById('statusNext');
+      const statusUpdated = document.getElementById('statusUpdated');
+
+      function showMessage(text, type){
+        messageBox.textContent = text;
+        messageBox.className = 'message show ' + type;
+      }
+
+      function formatDate(value){
+        if(!value) return 'Noch nichts gespeichert';
+        const d = new Date(value);
+        if(Number.isNaN(d.getTime())) return 'Noch nichts gespeichert';
+        return d.toLocaleString('de-DE');
+      }
+
+      function loadData(){
+        try{
+          const raw = localStorage.getItem(STORAGE_KEY);
+          const parsed = raw ? JSON.parse(raw) : null;
+          return parsed && typeof parsed === 'object' ? parsed : null;
+        }catch(error){
+          return null;
+        }
+      }
+
+      function saveData(data){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      }
+
+      function applyData(data){
+        fallName.value = data.fallName || '';
+        mustColumns.value = data.mustColumns || '';
+        safeRule.value = data.safeRule || '';
+        sortRule.value = data.sortRule || '';
+        sourceRule.value = data.sourceRule || '';
+        openPoints.value = data.openPoints || '';
+        nextStep.value = data.nextStep || '';
+
+        statusName.textContent = data.fallName || 'Noch nichts gespeichert';
+        statusColumns.textContent = data.mustColumns && data.mustColumns.trim() ? 'ja' : 'nein';
+        statusNext.textContent = data.nextStep && data.nextStep.trim() ? 'ja' : 'nein';
+        statusUpdated.textContent = formatDate(data.updatedAt);
+      }
+
+      function resetFields(){
+        fallName.value = '';
+        mustColumns.value = '';
+        safeRule.value = '';
+        sortRule.value = '';
+        sourceRule.value = '';
+        openPoints.value = '';
+        nextStep.value = '';
+      }
+
+      notesForm.addEventListener('submit', function(event){
+        event.preventDefault();
+
+        const data = {
+          fallName: fallName.value.trim(),
+          mustColumns: mustColumns.value.trim(),
+          safeRule: safeRule.value.trim(),
+          sortRule: sortRule.value.trim(),
+          sourceRule: sourceRule.value.trim(),
+          openPoints: openPoints.value.trim(),
+          nextStep: nextStep.value.trim(),
+          updatedAt: new Date().toISOString()
+        };
+
+        saveData(data);
+        applyData(data);
+        showMessage('Deine Notizen wurden gespeichert.', 'success');
+      });
+
+      resetBtn.addEventListener('click', function(){
+        resetFields();
+        showMessage('Die Eingabefelder wurden geleert. Bereits gespeicherte Notizen bleiben erhalten, bis du sie löschst oder neu speicherst.', 'error');
+      });
+
+      deleteBtn.addEventListener('click', function(){
+        localStorage.removeItem(STORAGE_KEY);
+        resetFields();
+        applyData({});
+        showMessage('Die gespeicherten Notizen wurden gelöscht.', 'success');
+      });
+
+      const existing = loadData();
+      if(existing){
+        applyData(existing);
+      } else {
+        applyData({});
+      }
+    })();
+  </script>
+</body>
+</html>
