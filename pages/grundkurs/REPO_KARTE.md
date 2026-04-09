@@ -935,6 +935,7 @@
     │   │   │   ├── form-fiat-zu-krypto.html
     │   │   │   ├── form-krypto-zu-fiat.html
     │   │   │   ├── form-krypto-zu-krypto.html
+    │   │   │   ├── form-pool-staking-sperrmodell.html
     │   │   │   └── form-reward-bonus-ertrag.html
     │   │   ├── module/
     │   │   │   ├── 01-einstieg.html
@@ -1366,4 +1367,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.04.2026, 08:16)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.04.2026, 10:07)_
