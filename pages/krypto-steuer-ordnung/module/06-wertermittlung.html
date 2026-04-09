@@ -1,0 +1,1396 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Modul 06 – Wertermittlung – Krypto-Steuer-Ordnung</title>
+  <meta name="description" content="Kaufwerte, Tageswerte, Fiat-Gegenwerte und unklare Wertermittlungen strukturiert erfassen und für den Steuerberater vorbereiten." />
+  <meta name="robots" content="index,follow" />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --bg-soft:#f8fafc;
+      --panel:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --line-strong:#cbd5e1;
+      --mint:#20d8b2;
+      --mint-soft:#e7fbf7;
+      --magenta:#ff4fb3;
+      --magenta-soft:#ffeaf5;
+      --warn:#f59e0b;
+      --warn-soft:#fff4d6;
+      --ok:#16a34a;
+      --ok-soft:#dcfce7;
+      --danger:#dc2626;
+      --danger-soft:#fee2e2;
+      --shadow:0 18px 44px rgba(15,23,42,.08);
+      --shadow-soft:0 10px 26px rgba(15,23,42,.05);
+      --radius-xl:30px;
+      --radius-lg:22px;
+      --radius-md:16px;
+      --max:1280px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(32,216,178,.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(255,79,179,.08), transparent 24%),
+        linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+      line-height:1.56;
+    }
+
+    a{color:inherit;text-decoration:none}
+    button,input,textarea,select{font:inherit}
+
+    .shell{min-height:100vh;display:flex;flex-direction:column}
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:rgba(255,255,255,.92);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(226,232,240,.9);
+    }
+
+    .topbar-inner{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:14px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+
+    .brand-mark{
+      width:48px;
+      height:48px;
+      border-radius:16px;
+      padding:9px;
+      background:linear-gradient(135deg,var(--mint-soft),var(--magenta-soft));
+      border:1px solid rgba(203,213,225,.9);
+      box-shadow:var(--shadow-soft);
+      flex:0 0 auto;
+    }
+
+    .brand-mark svg{
+      width:100%;
+      height:100%;
+      stroke:var(--text);
+      stroke-width:2.2;
+      fill:none;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .brand-kicker{
+      margin:0 0 2px;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.15em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    .brand-title{
+      margin:0;
+      font-size:18px;
+      font-weight:800;
+      letter-spacing:.01em;
+    }
+
+    .topnav{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .topnav a{
+      padding:10px 14px;
+      border-radius:999px;
+      font-size:14px;
+      font-weight:700;
+      border:1px solid transparent;
+      transition:.18s ease;
+    }
+
+    .topnav a:hover{
+      background:#fff;
+      border-color:var(--line);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .topnav .nav-cta{
+      color:#fff;
+      background:linear-gradient(135deg,var(--mint),var(--magenta));
+      box-shadow:0 14px 30px rgba(255,79,179,.18);
+    }
+
+    .section-inner{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:30px 20px;
+    }
+
+    .hero{padding:28px 0 10px}
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.08fr .92fr;
+      gap:22px;
+      align-items:stretch;
+    }
+
+    .hero-box,
+    .side-box,
+    .card,
+    .footer-panel{
+      background:var(--panel);
+      border:1px solid rgba(226,232,240,.95);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius-xl);
+    }
+
+    .hero-box{
+      padding:38px;
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.99),rgba(255,255,255,.99)),
+        linear-gradient(135deg,rgba(32,216,178,.12),rgba(255,79,179,.12));
+    }
+
+    .hero-box::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 10% 12%, rgba(32,216,178,.10), transparent 25%),
+        radial-gradient(circle at 88% 16%, rgba(255,79,179,.10), transparent 22%);
+      pointer-events:none;
+    }
+
+    .hero-box>*{position:relative;z-index:1}
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      width:max-content;
+      margin:0 0 16px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid rgba(226,232,240,.95);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+
+    .eyebrow::before{
+      content:"";
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:linear-gradient(135deg,var(--mint),var(--magenta));
+      flex:0 0 auto;
+    }
+
+    h1,h2,h3{margin:0;line-height:1.12;color:var(--text)}
+    h1{
+      font-size:clamp(34px,5vw,58px);
+      letter-spacing:-.035em;
+      max-width:780px;
+    }
+
+    .hero-subtitle{
+      margin:18px 0 0;
+      max-width:860px;
+      font-size:clamp(18px,2vw,24px);
+      font-weight:700;
+    }
+
+    .hero-copy{
+      margin:16px 0 0;
+      max-width:840px;
+      font-size:18px;
+      color:var(--muted);
+    }
+
+    .hero-points{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-top:22px;
+    }
+
+    .hero-point{
+      padding:14px;
+      border-radius:18px;
+      background:#fff;
+      border:1px solid rgba(226,232,240,.95);
+    }
+
+    .hero-point strong{
+      display:block;
+      margin-bottom:4px;
+      font-size:14px;
+    }
+
+    .hero-point span{
+      display:block;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .side-box{
+      padding:24px;
+      display:grid;
+      gap:14px;
+      align-content:start;
+      background:
+        linear-gradient(180deg,#fff,#fff),
+        linear-gradient(135deg,rgba(32,216,178,.10),rgba(255,79,179,.10));
+    }
+
+    .mini-box{
+      padding:18px;
+      border-radius:20px;
+      background:#fff;
+      border:1px solid rgba(226,232,240,.95);
+    }
+
+    .mini-box h3{
+      font-size:17px;
+      margin-bottom:8px;
+    }
+
+    .mini-box p{
+      margin:0;
+      color:var(--muted);
+      font-size:15px;
+    }
+
+    .grid-main{
+      display:grid;
+      grid-template-columns:1.02fr .98fr;
+      gap:22px;
+      align-items:start;
+    }
+
+    .card{
+      position:relative;
+      overflow:hidden;
+      box-shadow:var(--shadow-soft);
+      padding:24px;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:0;
+      width:100%;
+      height:4px;
+      background:linear-gradient(90deg,var(--mint),var(--magenta));
+    }
+
+    .section-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:24px;
+      margin:0 0 20px;
+    }
+
+    .section-head h2{
+      font-size:clamp(26px,3vw,40px);
+      letter-spacing:-.03em;
+    }
+
+    .section-head p{
+      margin:0;
+      max-width:760px;
+      color:var(--muted);
+      font-size:17px;
+    }
+
+    .grid{
+      display:grid;
+      gap:16px;
+    }
+
+    .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .field label{
+      font-size:14px;
+      font-weight:800;
+      color:var(--text);
+    }
+
+    .field input,
+    .field textarea,
+    .field select{
+      width:100%;
+      min-height:52px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+      color:var(--text);
+      padding:14px 16px;
+      outline:none;
+      transition:border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .field textarea{
+      min-height:118px;
+      resize:vertical;
+    }
+
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus{
+      border-color:rgba(32,216,178,.9);
+      box-shadow:0 0 0 4px rgba(32,216,178,.12);
+    }
+
+    .hint{
+      font-size:13px;
+      color:var(--muted);
+      margin-top:-2px;
+    }
+
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .check{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      padding:12px 14px;
+      border-radius:16px;
+      background:var(--bg-soft);
+      border:1px solid var(--line);
+    }
+
+    .check input{
+      width:18px;
+      height:18px;
+      margin-top:1px;
+      accent-color:var(--mint);
+      flex:0 0 auto;
+    }
+
+    .check span{
+      font-size:14px;
+      color:var(--text);
+    }
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      margin-top:18px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      min-height:52px;
+      padding:14px 22px;
+      border-radius:999px;
+      border:1px solid transparent;
+      font-size:15px;
+      font-weight:800;
+      letter-spacing:.01em;
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+      text-align:center;
+      cursor:pointer;
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+
+    .btn-primary{
+      color:#fff;
+      background:linear-gradient(135deg,var(--mint),var(--magenta));
+      box-shadow:0 16px 34px rgba(255,79,179,.18);
+    }
+
+    .btn-secondary{
+      color:var(--text);
+      background:#fff;
+      border-color:var(--line);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .btn-danger{
+      color:var(--danger);
+      background:#fff;
+      border-color:#fecaca;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .message{
+      display:none;
+      margin-top:16px;
+      padding:14px 16px;
+      border-radius:16px;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .message.show{display:block}
+    .message.success{
+      background:var(--ok-soft);
+      color:#166534;
+      border:1px solid #86efac;
+    }
+
+    .message.error{
+      background:var(--danger-soft);
+      color:#991b1b;
+      border:1px solid #fca5a5;
+    }
+
+    .status-list{
+      display:grid;
+      gap:12px;
+      margin:0;
+      padding:0;
+      list-style:none;
+    }
+
+    .status-item{
+      padding:14px;
+      border-radius:16px;
+      background:var(--bg-soft);
+      border:1px solid rgba(226,232,240,.95);
+    }
+
+    .status-item strong{
+      display:block;
+      font-size:14px;
+      margin-bottom:4px;
+    }
+
+    .status-item span{
+      display:block;
+      font-size:14px;
+      color:var(--muted);
+      word-break:break-word;
+    }
+
+    .records{
+      display:grid;
+      gap:14px;
+    }
+
+    .record{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:16px;
+    }
+
+    .record-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:10px;
+    }
+
+    .record-title{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
+    }
+
+    .record-title strong{
+      font-size:17px;
+      word-break:break-word;
+    }
+
+    .pills{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      padding:7px 10px;
+      border-radius:999px;
+      background:var(--bg-soft);
+      border:1px solid var(--line);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+
+    .record-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px 14px;
+      margin-top:10px;
+    }
+
+    .record-item small{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:2px;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      font-weight:800;
+    }
+
+    .record-item span{
+      display:block;
+      word-break:break-word;
+      font-size:14px;
+    }
+
+    .record-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .record-actions button{
+      min-height:42px;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      cursor:pointer;
+      font-weight:700;
+    }
+
+    .empty{
+      padding:18px;
+      border-radius:18px;
+      background:var(--bg-soft);
+      border:1px dashed var(--line-strong);
+      color:var(--muted);
+      font-size:15px;
+    }
+
+    .note-box{
+      padding:16px 18px;
+      border-radius:18px;
+      border:1px solid #fde68a;
+      background:var(--warn-soft);
+      color:#8a5a00;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .helper-list{
+      display:grid;
+      gap:12px;
+      margin-top:8px;
+    }
+
+    .helper-item{
+      padding:14px;
+      border-radius:16px;
+      background:var(--bg-soft);
+      border:1px solid var(--line);
+    }
+
+    .helper-item strong{
+      display:block;
+      margin-bottom:4px;
+      font-size:14px;
+    }
+
+    .helper-item span{
+      display:block;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .footer{
+      margin-top:auto;
+      padding:0 0 34px;
+    }
+
+    .footer-inner{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:0 20px;
+    }
+
+    .footer-panel{
+      padding:22px 24px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+      flex-wrap:wrap;
+    }
+
+    .footer-links{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .footer-links a{
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .footer-note{
+      margin:0;
+      max-width:760px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    @media (max-width:1120px){
+      .hero-grid,
+      .grid-main{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:900px){
+      .topbar-inner{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .topnav{
+        width:100%;
+        justify-content:flex-start;
+      }
+
+      .section-inner{
+        padding:24px 16px;
+      }
+
+      .hero-box,.side-box,.card,.footer-panel{
+        padding:22px;
+        border-radius:22px;
+      }
+
+      .section-head{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .hero-points,.grid-2,.grid-3,.record-grid,.check-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:620px){
+      h1{font-size:34px}
+      .hero-subtitle{font-size:18px}
+      .hero-copy{font-size:16px}
+      .btn{width:100%}
+      .actions,.record-actions,.footer-links{width:100%}
+      .footer-links a{flex:1 1 100%;text-align:center}
+      .record-head{flex-direction:column;align-items:flex-start}
+    }
+
+    @media print{
+      .topbar,
+      .actions,
+      .record-actions,
+      .footer-links{
+        display:none !important;
+      }
+
+      body{background:#fff}
+      .hero-box,.side-box,.card,.footer-panel{
+        box-shadow:none;
+        border:1px solid #d1d5db;
+      }
+
+      .section-inner,.footer-inner{
+        max-width:none;
+        padding:12px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="../index.html" aria-label="Zur Kurszentrale">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48">
+              <rect x="6" y="8" width="36" height="32" rx="10"></rect>
+              <path d="M15 18h18M15 24h11M15 30h18"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="brand-kicker">LiquidityBooster Kurs</p>
+            <p class="brand-title">Krypto-Steuer-Ordnung</p>
+          </div>
+        </a>
+
+        <nav class="topnav" aria-label="Seitennavigation">
+          <a href="../index.html">Kurszentrale</a>
+          <a href="./05-transaktionen.html">Zurück zu Transaktionen</a>
+          <a class="nav-cta" href="./07-problemfaelle.html">Nächster Schritt</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="section-inner">
+          <div class="hero-grid">
+            <div class="hero-box">
+              <p class="eyebrow">Modul 06</p>
+              <h1>Wertermittlung</h1>
+              <p class="hero-subtitle">Hier ordnest du Kaufwerte, Tageswerte und Fiat-Gegenwerte so, dass aus vielen Transaktionen eine nachvollziehbare Arbeitsgrundlage für den Steuerberater wird.</p>
+              <p class="hero-copy">Dieses Modul ist kein Steuerrechner. Es hilft dir, pro Fall sauber zu dokumentieren, welcher Wert am relevanten Tag angesetzt wurde, auf welcher Datenbasis du gearbeitet hast und wo noch Unsicherheit besteht.</p>
+
+              <div class="hero-points">
+                <div class="hero-point">
+                  <strong>Kaufwert festhalten</strong>
+                  <span>Datum, Asset, Menge und Fiat-Gegenwert sauber zuordnen.</span>
+                </div>
+                <div class="hero-point">
+                  <strong>Quelle offenlegen</strong>
+                  <span>Explorer, Börse, CSV, API oder Schätzung klar benennen.</span>
+                </div>
+                <div class="hero-point">
+                  <strong>Unsicherheit markieren</strong>
+                  <span>Unklare Werte neutral dokumentieren statt schönzurechnen.</span>
+                </div>
+              </div>
+            </div>
+
+            <aside class="side-box" aria-label="Kurzübersicht">
+              <div class="mini-box">
+                <h3>Wofür dieses Modul da ist</h3>
+                <p>Es ordnet Werte zum relevanten Datum und trennt sichere Daten von geschätzten oder noch offenen Werten.</p>
+              </div>
+              <div class="mini-box">
+                <h3>Wichtige Regel</h3>
+                <p>Wenn ein Wert nicht sauber rekonstruierbar ist, wird das offen dokumentiert. Es wird nichts erfunden.</p>
+              </div>
+              <div class="mini-box">
+                <h3>Wie es weitergeht</h3>
+                <p>Nach der Wertermittlung kommt das Modul für Problemfälle, damit offene Punkte sauber gesammelt werden.</p>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-inner">
+          <div class="section-head">
+            <div>
+              <h2>Wertermittlungs-Fall erfassen</h2>
+            </div>
+            <p>Lege hier einzelne Bewertungsfälle an, speichere sie im Browser und nutze sie später für Problemfälle, Fragen an den Steuerberater und das Übergabepaket.</p>
+          </div>
+
+          <div class="grid-main">
+            <div class="card">
+              <form id="valuationForm" novalidate>
+                <div class="grid grid-2">
+                  <div class="field">
+                    <label for="fallTitel">Bezeichnung / Zusammenhang</label>
+                    <input id="fallTitel" type="text" placeholder="z. B. Erstkauf ETH 2022, Reward-Zufluss März, Tausch BTC in ETH" required />
+                  </div>
+                  <div class="field">
+                    <label for="vorgangsart">Vorgangsart</label>
+                    <select id="vorgangsart">
+                      <option value="">Bitte auswählen</option>
+                      <option value="Fiat zu Krypto">Fiat zu Krypto</option>
+                      <option value="Krypto zu Fiat">Krypto zu Fiat</option>
+                      <option value="Krypto zu Krypto">Krypto zu Krypto</option>
+                      <option value="Eigenübertrag">Eigenübertrag</option>
+                      <option value="Reward / Bonus / Ertrag">Reward / Bonus / Ertrag</option>
+                      <option value="Pool / Staking / Sperrmodell">Pool / Staking / Sperrmodell</option>
+                      <option value="Rücktausch in Coin">Rücktausch in Coin</option>
+                      <option value="Token-Nutzung">Token-Nutzung</option>
+                      <option value="Sonderfall unklar">Sonderfall unklar</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="grid grid-3" style="margin-top:16px">
+                  <div class="field">
+                    <label for="relevantesDatum">Relevantes Datum</label>
+                    <input id="relevantesDatum" type="date" />
+                  </div>
+                  <div class="field">
+                    <label for="asset">Asset / Token</label>
+                    <input id="asset" type="text" placeholder="z. B. BTC, ETH, SOL" list="assetOptions" />
+                  </div>
+                  <div class="field">
+                    <label for="menge">Menge</label>
+                    <input id="menge" type="number" step="0.00000001" min="0" placeholder="z. B. 0.25" />
+                  </div>
+
+                  <div class="field">
+                    <label for="wertFiat">Wert in Fiat</label>
+                    <input id="wertFiat" type="number" step="0.00000001" min="0" placeholder="z. B. 1250" />
+                  </div>
+                  <div class="field">
+                    <label for="waehrung">Fiat-Währung</label>
+                    <select id="waehrung">
+                      <option value="">Bitte auswählen</option>
+                      <option value="EUR">EUR</option>
+                      <option value="USD">USD</option>
+                      <option value="CHF">CHF</option>
+                      <option value="GBP">GBP</option>
+                      <option value="Andere">Andere</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="wertProEinheit">Wert pro Einheit</label>
+                    <input id="wertProEinheit" type="number" step="0.00000001" min="0" placeholder="optional" />
+                  </div>
+                </div>
+
+                <div class="grid grid-3" style="margin-top:16px">
+                  <div class="field">
+                    <label for="quelleTyp">Quelle der Wertermittlung</label>
+                    <select id="quelleTyp">
+                      <option value="">Bitte auswählen</option>
+                      <option value="Börsenhistorie">Börsenhistorie</option>
+                      <option value="Explorer">Explorer</option>
+                      <option value="CSV Export">CSV Export</option>
+                      <option value="API / Tool">API / Tool</option>
+                      <option value="Eigene Berechnung">Eigene Berechnung</option>
+                      <option value="Schätzung">Schätzung</option>
+                      <option value="Unklar">Unklar</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="quelleLink">Quelle / Link / Hinweis</label>
+                    <input id="quelleLink" type="text" placeholder="z. B. Etherscan, BscScan, CSV-Datei, CoinTracking" />
+                  </div>
+                  <div class="field">
+                    <label for="datenlage">Datenlage</label>
+                    <select id="datenlage">
+                      <option value="">Bitte auswählen</option>
+                      <option value="gut">gut</option>
+                      <option value="teilweise">teilweise</option>
+                      <option value="schwach">schwach</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="grid grid-2" style="margin-top:16px">
+                  <div class="field">
+                    <label for="walletHinweis">Wallet / Adresse / Plattform-Hinweis</label>
+                    <input id="walletHinweis" type="text" placeholder="Wallet-Adresse, Plattform oder Zuordnung" />
+                  </div>
+                  <div class="field">
+                    <label for="naechsterSchritt">Nächster Schritt</label>
+                    <select id="naechsterSchritt">
+                      <option value="">Bitte auswählen</option>
+                      <option value="Wert ist ausreichend belegt">Wert ist ausreichend belegt</option>
+                      <option value="Explorer weiter prüfen">Explorer weiter prüfen</option>
+                      <option value="Börsenexport suchen">Börsenexport suchen</option>
+                      <option value="Mit Steuerberater klären">Mit Steuerberater klären</option>
+                      <option value="In Problemfälle übernehmen">In Problemfälle übernehmen</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="field" style="margin-top:16px">
+                  <label for="kommentar">Kommentar / Begründung</label>
+                  <textarea id="kommentar" placeholder="Warum wurde dieser Wert angesetzt? Was ist sicher, was ist unklar? Welche Quelle wurde genutzt?"></textarea>
+                </div>
+
+                <div class="field" style="margin-top:16px">
+                  <label>Prüfpunkte</label>
+                  <div class="check-grid">
+                    <label class="check"><input type="checkbox" id="chkDatum" /><span>Relevantes Datum geprüft</span></label>
+                    <label class="check"><input type="checkbox" id="chkMenge" /><span>Menge geprüft</span></label>
+                    <label class="check"><input type="checkbox" id="chkQuelle" /><span>Quelle dokumentiert</span></label>
+                    <label class="check"><input type="checkbox" id="chkUnsicherheit" /><span>Unsicherheit offen markiert</span></label>
+                  </div>
+                </div>
+
+                <input id="editId" type="hidden" value="" />
+
+                <div class="actions">
+                  <button class="btn btn-primary" type="submit">Fall speichern</button>
+                  <button class="btn btn-secondary" type="button" id="resetBtn">Formular zurücksetzen</button>
+                  <button class="btn btn-danger" type="button" id="clearBtn">Alle Fälle löschen</button>
+                </div>
+
+                <div id="formMessage" class="message" aria-live="polite"></div>
+              </form>
+            </div>
+
+            <div class="grid">
+              <div class="card">
+                <h3 style="margin-bottom:12px">Status</h3>
+                <ul class="status-list">
+                  <li class="status-item">
+                    <strong>Gespeicherte Bewertungsfälle</strong>
+                    <span id="statusCount">0</span>
+                  </li>
+                  <li class="status-item">
+                    <strong>Letzte Vorgangsart</strong>
+                    <span id="statusType">Noch nichts gespeichert</span>
+                  </li>
+                  <li class="status-item">
+                    <strong>Letzte Datenlage</strong>
+                    <span id="statusQuality">Noch nichts gespeichert</span>
+                  </li>
+                  <li class="status-item">
+                    <strong>Letzte Speicherung</strong>
+                    <span id="statusDate">Noch nichts gespeichert</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="card">
+                <h3 style="margin-bottom:12px">Wenn Werte nicht mehr sauber rekonstruierbar sind</h3>
+                <div class="note-box">Nicht schätzen, als wäre es sicher. Erst sauber trennen zwischen belegbar, teilweise belegbar und offen unklar.</div>
+                <div class="helper-list">
+                  <div class="helper-item">
+                    <strong>1. Quelle benennen</strong>
+                    <span>Notiere, woher dein aktueller Wert stammt oder dass keine verlässliche Quelle vorliegt.</span>
+                  </div>
+                  <div class="helper-item">
+                    <strong>2. Lücke offen markieren</strong>
+                    <span>Schreibe klar dazu, welcher Teil fehlt: Kaufdatum, Kaufwert, Gegenwert, Chain oder Plattformhistorie.</span>
+                  </div>
+                  <div class="helper-item">
+                    <strong>3. Problemfall statt Fantasiewert</strong>
+                    <span>Offene Fälle kommen im nächsten Modul gesammelt in die Problemfälle und später in die Fragen für den Steuerberater.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <h3 style="margin-bottom:12px">Was hier am Ende herauskommen soll</h3>
+                <div class="helper-list">
+                  <div class="helper-item">
+                    <strong>Nachvollziehbarer Tageswert</strong>
+                    <span>Der Steuerberater sieht, welcher Wert zu welchem Datum angesetzt wurde.</span>
+                  </div>
+                  <div class="helper-item">
+                    <strong>Saubere Quellenlage</strong>
+                    <span>Es ist sichtbar, ob der Wert aus Börsenhistorie, Explorer, CSV oder nur teilweise hergeleitet wurde.</span>
+                  </div>
+                  <div class="helper-item">
+                    <strong>Klare Trennung von offenen Punkten</strong>
+                    <span>Unsichere Fälle werden nicht versteckt, sondern für spätere Klärung vorbereitet.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-inner">
+          <div class="section-head">
+            <div>
+              <h2>Gespeicherte Bewertungsfälle</h2>
+            </div>
+            <p>Hier siehst du deine bisher erfassten Fälle zur Wertermittlung. Du kannst sie durchsuchen, bearbeiten und löschen.</p>
+          </div>
+
+          <div class="card">
+            <div class="field" style="margin-bottom:16px">
+              <label for="searchInput">Suche</label>
+              <input id="searchInput" type="text" placeholder="Nach Titel, Asset, Vorgangsart, Quelle, Datenlage oder Kommentar suchen" />
+            </div>
+            <div id="records" class="records"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-panel">
+          <div class="footer-links">
+            <a href="./05-transaktionen.html">Zurück zu Transaktionen</a>
+            <a href="./07-problemfaelle.html">Weiter zu Problemfälle</a>
+            <a href="../index.html">Zur Kurszentrale</a>
+          </div>
+          <p class="footer-note">Dieses Modul sammelt nachvollziehbare Ansätze für Tageswerte und Kaufwerte, damit offene Punkte später sauber an Problemfälle und den Steuerberater übergeben werden können.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <datalist id="assetOptions">
+    <option value="BTC"></option>
+    <option value="ETH"></option>
+    <option value="BNB"></option>
+    <option value="SOL"></option>
+    <option value="USDT"></option>
+    <option value="USDC"></option>
+    <option value="DAI"></option>
+    <option value="MATIC"></option>
+    <option value="AVAX"></option>
+    <option value="ARB"></option>
+    <option value="OP"></option>
+  </datalist>
+
+  <script>
+    (function(){
+      const STORAGE_KEY = 'kso_module_06_wertermittlung_v1';
+
+      const form = document.getElementById('valuationForm');
+      const msg = document.getElementById('formMessage');
+      const resetBtn = document.getElementById('resetBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const recordsWrap = document.getElementById('records');
+      const searchInput = document.getElementById('searchInput');
+      const editId = document.getElementById('editId');
+
+      const els = {
+        fallTitel: document.getElementById('fallTitel'),
+        vorgangsart: document.getElementById('vorgangsart'),
+        relevantesDatum: document.getElementById('relevantesDatum'),
+        asset: document.getElementById('asset'),
+        menge: document.getElementById('menge'),
+        wertFiat: document.getElementById('wertFiat'),
+        waehrung: document.getElementById('waehrung'),
+        wertProEinheit: document.getElementById('wertProEinheit'),
+        quelleTyp: document.getElementById('quelleTyp'),
+        quelleLink: document.getElementById('quelleLink'),
+        datenlage: document.getElementById('datenlage'),
+        walletHinweis: document.getElementById('walletHinweis'),
+        naechsterSchritt: document.getElementById('naechsterSchritt'),
+        kommentar: document.getElementById('kommentar'),
+        chkDatum: document.getElementById('chkDatum'),
+        chkMenge: document.getElementById('chkMenge'),
+        chkQuelle: document.getElementById('chkQuelle'),
+        chkUnsicherheit: document.getElementById('chkUnsicherheit')
+      };
+
+      const statusCount = document.getElementById('statusCount');
+      const statusType = document.getElementById('statusType');
+      const statusQuality = document.getElementById('statusQuality');
+      const statusDate = document.getElementById('statusDate');
+
+      function getData(){
+        try{
+          const raw = localStorage.getItem(STORAGE_KEY);
+          const parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed) ? parsed : [];
+        }catch(error){
+          return [];
+        }
+      }
+
+      function setData(data){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      }
+
+      function showMessage(text, type){
+        msg.textContent = text;
+        msg.className = 'message show ' + type;
+      }
+
+      function clearMessage(){
+        msg.textContent = '';
+        msg.className = 'message';
+      }
+
+      function formatDate(value){
+        if(!value) return 'Noch nichts gespeichert';
+        const d = new Date(value);
+        if(Number.isNaN(d.getTime())) return 'Noch nichts gespeichert';
+        return d.toLocaleString('de-DE');
+      }
+
+      function collectForm(){
+        return {
+          id: editId.value || 'wertermittlung_' + Date.now(),
+          fallTitel: els.fallTitel.value.trim(),
+          vorgangsart: els.vorgangsart.value.trim(),
+          relevantesDatum: els.relevantesDatum.value,
+          asset: els.asset.value.trim(),
+          menge: els.menge.value.trim(),
+          wertFiat: els.wertFiat.value.trim(),
+          waehrung: els.waehrung.value.trim(),
+          wertProEinheit: els.wertProEinheit.value.trim(),
+          quelleTyp: els.quelleTyp.value.trim(),
+          quelleLink: els.quelleLink.value.trim(),
+          datenlage: els.datenlage.value.trim(),
+          walletHinweis: els.walletHinweis.value.trim(),
+          naechsterSchritt: els.naechsterSchritt.value.trim(),
+          kommentar: els.kommentar.value.trim(),
+          checks: {
+            datum: els.chkDatum.checked,
+            menge: els.chkMenge.checked,
+            quelle: els.chkQuelle.checked,
+            unsicherheit: els.chkUnsicherheit.checked
+          },
+          updatedAt: new Date().toISOString()
+        };
+      }
+
+      function validate(item){
+        if(!item.fallTitel){
+          showMessage('Bitte gib eine Bezeichnung oder einen Zusammenhang ein.', 'error');
+          els.fallTitel.focus();
+          return false;
+        }
+        if(!item.vorgangsart){
+          showMessage('Bitte wähle eine Vorgangsart aus.', 'error');
+          els.vorgangsart.focus();
+          return false;
+        }
+        if(!item.asset){
+          showMessage('Bitte trage das betroffene Asset oder Token ein.', 'error');
+          els.asset.focus();
+          return false;
+        }
+        if(!item.relevantesDatum){
+          showMessage('Bitte trage das relevante Datum ein.', 'error');
+          els.relevantesDatum.focus();
+          return false;
+        }
+        if(!item.datenlage){
+          showMessage('Bitte markiere die Datenlage.', 'error');
+          els.datenlage.focus();
+          return false;
+        }
+        return true;
+      }
+
+      function resetForm(){
+        form.reset();
+        editId.value = '';
+        clearMessage();
+      }
+
+      function updateStatus(data){
+        statusCount.textContent = String(data.length);
+        if(data.length){
+          statusType.textContent = data[0].vorgangsart || '—';
+          statusQuality.textContent = data[0].datenlage || '—';
+          statusDate.textContent = formatDate(data[0].updatedAt);
+        }else{
+          statusType.textContent = 'Noch nichts gespeichert';
+          statusQuality.textContent = 'Noch nichts gespeichert';
+          statusDate.textContent = 'Noch nichts gespeichert';
+        }
+      }
+
+      function infoRow(label, value){
+        const safe = value && String(value).trim() ? String(value).trim() : '—';
+        return `
+          <div class="record-item">
+            <small>${label}</small>
+            <span>${safe}</span>
+          </div>
+        `;
+      }
+
+      function renderRecords(){
+        const data = getData();
+        updateStatus(data);
+
+        const q = searchInput.value.trim().toLowerCase();
+
+        const filtered = data.filter(item => {
+          const haystack = [
+            item.fallTitel, item.vorgangsart, item.relevantesDatum, item.asset, item.menge,
+            item.wertFiat, item.waehrung, item.wertProEinheit, item.quelleTyp, item.quelleLink,
+            item.datenlage, item.walletHinweis, item.naechsterSchritt, item.kommentar
+          ].join(' ').toLowerCase();
+          return haystack.includes(q);
+        });
+
+        if(!filtered.length){
+          recordsWrap.innerHTML = '<div class="empty">Noch keine passenden Bewertungsfälle vorhanden.</div>';
+          return;
+        }
+
+        recordsWrap.innerHTML = filtered.map(item => `
+          <article class="record">
+            <div class="record-head">
+              <div class="record-title">
+                <strong>${item.fallTitel || 'Unbenannter Bewertungsfall'}</strong>
+                <div class="pills">
+                  <span class="pill">${item.vorgangsart || 'ohne Art'}</span>
+                  ${item.asset ? `<span class="pill">${item.asset}</span>` : ''}
+                  ${item.datenlage ? `<span class="pill">${item.datenlage}</span>` : ''}
+                </div>
+              </div>
+            </div>
+
+            <div class="record-grid">
+              ${infoRow('Relevantes Datum', item.relevantesDatum)}
+              ${infoRow('Asset', item.asset)}
+              ${infoRow('Menge', item.menge)}
+              ${infoRow('Wert in Fiat', item.wertFiat)}
+              ${infoRow('Fiat-Währung', item.waehrung)}
+              ${infoRow('Wert pro Einheit', item.wertProEinheit)}
+              ${infoRow('Quelle', item.quelleTyp)}
+              ${infoRow('Quelle / Link / Hinweis', item.quelleLink)}
+              ${infoRow('Datenlage', item.datenlage)}
+              ${infoRow('Wallet / Hinweis', item.walletHinweis)}
+              ${infoRow('Nächster Schritt', item.naechsterSchritt)}
+              ${infoRow('Kommentar', item.kommentar)}
+            </div>
+
+            <div class="record-grid" style="margin-top:12px">
+              ${infoRow('Datum geprüft', item.checks && item.checks.datum ? 'ja' : 'nein')}
+              ${infoRow('Menge geprüft', item.checks && item.checks.menge ? 'ja' : 'nein')}
+              ${infoRow('Quelle dokumentiert', item.checks && item.checks.quelle ? 'ja' : 'nein')}
+              ${infoRow('Unsicherheit markiert', item.checks && item.checks.unsicherheit ? 'ja' : 'nein')}
+            </div>
+
+            <div class="record-actions">
+              <button type="button" data-action="edit" data-id="${item.id}">Bearbeiten</button>
+              <button type="button" data-action="delete" data-id="${item.id}">Löschen</button>
+            </div>
+          </article>
+        `).join('');
+      }
+
+      function fillForm(item){
+        editId.value = item.id || '';
+        els.fallTitel.value = item.fallTitel || '';
+        els.vorgangsart.value = item.vorgangsart || '';
+        els.relevantesDatum.value = item.relevantesDatum || '';
+        els.asset.value = item.asset || '';
+        els.menge.value = item.menge || '';
+        els.wertFiat.value = item.wertFiat || '';
+        els.waehrung.value = item.waehrung || '';
+        els.wertProEinheit.value = item.wertProEinheit || '';
+        els.quelleTyp.value = item.quelleTyp || '';
+        els.quelleLink.value = item.quelleLink || '';
+        els.datenlage.value = item.datenlage || '';
+        els.walletHinweis.value = item.walletHinweis || '';
+        els.naechsterSchritt.value = item.naechsterSchritt || '';
+        els.kommentar.value = item.kommentar || '';
+        els.chkDatum.checked = !!(item.checks && item.checks.datum);
+        els.chkMenge.checked = !!(item.checks && item.checks.menge);
+        els.chkQuelle.checked = !!(item.checks && item.checks.quelle);
+        els.chkUnsicherheit.checked = !!(item.checks && item.checks.unsicherheit);
+        window.scrollTo({top:0,behavior:'smooth'});
+      }
+
+      function saveItem(){
+        const item = collectForm();
+        if(!validate(item)) return;
+
+        const data = getData();
+        const idx = data.findIndex(entry => entry.id === item.id);
+
+        if(idx >= 0){
+          data[idx] = item;
+          showMessage('Der Bewertungsfall wurde aktualisiert.', 'success');
+        }else{
+          data.unshift(item);
+          showMessage('Der Bewertungsfall wurde gespeichert.', 'success');
+        }
+
+        setData(data);
+        renderRecords();
+        resetForm();
+      }
+
+      function deleteItem(id){
+        const data = getData().filter(item => item.id !== id);
+        setData(data);
+        renderRecords();
+        showMessage('Der Bewertungsfall wurde gelöscht.', 'success');
+      }
+
+      form.addEventListener('submit', function(event){
+        event.preventDefault();
+        saveItem();
+      });
+
+      resetBtn.addEventListener('click', function(){
+        resetForm();
+        renderRecords();
+      });
+
+      clearBtn.addEventListener('click', function(){
+        const data = getData();
+        if(!data.length){
+          showMessage('Es sind keine Bewertungsfälle vorhanden.', 'error');
+          return;
+        }
+        localStorage.removeItem(STORAGE_KEY);
+        resetForm();
+        renderRecords();
+        showMessage('Alle Bewertungsfälle wurden gelöscht.', 'success');
+      });
+
+      searchInput.addEventListener('input', renderRecords);
+
+      recordsWrap.addEventListener('click', function(event){
+        const button = event.target.closest('button[data-action]');
+        if(!button) return;
+        const action = button.getAttribute('data-action');
+        const id = button.getAttribute('data-id');
+        const item = getData().find(entry => entry.id === id);
+
+        if(action === 'edit' && item){
+          fillForm(item);
+          showMessage('Der Bewertungsfall wurde zum Bearbeiten geladen.', 'success');
+        }
+
+        if(action === 'delete'){
+          deleteItem(id);
+        }
+      });
+
+      renderRecords();
+    })();
+  </script>
+</body>
+</html>
