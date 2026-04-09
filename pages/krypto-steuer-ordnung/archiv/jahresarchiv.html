@@ -1,0 +1,1359 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Jahresarchiv – Krypto-Steuer-Ordnung</title>
+  <meta name="description" content="Jahresstände, Sicherungen und Archivblöcke für Krypto-Steuer-Ordnung speichern, ordnen und wiederherstellen." />
+  <meta name="robots" content="index,follow" />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --bg-soft:#f8fafc;
+      --panel:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --line-strong:#cbd5e1;
+      --mint:#20d8b2;
+      --mint-soft:#e7fbf7;
+      --magenta:#ff4fb3;
+      --magenta-soft:#ffeaf5;
+      --warn:#f59e0b;
+      --warn-soft:#fff4d6;
+      --ok:#16a34a;
+      --ok-soft:#dcfce7;
+      --danger:#dc2626;
+      --danger-soft:#fee2e2;
+      --shadow:0 18px 44px rgba(15,23,42,.08);
+      --shadow-soft:0 10px 26px rgba(15,23,42,.05);
+      --radius-xl:30px;
+      --radius-lg:22px;
+      --radius-md:16px;
+      --max:1280px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(32,216,178,.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(255,79,179,.08), transparent 24%),
+        linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+      line-height:1.56;
+    }
+
+    a{color:inherit;text-decoration:none}
+    button,input,textarea,select{font:inherit}
+    .shell{min-height:100vh;display:flex;flex-direction:column}
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:rgba(255,255,255,.92);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(226,232,240,.9);
+    }
+
+    .topbar-inner{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:14px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+
+    .brand-mark{
+      width:48px;
+      height:48px;
+      border-radius:16px;
+      padding:9px;
+      background:linear-gradient(135deg,var(--mint-soft),var(--magenta-soft));
+      border:1px solid rgba(203,213,225,.9);
+      box-shadow:var(--shadow-soft);
+      flex:0 0 auto;
+    }
+
+    .brand-mark svg{
+      width:100%;
+      height:100%;
+      stroke:var(--text);
+      stroke-width:2.2;
+      fill:none;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .brand-kicker{
+      margin:0 0 2px;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.15em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    .brand-title{
+      margin:0;
+      font-size:18px;
+      font-weight:800;
+      letter-spacing:.01em;
+    }
+
+    .topnav{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .topnav a{
+      padding:10px 14px;
+      border-radius:999px;
+      font-size:14px;
+      font-weight:700;
+      border:1px solid transparent;
+      transition:.18s ease;
+    }
+
+    .topnav a:hover{
+      background:#fff;
+      border-color:var(--line);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .topnav .nav-cta{
+      color:#fff;
+      background:linear-gradient(135deg,var(--mint),var(--magenta));
+      box-shadow:0 14px 30px rgba(255,79,179,.18);
+    }
+
+    .section-inner{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:30px 20px;
+    }
+
+    .hero{padding:28px 0 10px}
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.08fr .92fr;
+      gap:22px;
+      align-items:stretch;
+    }
+
+    .hero-box,
+    .side-box,
+    .card,
+    .footer-panel{
+      background:var(--panel);
+      border:1px solid rgba(226,232,240,.95);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius-xl);
+    }
+
+    .hero-box{
+      padding:38px;
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.99),rgba(255,255,255,.99)),
+        linear-gradient(135deg,rgba(32,216,178,.12),rgba(255,79,179,.12));
+    }
+
+    .hero-box::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 10% 12%, rgba(32,216,178,.10), transparent 25%),
+        radial-gradient(circle at 88% 16%, rgba(255,79,179,.10), transparent 22%);
+      pointer-events:none;
+    }
+
+    .hero-box>*{position:relative;z-index:1}
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      width:max-content;
+      margin:0 0 16px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid rgba(226,232,240,.95);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+
+    .eyebrow::before{
+      content:"";
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:linear-gradient(135deg,var(--mint),var(--magenta));
+      flex:0 0 auto;
+    }
+
+    h1,h2,h3{margin:0;line-height:1.12;color:var(--text)}
+    h1{
+      font-size:clamp(34px,5vw,58px);
+      letter-spacing:-.035em;
+      max-width:780px;
+    }
+
+    .hero-subtitle{
+      margin:18px 0 0;
+      max-width:860px;
+      font-size:clamp(18px,2vw,24px);
+      font-weight:700;
+    }
+
+    .hero-copy{
+      margin:16px 0 0;
+      max-width:840px;
+      font-size:18px;
+      color:var(--muted);
+    }
+
+    .hero-points{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-top:22px;
+    }
+
+    .hero-point{
+      padding:14px;
+      border-radius:18px;
+      background:#fff;
+      border:1px solid rgba(226,232,240,.95);
+    }
+
+    .hero-point strong{
+      display:block;
+      margin-bottom:4px;
+      font-size:14px;
+    }
+
+    .hero-point span{
+      display:block;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .side-box{
+      padding:24px;
+      display:grid;
+      gap:14px;
+      align-content:start;
+      background:
+        linear-gradient(180deg,#fff,#fff),
+        linear-gradient(135deg,rgba(32,216,178,.10),rgba(255,79,179,.10));
+    }
+
+    .mini-box{
+      padding:18px;
+      border-radius:20px;
+      background:#fff;
+      border:1px solid rgba(226,232,240,.95);
+    }
+
+    .mini-box h3{
+      font-size:17px;
+      margin-bottom:8px;
+    }
+
+    .mini-box p{
+      margin:0;
+      color:var(--muted);
+      font-size:15px;
+    }
+
+    .grid-main{
+      display:grid;
+      grid-template-columns:1.02fr .98fr;
+      gap:22px;
+      align-items:start;
+    }
+
+    .card{
+      position:relative;
+      overflow:hidden;
+      box-shadow:var(--shadow-soft);
+      padding:24px;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:0;
+      width:100%;
+      height:4px;
+      background:linear-gradient(90deg,var(--mint),var(--magenta));
+    }
+
+    .section-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:24px;
+      margin:0 0 20px;
+    }
+
+    .section-head h2{
+      font-size:clamp(26px,3vw,40px);
+      letter-spacing:-.03em;
+    }
+
+    .section-head p{
+      margin:0;
+      max-width:760px;
+      color:var(--muted);
+      font-size:17px;
+    }
+
+    .grid{
+      display:grid;
+      gap:16px;
+    }
+
+    .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .field label{
+      font-size:14px;
+      font-weight:800;
+      color:var(--text);
+    }
+
+    .field input,
+    .field textarea,
+    .field select{
+      width:100%;
+      min-height:52px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+      color:var(--text);
+      padding:14px 16px;
+      outline:none;
+      transition:border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .field textarea{
+      min-height:120px;
+      resize:vertical;
+    }
+
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus{
+      border-color:rgba(32,216,178,.9);
+      box-shadow:0 0 0 4px rgba(32,216,178,.12);
+    }
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      margin-top:18px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      min-height:52px;
+      padding:14px 22px;
+      border-radius:999px;
+      border:1px solid transparent;
+      font-size:15px;
+      font-weight:800;
+      letter-spacing:.01em;
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+      text-align:center;
+      cursor:pointer;
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+
+    .btn-primary{
+      color:#fff;
+      background:linear-gradient(135deg,var(--mint),var(--magenta));
+      box-shadow:0 16px 34px rgba(255,79,179,.18);
+    }
+
+    .btn-secondary{
+      color:var(--text);
+      background:#fff;
+      border-color:var(--line);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .btn-danger{
+      color:var(--danger);
+      background:#fff;
+      border-color:#fecaca;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .message{
+      display:none;
+      margin-top:16px;
+      padding:14px 16px;
+      border-radius:16px;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .message.show{display:block}
+    .message.success{
+      background:var(--ok-soft);
+      color:#166534;
+      border:1px solid #86efac;
+    }
+
+    .message.error{
+      background:var(--danger-soft);
+      color:#991b1b;
+      border:1px solid #fca5a5;
+    }
+
+    .message.warn{
+      background:var(--warn-soft);
+      color:#92400e;
+      border:1px solid #fcd34d;
+    }
+
+    .status-list{
+      display:grid;
+      gap:12px;
+      margin:0;
+      padding:0;
+      list-style:none;
+    }
+
+    .status-item{
+      padding:14px;
+      border-radius:16px;
+      background:var(--bg-soft);
+      border:1px solid rgba(226,232,240,.95);
+    }
+
+    .status-item strong{
+      display:block;
+      font-size:14px;
+      margin-bottom:4px;
+    }
+
+    .status-item span{
+      display:block;
+      font-size:14px;
+      color:var(--muted);
+      word-break:break-word;
+    }
+
+    .helper-list{
+      display:grid;
+      gap:12px;
+      margin-top:8px;
+    }
+
+    .helper-item{
+      padding:14px;
+      border-radius:16px;
+      background:var(--bg-soft);
+      border:1px solid var(--line);
+    }
+
+    .helper-item strong{
+      display:block;
+      margin-bottom:4px;
+      font-size:14px;
+    }
+
+    .helper-item span{
+      display:block;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .records{
+      display:grid;
+      gap:14px;
+    }
+
+    .record{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:16px;
+    }
+
+    .record-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:10px;
+    }
+
+    .record-title{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
+    }
+
+    .record-title strong{
+      font-size:17px;
+      word-break:break-word;
+    }
+
+    .pills{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      padding:7px 10px;
+      border-radius:999px;
+      background:var(--bg-soft);
+      border:1px solid var(--line);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+
+    .record-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px 14px;
+      margin-top:10px;
+    }
+
+    .record-item small{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:2px;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      font-weight:800;
+    }
+
+    .record-item span{
+      display:block;
+      word-break:break-word;
+      font-size:14px;
+    }
+
+    .record-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .record-actions button{
+      min-height:42px;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      cursor:pointer;
+      font-weight:700;
+    }
+
+    .empty{
+      padding:18px;
+      border-radius:18px;
+      background:var(--bg-soft);
+      border:1px dashed var(--line-strong);
+      color:var(--muted);
+      font-size:15px;
+    }
+
+    .table-wrap{
+      width:100%;
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:920px;
+    }
+
+    th,td{
+      border-bottom:1px solid var(--line);
+      padding:12px 12px;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+    }
+
+    th{
+      background:var(--bg-soft);
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      color:var(--muted);
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    .footer{
+      margin-top:auto;
+      padding:0 0 34px;
+    }
+
+    .footer-inner{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:0 20px;
+    }
+
+    .footer-panel{
+      padding:22px 24px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+      flex-wrap:wrap;
+    }
+
+    .footer-links{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .footer-links a{
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .footer-note{
+      margin:0;
+      max-width:760px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    @media (max-width:1120px){
+      .hero-grid,
+      .grid-main{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:900px){
+      .topbar-inner{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .topnav{
+        width:100%;
+        justify-content:flex-start;
+      }
+      .section-inner{
+        padding:24px 16px;
+      }
+      .hero-box,.side-box,.card,.footer-panel{
+        padding:22px;
+        border-radius:22px;
+      }
+      .section-head{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .hero-points,.grid-2,.grid-3,.record-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:620px){
+      h1{font-size:34px}
+      .hero-subtitle{font-size:18px}
+      .hero-copy{font-size:16px}
+      .btn{width:100%}
+      .actions,.record-actions,.footer-links{width:100%}
+      .footer-links a{flex:1 1 100%;text-align:center}
+      .record-head{flex-direction:column;align-items:flex-start}
+    }
+
+    @media print{
+      .topbar,
+      .actions,
+      .record-actions,
+      .footer-links{
+        display:none !important;
+      }
+      body{background:#fff}
+      .hero-box,.side-box,.card,.footer-panel{
+        box-shadow:none;
+        border:1px solid #d1d5db;
+      }
+      .section-inner,.footer-inner{
+        max-width:none;
+        padding:12px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="../index.html" aria-label="Zur Kurszentrale">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48">
+              <rect x="6" y="8" width="36" height="32" rx="10"></rect>
+              <path d="M15 18h18M15 24h11M15 30h18"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="brand-kicker">LiquidityBooster Kurs</p>
+            <p class="brand-title">Krypto-Steuer-Ordnung</p>
+          </div>
+        </a>
+
+        <nav class="topnav" aria-label="Seitennavigation">
+          <a href="../index.html">Kurszentrale</a>
+          <a href="../export/pdf-druck.html">Zurück zu PDF Druck</a>
+          <a class="nav-cta" href="../hilfe.html">Nächster Schritt</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="section-inner">
+          <div class="hero-grid">
+            <div class="hero-box">
+              <p class="eyebrow">Archiv</p>
+              <h1>Jahresarchiv</h1>
+              <p class="hero-subtitle">Hier legst du beliebig viele Jahresstände als Archivblöcke an, sicherst sie im Browser und kannst sie später wiederherstellen.</p>
+              <p class="hero-copy">So bleibt sauber getrennt, was zu welchem Jahr oder Zeitraum gehört. Ein Archivblock kann mehrere Datenbereiche zusammenfassen und als eingefrorener Stand abgelegt werden.</p>
+
+              <div class="hero-points">
+                <div class="hero-point">
+                  <strong>Mehrere Archivjahre</strong>
+                  <span>Viele Jahresstände oder Zwischenstände nebeneinander speichern.</span>
+                </div>
+                <div class="hero-point">
+                  <strong>Gezielte Wiederherstellung</strong>
+                  <span>Ein archivierter Stand kann später bewusst zurück in die Arbeitsdaten gespielt werden.</span>
+                </div>
+                <div class="hero-point">
+                  <strong>Klare Trennung</strong>
+                  <span>Aktive Arbeit und archivierte Jahresstände bleiben voneinander unterscheidbar.</span>
+                </div>
+              </div>
+            </div>
+
+            <aside class="side-box">
+              <div class="mini-box">
+                <h3>Was diese Seite macht</h3>
+                <p>Sie friert ausgewählte Datenbereiche als Jahresstand oder Zwischenstand ein und speichert sie im Archiv.</p>
+              </div>
+              <div class="mini-box">
+                <h3>Wichtige Logik</h3>
+                <p>Archiv ist nicht dasselbe wie CSV. CSV ist Transport. Archiv ist der gespeicherte Arbeitsstand im System.</p>
+              </div>
+              <div class="mini-box">
+                <h3>Wie es weitergeht</h3>
+                <p>Nach dem Archiv bauen wir die Hilfe-Seite als zentrale Bedienungs- und Überblicksseite.</p>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-inner">
+          <div class="section-head">
+            <div>
+              <h2>Archivblock anlegen</h2>
+            </div>
+            <p>Wähle die gewünschten Datenbereiche aus, vergebe Jahr und Bezeichnung und speichere daraus einen neuen Archivstand.</p>
+          </div>
+
+          <div class="grid-main">
+            <div class="card">
+              <div class="grid grid-2">
+                <div class="field">
+                  <label for="archivJahr">Jahr / Zeitraum</label>
+                  <input id="archivJahr" type="text" placeholder="z. B. 2024 oder 2021–2024" />
+                </div>
+                <div class="field">
+                  <label for="archivTitel">Bezeichnung</label>
+                  <input id="archivTitel" type="text" placeholder="z. B. Jahresstand 2024, Altjahre Abschluss, Zwischenstand März" />
+                </div>
+              </div>
+
+              <div class="grid grid-2" style="margin-top:16px">
+                <div class="field">
+                  <label for="archivTyp">Archiv-Typ</label>
+                  <select id="archivTyp">
+                    <option value="">Bitte auswählen</option>
+                    <option value="Jahresarchiv">Jahresarchiv</option>
+                    <option value="Zwischenstand">Zwischenstand</option>
+                    <option value="Abschlussstand">Abschlussstand</option>
+                    <option value="Prüfstand">Prüfstand</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="archivTag">Archiviert am</label>
+                  <input id="archivTag" type="date" />
+                </div>
+              </div>
+
+              <div class="field" style="margin-top:16px">
+                <label for="archivKommentar">Kommentar</label>
+                <textarea id="archivKommentar" placeholder="Was ist in diesem Jahresstand enthalten? Wofür wurde er angelegt?"></textarea>
+              </div>
+
+              <div class="field" style="margin-top:16px">
+                <label for="bereichAuswahl">Datenbereiche</label>
+                <select id="bereichAuswahl" multiple size="14" style="min-height:320px">
+                  <option value="kso_module_06_wertermittlung_multi_v1">Modul 06 – Wertermittlung</option>
+                  <option value="kso_module_07_problemfaelle_multi_v1">Modul 07 – Problemfälle</option>
+                  <option value="kso_module_08_fragen_steuerberater_multi_v1">Modul 08 – Fragen Steuerberater</option>
+                  <option value="kso_form_fiat_zu_krypto_v1">Formular – Fiat zu Krypto</option>
+                  <option value="kso_form_krypto_zu_fiat_v1">Formular – Krypto zu Fiat</option>
+                  <option value="kso_form_krypto_zu_krypto_v2">Formular – Krypto zu Krypto</option>
+                  <option value="kso_form_eigenuebertrag_v2">Formular – Eigenübertrag</option>
+                  <option value="kso_form_reward_bonus_ertrag_v2">Formular – Reward / Bonus / Ertrag</option>
+                  <option value="kso_form_pool_staking_sperrmodell_v1">Formular – Pool / Staking / Sperrmodell</option>
+                  <option value="kso_form_ruecktausch_in_coin_v1">Formular – Rücktausch in Coin</option>
+                  <option value="kso_form_token_nutzung_v1">Formular – Token-Nutzung</option>
+                  <option value="kso_form_sonderfall_unklar_v1">Formular – Sonderfall unklar</option>
+                </select>
+              </div>
+
+              <div class="actions">
+                <button class="btn btn-secondary" type="button" id="selectAllBtn">Alle auswählen</button>
+                <button class="btn btn-secondary" type="button" id="clearSelectionBtn">Auswahl leeren</button>
+                <button class="btn btn-primary" type="button" id="saveArchiveBtn">Archivstand speichern</button>
+                <button class="btn btn-danger" type="button" id="clearArchiveBtn">Gesamtes Archiv löschen</button>
+              </div>
+
+              <div id="messageBox" class="message" aria-live="polite"></div>
+            </div>
+
+            <div class="grid">
+              <div class="card">
+                <h3 style="margin-bottom:12px">Status</h3>
+                <ul class="status-list">
+                  <li class="status-item">
+                    <strong>Archivblöcke gesamt</strong>
+                    <span id="statusArchives">0</span>
+                  </li>
+                  <li class="status-item">
+                    <strong>Ausgewählte Datenbereiche</strong>
+                    <span id="statusSelected">0</span>
+                  </li>
+                  <li class="status-item">
+                    <strong>Gefundene Datensätze in Auswahl</strong>
+                    <span id="statusRecords">0</span>
+                  </li>
+                  <li class="status-item">
+                    <strong>Letzte Archivierung</strong>
+                    <span id="statusLast">Noch keine Archivierung</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="card">
+                <h3 style="margin-bottom:12px">Wofür das Jahresarchiv da ist</h3>
+                <div class="helper-list">
+                  <div class="helper-item">
+                    <strong>Jahresstände trennen</strong>
+                    <span>Damit ein Jahr oder ein Zeitraum nicht mit dem nächsten vermischt wird.</span>
+                  </div>
+                  <div class="helper-item">
+                    <strong>Zwischenstände sichern</strong>
+                    <span>Vor großen Änderungen oder vor einem Import kann ein sauberer Archivstand abgelegt werden.</span>
+                  </div>
+                  <div class="helper-item">
+                    <strong>Wiederherstellen</strong>
+                    <span>Ein gespeicherter Stand kann später bewusst zurück in die Arbeitsdaten übernommen werden.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <h3 style="margin-bottom:12px">Wichtige Hinweise</h3>
+                <div class="helper-list">
+                  <div class="helper-item">
+                    <strong>Archiv ersetzt keine CSV</strong>
+                    <span>Für Gerätewechsel bleibt CSV sinnvoll. Archiv ist der interne Jahresstand.</span>
+                  </div>
+                  <div class="helper-item">
+                    <strong>Wiederherstellen mit Absicht</strong>
+                    <span>Ein Archivstand überschreibt beim Zurückspielen genau die Bereiche, die in ihm gespeichert wurden.</span>
+                  </div>
+                  <div class="helper-item">
+                    <strong>Sauber beschriften</strong>
+                    <span>Jahr, Typ und Bezeichnung sollten so klar sein, dass du den Stand später sofort erkennst.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-inner">
+          <div class="section-head">
+            <div>
+              <h2>Archivübersicht</h2>
+            </div>
+            <p>Hier siehst du alle gespeicherten Archivblöcke, kannst sie prüfen, löschen oder einen Stand wiederherstellen.</p>
+          </div>
+
+          <div class="card">
+            <div class="field" style="margin-bottom:16px">
+              <label for="searchInput">Suche</label>
+              <input id="searchInput" type="text" placeholder="Nach Jahr, Bezeichnung, Typ oder Kommentar suchen" />
+            </div>
+            <div id="records" class="records"></div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-inner">
+          <div class="section-head">
+            <div>
+              <h2>Vorschau der aktuellen Auswahl</h2>
+            </div>
+            <p>Hier siehst du, welche Datenbereiche und wie viele Datensätze aktuell in den neuen Archivstand einfließen würden.</p>
+          </div>
+
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Datenbereich</th>
+                    <th>Datensätze</th>
+                    <th>Erster Titel / Hinweis</th>
+                    <th>Letzte Änderung</th>
+                  </tr>
+                </thead>
+                <tbody id="previewBody">
+                  <tr>
+                    <td colspan="4">Noch keine Auswahl.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-panel">
+          <div class="footer-links">
+            <a href="../export/pdf-druck.html">Zurück zu PDF Druck</a>
+            <a href="../hilfe.html">Weiter zu Hilfe</a>
+            <a href="../index.html">Zur Kurszentrale</a>
+          </div>
+          <p class="footer-note">Diese Seite speichert ausgewählte Kursdaten als archivierte Jahres- oder Zwischenstände und kann sie später wiederherstellen.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    (function(){
+      const ARCHIVE_KEY = 'kso_archiv_jahresarchiv_v1';
+      const PAGE_KEY = 'kso_archiv_jahresarchiv_page_v1';
+
+      const archivJahr = document.getElementById('archivJahr');
+      const archivTitel = document.getElementById('archivTitel');
+      const archivTyp = document.getElementById('archivTyp');
+      const archivTag = document.getElementById('archivTag');
+      const archivKommentar = document.getElementById('archivKommentar');
+      const bereichAuswahl = document.getElementById('bereichAuswahl');
+      const searchInput = document.getElementById('searchInput');
+
+      const selectAllBtn = document.getElementById('selectAllBtn');
+      const clearSelectionBtn = document.getElementById('clearSelectionBtn');
+      const saveArchiveBtn = document.getElementById('saveArchiveBtn');
+      const clearArchiveBtn = document.getElementById('clearArchiveBtn');
+
+      const messageBox = document.getElementById('messageBox');
+      const records = document.getElementById('records');
+      const previewBody = document.getElementById('previewBody');
+
+      const statusArchives = document.getElementById('statusArchives');
+      const statusSelected = document.getElementById('statusSelected');
+      const statusRecords = document.getElementById('statusRecords');
+      const statusLast = document.getElementById('statusLast');
+
+      function showMessage(text, type){
+        messageBox.textContent = text;
+        messageBox.className = 'message show ' + type;
+      }
+
+      function formatDate(value){
+        if(!value) return '—';
+        const d = new Date(value);
+        if(Number.isNaN(d.getTime())) return '—';
+        return d.toLocaleString('de-DE');
+      }
+
+      function getSelectedKeys(){
+        return Array.from(bereichAuswahl.selectedOptions).map(option => option.value);
+      }
+
+      function getAreaLabel(key){
+        const option = Array.from(bereichAuswahl.options).find(opt => opt.value === key);
+        return option ? option.textContent : key;
+      }
+
+      function getFirstTitle(item){
+        if(!item || typeof item !== 'object') return 'Datensatz';
+        return item.blockTitel || item.fallTitel || item.titel || item.kommentarKurz || item.kommentar || 'Datensatz';
+      }
+
+      function loadArchive(){
+        try{
+          const raw = localStorage.getItem(ARCHIVE_KEY);
+          const parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed) ? parsed : [];
+        }catch(error){
+          return [];
+        }
+      }
+
+      function saveArchive(data){
+        localStorage.setItem(ARCHIVE_KEY, JSON.stringify(data));
+      }
+
+      function loadPageState(){
+        try{
+          const raw = localStorage.getItem(PAGE_KEY);
+          const parsed = raw ? JSON.parse(raw) : {};
+          if(parsed && typeof parsed === 'object'){
+            archivJahr.value = parsed.archivJahr || '';
+            archivTitel.value = parsed.archivTitel || '';
+            archivTyp.value = parsed.archivTyp || '';
+            archivTag.value = parsed.archivTag || new Date().toISOString().slice(0,10);
+            archivKommentar.value = parsed.archivKommentar || '';
+            statusLast.textContent = parsed.lastArchive || 'Noch keine Archivierung';
+            return;
+          }
+        }catch(error){}
+        archivTag.value = new Date().toISOString().slice(0,10);
+      }
+
+      function savePageState(){
+        const state = {
+          archivJahr: archivJahr.value.trim(),
+          archivTitel: archivTitel.value.trim(),
+          archivTyp: archivTyp.value,
+          archivTag: archivTag.value,
+          archivKommentar: archivKommentar.value.trim(),
+          lastArchive: statusLast.textContent
+        };
+        localStorage.setItem(PAGE_KEY, JSON.stringify(state));
+      }
+
+      function updatePreview(){
+        const keys = getSelectedKeys();
+        statusSelected.textContent = String(keys.length);
+
+        let totalRecords = 0;
+        if(!keys.length){
+          previewBody.innerHTML = '<tr><td colspan="4">Noch keine Auswahl.</td></tr>';
+          statusRecords.textContent = '0';
+          return;
+        }
+
+        previewBody.innerHTML = keys.map(key => {
+          let data = [];
+          try{
+            const raw = localStorage.getItem(key);
+            const parsed = raw ? JSON.parse(raw) : [];
+            data = Array.isArray(parsed) ? parsed : [];
+          }catch(error){
+            data = [];
+          }
+
+          totalRecords += data.length;
+          const first = data.length ? getFirstTitle(data[0]) : 'Keine Datensätze';
+          const updated = data.length ? formatDate(data[0].updatedAt) : '—';
+
+          return `
+            <tr>
+              <td>${getAreaLabel(key)}</td>
+              <td>${data.length}</td>
+              <td>${first}</td>
+              <td>${updated}</td>
+            </tr>
+          `;
+        }).join('');
+
+        statusRecords.textContent = String(totalRecords);
+      }
+
+      function buildSnapshot(keys){
+        const areas = keys.map(key => {
+          let data = [];
+          try{
+            const raw = localStorage.getItem(key);
+            const parsed = raw ? JSON.parse(raw) : [];
+            data = Array.isArray(parsed) ? parsed : [];
+          }catch(error){
+            data = [];
+          }
+
+          return {
+            key,
+            label: getAreaLabel(key),
+            records: data
+          };
+        });
+
+        return areas;
+      }
+
+      function saveNewArchive(){
+        const keys = getSelectedKeys();
+        if(!archivJahr.value.trim()){
+          showMessage('Bitte trage ein Jahr oder einen Zeitraum ein.', 'error');
+          archivJahr.focus();
+          return;
+        }
+        if(!archivTitel.value.trim()){
+          showMessage('Bitte trage eine Bezeichnung für den Archivstand ein.', 'error');
+          archivTitel.focus();
+          return;
+        }
+        if(!archivTyp.value.trim()){
+          showMessage('Bitte wähle einen Archiv-Typ aus.', 'error');
+          archivTyp.focus();
+          return;
+        }
+        if(!keys.length){
+          showMessage('Bitte wähle mindestens einen Datenbereich für den Archivstand aus.', 'error');
+          return;
+        }
+
+        const snapshot = buildSnapshot(keys);
+        const archiveItem = {
+          id: 'archiv_' + Date.now(),
+          jahr: archivJahr.value.trim(),
+          titel: archivTitel.value.trim(),
+          typ: archivTyp.value.trim(),
+          archiviertAm: archivTag.value || new Date().toISOString().slice(0,10),
+          kommentar: archivKommentar.value.trim(),
+          bereiche: snapshot,
+          updatedAt: new Date().toISOString()
+        };
+
+        const archive = loadArchive();
+        archive.unshift(archiveItem);
+        saveArchive(archive);
+        statusLast.textContent = new Date().toLocaleString('de-DE');
+        savePageState();
+        renderArchive();
+        showMessage('Archivstand wurde gespeichert.', 'success');
+      }
+
+      function restoreArchive(id){
+        const archive = loadArchive();
+        const item = archive.find(entry => entry.id === id);
+        if(!item){
+          showMessage('Der Archivstand wurde nicht gefunden.', 'error');
+          return;
+        }
+
+        (item.bereiche || []).forEach(area => {
+          localStorage.setItem(area.key, JSON.stringify(Array.isArray(area.records) ? area.records : []));
+        });
+
+        updatePreview();
+        showMessage('Archivstand wurde in die zugehörigen Datenbereiche zurückgespielt.', 'success');
+      }
+
+      function deleteArchive(id){
+        const archive = loadArchive().filter(entry => entry.id !== id);
+        saveArchive(archive);
+        renderArchive();
+        showMessage('Archivstand wurde gelöscht.', 'success');
+      }
+
+      function clearArchive(){
+        const archive = loadArchive();
+        if(!archive.length){
+          showMessage('Das Archiv ist bereits leer.', 'error');
+          return;
+        }
+        localStorage.removeItem(ARCHIVE_KEY);
+        renderArchive();
+        showMessage('Das gesamte Archiv wurde gelöscht.', 'success');
+      }
+
+      function infoRow(label, value){
+        const safe = value && String(value).trim() ? String(value).trim() : '—';
+        return `
+          <div class="record-item">
+            <small>${label}</small>
+            <span>${safe}</span>
+          </div>
+        `;
+      }
+
+      function renderArchive(){
+        const archive = loadArchive();
+        statusArchives.textContent = String(archive.length);
+
+        const q = searchInput.value.trim().toLowerCase();
+        const filtered = archive.filter(item => {
+          const areaText = (item.bereiche || []).map(area => [
+            area.label,
+            area.key,
+            Array.isArray(area.records) ? area.records.length : 0
+          ].join(' ')).join(' ');
+
+          return [
+            item.jahr,
+            item.titel,
+            item.typ,
+            item.kommentar,
+            areaText
+          ].join(' ').toLowerCase().includes(q);
+        });
+
+        if(!filtered.length){
+          records.innerHTML = '<div class="empty">Noch keine passenden Archivstände vorhanden.</div>';
+          return;
+        }
+
+        records.innerHTML = filtered.map(item => {
+          const totalRecords = (item.bereiche || []).reduce((sum, area) => sum + (Array.isArray(area.records) ? area.records.length : 0), 0);
+          const areaTags = (item.bereiche || []).map(area => `<span class="pill">${area.label}</span>`).join('');
+
+          return `
+            <article class="record">
+              <div class="record-head">
+                <div class="record-title">
+                  <strong>${item.titel || 'Unbenannter Archivstand'}</strong>
+                  <div class="pills">
+                    ${item.typ ? `<span class="pill">${item.typ}</span>` : ''}
+                    ${item.jahr ? `<span class="pill">${item.jahr}</span>` : ''}
+                    <span class="pill">${(item.bereiche || []).length} Bereiche</span>
+                    <span class="pill">${totalRecords} Datensätze</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="record-grid">
+                ${infoRow('Jahr / Zeitraum', item.jahr)}
+                ${infoRow('Archiviert am', item.archiviertAm)}
+                ${infoRow('Kommentar', item.kommentar)}
+                ${infoRow('Letzte Änderung', formatDate(item.updatedAt))}
+              </div>
+
+              <div class="pills" style="margin-top:12px">
+                ${areaTags || '<span class="pill">Keine Bereiche</span>'}
+              </div>
+
+              <div class="record-actions">
+                <button type="button" data-action="restore" data-id="${item.id}">Archivstand wiederherstellen</button>
+                <button type="button" data-action="delete" data-id="${item.id}">Löschen</button>
+              </div>
+            </article>
+          `;
+        }).join('');
+      }
+
+      selectAllBtn.addEventListener('click', function(){
+        Array.from(bereichAuswahl.options).forEach(option => option.selected = true);
+        updatePreview();
+      });
+
+      clearSelectionBtn.addEventListener('click', function(){
+        Array.from(bereichAuswahl.options).forEach(option => option.selected = false);
+        updatePreview();
+      });
+
+      saveArchiveBtn.addEventListener('click', saveNewArchive);
+      clearArchiveBtn.addEventListener('click', clearArchive);
+
+      bereichAuswahl.addEventListener('change', updatePreview);
+      searchInput.addEventListener('input', renderArchive);
+
+      [archivJahr, archivTitel, archivTyp, archivTag, archivKommentar].forEach(el => {
+        el.addEventListener('input', savePageState);
+        el.addEventListener('change', savePageState);
+      });
+
+      records.addEventListener('click', function(event){
+        const button = event.target.closest('button[data-action]');
+        if(!button) return;
+        const action = button.getAttribute('data-action');
+        const id = button.getAttribute('data-id');
+
+        if(action === 'restore') restoreArchive(id);
+        if(action === 'delete') deleteArchive(id);
+      });
+
+      loadPageState();
+      updatePreview();
+      renderArchive();
+    })();
+  </script>
+</body>
+</html>
