@@ -930,8 +930,18 @@
     │   │   ├── modul-3-risiken-szenarien.html
     │   │   └── modul-4-empfehlungen-grenzen.html
     │   ├── krypto-steuer-ordnung/
+    │   │   ├── archiv/
+    │   │   │   └── jahresarchiv.html
+    │   │   ├── explorer/
+    │   │   │   ├── blockchain.html
+    │   │   │   ├── bnb-bscscan.html
+    │   │   │   ├── ethereum-etherscan.html
+    │   │   │   ├── explorer-grundlagen.html
+    │   │   │   ├── solana-solscan.html
+    │   │   │   └── wallet-adresse.html
     │   │   ├── export/
-    │   │   │   └── csv-import-export.html
+    │   │   │   ├── csv-import-export.html
+    │   │   │   └── pdf-druck.html
     │   │   ├── forms/
     │   │   │   ├── form-eigenuebertrag.html
     │   │   │   ├── form-fiat-zu-krypto.html
@@ -952,7 +962,7 @@
     │   │   │   ├── 06-wertermittlung.html
     │   │   │   ├── 07-problemfaelle.html
     │   │   │   └── 08-fragen-steuerberater.html
-    │   │   ├── dashboard.html
+    │   │   ├── hilfe.html
     │   │   └── index.html
     │   ├── liquiditybooster/
     │   │   ├── krypto-setup-intro-en.html
@@ -1375,4 +1385,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.04.2026, 18:56)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.04.2026, 20:01)_
