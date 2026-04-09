@@ -936,7 +936,10 @@
     │   │   │   ├── form-krypto-zu-fiat.html
     │   │   │   ├── form-krypto-zu-krypto.html
     │   │   │   ├── form-pool-staking-sperrmodell.html
-    │   │   │   └── form-reward-bonus-ertrag.html
+    │   │   │   ├── form-reward-bonus-ertrag.html
+    │   │   │   ├── form-ruecktausch-in-coin.html
+    │   │   │   ├── form-sonderfall-unklar.html
+    │   │   │   └── form-token-nutzung.html
     │   │   ├── module/
     │   │   │   ├── 01-einstieg.html
     │   │   │   ├── 01-fallstart-stammdaten.html
@@ -1367,4 +1370,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.04.2026, 10:07)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.04.2026, 11:50)_
