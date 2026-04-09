@@ -1,18 +1,16 @@
 <!doctype html>
 <!--
   GitHub-Pfad: lp-anfang/pages/krypto-steuer-ordnung/forms/form-eigenuebertrag.html
-  Commit-Message: krypto steuer ordnung formular eigenuebertrag mit localstorage liste bearbeiten und loeschen aufgebaut
-  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/krypto-steuer-ordnung/forms/form-eigenuebertrag.html?nocache=1775687400
-
-  Nächster Schritt:
-  lp-anfang/pages/krypto-steuer-ordnung/forms/form-reward-bonus-ertrag.html
+  Commit-Message: krypto steuer ordnung formular eigenuebertrag final mit mehrfach erfassung und sauberer verdrahtung neu aufgebaut
+  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/krypto-steuer-ordnung/forms/form-eigenuebertrag.html?nocache=1775696400
+  Nächster Schritt: lp-anfang/pages/krypto-steuer-ordnung/forms/form-fiat-zu-krypto.html
 -->
 <html lang="de">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Eigenübertrag – Krypto-Steuer-Ordnung</title>
-  <meta name="description" content="Eigenüberträge zwischen eigenen Wallets oder Plattformen strukturiert erfassen, speichern, bearbeiten und löschen." />
+  <meta name="description" content="Mehrere Eigenüberträge zwischen eigenen Wallets, Börsen und Plattformen pro Datensatz erfassen, speichern, bearbeiten und löschen." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -31,6 +29,8 @@
       --danger-soft:#fee2e2;
       --ok:#16a34a;
       --ok-soft:#dcfce7;
+      --warn:#f59e0b;
+      --warn-soft:#fef3c7;
       --shadow:0 18px 44px rgba(15,23,42,.08);
       --shadow-soft:0 10px 26px rgba(15,23,42,.05);
       --radius-xl:30px;
@@ -54,6 +54,7 @@
 
     a{color:inherit;text-decoration:none}
     button,input,textarea,select{font:inherit}
+
     .shell{min-height:100vh;display:flex;flex-direction:column}
 
     .topbar{
@@ -154,9 +155,7 @@
       padding:30px 20px;
     }
 
-    .hero{
-      padding:28px 0 10px;
-    }
+    .hero{padding:28px 0 10px}
 
     .hero-grid{
       display:grid;
@@ -413,6 +412,46 @@
       margin-top:-2px;
     }
 
+    .transfer-blocks{
+      display:grid;
+      gap:14px;
+    }
+
+    .transfer-block{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:var(--bg-soft);
+      padding:16px;
+    }
+
+    .transfer-block-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .transfer-block-head strong{
+      font-size:15px;
+    }
+
+    .transfer-block-remove{
+      min-height:38px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid #fecaca;
+      background:#fff;
+      color:var(--danger);
+      font-size:13px;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .transfer-block-remove:hover{
+      background:#fff5f5;
+    }
+
     .actions{
       display:flex;
       flex-wrap:wrap;
@@ -478,10 +517,17 @@
       color:#166534;
       border:1px solid #86efac;
     }
+
     .message.error{
       background:var(--danger-soft);
       color:#991b1b;
       border:1px solid #fca5a5;
+    }
+
+    .message.warn{
+      background:var(--warn-soft);
+      color:#92400e;
+      border:1px solid #fcd34d;
     }
 
     .list-toolbar{
@@ -578,6 +624,27 @@
       display:block;
       word-break:break-word;
       font-size:14px;
+    }
+
+    .entry-list{
+      display:grid;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .entry-box{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--bg-soft);
+      padding:12px 14px;
+    }
+
+    .entry-box-head{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:8px;
     }
 
     .record-actions{
@@ -691,10 +758,8 @@
 
     @media (max-width:1120px){
       .hero-grid,
-      .form-layout,
-      .grid-3,
-      .grid-2{
-        grid-template-columns:repeat(2,minmax(0,1fr));
+      .form-layout{
+        grid-template-columns:1fr;
       }
     }
 
@@ -757,8 +822,10 @@
         text-align:center;
       }
 
-      .record-head{
+      .record-head,
+      .transfer-block-head{
         flex-direction:column;
+        align-items:flex-start;
       }
     }
 
@@ -811,7 +878,7 @@
         <nav class="topnav" aria-label="Seitennavigation">
           <a href="../index.html">Kurszentrale</a>
           <a href="../module/05-transaktionen.html">Zurück zu Transaktionen</a>
-          <a class="nav-cta" href="./form-eigenuebertrag.html">Nächster Schritt</a>
+          <a class="nav-cta" href="./form-reward-bonus-ertrag.html">Nächster Schritt</a>
         </nav>
       </div>
     </header>
@@ -821,23 +888,23 @@
         <div class="section-inner">
           <div class="hero-grid">
             <div class="hero-box">
-              <p class="eyebrow">Formular 03</p>
-              <h1>Krypto zu Krypto</h1>
-              <p class="hero-subtitle">Dieses Formular ist für Tauschvorgänge gedacht, bei denen ein Coin oder Token gegen einen anderen Coin oder Token gewechselt wurde.</p>
-              <p class="hero-copy">Hier erfasst du den Tauschzeitpunkt, den abgegebenen Coin oder Token, die Menge, den erhaltenen Coin oder Token, die Menge, die Quelle und deine zusätzlichen Hinweise sauber und getrennt von anderen Vorgangsarten.</p>
+              <p class="eyebrow">Formular 04</p>
+              <h1>Eigenübertrag</h1>
+              <p class="hero-subtitle">Dieses Formular ist für Überträge zwischen deinen eigenen Wallets, Börsen und Plattformen gedacht. Ein Datensatz kann mehrere einzelne Eigenübertrags-Zeilen enthalten.</p>
+              <p class="hero-copy">Damit kannst du zusammengehörige Transfers gesammelt unter einem Zusammenhang erfassen. So werden eigene Verschiebungen sauber getrennt von Kauf, Verkauf und Tausch behandelt.</p>
 
               <div class="hero-points">
                 <div class="hero-point">
-                  <strong>Krypto abgegeben</strong>
-                  <span>Welcher Coin oder Token wurde getauscht?</span>
+                  <strong>Mehrfach erfassen</strong>
+                  <span>Mehrere Eigenüberträge pro Datensatz anlegen.</span>
                 </div>
                 <div class="hero-point">
-                  <strong>Krypto erhalten</strong>
-                  <span>Welcher Coin oder Token wurde dafür erhalten?</span>
+                  <strong>Quelle und Ziel</strong>
+                  <span>Von eigener Wallet / Börse zu eigener Wallet / Börse notieren.</span>
                 </div>
                 <div class="hero-point">
-                  <strong>Quelle notieren</strong>
-                  <span>DEX, Börse, Wallet oder Plattform erfassen.</span>
+                  <strong>Sauber abgrenzen</strong>
+                  <span>Keine Verkäufe und keine Swaps mit Eigenüberträgen vermischen.</span>
                 </div>
               </div>
             </div>
@@ -845,15 +912,15 @@
             <aside class="side-box" aria-label="Kurzübersicht">
               <div class="mini-box">
                 <h3>Wofür dieses Formular da ist</h3>
-                <p>Es ist für direkte Tauschvorgänge gedacht, bei denen Krypto gegen andere Krypto gewechselt wurde.</p>
+                <p>Es ist für reine Überträge zwischen deinen eigenen Wallets, Börsen oder Plattformen gedacht.</p>
               </div>
               <div class="mini-box">
-                <h3>Nicht dafür gedacht</h3>
-                <p>Käufe aus Fiat, Verkäufe in Fiat, Eigenüberträge oder Rewards gehören in andere Formulare.</p>
+                <h3>Wichtige Logik</h3>
+                <p>Ein Eigenübertrag ist kein Kauf, kein Verkauf und kein Tausch. Deshalb wird er in einem eigenen Formular getrennt erfasst.</p>
               </div>
               <div class="mini-box">
                 <h3>Wie es weitergeht</h3>
-                <p>Nach diesem Formular kommt als nächster Baustein das Formular für Eigenüberträge.</p>
+                <p>Nach diesem Formular kommt als nächster Baustein das Formular für Reward, Bonus und Ertrag.</p>
               </div>
             </aside>
           </div>
@@ -864,80 +931,55 @@
         <div class="section-inner">
           <div class="section-head">
             <div>
-              <h2>Vorgang erfassen</h2>
+              <h2>Transferblock erfassen</h2>
             </div>
-            <p>Jeder Tausch aus Krypto in Krypto wird als eigener Datensatz gespeichert und kann später bearbeitet oder gelöscht werden.</p>
+            <p>Lege hier einen Zusammenhang an und erfasse darunter so viele einzelne Eigenübertrags-Zeilen, wie in diesem Fall nötig sind.</p>
           </div>
 
           <div class="form-layout">
             <div class="form-card">
-              <form id="cryptoToCryptoForm" novalidate>
+              <form id="transferForm" novalidate>
                 <div class="grid grid-2">
                   <div class="field">
-                    <label for="datum">Datum</label>
-                    <input id="datum" name="datum" type="date" required />
+                    <label for="titel">Bezeichnung / Zusammenhang</label>
+                    <input id="titel" name="titel" type="text" placeholder="z. B. Wallet-Umzug März, Übertrag von Börse zu Ledger" required />
                   </div>
 
                   <div class="field">
-                    <label for="uhrzeit">Uhrzeit</label>
-                    <input id="uhrzeit" name="uhrzeit" type="time" />
-                  </div>
-
-                  <div class="field">
-                    <label for="assetVon">Abgegebener Coin / Token</label>
-                    <input id="assetVon" name="assetVon" type="text" placeholder="z. B. ETH, BTC, SOL" required />
-                  </div>
-
-                  <div class="field">
-                    <label for="mengeVon">Abgegebene Menge</label>
-                    <input id="mengeVon" name="mengeVon" type="number" step="0.00000001" min="0" placeholder="z. B. 0.5" required />
-                  </div>
-
-                  <div class="field">
-                    <label for="assetZu">Erhaltener Coin / Token</label>
-                    <input id="assetZu" name="assetZu" type="text" placeholder="z. B. USDT, BNB, ETH" required />
-                  </div>
-
-                  <div class="field">
-                    <label for="mengeZu">Erhaltene Menge</label>
-                    <input id="mengeZu" name="mengeZu" type="number" step="0.00000001" min="0" placeholder="z. B. 1200" required />
-                  </div>
-
-                  <div class="field">
-                    <label for="plattform">Plattform / Quelle</label>
-                    <input id="plattform" name="plattform" type="text" placeholder="z. B. Uniswap, PancakeSwap, Binance" />
-                  </div>
-
-                  <div class="field">
-                    <label for="chain">Chain</label>
-                    <input id="chain" name="chain" type="text" placeholder="z. B. Ethereum, BNB Chain, Polygon" />
-                  </div>
-
-                  <div class="field">
-                    <label for="walletHinweis">Wallet / Adress-Hinweis</label>
-                    <input id="walletHinweis" name="walletHinweis" type="text" placeholder="Wallet-Adresse oder Hinweis" />
-                  </div>
-
-                  <div class="field">
-                    <label for="gebuehren">Gebühren</label>
-                    <input id="gebuehren" name="gebuehren" type="number" step="0.00000001" min="0" placeholder="z. B. 8.50" />
+                    <label for="kommentarKurz">Kurz-Kommentar</label>
+                    <input id="kommentarKurz" name="kommentarKurz" type="text" placeholder="kurzer Hinweis zum Zusammenhang" />
                   </div>
                 </div>
 
                 <div class="grid" style="margin-top:16px">
                   <div class="field">
                     <label for="kommentar">Kommentar</label>
-                    <textarea id="kommentar" name="kommentar" placeholder="Hier kannst du den Tausch, die Datenlage oder besondere Hinweise notieren."></textarea>
-                    <div class="hint">Gerade bei Swaps, Zwischenschritten oder unklaren Kursen lohnt sich ein kurzer Hinweis.</div>
+                    <textarea id="kommentar" name="kommentar" placeholder="Hier kannst du den Zusammenhang, die Datenlage oder Besonderheiten notieren."></textarea>
+                    <div class="hint">Nutze diesen Bereich für Hinweise, falls mehrere Transfers zusammengehören oder Daten noch ergänzt werden müssen.</div>
+                  </div>
+                </div>
+
+                <div style="margin-top:22px">
+                  <div class="section-head" style="margin-bottom:14px">
+                    <div>
+                      <h2 style="font-size:24px">Einzelne Eigenübertrags-Zeilen</h2>
+                    </div>
+                    <p style="font-size:14px;max-width:520px">Füge so viele unterschiedliche Transfer-Zeilen hinzu, wie in diesem Zusammenhang vorkommen.</p>
+                  </div>
+
+                  <div id="transferBlocks" class="transfer-blocks"></div>
+
+                  <div class="actions" style="margin-top:14px">
+                    <button class="btn btn-secondary" type="button" id="addTransferBtn">Weiteren Eigenübertrag hinzufügen</button>
                   </div>
                 </div>
 
                 <input id="editId" type="hidden" value="" />
 
-                <div class="actions">
-                  <button class="btn btn-primary" type="submit">Vorgang speichern</button>
+                <div class="actions" style="margin-top:18px">
+                  <button class="btn btn-primary" type="submit">Datensatz speichern</button>
                   <button class="btn btn-secondary" type="button" id="resetBtn">Formular zurücksetzen</button>
-                  <button class="btn btn-danger" type="button" id="clearAllBtn">Alle Vorgänge löschen</button>
+                  <button class="btn btn-danger" type="button" id="clearAllBtn">Alle Datensätze löschen</button>
                 </div>
 
                 <div id="formMessage" class="message" aria-live="polite"></div>
@@ -948,20 +990,20 @@
               <h3>Aktueller Überblick</h3>
               <ul class="status-list">
                 <li class="status-item">
-                  <strong>Gespeicherte Tauschvorgänge</strong>
+                  <strong>Gespeicherte Transferblöcke</strong>
                   <span id="statusCount">0</span>
                 </li>
                 <li class="status-item">
-                  <strong>Letzter Abgang</strong>
-                  <span id="statusVon">Noch nichts gespeichert</span>
+                  <strong>Gespeicherte Transfer-Zeilen</strong>
+                  <span id="statusEntries">0</span>
                 </li>
                 <li class="status-item">
-                  <strong>Letzter Zugang</strong>
-                  <span id="statusZu">Noch nichts gespeichert</span>
+                  <strong>Letzter Block</strong>
+                  <span id="statusLastTitle">Noch nichts gespeichert</span>
                 </li>
                 <li class="status-item">
-                  <strong>Letzte Quelle</strong>
-                  <span id="statusPlattform">Noch nichts gespeichert</span>
+                  <strong>Letzte Herkunft</strong>
+                  <span id="statusLastFrom">Noch nichts gespeichert</span>
                 </li>
                 <li class="status-item">
                   <strong>Letzte Speicherung</strong>
@@ -977,14 +1019,14 @@
         <div class="section-inner">
           <div class="section-head">
             <div>
-              <h2>Gespeicherte Krypto-zu-Krypto-Vorgänge</h2>
+              <h2>Gespeicherte Eigenübertrags-Blöcke</h2>
             </div>
-            <p>Hier siehst du alle gespeicherten Tauschvorgänge. Du kannst sie durchsuchen, bearbeiten und löschen.</p>
+            <p>Hier siehst du alle gespeicherten Datensätze mit ihren einzelnen Transfer-Zeilen. Du kannst sie durchsuchen, bearbeiten und löschen.</p>
           </div>
 
           <div class="list-card">
             <div class="list-toolbar">
-              <input id="searchInput" type="text" placeholder="Nach Coin, Plattform, Chain, Betrag oder Kommentar suchen" />
+              <input id="searchInput" type="text" placeholder="Nach Titel, Herkunft, Ziel, Plattform, Chain, Asset oder Kommentar suchen" />
             </div>
             <div id="records" class="records"></div>
           </div>
@@ -997,20 +1039,169 @@
         <div class="footer-panel">
           <div class="footer-links">
             <a href="../module/05-transaktionen.html">Zurück zu Transaktionen</a>
-            <a href="./form-eigenuebertrag.html">Weiter zu Eigenübertrag</a>
+            <a href="./form-reward-bonus-ertrag.html">Weiter zu Reward / Bonus / Ertrag</a>
             <a href="../index.html">Zur Kurszentrale</a>
           </div>
-          <p class="footer-note">Dieses Formular erfasst Tauschvorgänge zwischen Krypto-Assets und trennt sie sauber von anderen Vorgangsarten.</p>
+          <p class="footer-note">Dieses Formular erfasst Eigenüberträge mit Mehrfach-Erfassung pro Datensatz, damit eigene Transfers sauber von Kauf, Verkauf und Tausch getrennt bleiben.</p>
         </div>
       </div>
     </footer>
   </div>
 
+  <template id="transferBlockTemplate">
+    <div class="transfer-block">
+      <div class="transfer-block-head">
+        <strong>Eigenübertrags-Zeile</strong>
+        <button type="button" class="transfer-block-remove">Entfernen</button>
+      </div>
+      <div class="grid grid-3">
+        <div class="field">
+          <label>Datum</label>
+          <input class="transfer-datum" type="date" />
+        </div>
+        <div class="field">
+          <label>Uhrzeit</label>
+          <input class="transfer-uhrzeit" type="time" />
+        </div>
+        <div class="field">
+          <label>Chain</label>
+          <select class="transfer-chain">
+            <option value="">Bitte auswählen</option>
+            <option value="Bitcoin">Bitcoin</option>
+            <option value="Ethereum">Ethereum</option>
+            <option value="BNB Chain">BNB Chain</option>
+            <option value="Polygon">Polygon</option>
+            <option value="Solana">Solana</option>
+            <option value="Avalanche">Avalanche</option>
+            <option value="Arbitrum">Arbitrum</option>
+            <option value="Optimism">Optimism</option>
+            <option value="Base">Base</option>
+            <option value="Andere / manuell">Andere / manuell</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Von Plattform / Quelle</label>
+          <select class="transfer-from-platform">
+            <option value="">Bitte auswählen</option>
+            <option value="Binance">Binance</option>
+            <option value="Kraken">Kraken</option>
+            <option value="Bitpanda">Bitpanda</option>
+            <option value="Coinbase">Coinbase</option>
+            <option value="crypto.com">crypto.com</option>
+            <option value="MetaMask">MetaMask</option>
+            <option value="Trust Wallet">Trust Wallet</option>
+            <option value="Ledger">Ledger</option>
+            <option value="Trezor">Trezor</option>
+            <option value="Phantom">Phantom</option>
+            <option value="Andere / manuell">Andere / manuell</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Von Wallet / Adresse</label>
+          <input class="transfer-from-wallet" type="text" placeholder="eigene Abgangsadresse oder Hinweis" />
+        </div>
+        <div class="field">
+          <label>Von Typ</label>
+          <select class="transfer-from-type">
+            <option value="">Bitte auswählen</option>
+            <option value="Eigene Wallet">Eigene Wallet</option>
+            <option value="Eigene Börse">Eigene Börse</option>
+            <option value="Eigene Hardware-Wallet">Eigene Hardware-Wallet</option>
+            <option value="Andere eigene Quelle">Andere eigene Quelle</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Zu Plattform / Quelle</label>
+          <select class="transfer-to-platform">
+            <option value="">Bitte auswählen</option>
+            <option value="Binance">Binance</option>
+            <option value="Kraken">Kraken</option>
+            <option value="Bitpanda">Bitpanda</option>
+            <option value="Coinbase">Coinbase</option>
+            <option value="crypto.com">crypto.com</option>
+            <option value="MetaMask">MetaMask</option>
+            <option value="Trust Wallet">Trust Wallet</option>
+            <option value="Ledger">Ledger</option>
+            <option value="Trezor">Trezor</option>
+            <option value="Phantom">Phantom</option>
+            <option value="Andere / manuell">Andere / manuell</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Zu Wallet / Adresse</label>
+          <input class="transfer-to-wallet" type="text" placeholder="eigene Zieladresse oder Hinweis" />
+        </div>
+        <div class="field">
+          <label>Zu Typ</label>
+          <select class="transfer-to-type">
+            <option value="">Bitte auswählen</option>
+            <option value="Eigene Wallet">Eigene Wallet</option>
+            <option value="Eigene Börse">Eigene Börse</option>
+            <option value="Eigene Hardware-Wallet">Eigene Hardware-Wallet</option>
+            <option value="Andere eigene Quelle">Andere eigene Quelle</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Asset / Token</label>
+          <input class="transfer-asset" type="text" placeholder="z. B. BTC, ETH, SOL" list="assetOptions" />
+        </div>
+        <div class="field">
+          <label>Menge</label>
+          <input class="transfer-amount" type="number" step="0.00000001" min="0" placeholder="z. B. 0.25" />
+        </div>
+        <div class="field">
+          <label>Wert in Fiat</label>
+          <input class="transfer-value" type="number" step="0.00000001" min="0" placeholder="z. B. 1200" />
+        </div>
+
+        <div class="field">
+          <label>Fiat-Währung</label>
+          <select class="transfer-currency">
+            <option value="">Bitte auswählen</option>
+            <option value="EUR">EUR</option>
+            <option value="USD">USD</option>
+            <option value="CHF">CHF</option>
+            <option value="GBP">GBP</option>
+            <option value="Andere">Andere</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Gebühren</label>
+          <input class="transfer-fees" type="number" step="0.00000001" min="0" placeholder="z. B. 3.50" />
+        </div>
+        <div class="field">
+          <label>Kurz-Kommentar</label>
+          <input class="transfer-note" type="text" placeholder="kurzer Hinweis zur Zeile" />
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <datalist id="assetOptions">
+    <option value="BTC"></option>
+    <option value="ETH"></option>
+    <option value="BNB"></option>
+    <option value="SOL"></option>
+    <option value="USDT"></option>
+    <option value="USDC"></option>
+    <option value="DAI"></option>
+    <option value="MATIC"></option>
+    <option value="AVAX"></option>
+    <option value="ARB"></option>
+    <option value="OP"></option>
+  </datalist>
+
   <script>
     (function () {
-      const STORAGE_KEY = 'kso_form_crypto_to_crypto_v1';
+      const STORAGE_KEY = 'kso_form_eigenuebertrag_v1';
 
-      const form = document.getElementById('cryptoToCryptoForm');
+      const transferBlocksWrap = document.getElementById('transferBlocks');
+      const transferBlockTemplate = document.getElementById('transferBlockTemplate');
+      const addTransferBtn = document.getElementById('addTransferBtn');
+      const form = document.getElementById('transferForm');
       const messageBox = document.getElementById('formMessage');
       const resetBtn = document.getElementById('resetBtn');
       const clearAllBtn = document.getElementById('clearAllBtn');
@@ -1019,23 +1210,15 @@
       const editIdField = document.getElementById('editId');
 
       const fields = {
-        datum: document.getElementById('datum'),
-        uhrzeit: document.getElementById('uhrzeit'),
-        assetVon: document.getElementById('assetVon'),
-        mengeVon: document.getElementById('mengeVon'),
-        assetZu: document.getElementById('assetZu'),
-        mengeZu: document.getElementById('mengeZu'),
-        plattform: document.getElementById('plattform'),
-        chain: document.getElementById('chain'),
-        walletHinweis: document.getElementById('walletHinweis'),
-        gebuehren: document.getElementById('gebuehren'),
+        titel: document.getElementById('titel'),
+        kommentarKurz: document.getElementById('kommentarKurz'),
         kommentar: document.getElementById('kommentar')
       };
 
       const statusCount = document.getElementById('statusCount');
-      const statusVon = document.getElementById('statusVon');
-      const statusZu = document.getElementById('statusZu');
-      const statusPlattform = document.getElementById('statusPlattform');
+      const statusEntries = document.getElementById('statusEntries');
+      const statusLastTitle = document.getElementById('statusLastTitle');
+      const statusLastFrom = document.getElementById('statusLastFrom');
       const statusLast = document.getElementById('statusLast');
 
       function getData() {
@@ -1062,72 +1245,125 @@
         messageBox.className = 'message';
       }
 
+      function createTransferBlock(values) {
+        const fragment = transferBlockTemplate.content.cloneNode(true);
+        const block = fragment.querySelector('.transfer-block');
+
+        if (values) {
+          block.querySelector('.transfer-datum').value = values.datum || '';
+          block.querySelector('.transfer-uhrzeit').value = values.uhrzeit || '';
+          block.querySelector('.transfer-chain').value = values.chain || '';
+          block.querySelector('.transfer-from-platform').value = values.fromPlatform || '';
+          block.querySelector('.transfer-from-wallet').value = values.fromWallet || '';
+          block.querySelector('.transfer-from-type').value = values.fromType || '';
+          block.querySelector('.transfer-to-platform').value = values.toPlatform || '';
+          block.querySelector('.transfer-to-wallet').value = values.toWallet || '';
+          block.querySelector('.transfer-to-type').value = values.toType || '';
+          block.querySelector('.transfer-asset').value = values.asset || '';
+          block.querySelector('.transfer-amount').value = values.amount || '';
+          block.querySelector('.transfer-value').value = values.valueFiat || '';
+          block.querySelector('.transfer-currency').value = values.currency || '';
+          block.querySelector('.transfer-fees').value = values.fees || '';
+          block.querySelector('.transfer-note').value = values.note || '';
+        }
+
+        block.querySelector('.transfer-block-remove').addEventListener('click', function () {
+          const blocks = transferBlocksWrap.querySelectorAll('.transfer-block');
+          if (blocks.length <= 1) {
+            showMessage('Mindestens eine Eigenübertrags-Zeile soll bestehen bleiben.', 'warn');
+            return;
+          }
+          block.remove();
+        });
+
+        transferBlocksWrap.appendChild(block);
+      }
+
+      function resetTransferBlocks() {
+        transferBlocksWrap.innerHTML = '';
+        createTransferBlock();
+      }
+
+      function collectEntries() {
+        return Array.from(transferBlocksWrap.querySelectorAll('.transfer-block')).map(block => ({
+          datum: block.querySelector('.transfer-datum').value,
+          uhrzeit: block.querySelector('.transfer-uhrzeit').value,
+          chain: block.querySelector('.transfer-chain').value.trim(),
+          fromPlatform: block.querySelector('.transfer-from-platform').value.trim(),
+          fromWallet: block.querySelector('.transfer-from-wallet').value.trim(),
+          fromType: block.querySelector('.transfer-from-type').value.trim(),
+          toPlatform: block.querySelector('.transfer-to-platform').value.trim(),
+          toWallet: block.querySelector('.transfer-to-wallet').value.trim(),
+          toType: block.querySelector('.transfer-to-type').value.trim(),
+          asset: block.querySelector('.transfer-asset').value.trim(),
+          amount: block.querySelector('.transfer-amount').value.trim(),
+          valueFiat: block.querySelector('.transfer-value').value.trim(),
+          currency: block.querySelector('.transfer-currency').value.trim(),
+          fees: block.querySelector('.transfer-fees').value.trim(),
+          note: block.querySelector('.transfer-note').value.trim()
+        }));
+      }
+
       function collectFormData() {
         return {
-          id: editIdField.value || 'ctc_' + Date.now(),
-          datum: fields.datum.value,
-          uhrzeit: fields.uhrzeit.value,
-          assetVon: fields.assetVon.value.trim(),
-          mengeVon: fields.mengeVon.value.trim(),
-          assetZu: fields.assetZu.value.trim(),
-          mengeZu: fields.mengeZu.value.trim(),
-          plattform: fields.plattform.value.trim(),
-          chain: fields.chain.value.trim(),
-          walletHinweis: fields.walletHinweis.value.trim(),
-          gebuehren: fields.gebuehren.value.trim(),
+          id: editIdField.value || 'eig_' + Date.now(),
+          titel: fields.titel.value.trim(),
+          kommentarKurz: fields.kommentarKurz.value.trim(),
           kommentar: fields.kommentar.value.trim(),
+          entries: collectEntries(),
           updatedAt: new Date().toISOString()
         };
       }
 
       function validate(data) {
-        if (!data.datum) {
-          showMessage('Bitte gib ein Datum ein.', 'error');
-          fields.datum.focus();
+        if (!data.titel) {
+          showMessage('Bitte gib eine Bezeichnung oder einen Zusammenhang ein.', 'error');
+          fields.titel.focus();
           return false;
         }
-        if (!data.assetVon) {
-          showMessage('Bitte gib den abgegebenen Coin oder Token ein.', 'error');
-          fields.assetVon.focus();
+
+        const validEntries = data.entries.filter(entry =>
+          entry.datum || entry.fromPlatform || entry.toPlatform || entry.asset || entry.amount || entry.note
+        );
+
+        if (!validEntries.length) {
+          showMessage('Bitte erfasse mindestens eine Eigenübertrags-Zeile mit Inhalt.', 'error');
           return false;
         }
-        if (!data.mengeVon) {
-          showMessage('Bitte gib die abgegebene Menge ein.', 'error');
-          fields.mengeVon.focus();
+
+        const invalidEntry = validEntries.find(entry =>
+          !entry.fromPlatform || !entry.toPlatform || !entry.asset || !entry.amount
+        );
+
+        if (invalidEntry) {
+          showMessage('Bitte gib in jeder genutzten Eigenübertrags-Zeile mindestens Herkunft, Ziel, Asset und Menge an.', 'error');
           return false;
         }
-        if (!data.assetZu) {
-          showMessage('Bitte gib den erhaltenen Coin oder Token ein.', 'error');
-          fields.assetZu.focus();
-          return false;
-        }
-        if (!data.mengeZu) {
-          showMessage('Bitte gib die erhaltene Menge ein.', 'error');
-          fields.mengeZu.focus();
-          return false;
-        }
+
+        data.entries = validEntries;
         return true;
       }
 
       function resetForm() {
         form.reset();
         editIdField.value = '';
+        resetTransferBlocks();
         clearMessage();
       }
 
       function fillForm(item) {
         editIdField.value = item.id || '';
-        fields.datum.value = item.datum || '';
-        fields.uhrzeit.value = item.uhrzeit || '';
-        fields.assetVon.value = item.assetVon || '';
-        fields.mengeVon.value = item.mengeVon || '';
-        fields.assetZu.value = item.assetZu || '';
-        fields.mengeZu.value = item.mengeZu || '';
-        fields.plattform.value = item.plattform || '';
-        fields.chain.value = item.chain || '';
-        fields.walletHinweis.value = item.walletHinweis || '';
-        fields.gebuehren.value = item.gebuehren || '';
+        fields.titel.value = item.titel || '';
+        fields.kommentarKurz.value = item.kommentarKurz || '';
         fields.kommentar.value = item.kommentar || '';
+
+        transferBlocksWrap.innerHTML = '';
+        if (Array.isArray(item.entries) && item.entries.length) {
+          item.entries.forEach(entry => createTransferBlock(entry));
+        } else {
+          createTransferBlock();
+        }
+
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
 
@@ -1140,16 +1376,16 @@
 
       function updateStatus(data) {
         statusCount.textContent = String(data.length);
+        statusEntries.textContent = String(data.reduce((sum, item) => sum + ((item.entries || []).length), 0));
 
         if (data.length) {
-          statusVon.textContent = (data[0].assetVon || '—') + ' · ' + (data[0].mengeVon || '—');
-          statusZu.textContent = (data[0].assetZu || '—') + ' · ' + (data[0].mengeZu || '—');
-          statusPlattform.textContent = data[0].plattform || '—';
+          statusLastTitle.textContent = data[0].titel || '—';
+          const firstEntry = (data[0].entries && data[0].entries[0]) ? data[0].entries[0] : null;
+          statusLastFrom.textContent = firstEntry ? (firstEntry.fromPlatform || '—') : '—';
           statusLast.textContent = formatDate(data[0].updatedAt);
         } else {
-          statusVon.textContent = 'Noch nichts gespeichert';
-          statusZu.textContent = 'Noch nichts gespeichert';
-          statusPlattform.textContent = 'Noch nichts gespeichert';
+          statusLastTitle.textContent = 'Noch nichts gespeichert';
+          statusLastFrom.textContent = 'Noch nichts gespeichert';
           statusLast.textContent = 'Noch nichts gespeichert';
         }
       }
@@ -1164,6 +1400,36 @@
         `;
       }
 
+      function renderEntries(entries) {
+        if (!entries || !entries.length) {
+          return `<div class="entry-box"><div class="record-item"><small>Transfer-Zeilen</small><span>—</span></div></div>`;
+        }
+
+        return entries.map((entry, index) => `
+          <div class="entry-box">
+            <div class="entry-box-head">
+              <span class="pill">${index + 1}. Zeile</span>
+              ${entry.chain ? `<span class="pill">${entry.chain}</span>` : ''}
+              ${entry.asset ? `<span class="pill">${entry.asset}</span>` : ''}
+            </div>
+            <div class="record-grid">
+              ${createInfoRow('Datum', entry.datum)}
+              ${createInfoRow('Uhrzeit', entry.uhrzeit)}
+              ${createInfoRow('Von', (entry.fromPlatform || '—') + (entry.fromWallet ? ' · ' + entry.fromWallet : ''))}
+              ${createInfoRow('Zu', (entry.toPlatform || '—') + (entry.toWallet ? ' · ' + entry.toWallet : ''))}
+              ${createInfoRow('Von Typ', entry.fromType)}
+              ${createInfoRow('Zu Typ', entry.toType)}
+              ${createInfoRow('Asset', entry.asset)}
+              ${createInfoRow('Menge', entry.amount)}
+              ${createInfoRow('Wert in Fiat', entry.valueFiat)}
+              ${createInfoRow('Fiat-Währung', entry.currency)}
+              ${createInfoRow('Gebühren', entry.fees)}
+              ${createInfoRow('Kurz-Kommentar', entry.note)}
+            </div>
+          </div>
+        `).join('');
+      }
+
       function renderRecords() {
         const data = getData();
         updateStatus(data);
@@ -1171,25 +1437,23 @@
         const search = searchInput.value.trim().toLowerCase();
 
         const filtered = data.filter(item => {
+          const entryHaystack = (item.entries || []).map(entry =>
+            [
+              entry.datum, entry.uhrzeit, entry.chain, entry.fromPlatform, entry.fromWallet, entry.fromType,
+              entry.toPlatform, entry.toWallet, entry.toType, entry.asset, entry.amount, entry.valueFiat,
+              entry.currency, entry.fees, entry.note
+            ].join(' ')
+          ).join(' ');
+
           const haystack = [
-            item.datum,
-            item.uhrzeit,
-            item.assetVon,
-            item.mengeVon,
-            item.assetZu,
-            item.mengeZu,
-            item.plattform,
-            item.chain,
-            item.walletHinweis,
-            item.gebuehren,
-            item.kommentar
+            item.titel, item.kommentarKurz, item.kommentar, entryHaystack
           ].join(' ').toLowerCase();
 
           return haystack.includes(search);
         });
 
         if (!filtered.length) {
-          recordsWrap.innerHTML = `<div class="empty">Noch keine passenden Vorgänge vorhanden.</div>`;
+          recordsWrap.innerHTML = `<div class="empty">Noch keine passenden Datensätze vorhanden.</div>`;
           return;
         }
 
@@ -1197,23 +1461,22 @@
           <article class="record">
             <div class="record-head">
               <div class="record-title">
-                <strong>${item.assetVon || '—'} → ${item.assetZu || '—'}</strong>
+                <strong>${item.titel || 'Unbenannter Transferblock'}</strong>
                 <div class="pills">
-                  <span class="pill">${item.mengeVon || '—'} ${item.assetVon || ''}</span>
-                  <span class="pill">${item.mengeZu || '—'} ${item.assetZu || ''}</span>
-                  ${item.chain ? `<span class="pill">${item.chain}</span>` : ''}
+                  <span class="pill">${(item.entries || []).length} Zeilen</span>
+                  ${item.kommentarKurz ? `<span class="pill">${item.kommentarKurz}</span>` : ''}
                 </div>
               </div>
             </div>
 
             <div class="record-grid">
-              ${createInfoRow('Datum', item.datum)}
-              ${createInfoRow('Uhrzeit', item.uhrzeit)}
-              ${createInfoRow('Plattform / Quelle', item.plattform)}
-              ${createInfoRow('Wallet-Hinweis', item.walletHinweis)}
-              ${createInfoRow('Gebühren', item.gebuehren)}
+              ${createInfoRow('Kurz-Kommentar', item.kommentarKurz)}
               ${createInfoRow('Kommentar', item.kommentar)}
               ${createInfoRow('Letzte Änderung', formatDate(item.updatedAt))}
+            </div>
+
+            <div class="entry-list">
+              ${renderEntries(item.entries)}
             </div>
 
             <div class="record-actions">
@@ -1233,10 +1496,10 @@
 
         if (existingIndex >= 0) {
           data[existingIndex] = item;
-          showMessage('Der Vorgang wurde aktualisiert.', 'success');
+          showMessage('Der Datensatz wurde aktualisiert.', 'success');
         } else {
           data.unshift(item);
-          showMessage('Der Vorgang wurde gespeichert.', 'success');
+          showMessage('Der Datensatz wurde gespeichert.', 'success');
         }
 
         setData(data);
@@ -1251,15 +1514,20 @@
           return;
         }
         fillForm(item);
-        showMessage('Der Vorgang wurde zum Bearbeiten geladen.', 'success');
+        showMessage('Der Datensatz wurde zum Bearbeiten geladen.', 'success');
       }
 
       function deleteRecord(id) {
         const data = getData().filter(item => item.id !== id);
         setData(data);
         renderRecords();
-        showMessage('Der Vorgang wurde gelöscht.', 'success');
+        showMessage('Der Datensatz wurde gelöscht.', 'success');
       }
+
+      addTransferBtn.addEventListener('click', function () {
+        createTransferBlock();
+        showMessage('Eine weitere Eigenübertrags-Zeile wurde hinzugefügt.', 'warn');
+      });
 
       form.addEventListener('submit', function (event) {
         event.preventDefault();
@@ -1274,13 +1542,13 @@
       clearAllBtn.addEventListener('click', function () {
         const data = getData();
         if (!data.length) {
-          showMessage('Es sind keine Vorgänge vorhanden.', 'error');
+          showMessage('Es sind keine Datensätze vorhanden.', 'error');
           return;
         }
         localStorage.removeItem(STORAGE_KEY);
         resetForm();
         renderRecords();
-        showMessage('Alle Vorgänge wurden gelöscht.', 'success');
+        showMessage('Alle Datensätze wurden gelöscht.', 'success');
       });
 
       searchInput.addEventListener('input', renderRecords);
@@ -1296,7 +1564,7 @@
         if (action === 'delete') deleteRecord(id);
       });
 
-      resetForm();
+      resetTransferBlocks();
       renderRecords();
     })();
   </script>
