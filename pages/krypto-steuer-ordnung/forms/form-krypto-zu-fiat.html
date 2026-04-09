@@ -1,18 +1,10 @@
 <!doctype html>
-<!--
-  GitHub-Pfad: lp-anfang/pages/krypto-steuer-ordnung/forms/form-krypto-zu-fiat.html
-  Commit-Message: krypto steuer ordnung formular krypto zu fiat mit localstorage liste bearbeiten und loeschen aufgebaut
-  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/krypto-steuer-ordnung/forms/form-krypto-zu-fiat.html?nocache=1775683800
-
-  Nächster Schritt:
-  lp-anfang/pages/krypto-steuer-ordnung/forms/form-krypto-zu-krypto.html
--->
 <html lang="de">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Krypto zu Fiat – Krypto-Steuer-Ordnung</title>
-  <meta name="description" content="Verkäufe aus Krypto zurück in Fiat strukturiert erfassen, speichern, bearbeiten und löschen." />
+  <meta name="description" content="Mehrere Verkäufe aus Krypto in Fiat pro Datensatz erfassen, speichern, bearbeiten und löschen." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -31,6 +23,8 @@
       --danger-soft:#fee2e2;
       --ok:#16a34a;
       --ok-soft:#dcfce7;
+      --warn:#f59e0b;
+      --warn-soft:#fef3c7;
       --shadow:0 18px 44px rgba(15,23,42,.08);
       --shadow-soft:0 10px 26px rgba(15,23,42,.05);
       --radius-xl:30px;
@@ -154,9 +148,7 @@
       padding:30px 20px;
     }
 
-    .hero{
-      padding:28px 0 10px;
-    }
+    .hero{padding:28px 0 10px}
 
     .hero-grid{
       display:grid;
@@ -413,6 +405,46 @@
       margin-top:-2px;
     }
 
+    .sell-blocks{
+      display:grid;
+      gap:14px;
+    }
+
+    .sell-block{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:var(--bg-soft);
+      padding:16px;
+    }
+
+    .sell-block-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .sell-block-head strong{
+      font-size:15px;
+    }
+
+    .sell-block-remove{
+      min-height:38px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid #fecaca;
+      background:#fff;
+      color:var(--danger);
+      font-size:13px;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .sell-block-remove:hover{
+      background:#fff5f5;
+    }
+
     .actions{
       display:flex;
       flex-wrap:wrap;
@@ -478,10 +510,17 @@
       color:#166534;
       border:1px solid #86efac;
     }
+
     .message.error{
       background:var(--danger-soft);
       color:#991b1b;
       border:1px solid #fca5a5;
+    }
+
+    .message.warn{
+      background:var(--warn-soft);
+      color:#92400e;
+      border:1px solid #fcd34d;
     }
 
     .list-toolbar{
@@ -578,6 +617,27 @@
       display:block;
       word-break:break-word;
       font-size:14px;
+    }
+
+    .entry-list{
+      display:grid;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .entry-box{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--bg-soft);
+      padding:12px 14px;
+    }
+
+    .entry-box-head{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:8px;
     }
 
     .record-actions{
@@ -691,10 +751,8 @@
 
     @media (max-width:1120px){
       .hero-grid,
-      .form-layout,
-      .grid-3,
-      .grid-2{
-        grid-template-columns:repeat(2,minmax(0,1fr));
+      .form-layout{
+        grid-template-columns:1fr;
       }
     }
 
@@ -757,8 +815,10 @@
         text-align:center;
       }
 
-      .record-head{
+      .record-head,
+      .sell-block-head{
         flex-direction:column;
+        align-items:flex-start;
       }
     }
 
@@ -823,21 +883,21 @@
             <div class="hero-box">
               <p class="eyebrow">Formular 02</p>
               <h1>Krypto zu Fiat</h1>
-              <p class="hero-subtitle">Dieses Formular ist für Verkäufe gedacht, bei denen Krypto wieder in Euro oder anderes Fiatgeld umgewandelt wurde.</p>
-              <p class="hero-copy">Hier erfasst du den Verkaufszeitpunkt, den abgegebenen Coin oder Token, die Menge, den erhaltenen Fiatbetrag, die Quelle und deine zusätzlichen Hinweise sauber und getrennt von anderen Vorgangsarten.</p>
+              <p class="hero-subtitle">Dieses Formular ist für Verkäufe aus Krypto in Euro oder andere Fiat-Währungen gedacht. Ein Datensatz kann mehrere einzelne Verkaufs-Zeilen enthalten.</p>
+              <p class="hero-copy">Damit kannst du zusammengehörige Verkäufe gesammelt unter einem Zusammenhang erfassen. So werden Teilverkäufe, mehrere Auszahlungen oder Verkaufsblöcke sauber zusammengefasst.</p>
 
               <div class="hero-points">
                 <div class="hero-point">
-                  <strong>Krypto abgegeben</strong>
-                  <span>Welcher Coin oder Token wurde verkauft?</span>
+                  <strong>Mehrfach erfassen</strong>
+                  <span>Mehrere Verkaufs-Zeilen pro Datensatz anlegen.</span>
                 </div>
                 <div class="hero-point">
-                  <strong>Fiat erhalten</strong>
-                  <span>Welcher Betrag wurde zurück in Fiat ausgezahlt?</span>
+                  <strong>Krypto und Fiat trennen</strong>
+                  <span>Verkauftes Asset, Menge und erhaltener Fiat-Betrag je Zeile notieren.</span>
                 </div>
                 <div class="hero-point">
-                  <strong>Quelle notieren</strong>
-                  <span>Börse, Wallet oder sonstige Plattform erfassen.</span>
+                  <strong>Quelle sichern</strong>
+                  <span>Plattform, Chain und Abgangs-Wallet sauber festhalten.</span>
                 </div>
               </div>
             </div>
@@ -845,11 +905,11 @@
             <aside class="side-box" aria-label="Kurzübersicht">
               <div class="mini-box">
                 <h3>Wofür dieses Formular da ist</h3>
-                <p>Es ist für Verkäufe gedacht, bei denen Krypto zurück in Euro oder anderes Fiatgeld ging.</p>
+                <p>Es ist für Verkäufe gedacht, bei denen Krypto wieder in Fiat umgewandelt wurde.</p>
               </div>
               <div class="mini-box">
-                <h3>Nicht dafür gedacht</h3>
-                <p>Käufe aus Fiat, Tauschgeschäfte, Rewards oder Eigenüberträge gehören in andere Formulare.</p>
+                <h3>Wichtige Logik</h3>
+                <p>Ein Verkauf in Fiat ist kein Kauf, kein Tausch und kein Eigenübertrag. Deshalb wird er in einem eigenen Formular getrennt erfasst.</p>
               </div>
               <div class="mini-box">
                 <h3>Wie es weitergeht</h3>
@@ -864,87 +924,55 @@
         <div class="section-inner">
           <div class="section-head">
             <div>
-              <h2>Vorgang erfassen</h2>
+              <h2>Verkaufsblock erfassen</h2>
             </div>
-            <p>Jeder Verkauf aus Krypto zurück in Fiat wird als eigener Datensatz gespeichert und kann später bearbeitet oder gelöscht werden.</p>
+            <p>Lege hier einen Zusammenhang an und erfasse darunter so viele einzelne Verkaufs-Zeilen, wie in diesem Fall nötig sind.</p>
           </div>
 
           <div class="form-layout">
             <div class="form-card">
-              <form id="cryptoToFiatForm" novalidate>
+              <form id="sellForm" novalidate>
                 <div class="grid grid-2">
                   <div class="field">
-                    <label for="datum">Datum</label>
-                    <input id="datum" name="datum" type="date" required />
+                    <label for="titel">Bezeichnung / Zusammenhang</label>
+                    <input id="titel" name="titel" type="text" placeholder="z. B. Verkäufe April 2024, Teilverkäufe BTC 2023" required />
                   </div>
 
                   <div class="field">
-                    <label for="uhrzeit">Uhrzeit</label>
-                    <input id="uhrzeit" name="uhrzeit" type="time" />
-                  </div>
-
-                  <div class="field">
-                    <label for="kryptoAsset">Verkaufter Coin / Token</label>
-                    <input id="kryptoAsset" name="kryptoAsset" type="text" placeholder="z. B. BTC, ETH, SOL" required />
-                  </div>
-
-                  <div class="field">
-                    <label for="kryptoMenge">Abgegebene Menge</label>
-                    <input id="kryptoMenge" name="kryptoMenge" type="number" step="0.00000001" min="0" placeholder="z. B. 0.025" required />
-                  </div>
-
-                  <div class="field">
-                    <label for="fiatWaehrung">Fiat-Währung</label>
-                    <select id="fiatWaehrung" name="fiatWaehrung" required>
-                      <option value="">Bitte auswählen</option>
-                      <option value="EUR">EUR</option>
-                      <option value="USD">USD</option>
-                      <option value="CHF">CHF</option>
-                      <option value="GBP">GBP</option>
-                      <option value="Andere">Andere</option>
-                    </select>
-                  </div>
-
-                  <div class="field">
-                    <label for="fiatBetrag">Erhaltener Fiat-Betrag</label>
-                    <input id="fiatBetrag" name="fiatBetrag" type="number" step="0.00000001" min="0" placeholder="z. B. 1500" required />
-                  </div>
-
-                  <div class="field">
-                    <label for="plattform">Plattform / Quelle</label>
-                    <input id="plattform" name="plattform" type="text" placeholder="z. B. Binance, Kraken, Bitpanda" />
-                  </div>
-
-                  <div class="field">
-                    <label for="chain">Chain</label>
-                    <input id="chain" name="chain" type="text" placeholder="z. B. Bitcoin, Ethereum, Solana" />
-                  </div>
-
-                  <div class="field">
-                    <label for="walletAbgang">Abgangs-Wallet / Abgangsadresse</label>
-                    <input id="walletAbgang" name="walletAbgang" type="text" placeholder="Wallet-Adresse oder Abgangshinweis" />
-                  </div>
-
-                  <div class="field">
-                    <label for="gebuehren">Gebühren</label>
-                    <input id="gebuehren" name="gebuehren" type="number" step="0.00000001" min="0" placeholder="z. B. 5.00" />
+                    <label for="kommentarKurz">Kurz-Kommentar</label>
+                    <input id="kommentarKurz" name="kommentarKurz" type="text" placeholder="kurzer Hinweis zum Zusammenhang" />
                   </div>
                 </div>
 
                 <div class="grid" style="margin-top:16px">
                   <div class="field">
                     <label for="kommentar">Kommentar</label>
-                    <textarea id="kommentar" name="kommentar" placeholder="Hier kannst du den Verkauf, die Datenlage oder besondere Hinweise notieren."></textarea>
-                    <div class="hint">Gerade bei Auszahlungen, Teilverkäufen oder unklaren Kursen lohnt sich ein kurzer Hinweis.</div>
+                    <textarea id="kommentar" name="kommentar" placeholder="Hier kannst du den Zusammenhang, die Datenlage oder Besonderheiten notieren."></textarea>
+                    <div class="hint">Nutze diesen Bereich für Hinweise, falls mehrere Verkäufe zusammengehören oder Daten noch ergänzt werden müssen.</div>
+                  </div>
+                </div>
+
+                <div style="margin-top:22px">
+                  <div class="section-head" style="margin-bottom:14px">
+                    <div>
+                      <h2 style="font-size:24px">Einzelne Verkaufs-Zeilen</h2>
+                    </div>
+                    <p style="font-size:14px;max-width:520px">Füge so viele unterschiedliche Verkaufs-Zeilen hinzu, wie in diesem Zusammenhang vorkommen.</p>
+                  </div>
+
+                  <div id="sellBlocks" class="sell-blocks"></div>
+
+                  <div class="actions" style="margin-top:14px">
+                    <button class="btn btn-secondary" type="button" id="addSellBtn">Weiteren Verkauf hinzufügen</button>
                   </div>
                 </div>
 
                 <input id="editId" type="hidden" value="" />
 
-                <div class="actions">
-                  <button class="btn btn-primary" type="submit">Vorgang speichern</button>
+                <div class="actions" style="margin-top:18px">
+                  <button class="btn btn-primary" type="submit">Datensatz speichern</button>
                   <button class="btn btn-secondary" type="button" id="resetBtn">Formular zurücksetzen</button>
-                  <button class="btn btn-danger" type="button" id="clearAllBtn">Alle Vorgänge löschen</button>
+                  <button class="btn btn-danger" type="button" id="clearAllBtn">Alle Datensätze löschen</button>
                 </div>
 
                 <div id="formMessage" class="message" aria-live="polite"></div>
@@ -955,20 +983,20 @@
               <h3>Aktueller Überblick</h3>
               <ul class="status-list">
                 <li class="status-item">
-                  <strong>Gespeicherte Verkäufe</strong>
+                  <strong>Gespeicherte Verkaufsblöcke</strong>
                   <span id="statusCount">0</span>
                 </li>
                 <li class="status-item">
-                  <strong>Gesamter Fiat-Rückfluss</strong>
-                  <span id="statusFiat">0</span>
+                  <strong>Gespeicherte Verkaufs-Zeilen</strong>
+                  <span id="statusEntries">0</span>
                 </li>
                 <li class="status-item">
-                  <strong>Letzter Coin / Token</strong>
-                  <span id="statusAsset">Noch nichts gespeichert</span>
+                  <strong>Letzter Block</strong>
+                  <span id="statusLastTitle">Noch nichts gespeichert</span>
                 </li>
                 <li class="status-item">
-                  <strong>Letzte Quelle</strong>
-                  <span id="statusPlattform">Noch nichts gespeichert</span>
+                  <strong>Letzte Plattform</strong>
+                  <span id="statusLastPlatform">Noch nichts gespeichert</span>
                 </li>
                 <li class="status-item">
                   <strong>Letzte Speicherung</strong>
@@ -984,14 +1012,14 @@
         <div class="section-inner">
           <div class="section-head">
             <div>
-              <h2>Gespeicherte Krypto-zu-Fiat-Vorgänge</h2>
+              <h2>Gespeicherte Krypto-zu-Fiat-Blöcke</h2>
             </div>
-            <p>Hier siehst du alle gespeicherten Verkäufe. Du kannst sie durchsuchen, bearbeiten und löschen.</p>
+            <p>Hier siehst du alle gespeicherten Datensätze mit ihren einzelnen Verkaufs-Zeilen. Du kannst sie durchsuchen, bearbeiten und löschen.</p>
           </div>
 
           <div class="list-card">
             <div class="list-toolbar">
-              <input id="searchInput" type="text" placeholder="Nach Coin, Plattform, Chain, Betrag oder Kommentar suchen" />
+              <input id="searchInput" type="text" placeholder="Nach Titel, Plattform, Chain, Asset, Betrag, Wallet oder Kommentar suchen" />
             </div>
             <div id="records" class="records"></div>
           </div>
@@ -1007,17 +1035,128 @@
             <a href="./form-krypto-zu-krypto.html">Weiter zu Krypto zu Krypto</a>
             <a href="../index.html">Zur Kurszentrale</a>
           </div>
-          <p class="footer-note">Dieses Formular erfasst Verkäufe aus Krypto zurück in Fiat und trennt sie sauber von anderen Vorgangsarten.</p>
+          <p class="footer-note">Dieses Formular erfasst Verkäufe aus Krypto in Fiat mit Mehrfach-Erfassung pro Datensatz, damit zusammengehörige Verkäufe sauber zusammengefasst werden können.</p>
         </div>
       </div>
     </footer>
   </div>
 
+  <template id="sellBlockTemplate">
+    <div class="sell-block">
+      <div class="sell-block-head">
+        <strong>Verkaufs-Zeile</strong>
+        <button type="button" class="sell-block-remove">Entfernen</button>
+      </div>
+      <div class="grid grid-3">
+        <div class="field">
+          <label>Datum</label>
+          <input class="sell-datum" type="date" />
+        </div>
+        <div class="field">
+          <label>Uhrzeit</label>
+          <input class="sell-uhrzeit" type="time" />
+        </div>
+        <div class="field">
+          <label>Chain</label>
+          <select class="sell-chain">
+            <option value="">Bitte auswählen</option>
+            <option value="Bitcoin">Bitcoin</option>
+            <option value="Ethereum">Ethereum</option>
+            <option value="BNB Chain">BNB Chain</option>
+            <option value="Polygon">Polygon</option>
+            <option value="Solana">Solana</option>
+            <option value="Avalanche">Avalanche</option>
+            <option value="Arbitrum">Arbitrum</option>
+            <option value="Optimism">Optimism</option>
+            <option value="Base">Base</option>
+            <option value="Andere / manuell">Andere / manuell</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Plattform / Quelle</label>
+          <select class="sell-platform">
+            <option value="">Bitte auswählen</option>
+            <option value="Binance">Binance</option>
+            <option value="Kraken">Kraken</option>
+            <option value="Bitpanda">Bitpanda</option>
+            <option value="Coinbase">Coinbase</option>
+            <option value="crypto.com">crypto.com</option>
+            <option value="MetaMask">MetaMask</option>
+            <option value="Trust Wallet">Trust Wallet</option>
+            <option value="Ledger">Ledger</option>
+            <option value="Trezor">Trezor</option>
+            <option value="Phantom">Phantom</option>
+            <option value="Andere / manuell">Andere / manuell</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Verkaufter Coin / Token</label>
+          <input class="sell-asset" type="text" placeholder="z. B. BTC, ETH, SOL" list="assetOptions" />
+        </div>
+        <div class="field">
+          <label>Abgegebene Menge</label>
+          <input class="sell-amount" type="number" step="0.00000001" min="0" placeholder="z. B. 0.025" />
+        </div>
+
+        <div class="field">
+          <label>Fiat-Währung</label>
+          <select class="sell-fiat-currency">
+            <option value="">Bitte auswählen</option>
+            <option value="EUR">EUR</option>
+            <option value="USD">USD</option>
+            <option value="CHF">CHF</option>
+            <option value="GBP">GBP</option>
+            <option value="Andere">Andere</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Erhaltener Fiat-Betrag</label>
+          <input class="sell-fiat-amount" type="number" step="0.00000001" min="0" placeholder="z. B. 1500" />
+        </div>
+        <div class="field">
+          <label>Abgangs-Wallet / Hinweis</label>
+          <input class="sell-wallet" type="text" placeholder="Wallet-Adresse oder Hinweis" />
+        </div>
+
+        <div class="field">
+          <label>Wert in Fiat</label>
+          <input class="sell-value" type="number" step="0.00000001" min="0" placeholder="z. B. 1500" />
+        </div>
+        <div class="field">
+          <label>Gebühren</label>
+          <input class="sell-fees" type="number" step="0.00000001" min="0" placeholder="z. B. 4.99" />
+        </div>
+        <div class="field">
+          <label>Kurz-Kommentar</label>
+          <input class="sell-note" type="text" placeholder="kurzer Hinweis zur Zeile" />
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <datalist id="assetOptions">
+    <option value="BTC"></option>
+    <option value="ETH"></option>
+    <option value="BNB"></option>
+    <option value="SOL"></option>
+    <option value="USDT"></option>
+    <option value="USDC"></option>
+    <option value="DAI"></option>
+    <option value="MATIC"></option>
+    <option value="AVAX"></option>
+    <option value="ARB"></option>
+    <option value="OP"></option>
+  </datalist>
+
   <script>
     (function () {
-      const STORAGE_KEY = 'kso_form_crypto_to_fiat_v1';
+      const STORAGE_KEY = 'kso_form_crypto_to_fiat_v2';
 
-      const form = document.getElementById('cryptoToFiatForm');
+      const sellBlocksWrap = document.getElementById('sellBlocks');
+      const sellBlockTemplate = document.getElementById('sellBlockTemplate');
+      const addSellBtn = document.getElementById('addSellBtn');
+      const form = document.getElementById('sellForm');
       const messageBox = document.getElementById('formMessage');
       const resetBtn = document.getElementById('resetBtn');
       const clearAllBtn = document.getElementById('clearAllBtn');
@@ -1026,23 +1165,15 @@
       const editIdField = document.getElementById('editId');
 
       const fields = {
-        datum: document.getElementById('datum'),
-        uhrzeit: document.getElementById('uhrzeit'),
-        kryptoAsset: document.getElementById('kryptoAsset'),
-        kryptoMenge: document.getElementById('kryptoMenge'),
-        fiatWaehrung: document.getElementById('fiatWaehrung'),
-        fiatBetrag: document.getElementById('fiatBetrag'),
-        plattform: document.getElementById('plattform'),
-        chain: document.getElementById('chain'),
-        walletAbgang: document.getElementById('walletAbgang'),
-        gebuehren: document.getElementById('gebuehren'),
+        titel: document.getElementById('titel'),
+        kommentarKurz: document.getElementById('kommentarKurz'),
         kommentar: document.getElementById('kommentar')
       };
 
       const statusCount = document.getElementById('statusCount');
-      const statusFiat = document.getElementById('statusFiat');
-      const statusAsset = document.getElementById('statusAsset');
-      const statusPlattform = document.getElementById('statusPlattform');
+      const statusEntries = document.getElementById('statusEntries');
+      const statusLastTitle = document.getElementById('statusLastTitle');
+      const statusLastPlatform = document.getElementById('statusLastPlatform');
       const statusLast = document.getElementById('statusLast');
 
       function getData() {
@@ -1069,72 +1200,119 @@
         messageBox.className = 'message';
       }
 
+      function createSellBlock(values) {
+        const fragment = sellBlockTemplate.content.cloneNode(true);
+        const block = fragment.querySelector('.sell-block');
+
+        if (values) {
+          block.querySelector('.sell-datum').value = values.datum || '';
+          block.querySelector('.sell-uhrzeit').value = values.uhrzeit || '';
+          block.querySelector('.sell-chain').value = values.chain || '';
+          block.querySelector('.sell-platform').value = values.platform || '';
+          block.querySelector('.sell-asset').value = values.asset || '';
+          block.querySelector('.sell-amount').value = values.amount || '';
+          block.querySelector('.sell-fiat-currency').value = values.fiatCurrency || '';
+          block.querySelector('.sell-fiat-amount').value = values.fiatAmount || '';
+          block.querySelector('.sell-wallet').value = values.wallet || '';
+          block.querySelector('.sell-value').value = values.valueFiat || '';
+          block.querySelector('.sell-fees').value = values.fees || '';
+          block.querySelector('.sell-note').value = values.note || '';
+        }
+
+        block.querySelector('.sell-block-remove').addEventListener('click', function () {
+          const blocks = sellBlocksWrap.querySelectorAll('.sell-block');
+          if (blocks.length <= 1) {
+            showMessage('Mindestens eine Verkaufs-Zeile soll bestehen bleiben.', 'warn');
+            return;
+          }
+          block.remove();
+        });
+
+        sellBlocksWrap.appendChild(block);
+      }
+
+      function resetSellBlocks() {
+        sellBlocksWrap.innerHTML = '';
+        createSellBlock();
+      }
+
+      function collectEntries() {
+        return Array.from(sellBlocksWrap.querySelectorAll('.sell-block')).map(block => ({
+          datum: block.querySelector('.sell-datum').value,
+          uhrzeit: block.querySelector('.sell-uhrzeit').value,
+          chain: block.querySelector('.sell-chain').value.trim(),
+          platform: block.querySelector('.sell-platform').value.trim(),
+          asset: block.querySelector('.sell-asset').value.trim(),
+          amount: block.querySelector('.sell-amount').value.trim(),
+          fiatCurrency: block.querySelector('.sell-fiat-currency').value.trim(),
+          fiatAmount: block.querySelector('.sell-fiat-amount').value.trim(),
+          wallet: block.querySelector('.sell-wallet').value.trim(),
+          valueFiat: block.querySelector('.sell-value').value.trim(),
+          fees: block.querySelector('.sell-fees').value.trim(),
+          note: block.querySelector('.sell-note').value.trim()
+        }));
+      }
+
       function collectFormData() {
         return {
-          id: editIdField.value || 'ctf_' + Date.now(),
-          datum: fields.datum.value,
-          uhrzeit: fields.uhrzeit.value,
-          kryptoAsset: fields.kryptoAsset.value.trim(),
-          kryptoMenge: fields.kryptoMenge.value.trim(),
-          fiatWaehrung: fields.fiatWaehrung.value,
-          fiatBetrag: fields.fiatBetrag.value.trim(),
-          plattform: fields.plattform.value.trim(),
-          chain: fields.chain.value.trim(),
-          walletAbgang: fields.walletAbgang.value.trim(),
-          gebuehren: fields.gebuehren.value.trim(),
+          id: editIdField.value || 'kzf_' + Date.now(),
+          titel: fields.titel.value.trim(),
+          kommentarKurz: fields.kommentarKurz.value.trim(),
           kommentar: fields.kommentar.value.trim(),
+          entries: collectEntries(),
           updatedAt: new Date().toISOString()
         };
       }
 
       function validate(data) {
-        if (!data.datum) {
-          showMessage('Bitte gib ein Datum ein.', 'error');
-          fields.datum.focus();
+        if (!data.titel) {
+          showMessage('Bitte gib eine Bezeichnung oder einen Zusammenhang ein.', 'error');
+          fields.titel.focus();
           return false;
         }
-        if (!data.kryptoAsset) {
-          showMessage('Bitte gib den verkauften Coin oder Token ein.', 'error');
-          fields.kryptoAsset.focus();
+
+        const validEntries = data.entries.filter(entry =>
+          entry.datum || entry.platform || entry.asset || entry.amount || entry.fiatAmount || entry.note
+        );
+
+        if (!validEntries.length) {
+          showMessage('Bitte erfasse mindestens eine Verkaufs-Zeile mit Inhalt.', 'error');
           return false;
         }
-        if (!data.kryptoMenge) {
-          showMessage('Bitte gib die abgegebene Menge ein.', 'error');
-          fields.kryptoMenge.focus();
+
+        const invalidEntry = validEntries.find(entry =>
+          !entry.platform || !entry.asset || !entry.amount || !entry.fiatCurrency || !entry.fiatAmount
+        );
+
+        if (invalidEntry) {
+          showMessage('Bitte gib in jeder genutzten Verkaufs-Zeile mindestens Plattform, Asset, Menge, Fiat-Währung und Fiat-Betrag an.', 'error');
           return false;
         }
-        if (!data.fiatWaehrung) {
-          showMessage('Bitte wähle die Fiat-Währung aus.', 'error');
-          fields.fiatWaehrung.focus();
-          return false;
-        }
-        if (!data.fiatBetrag) {
-          showMessage('Bitte gib den erhaltenen Fiat-Betrag ein.', 'error');
-          fields.fiatBetrag.focus();
-          return false;
-        }
+
+        data.entries = validEntries;
         return true;
       }
 
       function resetForm() {
         form.reset();
         editIdField.value = '';
+        resetSellBlocks();
         clearMessage();
       }
 
       function fillForm(item) {
         editIdField.value = item.id || '';
-        fields.datum.value = item.datum || '';
-        fields.uhrzeit.value = item.uhrzeit || '';
-        fields.kryptoAsset.value = item.kryptoAsset || '';
-        fields.kryptoMenge.value = item.kryptoMenge || '';
-        fields.fiatWaehrung.value = item.fiatWaehrung || '';
-        fields.fiatBetrag.value = item.fiatBetrag || '';
-        fields.plattform.value = item.plattform || '';
-        fields.chain.value = item.chain || '';
-        fields.walletAbgang.value = item.walletAbgang || '';
-        fields.gebuehren.value = item.gebuehren || '';
+        fields.titel.value = item.titel || '';
+        fields.kommentarKurz.value = item.kommentarKurz || '';
         fields.kommentar.value = item.kommentar || '';
+
+        sellBlocksWrap.innerHTML = '';
+        if (Array.isArray(item.entries) && item.entries.length) {
+          item.entries.forEach(entry => createSellBlock(entry));
+        } else {
+          createSellBlock();
+        }
+
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
 
@@ -1145,24 +1323,18 @@
         return date.toLocaleString('de-DE');
       }
 
-      function numberValue(value) {
-        const parsed = parseFloat(String(value || '').replace(',', '.'));
-        return Number.isFinite(parsed) ? parsed : 0;
-      }
-
       function updateStatus(data) {
         statusCount.textContent = String(data.length);
-
-        const totalFiat = data.reduce((sum, item) => sum + numberValue(item.fiatBetrag), 0);
-        statusFiat.textContent = totalFiat.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 8 });
+        statusEntries.textContent = String(data.reduce((sum, item) => sum + ((item.entries || []).length), 0));
 
         if (data.length) {
-          statusAsset.textContent = data[0].kryptoAsset || '—';
-          statusPlattform.textContent = data[0].plattform || '—';
+          statusLastTitle.textContent = data[0].titel || '—';
+          const firstEntry = (data[0].entries && data[0].entries[0]) ? data[0].entries[0] : null;
+          statusLastPlatform.textContent = firstEntry ? (firstEntry.platform || '—') : '—';
           statusLast.textContent = formatDate(data[0].updatedAt);
         } else {
-          statusAsset.textContent = 'Noch nichts gespeichert';
-          statusPlattform.textContent = 'Noch nichts gespeichert';
+          statusLastTitle.textContent = 'Noch nichts gespeichert';
+          statusLastPlatform.textContent = 'Noch nichts gespeichert';
           statusLast.textContent = 'Noch nichts gespeichert';
         }
       }
@@ -1177,6 +1349,36 @@
         `;
       }
 
+      function renderEntries(entries) {
+        if (!entries || !entries.length) {
+          return `<div class="entry-box"><div class="record-item"><small>Verkaufs-Zeilen</small><span>—</span></div></div>`;
+        }
+
+        return entries.map((entry, index) => `
+          <div class="entry-box">
+            <div class="entry-box-head">
+              <span class="pill">${index + 1}. Zeile</span>
+              ${entry.platform ? `<span class="pill">${entry.platform}</span>` : ''}
+              ${entry.chain ? `<span class="pill">${entry.chain}</span>` : ''}
+              ${entry.asset ? `<span class="pill">${entry.asset}</span>` : ''}
+            </div>
+            <div class="record-grid">
+              ${createInfoRow('Datum', entry.datum)}
+              ${createInfoRow('Uhrzeit', entry.uhrzeit)}
+              ${createInfoRow('Plattform', entry.platform)}
+              ${createInfoRow('Chain', entry.chain)}
+              ${createInfoRow('Asset', entry.asset)}
+              ${createInfoRow('Abgegebene Menge', entry.amount)}
+              ${createInfoRow('Fiat', (entry.fiatAmount || '—') + ' ' + (entry.fiatCurrency || ''))}
+              ${createInfoRow('Abgangs-Wallet', entry.wallet)}
+              ${createInfoRow('Wert in Fiat', entry.valueFiat)}
+              ${createInfoRow('Gebühren', entry.fees)}
+              ${createInfoRow('Kurz-Kommentar', entry.note)}
+            </div>
+          </div>
+        `).join('');
+      }
+
       function renderRecords() {
         const data = getData();
         updateStatus(data);
@@ -1184,25 +1386,22 @@
         const search = searchInput.value.trim().toLowerCase();
 
         const filtered = data.filter(item => {
+          const entryHaystack = (item.entries || []).map(entry =>
+            [
+              entry.datum, entry.uhrzeit, entry.chain, entry.platform, entry.asset, entry.amount,
+              entry.fiatCurrency, entry.fiatAmount, entry.wallet, entry.valueFiat, entry.fees, entry.note
+            ].join(' ')
+          ).join(' ');
+
           const haystack = [
-            item.datum,
-            item.uhrzeit,
-            item.kryptoAsset,
-            item.kryptoMenge,
-            item.fiatWaehrung,
-            item.fiatBetrag,
-            item.plattform,
-            item.chain,
-            item.walletAbgang,
-            item.gebuehren,
-            item.kommentar
+            item.titel, item.kommentarKurz, item.kommentar, entryHaystack
           ].join(' ').toLowerCase();
 
           return haystack.includes(search);
         });
 
         if (!filtered.length) {
-          recordsWrap.innerHTML = `<div class="empty">Noch keine passenden Vorgänge vorhanden.</div>`;
+          recordsWrap.innerHTML = `<div class="empty">Noch keine passenden Datensätze vorhanden.</div>`;
           return;
         }
 
@@ -1210,23 +1409,22 @@
           <article class="record">
             <div class="record-head">
               <div class="record-title">
-                <strong>${item.kryptoAsset || 'Unbenannter Verkauf'}</strong>
+                <strong>${item.titel || 'Unbenannter Verkaufsblock'}</strong>
                 <div class="pills">
-                  <span class="pill">${item.kryptoMenge || '—'}</span>
-                  <span class="pill">${item.fiatBetrag || '—'} ${item.fiatWaehrung || ''}</span>
-                  ${item.chain ? `<span class="pill">${item.chain}</span>` : ''}
+                  <span class="pill">${(item.entries || []).length} Zeilen</span>
+                  ${item.kommentarKurz ? `<span class="pill">${item.kommentarKurz}</span>` : ''}
                 </div>
               </div>
             </div>
 
             <div class="record-grid">
-              ${createInfoRow('Datum', item.datum)}
-              ${createInfoRow('Uhrzeit', item.uhrzeit)}
-              ${createInfoRow('Plattform / Quelle', item.plattform)}
-              ${createInfoRow('Abgangs-Wallet', item.walletAbgang)}
-              ${createInfoRow('Gebühren', item.gebuehren)}
+              ${createInfoRow('Kurz-Kommentar', item.kommentarKurz)}
               ${createInfoRow('Kommentar', item.kommentar)}
               ${createInfoRow('Letzte Änderung', formatDate(item.updatedAt))}
+            </div>
+
+            <div class="entry-list">
+              ${renderEntries(item.entries)}
             </div>
 
             <div class="record-actions">
@@ -1246,10 +1444,10 @@
 
         if (existingIndex >= 0) {
           data[existingIndex] = item;
-          showMessage('Der Vorgang wurde aktualisiert.', 'success');
+          showMessage('Der Datensatz wurde aktualisiert.', 'success');
         } else {
           data.unshift(item);
-          showMessage('Der Vorgang wurde gespeichert.', 'success');
+          showMessage('Der Datensatz wurde gespeichert.', 'success');
         }
 
         setData(data);
@@ -1264,15 +1462,20 @@
           return;
         }
         fillForm(item);
-        showMessage('Der Vorgang wurde zum Bearbeiten geladen.', 'success');
+        showMessage('Der Datensatz wurde zum Bearbeiten geladen.', 'success');
       }
 
       function deleteRecord(id) {
         const data = getData().filter(item => item.id !== id);
         setData(data);
         renderRecords();
-        showMessage('Der Vorgang wurde gelöscht.', 'success');
+        showMessage('Der Datensatz wurde gelöscht.', 'success');
       }
+
+      addSellBtn.addEventListener('click', function () {
+        createSellBlock();
+        showMessage('Eine weitere Verkaufs-Zeile wurde hinzugefügt.', 'warn');
+      });
 
       form.addEventListener('submit', function (event) {
         event.preventDefault();
@@ -1287,13 +1490,13 @@
       clearAllBtn.addEventListener('click', function () {
         const data = getData();
         if (!data.length) {
-          showMessage('Es sind keine Vorgänge vorhanden.', 'error');
+          showMessage('Es sind keine Datensätze vorhanden.', 'error');
           return;
         }
         localStorage.removeItem(STORAGE_KEY);
         resetForm();
         renderRecords();
-        showMessage('Alle Vorgänge wurden gelöscht.', 'success');
+        showMessage('Alle Datensätze wurden gelöscht.', 'success');
       });
 
       searchInput.addEventListener('input', renderRecords);
@@ -1309,7 +1512,7 @@
         if (action === 'delete') deleteRecord(id);
       });
 
-      resetForm();
+      resetSellBlocks();
       renderRecords();
     })();
   </script>
