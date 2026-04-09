@@ -930,6 +930,8 @@
     │   │   ├── modul-3-risiken-szenarien.html
     │   │   └── modul-4-empfehlungen-grenzen.html
     │   ├── krypto-steuer-ordnung/
+    │   │   ├── export/
+    │   │   │   └── csv-import-export.html
     │   │   ├── forms/
     │   │   │   ├── form-eigenuebertrag.html
     │   │   │   ├── form-fiat-zu-krypto.html
@@ -1373,4 +1375,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.04.2026, 17:01)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.04.2026, 18:56)_
