@@ -946,7 +946,9 @@
     │   │   │   ├── 02-wallets-boersen-chains.html
     │   │   │   ├── 03-wallets-blockchains-verstehen.html
     │   │   │   ├── 04-datenquellen-unterlagen.html
-    │   │   │   └── 05-transaktionen.html
+    │   │   │   ├── 05-transaktionen.html
+    │   │   │   ├── 06-wertermittlung.html
+    │   │   │   └── 07-problemfaelle.html
     │   │   ├── dashboard.html
     │   │   └── index.html
     │   ├── liquiditybooster/
@@ -1370,4 +1372,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.04.2026, 13:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.04.2026, 15:17)_
