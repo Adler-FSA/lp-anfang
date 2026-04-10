@@ -531,6 +531,33 @@
       text-transform:uppercase;
     }
 
+    .pill.demo{
+      color:#9a5a00;
+      background:#fff7e8;
+      border-color:#f5c28b;
+    }
+
+    .demo-banner{
+      margin-top:16px;
+      padding:16px 18px;
+      border-radius:18px;
+      border:1px solid #f5c28b;
+      background:linear-gradient(180deg,#fff8ee,#ffffff);
+    }
+
+    .demo-banner strong{
+      display:block;
+      margin-bottom:4px;
+      font-size:14px;
+      color:#8a4d00;
+    }
+
+    .demo-banner span{
+      display:block;
+      font-size:14px;
+      color:#7b5b31;
+    }
+
     .table-wrap{
       width:100%;
       overflow:auto;
@@ -542,7 +569,7 @@
     table{
       width:100%;
       border-collapse:collapse;
-      min-width:1400px;
+      min-width:1520px;
     }
 
     th,td{
@@ -699,7 +726,7 @@
               <p class="eyebrow">Fertige Ausgabe</p>
               <h1>Excel- und CSV-Download auf Knopfdruck</h1>
               <p class="hero-subtitle">Diese Seite sammelt Pflichtquellen, optionale Explorer-Nachweise und auf Wunsch Archivdaten aus dem Kurs und stellt daraus eine fertige Datei für Excel oder CSV bereit.</p>
-              <p class="hero-copy">Pflicht sind die echten Falldaten. Explorer-Notizen kommen auf Wunsch als zusätzlicher Nachweis mit hinein. Archivdaten werden nur aufgenommen, wenn du das bewusst auswählst.</p>
+              <p class="hero-copy">Pflicht sind die echten Falldaten. Explorer-Notizen kommen auf Wunsch als zusätzlicher Nachweis mit hinein. Archivdaten werden nur aufgenommen, wenn du das bewusst auswählst. Wenn eine Demo geladen ist, wird sie hier ebenfalls klar sichtbar markiert.</p>
 
               <div class="hero-points">
                 <div class="hero-point">
@@ -714,6 +741,11 @@
                   <strong>Archiv nur bewusst</strong>
                   <span>Archivstände werden nicht blind gemischt, sondern nur auf Auswahl mit übernommen.</span>
                 </div>
+              </div>
+
+              <div id="demoBanner" class="demo-banner" style="display:none">
+                <strong>Demo-Vorschau aktiv</strong>
+                <span>Es ist aktuell ein ausgedachter Demo-Fall geladen. Die Excel-/CSV-Ausgabe kann dadurch sofort mit einem Beispiel geprüft werden.</span>
               </div>
             </div>
 
@@ -835,6 +867,10 @@
                     <strong>Archiv zusätzlich</strong>
                     <span id="statusArchiv">nein</span>
                   </li>
+                  <li class="status-item">
+                    <strong>Demo geladen</strong>
+                    <span id="statusDemo">nein</span>
+                  </li>
                 </ul>
               </div>
 
@@ -898,11 +934,12 @@
   <script>
     (function(){
       const META_KEY = 'kso_explorer_excel_builder_meta_v3';
+      const DEMO_META_KEY = 'kso_demo_meta_v1';
 
       const SOURCE_REGISTRY = [
-        { role:'mandatory', group:'Stammdaten', label:'Fallstart / Stammdaten', page:'module/01-fallstart-stammdaten.html', match:['module_01','fallstart','stammdaten'] },
-        { role:'mandatory', group:'Stammdaten', label:'Wallets / Börsen / Chains', page:'module/02-wallets-boersen-chains.html', match:['module_02','wallets_boersen_chains','wallets-boersen-chains'] },
-        { role:'mandatory', group:'Stammdaten', label:'Datenquellen / Unterlagen', page:'module/04-datenquellen-unterlagen.html', match:['module_04','datenquellen_unterlagen','datenquellen-unterlagen'] },
+        { role:'mandatory', group:'Stammdaten', label:'Fallstart / Stammdaten', page:'module/01-fallstart-stammdaten.html', exact:['kso_demo_module_01_fallstart_stammdaten_v1'], match:['module_01','fallstart','stammdaten'] },
+        { role:'mandatory', group:'Stammdaten', label:'Wallets / Börsen / Chains', page:'module/02-wallets-boersen-chains.html', exact:['kso_demo_module_02_wallets_boersen_chains_v1'], match:['module_02','wallets_boersen_chains','wallets-boersen-chains'] },
+        { role:'mandatory', group:'Stammdaten', label:'Datenquellen / Unterlagen', page:'module/04-datenquellen-unterlagen.html', exact:['kso_demo_module_04_datenquellen_unterlagen_v1'], match:['module_04','datenquellen_unterlagen','datenquellen-unterlagen'] },
 
         { role:'mandatory', group:'Formulare', label:'Fiat zu Krypto', page:'forms/form-fiat-zu-krypto.html', exact:['kso_form_fiat_zu_krypto_v1'] },
         { role:'mandatory', group:'Formulare', label:'Krypto zu Fiat', page:'forms/form-krypto-zu-fiat.html', exact:['kso_form_krypto_zu_fiat_v1'] },
@@ -936,7 +973,9 @@
         'kso_explorer_excel_builder_meta_v2',
         'kso_explorer_excel_builder_meta_v3',
         'kso_explorer_daten_excel_notes_v1',
-        'kso_explorer_pdf_steuerberater_notes_v1'
+        'kso_explorer_pdf_steuerberater_notes_v1',
+        'kso_demo_meta_v1',
+        'kso_demo_archiv_eintraege_v1'
       ];
 
       const fileName = document.getElementById('fileName');
@@ -959,8 +998,10 @@
       const statusOptional = document.getElementById('statusOptional');
       const statusRows = document.getElementById('statusRows');
       const statusArchiv = document.getElementById('statusArchiv');
+      const statusDemo = document.getElementById('statusDemo');
       const detectedAreas = document.getElementById('detectedAreas');
       const previewRoot = document.getElementById('previewRoot');
+      const demoBanner = document.getElementById('demoBanner');
 
       let currentRows = [];
 
@@ -999,6 +1040,17 @@
           if(key) keys.push(key);
         }
         return keys;
+      }
+
+      function demoIsLoaded(){
+        const meta = loadJson(DEMO_META_KEY, null);
+        return !!(meta && meta.loaded === true);
+      }
+
+      function updateDemoVisuals(){
+        const active = demoIsLoaded();
+        statusDemo.textContent = active ? 'ja' : 'nein';
+        demoBanner.style.display = active ? 'block' : 'none';
       }
 
       function saveMeta(){
@@ -1144,7 +1196,8 @@
             group: registry.group,
             label: registry.label,
             page: registry.page,
-            records
+            records,
+            isDemo: key.startsWith('kso_demo_')
           });
         });
 
@@ -1164,7 +1217,9 @@
         }
         detectedAreas.innerHTML = sources.map(source => {
           const roleLabel = source.role === 'mandatory' ? 'Pflicht' : source.role === 'optional' ? 'Anhang' : 'Archiv';
-          return '<span class="pill">' + esc(roleLabel + ' · ' + source.label + ' (' + source.records.length + ')') + '</span>';
+          const demoClass = source.isDemo ? ' demo' : '';
+          const demoText = source.isDemo ? ' · Demo' : '';
+          return '<span class="pill' + demoClass + '">' + esc(roleLabel + demoText + ' · ' + source.label + ' (' + source.records.length + ')') + '</span>';
         }).join('');
       }
 
@@ -1176,6 +1231,7 @@
             flattenRows(record).forEach(row => {
               rows.push({
                 Quellenrolle: source.role === 'mandatory' ? 'Pflicht' : source.role === 'optional' ? 'Explorer-Anhang' : 'Archiv',
+                Demo: source.isDemo ? 'ja' : 'nein',
                 Gruppe: source.group,
                 Quelle: source.label,
                 QuelleSeite: source.page,
@@ -1207,6 +1263,7 @@
         statusOptional.textContent = String(sources.filter(s => s.role === 'optional').length);
         statusRows.textContent = String(rows.length);
         statusArchiv.textContent = sources.some(s => s.role === 'archive') ? 'ja' : 'nein';
+        updateDemoVisuals();
       }
 
       function renderPreview(rows){
@@ -1285,7 +1342,11 @@
         updateStatus(sources, rows);
         renderPreview(rows);
 
-        if(rows.length){
+        const demoActive = demoIsLoaded();
+
+        if(rows.length && demoActive){
+          showMessage('Die Export-Datei wurde aufgebaut. Ein geladener Demo-Fall ist aktuell mit berücksichtigt.', 'success');
+        } else if(rows.length){
           showMessage('Die Export-Datei wurde mit Pflichtquellen und gewählten Zusatzquellen aufgebaut.', 'success');
         } else {
           showMessage('Es wurden aktuell keine relevanten gespeicherten Kursdaten für den Export gefunden.', 'warn');
@@ -1327,6 +1388,7 @@
       });
       resetMetaBtn.addEventListener('click', function(){
         resetMeta();
+        updateDemoVisuals();
         showMessage('Datei-Setup und Quellenauswahl wurden geleert.', 'warn');
       });
 
@@ -1341,6 +1403,7 @@
 
       loadMeta();
       collectArchiveKeys();
+      updateDemoVisuals();
       buildExport();
     })();
   </script>
