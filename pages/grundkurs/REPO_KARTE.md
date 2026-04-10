@@ -932,6 +932,8 @@
     │   ├── krypto-steuer-ordnung/
     │   │   ├── archiv/
     │   │   │   └── jahresarchiv.html
+    │   │   ├── auswertung/
+    │   │   │   └── steuer-vorschau.html
     │   │   ├── explorer/
     │   │   │   ├── bitcoin-explorer.html
     │   │   │   ├── blockchain.html
@@ -1389,4 +1391,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.04.2026, 10:48)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.04.2026, 11:42)_
