@@ -532,6 +532,33 @@
       text-transform:uppercase;
     }
 
+    .pill.demo{
+      color:#9a5a00;
+      background:#fff7e8;
+      border-color:#f5c28b;
+    }
+
+    .demo-banner{
+      margin-top:16px;
+      padding:16px 18px;
+      border-radius:18px;
+      border:1px solid #f5c28b;
+      background:linear-gradient(180deg,#fff8ee,#ffffff);
+    }
+
+    .demo-banner strong{
+      display:block;
+      margin-bottom:4px;
+      font-size:14px;
+      color:#8a4d00;
+    }
+
+    .demo-banner span{
+      display:block;
+      font-size:14px;
+      color:#7b5b31;
+    }
+
     .print-sheet{
       padding:28px;
       break-inside:avoid;
@@ -589,7 +616,7 @@
 
     .summary-grid{
       display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
+      grid-template-columns:repeat(5,minmax(0,1fr));
       gap:12px;
     }
 
@@ -647,7 +674,7 @@
     table{
       width:100%;
       border-collapse:collapse;
-      min-width:980px;
+      min-width:1040px;
     }
 
     th,td{
@@ -864,7 +891,7 @@
       }
 
       .summary-grid{
-        grid-template-columns:repeat(4,minmax(0,1fr));
+        grid-template-columns:repeat(5,minmax(0,1fr));
       }
     }
   </style>
@@ -902,7 +929,7 @@
               <p class="eyebrow">Fertige Ausgabe</p>
               <h1>Übergabepaket für den Steuerberater auf Knopfdruck</h1>
               <p class="hero-subtitle">Diese Seite sammelt Pflichtquellen, optionale Explorer-Nachweise und auf Wunsch Archivdaten aus dem Kurs und baut daraus eine fertige druckbare Leseransicht.</p>
-              <p class="hero-copy">Pflicht sind die echten Falldaten. Optional kommen Explorer-Notizen als Nachweis-Anhang dazu. Archivdaten werden nur mitgenommen, wenn du das unten bewusst auswählst.</p>
+              <p class="hero-copy">Pflicht sind die echten Falldaten. Explorer-Notizen kommen als Nachweis-Anhang nur auf Wunsch mit hinein. Archivdaten werden nur aufgenommen, wenn du das bewusst auswählst. Wenn eine Demo geladen ist, wird sie hier ebenfalls klar sichtbar markiert.</p>
 
               <div class="hero-points">
                 <div class="hero-point">
@@ -911,12 +938,17 @@
                 </div>
                 <div class="hero-point">
                   <strong>Optionale Anhänge</strong>
-                  <span>Explorer-Notizen und Rekonstruktionswege können zusätzlich mit in die PDF.</span>
+                  <span>Explorer-Notizen und Rekonstruktionswege können zusätzlich in die PDF.</span>
                 </div>
                 <div class="hero-point">
                   <strong>Archiv nur bewusst</strong>
                   <span>Archivstände werden nicht blind gemischt, sondern nur auf Auswahl mit übernommen.</span>
                 </div>
+              </div>
+
+              <div id="demoBanner" class="demo-banner" style="display:none">
+                <strong>Demo-Vorschau aktiv</strong>
+                <span>Es ist aktuell ein ausgedachter Demo-Fall geladen. Die PDF-Ausgabe kann dadurch sofort mit einer fertigen Beispiel-Übergabe geprüft werden.</span>
               </div>
             </div>
 
@@ -1042,6 +1074,10 @@
                     <strong>Archiv zusätzlich</strong>
                     <span id="statusArchiv">nein</span>
                   </li>
+                  <li class="status-item">
+                    <strong>Demo geladen</strong>
+                    <span id="statusDemo">nein</span>
+                  </li>
                 </ul>
               </div>
 
@@ -1105,11 +1141,12 @@
   <script>
     (function(){
       const META_KEY = 'kso_explorer_pdf_builder_meta_v3';
+      const DEMO_META_KEY = 'kso_demo_meta_v1';
 
       const SOURCE_REGISTRY = [
-        { role:'mandatory', group:'Stammdaten', label:'Fallstart / Stammdaten', page:'module/01-fallstart-stammdaten.html', match:['module_01','fallstart','stammdaten'] },
-        { role:'mandatory', group:'Stammdaten', label:'Wallets / Börsen / Chains', page:'module/02-wallets-boersen-chains.html', match:['module_02','wallets_boersen_chains','wallets-boersen-chains'] },
-        { role:'mandatory', group:'Stammdaten', label:'Datenquellen / Unterlagen', page:'module/04-datenquellen-unterlagen.html', match:['module_04','datenquellen_unterlagen','datenquellen-unterlagen'] },
+        { role:'mandatory', group:'Stammdaten', label:'Fallstart / Stammdaten', page:'module/01-fallstart-stammdaten.html', exact:['kso_demo_module_01_fallstart_stammdaten_v1'], match:['module_01','fallstart','stammdaten'] },
+        { role:'mandatory', group:'Stammdaten', label:'Wallets / Börsen / Chains', page:'module/02-wallets-boersen-chains.html', exact:['kso_demo_module_02_wallets_boersen_chains_v1'], match:['module_02','wallets_boersen_chains','wallets-boersen-chains'] },
+        { role:'mandatory', group:'Stammdaten', label:'Datenquellen / Unterlagen', page:'module/04-datenquellen-unterlagen.html', exact:['kso_demo_module_04_datenquellen_unterlagen_v1'], match:['module_04','datenquellen_unterlagen','datenquellen-unterlagen'] },
 
         { role:'mandatory', group:'Formulare', label:'Fiat zu Krypto', page:'forms/form-fiat-zu-krypto.html', exact:['kso_form_fiat_zu_krypto_v1'] },
         { role:'mandatory', group:'Formulare', label:'Krypto zu Fiat', page:'forms/form-krypto-zu-fiat.html', exact:['kso_form_krypto_zu_fiat_v1'] },
@@ -1143,7 +1180,9 @@
         'kso_explorer_excel_builder_meta_v2',
         'kso_explorer_excel_builder_meta_v3',
         'kso_explorer_daten_excel_notes_v1',
-        'kso_explorer_pdf_steuerberater_notes_v1'
+        'kso_explorer_pdf_steuerberater_notes_v1',
+        'kso_demo_meta_v1',
+        'kso_demo_archiv_eintraege_v1'
       ];
 
       const paketTitel = document.getElementById('paketTitel');
@@ -1166,8 +1205,10 @@
       const statusOptional = document.getElementById('statusOptional');
       const statusRecords = document.getElementById('statusRecords');
       const statusArchiv = document.getElementById('statusArchiv');
+      const statusDemo = document.getElementById('statusDemo');
       const detectedAreas = document.getElementById('detectedAreas');
       const printRoot = document.getElementById('printRoot');
+      const demoBanner = document.getElementById('demoBanner');
 
       function showMessage(text, type){
         messageBox.textContent = text;
@@ -1185,13 +1226,6 @@
           .replace(/>/g,'&gt;')
           .replace(/"/g,'&quot;')
           .replace(/'/g,'&#039;');
-      }
-
-      function formatDate(value){
-        if(!value) return '—';
-        const d = new Date(value);
-        if(Number.isNaN(d.getTime())) return safeText(value);
-        return d.toLocaleString('de-DE');
       }
 
       function shortDate(value){
@@ -1219,6 +1253,17 @@
           if(key) keys.push(key);
         }
         return keys;
+      }
+
+      function demoIsLoaded(){
+        const meta = loadJson(DEMO_META_KEY, null);
+        return !!(meta && meta.loaded === true);
+      }
+
+      function updateDemoVisuals(){
+        const active = demoIsLoaded();
+        statusDemo.textContent = active ? 'ja' : 'nein';
+        demoBanner.style.display = active ? 'block' : 'none';
       }
 
       function saveMeta(){
@@ -1339,33 +1384,6 @@
         }];
       }
 
-      function objectToRows(obj){
-        const ignore = ['updatedAt','createdAt','id','timestamp'];
-        const values = Object.keys(obj)
-          .filter(key => !ignore.includes(key))
-          .map(key => {
-            const value = obj[key];
-            if(value == null || value === '') return '';
-            if(typeof value === 'object') return key + ': ' + JSON.stringify(value);
-            return key + ': ' + String(value);
-          })
-          .filter(Boolean)
-          .join(' | ');
-
-        return [{
-          datum: obj.datum || obj.zeitraum || obj.relevantesDatum || '',
-          art: obj.typ || obj.art || obj.vorgangsart || '',
-          asset: obj.coin || obj.token || obj.asset || '',
-          menge: obj.menge || obj.betrag || '',
-          gegenwert: obj.gegenwert || obj.eurWert || '',
-          chain: obj.chain || obj.blockchain || '',
-          quelle: obj.quelle || '',
-          datenlage: obj.datenlage || '',
-          hash: obj.hash || obj.txHash || '',
-          kommentar: values || getRecordComment(obj)
-        }];
-      }
-
       function valueToRecordArray(value){
         if(isArrayOfObjects(value)) return value;
         if(isRelevantObject(value)) return [value];
@@ -1380,7 +1398,6 @@
         keys.forEach(key => {
           const registry = findRegistryByKey(key);
           if(!registry) return;
-
           if(registry.role === 'optional' && !includeExplorer.checked) return;
           if(registry.role === 'archive' && (!selectedArchivKey || key !== selectedArchivKey)) return;
 
@@ -1394,7 +1411,8 @@
             group: registry.group,
             label: registry.label,
             page: registry.page,
-            records
+            records,
+            isDemo: key.startsWith('kso_demo_')
           });
         });
 
@@ -1412,11 +1430,13 @@
         let optionalCount = 0;
         let totalRows = 0;
         let archiveUsed = false;
+        let demoUsed = false;
 
         sources.forEach(source => {
           if(source.role === 'mandatory') mandatoryCount += 1;
           if(source.role === 'optional') optionalCount += 1;
           if(source.role === 'archive') archiveUsed = true;
+          if(source.isDemo) demoUsed = true;
 
           source.records.forEach(record => {
             if(Array.isArray(record.entries) && record.entries.length){
@@ -1427,7 +1447,7 @@
           });
         });
 
-        return { mandatoryCount, optionalCount, totalRows, archiveUsed };
+        return { mandatoryCount, optionalCount, totalRows, archiveUsed, demoUsed };
       }
 
       function buildAreaPills(sources){
@@ -1437,7 +1457,9 @@
         }
         detectedAreas.innerHTML = sources.map(source => {
           const roleLabel = source.role === 'mandatory' ? 'Pflicht' : source.role === 'optional' ? 'Anhang' : 'Archiv';
-          return '<span class="pill">' + esc(roleLabel + ' · ' + source.label + ' (' + source.records.length + ')') + '</span>';
+          const demoClass = source.isDemo ? ' demo' : '';
+          const demoText = source.isDemo ? ' · Demo' : '';
+          return '<span class="pill' + demoClass + '">' + esc(roleLabel + demoText + ' · ' + source.label + ' (' + source.records.length + ')') + '</span>';
         }).join('');
       }
 
@@ -1461,7 +1483,7 @@
                   source.records.forEach(record => rows += flattenRows(record).length);
                   return `
                     <div class="simple-item">
-                      <strong>${esc(source.label)}</strong>
+                      <strong>${esc(source.label)}${source.isDemo ? ' · Demo' : ''}</strong>
                       <span>Blöcke: ${source.records.length} · Einzelzeilen: ${rows}</span>
                     </div>
                   `;
@@ -1477,6 +1499,7 @@
             <div class="summary-box"><strong>${summary.optionalCount}</strong><span>Explorer-Anhänge</span></div>
             <div class="summary-box"><strong>${summary.totalRows}</strong><span>Einzelzeilen gesamt</span></div>
             <div class="summary-box"><strong>${summary.archiveUsed ? 'ja' : 'nein'}</strong><span>Archiv zusätzlich</span></div>
+            <div class="summary-box"><strong>${summary.demoUsed ? 'ja' : 'nein'}</strong><span>Demo aktiv</span></div>
           </div>
           ${buildGroup('Pflichtquellen', mandatory)}
           ${buildGroup('Explorer-Nachweise', optional)}
@@ -1497,7 +1520,7 @@
               rows.push(`
                 <tr>
                   <td>${esc(source.group)}</td>
-                  <td>${esc(source.label)}</td>
+                  <td>${esc(source.label)}${source.isDemo ? ' · Demo' : ''}</td>
                   <td>${esc(getRecordTitle(record))}</td>
                   <td>${esc(row.datum || '—')}</td>
                   <td>${esc(row.art || '—')}</td>
@@ -1550,7 +1573,7 @@
             source.records.forEach(record => {
               problems.push(`
                 <div class="simple-item">
-                  <strong>${esc(getRecordTitle(record))}</strong>
+                  <strong>${esc(getRecordTitle(record))}${source.isDemo ? ' · Demo' : ''}</strong>
                   <span>${esc(getRecordComment(record) || flattenRows(record).map(r => r.kommentar || r.art || r.datum).filter(Boolean).join(' | ') || 'Kein weiterer Hinweis')}</span>
                 </div>
               `);
@@ -1561,7 +1584,7 @@
             source.records.forEach(record => {
               questions.push(`
                 <div class="simple-item">
-                  <strong>${esc(getRecordTitle(record))}</strong>
+                  <strong>${esc(getRecordTitle(record))}${source.isDemo ? ' · Demo' : ''}</strong>
                   <span>${esc(getRecordComment(record) || flattenRows(record).map(r => r.kommentar || r.art || r.datum).filter(Boolean).join(' | ') || 'Keine weitere Fragebeschreibung')}</span>
                 </div>
               `);
@@ -1587,7 +1610,7 @@
             const line = rows.map(r => [r.datum, r.art, r.asset, r.kommentar].filter(Boolean).join(' · ')).filter(Boolean).join(' | ');
             return `
               <div class="simple-item">
-                <strong>${esc(getRecordTitle(record))}</strong>
+                <strong>${esc(getRecordTitle(record))}${source.isDemo ? ' · Demo' : ''}</strong>
                 <span>${esc(getRecordComment(record) || line || 'Kein weiterer Hinweis')}</span>
               </div>
             `;
@@ -1595,7 +1618,7 @@
 
           return `
             <div class="sheet-section">
-              <h4 style="font-size:18px;margin-bottom:10px">${esc(source.label)}</h4>
+              <h4 style="font-size:18px;margin-bottom:10px">${esc(source.label)}${source.isDemo ? ' · Demo' : ''}</h4>
               <div class="simple-list">${items}</div>
             </div>
           `;
@@ -1624,7 +1647,7 @@
             const line = rows.map(r => [r.datum, r.art, r.asset, r.kommentar].filter(Boolean).join(' · ')).filter(Boolean).join(' | ');
             return `
               <div class="simple-item">
-                <strong>${esc(source.label + ' · ' + getRecordTitle(record))}</strong>
+                <strong>${esc(source.label + ' · ' + getRecordTitle(record))}${source.isDemo ? ' · Demo' : ''}</strong>
                 <span>${esc(getRecordComment(record) || line || JSON.stringify(record))}</span>
               </div>
             `;
@@ -1654,6 +1677,7 @@
         statusOptional.textContent = String(summary.optionalCount);
         statusRecords.textContent = String(summary.totalRows);
         statusArchiv.textContent = summary.archiveUsed ? 'ja' : 'nein';
+        updateDemoVisuals();
 
         buildAreaPills(sources);
 
@@ -1672,7 +1696,7 @@
                 <p class="eyebrow screen-only">Übergabepaket</p>
                 <h2>${esc(title)}</h2>
                 <p style="margin-top:14px;color:var(--muted);font-size:17px;">
-                  Diese Zusammenstellung wurde aus Pflichtquellen des Kurses aufgebaut. Explorer-Notizen und Archivstände werden nur aufgenommen, wenn sie bewusst ausgewählt wurden.
+                  Diese Zusammenstellung wurde aus Pflichtquellen des Kurses aufgebaut. Explorer-Notizen und Archivstände werden nur aufgenommen, wenn sie bewusst ausgewählt wurden.${summary.demoUsed ? ' Ein geladener Demo-Fall ist aktuell sichtbar mit berücksichtigt.' : ''}
                 </p>
               </div>
 
@@ -1745,6 +1769,8 @@
 
         if(!sources.length){
           showMessage('Es wurden aktuell keine relevanten Kursdaten gefunden.', 'warn');
+        } else if(summary.demoUsed){
+          showMessage('Das Übergabepaket wurde aufgebaut. Ein geladener Demo-Fall ist aktuell mit berücksichtigt.', 'success');
         } else {
           showMessage('Das Übergabepaket wurde mit Pflichtquellen und gewählten Zusatzquellen aufgebaut.', 'success');
         }
@@ -1763,6 +1789,7 @@
       });
       resetMetaBtn.addEventListener('click', function(){
         resetMeta();
+        updateDemoVisuals();
         showMessage('Deckblatt und Quellenauswahl wurden geleert.', 'warn');
       });
 
@@ -1777,6 +1804,7 @@
 
       loadMeta();
       collectArchiveKeys();
+      updateDemoVisuals();
       buildPrintView();
     })();
   </script>
