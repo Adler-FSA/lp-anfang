@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Steuer-Vorschau – Krypto-Steuer-Ordnung</title>
-  <meta name="description" content="Vorläufige Steuer-Vorschau mit Ampellogik, Demo-Fall, Summenübersicht und druckbarer Prüfansicht." />
+  <meta name="description" content="Vorläufige Steuer-Vorschau mit Ampellogik, Demo-Umschaltung, Summenübersicht und druckbarer Prüfansicht." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -407,6 +407,37 @@
       display:none;
     }
 
+    .mode-switch{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:16px;
+    }
+
+    .mode-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:46px;
+      padding:12px 18px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--text);
+      font-size:14px;
+      font-weight:800;
+      cursor:pointer;
+      box-shadow:var(--shadow-soft);
+      transition:.18s ease;
+    }
+
+    .mode-btn.active{
+      color:#fff;
+      border-color:transparent;
+      background:linear-gradient(135deg,var(--mint),var(--magenta));
+      box-shadow:0 14px 30px rgba(255,79,179,.18);
+    }
+
     .actions{
       display:flex;
       flex-wrap:wrap;
@@ -511,9 +542,18 @@
       background:#fff;
     }
 
-    .ampel-box.ok{border-color:#86efac;background:#f7fff9}
-    .ampel-box.warn{border-color:#fcd34d;background:#fffdf5}
-    .ampel-box.danger{border-color:#fca5a5;background:#fff9f9}
+    .ampel-box.ok{
+      border-color:#86efac;
+      background:linear-gradient(180deg,#edfff3,#dcfce7);
+    }
+    .ampel-box.warn{
+      border-color:#fcd34d;
+      background:linear-gradient(180deg,#fffdf0,#fff7e6);
+    }
+    .ampel-box.danger{
+      border-color:#fca5a5;
+      background:linear-gradient(180deg,#fff3f3,#fee2e2);
+    }
 
     .ampel-box strong{
       display:block;
@@ -650,32 +690,6 @@
       display:block;
       font-size:13px;
       color:var(--muted);
-    }
-
-    .pill-row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-    }
-
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      padding:7px 10px;
-      border-radius:999px;
-      background:#fff;
-      border:1px solid var(--line);
-      color:var(--muted);
-      font-size:12px;
-      font-weight:800;
-      letter-spacing:.04em;
-      text-transform:uppercase;
-    }
-
-    .pill.demo{
-      color:var(--demo);
-      background:var(--demo-soft);
-      border-color:#f5c28b;
     }
 
     .record-grid{
@@ -1054,10 +1068,10 @@
       h1{font-size:34px}
       .hero-subtitle{font-size:18px}
       .hero-copy{font-size:16px}
-      .btn{
+      .btn,.mode-btn{
         width:100%;
       }
-      .actions,.footer-links{
+      .actions,.footer-links,.mode-switch{
         width:100%;
       }
       .footer-links a{
@@ -1168,8 +1182,8 @@
                   <span>Grün zählt voll, Gelb läuft getrennt als Vorschau, Rot nur als Warnung.</span>
                 </div>
                 <div class="hero-point">
-                  <strong>Demo mit dabei</strong>
-                  <span>Wenn ein Demo-Fall geladen ist, wird die Vorschau sofort mit Beispieldaten sichtbar.</span>
+                  <strong>Demo umschaltbar</strong>
+                  <span>Du kannst zwischen Demo-Fall und eigenem Fall hin und her wechseln.</span>
                 </div>
                 <div class="hero-point">
                   <strong>Prüfbar</strong>
@@ -1178,7 +1192,12 @@
               </div>
 
               <div id="demoBanner" class="demo-box">
-                Demo aktiv: Die Zahlen basieren aktuell ganz oder teilweise auf dem ausgedachten Beispiel-Fall.
+                Demo-Modus aktiv: Die Zahlen basieren aktuell auf dem ausgedachten Beispiel-Fall.
+              </div>
+
+              <div class="mode-switch">
+                <button type="button" class="mode-btn" id="modeOwnBtn">Eigener Fall</button>
+                <button type="button" class="mode-btn" id="modeDemoBtn">Demo-Fall</button>
               </div>
             </div>
 
@@ -1282,8 +1301,8 @@
                     <span id="statusRot">0</span>
                   </li>
                   <li class="status-item">
-                    <strong>Demo aktiv</strong>
-                    <span id="statusDemo">nein</span>
+                    <strong>Aktiver Modus</strong>
+                    <span id="statusDemo">Eigener Fall</span>
                   </li>
                 </ul>
               </div>
@@ -1390,8 +1409,8 @@
 
   <script>
     (function(){
-      const META_KEY = 'kso_steuer_vorschau_meta_v1';
-      const DEMO_META_KEY = 'kso_demo_meta_v1';
+      const META_KEY = 'kso_steuer_vorschau_meta_v2';
+      const MODE_KEY = 'kso_steuer_vorschau_mode_v1';
 
       const titEl = document.getElementById('titel');
       const mandantEl = document.getElementById('mandant');
@@ -1405,6 +1424,9 @@
       const printBtn = document.getElementById('printBtn');
       const saveMetaBtn = document.getElementById('saveMetaBtn');
       const messageBox = document.getElementById('messageBox');
+
+      const modeOwnBtn = document.getElementById('modeOwnBtn');
+      const modeDemoBtn = document.getElementById('modeDemoBtn');
 
       const statusGruen = document.getElementById('statusGruen');
       const statusGelb = document.getElementById('statusGelb');
@@ -1436,6 +1458,47 @@
         'Fiat zu Krypto',
         'Wertermittlung'
       ]);
+
+      const OWN_SOURCE_KEYS = [
+        'kso_form_fiat_zu_krypto_v1',
+        'kso_form_krypto_zu_fiat_v1',
+        'kso_form_krypto_zu_krypto_v2',
+        'kso_form_krypto_zu_krypto_v1',
+        'kso_form_eigenuebertrag_v2',
+        'kso_form_eigenuebertrag_v1',
+        'kso_form_reward_bonus_ertrag_v2',
+        'kso_form_reward_bonus_ertrag_v1',
+        'kso_form_pool_staking_sperrmodell_v1',
+        'kso_form_ruecktausch_in_coin_v1',
+        'kso_form_token_nutzung_v1',
+        'kso_form_sonderfall_unklar_v1',
+        'kso_module_06_wertermittlung_multi_v1',
+        'kso_module_07_problemfaelle_multi_v1',
+        'kso_module_08_fragen_steuerberater_multi_v1',
+        'kso_explorer_wallet_adresse_notes_v1',
+        'kso_explorer_ethereum_etherscan_notes_v1',
+        'kso_explorer_kein_export_notes_v1'
+      ];
+
+      const DEMO_SOURCE_KEYS = [
+        'kso_demo_module_01_fallstart_stammdaten_v1',
+        'kso_demo_module_02_wallets_boersen_chains_v1',
+        'kso_demo_module_04_datenquellen_unterlagen_v1',
+        'kso_form_fiat_zu_krypto_v1',
+        'kso_form_krypto_zu_krypto_v2',
+        'kso_form_eigenuebertrag_v2',
+        'kso_form_reward_bonus_ertrag_v2',
+        'kso_form_pool_staking_sperrmodell_v1',
+        'kso_form_ruecktausch_in_coin_v1',
+        'kso_form_token_nutzung_v1',
+        'kso_form_sonderfall_unklar_v1',
+        'kso_module_06_wertermittlung_multi_v1',
+        'kso_module_07_problemfaelle_multi_v1',
+        'kso_module_08_fragen_steuerberater_multi_v1',
+        'kso_explorer_wallet_adresse_notes_v1',
+        'kso_explorer_ethereum_etherscan_notes_v1',
+        'kso_explorer_kein_export_notes_v1'
+      ];
 
       function safeText(value){
         return String(value == null ? '' : value);
@@ -1494,15 +1557,26 @@
         return Number.isFinite(n) ? n : 0;
       }
 
-      function demoIsLoaded(){
-        const meta = loadJson(DEMO_META_KEY, null);
-        return !!(meta && meta.loaded === true);
+      function getMode(){
+        const value = localStorage.getItem(MODE_KEY);
+        return value === 'demo' ? 'demo' : 'own';
       }
 
-      function updateDemoVisuals(){
-        const active = demoIsLoaded();
-        statusDemo.textContent = active ? 'ja' : 'nein';
-        demoBanner.style.display = active ? 'block' : 'none';
+      function setMode(mode){
+        localStorage.setItem(MODE_KEY, mode === 'demo' ? 'demo' : 'own');
+        updateModeUI();
+        buildPrintView();
+      }
+
+      function updateModeUI(){
+        const mode = getMode();
+        const demoActive = mode === 'demo';
+
+        modeOwnBtn.classList.toggle('active', !demoActive);
+        modeDemoBtn.classList.toggle('active', demoActive);
+
+        statusDemo.textContent = demoActive ? 'Demo-Fall' : 'Eigener Fall';
+        demoBanner.style.display = demoActive ? 'block' : 'none';
       }
 
       function loadMeta(){
@@ -1565,38 +1639,22 @@
       }
 
       function collectAllSources(){
-        const sourceKeys = [
-          'kso_form_fiat_zu_krypto_v1',
-          'kso_form_krypto_zu_fiat_v1',
-          'kso_form_krypto_zu_krypto_v2',
-          'kso_form_krypto_zu_krypto_v1',
-          'kso_form_eigenuebertrag_v2',
-          'kso_form_eigenuebertrag_v1',
-          'kso_form_reward_bonus_ertrag_v2',
-          'kso_form_reward_bonus_ertrag_v1',
-          'kso_form_pool_staking_sperrmodell_v1',
-          'kso_form_ruecktausch_in_coin_v1',
-          'kso_form_token_nutzung_v1',
-          'kso_form_sonderfall_unklar_v1',
-          'kso_module_06_wertermittlung_multi_v1',
-          'kso_module_07_problemfaelle_multi_v1',
-          'kso_module_08_fragen_steuerberater_multi_v1',
-          'kso_demo_module_01_fallstart_stammdaten_v1',
-          'kso_demo_module_02_wallets_boersen_chains_v1',
-          'kso_demo_module_04_datenquellen_unterlagen_v1',
-          'kso_explorer_wallet_adresse_notes_v1',
-          'kso_explorer_ethereum_etherscan_notes_v1',
-          'kso_explorer_kein_export_notes_v1'
-        ];
-
+        const mode = getMode();
+        const keys = mode === 'demo' ? DEMO_SOURCE_KEYS : OWN_SOURCE_KEYS;
         const sources = [];
-        sourceKeys.forEach(key => {
+
+        keys.forEach(key => {
           const value = loadJson(key, null);
           if(!value) return;
           const records = valueToRecordArray(value);
           if(!records.length) return;
-          sources.push({ key, records, isDemo: key.startsWith('kso_demo_') });
+          sources.push({
+            key,
+            records,
+            isDemo: mode === 'demo'
+          });
         });
+
         return sources;
       }
 
@@ -1677,7 +1735,7 @@
           steuerVorschau,
           steuersatz,
           includeYellow,
-          demoUsed: demoIsLoaded() || positions.some(p => p.isDemo)
+          demoUsed: getMode() === 'demo'
         };
       }
 
@@ -1733,7 +1791,7 @@
 
       function buildPrintView(){
         saveMeta();
-        updateDemoVisuals();
+        updateModeUI();
 
         const analysis = buildAnalysis();
 
@@ -1766,7 +1824,7 @@
                 </div>
                 <div class="cover-flag${analysis.demoUsed ? ' demo' : ''}">
                   <strong>Status</strong>
-                  <span>${analysis.demoUsed ? 'Demo-Fall mit berücksichtigt' : 'Normale Kursdaten-Auswertung'}</span>
+                  <span>${analysis.demoUsed ? 'Demo-Fall aktiv' : 'Eigener Fall aktiv'}</span>
                 </div>
               </div>
 
@@ -1880,7 +1938,7 @@
                       <th>Coin / Token</th>
                       <th>Gegenwert</th>
                       <th>Quelle</th>
-                      <th>Demo</th>
+                      <th>Modus</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1893,7 +1951,7 @@
                         <td>${esc(item.asset)}</td>
                         <td>${formatMoney(item.value)}</td>
                         <td>${esc(item.quelle)}</td>
-                        <td>${item.isDemo ? 'ja' : 'nein'}</td>
+                        <td>${item.isDemo ? 'Demo' : 'Eigener Fall'}</td>
                       </tr>
                     `).join('')}
                   </tbody>
@@ -1904,11 +1962,11 @@
         `;
 
         if(!analysis.positions.length){
-          showMessage('Es wurden aktuell keine auswertbaren Daten gefunden.', 'warn');
+          showMessage('Es wurden aktuell keine auswertbaren Daten für den gewählten Modus gefunden.', 'warn');
         } else if(analysis.demoUsed){
-          showMessage('Die Steuer-Vorschau wurde aufgebaut. Ein Demo-Fall ist aktuell mit berücksichtigt.', 'success');
+          showMessage('Die Steuer-Vorschau wurde im Demo-Modus aufgebaut.', 'success');
         } else {
-          showMessage('Die Steuer-Vorschau wurde aufgebaut.', 'success');
+          showMessage('Die Steuer-Vorschau wurde mit den echten Falldaten aufgebaut.', 'success');
         }
       }
 
@@ -1916,6 +1974,9 @@
         buildPrintView();
         setTimeout(() => window.print(), 120);
       }
+
+      modeOwnBtn.addEventListener('click', function(){ setMode('own'); });
+      modeDemoBtn.addEventListener('click', function(){ setMode('demo'); });
 
       buildBtn.addEventListener('click', buildPrintView);
       printBtn.addEventListener('click', printNow);
@@ -1930,7 +1991,7 @@
       });
 
       loadMeta();
-      updateDemoVisuals();
+      updateModeUI();
       buildPrintView();
     })();
   </script>
