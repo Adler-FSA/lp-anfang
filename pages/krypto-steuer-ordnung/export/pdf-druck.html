@@ -1,7 +1,7 @@
 <!doctype html>
 <!--
   GitHub-Pfad: lp-anfang/pages/krypto-steuer-ordnung/export/pdf-druck.html
-  Commit-Message: pdf druck auf neue master listen bewertungs und quellenlogik mit druckblock zusammenfassung und offenen punkten umgebaut
+  Commit-Message: pdf druck mit demo hinweis und demo schutz erweitert
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/krypto-steuer-ordnung/export/pdf-druck.html?nocache=__TS__
 -->
 <html lang="de">
@@ -26,6 +26,8 @@
       --pink-soft:rgba(255,79,179,.10);
       --warn:#f59e0b;
       --warn-soft:rgba(245,158,11,.12);
+      --danger:#dc2626;
+      --danger-soft:rgba(220,38,38,.08);
       --shadow:0 18px 50px rgba(0,0,0,.08);
       --radius:22px;
       --max:1240px;
@@ -187,6 +189,45 @@
       color:#9f1f61;
     }
 
+    .chip.red{
+      background:var(--danger-soft);
+      color:#a61b1b;
+    }
+
+    .demo-banner{
+      display:none;
+      margin:24px 0 0;
+      border:1px solid rgba(220,38,38,.18);
+      border-radius:20px;
+      background:linear-gradient(180deg,#fff6f8 0%, #fff 100%);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .demo-banner.active{
+      display:block;
+    }
+
+    .demo-banner-inner{
+      padding:18px 20px;
+      display:flex;
+      gap:18px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .demo-banner-copy strong{
+      display:block;
+      margin-bottom:6px;
+      font-size:18px;
+    }
+
+    .demo-banner-copy span{
+      color:var(--muted);
+      font-size:14px;
+    }
+
     h1{
       margin:0 0 10px;
       font-size:clamp(34px,5vw,56px);
@@ -238,6 +279,12 @@
       color:#0d5648;
       background:var(--mint-soft);
       border:1px solid rgba(32,216,178,.22);
+    }
+
+    .btn-danger{
+      color:#a61b1b;
+      background:var(--danger-soft);
+      border:1px solid rgba(220,38,38,.16);
     }
 
     .stat{
@@ -428,6 +475,23 @@
       font-size:14px;
     }
 
+    .demo-print-note{
+      display:none;
+      margin:0 0 18px;
+      border:1px solid rgba(220,38,38,.18);
+      border-radius:18px;
+      background:#fff6f8;
+      padding:14px 16px;
+      color:#8f1d3f;
+      font-size:14px;
+      font-weight:800;
+      line-height:1.5;
+    }
+
+    .demo-print-note.active{
+      display:block;
+    }
+
     .print-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -475,7 +539,8 @@
       .topbar,
       .hero .btn-row,
       .section .btn-row,
-      .footer{
+      .footer,
+      .demo-banner{
         display:none !important;
       }
 
@@ -507,6 +572,10 @@
       .print-sheet{
         border:none;
         padding:0;
+      }
+
+      .demo-print-note.active{
+        display:block !important;
       }
 
       .table-wrap{
@@ -556,6 +625,10 @@
       .section-head h2{
         font-size:28px;
       }
+
+      .demo-banner-inner{
+        padding:16px;
+      }
     }
   </style>
 </head>
@@ -591,6 +664,21 @@
 
   <main>
     <section class="hero">
+      <div class="wrap">
+        <div id="demoBanner" class="demo-banner">
+          <div class="demo-banner-inner">
+            <div class="demo-banner-copy">
+              <strong>Demo-Modus aktiv</strong>
+              <span>Sie sehen aktuell einen ausgedachten Musterfall. Diese Druck- und PDF-Ansicht zeigt keine echten Nutzerdaten.</span>
+            </div>
+            <div class="btn-row">
+              <a class="btn btn-secondary" href="../index.html">Zur Startseite</a>
+              <button class="btn btn-danger" type="button" id="clearDemoBtn">Demo löschen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="wrap hero-grid">
         <article class="card hero-card">
           <span class="chip">Neue Drucklogik</span>
@@ -729,6 +817,10 @@
           <div class="chip pink">Druckblock</div>
         </div>
 
+        <div id="demoPrintNote" class="demo-print-note">
+          Demo-Fall aktiv – dieser Ausdruck basiert auf einem ausgedachten Musterfall und dient nur zur Veranschaulichung der Kurslogik.
+        </div>
+
         <div class="print-grid">
           <div class="print-box">
             <h3>Fallzusammenfassung</h3>
@@ -797,6 +889,10 @@
     (() => {
       const KEY_TX = 'kso_transactions';
       const KEY_VAL = 'kso_valuations';
+      const KEY_DEMO = 'kso_demo_active';
+      const KEY_FALL = 'kso_fallstart';
+      const KEY_SOURCES = 'kso_sources';
+      const KEY_ARCHIVE = 'kso_year_archives';
 
       const $ = (id) => document.getElementById(id);
 
@@ -989,10 +1085,12 @@
         const sumExit = rows.reduce((s, r) => s + (r.exitValue || 0), 0);
         const sumFees = rows.reduce((s, r) => s + (r.feeValue || 0), 0);
         const sumLoss = rows.reduce((s, r) => s + (r.lossValue || 0), 0);
+        const demoActive = read(KEY_DEMO, false) === true;
 
         node.className = '';
         node.innerHTML = `
           <div style="color:var(--muted);font-size:14px;line-height:1.75;">
+            ${demoActive ? '<strong>Demo-Fall:</strong> Diese Zusammenfassung gehört zu einem ausgedachten Musterfall.<br><br>' : ''}
             Dokumentierte Vorgänge: <strong>${total}</strong><br>
             Direkt prüfbar: <strong>${direct}</strong><br>
             Indirekt prüfbar: <strong>${indirect}</strong><br>
@@ -1038,6 +1136,22 @@
         `).join('');
       }
 
+      function renderDemoState() {
+        const demoActive = read(KEY_DEMO, false) === true;
+        $('demoBanner').classList.toggle('active', demoActive);
+        $('demoPrintNote').classList.toggle('active', demoActive);
+      }
+
+      function clearDemoAndReload() {
+        localStorage.removeItem(KEY_FALL);
+        localStorage.removeItem(KEY_TX);
+        localStorage.removeItem(KEY_VAL);
+        localStorage.removeItem(KEY_SOURCES);
+        localStorage.removeItem(KEY_ARCHIVE);
+        localStorage.removeItem(KEY_DEMO);
+        window.location.href = '../index.html?nocache=' + Date.now();
+      }
+
       function escapeHtml(value) {
         return String(value || '')
           .replaceAll('&', '&amp;')
@@ -1053,12 +1167,14 @@
         renderTable(rows);
         renderSummaryBlock(rows);
         renderQuestionBlock(rows);
+        renderDemoState();
       }
 
       $('refreshAll').addEventListener('click', renderAll);
       $('refreshTable').addEventListener('click', renderAll);
       $('printPage').addEventListener('click', () => window.print());
       $('printPageBottom').addEventListener('click', () => window.print());
+      $('clearDemoBtn').addEventListener('click', clearDemoAndReload);
 
       renderAll();
     })();
