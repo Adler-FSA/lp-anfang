@@ -1,7 +1,7 @@
 <!doctype html>
 <!--
   GitHub-Pfad: lp-anfang/pages/krypto-steuer-ordnung/module/05-transaktionen.html
-  Commit-Message: modul 05 als hauptzentrale mit master liste demo fall live uebersicht und vorgangslogik neu aufgebaut
+  Commit-Message: modul 05 transaktionen als neutrale hauptarbeitsseite ohne meta sprache bereinigt
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/krypto-steuer-ordnung/module/05-transaktionen.html?nocache=__TS__
 -->
 <html lang="de">
@@ -9,7 +9,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Modul 05 – Transaktionen – Krypto-Steuer-Ordnung</title>
-  <meta name="description" content="Zentrale Arbeitsseite für alle Krypto-Transaktionen mit Master-Liste, Demo-Fall, Live-Übersicht und direkter Weiterführung in Wertermittlung, Auswertung und PDF." />
+  <meta name="description" content="Zentrale Erfassungsseite für alle Krypto-Transaktionen mit Master-Liste, Formularzugängen und Übersicht." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -18,16 +18,19 @@
       --panel:#ffffff;
       --panel-2:#fbfffe;
       --text:#111111;
-      --muted:#5b6874;
+      --muted:#62707b;
       --line:rgba(17,17,17,.10);
       --mint:#20d8b2;
       --mint-soft:rgba(32,216,178,.12);
       --pink:#ff4fb3;
       --pink-soft:rgba(255,79,179,.10);
+      --warn:#f59e0b;
+      --warn-soft:rgba(245,158,11,.12);
+      --danger:#dc2626;
+      --danger-soft:rgba(220,38,38,.08);
       --shadow:0 18px 50px rgba(0,0,0,.08);
       --radius:22px;
-      --radius-sm:16px;
-      --max:1240px;
+      --max:1280px;
     }
 
     *{box-sizing:border-box}
@@ -54,14 +57,14 @@
     .topbar{
       position:sticky;
       top:0;
-      z-index:40;
+      z-index:50;
       backdrop-filter:blur(10px);
       background:rgba(255,255,255,.88);
       border-bottom:1px solid var(--line);
     }
 
     .topbar-inner{
-      min-height:74px;
+      min-height:76px;
       display:flex;
       align-items:center;
       justify-content:space-between;
@@ -76,9 +79,9 @@
     }
 
     .brand-mark{
-      width:46px;
-      height:46px;
-      border-radius:14px;
+      width:48px;
+      height:48px;
+      border-radius:16px;
       display:grid;
       place-items:center;
       background:linear-gradient(135deg,var(--mint-soft),var(--pink-soft));
@@ -126,15 +129,39 @@
       box-shadow:0 14px 28px rgba(255,79,179,.18);
     }
 
-    .hero{
-      padding:34px 0 18px;
+    .hero,.section,.footer{
+      padding:24px 0;
+    }
+
+    .hero-grid,
+    .stats-grid,
+    .action-grid,
+    .cards-grid,
+    .detail-grid,
+    .flow-grid{
+      display:grid;
+      gap:18px;
     }
 
     .hero-grid{
-      display:grid;
-      grid-template-columns:1.14fr .86fr;
-      gap:22px;
-      align-items:stretch;
+      grid-template-columns:1.08fr .92fr;
+    }
+
+    .stats-grid{
+      grid-template-columns:repeat(5,minmax(0,1fr));
+    }
+
+    .action-grid{
+      grid-template-columns:repeat(3,minmax(0,1fr));
+    }
+
+    .cards-grid{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+
+    .detail-grid,
+    .flow-grid{
+      grid-template-columns:1fr 1fr;
     }
 
     .card{
@@ -144,21 +171,8 @@
       box-shadow:var(--shadow);
     }
 
-    .hero-card{
-      position:relative;
-      overflow:hidden;
-      padding:30px 28px;
-    }
-
-    .hero-glow{
-      position:absolute;
-      right:-70px;
-      bottom:-70px;
-      width:220px;
-      height:220px;
-      border-radius:50%;
-      background:radial-gradient(circle, rgba(255,79,179,.18) 0%, rgba(32,216,178,.08) 42%, transparent 72%);
-      pointer-events:none;
+    .hero-card,.side-card,.panel,.tx-card{
+      padding:26px 24px;
     }
 
     .chip{
@@ -175,102 +189,79 @@
       text-transform:uppercase;
     }
 
-    .hero h1{
-      margin:0 0 12px;
-      font-size:clamp(34px,5vw,56px);
-      line-height:1.02;
-      letter-spacing:-.03em;
+    .chip.warn{
+      background:var(--warn-soft);
+      color:#8a5b00;
     }
 
-    .lead{
-      margin:0 0 18px;
+    .chip.red{
+      background:var(--danger-soft);
+      color:#a61b1b;
+    }
+
+    .chip.pink{
+      background:var(--pink-soft);
+      color:#9f1f61;
+    }
+
+    .demo-banner{
+      display:none;
+      margin:24px 0 0;
+      border:1px solid rgba(220,38,38,.18);
+      border-radius:20px;
+      background:linear-gradient(180deg,#fff6f8 0%, #fff 100%);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .demo-banner.active{
+      display:block;
+    }
+
+    .demo-banner-inner{
+      padding:18px 20px;
+      display:flex;
+      gap:18px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .demo-banner-copy strong{
+      display:block;
+      margin-bottom:6px;
       font-size:18px;
-      color:#25313a;
-      max-width:780px;
     }
 
-    .hero-points{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:12px;
-      margin-top:18px;
-    }
-
-    .point{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:14px;
-    }
-
-    .point strong{
-      display:block;
-      margin:0 0 6px;
-      font-size:14px;
-    }
-
-    .point span{
-      display:block;
+    .demo-banner-copy span{
       color:var(--muted);
       font-size:14px;
     }
 
-    .side-stack{
-      display:grid;
-      gap:16px;
+    h1{
+      margin:0 0 10px;
+      font-size:clamp(36px,5vw,58px);
+      line-height:1.02;
+      letter-spacing:-.03em;
     }
 
-    .status-card,
-    .demo-card{
-      padding:22px 20px;
-    }
-
-    .status-list{
+    h2{
       margin:0;
-      padding:0;
-      list-style:none;
-      display:grid;
-      gap:12px;
+      font-size:32px;
+      letter-spacing:-.02em;
     }
 
-    .status-list li{
-      display:flex;
-      justify-content:space-between;
-      gap:16px;
-      align-items:flex-start;
-      padding-bottom:12px;
-      border-bottom:1px solid var(--line);
-      font-size:15px;
+    h3{
+      margin:0 0 8px;
+      font-size:22px;
+      line-height:1.12;
     }
 
-    .status-list li:last-child{
-      border-bottom:none;
-      padding-bottom:0;
-    }
-
-    .status-label{color:var(--muted)}
-    .status-value{font-weight:800;text-align:right}
-
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:999px;
-      padding:7px 12px;
-      font-size:12px;
-      font-weight:800;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-    }
-
-    .badge.ok{
-      background:rgba(32,216,178,.16);
-      color:#0d6a59;
-    }
-
-    .badge.no{
-      background:rgba(255,79,179,.12);
-      color:#ad216a;
+    .lead{
+      margin:0 0 16px;
+      font-size:18px;
+      color:#24323b;
+      max-width:860px;
     }
 
     .btn-row{
@@ -292,11 +283,7 @@
       font-size:15px;
       font-weight:800;
       letter-spacing:.01em;
-      transition:transform .18s ease, box-shadow .18s ease;
     }
-
-    .btn:hover{transform:translateY(-1px)}
-    .btn:active{transform:translateY(0)}
 
     .btn-primary{
       color:#fff;
@@ -317,18 +304,10 @@
       border:1px solid rgba(32,216,178,.22);
     }
 
-    .btn-pink{
-      color:#8a1551;
-      background:var(--pink-soft);
-      border:1px solid rgba(255,79,179,.20);
-    }
-
-    .section{
-      padding:18px 0;
-    }
-
-    .panel{
-      padding:26px 24px;
+    .btn-danger{
+      color:#a61b1b;
+      background:var(--danger-soft);
+      border:1px solid rgba(220,38,38,.16);
     }
 
     .section-head{
@@ -340,12 +319,6 @@
       margin-bottom:18px;
     }
 
-    .section-head h2{
-      margin:0;
-      font-size:32px;
-      letter-spacing:-.02em;
-    }
-
     .section-head p{
       margin:8px 0 0;
       max-width:780px;
@@ -353,81 +326,116 @@
       font-size:16px;
     }
 
-    .stats-grid{
-      display:grid;
-      grid-template-columns:repeat(5,minmax(0,1fr));
-      gap:14px;
-    }
-
     .stat{
-      background:#fff;
+      padding:18px;
       border:1px solid var(--line);
       border-radius:18px;
-      padding:16px;
+      background:#fff;
     }
 
     .stat strong{
       display:block;
-      font-size:28px;
+      font-size:32px;
       line-height:1;
-      margin:0 0 6px;
+      margin:0 0 8px;
     }
 
     .stat span{
       display:block;
-      color:var(--muted);
       font-size:14px;
+      color:var(--muted);
     }
 
-    .vorgang-grid{
+    .info-list{
+      margin:0;
+      padding:0;
+      list-style:none;
       display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+    }
+
+    .info-list li{
+      display:flex;
+      justify-content:space-between;
       gap:16px;
+      align-items:flex-start;
+      padding-bottom:12px;
+      border-bottom:1px solid var(--line);
+      font-size:15px;
     }
 
-    .vorgang-card{
-      border:1px solid var(--line);
-      border-radius:20px;
-      background:#fff;
-      padding:20px 18px;
-      position:relative;
-      overflow:hidden;
+    .info-list li:last-child{
+      border-bottom:none;
+      padding-bottom:0;
     }
 
-    .vorgang-card::after{
-      content:"";
-      position:absolute;
-      right:-28px;
-      bottom:-28px;
-      width:120px;
-      height:120px;
-      border-radius:50%;
-      background:radial-gradient(circle, rgba(32,216,178,.12) 0%, transparent 70%);
-      pointer-events:none;
+    .info-label{color:var(--muted)}
+    .info-value{font-weight:800;text-align:right}
+
+    .tx-card{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      min-height:100%;
     }
 
-    .vorgang-card.pink::after{
-      background:radial-gradient(circle, rgba(255,79,179,.10) 0%, transparent 70%);
-    }
-
-    .vorgang-card h3{
-      margin:0 0 10px;
-      font-size:22px;
-      line-height:1.1;
-    }
-
-    .vorgang-card p{
-      margin:0 0 14px;
+    .tx-card p{
+      margin:0;
       color:var(--muted);
       font-size:15px;
-      min-height:70px;
+    }
+
+    .tx-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .tx-no{
+      width:54px;
+      height:54px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      font-size:20px;
+      font-weight:900;
+      background:linear-gradient(135deg,var(--mint-soft),var(--pink-soft));
+      border:1px solid var(--line);
+      flex:0 0 auto;
+    }
+
+    .status-pill{
+      display:inline-flex;
+      align-items:center;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+
+    .status-ok{
+      background:rgba(32,216,178,.14);
+      color:#0d6957;
+    }
+
+    .status-mid{
+      background:var(--warn-soft);
+      color:#8a5b00;
+    }
+
+    .status-open{
+      background:rgba(255,79,179,.12);
+      color:#aa2368;
     }
 
     .tag-row{
       display:flex;
       flex-wrap:wrap;
       gap:8px;
-      margin:0 0 14px;
     }
 
     .tag{
@@ -435,10 +443,25 @@
       align-items:center;
       padding:7px 10px;
       border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
       font-size:12px;
       font-weight:800;
-      background:var(--bg-soft);
+    }
+
+    .flow-card,
+    .mini-card{
       border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:18px;
+    }
+
+    .flow-card p,
+    .mini-card p{
+      margin:0;
+      color:var(--muted);
+      font-size:15px;
     }
 
     .table-wrap{
@@ -451,7 +474,7 @@
     table{
       width:100%;
       border-collapse:collapse;
-      min-width:1050px;
+      min-width:1220px;
     }
 
     th,td{
@@ -464,110 +487,22 @@
 
     th{
       background:#fbfffe;
-      color:var(--muted);
+      color:#62707b;
       font-size:12px;
       text-transform:uppercase;
       letter-spacing:.06em;
-      position:sticky;
-      top:0;
-      z-index:1;
     }
 
     tr:last-child td{
       border-bottom:none;
     }
 
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      padding:6px 10px;
-      border-radius:999px;
-      font-size:11px;
-      font-weight:800;
-      letter-spacing:.05em;
-      text-transform:uppercase;
-      white-space:nowrap;
-    }
-
-    .pill-green{
-      background:rgba(32,216,178,.14);
-      color:#0d6957;
-    }
-
-    .pill-pink{
-      background:rgba(255,79,179,.12);
-      color:#aa2368;
-    }
-
-    .pill-grey{
-      background:#f3f5f7;
-      color:#5f6a75;
-    }
-
-    .flow-grid{
-      display:grid;
-      grid-template-columns:1.04fr .96fr;
-      gap:18px;
-    }
-
-    .flow-box{
-      border:1px solid var(--line);
+    .empty{
+      border:1px dashed var(--line);
       border-radius:18px;
       background:#fff;
       padding:18px;
-    }
-
-    .flow-box h3{
-      margin:0 0 12px;
-      font-size:22px;
-    }
-
-    .flow-list{
-      margin:0;
-      padding:0;
-      list-style:none;
-      display:grid;
-      gap:10px;
-    }
-
-    .flow-list li{
-      display:grid;
-      grid-template-columns:34px 1fr;
-      gap:12px;
-      align-items:flex-start;
-      border:1px solid var(--line);
-      background:var(--bg-soft);
-      border-radius:16px;
-      padding:12px;
-    }
-
-    .step-no{
-      width:34px;
-      height:34px;
-      border-radius:12px;
-      background:linear-gradient(135deg,var(--mint-soft),var(--pink-soft));
-      display:grid;
-      place-items:center;
-      font-size:14px;
-      font-weight:900;
-    }
-
-    .flow-list strong{
-      display:block;
-      margin:0 0 4px;
-      font-size:15px;
-    }
-
-    .flow-list span{
-      display:block;
       color:var(--muted);
-      font-size:14px;
-    }
-
-    .footer{
-      padding:18px 0 34px;
-      color:var(--muted);
-      font-size:14px;
     }
 
     .footer-card{
@@ -582,29 +517,18 @@
       gap:12px;
     }
 
-    @media (max-width: 1160px){
+    @media (max-width:1180px){
       .hero-grid,
-      .flow-grid,
-      .vorgang-grid,
-      .stats-grid{
-        grid-template-columns:1fr 1fr;
-      }
-    }
-
-    @media (max-width: 900px){
-      .hero-grid,
-      .flow-grid,
-      .vorgang-grid,
-      .stats-grid{
-        grid-template-columns:1fr;
-      }
-
-      .hero-points{
+      .stats-grid,
+      .action-grid,
+      .cards-grid,
+      .detail-grid,
+      .flow-grid{
         grid-template-columns:1fr;
       }
     }
 
-    @media (max-width: 760px){
+    @media (max-width:760px){
       .topbar-inner{
         padding:12px 0;
         flex-direction:column;
@@ -616,26 +540,16 @@
         align-items:stretch;
       }
 
-      .nav a{
+      .nav a,.btn{
+        width:100%;
         text-align:center;
       }
 
-      .hero-card,
-      .status-card,
-      .demo-card,
-      .panel{
+      .hero-card,.side-card,.panel,.tx-card{
         padding:20px 18px;
       }
 
-      .btn-row{
-        flex-direction:column;
-      }
-
-      .btn{
-        width:100%;
-      }
-
-      .section-head h2{
+      h2{
         font-size:28px;
       }
     }
@@ -646,7 +560,7 @@
     <div class="wrap topbar-inner">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">
-          <svg width="26" height="26" viewBox="0 0 64 64" fill="none">
+          <svg width="28" height="28" viewBox="0 0 64 64" fill="none">
             <path d="M12 20C12 15.5817 15.5817 12 20 12H44C48.4183 12 52 15.5817 52 20V44C52 48.4183 48.4183 52 44 52H20C15.5817 52 12 48.4183 12 44V20Z" stroke="#111111" stroke-width="3"/>
             <path d="M20 37L29 28L35 34L44 25" stroke="#111111" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
             <circle cx="20" cy="37" r="3" fill="#20d8b2"/>
@@ -664,7 +578,6 @@
       <nav class="nav" aria-label="Hauptnavigation">
         <a href="../index.html">Kurszentrale</a>
         <a href="01-fallstart-stammdaten.html">Fallstart</a>
-        <a href="#vorgaenge">Vorgänge</a>
         <a href="#masterliste">Master-Liste</a>
         <a href="../auswertung/steuer-vorschau.html">Auswertung</a>
         <a class="cta" href="06-wertermittlung.html">Weiter zu Modul 06</a>
@@ -674,74 +587,84 @@
 
   <main>
     <section class="hero">
+      <div class="wrap">
+        <div id="demoBanner" class="demo-banner">
+          <div class="demo-banner-inner">
+            <div class="demo-banner-copy">
+              <strong>Beispielansicht aktiv</strong>
+              <span>Es ist aktuell ein gespeicherter Musterfall geöffnet.</span>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-secondary" type="button" id="loadDemoBtnTop">Beispiel neu laden</button>
+              <button class="btn btn-danger" type="button" id="clearListBtnTop">Liste leeren</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="wrap hero-grid">
         <article class="card hero-card">
-          <div class="hero-glow" aria-hidden="true"></div>
-          <span class="chip">Neue Hauptzentrale</span>
-          <h1>Hier laufen alle Vorgänge in dieselbe Master-Liste.</h1>
+          <span class="chip">Transaktionszentrale</span>
+          <h1>Alle Vorgänge in einer gemeinsamen Liste erfassen und prüfen.</h1>
           <p class="lead">
-            Dieses Modul ist jetzt die echte Arbeitsmitte des Kurses. Von hier aus gehst du in die passende
-            Eingabemaske, sammelst alle Transaktionen in einer gemeinsamen Liste und baust daraus später
-            Wertermittlung, Verlustsicht, Auswertung, PDF und Archiv auf.
+            Von hier aus werden die passenden Formulare geöffnet und alle gespeicherten Vorgänge in der Master-Liste zusammengeführt.
           </p>
-
           <div class="btn-row">
-            <a class="btn btn-primary" href="#vorgaenge">Vorgang wählen</a>
+            <a class="btn btn-primary" href="#vorgangsarten">Vorgang wählen</a>
             <a class="btn btn-secondary" href="#masterliste">Master-Liste ansehen</a>
-            <button class="btn btn-soft" type="button" id="loadDemoTop">Demo-Fall laden</button>
-          </div>
-
-          <div class="hero-points">
-            <div class="point">
-              <strong>Ein Dateneingang</strong>
-              <span>Alle Formulare zahlen später in dieselbe Transaktions- und Bewertungslogik ein.</span>
-            </div>
-            <div class="point">
-              <strong>Ein Zielobjekt</strong>
-              <span>Die Master-Liste ist die Basis für Vorschau, Prüfblatt, PDF und Archiv.</span>
-            </div>
-            <div class="point">
-              <strong>Verlustsicht inklusive</strong>
-              <span>Fiat, Coin, Token, Tauschwert, Ausstiegswert, Gebühren und Status bleiben zusammen.</span>
-            </div>
+            <button class="btn btn-soft" type="button" id="loadDemoBtn">Beispiel laden</button>
           </div>
         </article>
 
-        <div class="side-stack">
-          <aside class="card status-card">
-            <span class="chip">Status auf einen Blick</span>
-            <ul class="status-list">
-              <li>
-                <span class="status-label">Fall vorhanden</span>
-                <span class="status-value" id="fallState"><span class="badge no">Nein</span></span>
-              </li>
-              <li>
-                <span class="status-label">Demo aktiv</span>
-                <span class="status-value" id="demoState"><span class="badge no">Nein</span></span>
-              </li>
-              <li>
-                <span class="status-label">Transaktionen in Liste</span>
-                <span class="status-value" id="countState">0</span>
-              </li>
-              <li>
-                <span class="status-label">Empfohlener nächster Schritt</span>
-                <span class="status-value" id="nextState">Vorgang auswählen</span>
-              </li>
-            </ul>
-          </aside>
+        <aside class="card side-card">
+          <span class="chip warn">Status</span>
+          <ul class="info-list">
+            <li>
+              <span class="info-label">Fall vorhanden</span>
+              <span class="info-value" id="statusFall">Nein</span>
+            </li>
+            <li>
+              <span class="info-label">Beispiel aktiv</span>
+              <span class="info-value" id="statusDemo">Nein</span>
+            </li>
+            <li>
+              <span class="info-label">Transaktionen</span>
+              <span class="info-value" id="statusTxCount">0</span>
+            </li>
+            <li>
+              <span class="info-label">Quellen</span>
+              <span class="info-value" id="statusSourceCount">0</span>
+            </li>
+            <li>
+              <span class="info-label">Nächster Schritt</span>
+              <span class="info-value" id="statusNext">Vorgang wählen</span>
+            </li>
+          </ul>
+        </aside>
+      </div>
+    </section>
 
-          <aside class="card demo-card">
-            <span class="chip">Demo-Modus</span>
-            <p style="margin:0 0 14px;color:var(--muted);font-size:15px;">
-              Lade einen vollständigen Musterfall mit Fiat, ETH, Token, Reward, Eigenübertrag,
-              offenem Sonderfall und starkem Verlust direkt in die Master-Liste.
-            </p>
-            <div class="btn-row">
-              <button class="btn btn-primary" type="button" id="loadDemo">Demo-Fall laden</button>
-              <button class="btn btn-secondary" type="button" id="archiveDemo">Demo ins Archiv</button>
-              <button class="btn btn-pink" type="button" id="clearTransactions">Liste leeren</button>
-            </div>
-          </aside>
+    <section class="section">
+      <div class="wrap stats-grid">
+        <div class="stat">
+          <strong id="countAll">0</strong>
+          <span>Alle Vorgänge</span>
+        </div>
+        <div class="stat">
+          <strong id="countFiatToCrypto">0</strong>
+          <span>Fiat zu Krypto</span>
+        </div>
+        <div class="stat">
+          <strong id="countCryptoToFiat">0</strong>
+          <span>Krypto zu Fiat</span>
+        </div>
+        <div class="stat">
+          <strong id="countCryptoToCrypto">0</strong>
+          <span>Krypto zu Krypto</span>
+        </div>
+        <div class="stat">
+          <strong id="countOpenCases">0</strong>
+          <span>Offene / unklare Fälle</span>
         </div>
       </div>
     </section>
@@ -750,178 +673,180 @@
       <div class="wrap card panel">
         <div class="section-head">
           <div>
-            <h2>Live-Übersicht aus deiner Master-Liste</h2>
-            <p>
-              Diese Übersicht zieht sich direkt aus den gespeicherten Transaktionen und zeigt,
-              wie viele Vorgänge bereits vorhanden sind und wo der Schwerpunkt im Fall liegt.
-            </p>
+            <h2>Aktionen</h2>
+            <p>Schnellzugriffe für Beispiel, Archiv und Liste.</p>
           </div>
         </div>
 
-        <div class="stats-grid">
-          <div class="stat">
-            <strong id="statAll">0</strong>
-            <span>Alle Vorgänge</span>
-          </div>
-          <div class="stat">
-            <strong id="statFiat">0</strong>
-            <span>Fiat zu Krypto</span>
-          </div>
-          <div class="stat">
-            <strong id="statKtf">0</strong>
-            <span>Krypto zu Fiat</span>
-          </div>
-          <div class="stat">
-            <strong id="statKtk">0</strong>
-            <span>Krypto zu Krypto</span>
-          </div>
-          <div class="stat">
-            <strong id="statOpen">0</strong>
-            <span>Offene / unklare Fälle</span>
-          </div>
+        <div class="action-grid">
+          <button class="btn btn-primary" type="button" id="loadDemoBtnMid">Beispiel laden</button>
+          <button class="btn btn-secondary" type="button" id="demoToArchiveBtn">Beispiel ins Archiv</button>
+          <button class="btn btn-danger" type="button" id="clearListBtn">Liste leeren</button>
         </div>
       </div>
     </section>
 
-    <section class="section" id="vorgaenge">
-      <div class="wrap card panel">
-        <div class="section-head">
-          <div>
-            <h2>Passenden Vorgang erfassen</h2>
-            <p>
-              Wähle die Vorgangsart, die zu deinem realen Fall passt. Die Formulare werden im nächsten Baustein
-              einheitlich auf Master-Liste, Beispieltexte und Bewertungslogik verdrahtet.
-            </p>
+    <section class="section" id="vorgangsarten">
+      <div class="wrap section-head">
+        <div>
+          <h2>Vorgangsarten</h2>
+          <p>Das passende Formular zur wirtschaftlichen Bewegung auswählen.</p>
+        </div>
+      </div>
+
+      <div class="wrap cards-grid">
+        <article class="card tx-card">
+          <div class="tx-top">
+            <div class="tx-no">01</div>
+            <span class="status-pill status-open">Kauf</span>
           </div>
-        </div>
+          <h3>Fiat zu Krypto</h3>
+          <p>Für Einstiege mit EUR oder anderer Fiat-Währung in Coin oder Token.</p>
+          <div class="tag-row">
+            <span class="tag">Einzahlung</span>
+            <span class="tag">Kaufwert</span>
+            <span class="tag">Gebühren</span>
+          </div>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="../forms/form-fiat-zu-krypto.html">Formular öffnen</a>
+          </div>
+        </article>
 
-        <div class="vorgang-grid">
-          <article class="vorgang-card">
-            <span class="chip">Kaufseite</span>
-            <h3>Fiat zu Krypto</h3>
-            <p>Wenn du mit EUR oder anderer Fiat-Währung in Coin oder Token eingestiegen bist.</p>
-            <div class="tag-row">
-              <span class="tag">Einzahlung</span>
-              <span class="tag">Kaufwert</span>
-              <span class="tag">Gebühren</span>
-            </div>
-            <div class="btn-row">
-              <a class="btn btn-primary" href="../forms/form-fiat-zu-krypto.html">Formular öffnen</a>
-            </div>
-          </article>
+        <article class="card tx-card">
+          <div class="tx-top">
+            <div class="tx-no">02</div>
+            <span class="status-pill status-open">Ausstieg</span>
+          </div>
+          <h3>Krypto zu Fiat</h3>
+          <p>Für Rücktausch von Coin oder Token in EUR oder andere Fiat-Währungen.</p>
+          <div class="tag-row">
+            <span class="tag">Verkauf</span>
+            <span class="tag">Ausstiegswert</span>
+            <span class="tag">Verlustsicht</span>
+          </div>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="../forms/form-krypto-zu-fiat.html">Formular öffnen</a>
+          </div>
+        </article>
 
-          <article class="vorgang-card pink">
-            <span class="chip" style="background:var(--pink-soft);">Ausstiegsseite</span>
-            <h3>Krypto zu Fiat</h3>
-            <p>Wenn du Coin oder Token wieder in EUR oder andere Fiat-Währung zurückgetauscht hast.</p>
-            <div class="tag-row">
-              <span class="tag">Verkauf</span>
-              <span class="tag">Ausstiegswert</span>
-              <span class="tag">Verlustsicht</span>
-            </div>
-            <div class="btn-row">
-              <a class="btn btn-primary" href="../forms/form-krypto-zu-fiat.html">Formular öffnen</a>
-            </div>
-          </article>
+        <article class="card tx-card">
+          <div class="tx-top">
+            <div class="tx-no">03</div>
+            <span class="status-pill status-open">Tausch</span>
+          </div>
+          <h3>Krypto zu Krypto</h3>
+          <p>Für Tausch von ETH, SOL, BTC, Stablecoins oder anderen Kryptowerten in weitere Assets oder Token.</p>
+          <div class="tag-row">
+            <span class="tag">Tauschwert</span>
+            <span class="tag">Token</span>
+            <span class="tag">Wertekette</span>
+          </div>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="../forms/form-krypto-zu-krypto.html">Formular öffnen</a>
+          </div>
+        </article>
 
-          <article class="vorgang-card">
-            <span class="chip">Tauschseite</span>
-            <h3>Krypto zu Krypto</h3>
-            <p>Wenn du ETH, SOL, BTC, Stablecoins oder andere Kryptowerte in weitere Assets oder Token getauscht hast.</p>
-            <div class="tag-row">
-              <span class="tag">Tauschwert</span>
-              <span class="tag">Token</span>
-              <span class="tag">Wertekette</span>
-            </div>
-            <div class="btn-row">
-              <a class="btn btn-primary" href="../forms/form-krypto-zu-krypto.html">Formular öffnen</a>
-            </div>
-          </article>
+        <article class="card tx-card">
+          <div class="tx-top">
+            <div class="tx-no">04</div>
+            <span class="status-pill status-open">Eigene Bewegung</span>
+          </div>
+          <h3>Eigenübertrag</h3>
+          <p>Für eigene Transfers zwischen Wallets, Börsen oder Adressen.</p>
+          <div class="tag-row">
+            <span class="tag">Kein Verkauf</span>
+            <span class="tag">Wallet-Wechsel</span>
+            <span class="tag">Nachweis</span>
+          </div>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="../forms/form-eigenuebertrag.html">Formular öffnen</a>
+          </div>
+        </article>
 
-          <article class="vorgang-card">
-            <span class="chip">Eigene Bewegung</span>
-            <h3>Eigenübertrag</h3>
-            <p>Wenn du deine eigenen Assets zwischen Wallets, Börsen oder Adressen verschoben hast.</p>
-            <div class="tag-row">
-              <span class="tag">Kein Verkauf</span>
-              <span class="tag">Wallet-Wechsel</span>
-              <span class="tag">Nachweis</span>
-            </div>
-            <div class="btn-row">
-              <a class="btn btn-secondary" href="../forms/form-eigenuebertrag.html">Formular öffnen</a>
-            </div>
-          </article>
+        <article class="card tx-card">
+          <div class="tx-top">
+            <div class="tx-no">05</div>
+            <span class="status-pill status-open">Zufluss</span>
+          </div>
+          <h3>Reward / Bonus / Ertrag</h3>
+          <p>Für zusätzliche Werte, die als Zufluss dokumentiert werden müssen.</p>
+          <div class="tag-row">
+            <span class="tag">Reward</span>
+            <span class="tag">Zuflusswert</span>
+            <span class="tag">Notiz</span>
+          </div>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="../forms/form-reward-bonus-ertrag.html">Formular öffnen</a>
+          </div>
+        </article>
 
-          <article class="vorgang-card pink">
-            <span class="chip" style="background:var(--pink-soft);">Zufluss</span>
-            <h3>Reward / Bonus / Ertrag</h3>
-            <p>Wenn du zusätzliche Werte erhalten hast, die als Zufluss dokumentiert werden müssen.</p>
-            <div class="tag-row">
-              <span class="tag">Reward</span>
-              <span class="tag">Zuflusswert</span>
-              <span class="tag">Notizpflicht</span>
-            </div>
-            <div class="btn-row">
-              <a class="btn btn-secondary" href="../forms/form-reward-bonus-ertrag.html">Formular öffnen</a>
-            </div>
-          </article>
+        <article class="card tx-card">
+          <div class="tx-top">
+            <div class="tx-no">06</div>
+            <span class="status-pill status-open">Sperre / Pool</span>
+          </div>
+          <h3>Pool / Staking / Sperrmodell</h3>
+          <p>Für gebundene, gesperrte, gestakte oder eingebrachte Assets.</p>
+          <div class="tag-row">
+            <span class="tag">Gebunden</span>
+            <span class="tag">Ertrag möglich</span>
+            <span class="tag">Status</span>
+          </div>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="../forms/form-pool-staking-sperrmodell.html">Formular öffnen</a>
+          </div>
+        </article>
 
-          <article class="vorgang-card">
-            <span class="chip">Sperre / Pool</span>
-            <h3>Pool / Staking / Sperrmodell</h3>
-            <p>Wenn Assets gebunden, gesperrt, gestakt oder in einen Pool eingebracht wurden.</p>
-            <div class="tag-row">
-              <span class="tag">Gebunden</span>
-              <span class="tag">Ertrag möglich</span>
-              <span class="tag">Status klären</span>
-            </div>
-            <div class="btn-row">
-              <a class="btn btn-secondary" href="../forms/form-pool-staking-sperrmodell.html">Formular öffnen</a>
-            </div>
-          </article>
+        <article class="card tx-card">
+          <div class="tx-top">
+            <div class="tx-no">07</div>
+            <span class="status-pill status-open">Weiterer Tausch</span>
+          </div>
+          <h3>Rücktausch in Coin</h3>
+          <p>Für Rücktausch von Token oder Projektwerten in Coin vor einem Fiat-Ausstieg.</p>
+          <div class="tag-row">
+            <span class="tag">Token zurück</span>
+            <span class="tag">Zwischenstufe</span>
+            <span class="tag">Verlust möglich</span>
+          </div>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="../forms/form-ruecktausch-in-coin.html">Formular öffnen</a>
+          </div>
+        </article>
 
-          <article class="vorgang-card">
-            <span class="chip">Weiterer Tausch</span>
-            <h3>Rücktausch in Coin</h3>
-            <p>Wenn Token oder Projektwerte wieder in Coin zurückgetauscht wurden, bevor ein Fiat-Ausstieg erfolgte.</p>
-            <div class="tag-row">
-              <span class="tag">Token zurück</span>
-              <span class="tag">Zwischenstufe</span>
-              <span class="tag">Verlust möglich</span>
-            </div>
-            <div class="btn-row">
-              <a class="btn btn-secondary" href="../forms/form-ruecktausch-in-coin.html">Formular öffnen</a>
-            </div>
-          </article>
+        <article class="card tx-card">
+          <div class="tx-top">
+            <div class="tx-no">08</div>
+            <span class="status-pill status-open">Nutzung</span>
+          </div>
+          <h3>Token-Nutzung</h3>
+          <p>Für Nutzung, Einsatz, Verbrauch oder funktionale Verwendung in einem Projekt.</p>
+          <div class="tag-row">
+            <span class="tag">Projektbezug</span>
+            <span class="tag">Dokumentation</span>
+            <span class="tag">Bewertung</span>
+          </div>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="../forms/form-token-nutzung.html">Formular öffnen</a>
+          </div>
+        </article>
 
-          <article class="vorgang-card pink">
-            <span class="chip" style="background:var(--pink-soft);">Nutzung</span>
-            <h3>Token-Nutzung</h3>
-            <p>Wenn ein Token in einem Projekt genutzt, verbraucht, eingesetzt oder funktional verwendet wurde.</p>
-            <div class="tag-row">
-              <span class="tag">Projektbezug</span>
-              <span class="tag">Dokumentation</span>
-              <span class="tag">offene Bewertung</span>
-            </div>
-            <div class="btn-row">
-              <a class="btn btn-secondary" href="../forms/form-token-nutzung.html">Formular öffnen</a>
-            </div>
-          </article>
-
-          <article class="vorgang-card">
-            <span class="chip">Restklasse</span>
-            <h3>Sonderfall unklar</h3>
-            <p>Wenn du einen Vorgang nicht sauber einordnen kannst oder eine Preisquelle / CSV fehlt.</p>
-            <div class="tag-row">
-              <span class="tag">Explorer</span>
-              <span class="tag">Beleglücke</span>
-              <span class="tag">offen</span>
-            </div>
-            <div class="btn-row">
-              <a class="btn btn-secondary" href="../forms/form-sonderfall-unklar.html">Formular öffnen</a>
-            </div>
-          </article>
-        </div>
+        <article class="card tx-card" style="grid-column:1/-1;">
+          <div class="tx-top">
+            <div class="tx-no">09</div>
+            <span class="status-pill status-open">Sonderfall</span>
+          </div>
+          <h3>Sonderfall unklar</h3>
+          <p>Für Vorgänge mit offener Einordnung oder fehlender Preisquelle, CSV oder Beleglage.</p>
+          <div class="tag-row">
+            <span class="tag">Explorer</span>
+            <span class="tag">Beleglücke</span>
+            <span class="tag">Offen</span>
+          </div>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="../forms/form-sonderfall-unklar.html">Formular öffnen</a>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -930,20 +855,17 @@
         <div class="section-head">
           <div>
             <h2>Master-Liste Krypto-Transaktionen</h2>
-            <p>
-              Diese Liste ist die Arbeitsbasis des Kurses. Hier werden alle Vorgänge später sichtbar,
-              unabhängig davon, aus welchem Formular sie kommen.
-            </p>
+            <p>Alle gespeicherten Vorgänge werden hier gemeinsam angezeigt.</p>
           </div>
           <div class="btn-row">
-            <button class="btn btn-secondary" type="button" id="refreshTable">Liste aktualisieren</button>
-            <a class="btn btn-secondary" href="../auswertung/steuer-vorschau.html">Zur Steuer-Vorschau</a>
+            <button class="btn btn-secondary" type="button" id="refreshListBtn">Liste aktualisieren</button>
+            <a class="btn btn-soft" href="../auswertung/steuer-vorschau.html">Zur Steuer-Vorschau</a>
             <a class="btn btn-primary" href="06-wertermittlung.html">Weiter zu Modul 06</a>
           </div>
         </div>
 
         <div class="table-wrap">
-          <table aria-label="Master-Liste">
+          <table aria-label="Master-Liste Krypto-Transaktionen">
             <thead>
               <tr>
                 <th>Datum</th>
@@ -956,12 +878,14 @@
                 <th>Gebühren</th>
                 <th>Ergebnis</th>
                 <th>Status</th>
+                <th>From</th>
+                <th>To</th>
                 <th>Notiz</th>
               </tr>
             </thead>
-            <tbody id="masterTableBody">
+            <tbody id="txTableBody">
               <tr>
-                <td colspan="11">Noch keine Transaktionen in der Master-Liste vorhanden.</td>
+                <td colspan="13">Noch keine Transaktionen in der Master-Liste vorhanden.</td>
               </tr>
             </tbody>
           </table>
@@ -970,192 +894,90 @@
     </section>
 
     <section class="section">
-      <div class="wrap card panel">
-        <div class="section-head">
-          <div>
-            <h2>Wie es nach dieser Seite weitergeht</h2>
-            <p>
-              Von hier aus läuft der Kurs nicht mehr auseinander, sondern klar weiter in Bewertung,
-              Problemfälle, Auswertung, Prüfblatt und PDF.
-            </p>
+      <div class="wrap detail-grid">
+        <div class="card panel">
+          <div class="section-head">
+            <div>
+              <h2>Nächste Arbeitsbereiche</h2>
+              <p>Nach der Speicherung können die weiteren Seiten direkt geöffnet werden.</p>
+            </div>
+          </div>
+
+          <div class="flow-grid">
+            <div class="flow-card">
+              <h3>Wertermittlung</h3>
+              <p>Wertbasis, Gebühren, Verluste und offene Punkte ergänzen.</p>
+            </div>
+            <div class="flow-card">
+              <h3>Steuer-Vorschau</h3>
+              <p>Vorläufige Orientierung für Mitglieder öffnen.</p>
+            </div>
+            <div class="flow-card">
+              <h3>Prüfblatt</h3>
+              <p>Fachliche Sicht mit Prüfklassen und Rückfragen nutzen.</p>
+            </div>
+            <div class="flow-card">
+              <h3>PDF, CSV und Archiv</h3>
+              <p>Unterlagen ausgeben und Jahresstände speichern.</p>
+            </div>
           </div>
         </div>
 
-        <div class="flow-grid">
-          <div class="flow-box">
-            <h3>Arbeitsfluss nach Modul 05</h3>
-            <ol class="flow-list">
-              <li>
-                <span class="step-no">1</span>
-                <div>
-                  <strong>Vorgang erfassen</strong>
-                  <span>Passendes Formular öffnen und den realen Vorgang dokumentieren.</span>
-                </div>
-              </li>
-              <li>
-                <span class="step-no">2</span>
-                <div>
-                  <strong>Master-Liste prüfen</strong>
-                  <span>Ist der Vorgang sichtbar, vollständig und nachvollziehbar gespeichert?</span>
-                </div>
-              </li>
-              <li>
-                <span class="step-no">3</span>
-                <div>
-                  <strong>Wertekette klären</strong>
-                  <span>Danach Kaufwert, Tauschwert, Ausstiegswert, Gebühren und Status prüfen.</span>
-                </div>
-              </li>
-              <li>
-                <span class="step-no">4</span>
-                <div>
-                  <strong>Auswertung und Ausgabe</strong>
-                  <span>Steuer-Vorschau, Prüfblatt, PDF und Archiv greifen auf dieselbe Logik zu.</span>
-                </div>
-              </li>
-            </ol>
+        <div class="card panel">
+          <div class="section-head">
+            <div>
+              <h2>Hinweise</h2>
+              <p>Diese Punkte helfen bei der Arbeit in der Transaktionsliste.</p>
+            </div>
           </div>
 
-          <div class="flow-box">
-            <h3>Warum diese Seite jetzt der Kurskern ist</h3>
-            <p style="margin:0 0 14px;color:var(--muted);">
-              Der Fehler des alten Kursaufbaus war, dass Struktur und Hilfeseiten zu früh den Takt vorgegeben haben.
-              Jetzt ist klar: Das Ziel ist nicht nur Ordnung, sondern eine vollständige Liste mit Wertelogik
-              und vorbereiteter Verlustsicht.
-            </p>
-            <div class="btn-row">
-              <a class="btn btn-secondary" href="06-wertermittlung.html">Zu Modul 06 – Wertermittlung</a>
-              <a class="btn btn-secondary" href="07-problemfaelle.html">Zu Modul 07 – Problemfälle</a>
-              <a class="btn btn-secondary" href="../auswertung/steuerberater-pruefblatt.html">Zum Prüfblatt</a>
+          <div class="flow-grid">
+            <div class="mini-card">
+              <h3>Eine wirtschaftliche Bewegung pro Eintrag</h3>
+              <p>Jeder Vorgang wird einzeln erfasst.</p>
+            </div>
+            <div class="mini-card">
+              <h3>Quellenbezug mitführen</h3>
+              <p>From und To sollten aus der Quellenliste gewählt werden.</p>
+            </div>
+            <div class="mini-card">
+              <h3>Wertbasis sichern</h3>
+              <p>Auch dokumentierte Euro-Werte und Gebühren mit erfassen.</p>
+            </div>
+            <div class="mini-card">
+              <h3>Offene Fälle speichern</h3>
+              <p>Unvollständige Vorgänge können später ergänzt werden.</p>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <footer class="footer">
+    <section class="footer">
       <div class="wrap footer-card">
         <div>
-          Modul 05 ist jetzt die zentrale Arbeitsseite für alle Vorgänge und die gemeinsame Master-Liste.
+          Zentrale Arbeitsseite für Vorgänge, Master-Liste und Weiterarbeit in Wertermittlung, Vorschau, Prüfblatt, PDF, CSV und Archiv.
         </div>
         <div class="btn-row" style="margin-top:0;">
           <a class="btn btn-secondary" href="01-fallstart-stammdaten.html">Zurück zu Modul 01</a>
           <a class="btn btn-primary" href="06-wertermittlung.html">Weiter zu Modul 06</a>
         </div>
       </div>
-    </footer>
+    </section>
   </main>
 
   <script>
-    (function(){
-      const KEYS = {
-        fall: 'kso_fallstart',
-        demoState: 'kso_demo_state',
-        transactions: 'kso_transactions',
-        archive: 'kso_demo_archive'
-      };
+    (() => {
+      const KEY_FALL = 'kso_fallstart';
+      const KEY_TX = 'kso_transactions';
+      const KEY_SOURCES = 'kso_sources';
+      const KEY_VAL = 'kso_valuations';
+      const KEY_ARCHIVE = 'kso_year_archives';
+      const KEY_DEMO = 'kso_demo_active';
 
-      const demoTransactions = [
-        {
-          typ: 'fiat-zu-krypto',
-          datum: '2025-03-12',
-          uhrzeit: '10:15',
-          assetAb: 'EUR 3000,00',
-          assetZu: 'ETH 1,08',
-          euroRein: '',
-          euroRaus: '3000,00',
-          basisWert: 'Kaufwert 3000,00',
-          gebuehren: '12,90',
-          ergebnis: 'offen',
-          status: 'sicher',
-          notiz: 'Einstieg von EUR in ETH'
-        },
-        {
-          typ: 'krypto-zu-krypto',
-          datum: '2025-03-13',
-          uhrzeit: '14:20',
-          assetAb: 'ETH 0,80',
-          assetZu: 'TOKEN-A 48000',
-          euroRein: '',
-          euroRaus: '',
-          basisWert: 'Tauschwert 2220,00',
-          gebuehren: '18,40',
-          ergebnis: 'offen',
-          status: 'indirekt',
-          notiz: 'Wert über hingegebenes ETH rekonstruiert'
-        },
-        {
-          typ: 'reward-bonus-ertrag',
-          datum: '2025-04-05',
-          uhrzeit: '09:10',
-          assetAb: '-',
-          assetZu: 'TOKEN-A 1200',
-          euroRein: '',
-          euroRaus: '',
-          basisWert: 'Zuflusswert 74,00',
-          gebuehren: '',
-          ergebnis: 'offen',
-          status: 'indirekt',
-          notiz: 'Reward aus Projekt'
-        },
-        {
-          typ: 'eigenuebertrag',
-          datum: '2025-04-06',
-          uhrzeit: '08:45',
-          assetAb: 'TOKEN-A 20000',
-          assetZu: 'TOKEN-A 20000',
-          euroRein: '',
-          euroRaus: '',
-          basisWert: 'kein Verkauf',
-          gebuehren: '5,80',
-          ergebnis: 'neutral',
-          status: 'sicher',
-          notiz: 'Eigenübertrag zwischen Wallets'
-        },
-        {
-          typ: 'sonderfall-unklar',
-          datum: '2025-05-02',
-          uhrzeit: '16:35',
-          assetAb: 'TOKEN-A',
-          assetZu: 'offen',
-          euroRein: '',
-          euroRaus: '',
-          basisWert: 'Preisquelle offen',
-          gebuehren: '',
-          ergebnis: 'offen',
-          status: 'offen',
-          notiz: 'Explorer und TX-Hash notwendig'
-        },
-        {
-          typ: 'krypto-zu-fiat',
-          datum: '2025-06-08',
-          uhrzeit: '11:42',
-          assetAb: 'TOKEN-A 48000',
-          assetZu: 'EUR 420,00',
-          euroRein: '420,00',
-          euroRaus: '',
-          basisWert: 'Ausstiegswert 420,00',
-          gebuehren: '9,90',
-          ergebnis: 'verlust',
-          status: 'sicher',
-          notiz: 'Deutlicher Verlust beim Ausstieg'
-        }
-      ];
+      const $ = (id) => document.getElementById(id);
 
-      const ui = {
-        fallState: document.getElementById('fallState'),
-        demoState: document.getElementById('demoState'),
-        countState: document.getElementById('countState'),
-        nextState: document.getElementById('nextState'),
-        statAll: document.getElementById('statAll'),
-        statFiat: document.getElementById('statFiat'),
-        statKtf: document.getElementById('statKtf'),
-        statKtk: document.getElementById('statKtk'),
-        statOpen: document.getElementById('statOpen'),
-        tableBody: document.getElementById('masterTableBody')
-      };
-
-      function readJson(key, fallback){
+      function read(key, fallback){
         try{
           const raw = localStorage.getItem(key);
           return raw ? JSON.parse(raw) : fallback;
@@ -1164,170 +986,230 @@
         }
       }
 
-      function writeJson(key, value){
+      function write(key, value){
         localStorage.setItem(key, JSON.stringify(value));
       }
 
-      function badgeHtml(ok){
-        return ok
-          ? '<span class="badge ok">Ja</span>'
-          : '<span class="badge no">Nein</span>';
+      function remove(key){
+        localStorage.removeItem(key);
       }
 
-      function hasFall(){
-        const fall = readJson(KEYS.fall, null);
-        return !!(fall && fall.fallname && fall.steuerjahr);
-      }
-
-      function hasDemo(){
-        const demo = readJson(KEYS.demoState, null);
-        return !!(demo && demo.isDemoLoaded);
-      }
-
-      function getTransactions(){
-        const list = readJson(KEYS.transactions, []);
+      function txList(){
+        const list = read(KEY_TX, []);
         return Array.isArray(list) ? list : [];
       }
 
-      function normalizeType(type){
-        const map = {
-          'fiat-zu-krypto': 'Fiat zu Krypto',
-          'krypto-zu-fiat': 'Krypto zu Fiat',
-          'krypto-zu-krypto': 'Krypto zu Krypto',
-          'eigenuebertrag': 'Eigenübertrag',
-          'reward-bonus-ertrag': 'Reward / Bonus / Ertrag',
-          'pool-staking-sperrmodell': 'Pool / Staking / Sperrmodell',
-          'ruecktausch-in-coin': 'Rücktausch in Coin',
-          'token-nutzung': 'Token-Nutzung',
-          'sonderfall-unklar': 'Sonderfall unklar'
+      function sourceList(){
+        const list = read(KEY_SOURCES, []);
+        return Array.isArray(list) ? list : [];
+      }
+
+      function archiveList(){
+        const list = read(KEY_ARCHIVE, []);
+        return Array.isArray(list) ? list : [];
+      }
+
+      function normalizeText(value){
+        return String(value || '').toLowerCase();
+      }
+
+      function escapeHtml(value){
+        return String(value || '')
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#39;');
+      }
+
+      function setDemoActive(active){
+        write(KEY_DEMO, active === true);
+      }
+
+      function buildDemoData(){
+        const fallstart = {
+          fallname: 'Beispiel-Fall 2025',
+          steuerjahr: '2025',
+          person: 'Max Muster',
+          land: 'Deutschland'
         };
-        return map[type] || type || '-';
+
+        const sources = [
+          { id:'demo_bank_1', typ:'bankkonto', name:'Beispiel Girokonto', plattform:'Musterbank', chain:'-', adresse:'DEMO-BANK-001', rolle:'from', zeitraumVon:'2024', zeitraumBis:'heute', notiz:'Fiat-Ausgangspunkt' },
+          { id:'demo_boerse_1', typ:'boerse', name:'Beispiel Börse Spot', plattform:'Binance', chain:'mehrere', adresse:'internes Börsenkonto', rolle:'beides', zeitraumVon:'2024', zeitraumBis:'heute', notiz:'Kauf und Verkauf' },
+          { id:'demo_wallet_1', typ:'wallet', name:'MetaMask Hauptwallet', plattform:'MetaMask', chain:'Ethereum', adresse:'0xDemoWalletMain', rolle:'beides', zeitraumVon:'2024', zeitraumBis:'heute', notiz:'Hauptwallet' },
+          { id:'demo_wallet_2', typ:'wallet', name:'Ledger Cold Wallet', plattform:'Ledger', chain:'Ethereum', adresse:'0xDemoWalletCold', rolle:'to', zeitraumVon:'2025', zeitraumBis:'heute', notiz:'Cold Wallet' },
+          { id:'demo_dex_1', typ:'dex', name:'Uniswap', plattform:'Uniswap', chain:'Ethereum', adresse:'DEX', rolle:'beides', zeitraumVon:'2025', zeitraumBis:'heute', notiz:'DEX' }
+        ];
+
+        const transactions = [
+          { typ:'fiat-zu-krypto', datum:'2025-01-10', uhrzeit:'09:15', assetAb:'EUR 5000,00', assetZu:'ETH 1,85', euroRein:'', euroRaus:'5000,00', basisWert:'5000,00 EUR Kaufwert', gebuehren:'19,90', ergebnis:'offen', status:'sicher', fromSourceName:'Beispiel Girokonto', toSourceName:'Beispiel Börse Spot', notiz:'Erstkauf von ETH' },
+          { typ:'eigenuebertrag', datum:'2025-01-11', uhrzeit:'12:10', assetAb:'ETH 1,40', assetZu:'ETH 1,40', euroRein:'', euroRaus:'', basisWert:'kein Verkauf / nur interner Transfer', gebuehren:'4,80', ergebnis:'neutral', status:'sicher', fromSourceName:'Beispiel Börse Spot', toSourceName:'MetaMask Hauptwallet', notiz:'Übertrag auf eigene Wallet' },
+          { typ:'krypto-zu-krypto', datum:'2025-02-02', uhrzeit:'14:20', assetAb:'ETH 0,80', assetZu:'TOKEN-A 48000', euroRein:'', euroRaus:'', basisWert:'2220,00 EUR rekonstruiert', gebuehren:'18,40', ergebnis:'offen', status:'indirekt', fromSourceName:'MetaMask Hauptwallet', toSourceName:'Uniswap', notiz:'Token-Tausch' },
+          { typ:'reward-bonus-ertrag', datum:'2025-03-10', uhrzeit:'08:55', assetAb:'-', assetZu:'TOKEN-A 1200', euroRein:'', euroRaus:'', basisWert:'74,00 EUR Zuflusswert', gebuehren:'0,00', ergebnis:'offen', status:'indirekt', fromSourceName:'Projektpool Alpha', toSourceName:'MetaMask Hauptwallet', notiz:'Reward-Zufluss' },
+          { typ:'krypto-zu-fiat', datum:'2025-06-08', uhrzeit:'11:42', assetAb:'ETH 0,19', assetZu:'EUR 420,00', euroRein:'420,00', euroRaus:'', basisWert:'420,00 EUR Ausstiegswert', gebuehren:'9,90', ergebnis:'verlust', status:'sicher', fromSourceName:'MetaMask Hauptwallet', toSourceName:'Beispiel Girokonto', notiz:'Rücktausch in Fiat' },
+          { typ:'sonderfall-unklar', datum:'2025-08-14', uhrzeit:'16:35', assetAb:'TOKEN-B unbekannt', assetZu:'offen', euroRein:'', euroRaus:'', basisWert:'Preisquelle offen', gebuehren:'', ergebnis:'offen', status:'offen', fromSourceName:'MetaMask Hauptwallet', toSourceName:'Uniswap', notiz:'Einordnung noch offen' }
+        ];
+
+        const valuations = transactions.map((tx, index) => ({
+          idx: index + 1,
+          datum: tx.datum,
+          typ: tx.typ,
+          from: tx.fromSourceName,
+          to: tx.toSourceName,
+          assetAb: tx.assetAb,
+          assetZu: tx.assetZu,
+          basisWert: tx.basisWert,
+          gebuehren: tx.gebuehren,
+          ergebnis: tx.ergebnis,
+          status: tx.status,
+          valueState: tx.status === 'sicher' ? 'Bewertbar' : (tx.status === 'indirekt' ? 'Indirekt' : 'Offen'),
+          buyValue: tx.typ === 'fiat-zu-krypto' ? 5000 : (tx.typ === 'krypto-zu-krypto' ? 2220 : 0),
+          exitValue: tx.typ === 'krypto-zu-fiat' ? 420 : 0,
+          feeValue: Number(String(tx.gebuehren || '0').replace(',', '.')) || 0,
+          lossValue: tx.ergebnis === 'verlust' ? 420 : 0,
+          note: tx.notiz || ''
+        }));
+
+        return { fallstart, sources, transactions, valuations };
       }
 
-      function pillForResult(value){
-        const v = String(value || '').toLowerCase();
-        if(v.includes('verlust')){
-          return '<span class="pill pill-pink">Verlust</span>';
-        }
-        if(v.includes('gewinn')){
-          return '<span class="pill pill-green">Gewinn</span>';
-        }
-        if(v.includes('neutral')){
-          return '<span class="pill pill-grey">Neutral</span>';
-        }
-        return '<span class="pill pill-grey">Offen</span>';
-      }
-
-      function pillForStatus(value){
-        const v = String(value || '').toLowerCase();
-        if(v.includes('sicher')){
-          return '<span class="pill pill-green">Sicher</span>';
-        }
-        if(v.includes('offen')){
-          return '<span class="pill pill-pink">Offen</span>';
-        }
-        if(v.includes('indirekt')){
-          return '<span class="pill pill-grey">Indirekt</span>';
-        }
-        return '<span class="pill pill-grey">Unklar</span>';
-      }
-
-      function renderTable(){
-        const list = getTransactions();
-        if(!list.length){
-          ui.tableBody.innerHTML = '<tr><td colspan="11">Noch keine Transaktionen in der Master-Liste vorhanden.</td></tr>';
+      function saveDemoToArchive(){
+        const txs = txList();
+        const sources = sourceList();
+        const vals = read(KEY_VAL, []);
+        if(!txs.length && !sources.length){
+          alert('Bitte zuerst Daten oder die Beispielansicht laden.');
           return;
         }
 
-        ui.tableBody.innerHTML = list.map(item => {
-          return `
-            <tr>
-              <td>${item.datum || '-'}</td>
-              <td>${normalizeType(item.typ)}</td>
-              <td>${item.assetAb || '-'}</td>
-              <td>${item.assetZu || '-'}</td>
-              <td>${item.euroRein || '-'}</td>
-              <td>${item.euroRaus || '-'}</td>
-              <td>${item.basisWert || '-'}</td>
-              <td>${item.gebuehren || '-'}</td>
-              <td>${pillForResult(item.ergebnis)}</td>
-              <td>${pillForStatus(item.status)}</td>
-              <td>${item.notiz || '-'}</td>
-            </tr>
-          `;
-        }).join('');
-      }
-
-      function refreshStats(){
-        const list = getTransactions();
-
-        const all = list.length;
-        const fiat = list.filter(item => item.typ === 'fiat-zu-krypto').length;
-        const ktf = list.filter(item => item.typ === 'krypto-zu-fiat').length;
-        const ktk = list.filter(item => item.typ === 'krypto-zu-krypto').length;
-        const open = list.filter(item => {
-          const status = String(item.status || '').toLowerCase();
-          const ergebnis = String(item.ergebnis || '').toLowerCase();
-          return status.includes('offen') || status.includes('indirekt') || ergebnis.includes('offen');
-        }).length;
-
-        ui.statAll.textContent = String(all);
-        ui.statFiat.textContent = String(fiat);
-        ui.statKtf.textContent = String(ktf);
-        ui.statKtk.textContent = String(ktk);
-        ui.statOpen.textContent = String(open);
-
-        ui.countState.textContent = String(all);
-        ui.fallState.innerHTML = badgeHtml(hasFall());
-        ui.demoState.innerHTML = badgeHtml(hasDemo());
-
-        let next = 'Vorgang auswählen';
-        if(all > 0){
-          next = 'Weiter zu Modul 06';
-        }else if(!hasFall()){
-          next = 'Erst Fallstart anlegen';
-        }
-        ui.nextState.textContent = next;
+        const archives = archiveList();
+        const year = new Date().getFullYear();
+        archives.unshift({
+          id: `${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
+          jahr: String(year),
+          titel: `Archivstand ${year}`,
+          notiz: read(KEY_DEMO, false) === true ? 'Gespeicherter Beispielstand' : 'Gespeicherter Stand',
+          createdAt: new Date().toISOString(),
+          isDemo: read(KEY_DEMO, false) === true,
+          counts: {
+            transactions: txs.length,
+            sources: sources.length,
+            valuations: Array.isArray(vals) ? vals.length : 0
+          },
+          snapshot: {
+            fallstart: read(KEY_FALL, {}),
+            sources: sources,
+            transactions: txs,
+            valuations: Array.isArray(vals) ? vals : []
+          }
+        });
+        write(KEY_ARCHIVE, archives);
+        alert('Archivstand gespeichert.');
       }
 
       function loadDemo(){
-        writeJson(KEYS.transactions, demoTransactions);
-        writeJson(KEYS.demoState, {
-          isDemoLoaded: true,
-          title: 'Demo-Fall: Token-Verlust nach Tausch über ETH',
-          loadedAt: new Date().toISOString()
-        });
-        refreshStats();
+        const demo = buildDemoData();
+        write(KEY_FALL, demo.fallstart);
+        write(KEY_SOURCES, demo.sources);
+        write(KEY_TX, demo.transactions);
+        write(KEY_VAL, demo.valuations);
+        setDemoActive(true);
+        renderAll();
+      }
+
+      function clearAll(){
+        remove(KEY_FALL);
+        remove(KEY_SOURCES);
+        remove(KEY_TX);
+        remove(KEY_VAL);
+        remove(KEY_DEMO);
+        renderAll();
+      }
+
+      function renderStatus(){
+        const fall = read(KEY_FALL, {});
+        const txs = txList();
+        const sources = sourceList();
+        const demo = read(KEY_DEMO, false) === true;
+
+        $('statusFall').textContent = fall && Object.keys(fall).length ? 'Ja' : 'Nein';
+        $('statusDemo').textContent = demo ? 'Ja' : 'Nein';
+        $('statusTxCount').textContent = String(txs.length);
+        $('statusSourceCount').textContent = String(sources.length);
+
+        let next = 'Vorgang wählen';
+        if(!fall || !Object.keys(fall).length) next = 'Fallstart prüfen';
+        else if(!sources.length) next = 'Quellen ergänzen';
+        else if(!txs.length) next = 'Vorgang erfassen';
+        else next = 'Master-Liste prüfen';
+
+        $('statusNext').textContent = next;
+        $('demoBanner').classList.toggle('active', demo);
+      }
+
+      function countByType(type){
+        return txList().filter(item => normalizeText(item.typ) === type).length;
+      }
+
+      function renderStats(){
+        const txs = txList();
+        $('countAll').textContent = String(txs.length);
+        $('countFiatToCrypto').textContent = String(countByType('fiat-zu-krypto'));
+        $('countCryptoToFiat').textContent = String(countByType('krypto-zu-fiat'));
+        $('countCryptoToCrypto').textContent = String(countByType('krypto-zu-krypto'));
+        $('countOpenCases').textContent = String(
+          txs.filter(item =>
+            normalizeText(item.typ) === 'sonderfall-unklar' ||
+            normalizeText(item.status).includes('offen') ||
+            normalizeText(item.basisWert).includes('offen')
+          ).length
+        );
+      }
+
+      function renderTable(){
+        const body = $('txTableBody');
+        const txs = txList();
+
+        if(!txs.length){
+          body.innerHTML = '<tr><td colspan="13">Noch keine Transaktionen in der Master-Liste vorhanden.</td></tr>';
+          return;
+        }
+
+        body.innerHTML = txs.map(tx => `
+          <tr>
+            <td>${escapeHtml(tx.datum || '-')}</td>
+            <td>${escapeHtml(tx.typ || '-')}</td>
+            <td>${escapeHtml(tx.assetAb || '-')}</td>
+            <td>${escapeHtml(tx.assetZu || '-')}</td>
+            <td>${escapeHtml(tx.euroRein || '-')}</td>
+            <td>${escapeHtml(tx.euroRaus || '-')}</td>
+            <td>${escapeHtml(tx.basisWert || '-')}</td>
+            <td>${escapeHtml(tx.gebuehren || '-')}</td>
+            <td>${escapeHtml(tx.ergebnis || '-')}</td>
+            <td>${escapeHtml(tx.status || '-')}</td>
+            <td>${escapeHtml(tx.fromSourceName || '-')}</td>
+            <td>${escapeHtml(tx.toSourceName || '-')}</td>
+            <td>${escapeHtml(tx.notiz || '-')}</td>
+          </tr>
+        `).join('');
+      }
+
+      function renderAll(){
+        renderStatus();
+        renderStats();
         renderTable();
       }
 
-      function archiveDemo(){
-        const payload = {
-          archivedAt: new Date().toISOString(),
-          title: 'Demo-Fall: Token-Verlust nach Tausch über ETH',
-          transactions: getTransactions()
-        };
-        writeJson(KEYS.archive, payload);
-      }
+      $('loadDemoBtn').addEventListener('click', loadDemo);
+      $('loadDemoBtnTop').addEventListener('click', loadDemo);
+      $('loadDemoBtnMid').addEventListener('click', loadDemo);
+      $('clearListBtn').addEventListener('click', clearAll);
+      $('clearListBtnTop').addEventListener('click', clearAll);
+      $('refreshListBtn').addEventListener('click', renderAll);
+      $('demoToArchiveBtn').addEventListener('click', saveDemoToArchive);
 
-      function clearTransactions(){
-        localStorage.removeItem(KEYS.transactions);
-        localStorage.removeItem(KEYS.demoState);
-        refreshStats();
-        renderTable();
-      }
-
-      document.getElementById('loadDemoTop').addEventListener('click', loadDemo);
-      document.getElementById('loadDemo').addEventListener('click', loadDemo);
-      document.getElementById('archiveDemo').addEventListener('click', archiveDemo);
-      document.getElementById('clearTransactions').addEventListener('click', clearTransactions);
-      document.getElementById('refreshTable').addEventListener('click', function(){
-        refreshStats();
-        renderTable();
-      });
-
-      refreshStats();
-      renderTable();
+      renderAll();
     })();
   </script>
 </body>
