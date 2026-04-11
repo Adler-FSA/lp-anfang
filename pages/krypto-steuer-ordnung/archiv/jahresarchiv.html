@@ -1,7 +1,7 @@
 <!doctype html>
 <!--
   GitHub-Pfad: lp-anfang/pages/krypto-steuer-ordnung/archiv/jahresarchiv.html
-  Commit-Message: jahresarchiv auf neue master listen quellen und bewertungslogik mit jahresspeicherung wiederherstellung und archivliste umgebaut
+  Commit-Message: jahresarchiv zur mehrjahres arbeitszentrale mit wiederherstellen weiterbearbeiten pdf und druck buttons ausgebaut
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/krypto-steuer-ordnung/archiv/jahresarchiv.html?nocache=__TS__
 -->
 <html lang="de">
@@ -9,7 +9,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Jahresarchiv – Krypto-Steuer-Ordnung</title>
-  <meta name="description" content="Jahresarchiv für Master-Liste, Quellenlogik und Bewertungslogik der Krypto-Steuer-Ordnung." />
+  <meta name="description" content="Mehrjahres-Archiv für Master-Liste, Quellenlogik, Wertermittlung und direkte Weiterarbeit in der Krypto-Steuer-Ordnung." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -30,7 +30,7 @@
       --danger-soft:rgba(220,38,38,.08);
       --shadow:0 18px 50px rgba(0,0,0,.08);
       --radius:22px;
-      --max:1240px;
+      --max:1280px;
     }
 
     *{box-sizing:border-box}
@@ -194,6 +194,40 @@
     .chip.red{
       background:var(--danger-soft);
       color:#a61b1b;
+    }
+
+    .demo-banner{
+      display:none;
+      margin:24px 0 0;
+      border:1px solid rgba(220,38,38,.18);
+      border-radius:20px;
+      background:linear-gradient(180deg,#fff6f8 0%, #fff 100%);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .demo-banner.active{
+      display:block;
+    }
+
+    .demo-banner-inner{
+      padding:18px 20px;
+      display:flex;
+      gap:18px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .demo-banner-copy strong{
+      display:block;
+      margin-bottom:6px;
+      font-size:18px;
+    }
+
+    .demo-banner-copy span{
+      color:var(--muted);
+      font-size:14px;
     }
 
     h1{
@@ -365,6 +399,58 @@
       font-size:13px;
     }
 
+    .archive-groups{
+      display:grid;
+      gap:18px;
+    }
+
+    .year-group{
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:#fff;
+      padding:18px;
+    }
+
+    .year-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+      padding-bottom:14px;
+      border-bottom:1px solid var(--line);
+    }
+
+    .year-head h3{
+      margin:0;
+      font-size:24px;
+      line-height:1.1;
+    }
+
+    .year-head p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .year-badges{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .year-badges span{
+      display:inline-flex;
+      align-items:center;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:var(--bg-soft);
+      font-size:12px;
+      font-weight:800;
+    }
+
     .archive-list{
       display:grid;
       gap:14px;
@@ -386,17 +472,23 @@
       margin-bottom:10px;
     }
 
-    .archive-top h3{
+    .archive-top h4{
       margin:0;
       font-size:20px;
       line-height:1.1;
+    }
+
+    .archive-top p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:14px;
     }
 
     .archive-meta{
       display:flex;
       flex-wrap:wrap;
       gap:8px;
-      margin:8px 0 10px;
+      margin:10px 0 12px;
     }
 
     .archive-meta span{
@@ -408,6 +500,17 @@
       background:var(--bg-soft);
       font-size:12px;
       font-weight:800;
+    }
+
+    .action-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .action-grid .btn{
+      width:100%;
     }
 
     .stack{
@@ -454,11 +557,12 @@
       gap:12px;
     }
 
-    @media (max-width:1100px){
+    @media (max-width:1180px){
       .hero-grid,
       .stats-grid,
       .panel-grid,
-      .detail-grid{
+      .detail-grid,
+      .action-grid{
         grid-template-columns:1fr;
       }
     }
@@ -486,6 +590,10 @@
 
       .section-head h2{
         font-size:28px;
+      }
+
+      .demo-banner-inner{
+        padding:16px;
       }
     }
   </style>
@@ -521,14 +629,28 @@
 
   <main>
     <section class="hero">
+      <div class="wrap">
+        <div id="demoBanner" class="demo-banner">
+          <div class="demo-banner-inner">
+            <div class="demo-banner-copy">
+              <strong>Demo-Modus aktiv</strong>
+              <span>Sie sehen aktuell einen ausgedachten Musterfall. Archivstände aus der Demo werden klar als Demo-Archiv markiert.</span>
+            </div>
+            <div class="btn-row">
+              <a class="btn btn-secondary" href="../index.html">Zur Startseite</a>
+              <button class="btn btn-danger" type="button" id="clearDemoBtn">Demo löschen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="wrap hero-grid">
         <article class="card hero-card">
-          <span class="chip">Neue Archivlogik</span>
-          <h1>Hier sicherst du komplette Jahresstände statt nur Einzeldateien.</h1>
+          <span class="chip">Mehrjahres-Arbeitszentrale</span>
+          <h1>Hier sicherst, öffnest, bearbeitest und druckst du mehrere Jahre erneut.</h1>
           <p class="lead">
-            Dieses Archiv speichert jetzt nicht mehr nur lose Daten, sondern den kompletten Fallstand:
-            Fallstart, Quellenliste, Master-Liste und Bewertungslogik. Genau so lassen sich Jahre sauber sichern,
-            wiederherstellen und getrennt weiterbearbeiten.
+            Dieses Archiv speichert komplette Jahresstände mit Fallstart, Quellenliste, Master-Liste und Bewertungslogik.
+            Jeder Stand kann später wiederhergestellt, weiterbearbeitet, erneut geprüft oder erneut gedruckt werden.
           </p>
           <div class="btn-row">
             <button class="btn btn-primary" type="button" id="saveArchiveTop">Jahresstand archivieren</button>
@@ -545,16 +667,16 @@
               <span class="info-value" id="archiveCount">0</span>
             </li>
             <li>
+              <span class="info-label">Archivjahre</span>
+              <span class="info-value" id="yearCount">0</span>
+            </li>
+            <li>
               <span class="info-label">Aktuelle Transaktionen</span>
               <span class="info-value" id="txCount">0</span>
             </li>
             <li>
               <span class="info-label">Aktuelle Quellen</span>
               <span class="info-value" id="sourceCount">0</span>
-            </li>
-            <li>
-              <span class="info-label">Aktuelle Bewertungen</span>
-              <span class="info-value" id="valCount">0</span>
             </li>
             <li>
               <span class="info-label">Letztes Archivjahr</span>
@@ -621,33 +743,32 @@
           </div>
 
           <div class="hint" style="margin-top:12px;">
-            Pro Archivstand wird ein kompletter Snapshot abgelegt. Dadurch lässt sich ein alter Stand später exakt wiederherstellen.
+            Pro Archivstand wird ein kompletter Snapshot abgelegt. Dadurch lässt sich ein alter Stand später exakt wiederherstellen und erneut weiterbearbeiten.
           </div>
         </div>
 
         <div class="card panel">
           <div class="section-head">
             <div>
-              <h2>So arbeitet das Archiv jetzt</h2>
+              <h2>Was jetzt direkt aus dem Archiv geht</h2>
               <p>
-                Nicht mehr nur Exportdateien, sondern komplette Jahresstände mit Quellenweg,
-                Bewertungslogik und Verlustsicht.
+                Das Archiv ist jetzt nicht nur Ablage, sondern eine Mehrjahres-Arbeitszentrale.
               </p>
             </div>
           </div>
 
           <div class="stack">
             <div class="mini-card">
-              <h3>1. Jahresstand sichern</h3>
-              <p>Der komplette Kursstand wird als Archivpaket abgelegt.</p>
+              <h3>Wiederherstellen</h3>
+              <p>Ein alter Jahresstand wird wieder in die aktuelle Arbeit geladen.</p>
             </div>
             <div class="mini-card">
-              <h3>2. Später wiederherstellen</h3>
-              <p>Ein alter Stand kann wieder in die aktuelle Arbeit geladen werden.</p>
+              <h3>Weiterbearbeiten</h3>
+              <p>Nach dem Wiederherstellen direkt zurück in die Kurszentrale oder in die Transaktionszentrale springen.</p>
             </div>
             <div class="mini-card">
-              <h3>3. Jahrweise sauber trennen</h3>
-              <p>So bleiben verschiedene Steuerjahre und Zwischenstände nachvollziehbar auseinander.</p>
+              <h3>Erneut prüfen und drucken</h3>
+              <p>Nach dem Laden direkt in Vorschau, Prüfblatt, PDF oder Export wechseln und erneut ausdrucken.</p>
             </div>
           </div>
         </div>
@@ -659,13 +780,13 @@
         <div class="card panel">
           <div class="section-head">
             <div>
-              <h2>Archivliste</h2>
+              <h2>Mehrjahres-Archivliste</h2>
               <p>
-                Jeder Eintrag enthält Jahr, Titel, Datumsstand und die Datenmengen des jeweiligen Snapshots.
+                Archivstände werden nach Jahren gruppiert. Jeder Stand kann wiederhergestellt, geöffnet, geprüft oder erneut gedruckt werden.
               </p>
             </div>
           </div>
-          <div id="archiveList" class="archive-list">
+          <div id="archiveGroups" class="archive-groups">
             <div class="empty">Noch keine Archivstände vorhanden.</div>
           </div>
         </div>
@@ -689,7 +810,7 @@
     <section class="footer">
       <div class="wrap footer-card">
         <div>
-          Das Jahresarchiv sichert jetzt komplette Fallstände aus Master-Liste, Quellen und Bewertungslogik.
+          Das Jahresarchiv ist jetzt die Mehrjahres-Arbeitszentrale für Wiederherstellen, Weiterbearbeiten, Prüfen und erneutes Drucken.
         </div>
         <div class="btn-row" style="margin-top:0;">
           <a class="btn btn-secondary" href="../export/csv-import-export.html">Zurück zu CSV</a>
@@ -706,6 +827,7 @@
       const KEY_SOURCES = 'kso_sources';
       const KEY_VAL = 'kso_valuations';
       const KEY_ARCHIVE = 'kso_year_archives';
+      const KEY_DEMO = 'kso_demo_active';
 
       const $ = (id) => document.getElementById(id);
 
@@ -740,6 +862,10 @@
       function archiveList() {
         const list = read(KEY_ARCHIVE, []);
         return Array.isArray(list) ? list : [];
+      }
+
+      function demoActive() {
+        return read(KEY_DEMO, false) === true;
       }
 
       function toNumber(value) {
@@ -797,6 +923,7 @@
           titel: titel || `Jahresstand ${jahr}`,
           notiz,
           createdAt: new Date().toISOString(),
+          isDemo: demoActive(),
           counts: {
             transactions: snapshot.transactions.length,
             sources: snapshot.sources.length,
@@ -811,7 +938,7 @@
         $('archivNotiz').value = '';
       }
 
-      function restoreArchive(id) {
+      function restoreArchive(id, nextUrl) {
         const entry = archiveList().find((item) => item.id === id);
         if (!entry) return;
 
@@ -819,6 +946,13 @@
         write(KEY_SOURCES, Array.isArray(entry.snapshot.sources) ? entry.snapshot.sources : []);
         write(KEY_TX, Array.isArray(entry.snapshot.transactions) ? entry.snapshot.transactions : []);
         write(KEY_VAL, Array.isArray(entry.snapshot.valuations) ? entry.snapshot.valuations : []);
+        write(KEY_DEMO, entry.isDemo === true);
+
+        if (nextUrl) {
+          window.location.href = `${nextUrl}?nocache=${Date.now()}`;
+          return;
+        }
+
         renderAll();
         alert(`Archivstand ${entry.jahr} wurde wiederhergestellt.`);
       }
@@ -833,15 +967,28 @@
         const entry = archiveList().find((item) => item.id === id);
         if (!entry) return;
 
+        const prefix = entry.isDemo ? 'kso-demo-archiv-' : 'kso-archiv-';
         const blob = new Blob([JSON.stringify(entry, null, 2)], { type: 'application/json;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `kso-archiv-${entry.jahr}.json`;
+        a.download = `${prefix}${entry.jahr}.json`;
         document.body.appendChild(a);
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
+      }
+
+      function groupByYear(entries) {
+        const map = {};
+        entries.forEach((entry) => {
+          const year = entry.jahr || 'ohne-jahr';
+          if (!map[year]) map[year] = [];
+          map[year].push(entry);
+        });
+        return Object.keys(map)
+          .sort((a, b) => String(b).localeCompare(String(a), 'de'))
+          .map((year) => ({ year, entries: map[year] }));
       }
 
       function renderSummary() {
@@ -849,6 +996,7 @@
         const sources = sourceList();
         const vals = valList();
         const archives = archiveList();
+        const years = new Set(archives.map((item) => item.jahr || '-'));
 
         const sumBuy = vals.reduce((s, v) => s + (Number(v.buyValue) || 0), 0);
         const sumExit = vals.reduce((s, v) => s + (Number(v.exitValue) || 0), 0);
@@ -856,9 +1004,9 @@
         const sumLoss = vals.reduce((s, v) => s + (Number(v.lossValue) || 0), 0);
 
         $('archiveCount').textContent = String(archives.length);
+        $('yearCount').textContent = String(years.size);
         $('txCount').textContent = String(txs.length);
         $('sourceCount').textContent = String(sources.length);
-        $('valCount').textContent = String(vals.length);
         $('lastArchiveYear').textContent = archives[0] ? archives[0].jahr : '-';
 
         $('sumBuy').textContent = euro(sumBuy);
@@ -867,8 +1015,8 @@
         $('sumLoss').textContent = euro(sumLoss);
       }
 
-      function renderArchiveList() {
-        const node = $('archiveList');
+      function renderArchiveGroups() {
+        const node = $('archiveGroups');
         const archives = archiveList();
 
         if (!archives.length) {
@@ -876,41 +1024,97 @@
           return;
         }
 
-        node.innerHTML = archives.map((item) => `
-          <article class="archive-card">
-            <div class="archive-top">
-              <div>
-                <h3>${escapeHtml(item.titel || `Jahresstand ${item.jahr}`)}</h3>
-                <div class="hint">Archivjahr ${escapeHtml(item.jahr)} · gespeichert am ${new Date(item.createdAt).toLocaleString('de-DE')}</div>
-              </div>
-              <div class="btn-row">
-                <button class="btn btn-secondary" type="button" data-restore="${item.id}">Wiederherstellen</button>
-                <button class="btn btn-soft" type="button" data-export="${item.id}">Exportieren</button>
-                <button class="btn btn-danger" type="button" data-delete="${item.id}">Löschen</button>
-              </div>
-            </div>
+        const groups = groupByYear(archives);
 
-            <div class="archive-meta">
-              <span>${escapeHtml(item.jahr)}</span>
-              <span>${item.counts ? item.counts.transactions : 0} Transaktionen</span>
-              <span>${item.counts ? item.counts.sources : 0} Quellen</span>
-              <span>${item.counts ? item.counts.valuations : 0} Bewertungen</span>
-            </div>
+        node.innerHTML = groups.map((group) => {
+          const totalTx = group.entries.reduce((s, item) => s + (item.counts?.transactions || 0), 0);
+          const totalVal = group.entries.reduce((s, item) => s + (item.counts?.valuations || 0), 0);
+          const hasDemo = group.entries.some((item) => item.isDemo === true);
 
-            <div class="hint">${escapeHtml(item.notiz || 'Keine Archivnotiz hinterlegt.')}</div>
-          </article>
-        `).join('');
+          return `
+            <section class="year-group">
+              <div class="year-head">
+                <div>
+                  <h3>Archivjahr ${escapeHtml(group.year)}</h3>
+                  <p>${group.entries.length} gespeicherte Stände in diesem Jahr.</p>
+                </div>
+                <div class="year-badges">
+                  <span>${group.entries.length} Stände</span>
+                  <span>${totalTx} Transaktionen gesamt</span>
+                  <span>${totalVal} Bewertungen gesamt</span>
+                  ${hasDemo ? '<span style="background:#fff6f8;border-color:rgba(220,38,38,.18);color:#8f1d3f;">Demo-Archiv vorhanden</span>' : ''}
+                </div>
+              </div>
+
+              <div class="archive-list">
+                ${group.entries.map((item) => `
+                  <article class="archive-card">
+                    <div class="archive-top">
+                      <div>
+                        <h4>${escapeHtml(item.titel || `Jahresstand ${item.jahr}`)}</h4>
+                        <p>Gespeichert am ${new Date(item.createdAt).toLocaleString('de-DE')}</p>
+                      </div>
+                      <div class="btn-row">
+                        ${item.isDemo ? '<span class="chip red" style="margin:0;">Demo-Archiv</span>' : '<span class="chip" style="margin:0;">Echtfall-Stand</span>'}
+                      </div>
+                    </div>
+
+                    <div class="archive-meta">
+                      <span>${escapeHtml(item.jahr)}</span>
+                      <span>${item.counts ? item.counts.transactions : 0} Transaktionen</span>
+                      <span>${item.counts ? item.counts.sources : 0} Quellen</span>
+                      <span>${item.counts ? item.counts.valuations : 0} Bewertungen</span>
+                    </div>
+
+                    <div class="hint">${escapeHtml(item.notiz || 'Keine Archivnotiz hinterlegt.')}</div>
+
+                    <div class="action-grid">
+                      <button class="btn btn-secondary" type="button" data-restore="${item.id}">Wiederherstellen</button>
+                      <button class="btn btn-soft" type="button" data-edit="${item.id}">Weiterbearbeiten</button>
+                      <button class="btn btn-primary" type="button" data-preview="${item.id}">Vorschau</button>
+                      <button class="btn btn-secondary" type="button" data-pruefblatt="${item.id}">Prüfblatt</button>
+                      <button class="btn btn-pink" type="button" data-pdf="${item.id}">PDF / Drucken</button>
+                      <button class="btn btn-soft" type="button" data-export-open="${item.id}">CSV / Export</button>
+                      <button class="btn btn-secondary" type="button" data-export-file="${item.id}">Archiv exportieren</button>
+                      <button class="btn btn-danger" type="button" data-delete="${item.id}">Löschen</button>
+                    </div>
+                  </article>
+                `).join('')}
+              </div>
+            </section>
+          `;
+        }).join('');
 
         node.querySelectorAll('[data-restore]').forEach((button) => {
           button.addEventListener('click', () => restoreArchive(button.getAttribute('data-restore')));
         });
 
-        node.querySelectorAll('[data-delete]').forEach((button) => {
-          button.addEventListener('click', () => deleteArchive(button.getAttribute('data-delete')));
+        node.querySelectorAll('[data-edit]').forEach((button) => {
+          button.addEventListener('click', () => restoreArchive(button.getAttribute('data-edit'), '../module/05-transaktionen.html'));
         });
 
-        node.querySelectorAll('[data-export]').forEach((button) => {
-          button.addEventListener('click', () => exportArchive(button.getAttribute('data-export')));
+        node.querySelectorAll('[data-preview]').forEach((button) => {
+          button.addEventListener('click', () => restoreArchive(button.getAttribute('data-preview'), '../auswertung/steuer-vorschau.html'));
+        });
+
+        node.querySelectorAll('[data-pruefblatt]').forEach((button) => {
+          button.addEventListener('click', () => restoreArchive(button.getAttribute('data-pruefblatt'), '../auswertung/steuerberater-pruefblatt.html'));
+        });
+
+        node.querySelectorAll('[data-pdf]').forEach((button) => {
+          button.addEventListener('click', () => restoreArchive(button.getAttribute('data-pdf'), '../export/pdf-druck.html'));
+        });
+
+        node.querySelectorAll('[data-export-open]').forEach((button) => {
+          button.addEventListener('click', () => restoreArchive(button.getAttribute('data-export-open'), '../export/csv-import-export.html'));
+        });
+
+        node.querySelectorAll('[data-export-file]').forEach((button) => {
+          button.addEventListener('click', () => exportArchive(button.getAttribute('data-export-file')));
+        });
+
+        node.querySelectorAll('[data-delete]').forEach((button) => {
+          button.addEventListener('click', () => deleteArchive(button.getAttribute('data-delete')));
         });
       }
 
@@ -925,6 +1129,7 @@
         const latestTx = txs[txs.length - 1];
         const latestType = latestTx ? latestTx.typ : '-';
         const latestDate = latestTx ? latestTx.datum : '-';
+        const demo = demoActive();
 
         node.innerHTML = `
           <div class="mini-card">
@@ -939,7 +1144,15 @@
             <h3>Letzter Vorgang</h3>
             <p>${escapeHtml(latestType)} · ${escapeHtml(latestDate)}</p>
           </div>
+          <div class="mini-card">
+            <h3>Status der aktuellen Arbeit</h3>
+            <p>${demo ? 'Demo-Fall aktiv – aktuelle Arbeit basiert auf einem ausgedachten Musterfall.' : 'Echtfall-Stand aktiv – aktuelle Arbeit basiert auf dem geladenen Archiv oder Live-Stand.'}</p>
+          </div>
         `;
+      }
+
+      function renderDemoState() {
+        $('demoBanner').classList.toggle('active', demoActive());
       }
 
       function fillYear() {
@@ -951,10 +1164,20 @@
         $('archivNotiz').value = 'Stand vor weiterer Bearbeitung oder vor Übergabe an den Steuerberater. Master-Liste, Quellen und Bewertungsdaten sind enthalten.';
       }
 
+      function clearDemoAndReload() {
+        localStorage.removeItem(KEY_FALL);
+        localStorage.removeItem(KEY_TX);
+        localStorage.removeItem(KEY_SOURCES);
+        localStorage.removeItem(KEY_VAL);
+        localStorage.removeItem(KEY_DEMO);
+        window.location.href = '../index.html?nocache=' + Date.now();
+      }
+
       function renderAll() {
         renderSummary();
-        renderArchiveList();
+        renderArchiveGroups();
         renderCurrentView();
+        renderDemoState();
       }
 
       $('saveArchiveTop').addEventListener('click', saveArchive);
@@ -962,6 +1185,7 @@
       $('refreshAll').addEventListener('click', renderAll);
       $('fillYear').addEventListener('click', fillYear);
       $('fillDemo').addEventListener('click', fillDemo);
+      $('clearDemoBtn').addEventListener('click', clearDemoAndReload);
 
       fillYear();
       renderAll();
