@@ -1,7 +1,7 @@
 <!doctype html>
 <!--
   GitHub-Pfad: lp-anfang/pages/krypto-steuer-ordnung/forms/form-krypto-zu-krypto.html
-  Commit-Message: formular krypto zu krypto mit beispieltexten master listen speicherung und einheitlicher eingabelogik
+  Commit-Message: formular krypto zu krypto auf quellen dropdowns fuer from und to umgebaut
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/krypto-steuer-ordnung/forms/form-krypto-zu-krypto.html?nocache=__TS__
 -->
 <html lang="de">
@@ -9,7 +9,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Formular – Krypto zu Krypto</title>
-  <meta name="description" content="Erfassung von Krypto zu Krypto Vorgängen für die Master-Liste der Krypto-Steuer-Ordnung." />
+  <meta name="description" content="Erfassung von Krypto zu Krypto Vorgängen mit Quellen-Dropdowns für die Master-Liste der Krypto-Steuer-Ordnung." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -236,6 +236,11 @@
       font-weight:800;
     }
 
+    .hint{
+      color:var(--muted);
+      font-size:12px;
+    }
+
     .input,.select,.textarea{
       width:100%;
       border:1px solid var(--line);
@@ -261,6 +266,16 @@
     .textarea:focus{
       border-color:rgba(32,216,178,.65);
       box-shadow:0 0 0 4px rgba(32,216,178,.10);
+    }
+
+    .info-box{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:18px;
+      padding:16px;
+      color:var(--muted);
+      font-size:14px;
+      margin-top:18px;
     }
 
     .stats{
@@ -326,9 +341,9 @@
       </div>
 
       <nav class="nav" aria-label="Hauptnavigation">
+        <a href="../module/02-wallets-boersen-chains.html">Modul 02</a>
         <a href="../module/05-transaktionen.html">Modul 05</a>
         <a href="../module/06-wertermittlung.html">Modul 06</a>
-        <a href="../auswertung/steuer-vorschau.html">Auswertung</a>
         <a class="cta" href="../export/pdf-druck.html">PDF</a>
       </nav>
     </div>
@@ -339,13 +354,13 @@
       <span class="chip">Tauschseite</span>
       <h1>Coin oder Token in ein anderes Asset getauscht.</h1>
       <p class="lead">
-        Dieses Formular speichert den steuerlich sensiblen Tauschvorgang in die Master-Liste
-        und hält beide Seiten des Tauschs fest.
+        Dieses Formular nutzt jetzt die zentrale Quellenliste. Du wählst die From-Quelle des abgegebenen Assets
+        und die To-Quelle, auf der das neue Asset ankommt.
       </p>
       <div class="btn-row">
         <button class="btn btn-primary" type="button" id="saveTop">In Master-Liste speichern</button>
         <button class="btn btn-soft" type="button" id="demoTop">Beispiel laden</button>
-        <button class="btn btn-secondary" type="button" id="resetTop">Felder leeren</button>
+        <a class="btn btn-secondary" href="../module/02-wallets-boersen-chains.html">Quellen verwalten</a>
       </div>
     </div>
   </section>
@@ -356,8 +371,7 @@
         <div>
           <h2>Tauschvorgang erfassen</h2>
           <p>
-            Hier werden abgegebenes Asset, erhaltenes Asset und der Wert zum Tauschzeitpunkt
-            nebeneinander dokumentiert.
+            Jetzt wird der Weg des Tauschs über echte Quellen aus deiner Liste dokumentiert und nicht mehr nur frei beschrieben.
           </p>
         </div>
       </div>
@@ -375,13 +389,19 @@
           </div>
 
           <div class="field">
-            <label for="plattform">Plattform / DEX</label>
-            <input class="input" id="plattform" type="text" placeholder="z. B. Uniswap, PancakeSwap, Jupiter" />
+            <label for="fromSource">From-Quelle</label>
+            <select class="select" id="fromSource">
+              <option value="">Bitte Quelle auswählen</option>
+            </select>
+            <span class="hint">z. B. Wallet oder Börse, aus der ETH, SOL oder Token abgegeben wurden</span>
           </div>
 
           <div class="field">
-            <label for="chain">Chain</label>
-            <input class="input" id="chain" type="text" placeholder="z. B. Ethereum, Solana, BNB Chain" />
+            <label for="toSource">To-Quelle</label>
+            <select class="select" id="toSource">
+              <option value="">Bitte Quelle auswählen</option>
+            </select>
+            <span class="hint">z. B. Ziel-Wallet, Ziel-Börse oder DEX-Ausgang</span>
           </div>
 
           <div class="field">
@@ -430,9 +450,19 @@
           </div>
 
           <div class="field full">
+            <label for="txRef">Referenz / Beleghinweis</label>
+            <input class="input" id="txRef" type="text" placeholder="z. B. TX-Hash, DEX-Screenshot, Explorer-Link, CSV-Zeile" />
+          </div>
+
+          <div class="field full">
             <label for="notiz">Notiz</label>
             <textarea class="textarea" id="notiz" placeholder="z. B. Token nicht direkt gelistet. Wert wurde über das hingegebene ETH zum Tauschzeitpunkt rekonstruiert."></textarea>
           </div>
+        </div>
+
+        <div class="info-box">
+          Falls deine passende Quelle noch fehlt, lege sie zuerst in
+          <strong>Modul 02 – Wallets, Börsen, Chains & Quellenliste</strong> an und komme dann zurück.
         </div>
 
         <div class="btn-row" style="margin-top:18px;">
@@ -469,25 +499,10 @@
     (() => {
       const KEY_TX = 'kso_transactions';
       const KEY_FALL = 'kso_fallstart';
+      const KEY_SOURCES = 'kso_sources';
 
       const $ = (id) => document.getElementById(id);
       const form = $('form');
-
-      const demoData = {
-        datum: '2025-03-13',
-        uhrzeit: '14:20',
-        plattform: 'Uniswap',
-        chain: 'Ethereum',
-        assetAb: 'ETH',
-        mengeAb: '0,80',
-        assetZu: 'TOKEN-A',
-        mengeZu: '48000',
-        wertAb: '2220,00 EUR über ETH-Wert',
-        wertZu: '2220,00 EUR rekonstruiert',
-        geb: '18,40',
-        status: 'indirekt',
-        notiz: 'Token nicht direkt gelistet. Wert über hingegebenes ETH rekonstruiert.'
-      };
 
       function read(key, fallback) {
         try {
@@ -502,6 +517,57 @@
         localStorage.setItem(key, JSON.stringify(value));
       }
 
+      function txList() {
+        const list = read(KEY_TX, []);
+        return Array.isArray(list) ? list : [];
+      }
+
+      function sourceList() {
+        const list = read(KEY_SOURCES, []);
+        return Array.isArray(list) ? list : [];
+      }
+
+      function sourceLabel(item) {
+        const typeMap = {
+          wallet: 'Wallet',
+          boerse: 'Börse',
+          dex: 'DEX',
+          bankkonto: 'Bankkonto',
+          konto: 'Konto',
+          sonstiges: 'Sonstiges'
+        };
+        const type = typeMap[item.typ] || item.typ || '-';
+        const chain = item.chain || '-';
+        return `${item.name || '-'} | ${type} | ${chain}`;
+      }
+
+      function fillSourceDropdowns() {
+        const fromNode = $('fromSource');
+        const toNode = $('toSource');
+        const list = sourceList();
+
+        fromNode.innerHTML = '<option value="">Bitte Quelle auswählen</option>';
+        toNode.innerHTML = '<option value="">Bitte Quelle auswählen</option>';
+
+        list.forEach((item) => {
+          const label = sourceLabel(item);
+
+          const optionFrom = document.createElement('option');
+          optionFrom.value = item.id || item.name;
+          optionFrom.textContent = label;
+          fromNode.appendChild(optionFrom);
+
+          const optionTo = document.createElement('option');
+          optionTo.value = item.id || item.name;
+          optionTo.textContent = label;
+          toNode.appendChild(optionTo);
+        });
+      }
+
+      function findSourceById(value) {
+        return sourceList().find((item) => (item.id || item.name) === value) || null;
+      }
+
       function fill(data) {
         Object.keys(data).forEach((key) => {
           const node = $(key);
@@ -513,24 +579,24 @@
         form.reset();
       }
 
-      function txList() {
-        const list = read(KEY_TX, []);
-        return Array.isArray(list) ? list : [];
-      }
-
       function save(event) {
         event.preventDefault();
 
         if (
           !$('datum').value ||
+          !$('fromSource').value ||
+          !$('toSource').value ||
           !$('assetAb').value ||
           !$('mengeAb').value ||
           !$('assetZu').value ||
           !$('mengeZu').value
         ) {
-          alert('Bitte Datum, abgegebenes Asset, abgegebene Menge, erhaltenes Asset und Menge ausfüllen.');
+          alert('Bitte Datum, From-Quelle, To-Quelle, abgegebenes Asset, abgegebene Menge, erhaltenes Asset und erhaltene Menge ausfüllen.');
           return;
         }
+
+        const fromSource = findSourceById($('fromSource').value);
+        const toSource = findSourceById($('toSource').value);
 
         const entry = {
           typ: 'krypto-zu-krypto',
@@ -544,23 +610,18 @@
           gebuehren: $('geb').value || '',
           ergebnis: 'offen',
           status: $('status').value || 'offen',
+          fromSourceId: $('fromSource').value,
+          toSourceId: $('toSource').value,
+          fromSourceName: fromSource ? fromSource.name : '',
+          toSourceName: toSource ? toSource.name : '',
           notiz: [
-            `Plattform: ${$('plattform').value || '-'}`,
-            `Chain: ${$('chain').value || '-'}`,
+            `From: ${fromSource ? sourceLabel(fromSource) : '-'}`,
+            `To: ${toSource ? sourceLabel(toSource) : '-'}`,
             `Wert Abgang: ${$('wertAb').value || '-'}`,
             `Wert Zugang: ${$('wertZu').value || '-'}`,
+            `Beleg: ${$('txRef').value || '-'}`,
             $('notiz').value
-          ].filter(Boolean).join(' | '),
-          raw: {
-            plattform: $('plattform').value,
-            chain: $('chain').value,
-            assetAb: $('assetAb').value,
-            mengeAb: $('mengeAb').value,
-            assetZu: $('assetZu').value,
-            mengeZu: $('mengeZu').value,
-            wertAb: $('wertAb').value,
-            wertZu: $('wertZu').value
-          }
+          ].filter(Boolean).join(' | ')
         };
 
         const list = txList();
@@ -581,18 +642,38 @@
         $('fallInfo').textContent = fall && fall.fallname ? fall.fallname : 'Kein Fall';
       }
 
+      function loadDemo() {
+        const sources = sourceList();
+        if (sources.length < 2) {
+          alert('Bitte zuerst in Modul 02 mindestens zwei Quellen anlegen oder Demo-Quellen laden.');
+          return;
+        }
+
+        fill({
+          datum: '2025-03-13',
+          uhrzeit: '14:20',
+          fromSource: sources[0].id || sources[0].name,
+          toSource: sources[1].id || sources[1].name,
+          assetAb: 'ETH',
+          mengeAb: '0,80',
+          assetZu: 'TOKEN-A',
+          mengeZu: '48000',
+          wertAb: '2220,00 EUR über ETH-Wert',
+          wertZu: '2220,00 EUR rekonstruiert',
+          geb: '18,40',
+          status: 'indirekt',
+          txRef: 'TX-Hash / DEX-Screenshot',
+          notiz: 'Token nicht direkt gelistet. Wert über hingegebenes ETH rekonstruiert. Quellen wurden aus der zentralen Liste gewählt.'
+        });
+      }
+
       form.addEventListener('submit', save);
-
-      ['demo', 'demoTop'].forEach((id) => {
-        $(id).addEventListener('click', () => fill(demoData));
-      });
-
-      ['reset', 'resetTop'].forEach((id) => {
-        $(id).addEventListener('click', reset);
-      });
-
       $('saveTop').addEventListener('click', () => form.requestSubmit());
+      $('demo').addEventListener('click', loadDemo);
+      $('demoTop').addEventListener('click', loadDemo);
+      $('reset').addEventListener('click', reset);
 
+      fillSourceDropdowns();
       update();
     })();
   </script>
