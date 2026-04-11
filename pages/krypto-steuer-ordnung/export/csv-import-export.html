@@ -1,7 +1,7 @@
 <!doctype html>
 <!--
   GitHub-Pfad: lp-anfang/pages/krypto-steuer-ordnung/export/csv-import-export.html
-  Commit-Message: csv import export auf neue master listen quellen und bewertungslogik mit transaktions quellen und bewertungs export umgebaut
+  Commit-Message: csv import export mit demo hinweis und demo schutz erweitert
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/krypto-steuer-ordnung/export/csv-import-export.html?nocache=__TS__
 -->
 <html lang="de">
@@ -149,10 +149,7 @@
       grid-template-columns:repeat(4,minmax(0,1fr));
     }
 
-    .panel-grid{
-      grid-template-columns:1fr 1fr;
-    }
-
+    .panel-grid,
     .detail-grid{
       grid-template-columns:1fr 1fr;
     }
@@ -197,6 +194,40 @@
     .chip.red{
       background:var(--danger-soft);
       color:#a61b1b;
+    }
+
+    .demo-banner{
+      display:none;
+      margin:24px 0 0;
+      border:1px solid rgba(220,38,38,.18);
+      border-radius:20px;
+      background:linear-gradient(180deg,#fff6f8 0%, #fff 100%);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .demo-banner.active{
+      display:block;
+    }
+
+    .demo-banner-inner{
+      padding:18px 20px;
+      display:flex;
+      gap:18px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .demo-banner-copy strong{
+      display:block;
+      margin-bottom:6px;
+      font-size:18px;
+    }
+
+    .demo-banner-copy span{
+      color:var(--muted);
+      font-size:14px;
     }
 
     h1{
@@ -481,6 +512,10 @@
       .section-head h2{
         font-size:28px;
       }
+
+      .demo-banner-inner{
+        padding:16px;
+      }
     }
   </style>
 </head>
@@ -516,6 +551,21 @@
 
   <main>
     <section class="hero">
+      <div class="wrap">
+        <div id="demoBanner" class="demo-banner">
+          <div class="demo-banner-inner">
+            <div class="demo-banner-copy">
+              <strong>Demo-Modus aktiv</strong>
+              <span>Sie arbeiten aktuell mit einem ausgedachten Musterfall. Exporte und Backups würden Demo-Daten enthalten.</span>
+            </div>
+            <div class="btn-row">
+              <a class="btn btn-secondary" href="../index.html">Zur Startseite</a>
+              <button class="btn btn-danger" type="button" id="clearDemoBtn">Demo löschen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="wrap hero-grid">
         <article class="card hero-card">
           <span class="chip">Neue Exportlogik</span>
@@ -592,6 +642,10 @@
                 erst Transaktionen, dann Quellen, dann Bewertungslogik.
               </p>
             </div>
+          </div>
+
+          <div id="demoExportNote" class="empty" style="display:none; margin-bottom:16px; border-style:solid; border-color:rgba(220,38,38,.18); background:#fff6f8; color:#8f1d3f;">
+            Demo aktiv: Exportdateien werden automatisch mit <strong>demo-</strong> im Dateinamen gekennzeichnet.
           </div>
 
           <div class="btn-row" style="margin-bottom:16px;">
@@ -770,6 +824,7 @@
       const KEY_TX = 'kso_transactions';
       const KEY_SOURCES = 'kso_sources';
       const KEY_VAL = 'kso_valuations';
+      const KEY_DEMO = 'kso_demo_active';
 
       const $ = (id) => document.getElementById(id);
 
@@ -799,6 +854,10 @@
       function valList() {
         const list = read(KEY_VAL, []);
         return Array.isArray(list) ? list : [];
+      }
+
+      function demoActive() {
+        return read(KEY_DEMO, false) === true;
       }
 
       function toNumber(value) {
@@ -846,6 +905,7 @@
       function buildBackupObject() {
         return {
           exportedAt: new Date().toISOString(),
+          isDemo: demoActive(),
           fallstart: read(KEY_FALL, {}),
           sources: sourceList(),
           transactions: txList(),
@@ -984,7 +1044,8 @@
             exitValue,
             feeValue: feeNum,
             lossValue,
-            note: tx.notiz || ''
+            note: tx.notiz || '',
+            isDemo: demoActive()
           };
         });
 
@@ -1091,31 +1152,42 @@
         node.innerHTML = cards.join('');
       }
 
+      function renderDemoState() {
+        const active = demoActive();
+        $('demoBanner').classList.toggle('active', active);
+        $('demoExportNote').style.display = active ? 'block' : 'none';
+      }
+
+      function exportPrefix() {
+        return demoActive() ? 'kso-demo-' : 'kso-';
+      }
+
       function renderAll() {
         renderSummary();
         renderOverview();
         renderPreview();
+        renderDemoState();
       }
 
       function downloadTransactionsCsv() {
-        const csv = objectArrayToCsv(txList());
-        downloadText('kso-transaktionen.csv', csv || 'typ;datum\n', 'text/csv;charset=utf-8');
+        const csv = objectArrayToCsv(txList().map((row) => ({ ...row, isDemo: demoActive() })));
+        downloadText(`${exportPrefix()}transaktionen.csv`, csv || 'typ;datum\n', 'text/csv;charset=utf-8');
       }
 
       function downloadSourcesCsv() {
-        const csv = objectArrayToCsv(sourceList());
-        downloadText('kso-quellen.csv', csv || 'typ;name\n', 'text/csv;charset=utf-8');
+        const csv = objectArrayToCsv(sourceList().map((row) => ({ ...row, isDemo: demoActive() })));
+        downloadText(`${exportPrefix()}quellen.csv`, csv || 'typ;name\n', 'text/csv;charset=utf-8');
       }
 
       function downloadValCsv() {
         const vals = valList().length ? valList() : rebuildValuations();
-        const csv = objectArrayToCsv(vals);
-        downloadText('kso-bewertung.csv', csv || 'idx;datum\n', 'text/csv;charset=utf-8');
+        const csv = objectArrayToCsv(vals.map((row) => ({ ...row, isDemo: demoActive() })));
+        downloadText(`${exportPrefix()}bewertung.csv`, csv || 'idx;datum\n', 'text/csv;charset=utf-8');
       }
 
       function downloadFullJson() {
         const backup = buildBackupObject();
-        downloadText('kso-backup.json', JSON.stringify(backup, null, 2), 'application/json;charset=utf-8');
+        downloadText(`${exportPrefix()}backup.json`, JSON.stringify(backup, null, 2), 'application/json;charset=utf-8');
       }
 
       function fillJsonBox() {
@@ -1135,6 +1207,7 @@
           write(KEY_SOURCES, Array.isArray(data.sources) ? data.sources : []);
           write(KEY_TX, Array.isArray(data.transactions) ? data.transactions : []);
           write(KEY_VAL, Array.isArray(data.valuations) ? data.valuations : []);
+          write(KEY_DEMO, data.isDemo === true);
           if (!Array.isArray(data.valuations)) {
             rebuildValuations();
           }
@@ -1158,11 +1231,15 @@
           return;
         }
 
+        const importedDemo = rows.some((row) => String(row.isDemo || '').toLowerCase() === 'true');
+
         if (target === 'transactions') {
           write(KEY_TX, rows);
+          write(KEY_DEMO, importedDemo);
           rebuildValuations();
         } else if (target === 'sources') {
           write(KEY_SOURCES, rows);
+          if (importedDemo) write(KEY_DEMO, true);
         } else if (target === 'valuations') {
           write(KEY_VAL, rows.map((row) => ({
             ...row,
@@ -1171,6 +1248,7 @@
             feeValue: toNumber(row.feeValue),
             lossValue: toNumber(row.lossValue)
           })));
+          write(KEY_DEMO, importedDemo);
         } else {
           alert('CSV-Ziel ungültig. Bitte transactions, sources oder valuations eintragen.');
           return;
@@ -1183,18 +1261,18 @@
       function sampleTxCsv() {
         $('csvType').value = 'transactions';
         $('csvBox').value =
-`typ;datum;uhrzeit;assetAb;assetZu;euroRein;euroRaus;basisWert;gebuehren;ergebnis;status;fromSourceName;toSourceName;notiz
-fiat-zu-krypto;2025-03-12;10:15;EUR 3000,00;ETH 1,08;;3000,00;3000,00 EUR Kaufwert;12,90;offen;sicher;ING Girokonto;Binance Spot;Einstieg von EUR in ETH
-krypto-zu-fiat;2025-06-08;11:42;TOKEN-A 48000;EUR 420,00;420,00;;420,00 EUR Ausstiegswert;9,90;verlust;sicher;MetaMask Hauptwallet;ING Girokonto;Ausstieg mit Verlust`;
+`typ;datum;uhrzeit;assetAb;assetZu;euroRein;euroRaus;basisWert;gebuehren;ergebnis;status;fromSourceName;toSourceName;notiz;isDemo
+fiat-zu-krypto;2025-03-12;10:15;EUR 3000,00;ETH 1,08;;3000,00;3000,00 EUR Kaufwert;12,90;offen;sicher;ING Girokonto;Binance Spot;Einstieg von EUR in ETH;true
+krypto-zu-fiat;2025-06-08;11:42;TOKEN-A 48000;EUR 420,00;420,00;;420,00 EUR Ausstiegswert;9,90;verlust;sicher;MetaMask Hauptwallet;ING Girokonto;Ausstieg mit Verlust;true`;
       }
 
       function sampleSourcesCsv() {
         $('csvType').value = 'sources';
         $('csvBox').value =
-`id;typ;name;plattform;chain;adresse;rolle;zeitraumVon;zeitraumBis;notiz
-demo_1;wallet;MetaMask Hauptwallet;MetaMask;Ethereum;0xDemoWallet001;beides;2024;heute;Hauptwallet fuer ETH und Token
-demo_2;boerse;Binance Spot;Binance;mehrere;internes Boersenkonto;beides;2023;2025;Einstiege und Ruecktausche
-demo_3;bankkonto;ING Girokonto;ING;-;Bankkonto intern;from;2021;heute;Fiat Zahlungen an Boersen`;
+`id;typ;name;plattform;chain;adresse;rolle;zeitraumVon;zeitraumBis;notiz;isDemo
+demo_1;wallet;MetaMask Hauptwallet;MetaMask;Ethereum;0xDemoWallet001;beides;2024;heute;Hauptwallet fuer ETH und Token;true
+demo_2;boerse;Binance Spot;Binance;mehrere;internes Boersenkonto;beides;2023;2025;Einstiege und Ruecktausche;true
+demo_3;bankkonto;ING Girokonto;ING;-;Bankkonto intern;from;2021;heute;Fiat Zahlungen an Boersen;true`;
       }
 
       function clearAllData() {
@@ -1202,9 +1280,19 @@ demo_3;bankkonto;ING Girokonto;ING;-;Bankkonto intern;from;2021;heute;Fiat Zahlu
         localStorage.removeItem(KEY_TX);
         localStorage.removeItem(KEY_SOURCES);
         localStorage.removeItem(KEY_VAL);
+        localStorage.removeItem(KEY_DEMO);
         $('csvBox').value = '';
         $('jsonBox').value = '';
         renderAll();
+      }
+
+      function clearDemoAndReload() {
+        localStorage.removeItem(KEY_FALL);
+        localStorage.removeItem(KEY_TX);
+        localStorage.removeItem(KEY_SOURCES);
+        localStorage.removeItem(KEY_VAL);
+        localStorage.removeItem(KEY_DEMO);
+        window.location.href = '../index.html?nocache=' + Date.now();
       }
 
       function escapeHtml(value) {
@@ -1232,6 +1320,7 @@ demo_3;bankkonto;ING Girokonto;ING;-;Bankkonto intern;from;2021;heute;Fiat Zahlu
         renderAll();
       });
       $('clearAllData').addEventListener('click', clearAllData);
+      $('clearDemoBtn').addEventListener('click', clearDemoAndReload);
 
       renderAll();
     })();
