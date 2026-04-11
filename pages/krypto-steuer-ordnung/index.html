@@ -1,7 +1,7 @@
 <!doctype html>
 <!--
   GitHub-Pfad: lp-anfang/pages/krypto-steuer-ordnung/index.html
-  Commit-Message: kurszentrale neu verdrahtet mit zwei einstiegen demo fall und gemeinsamer masterlisten logik
+  Commit-Message: index auf neue gesamtlogik mit quellenpool master liste wertermittlung export und archiv neu aufgebaut
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/krypto-steuer-ordnung/index.html?nocache=__TS__
 -->
 <html lang="de">
@@ -9,25 +9,28 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Krypto-Steuer-Ordnung – Kurszentrale</title>
-  <meta name="description" content="Kurszentrale für die Krypto-Steuer-Ordnung mit zwei Einstiegen, Demo-Fall, Master-Listen-Logik, Auswertung, PDF und Archiv." />
+  <meta name="description" content="Kurszentrale für die Krypto-Steuer-Ordnung mit Quellenpool, Master-Liste, Wertermittlung, Auswertung, Export und Archiv." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
       --bg:#ffffff;
       --bg-soft:#f6fbfa;
       --panel:#ffffff;
-      --panel-2:#f9fffd;
+      --panel-2:#fbfffe;
       --text:#111111;
-      --muted:#53606c;
+      --muted:#62707b;
       --line:rgba(17,17,17,.10);
       --mint:#20d8b2;
       --mint-soft:rgba(32,216,178,.12);
       --pink:#ff4fb3;
       --pink-soft:rgba(255,79,179,.10);
+      --warn:#f59e0b;
+      --warn-soft:rgba(245,158,11,.12);
+      --danger:#dc2626;
+      --danger-soft:rgba(220,38,38,.08);
       --shadow:0 18px 50px rgba(0,0,0,.08);
       --radius:22px;
-      --radius-sm:16px;
-      --max:1240px;
+      --max:1280px;
     }
 
     *{box-sizing:border-box}
@@ -37,14 +40,14 @@
       font-family:Arial,Helvetica,sans-serif;
       color:var(--text);
       background:
-        radial-gradient(circle at 10% 10%, rgba(32,216,178,.08), transparent 22%),
-        radial-gradient(circle at 90% 0%, rgba(255,79,179,.10), transparent 20%),
+        radial-gradient(circle at 8% 6%, rgba(32,216,178,.08), transparent 22%),
+        radial-gradient(circle at 94% 0%, rgba(255,79,179,.10), transparent 20%),
         linear-gradient(180deg,#ffffff 0%,#fbfffe 100%);
       line-height:1.55;
     }
 
     a{color:inherit;text-decoration:none}
-    img{max-width:100%;display:block}
+    button,input,textarea,select{font:inherit}
 
     .wrap{
       width:min(var(--max), calc(100% - 28px));
@@ -54,18 +57,18 @@
     .topbar{
       position:sticky;
       top:0;
-      z-index:30;
+      z-index:50;
       backdrop-filter:blur(10px);
       background:rgba(255,255,255,.88);
       border-bottom:1px solid var(--line);
     }
 
     .topbar-inner{
+      min-height:76px;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:18px;
-      min-height:74px;
     }
 
     .brand{
@@ -76,30 +79,23 @@
     }
 
     .brand-mark{
-      width:46px;
-      height:46px;
-      border-radius:14px;
-      background:linear-gradient(135deg,var(--mint-soft),var(--pink-soft));
-      border:1px solid rgba(17,17,17,.08);
+      width:48px;
+      height:48px;
+      border-radius:16px;
       display:grid;
       place-items:center;
+      background:linear-gradient(135deg,var(--mint-soft),var(--pink-soft));
+      border:1px solid rgba(17,17,17,.08);
       box-shadow:var(--shadow);
       flex:0 0 auto;
     }
 
-    .brand-copy{
-      min-width:0;
-    }
-
     .eyebrow{
-      margin:0 0 2px 0;
+      margin:0 0 2px;
       font-size:12px;
       letter-spacing:.16em;
       text-transform:uppercase;
       color:var(--muted);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
     }
 
     .brand-title{
@@ -130,104 +126,61 @@
       background:linear-gradient(135deg,var(--mint),var(--pink));
       color:#fff;
       border-color:transparent;
-      box-shadow:0 14px 30px rgba(255,79,179,.18);
+      box-shadow:0 14px 28px rgba(255,79,179,.18);
     }
 
-    .hero{
-      padding:42px 0 22px;
+    .hero,.section,.footer{
+      padding:24px 0;
+    }
+
+    .hero-grid,
+    .stats-grid,
+    .panel-grid,
+    .module-grid,
+    .flow-grid{
+      display:grid;
+      gap:18px;
     }
 
     .hero-grid{
-      display:grid;
-      grid-template-columns:1.28fr .92fr;
-      gap:24px;
-      align-items:stretch;
+      grid-template-columns:1.1fr .9fr;
     }
 
-    .hero-card,
-    .panel,
-    .path-card,
-    .mini-card,
-    .status-card,
-    .demo-card{
+    .stats-grid{
+      grid-template-columns:repeat(4,minmax(0,1fr));
+    }
+
+    .panel-grid{
+      grid-template-columns:1fr 1fr;
+    }
+
+    .module-grid{
+      grid-template-columns:repeat(3,minmax(0,1fr));
+    }
+
+    .flow-grid{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+
+    .card{
       background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 100%);
       border:1px solid var(--line);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
     }
 
-    .hero-card{
-      padding:30px 28px;
-      position:relative;
-      overflow:hidden;
+    .hero-card,
+    .side-card,
+    .panel,
+    .module-card{
+      padding:26px 24px;
     }
 
-    .hero-glow{
-      position:absolute;
-      inset:auto -80px -80px auto;
-      width:220px;
-      height:220px;
-      border-radius:50%;
-      background:radial-gradient(circle, rgba(255,79,179,.20) 0%, rgba(32,216,178,.06) 42%, transparent 72%);
-      pointer-events:none;
-    }
-
-    .hero h1{
-      margin:0 0 12px 0;
-      font-size:clamp(34px,5vw,56px);
-      line-height:1.02;
-      letter-spacing:-.03em;
-    }
-
-    .lead{
-      margin:0 0 18px 0;
-      font-size:18px;
-      color:#24303a;
-      max-width:860px;
-    }
-
-    .hero-points{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:12px;
-      margin:20px 0 0;
-    }
-
-    .point{
-      border:1px solid var(--line);
-      border-radius:18px;
-      background:#fff;
-      padding:14px 14px 13px;
-    }
-
-    .point strong{
-      display:block;
-      margin:0 0 6px;
-      font-size:14px;
-      letter-spacing:.02em;
-    }
-
-    .point span{
-      display:block;
-      font-size:14px;
-      color:var(--muted);
-    }
-
-    .hero-side{
-      display:grid;
-      gap:16px;
-    }
-
-    .status-card,
-    .demo-card{
-      padding:22px 20px;
-    }
-
-    .kicker{
+    .chip{
       display:inline-flex;
       align-items:center;
       gap:8px;
-      margin:0 0 14px 0;
+      margin:0 0 14px;
       padding:8px 12px;
       border-radius:999px;
       background:var(--mint-soft);
@@ -237,65 +190,50 @@
       text-transform:uppercase;
     }
 
-    .status-list{
-      display:grid;
-      gap:12px;
+    .chip.warn{
+      background:var(--warn-soft);
+      color:#8a5b00;
+    }
+
+    .chip.pink{
+      background:var(--pink-soft);
+      color:#9f1f61;
+    }
+
+    h1{
+      margin:0 0 10px;
+      font-size:clamp(36px,5vw,58px);
+      line-height:1.02;
+      letter-spacing:-.03em;
+    }
+
+    h2{
       margin:0;
-      padding:0;
-      list-style:none;
+      font-size:32px;
+      letter-spacing:-.02em;
     }
 
-    .status-list li{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:16px;
-      padding-bottom:12px;
-      border-bottom:1px solid var(--line);
-      font-size:15px;
+    h3{
+      margin:0 0 8px;
+      font-size:22px;
+      line-height:1.12;
     }
 
-    .status-list li:last-child{
-      border-bottom:none;
-      padding-bottom:0;
+    .lead{
+      margin:0 0 16px;
+      font-size:18px;
+      color:#24323b;
+      max-width:860px;
     }
 
-    .status-label{
+    .muted{
       color:var(--muted);
-    }
-
-    .status-value{
-      font-weight:800;
-      text-align:right;
-    }
-
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:7px 12px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:800;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-    }
-
-    .badge.ok{
-      background:rgba(32,216,178,.16);
-      color:#0b6b58;
-    }
-
-    .badge.no{
-      background:rgba(255,79,179,.12);
-      color:#af236d;
     }
 
     .btn-row{
       display:flex;
       flex-wrap:wrap;
       gap:12px;
-      margin-top:16px;
     }
 
     .btn{
@@ -304,18 +242,14 @@
       cursor:pointer;
       border-radius:999px;
       padding:14px 18px;
-      font-size:15px;
-      font-weight:800;
-      letter-spacing:.01em;
-      transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
       display:inline-flex;
       align-items:center;
       justify-content:center;
       gap:10px;
+      font-size:15px;
+      font-weight:800;
+      letter-spacing:.01em;
     }
-
-    .btn:hover{transform:translateY(-1px)}
-    .btn:active{transform:translateY(0)}
 
     .btn-primary{
       color:#fff;
@@ -331,23 +265,9 @@
     }
 
     .btn-soft{
-      color:#0c5344;
+      color:#0d5648;
       background:var(--mint-soft);
-      border:1px solid rgba(32,216,178,.20);
-    }
-
-    .btn-pink{
-      color:#8b1452;
-      background:var(--pink-soft);
-      border:1px solid rgba(255,79,179,.20);
-    }
-
-    .section{
-      padding:18px 0;
-    }
-
-    .panel{
-      padding:26px 24px;
+      border:1px solid rgba(32,216,178,.22);
     }
 
     .section-head{
@@ -355,247 +275,134 @@
       align-items:flex-end;
       justify-content:space-between;
       gap:16px;
-      margin-bottom:18px;
       flex-wrap:wrap;
-    }
-
-    .section-head h2{
-      margin:0;
-      font-size:32px;
-      letter-spacing:-.02em;
+      margin-bottom:18px;
     }
 
     .section-head p{
       margin:8px 0 0;
-      max-width:760px;
+      max-width:780px;
       color:var(--muted);
       font-size:16px;
     }
 
-    .path-grid{
+    .stat{
+      padding:18px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+    }
+
+    .stat strong{
+      display:block;
+      font-size:32px;
+      line-height:1;
+      margin:0 0 8px;
+    }
+
+    .stat span{
+      display:block;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .info-list{
+      margin:0;
+      padding:0;
+      list-style:none;
       display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:18px;
+      gap:12px;
     }
 
-    .path-card{
-      padding:22px 20px 20px;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .path-card::after{
-      content:"";
-      position:absolute;
-      right:-32px;
-      bottom:-32px;
-      width:120px;
-      height:120px;
-      border-radius:50%;
-      background:radial-gradient(circle, rgba(32,216,178,.16) 0%, transparent 68%);
-      pointer-events:none;
-    }
-
-    .path-card.path-b::after{
-      background:radial-gradient(circle, rgba(255,79,179,.14) 0%, transparent 68%);
-    }
-
-    .path-top{
+    .info-list li{
       display:flex;
       justify-content:space-between;
       gap:16px;
       align-items:flex-start;
-      margin-bottom:10px;
+      padding-bottom:12px;
+      border-bottom:1px solid var(--line);
+      font-size:15px;
     }
 
-    .path-top h3{
+    .info-list li:last-child{
+      border-bottom:none;
+      padding-bottom:0;
+    }
+
+    .info-label{color:var(--muted)}
+    .info-value{font-weight:800;text-align:right}
+
+    .module-card{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      min-height:100%;
+    }
+
+    .module-card p{
       margin:0;
-      font-size:24px;
-      line-height:1.1;
-    }
-
-    .path-copy{
-      margin:0 0 16px;
       color:var(--muted);
       font-size:15px;
-      max-width:60ch;
     }
 
-    .steps{
-      display:grid;
-      gap:12px;
-      margin:0 0 18px;
-      padding:0;
-      list-style:none;
-    }
-
-    .steps li{
-      display:grid;
-      grid-template-columns:34px 1fr;
-      gap:12px;
+    .module-top{
+      display:flex;
       align-items:flex-start;
-      border:1px solid var(--line);
-      background:#fff;
-      border-radius:16px;
-      padding:12px;
+      justify-content:space-between;
+      gap:12px;
     }
 
-    .step-no{
-      width:34px;
-      height:34px;
-      border-radius:12px;
-      background:linear-gradient(135deg,var(--mint-soft),var(--pink-soft));
+    .module-no{
+      width:54px;
+      height:54px;
+      border-radius:16px;
       display:grid;
       place-items:center;
-      font-size:14px;
-      font-weight:900;
-    }
-
-    .steps strong{
-      display:block;
-      margin:0 0 4px;
-      font-size:15px;
-    }
-
-    .steps span{
-      display:block;
-      font-size:14px;
-      color:var(--muted);
-    }
-
-    .mini-grid{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:16px;
-    }
-
-    .mini-card{
-      padding:20px 18px;
-    }
-
-    .mini-card h3{
-      margin:0 0 10px;
       font-size:20px;
-      line-height:1.15;
-    }
-
-    .mini-card p{
-      margin:0 0 14px;
-      color:var(--muted);
-      font-size:15px;
-    }
-
-    .link-list{
-      display:grid;
-      gap:10px;
-      margin:0;
-      padding:0;
-      list-style:none;
-    }
-
-    .link-list a{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:14px;
-      padding:12px 14px;
+      font-weight:900;
+      background:linear-gradient(135deg,var(--mint-soft),var(--pink-soft));
       border:1px solid var(--line);
-      background:#fff;
-      border-radius:14px;
-      font-weight:700;
-      font-size:14px;
+      flex:0 0 auto;
     }
 
-    .link-list a span:last-child{
-      color:var(--muted);
-      font-weight:600;
+    .status-pill{
+      display:inline-flex;
+      align-items:center;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      white-space:nowrap;
     }
 
-    .goal-grid{
-      display:grid;
-      grid-template-columns:1.05fr .95fr;
-      gap:18px;
-      align-items:stretch;
+    .status-ok{
+      background:rgba(32,216,178,.14);
+      color:#0d6957;
     }
 
-    .goal-box{
+    .status-mid{
+      background:var(--warn-soft);
+      color:#8a5b00;
+    }
+
+    .status-open{
+      background:rgba(255,79,179,.12);
+      color:#aa2368;
+    }
+
+    .flow-card{
       border:1px solid var(--line);
       border-radius:18px;
       background:#fff;
       padding:18px;
     }
 
-    .goal-box h3{
-      margin:0 0 12px;
-      font-size:22px;
-    }
-
-    .goal-box p{
-      margin:0 0 14px;
+    .flow-card p{
+      margin:0;
       color:var(--muted);
-    }
-
-    .table-preview{
-      width:100%;
-      border-collapse:collapse;
-      overflow:hidden;
-      border-radius:16px;
-      border:1px solid var(--line);
-      background:#fff;
-    }
-
-    .table-preview th,
-    .table-preview td{
-      text-align:left;
-      padding:12px 10px;
-      border-bottom:1px solid var(--line);
-      font-size:13px;
-      vertical-align:top;
-    }
-
-    .table-preview th{
-      background:#fbfffe;
-      font-size:12px;
-      letter-spacing:.06em;
-      text-transform:uppercase;
-      color:var(--muted);
-    }
-
-    .table-preview tr:last-child td{
-      border-bottom:none;
-    }
-
-    .demo-summary{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:12px;
-      margin-top:14px;
-    }
-
-    .demo-pill{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:16px;
-      padding:13px 12px;
-    }
-
-    .demo-pill strong{
-      display:block;
-      font-size:19px;
-      line-height:1.1;
-      margin:0 0 4px;
-    }
-
-    .demo-pill span{
-      display:block;
-      color:var(--muted);
-      font-size:13px;
-    }
-
-    .footer{
-      padding:18px 0 34px;
-      color:var(--muted);
-      font-size:14px;
+      font-size:15px;
     }
 
     .footer-card{
@@ -610,87 +417,39 @@
       gap:12px;
     }
 
-    .sr-only{
-      position:absolute;
-      width:1px;
-      height:1px;
-      padding:0;
-      margin:-1px;
-      overflow:hidden;
-      clip:rect(0,0,0,0);
-      white-space:nowrap;
-      border:0;
-    }
-
-    @media (max-width: 1060px){
+    @media (max-width:1180px){
       .hero-grid,
-      .goal-grid,
-      .path-grid,
-      .mini-grid{
-        grid-template-columns:1fr;
-      }
-
-      .hero-points{
-        grid-template-columns:1fr;
-      }
-
-      .demo-summary{
+      .stats-grid,
+      .panel-grid,
+      .module-grid,
+      .flow-grid{
         grid-template-columns:1fr;
       }
     }
 
-    @media (max-width: 760px){
+    @media (max-width:760px){
       .topbar-inner{
-        align-items:flex-start;
         padding:12px 0;
+        flex-direction:column;
+        align-items:stretch;
       }
 
-      .topbar-inner,
       .nav{
         flex-direction:column;
         align-items:stretch;
       }
 
-      .brand{
+      .nav a,.btn{
         width:100%;
-      }
-
-      .nav a{
         text-align:center;
       }
 
-      .hero{
-        padding-top:26px;
-      }
-
-      .hero-card,
-      .status-card,
-      .demo-card,
-      .panel,
-      .path-card,
-      .mini-card{
+      .hero-card,.side-card,.panel,.module-card{
         padding:20px 18px;
       }
 
-      .section-head h2{
+      h2{
         font-size:28px;
-      }
-
-      .path-top{
-        flex-direction:column;
-      }
-
-      .btn-row{
-        flex-direction:column;
-      }
-
-      .btn{
-        width:100%;
-      }
-
-      .table-preview{
-        display:block;
-        overflow:auto;
       }
     }
   </style>
@@ -700,7 +459,7 @@
     <div class="wrap topbar-inner">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">
-          <svg width="26" height="26" viewBox="0 0 64 64" fill="none">
+          <svg width="28" height="28" viewBox="0 0 64 64" fill="none">
             <path d="M12 20C12 15.5817 15.5817 12 20 12H44C48.4183 12 52 15.5817 52 20V44C52 48.4183 48.4183 52 44 52H20C15.5817 52 12 48.4183 12 44V20Z" stroke="#111111" stroke-width="3"/>
             <path d="M20 37L29 28L35 34L44 25" stroke="#111111" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
             <circle cx="20" cy="37" r="3" fill="#20d8b2"/>
@@ -709,19 +468,18 @@
             <circle cx="44" cy="25" r="3" fill="#ff4fb3"/>
           </svg>
         </div>
-        <div class="brand-copy">
-          <p class="eyebrow">LiquidityBooster Kurs</p>
+        <div>
+          <p class="eyebrow">Kurszentrale</p>
           <h1 class="brand-title">Krypto-Steuer-Ordnung</h1>
         </div>
       </div>
 
       <nav class="nav" aria-label="Hauptnavigation">
-        <a href="#einstiege">Einstiege</a>
-        <a href="#ziel">Ziel</a>
-        <a href="#hilfe">Hilfe</a>
-        <a href="auswertung/steuer-vorschau.html">Auswertung</a>
-        <a href="export/pdf-druck.html">PDF</a>
-        <a class="cta" href="module/05-transaktionen.html">Direkt starten</a>
+        <a href="module/01-fallstart-stammdaten.html">Fallstart</a>
+        <a href="module/02-wallets-boersen-chains.html">Quellen</a>
+        <a href="module/05-transaktionen.html">Transaktionen</a>
+        <a href="module/06-wertermittlung.html">Wertermittlung</a>
+        <a class="cta" href="hilfe.html">Hilfe</a>
       </nav>
     </div>
   </header>
@@ -729,678 +487,447 @@
   <main>
     <section class="hero">
       <div class="wrap hero-grid">
-        <article class="hero-card">
-          <div class="hero-glow" aria-hidden="true"></div>
-          <span class="kicker">Kurszentrale neu aufgebaut</span>
-          <h1>Krypto-Transaktionen sauber erfassen, bewerten und geordnet ausgeben.</h1>
+        <article class="card hero-card">
+          <span class="chip">Neue Gesamtlogik</span>
+          <h1>Erst Quellen. Dann Vorgänge. Dann Werte, Verluste und Übergabe.</h1>
           <p class="lead">
-            Diese Kurszentrale führt nicht mehr nur durch Struktur, sondern durch die echte Arbeitslogik:
-            Ordnung schaffen, Vorgänge erfassen, Werte zum jeweiligen Zeitpunkt festhalten, Verluste sichtbar machen,
-            Auswertung aufbauen und alles als PDF für den Steuerberater vorbereiten.
+            Diese Kurszentrale folgt jetzt dem echten Arbeitsablauf:
+            Fall anlegen, Quellen sauber aufbauen, jede Transaktion einzeln erfassen,
+            damalige Werte dokumentieren, offene Fälle sichern und am Ende eine geordnete Unterlage
+            für Steuerberater, PDF, CSV und Archiv erzeugen.
           </p>
-
           <div class="btn-row">
-            <a class="btn btn-primary" href="#einstiege">Jetzt Einstieg wählen</a>
-            <a class="btn btn-secondary" href="module/05-transaktionen.html">Direkt zu Transaktionen</a>
-            <button class="btn btn-soft" type="button" id="demoLoadTop">Demo-Fall laden</button>
-          </div>
-
-          <div class="hero-points">
-            <div class="point">
-              <strong>Zwei Einstiege</strong>
-              <span>Direkter Arbeitsweg oder erst Ordnung und Unterlagen aufbauen.</span>
-            </div>
-            <div class="point">
-              <strong>Ein gemeinsames Ziel</strong>
-              <span>Alle Wege laufen in dieselbe Master-Liste, Auswertung und PDF-Ausgabe.</span>
-            </div>
-            <div class="point">
-              <strong>Wertekette je Vorgang</strong>
-              <span>Kaufwert, Tauschwert, Ausstiegswert, Gebühren und Status sauber festhalten.</span>
-            </div>
+            <a class="btn btn-primary" href="module/01-fallstart-stammdaten.html">Mit Fallstart beginnen</a>
+            <a class="btn btn-secondary" href="module/02-wallets-boersen-chains.html">Quellen anlegen</a>
+            <a class="btn btn-soft" href="module/05-transaktionen.html">Zur Master-Liste</a>
           </div>
         </article>
 
-        <div class="hero-side">
-          <aside class="status-card" aria-labelledby="status-head">
-            <span class="kicker" id="status-head">Status auf einen Blick</span>
-            <ul class="status-list">
-              <li>
-                <span class="status-label">Demo-Fall geladen</span>
-                <span class="status-value" id="demoLoadedBadge"><span class="badge no">Nein</span></span>
-              </li>
-              <li>
-                <span class="status-label">Demo-Archivstand vorhanden</span>
-                <span class="status-value" id="demoArchiveBadge"><span class="badge no">Nein</span></span>
-              </li>
-              <li>
-                <span class="status-label">Letzte Demo-Aktion</span>
-                <span class="status-value" id="demoActionText">Noch keine Aktion</span>
-              </li>
-              <li>
-                <span class="status-label">Empfohlener nächster Schritt</span>
-                <span class="status-value" id="nextStepText">Einstieg wählen</span>
-              </li>
-            </ul>
-          </aside>
+        <aside class="card side-card">
+          <span class="chip warn">Aktueller Stand</span>
+          <ul class="info-list">
+            <li>
+              <span class="info-label">Fallname</span>
+              <span class="info-value" id="fallName">Kein Fall</span>
+            </li>
+            <li>
+              <span class="info-label">Quellen</span>
+              <span class="info-value" id="countSources">0</span>
+            </li>
+            <li>
+              <span class="info-label">Transaktionen</span>
+              <span class="info-value" id="countTx">0</span>
+            </li>
+            <li>
+              <span class="info-label">Bewertungszeilen</span>
+              <span class="info-value" id="countVal">0</span>
+            </li>
+            <li>
+              <span class="info-label">Archivstände</span>
+              <span class="info-value" id="countArchive">0</span>
+            </li>
+          </ul>
+        </aside>
+      </div>
+    </section>
 
-          <aside class="demo-card" aria-labelledby="demo-head">
-            <span class="kicker" id="demo-head">Demo-Modus</span>
-            <p style="margin:0 0 12px;color:var(--muted);font-size:15px;">
-              Der Demo-Fall zeigt einen vollständigen Musterweg mit Fiat, Coin, Token, Verlust, Reward,
-              Eigenübertrag, Problemfall, Auswertung und PDF-Ziel.
-            </p>
-            <div class="btn-row">
-              <button class="btn btn-primary" type="button" id="demoLoad">Demo-Fall laden</button>
-              <button class="btn btn-secondary" type="button" id="demoArchive">Demo ins Archiv</button>
-              <button class="btn btn-pink" type="button" id="demoReset">Demo löschen</button>
-            </div>
-          </aside>
+    <section class="section">
+      <div class="wrap stats-grid">
+        <div class="stat">
+          <strong id="sumBuy">0,00 €</strong>
+          <span>Kauf- und Startwerte</span>
+        </div>
+        <div class="stat">
+          <strong id="sumExit">0,00 €</strong>
+          <span>Ausstiegs- und Rücktauschwerte</span>
+        </div>
+        <div class="stat">
+          <strong id="sumFees">0,00 €</strong>
+          <span>Gebühren</span>
+        </div>
+        <div class="stat">
+          <strong id="sumLoss">0,00 €</strong>
+          <span>Sichtbare Verlustsumme</span>
         </div>
       </div>
     </section>
 
-    <section class="section" id="einstiege">
-      <div class="wrap panel">
+    <section class="section">
+      <div class="wrap card panel">
         <div class="section-head">
           <div>
-            <h2>Wähle deinen Einstieg</h2>
+            <h2>Der neue Ablauf in klarer Reihenfolge</h2>
             <p>
-              Beide Wege führen in dieselbe Transaktionsliste, dieselbe steuerliche Arbeitsauswertung
-              und dieselbe PDF-Ausgabe für die spätere Vorlage beim Steuerberater.
+              Genau so ist der Kurs jetzt zielführend aufgebaut. Nicht mehr erst Theorie und lose Quellen,
+              sondern eine saubere Arbeitskette von der ersten Eingabe bis zur druckbaren Übergabe.
             </p>
           </div>
         </div>
 
-        <div class="path-grid">
-          <article class="path-card path-a">
-            <div class="path-top">
-              <div>
-                <span class="kicker">Weg A</span>
-                <h3>Ich kenne meine Transaktionen</h3>
-              </div>
-              <a class="btn btn-primary" href="module/05-transaktionen.html">Direkt in die Arbeit</a>
-            </div>
-            <p class="path-copy">
-              Für Nutzer mit vielen Vorgängen, Börsen-Exporten, Screenshots oder schon bekannten Transaktionen.
-              Hier geht es direkt in die Erfassung und danach in Bewertung, Auswertung und PDF.
-            </p>
-            <ol class="steps">
-              <li>
-                <span class="step-no">1</span>
-                <div>
-                  <strong>Fallstart anlegen</strong>
-                  <span>Steuerjahr, Fallname und Grunddaten kurz festhalten.</span>
-                </div>
-              </li>
-              <li>
-                <span class="step-no">2</span>
-                <div>
-                  <strong>Transaktionen erfassen</strong>
-                  <span>Fiat zu Krypto, Krypto zu Fiat, Krypto zu Krypto, Rewards, Eigenüberträge und Sonderfälle.</span>
-                </div>
-              </li>
-              <li>
-                <span class="step-no">3</span>
-                <div>
-                  <strong>Werte und Verluste klären</strong>
-                  <span>Kaufwert, Tauschwert, Ausstiegswert, Gebühren und offene Bewertungsquellen prüfen.</span>
-                </div>
-              </li>
-              <li>
-                <span class="step-no">4</span>
-                <div>
-                  <strong>Auswertung und Übergabe</strong>
-                  <span>Steuer-Vorschau, Prüfblatt, PDF, CSV und Jahresarchiv aufbauen.</span>
-                </div>
-              </li>
-            </ol>
-            <div class="btn-row">
-              <a class="btn btn-secondary" href="module/01-fallstart-stammdaten.html">Mit Fallstart beginnen</a>
-              <a class="btn btn-secondary" href="module/05-transaktionen.html">Zu Modul 05</a>
-            </div>
-          </article>
-
-          <article class="path-card path-b">
-            <div class="path-top">
-              <div>
-                <span class="kicker" style="background:var(--pink-soft);">Weg B</span>
-                <h3>Ich brauche erst Ordnung und Unterlagen</h3>
-              </div>
-              <a class="btn btn-secondary" href="module/02-wallets-boersen-chains.html">Erst Ordnung schaffen</a>
-            </div>
-            <p class="path-copy">
-              Für Nutzer, die zuerst Wallets, Börsen, Chains, CSV-Dateien, Bankbelege, Screenshots und Explorer-Funde
-              sortieren müssen, bevor sie sauber in die Vorgangserfassung gehen.
-            </p>
-            <ol class="steps">
-              <li>
-                <span class="step-no">1</span>
-                <div>
-                  <strong>Fallstart anlegen</strong>
-                  <span>Grunddaten, Steuerjahr und Fallrahmen zuerst sauber festhalten.</span>
-                </div>
-              </li>
-              <li>
-                <span class="step-no">2</span>
-                <div>
-                  <strong>Wallets, Börsen und Chains sortieren</strong>
-                  <span>Wo liegen Daten, welche Quellen gibt es und welche Zeiträume sind betroffen.</span>
-                </div>
-              </li>
-              <li>
-                <span class="step-no">3</span>
-                <div>
-                  <strong>Unterlagen und Explorer-Hilfe nutzen</strong>
-                  <span>CSV, Excel, Screenshots, TX-Hashes und Original-Seiten als Nachweise sammeln.</span>
-                </div>
-              </li>
-              <li>
-                <span class="step-no">4</span>
-                <div>
-                  <strong>Danach in die Transaktionen wechseln</strong>
-                  <span>Alle geordneten Informationen laufen anschließend in dieselbe Hauptliste wie bei Weg A.</span>
-                </div>
-              </li>
-            </ol>
-            <div class="btn-row">
-              <a class="btn btn-secondary" href="module/01-fallstart-stammdaten.html">Mit Fallstart beginnen</a>
-              <a class="btn btn-secondary" href="module/02-wallets-boersen-chains.html">Zu Modul 02</a>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="ziel">
-      <div class="wrap panel">
-        <div class="section-head">
-          <div>
-            <h2>Das gemeinsame Ziel für beide Wege</h2>
-            <p>
-              Nicht nur Ordnung, nicht nur Transaktionen, sondern eine vollständige Master-Liste mit Wertekette,
-              Status und sauberer Ausgabe für die spätere steuerliche Vorbereitung.
-            </p>
+        <div class="flow-grid">
+          <div class="flow-card">
+            <h3>1. Fallstart</h3>
+            <p>Stammdaten, Fallname und Grundrahmen anlegen, damit der ganze Vorgang einen sauberen Startpunkt hat.</p>
           </div>
-        </div>
-
-        <div class="goal-grid">
-          <div class="goal-box">
-            <h3>Master-Liste Krypto-Transaktionen</h3>
-            <p>
-              Diese Liste ist das Herzstück des Kurses. Jede Eingabeseite soll später in dieselbe Arbeitslogik einzahlen.
-              So entstehen Übersicht, Vorschau, Prüfblatt, PDF und Archiv nicht nebeneinander, sondern aus derselben Datenbasis.
-            </p>
-
-            <table class="table-preview" aria-label="Vorschau Master-Liste">
-              <thead>
-                <tr>
-                  <th>Datum</th>
-                  <th>Typ</th>
-                  <th>Asset ab</th>
-                  <th>Asset zu</th>
-                  <th>Wert</th>
-                  <th>Ergebnis</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>12.03.2025</td>
-                  <td>Fiat zu Krypto</td>
-                  <td>EUR 3.000,00</td>
-                  <td>ETH 1,08</td>
-                  <td>Kaufwert festgehalten</td>
-                  <td>offen</td>
-                  <td>sicher</td>
-                </tr>
-                <tr>
-                  <td>13.03.2025</td>
-                  <td>Krypto zu Krypto</td>
-                  <td>ETH 0,80</td>
-                  <td>Token A 48.000</td>
-                  <td>Tauschwert rekonstruiert</td>
-                  <td>offen</td>
-                  <td>indirekt</td>
-                </tr>
-                <tr>
-                  <td>08.06.2025</td>
-                  <td>Token zu Stablecoin</td>
-                  <td>Token A 48.000</td>
-                  <td>USDC 420,00</td>
-                  <td>Ausstiegswert festgehalten</td>
-                  <td>Verlust</td>
-                  <td>sicher</td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="flow-card">
+            <h3>2. Quellenpool</h3>
+            <p>Wallets, Börsen, DEX, Bankkonten und weitere Orte einmal sauber anlegen und später nur noch auswählen.</p>
           </div>
-
-          <div class="goal-box">
-            <h3>Was am Ende sichtbar werden soll</h3>
-            <p>
-              Der Kurs soll nicht nur sammeln, sondern zeigen, wo Werte klar sind, wo Verluste entstanden,
-              wo Nachweise fehlen und welche Vorgänge noch offen sind.
-            </p>
-
-            <div class="demo-summary">
-              <div class="demo-pill">
-                <strong>+ / - Ergebnis</strong>
-                <span>Gewinne, Verluste und offene Fälle auf einen Blick.</span>
-              </div>
-              <div class="demo-pill">
-                <strong>Wertekette</strong>
-                <span>Kaufwert, Tauschwert, Ausstiegswert und Gebühren je Vorgang.</span>
-              </div>
-              <div class="demo-pill">
-                <strong>Ausgabe</strong>
-                <span>Steuer-Vorschau, Prüfblatt, PDF, CSV und Jahresarchiv.</span>
-              </div>
-            </div>
-
-            <div class="btn-row" style="margin-top:18px;">
-              <a class="btn btn-secondary" href="auswertung/steuer-vorschau.html">Zur Steuer-Vorschau</a>
-              <a class="btn btn-secondary" href="auswertung/steuerberater-pruefblatt.html">Zum Prüfblatt</a>
-              <a class="btn btn-secondary" href="export/pdf-druck.html">Zu PDF Druck</a>
-            </div>
+          <div class="flow-card">
+            <h3>3. Master-Liste</h3>
+            <p>Jede wirtschaftliche Bewegung als eigene Zeile erfassen: Kauf, Verkauf, Tausch, Übertrag, Reward, Rücktausch oder Sonderfall.</p>
+          </div>
+          <div class="flow-card">
+            <h3>4. Wertermittlung</h3>
+            <p>Damals dokumentierter Wert, heutiger Ausstiegswert, Verlustsicht und offene Preisquellen zusammenziehen.</p>
+          </div>
+          <div class="flow-card">
+            <h3>5. Auswertung</h3>
+            <p>Steuer-Vorschau, Prüfblatt und Druckansicht nutzen, damit der Fall vor Übergabe aufbereitet ist.</p>
+          </div>
+          <div class="flow-card">
+            <h3>6. Export und Archiv</h3>
+            <p>CSV, JSON, PDF und Jahresarchiv nutzen, damit nichts verloren geht und alles wiederherstellbar bleibt.</p>
           </div>
         </div>
       </div>
     </section>
 
     <section class="section">
-      <div class="wrap mini-grid">
-        <article class="mini-card">
-          <h3>Hauptweg</h3>
-          <p>Das ist der direkte Arbeitsweg für die echte Erfassung und Bewertung.</p>
-          <ul class="link-list">
-            <li><a href="module/01-fallstart-stammdaten.html"><span>Modul 01 – Fallstart</span><span>Start</span></a></li>
-            <li><a href="module/05-transaktionen.html"><span>Modul 05 – Transaktionen</span><span>Hauptseite</span></a></li>
-            <li><a href="module/06-wertermittlung.html"><span>Modul 06 – Wertermittlung</span><span>Pflicht nach Erfassung</span></a></li>
-            <li><a href="module/07-problemfaelle.html"><span>Modul 07 – Problemfälle</span><span>nur bei Lücken</span></a></li>
-            <li><a href="module/08-fragen-steuerberater.html"><span>Modul 08 – Fragen Steuerberater</span><span>offene Punkte</span></a></li>
-          </ul>
+      <div class="wrap section-head">
+        <div>
+          <h2>Die neue Kursstruktur</h2>
+          <p>
+            Diese Bausteine gehören jetzt logisch zusammen und bilden den echten Arbeitsweg ab.
+          </p>
+        </div>
+      </div>
+
+      <div class="wrap module-grid">
+        <article class="card module-card">
+          <div class="module-top">
+            <div class="module-no">01</div>
+            <span class="status-pill status-open" id="status01">Start</span>
+          </div>
+          <h3>Fallstart & Stammdaten</h3>
+          <p>Persönliche Grunddaten, Fallname und Startpunkt für den gesamten Vorgang.</p>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="module/01-fallstart-stammdaten.html">Öffnen</a>
+          </div>
         </article>
 
-        <article class="mini-card">
-          <h3>Ordnungsweg</h3>
-          <p>Für alle, die zuerst ihre Quellen, Wallets und Unterlagen sortieren müssen.</p>
-          <ul class="link-list">
-            <li><a href="module/02-wallets-boersen-chains.html"><span>Modul 02 – Wallets / Börsen / Chains</span><span>Ordnung</span></a></li>
-            <li><a href="module/03-wallets-blockchains-verstehen.html"><span>Modul 03 – Wallets / Blockchains verstehen</span><span>Verständnis</span></a></li>
-            <li><a href="module/04-datenquellen-unterlagen.html"><span>Modul 04 – Datenquellen / Unterlagen</span><span>Nachweise</span></a></li>
-            <li><a href="explorer/kein-export.html"><span>Explorer – Kein Export vorhanden</span><span>Hilfe</span></a></li>
-            <li><a href="explorer/daten-fuer-excel.html"><span>Explorer – Daten für Excel</span><span>Vorbereitung</span></a></li>
-          </ul>
+        <article class="card module-card">
+          <div class="module-top">
+            <div class="module-no">02</div>
+            <span class="status-pill status-open" id="status02">Offen</span>
+          </div>
+          <h3>Quellenliste</h3>
+          <p>Wallets, Börsen, DEX, Konten und andere Stationen als From-/To-Basis aufbauen.</p>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="module/02-wallets-boersen-chains.html">Öffnen</a>
+          </div>
         </article>
 
-        <article class="mini-card" id="hilfe">
-          <h3>Explorer-Hilfe und Ausgabe</h3>
-          <p>Original-Seiten verstehen, Nachweise finden und das Ergebnis sauber ausgeben.</p>
-          <ul class="link-list">
-            <li><a href="explorer/explorer-grundlagen.html"><span>Explorer-Grundlagen</span><span>Basis</span></a></li>
-            <li><a href="explorer/ethereum-etherscan.html"><span>Ethereum / Etherscan</span><span>Original-Seite</span></a></li>
-            <li><a href="explorer/bnb-bscscan.html"><span>BNB Chain / BscScan</span><span>Original-Seite</span></a></li>
-            <li><a href="explorer/solana-solscan.html"><span>Solana / Solscan</span><span>Original-Seite</span></a></li>
-            <li><a href="explorer/bitcoin-explorer.html"><span>Bitcoin / Explorer</span><span>Original-Seite</span></a></li>
-            <li><a href="export/csv-import-export.html"><span>CSV Import / Export</span><span>Sicherung</span></a></li>
-            <li><a href="archiv/jahresarchiv.html"><span>Jahresarchiv</span><span>Abschluss</span></a></li>
-          </ul>
+        <article class="card module-card">
+          <div class="module-top">
+            <div class="module-no">05</div>
+            <span class="status-pill status-open" id="status05">Offen</span>
+          </div>
+          <h3>Transaktionen & Formulare</h3>
+          <p>Die echte Hauptzentrale: jede Bewegung einzeln in die Master-Liste schreiben.</p>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="module/05-transaktionen.html">Öffnen</a>
+          </div>
+        </article>
+
+        <article class="card module-card">
+          <div class="module-top">
+            <div class="module-no">06</div>
+            <span class="status-pill status-open" id="status06">Offen</span>
+          </div>
+          <h3>Wertermittlung</h3>
+          <p>Kaufwerte, Ausstiegswerte, Verlustsicht und offene Preisquellen sichtbar machen.</p>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="module/06-wertermittlung.html">Öffnen</a>
+          </div>
+        </article>
+
+        <article class="card module-card">
+          <div class="module-top">
+            <div class="module-no">A1</div>
+            <span class="status-pill status-open" id="statusA1">Offen</span>
+          </div>
+          <h3>Steuer-Vorschau</h3>
+          <p>Geordnete Sicht auf Arbeitsreife, Wertbasis, Verlustsicht und Übergabefähigkeit.</p>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="auswertung/steuer-vorschau.html">Öffnen</a>
+          </div>
+        </article>
+
+        <article class="card module-card">
+          <div class="module-top">
+            <div class="module-no">A2</div>
+            <span class="status-pill status-open" id="statusA2">Offen</span>
+          </div>
+          <h3>Prüfblatt & PDF</h3>
+          <p>Prüfstatus, offene Rückfragen, Druckansicht und Übergabeblock für den Steuerberater.</p>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="auswertung/steuerberater-pruefblatt.html">Prüfblatt</a>
+            <a class="btn btn-secondary" href="export/pdf-druck.html">PDF</a>
+          </div>
+        </article>
+
+        <article class="card module-card">
+          <div class="module-top">
+            <div class="module-no">E1</div>
+            <span class="status-pill status-open" id="statusE1">Offen</span>
+          </div>
+          <h3>CSV / Import / Export</h3>
+          <p>CSV-Listen, JSON-Backup, Wiederimport und Gerätewechsel sauber abbilden.</p>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="export/csv-import-export.html">Öffnen</a>
+          </div>
+        </article>
+
+        <article class="card module-card">
+          <div class="module-top">
+            <div class="module-no">E2</div>
+            <span class="status-pill status-open" id="statusE2">Offen</span>
+          </div>
+          <h3>Jahresarchiv</h3>
+          <p>Komplette Jahresstände aus Quellen, Master-Liste und Bewertung sichern und wiederherstellen.</p>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="archiv/jahresarchiv.html">Öffnen</a>
+          </div>
+        </article>
+
+        <article class="card module-card">
+          <div class="module-top">
+            <div class="module-no">H</div>
+            <span class="status-pill status-ok">Bereit</span>
+          </div>
+          <h3>Hilfe</h3>
+          <p>Erklärt die neue Gesamtlogik, den Ablauf und die Rolle jeder Seite im Kurs.</p>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="hilfe.html">Öffnen</a>
+          </div>
         </article>
       </div>
     </section>
 
     <section class="section">
-      <div class="wrap panel">
-        <div class="section-head">
-          <div>
-            <h2>Demo-Fall für den ganzen Kurs</h2>
-            <p>
-              Der Musterfall ist absichtlich so aufgebaut, dass er Fiat, Coin, Token, Wertverlust, Reward,
-              Eigenübertrag, offenen Problemfall und spätere Ausgabe zeigt.
-            </p>
+      <div class="wrap panel-grid">
+        <div class="card panel">
+          <div class="section-head">
+            <div>
+              <h2>Warum diese neue Startseite jetzt besser passt</h2>
+              <p>
+                Sie führt den Nutzer nicht mehr in einen unklaren Lesekurs,
+                sondern direkt in die tatsächliche Arbeit.
+              </p>
+            </div>
           </div>
+
+          <ul class="info-list">
+            <li>
+              <span class="info-label">Früher</span>
+              <span class="info-value">Zu viele lose Seiten</span>
+            </li>
+            <li>
+              <span class="info-label">Jetzt</span>
+              <span class="info-value">Klare Kette aus Arbeitsschritten</span>
+            </li>
+            <li>
+              <span class="info-label">Früher</span>
+              <span class="info-value">Quellen und Werte getrennt gedacht</span>
+            </li>
+            <li>
+              <span class="info-label">Jetzt</span>
+              <span class="info-value">Quellen → Vorgang → Wert → Übergabe</span>
+            </li>
+            <li>
+              <span class="info-label">Früher</span>
+              <span class="info-value">Kein sauberer Endpunkt</span>
+            </li>
+            <li>
+              <span class="info-label">Jetzt</span>
+              <span class="info-value">PDF, CSV, Archiv und Steuerberater-Sicht</span>
+            </li>
+          </ul>
         </div>
 
-        <div class="goal-grid">
-          <div class="goal-box">
-            <h3>Der Demo-Weg zeigt beispielhaft</h3>
-            <ul class="link-list">
-              <li><a href="module/01-fallstart-stammdaten.html"><span>1. Fallstart</span><span>Demo-Fall anlegen</span></a></li>
-              <li><a href="forms/form-fiat-zu-krypto.html"><span>2. Fiat zu ETH</span><span>Kaufwert festhalten</span></a></li>
-              <li><a href="forms/form-krypto-zu-krypto.html"><span>3. ETH in Token tauschen</span><span>Tauschwert festhalten</span></a></li>
-              <li><a href="forms/form-reward-bonus-ertrag.html"><span>4. Reward / Bonus</span><span>Zufluss notieren</span></a></li>
-              <li><a href="forms/form-eigenuebertrag.html"><span>5. Eigenübertrag</span><span>Wallet-Wechsel dokumentieren</span></a></li>
-              <li><a href="forms/form-sonderfall-unklar.html"><span>6. Unklarer Sonderfall</span><span>offene Wertquelle markieren</span></a></li>
-              <li><a href="auswertung/steuer-vorschau.html"><span>7. Steuer-Vorschau</span><span>vorläufige Arbeitsauswertung</span></a></li>
-              <li><a href="export/pdf-druck.html"><span>8. PDF-Ausgabe</span><span>lesbare Übergabeansicht</span></a></li>
-            </ul>
+        <div class="card panel">
+          <div class="section-head">
+            <div>
+              <h2>Wichtiger Hinweis zum Sinn des Kurses</h2>
+              <p>
+                Ziel ist nicht eine steuerliche Endentscheidung im Kurs,
+                sondern eine belastbare Dokumentation der tatsächlichen Vorgänge und Werte.
+              </p>
+            </div>
           </div>
 
-          <div class="goal-box">
-            <h3>Demo-Steuerung</h3>
-            <p>
-              Lade die Demo, prüfe danach Vorschau, Prüfblatt, PDF und Archiv. So wird der ganze Kurs sofort
-              in einer verständlichen Beispielansicht sichtbar.
-            </p>
-            <div class="btn-row">
-              <button class="btn btn-primary" type="button" id="demoLoadBottom">Demo-Fall laden</button>
-              <button class="btn btn-secondary" type="button" id="demoArchiveBottom">Demo ins Archiv</button>
-              <button class="btn btn-pink" type="button" id="demoResetBottom">Demo löschen</button>
-            </div>
-            <p style="margin:16px 0 0;color:var(--muted);font-size:14px;">
-              Hinweis: Der Demo-Fall dient der Kursansicht und Arbeitslogik. Er ersetzt keine steuerliche Beratung.
-            </p>
+          <div class="info-list">
+            <li>
+              <span class="info-label">Kursziel</span>
+              <span class="info-value">Dokumentieren statt schätzen lassen</span>
+            </li>
+            <li>
+              <span class="info-label">Wichtig</span>
+              <span class="info-value">Auch Verluste sauber festhalten</span>
+            </li>
+            <li>
+              <span class="info-label">Bei Tokens</span>
+              <span class="info-value">Zwischenstufen bewusst mitdenken</span>
+            </li>
+            <li>
+              <span class="info-label">Bei offenen Fällen</span>
+              <span class="info-value">Nicht verlieren, sondern sichern</span>
+            </li>
+            <li>
+              <span class="info-label">Am Ende</span>
+              <span class="info-value">Liste für Steuerberater nutzbar machen</span>
+            </li>
           </div>
         </div>
       </div>
     </section>
 
-    <footer class="footer">
+    <section class="footer">
       <div class="wrap footer-card">
         <div>
-          Diese Kurszentrale führt jetzt mit zwei Einstiegen, einer gemeinsamen Master-Listen-Logik
-          und einer klaren Ausgabe über Vorschau, Prüfblatt, PDF, CSV und Archiv.
+          Die Startseite führt jetzt sauber in die neue Gesamtlogik mit Quellenpool, Master-Liste, Wertermittlung, Auswertung, Export und Archiv.
         </div>
         <div class="btn-row" style="margin-top:0;">
-          <a class="btn btn-secondary" href="module/01-fallstart-stammdaten.html">Zu Modul 01</a>
-          <a class="btn btn-primary" href="module/05-transaktionen.html">Zu Modul 05</a>
+          <a class="btn btn-secondary" href="hilfe.html">Zur Hilfe</a>
+          <a class="btn btn-primary" href="module/01-fallstart-stammdaten.html">Jetzt starten</a>
         </div>
       </div>
-    </footer>
+    </section>
   </main>
 
   <script>
-    (function(){
-      const LS_KEYS = {
-        demoState: 'kso_demo_state',
-        demoArchive: 'kso_demo_archive',
-        demoLastAction: 'kso_demo_last_action',
-        fall: 'kso_fallstart',
-        transactions: 'kso_transactions',
-        valuations: 'kso_valuations',
-        problems: 'kso_problems',
-        taxQuestions: 'kso_tax_questions'
-      };
+    (() => {
+      const KEY_FALL = 'kso_fallstart';
+      const KEY_TX = 'kso_transactions';
+      const KEY_SOURCES = 'kso_sources';
+      const KEY_VAL = 'kso_valuations';
+      const KEY_ARCHIVE = 'kso_year_archives';
 
-      const demoData = {
-        meta: {
-          isDemo: true,
-          createdAt: new Date().toISOString(),
-          title: 'Demo-Fall: Token-Verlust nach Tausch über ETH'
-        },
-        fall: {
-          fallname: 'Demo-Fall: Token-Verlust nach Tausch über ETH',
-          steuerjahr: '2025',
-          land: 'Deutschland',
-          notiz: 'Musterfall für Kursdemo mit Fiat, ETH, Token, Verlust, Reward, Eigenübertrag und Sonderfall.'
-        },
-        transactions: [
-          {
-            typ: 'fiat-zu-krypto',
-            datum: '2025-03-12',
-            uhrzeit: '10:15',
-            chain: 'Ethereum',
-            plattform: 'Beispiel-Börse',
-            fiatWaehrung: 'EUR',
-            fiatBetrag: '3000.00',
-            coin: 'ETH',
-            menge: '1.08',
-            zielWallet: '0xDemoWallet001',
-            wertFiat: '3000.00',
-            gebuehren: '12.90',
-            status: 'sicher',
-            notiz: 'Einstieg von EUR in ETH'
-          },
-          {
-            typ: 'krypto-zu-krypto',
-            datum: '2025-03-13',
-            uhrzeit: '14:20',
-            chain: 'Ethereum',
-            plattform: 'Uniswap',
-            assetAb: 'ETH',
-            mengeAb: '0.80',
-            assetZu: 'TOKEN-A',
-            mengeZu: '48000',
-            wertAbFiat: '2220.00',
-            wertZuFiat: '2220.00',
-            gebuehren: '18.40',
-            status: 'indirekt',
-            notiz: 'Token nicht breit gelistet, Wert über hingegebenes ETH rekonstruiert'
-          },
-          {
-            typ: 'reward-bonus-ertrag',
-            datum: '2025-04-05',
-            uhrzeit: '09:10',
-            chain: 'Ethereum',
-            plattform: 'Projekt A',
-            coin: 'TOKEN-A',
-            menge: '1200',
-            wertFiat: '74.00',
-            status: 'indirekt',
-            notiz: 'Reward aus Projekt'
-          },
-          {
-            typ: 'eigenuebertrag',
-            datum: '2025-04-06',
-            uhrzeit: '08:45',
-            chain: 'Ethereum',
-            plattform: 'MetaMask',
-            coin: 'TOKEN-A',
-            menge: '20000',
-            vonWallet: '0xDemoWallet001',
-            zuWallet: '0xDemoWallet002',
-            gebuehren: '5.80',
-            status: 'sicher',
-            notiz: 'Eigenübertrag zwischen zwei Wallets'
-          },
-          {
-            typ: 'sonderfall-unklar',
-            datum: '2025-05-02',
-            uhrzeit: '16:35',
-            chain: 'Ethereum',
-            plattform: 'DEX / Smart Contract',
-            asset: 'TOKEN-A',
-            status: 'offen',
-            notiz: 'Fehlende offizielle Preisquelle, TX-Hash und Explorer-Screenshot notwendig'
-          },
-          {
-            typ: 'krypto-zu-fiat',
-            datum: '2025-06-08',
-            uhrzeit: '11:42',
-            chain: 'Ethereum',
-            plattform: 'Beispiel-Börse',
-            coin: 'TOKEN-A',
-            menge: '48000',
-            fiatWaehrung: 'EUR',
-            fiatBetrag: '420.00',
-            wertFiat: '420.00',
-            gebuehren: '9.90',
-            status: 'sicher',
-            notiz: 'Ausstieg mit deutlichem Verlust'
-          }
-        ],
-        valuations: [
-          {
-            datum: '2025-03-12',
-            vorgang: 'Kauf ETH',
-            wertquelle: 'Börsenabrechnung',
-            anschaffungswert: '3000.00',
-            veraeusserungswert: '',
-            ergebnis: 'offen',
-            status: 'sicher'
-          },
-          {
-            datum: '2025-03-13',
-            vorgang: 'ETH in TOKEN-A',
-            wertquelle: 'ETH-Marktwert zum Tauschzeitpunkt',
-            anschaffungswert: '2220.00',
-            veraeusserungswert: '',
-            ergebnis: 'offen',
-            status: 'indirekt'
-          },
-          {
-            datum: '2025-06-08',
-            vorgang: 'TOKEN-A zurück in EUR',
-            wertquelle: 'Börsenabrechnung',
-            anschaffungswert: '2220.00',
-            veraeusserungswert: '420.00',
-            ergebnis: 'Verlust',
-            status: 'sicher'
-          }
-        ],
-        problems: [
-          {
-            datum: '2025-05-02',
-            titel: 'Token-Wert nicht direkt gelistet',
-            status: 'offen',
-            loesungsweg: 'Wert über hingegebenes Asset, Explorer, Blockzeit und TX-Hash dokumentieren'
-          }
-        ],
-        taxQuestions: [
-          {
-            frage: 'Ist der rekonstruiert angesetzte Tauschwert für den Token im Fall ausreichend dokumentiert?',
-            status: 'offen'
-          }
-        ]
-      };
+      const $ = (id) => document.getElementById(id);
 
-      const el = {
-        demoLoadedBadge: document.getElementById('demoLoadedBadge'),
-        demoArchiveBadge: document.getElementById('demoArchiveBadge'),
-        demoActionText: document.getElementById('demoActionText'),
-        nextStepText: document.getElementById('nextStepText')
-      };
-
-      function setText(id, text){
-        if(id) id.textContent = text;
-      }
-
-      function badgeHtml(isYes){
-        return isYes
-          ? '<span class="badge ok">Ja</span>'
-          : '<span class="badge no">Nein</span>';
-      }
-
-      function readJson(key, fallback){
-        try{
+      function read(key, fallback) {
+        try {
           const raw = localStorage.getItem(key);
           return raw ? JSON.parse(raw) : fallback;
-        }catch(e){
+        } catch (e) {
           return fallback;
         }
       }
 
-      function writeJson(key, value){
-        localStorage.setItem(key, JSON.stringify(value));
+      function toNumber(value) {
+        if (typeof value === 'number') return value;
+        const str = String(value || '')
+          .replace(/\s/g, '')
+          .replace(/\./g, '')
+          .replace(',', '.')
+          .replace(/[^\d.-]/g, '');
+        const num = Number(str);
+        return Number.isFinite(num) ? num : 0;
       }
 
-      function setLastAction(text){
-        localStorage.setItem(LS_KEYS.demoLastAction, text);
+      function euro(value) {
+        return new Intl.NumberFormat('de-DE', {
+          style: 'currency',
+          currency: 'EUR'
+        }).format(value || 0);
       }
 
-      function hasDemo(){
-        const state = readJson(LS_KEYS.demoState, null);
-        return !!(state && state.isDemoLoaded);
+      function normalizeText(value) {
+        return String(value || '').toLowerCase();
       }
 
-      function hasArchive(){
-        return !!localStorage.getItem(LS_KEYS.demoArchive);
+      function txList() {
+        const list = read(KEY_TX, []);
+        return Array.isArray(list) ? list : [];
       }
 
-      function refreshStatus(){
-        const demoLoaded = hasDemo();
-        const archiveLoaded = hasArchive();
-        const lastAction = localStorage.getItem(LS_KEYS.demoLastAction) || 'Noch keine Aktion';
-
-        el.demoLoadedBadge.innerHTML = badgeHtml(demoLoaded);
-        el.demoArchiveBadge.innerHTML = badgeHtml(archiveLoaded);
-        setText(el.demoActionText, lastAction);
-
-        let next = 'Einstieg wählen';
-        if(demoLoaded){
-          next = 'Steuer-Vorschau oder Prüfblatt öffnen';
-        }
-        if(demoLoaded && archiveLoaded){
-          next = 'Demo prüfen, danach echte Daten starten';
-        }
-        setText(el.nextStepText, next);
+      function sourceList() {
+        const list = read(KEY_SOURCES, []);
+        return Array.isArray(list) ? list : [];
       }
 
-      function loadDemo(){
-        writeJson(LS_KEYS.demoState, {
-          isDemoLoaded: true,
-          loadedAt: new Date().toISOString(),
-          title: demoData.meta.title
-        });
-        writeJson(LS_KEYS.fall, demoData.fall);
-        writeJson(LS_KEYS.transactions, demoData.transactions);
-        writeJson(LS_KEYS.valuations, demoData.valuations);
-        writeJson(LS_KEYS.problems, demoData.problems);
-        writeJson(LS_KEYS.taxQuestions, demoData.taxQuestions);
-        setLastAction('Demo-Fall geladen');
-        refreshStatus();
+      function valList() {
+        const list = read(KEY_VAL, []);
+        return Array.isArray(list) ? list : [];
       }
 
-      function archiveDemo(){
-        const archivePayload = {
-          archivedAt: new Date().toISOString(),
-          title: demoData.meta.title,
-          fall: demoData.fall,
-          transactions: demoData.transactions,
-          valuations: demoData.valuations,
-          problems: demoData.problems,
-          taxQuestions: demoData.taxQuestions
-        };
-        writeJson(LS_KEYS.demoArchive, archivePayload);
-        setLastAction('Demo ins Archiv übernommen');
-        refreshStatus();
+      function archiveList() {
+        const list = read(KEY_ARCHIVE, []);
+        return Array.isArray(list) ? list : [];
       }
 
-      function resetDemo(){
-        localStorage.removeItem(LS_KEYS.demoState);
-        localStorage.removeItem(LS_KEYS.demoArchive);
-        localStorage.removeItem(LS_KEYS.fall);
-        localStorage.removeItem(LS_KEYS.transactions);
-        localStorage.removeItem(LS_KEYS.valuations);
-        localStorage.removeItem(LS_KEYS.problems);
-        localStorage.removeItem(LS_KEYS.taxQuestions);
-        setLastAction('Demo gelöscht');
-        refreshStatus();
+      function setStatus(id, type) {
+        const node = $(id);
+        if (!node) return;
+        node.className = `status-pill ${type}`;
       }
 
-      [
-        'demoLoadTop',
-        'demoLoad',
-        'demoLoadBottom'
-      ].forEach(id => {
-        const node = document.getElementById(id);
-        if(node){
-          node.addEventListener('click', loadDemo);
-        }
-      });
+      function renderSummary() {
+        const fall = read(KEY_FALL, {});
+        const txs = txList();
+        const sources = sourceList();
+        const vals = valList();
+        const archives = archiveList();
 
-      [
-        'demoArchive',
-        'demoArchiveBottom'
-      ].forEach(id => {
-        const node = document.getElementById(id);
-        if(node){
-          node.addEventListener('click', archiveDemo);
-        }
-      });
+        const sumBuy = vals.reduce((s, v) => s + (Number(v.buyValue) || 0), 0);
+        const sumExit = vals.reduce((s, v) => s + (Number(v.exitValue) || 0), 0);
+        const sumFees = vals.reduce((s, v) => s + (Number(v.feeValue) || toNumber(v.gebuehren)), 0);
+        const sumLoss = vals.reduce((s, v) => s + (Number(v.lossValue) || 0), 0);
 
-      [
-        'demoReset',
-        'demoResetBottom'
-      ].forEach(id => {
-        const node = document.getElementById(id);
-        if(node){
-          node.addEventListener('click', resetDemo);
-        }
-      });
+        $('fallName').textContent = fall && fall.fallname ? fall.fallname : 'Kein Fall';
+        $('countSources').textContent = String(sources.length);
+        $('countTx').textContent = String(txs.length);
+        $('countVal').textContent = String(vals.length);
+        $('countArchive').textContent = String(archives.length);
 
-      refreshStatus();
+        $('sumBuy').textContent = euro(sumBuy);
+        $('sumExit').textContent = euro(sumExit);
+        $('sumFees').textContent = euro(sumFees);
+        $('sumLoss').textContent = euro(sumLoss);
+
+        const hasFall = fall && Object.keys(fall).length > 0;
+        const hasSources = sources.length > 0;
+        const hasTx = txs.length > 0;
+        const hasVal = vals.length > 0;
+        const hasArchive = archives.length > 0;
+
+        $('status01').textContent = hasFall ? 'Bereit' : 'Start';
+        setStatus('status01', hasFall ? 'status-ok' : 'status-open');
+
+        $('status02').textContent = hasSources ? 'Bereit' : 'Offen';
+        setStatus('status02', hasSources ? 'status-ok' : 'status-open');
+
+        $('status05').textContent = hasTx ? 'Aktiv' : 'Offen';
+        setStatus('status05', hasTx ? 'status-mid' : 'status-open');
+
+        $('status06').textContent = hasVal ? 'Bereit' : 'Offen';
+        setStatus('status06', hasVal ? 'status-ok' : 'status-open');
+
+        $('statusA1').textContent = hasVal ? 'Nutzbar' : 'Offen';
+        setStatus('statusA1', hasVal ? 'status-ok' : 'status-open');
+
+        $('statusA2').textContent = hasVal ? 'Nutzbar' : 'Offen';
+        setStatus('statusA2', hasVal ? 'status-ok' : 'status-open');
+
+        $('statusE1').textContent = hasTx || hasSources ? 'Nutzbar' : 'Offen';
+        setStatus('statusE1', (hasTx || hasSources) ? 'status-ok' : 'status-open');
+
+        $('statusE2').textContent = hasArchive ? 'Archiviert' : 'Offen';
+        setStatus('statusE2', hasArchive ? 'status-mid' : 'status-open');
+      }
+
+      renderSummary();
     })();
   </script>
 </body>
