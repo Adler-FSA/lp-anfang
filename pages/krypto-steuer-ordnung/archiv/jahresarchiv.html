@@ -1,7 +1,7 @@
 <!doctype html>
 <!--
   GitHub-Pfad: lp-anfang/pages/krypto-steuer-ordnung/archiv/jahresarchiv.html
-  Commit-Message: jahresarchiv zur mehrjahres arbeitszentrale mit wiederherstellen weiterbearbeiten pdf und druck buttons ausgebaut
+  Commit-Message: jahresarchiv direktlinks zu vorschau pruefblatt pdf und csv final verdrahtet und nocache navigation abgesichert
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/krypto-steuer-ordnung/archiv/jahresarchiv.html?nocache=__TS__
 -->
 <html lang="de">
@@ -829,7 +829,20 @@
       const KEY_ARCHIVE = 'kso_year_archives';
       const KEY_DEMO = 'kso_demo_active';
 
+      const ROUTES = {
+        edit: '../module/05-transaktionen.html',
+        preview: '../auswertung/steuer-vorschau.html',
+        pruefblatt: '../auswertung/steuerberater-pruefblatt.html',
+        pdf: '../export/pdf-druck.html',
+        exportOpen: '../export/csv-import-export.html',
+      };
+
       const $ = (id) => document.getElementById(id);
+
+      function withNoCache(url) {
+        const sep = url.includes('?') ? '&' : '?';
+        return `${url}${sep}nocache=${Date.now()}`;
+      }
 
       function read(key, fallback) {
         try {
@@ -949,7 +962,7 @@
         write(KEY_DEMO, entry.isDemo === true);
 
         if (nextUrl) {
-          window.location.href = `${nextUrl}?nocache=${Date.now()}`;
+          window.location.href = withNoCache(nextUrl);
           return;
         }
 
@@ -1090,23 +1103,23 @@
         });
 
         node.querySelectorAll('[data-edit]').forEach((button) => {
-          button.addEventListener('click', () => restoreArchive(button.getAttribute('data-edit'), '../module/05-transaktionen.html'));
+          button.addEventListener('click', () => restoreArchive(button.getAttribute('data-edit'), ROUTES.edit));
         });
 
         node.querySelectorAll('[data-preview]').forEach((button) => {
-          button.addEventListener('click', () => restoreArchive(button.getAttribute('data-preview'), '../auswertung/steuer-vorschau.html'));
+          button.addEventListener('click', () => restoreArchive(button.getAttribute('data-preview'), ROUTES.preview));
         });
 
         node.querySelectorAll('[data-pruefblatt]').forEach((button) => {
-          button.addEventListener('click', () => restoreArchive(button.getAttribute('data-pruefblatt'), '../auswertung/steuerberater-pruefblatt.html'));
+          button.addEventListener('click', () => restoreArchive(button.getAttribute('data-pruefblatt'), ROUTES.pruefblatt));
         });
 
         node.querySelectorAll('[data-pdf]').forEach((button) => {
-          button.addEventListener('click', () => restoreArchive(button.getAttribute('data-pdf'), '../export/pdf-druck.html'));
+          button.addEventListener('click', () => restoreArchive(button.getAttribute('data-pdf'), ROUTES.pdf));
         });
 
         node.querySelectorAll('[data-export-open]').forEach((button) => {
-          button.addEventListener('click', () => restoreArchive(button.getAttribute('data-export-open'), '../export/csv-import-export.html'));
+          button.addEventListener('click', () => restoreArchive(button.getAttribute('data-export-open'), ROUTES.exportOpen));
         });
 
         node.querySelectorAll('[data-export-file]').forEach((button) => {
@@ -1170,7 +1183,7 @@
         localStorage.removeItem(KEY_SOURCES);
         localStorage.removeItem(KEY_VAL);
         localStorage.removeItem(KEY_DEMO);
-        window.location.href = '../index.html?nocache=' + Date.now();
+        window.location.href = withNoCache('../index.html');
       }
 
       function renderAll() {
