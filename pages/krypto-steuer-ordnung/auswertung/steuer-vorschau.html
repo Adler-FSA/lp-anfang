@@ -1,7 +1,7 @@
 <!doctype html>
 <!--
   GitHub-Pfad: lp-anfang/pages/krypto-steuer-ordnung/auswertung/steuer-vorschau.html
-  Commit-Message: steuer vorschau texte auf neutrale mitgliedersprache bereinigt und interne erklaerungen entfernt
+  Commit-Message: steuer vorschau um geschaetzte steuer hausnummer fuer mitglieder erweitert und hauptziel wieder sichtbar gemacht
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/krypto-steuer-ordnung/auswertung/steuer-vorschau.html?nocache=__TS__
 -->
 <html lang="de">
@@ -9,7 +9,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Steuer-Vorschau – Krypto-Steuer-Ordnung</title>
-  <meta name="description" content="Übersicht zu Datenstand, Wertbasis, Verlustsicht und offenen Punkten." />
+  <meta name="description" content="Übersicht zu Gewinnen, Verlusten, offener Datenlage und geschätzter Steuer-Hausnummer." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -47,7 +47,7 @@
     }
 
     a{color:inherit;text-decoration:none}
-    button{font:inherit}
+    button,input{font:inherit}
 
     .wrap{
       width:min(var(--max), calc(100% - 28px));
@@ -136,13 +136,14 @@
     .hero-grid,
     .stats-grid,
     .detail-grid,
-    .flow-grid{
+    .flow-grid,
+    .tax-grid{
       display:grid;
       gap:18px;
     }
 
     .hero-grid{
-      grid-template-columns:1.15fr .85fr;
+      grid-template-columns:1.1fr .9fr;
     }
 
     .stats-grid{
@@ -150,7 +151,8 @@
     }
 
     .detail-grid,
-    .flow-grid{
+    .flow-grid,
+    .tax-grid{
       grid-template-columns:1fr 1fr;
     }
 
@@ -186,14 +188,14 @@
       color:#8a5b00;
     }
 
-    .chip.pink{
-      background:var(--pink-soft);
-      color:#9f1f61;
-    }
-
     .chip.red{
       background:var(--danger-soft);
       color:#a61b1b;
+    }
+
+    .chip.pink{
+      background:var(--pink-soft);
+      color:#9f1f61;
     }
 
     .demo-banner{
@@ -357,6 +359,63 @@
     .info-label{color:var(--muted)}
     .info-value{font-weight:800;text-align:right}
 
+    .tax-box{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:18px;
+    }
+
+    .tax-box h3{
+      margin:0 0 8px;
+      font-size:20px;
+    }
+
+    .tax-box p{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .tax-main{
+      border:1px solid rgba(32,216,178,.22);
+      background:linear-gradient(180deg,#ffffff 0%, #f7fffc 100%);
+    }
+
+    .tax-main .big{
+      display:block;
+      margin:10px 0 8px;
+      font-size:36px;
+      font-weight:900;
+      line-height:1;
+    }
+
+    .field{
+      display:grid;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .field label{
+      font-size:14px;
+      font-weight:800;
+    }
+
+    .input{
+      width:100%;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:16px;
+      padding:14px 15px;
+      outline:none;
+      transition:border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .input:focus{
+      border-color:rgba(32,216,178,.65);
+      box-shadow:0 0 0 4px rgba(32,216,178,.10);
+    }
+
     .table-wrap{
       overflow:auto;
       border:1px solid var(--line);
@@ -473,7 +532,8 @@
       .hero-grid,
       .stats-grid,
       .detail-grid,
-      .flow-grid{
+      .flow-grid,
+      .tax-grid{
         grid-template-columns:1fr;
       }
     }
@@ -505,6 +565,10 @@
 
       .demo-banner-inner{
         padding:16px;
+      }
+
+      .tax-main .big{
+        font-size:30px;
       }
     }
   </style>
@@ -558,14 +622,14 @@
 
       <div class="wrap hero-grid">
         <article class="card hero-card">
-          <span class="chip">Vorschau</span>
-          <h1>Übersicht zu Wertbasis, Verlustsicht und offenen Punkten.</h1>
+          <span class="chip">Steuer-Vorschau</span>
+          <h1>Geschätzte Steuer-Hausnummer, Gewinne, Verluste und offene Punkte.</h1>
           <p class="lead">
-            Diese Seite zeigt den aktuellen Stand der erfassten Vorgänge und Bewertungen.
+            Diese Seite zeigt eine vorläufige Orientierung aus den aktuell dokumentierten Daten.
           </p>
           <div class="btn-row">
             <button class="btn btn-primary" type="button" id="refreshAll">Ansicht aktualisieren</button>
-            <a class="btn btn-secondary" href="#vorschautabelle">Zur Tabelle</a>
+            <a class="btn btn-secondary" href="#steuerblock">Zur Hausnummer</a>
             <a class="btn btn-soft" href="steuerberater-pruefblatt.html">Zum Prüfblatt</a>
           </div>
         </article>
@@ -574,7 +638,7 @@
           <span class="chip warn">Überblick</span>
           <ul class="info-list">
             <li>
-              <span class="info-label">Fälle gesamt</span>
+              <span class="info-label">Vorgänge gesamt</span>
               <span class="info-value" id="totalRows">0</span>
             </li>
             <li>
@@ -586,15 +650,53 @@
               <span class="info-value" id="openRows">0</span>
             </li>
             <li>
-              <span class="info-label">Verlustsicht</span>
-              <span class="info-value" id="lossRows">0</span>
+              <span class="info-label">Gewinnfälle</span>
+              <span class="info-value" id="gainRows">0</span>
             </li>
             <li>
-              <span class="info-label">Quellenweg vorhanden</span>
-              <span class="info-value" id="pathRows">0 %</span>
+              <span class="info-label">Verlustfälle</span>
+              <span class="info-value" id="lossRows">0</span>
             </li>
           </ul>
         </aside>
+      </div>
+    </section>
+
+    <section class="section" id="steuerblock">
+      <div class="wrap tax-grid">
+        <div class="tax-box tax-main">
+          <span class="chip">Hausnummer</span>
+          <h3>Geschätzte Steuer</h3>
+          <span class="big" id="estimatedTax">0,00 €</span>
+          <p id="taxBasisText">Noch keine berechenbare Grundlage vorhanden.</p>
+          <div class="field">
+            <label for="taxRateInput">Schätzsatz in %</label>
+            <input id="taxRateInput" class="input" type="number" min="0" max="100" step="0.1" value="30" />
+          </div>
+          <div class="btn-row" style="margin-top:12px;">
+            <button class="btn btn-primary" type="button" id="saveTaxRateBtn">Schätzsatz speichern</button>
+            <button class="btn btn-secondary" type="button" id="resetTaxRateBtn">Auf 30 % zurücksetzen</button>
+          </div>
+        </div>
+
+        <div class="stack">
+          <div class="tax-box">
+            <h3>Gewinne</h3>
+            <p id="gainSum">0,00 €</p>
+          </div>
+          <div class="tax-box">
+            <h3>Verluste</h3>
+            <p id="lossSum">0,00 €</p>
+          </div>
+          <div class="tax-box">
+            <h3>Vorläufige steuerliche Basis</h3>
+            <p id="taxableBase">0,00 €</p>
+          </div>
+          <div class="tax-box">
+            <h3>Offene Auswirkung</h3>
+            <p id="openImpact">0 offene Einträge</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -754,7 +856,7 @@
     <section class="footer">
       <div class="wrap footer-card">
         <div>
-          Übersicht zu Datenstand, Wertbasis, Verlustsicht und offenen Punkten.
+          Vorläufige Orientierung zu Gewinnen, Verlusten und geschätzter Steuer-Hausnummer.
         </div>
         <div class="btn-row" style="margin-top:0;">
           <a class="btn btn-secondary" href="../module/06-wertermittlung.html">Zurück zu Modul 06</a>
@@ -772,6 +874,7 @@
       const KEY_FALL = 'kso_fallstart';
       const KEY_SOURCES = 'kso_sources';
       const KEY_ARCHIVE = 'kso_year_archives';
+      const KEY_TAX = 'kso_tax_settings';
 
       const $ = (id) => document.getElementById(id);
 
@@ -782,6 +885,10 @@
         } catch (e) {
           return fallback;
         }
+      }
+
+      function write(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
       }
 
       function txList() {
@@ -855,6 +962,12 @@
         return '<span class="pill pill-grey">Offen</span>';
       }
 
+      function getTaxRate() {
+        const saved = read(KEY_TAX, { rate: 30 });
+        const rate = Number(saved && saved.rate);
+        return Number.isFinite(rate) ? rate : 30;
+      }
+
       function buildRows() {
         const txs = txList();
         const vals = valuationList();
@@ -884,11 +997,66 @@
         });
       }
 
+      function calculateTaxHouseNumber(rows) {
+        const gainRows = rows.filter((r) => normalizeText(r.ergebnis).includes('gewinn'));
+        const lossRows = rows.filter((r) => normalizeText(r.ergebnis).includes('verlust') || (r.lossValue || 0) > 0);
+        const openRows = rows.filter((r) =>
+          normalizeText(r.readiness).includes('offen') ||
+          normalizeText(r.readiness).includes('indirekt')
+        );
+
+        const gainSum = gainRows.reduce((sum, row) => {
+          const candidate = row.exitValue > 0 ? row.exitValue : toNumber(row.basisWert);
+          return sum + candidate;
+        }, 0);
+
+        const lossSum = lossRows.reduce((sum, row) => {
+          const candidate = row.lossValue > 0 ? row.lossValue : (row.exitValue > 0 ? row.exitValue : toNumber(row.basisWert));
+          return sum + candidate;
+        }, 0);
+
+        const taxableBase = Math.max(0, gainSum - lossSum);
+        const rate = getTaxRate();
+        const estimatedTax = taxableBase * (rate / 100);
+
+        return {
+          gainSum,
+          lossSum,
+          taxableBase,
+          estimatedTax,
+          gainRows: gainRows.length,
+          lossRows: lossRows.length,
+          openRows: openRows.length,
+          rate
+        };
+      }
+
+      function renderTaxBlock(rows) {
+        const calc = calculateTaxHouseNumber(rows);
+        $('gainSum').textContent = euro(calc.gainSum);
+        $('lossSum').textContent = euro(calc.lossSum);
+        $('taxableBase').textContent = euro(calc.taxableBase);
+        $('estimatedTax').textContent = euro(calc.estimatedTax);
+        $('openImpact').textContent = `${calc.openRows} offene Einträge`;
+        $('taxRateInput').value = String(calc.rate).replace('.', ',');
+
+        let text = `Vorläufige Basis ${euro(calc.taxableBase)} bei einem Schätzsatz von ${String(calc.rate).replace('.', ',')} %.`;
+        if (calc.openRows > 0) {
+          text += ` ${calc.openRows} offene Einträge können die Hausnummer noch verändern.`;
+        }
+        if (calc.taxableBase <= 0) {
+          text = `Aktuell ergibt sich aus den dokumentierten Gewinnen und Verlusten keine positive vorläufige Basis.`;
+        }
+
+        $('taxBasisText').textContent = text;
+        $('gainRows').textContent = String(calc.gainRows);
+        $('lossRows').textContent = String(calc.lossRows);
+      }
+
       function renderSummary(rows) {
         const total = rows.length;
         const ready = rows.filter(r => normalizeText(r.readiness).includes('nutzbar')).length;
         const open = rows.filter(r => normalizeText(r.readiness).includes('offen') || normalizeText(r.readiness).includes('indirekt')).length;
-        const loss = rows.filter(r => normalizeText(r.ergebnis).includes('verlust') || r.lossValue > 0).length;
         const withPath = rows.filter(r => r.from !== '-' || r.to !== '-').length;
 
         const sumBuy = rows.reduce((s, r) => s + (r.buyValue || 0), 0);
@@ -911,8 +1079,6 @@
         $('totalRows').textContent = String(total);
         $('readyRows').textContent = String(ready);
         $('openRows').textContent = String(open);
-        $('lossRows').textContent = String(loss);
-        $('pathRows').textContent = total ? `${Math.round((withPath / total) * 100)} %` : '0 %';
 
         $('sumBuy').textContent = euro(sumBuy);
         $('sumExit').textContent = euro(sumExit);
@@ -1014,6 +1180,22 @@
         window.location.href = '../index.html?nocache=' + Date.now();
       }
 
+      function saveTaxRate() {
+        const raw = String($('taxRateInput').value || '').replace(',', '.');
+        const rate = Number(raw);
+        if (!Number.isFinite(rate) || rate < 0 || rate > 100) {
+          alert('Bitte einen gültigen Prozentsatz zwischen 0 und 100 eingeben.');
+          return;
+        }
+        write(KEY_TAX, { rate });
+        renderAll();
+      }
+
+      function resetTaxRate() {
+        write(KEY_TAX, { rate: 30 });
+        renderAll();
+      }
+
       function escapeHtml(value) {
         return String(value || '')
           .replaceAll('&', '&amp;')
@@ -1026,6 +1208,7 @@
       function renderAll() {
         const rows = buildRows();
         renderSummary(rows);
+        renderTaxBlock(rows);
         renderTable(rows);
         renderReadyCases(rows);
         renderOpenCases(rows);
@@ -1035,6 +1218,8 @@
       $('refreshAll').addEventListener('click', renderAll);
       $('refreshTable').addEventListener('click', renderAll);
       $('clearDemoBtn').addEventListener('click', clearDemoAndReload);
+      $('saveTaxRateBtn').addEventListener('click', saveTaxRate);
+      $('resetTaxRateBtn').addEventListener('click', resetTaxRate);
 
       renderAll();
     })();
