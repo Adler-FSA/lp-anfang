@@ -935,6 +935,8 @@
     │   │   ├── auswertung/
     │   │   │   ├── steuer-vorschau.html
     │   │   │   └── steuerberater-pruefblatt.html
+    │   │   ├── demo/
+    │   │   │   └── index.html
     │   │   ├── explorer/
     │   │   │   ├── bitcoin-explorer.html
     │   │   │   ├── blockchain.html
@@ -1393,4 +1395,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.04.2026, 05:18)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.04.2026, 07:07)_
