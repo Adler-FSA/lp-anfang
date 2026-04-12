@@ -1,16 +1,17 @@
+
 <!doctype html>
 <!--
   GitHub-Pfad: lp-anfang/pages/krypto-steuer-ordnung/module/02-wallets-boersen-chains.html
-  Commit-Message: modul 02 um freie eingabe neben allen auswahlfeldern erweitert und mehrfachlogik gefestigt
+  Commit-Message: modul 02 komplett neu aufgebaut mit mehrfachquellen freier eingabe und demo druckstandard basis
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/krypto-steuer-ordnung/module/02-wallets-boersen-chains.html?nocache=__TS__
-  Naechster Schritt: module/03-wallets-blockchains-verstehen.html auf dieselbe mehrfach und freie eingabe logik umstellen
+  Naechster Schritt: module/03-wallets-blockchains-verstehen.html auf dieselbe logik neu aufbauen
 -->
 <html lang="de">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Modul 02 – Wallets, Börsen & Chains – Krypto-Steuer-Ordnung</title>
-  <meta name="description" content="Modul 02 der Krypto-Steuer-Ordnung: Wallets, Börsen, Bankkonten, Plattformen und Chains geordnet erfassen und lokal speichern." />
+  <meta name="description" content="Modul 02 der Krypto-Steuer-Ordnung: Mehrere Wallets, Börsen, Konten, Plattformen und Chains geordnet erfassen und lokal speichern." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -34,7 +35,7 @@
       --ok-soft:rgba(15,118,110,.10);
       --shadow:0 16px 46px rgba(0,0,0,.08);
       --radius:22px;
-      --max:1480px;
+      --max:1500px;
     }
 
     *{box-sizing:border-box}
@@ -52,7 +53,6 @@
 
     a{color:inherit;text-decoration:none}
     button,input,select,textarea{font:inherit}
-
     .wrap{width:min(var(--max), calc(100% - 28px));margin:0 auto}
 
     .topbar{
@@ -139,21 +139,21 @@
     .hero-grid,
     .two-grid,
     .three-grid,
-    .four-grid,
-    .entry-grid,
-    .summary-grid,
-    .cards-grid{
+    .stats-grid,
+    .auto-grid-wide,
+    .form-grid,
+    .summary-grid{
       display:grid;
       gap:18px;
     }
 
-    .hero-grid{grid-template-columns:minmax(0,1.03fr) minmax(340px,.97fr)}
-    .two-grid{grid-template-columns:1.05fr .95fr}
+    .hero-grid{grid-template-columns:minmax(0,1.05fr) minmax(340px,.95fr)}
+    .two-grid{grid-template-columns:minmax(0,1.04fr) minmax(340px,.96fr)}
     .three-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-    .four-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
-    .entry-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .stats-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .auto-grid-wide{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+    .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
     .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-    .cards-grid{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 
     .card{
       background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 100%);
@@ -179,8 +179,8 @@
     }
 
     .chip.warn{background:var(--warn-soft);color:#8a5b00}
-    .chip.ok{background:var(--ok-soft);color:var(--ok)}
     .chip.pink{background:var(--pink-soft);color:#8d1f58}
+    .chip.ok{background:var(--ok-soft);color:var(--ok)}
 
     h1{
       margin:0 0 12px;
@@ -201,7 +201,7 @@
     h3{
       margin:0 0 8px;
       font-size:19px;
-      line-height:1.16;
+      line-height:1.15;
       text-wrap:balance;
     }
 
@@ -297,10 +297,9 @@
     .info-value{font-weight:800;text-align:right}
 
     .box,
-    .step-card,
+    .stat,
     .entry-card,
-    .summary-item,
-    .empty-card{
+    .summary-item{
       border:1px solid var(--line);
       border-radius:18px;
       background:#fff;
@@ -308,14 +307,23 @@
       padding:18px;
     }
 
-    .box p,
-    .step-card p,
-    .entry-card p,
-    .summary-item span,
-    .empty-card p{
+    .box p,.entry-card p,.summary-item span{
       margin:0;
       color:var(--muted);
       font-size:15px;
+    }
+
+    .stat strong{
+      display:block;
+      font-size:30px;
+      line-height:1;
+      margin:0 0 8px;
+    }
+
+    .stat span{
+      display:block;
+      color:var(--muted);
+      font-size:14px;
     }
 
     .field{
@@ -344,7 +352,7 @@
     }
 
     .field textarea{
-      min-height:120px;
+      min-height:126px;
       resize:vertical;
     }
 
@@ -361,20 +369,15 @@
       background:#fcfffe;
     }
 
-    .choice-wrap{
-      display:grid;
-      gap:10px;
-    }
-
-    .choice-note{
-      font-size:12px;
-      color:var(--muted);
-    }
-
     .helper{
       font-size:13px;
       color:var(--muted);
       margin:0;
+    }
+
+    .choice-grid{
+      display:grid;
+      gap:10px;
     }
 
     .notice{
@@ -399,39 +402,40 @@
       font-size:14px;
     }
 
-    .list-wrap{
-      display:grid;
-      gap:14px;
-      margin-top:18px;
-    }
-
-    .list-item{
+    .table-wrap{
+      overflow:auto;
       border:1px solid var(--line);
       border-radius:18px;
       background:#fff;
-      padding:16px;
+      width:100%;
     }
 
-    .list-top{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:flex-start;
-      flex-wrap:wrap;
-      margin-bottom:10px;
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:1500px;
     }
 
-    .list-title{
-      font-size:18px;
-      font-weight:800;
-      line-height:1.2;
+    th,td{
+      text-align:left;
+      padding:12px 10px;
+      border-bottom:1px solid var(--line);
+      vertical-align:top;
+      font-size:13px;
+      overflow-wrap:anywhere;
+      word-break:break-word;
     }
 
-    .badges{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
+    th{
+      background:#fbfffe;
+      color:#62707b;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      white-space:nowrap;
     }
+
+    tr:last-child td{border-bottom:none}
 
     .pill{
       display:inline-flex;
@@ -445,42 +449,65 @@
       white-space:nowrap;
     }
 
-    .pill-mint{background:var(--mint-soft);color:#0d5648}
-    .pill-pink{background:var(--pink-soft);color:#8d1f58}
+    .pill-green{background:var(--ok-soft);color:var(--ok)}
+    .pill-pink{background:rgba(255,79,179,.12);color:#aa2368}
     .pill-warn{background:var(--warn-soft);color:#8a5b00}
     .pill-grey{background:#f3f5f7;color:#5f6a75}
 
-    .meta-grid{
-      display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:10px;
-    }
-
-    .meta-box{
+    .sheet{
       border:1px solid var(--line);
-      border-radius:14px;
-      background:#fbfffe;
-      padding:12px;
+      border-radius:22px;
+      background:#fff;
+      box-shadow:var(--shadow);
+      overflow:hidden;
     }
 
-    .meta-box strong{
-      display:block;
-      margin-bottom:4px;
-      font-size:13px;
-    }
-
-    .meta-box span{
-      display:block;
-      font-size:14px;
-      color:var(--muted);
-      word-break:break-word;
-    }
-
-    .item-actions{
-      margin-top:12px;
+    .sheet-head{
       display:flex;
-      gap:10px;
+      justify-content:space-between;
+      gap:18px;
+      align-items:flex-start;
       flex-wrap:wrap;
+      padding:22px 22px 16px;
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg,#ffffff 0%,#fbfffe 100%);
+    }
+
+    .sheet-head h3{
+      margin:0 0 6px;
+      font-size:24px;
+    }
+
+    .sheet-meta{
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .sheet-body{padding:20px 22px 22px}
+
+    .sheet-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .sheet-box{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+      padding:14px;
+    }
+
+    .sheet-box strong{
+      display:block;
+      margin-bottom:6px;
+      font-size:15px;
+    }
+
+    .sheet-box span{
+      color:var(--muted);
+      font-size:13px;
     }
 
     .footer-card{
@@ -495,19 +522,171 @@
       gap:12px;
     }
 
-    @media (max-width:1200px){
-      .hero-grid,
-      .two-grid,
-      .three-grid,
-      .four-grid{
+    .screen-only{display:block}
+    .print-only{display:none}
+    .print-pages{display:none}
+
+    .print-page{
+      background:#fff;
+      color:#000;
+      page-break-after:always;
+      break-after:page;
+      overflow:hidden;
+      box-shadow:none;
+    }
+
+    .print-page:last-child{
+      page-break-after:auto;
+      break-after:auto;
+    }
+
+    .print-page.portrait{
+      page:portraitPage;
+      width:190mm;
+      min-height:277mm;
+      padding:12mm;
+      margin:0 auto;
+    }
+
+    .print-page.landscape{
+      page:landscapePage;
+      width:277mm;
+      min-height:190mm;
+      padding:9mm;
+      margin:0 auto;
+    }
+
+    .print-kicker{
+      display:inline-block;
+      padding:2.5mm 4mm;
+      border:1px solid #999;
+      border-radius:999px;
+      font-size:10pt;
+      font-weight:700;
+      margin-bottom:5mm;
+    }
+
+    .print-title{
+      font-size:24pt;
+      font-weight:800;
+      line-height:1.05;
+      margin:0 0 4mm 0;
+    }
+
+    .print-subtitle{
+      font-size:11pt;
+      color:#444;
+      margin:0 0 8mm 0;
+    }
+
+    .print-section-title{
+      font-size:15pt;
+      font-weight:800;
+      margin:0 0 4mm 0;
+      line-height:1.15;
+    }
+
+    .print-grid-2,
+    .print-grid-3,
+    .print-grid-4{
+      display:grid;
+      gap:4mm;
+    }
+
+    .print-grid-2{grid-template-columns:1fr 1fr}
+    .print-grid-3{grid-template-columns:repeat(3,1fr)}
+    .print-grid-4{grid-template-columns:repeat(4,1fr)}
+
+    .print-box{
+      border:1px solid #bdbdbd;
+      border-radius:4mm;
+      padding:4mm;
+      break-inside:avoid;
+      page-break-inside:avoid;
+      background:#fff;
+    }
+
+    .print-box strong{
+      display:block;
+      font-size:10.5pt;
+      margin-bottom:2mm;
+      line-height:1.2;
+    }
+
+    .print-box span,
+    .print-box p{
+      display:block;
+      margin:0;
+      font-size:9.5pt;
+      line-height:1.35;
+      color:#333;
+      word-break:normal;
+      overflow-wrap:break-word;
+      hyphens:none;
+    }
+
+    .print-note{
+      margin-top:4mm;
+      border:1px solid #bdbdbd;
+      border-radius:4mm;
+      padding:4mm;
+      font-size:9pt;
+      line-height:1.35;
+    }
+
+    .print-table{
+      width:100%;
+      min-width:0;
+      border-collapse:collapse;
+      table-layout:fixed;
+      margin-top:3mm;
+    }
+
+    .print-table th,
+    .print-table td{
+      border:1px solid #bdbdbd;
+      padding:2.1mm 1.6mm;
+      font-size:8pt;
+      line-height:1.18;
+      vertical-align:top;
+      word-break:normal;
+      overflow-wrap:break-word;
+      hyphens:none;
+    }
+
+    .print-table th{
+      background:#f3f3f3;
+      font-size:7.4pt;
+      text-transform:uppercase;
+      letter-spacing:.03em;
+      white-space:normal;
+      line-height:1.15;
+    }
+
+    .print-table.compact th,
+    .print-table.compact td{
+      font-size:7.2pt;
+      padding:1.7mm 1.4mm;
+    }
+
+    .print-table.compact th{
+      font-size:6.9pt;
+    }
+
+    .print-table .status{
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.02em;
+    }
+
+    @media (max-width:1160px){
+      .hero-grid,.two-grid,.three-grid,.stats-grid{
         grid-template-columns:1fr;
       }
     }
 
-    @media (max-width:980px){
-      .entry-grid,
-      .summary-grid,
-      .meta-grid{
+    @media (max-width:900px){
+      .form-grid,.summary-grid{
         grid-template-columns:1fr;
       }
     }
@@ -527,24 +706,42 @@
       }
       .hero-card,.side-card,.panel{padding:20px 18px}
       h2{font-size:28px}
+      table{min-width:1180px}
+    }
+
+    @page portraitPage{
+      size:A4 portrait;
+      margin:10mm;
+    }
+
+    @page landscapePage{
+      size:A4 landscape;
+      margin:8mm;
     }
 
     @media print{
+      html,body{
+        background:#fff !important;
+        color:#000 !important;
+      }
+
+      .screen-only,
       .topbar,
-      .btn-row,
-      .item-actions{
+      .hero,
+      .section,
+      .footer{
         display:none !important;
       }
-      body{background:#fff}
-      .hero,.section,.footer{padding:12px 0}
-      .card,.box,.step-card,.entry-card,.summary-item,.empty-card,.list-item,.footer-card{
-        box-shadow:none !important;
+
+      .print-only,
+      .print-pages{
+        display:block !important;
       }
     }
   </style>
 </head>
 <body>
-  <header class="topbar">
+  <header class="topbar screen-only">
     <div class="wrap topbar-inner">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">
@@ -567,34 +764,35 @@
         <a href="../index.html">Zurück zur Kurszentrale</a>
         <a href="../module/01-fallstart-stammdaten.html">Zurück zu Modul 01</a>
         <a class="cta" href="../module/03-wallets-blockchains-verstehen.html">Weiter zu Modul 03</a>
+        <button type="button" id="modulePrintBtn">Modul drucken</button>
       </nav>
     </div>
   </header>
 
-  <main>
+  <main class="screen-only">
     <section class="hero">
       <div class="wrap hero-grid">
         <article class="card hero-card">
-          <span class="chip">Quellen sammeln</span>
-          <h1>Hier legst du deine genutzten Quellen geordnet an.</h1>
+          <span class="chip">Mehrere Quellen erfassen</span>
+          <h1>Hier sammelst du alle Quellen deines Falls.</h1>
           <p class="lead">
-            In diesem Modul sammelst du Wallets, Börsen, Bankkonten, Plattformen, Projekte und weitere Stationen.
-            Jeder Eintrag bleibt einzeln erhalten, kann erweitert werden und dient später als Grundlage für viele Vorgänge und die Masterliste.
+            Dieses Modul ist bewusst für viele Einträge aufgebaut. Du kannst Wallets, Börsen, Bankkonten, DEX, Plattformen,
+            Projekte und weitere Stationen nacheinander anlegen, bearbeiten und später gesammelt in die weiteren Module übernehmen.
           </p>
           <div class="btn-row">
-            <button class="btn btn-primary" type="button" id="saveTopBtn">Eintrag speichern</button>
-            <button class="btn btn-secondary" type="button" id="printTopBtn">Modul drucken</button>
+            <button class="btn btn-primary" type="button" id="saveTopBtn">Quelle speichern</button>
+            <button class="btn btn-secondary" type="button" id="modulePrintBtnHero">Modul drucken</button>
             <a class="btn btn-soft" href="../module/03-wallets-blockchains-verstehen.html">Weiter zu Modul 03</a>
           </div>
         </article>
 
         <aside class="card side-card">
-          <span class="chip warn">Wichtig in diesem Modul</span>
+          <span class="chip warn">Fest für dieses Modul</span>
           <ul class="info-list">
-            <li><span class="info-label">Mehrfach-Eingaben</span><span class="info-value">jederzeit neue Quellen anlegen</span></li>
-            <li><span class="info-label">Freie Eingabe</span><span class="info-value">neben jeder Auswahl auch eigene Werte möglich</span></li>
-            <li><span class="info-label">Kein Einzelfall</span><span class="info-value">für viele Wallets, Börsen und Konten gedacht</span></li>
-            <li><span class="info-label">Speicherung</span><span class="info-value">lokal im Browser</span></li>
+            <li><span class="info-label">Mehrfach-Eingaben</span><span class="info-value">beliebig viele neue Quellen</span></li>
+            <li><span class="info-label">Freie Eingabe</span><span class="info-value">zusätzlich zu jeder Auswahl möglich</span></li>
+            <li><span class="info-label">Kein Einzelfall</span><span class="info-value">für viele Wallets, Börsen und Konten gebaut</span></li>
+            <li><span class="info-label">Später genutzt in</span><span class="info-value">Vorgängen, Wertermittlung, Export und PDF</span></li>
           </ul>
         </aside>
       </div>
@@ -604,39 +802,23 @@
       <div class="wrap card panel">
         <div class="section-head">
           <div>
-            <h2>Was hier gesammelt wird</h2>
+            <h2>Worum es hier geht</h2>
             <p>
-              Diese Seite ist eine Sammelstelle für alle Quellen, die in deinem Fall vorkommen können.
-              Du kannst beliebig viele Einträge anlegen, damit später auch hunderte Vorgänge sauber einer Quelle zugeordnet werden können.
+              Bevor Vorgänge, Werte und Unterlagen sauber erfasst werden können, müssen die genutzten Quellen eindeutig benannt sein.
+              Diese Seite sammelt deshalb alle Quellen deines Falls in einer wachsenden Liste.
             </p>
           </div>
         </div>
 
-        <div class="four-grid">
-          <div class="step-card">
-            <span class="chip ok">1</span>
-            <h3>Quelle benennen</h3>
-            <p>Wallet, Börse, Bankkonto oder Plattform mit klarem Namen anlegen.</p>
-          </div>
-          <div class="step-card">
-            <span class="chip pink">2</span>
-            <h3>Typ zuordnen</h3>
-            <p>Die Auswahl hilft, aber ein eigener Wert ist immer ebenfalls möglich.</p>
-          </div>
-          <div class="step-card">
-            <span class="chip">3</span>
-            <h3>Chain ergänzen</h3>
-            <p>Vorschläge können genutzt oder durch die echte eigene Bezeichnung ersetzt werden.</p>
-          </div>
-          <div class="step-card">
-            <span class="chip warn">4</span>
-            <h3>Weitere Einträge</h3>
-            <p>Neue Quellen können jederzeit zusätzlich angelegt werden.</p>
-          </div>
+        <div class="stats-grid">
+          <div class="stat"><strong id="statCount">0</strong><span>Quellen gesamt</span></div>
+          <div class="stat"><strong id="statWallets">0</strong><span>Wallets</span></div>
+          <div class="stat"><strong id="statExchanges">0</strong><span>Börsen</span></div>
+          <div class="stat"><strong id="statBanks">0</strong><span>Bankkonten</span></div>
         </div>
 
         <div class="notice">
-          Die Beispieltexte in den Eingabefeldern helfen nur beim Ausfüllen. Sie werden nicht automatisch als feste Inhalte gespeichert.
+          Die Beispieltexte in den Feldern dienen nur als Hilfe. Gespeichert werden nur deine echten Eingaben.
         </div>
       </div>
     </section>
@@ -646,7 +828,7 @@
         <div>
           <h2>Neue Quelle anlegen</h2>
           <p>
-            Lege hier nacheinander alle Quellen an, die in deinem Fall vorkommen. Dazu gehören Wallets, Börsen, Konten, Plattformen und weitere Stationen.
+            Lege hier jede Quelle einzeln an. Auswahllisten helfen bei typischen Begriffen, aber du kannst überall auch deine eigene Bezeichnung ergänzen.
           </p>
         </div>
       </div>
@@ -656,23 +838,23 @@
           <div class="section-head">
             <div>
               <h2>Erfassung</h2>
-              <p>Eintrag hinzufügen oder vorhandenen Eintrag bearbeiten.</p>
+              <p>Eintrag hinzufügen oder bestehenden Eintrag bearbeiten.</p>
             </div>
           </div>
 
-          <form id="sourceForm" class="entry-grid" autocomplete="off">
+          <form id="sourceForm" class="form-grid" autocomplete="off">
             <div class="entry-card">
               <div class="field">
                 <label for="sourceName">Name der Quelle</label>
                 <input id="sourceName" type="text" placeholder="z. B. MetaMask Hauptwallet" />
-                <p class="helper">Ein klarer Name, unter dem du diese Quelle wiederfindest.</p>
+                <p class="helper">Der klare Name, unter dem du diese Quelle wiederfindest.</p>
               </div>
             </div>
 
             <div class="entry-card">
               <div class="field">
                 <label for="sourceType">Art der Quelle</label>
-                <div class="choice-wrap">
+                <div class="choice-grid">
                   <select id="sourceType">
                     <option value="">Bitte auswählen</option>
                     <option value="Wallet">Wallet</option>
@@ -686,14 +868,14 @@
                   </select>
                   <input id="sourceTypeCustom" type="text" placeholder="oder eigene Art eingeben" />
                 </div>
-                <p class="helper">Du kannst eine Auswahl nutzen oder deinen eigenen Wert eingeben.</p>
+                <p class="helper">Typ auswählen oder deine eigene Bezeichnung ergänzen.</p>
               </div>
             </div>
 
             <div class="entry-card">
               <div class="field">
-                <label for="sourceChain">Chain / Netzwerk</label>
-                <div class="choice-wrap">
+                <label for="sourceChainSelect">Chain / Netzwerk</label>
+                <div class="choice-grid">
                   <select id="sourceChainSelect">
                     <option value="">Bitte auswählen</option>
                     <option value="Ethereum">Ethereum</option>
@@ -701,21 +883,22 @@
                     <option value="Solana">Solana</option>
                     <option value="Bitcoin">Bitcoin</option>
                     <option value="Polygon">Polygon</option>
-                    <option value="Avalanche">Avalanche</option>
                     <option value="Arbitrum">Arbitrum</option>
                     <option value="Base">Base</option>
+                    <option value="Avalanche">Avalanche</option>
+                    <option value="Optimism">Optimism</option>
                     <option value="Mehrere">Mehrere</option>
                   </select>
                   <input id="sourceChainCustom" type="text" placeholder="oder eigene Chain eingeben" />
                 </div>
-                <p class="helper">Wenn keine vorgeschlagene Chain passt, trage deine eigene ein.</p>
+                <p class="helper">Wenn nichts passt, trage deine echte Chain selbst ein.</p>
               </div>
             </div>
 
             <div class="entry-card">
               <div class="field">
-                <label for="sourcePlatform">Anbieter / Plattform</label>
-                <div class="choice-wrap">
+                <label for="sourcePlatformSelect">Börse / Plattform / Anbieter</label>
+                <div class="choice-grid">
                   <select id="sourcePlatformSelect">
                     <option value="">Bitte auswählen</option>
                     <option value="Binance">Binance</option>
@@ -723,22 +906,22 @@
                     <option value="Bitpanda">Bitpanda</option>
                     <option value="Coinbase">Coinbase</option>
                     <option value="MetaMask">MetaMask</option>
-                    <option value="Ledger">Ledger</option>
                     <option value="Trust Wallet">Trust Wallet</option>
+                    <option value="Ledger">Ledger</option>
                     <option value="Uniswap">Uniswap</option>
                     <option value="PancakeSwap">PancakeSwap</option>
                     <option value="Hausbank">Hausbank</option>
                   </select>
-                  <input id="sourcePlatformCustom" type="text" placeholder="oder eigene Plattform eingeben" />
+                  <input id="sourcePlatformCustom" type="text" placeholder="oder eigenen Anbieter eingeben" />
                 </div>
-                <p class="helper">Auch hier ist immer eine freie Eingabe möglich.</p>
+                <p class="helper">Auch bei Plattformen und Börsen ist immer freie Eingabe möglich.</p>
               </div>
             </div>
 
             <div class="entry-card">
               <div class="field">
                 <label for="sourceStatus">Status</label>
-                <div class="choice-wrap">
+                <div class="choice-grid">
                   <select id="sourceStatus">
                     <option value="">Bitte auswählen</option>
                     <option value="aktiv">aktiv</option>
@@ -748,7 +931,7 @@
                   </select>
                   <input id="sourceStatusCustom" type="text" placeholder="oder eigenen Status eingeben" />
                 </div>
-                <p class="helper">Falls dein Status anders benannt werden soll, nutze die freie Eingabe.</p>
+                <p class="helper">Eigene Benennungen sind auch hier erlaubt.</p>
               </div>
             </div>
 
@@ -756,15 +939,15 @@
               <div class="field">
                 <label for="sourceUsage">Nutzung / Zweck</label>
                 <input id="sourceUsage" type="text" placeholder="z. B. Kauf und Verkauf" />
-                <p class="helper">Wofür wurde diese Quelle genutzt?</p>
+                <p class="helper">Wofür wird oder wurde diese Quelle genutzt?</p>
               </div>
             </div>
 
             <div class="entry-card" style="grid-column:1 / -1;">
               <div class="field">
                 <label for="sourceAddress">Adresse / Kennung</label>
-                <textarea id="sourceAddress" placeholder="z. B. 0xA1F4...9F3C"></textarea>
-                <p class="helper">Hier können Wallet-Adresse, IBAN, Benutzerkennung oder andere Zuordnungen stehen.</p>
+                <textarea id="sourceAddress" placeholder="z. B. 0xA1F4...9F3C oder eigene Kennung"></textarea>
+                <p class="helper">Wallet-Adresse, IBAN, Benutzerkennung oder andere Zuordnung.</p>
               </div>
             </div>
 
@@ -772,15 +955,15 @@
               <div class="field">
                 <label for="sourceNote">Notiz</label>
                 <textarea id="sourceNote" placeholder="z. B. Hauptwallet für ETH und Token-Transaktionen"></textarea>
-                <p class="helper">Alles, was für die spätere Einordnung hilfreich ist.</p>
+                <p class="helper">Alles, was später für die Zuordnung wichtig sein kann.</p>
               </div>
             </div>
           </form>
 
           <div class="btn-row" style="margin-top:18px;">
-            <button class="btn btn-primary" type="button" id="addEntryBtn">Eintrag speichern</button>
+            <button class="btn btn-primary" type="button" id="addEntryBtn">Quelle speichern</button>
             <button class="btn btn-secondary" type="button" id="resetFormBtn">Felder leeren</button>
-            <button class="btn btn-danger" type="button" id="clearAllBtn">Alle Einträge löschen</button>
+            <button class="btn btn-danger" type="button" id="clearAllBtn">Alle Quellen löschen</button>
           </div>
 
           <div class="notice warn" id="statusMessage">Noch keine Quelle gespeichert.</div>
@@ -789,8 +972,8 @@
         <aside class="card panel">
           <div class="section-head">
             <div>
-              <h2>Aktuelle Übersicht</h2>
-              <p>Hier siehst du, wie viele Quellen bereits angelegt wurden.</p>
+              <h2>Aktuelle Zusammenfassung</h2>
+              <p>Hier siehst du den aktuellen Stand deiner erfassten Quellen.</p>
             </div>
           </div>
 
@@ -822,7 +1005,7 @@
           </div>
 
           <div class="notice">
-            Diese Liste ist bewusst auf viele Einträge ausgelegt. Du kannst später immer weitere Quellen hinzufügen.
+            Diese Seite ist auf viele Einträge ausgelegt. Neue Quellen können jederzeit ergänzt und später gesammelt gedruckt werden.
           </div>
 
           <div class="btn-row" style="margin-top:18px;">
@@ -837,50 +1020,74 @@
       <div class="wrap section-head">
         <div>
           <h2>Gespeicherte Quellen</h2>
-          <p>
-            Alle angelegten Quellen bleiben hier gesammelt sichtbar und können bearbeitet oder gelöscht werden.
-          </p>
+          <p>Alle angelegten Quellen bleiben hier gesammelt sichtbar und können bearbeitet oder gelöscht werden.</p>
         </div>
       </div>
 
       <div class="wrap card panel">
-        <div class="btn-row" style="margin-bottom:18px;">
-          <button class="btn btn-secondary" type="button" id="saveListBtn">Liste speichern</button>
-          <button class="btn btn-soft" type="button" id="printListBtn">Liste drucken</button>
+        <div class="table-wrap">
+          <table aria-label="Quellenliste">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Art</th>
+                <th>Chain</th>
+                <th>Plattform</th>
+                <th>Status</th>
+                <th>Nutzung</th>
+                <th>Adresse / Kennung</th>
+                <th>Notiz</th>
+                <th>Gespeichert</th>
+                <th>Aktion</th>
+              </tr>
+            </thead>
+            <tbody id="sourceTableBody"></tbody>
+          </table>
         </div>
 
-        <div id="listWrap" class="list-wrap"></div>
-
-        <div id="emptyNotice" class="empty-card">
-          <h3>Noch keine Quellen vorhanden</h3>
-          <p>Lege oben den ersten Eintrag an. Danach können beliebig viele weitere Quellen ergänzt werden.</p>
+        <div id="emptyNotice" class="notice">
+          Noch keine Quellen vorhanden. Lege oben den ersten Eintrag an.
         </div>
       </div>
     </section>
 
     <section class="section">
-      <div class="wrap card panel">
-        <div class="section-head">
+      <div class="wrap sheet">
+        <div class="sheet-head">
           <div>
-            <h2>Wie es danach weitergeht</h2>
-            <p>
-              Im nächsten Modul ordnest du Wallets, Adressen, Blockchains und Suchwege besser ein. Danach folgen Datenquellen, Unterlagen und später die Vorgänge.
-            </p>
+            <h3>Druck- und PDF-Vorschau dieses Moduls</h3>
+            <div class="sheet-meta">Die Druckansicht dieses Moduls orientiert sich am ruhigen Druckstandard der Demo-Seite.</div>
           </div>
+          <div class="chip pink">PDF / Druck</div>
         </div>
+        <div class="sheet-body">
+          <div class="sheet-grid">
+            <div class="sheet-box"><strong>Quellen gesamt</strong><span id="sheetCount">0</span></div>
+            <div class="sheet-box"><strong>Wallets</strong><span id="sheetWallets">0</span></div>
+            <div class="sheet-box"><strong>Börsen</strong><span id="sheetExchanges">0</span></div>
+            <div class="sheet-box"><strong>Bankkonten</strong><span id="sheetBanks">0</span></div>
+          </div>
 
-        <div class="cards-grid">
-          <div class="box">
-            <h3>Modul 03</h3>
-            <p>Wallets, Adressen, Blockchains und typische Suchwege besser verstehen.</p>
+          <div class="table-wrap">
+            <table aria-label="Druckvorschau Quellen">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Art</th>
+                  <th>Chain</th>
+                  <th>Plattform</th>
+                  <th>Status</th>
+                  <th>Nutzung</th>
+                  <th>Adresse / Kennung</th>
+                  <th>Notiz</th>
+                </tr>
+              </thead>
+              <tbody id="printPreviewTableBody"></tbody>
+            </table>
           </div>
-          <div class="box">
-            <h3>Modul 04</h3>
-            <p>Datenquellen, Exporte, Screenshots und Nachweise sammeln.</p>
-          </div>
-          <div class="box">
-            <h3>Modul 05</h3>
-            <p>Viele Vorgänge geordnet erfassen und später in die Masterliste überführen.</p>
+
+          <div class="notice">
+            Diese Modulausgabe dient der Vorbereitung. Die endgültige steuerliche Prüfung erfolgt durch den Steuerberater.
           </div>
         </div>
       </div>
@@ -894,10 +1101,59 @@
         <div class="btn-row" style="margin-top:0;">
           <a class="btn btn-secondary" href="../module/01-fallstart-stammdaten.html">Zurück zu Modul 01</a>
           <a class="btn btn-primary" href="../module/03-wallets-blockchains-verstehen.html">Weiter zu Modul 03</a>
+          <button class="btn btn-soft" type="button" id="modulePrintBtnFooter">Modul drucken</button>
         </div>
       </div>
     </section>
   </main>
+
+  <div class="print-pages print-only">
+    <section class="print-page portrait">
+      <div class="print-kicker">Modul 02</div>
+      <h1 class="print-title">Wallets, Börsen & Chains – Druckfassung</h1>
+      <p class="print-subtitle">Geordnete Übersicht aller in Modul 02 erfassten Quellen.</p>
+
+      <div class="print-grid-4">
+        <div class="print-box"><strong>Quellen gesamt</strong><span id="printCount">0</span></div>
+        <div class="print-box"><strong>Wallets</strong><span id="printWallets">0</span></div>
+        <div class="print-box"><strong>Börsen</strong><span id="printExchanges">0</span></div>
+        <div class="print-box"><strong>Bankkonten</strong><span id="printBanks">0</span></div>
+      </div>
+
+      <div class="print-note">
+        Diese Druckfassung ist von der Bildschirmansicht getrennt aufgebaut. Die Darstellung orientiert sich am Druckstandard der Demo-Seite.
+      </div>
+    </section>
+
+    <section class="print-page landscape">
+      <h2 class="print-section-title">Vollständige Quellenliste</h2>
+      <table class="print-table compact">
+        <colgroup>
+          <col style="width:14%">
+          <col style="width:10%">
+          <col style="width:10%">
+          <col style="width:12%">
+          <col style="width:10%">
+          <col style="width:12%">
+          <col style="width:16%">
+          <col style="width:16%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Art</th>
+            <th>Chain</th>
+            <th>Plattform</th>
+            <th>Status</th>
+            <th>Nutzung</th>
+            <th>Adresse / Kennung</th>
+            <th>Notiz</th>
+          </tr>
+        </thead>
+        <tbody id="printSourceTableBody"></tbody>
+      </table>
+    </section>
+  </div>
 
   <script>
     (function(){
@@ -917,17 +1173,31 @@
         note: document.getElementById('sourceNote')
       };
 
-      const listWrap = document.getElementById('listWrap');
+      const tableBody = document.getElementById('sourceTableBody');
+      const printPreviewTableBody = document.getElementById('printPreviewTableBody');
+      const printSourceTableBody = document.getElementById('printSourceTableBody');
       const emptyNotice = document.getElementById('emptyNotice');
       const statusMessage = document.getElementById('statusMessage');
 
-      const summary = {
+      const summaryEls = {
         count: document.getElementById('summaryCount'),
         wallets: document.getElementById('summaryWallets'),
         exchanges: document.getElementById('summaryExchanges'),
         banks: document.getElementById('summaryBanks'),
         others: document.getElementById('summaryOthers'),
-        updated: document.getElementById('summaryUpdated')
+        updated: document.getElementById('summaryUpdated'),
+        statCount: document.getElementById('statCount'),
+        statWallets: document.getElementById('statWallets'),
+        statExchanges: document.getElementById('statExchanges'),
+        statBanks: document.getElementById('statBanks'),
+        sheetCount: document.getElementById('sheetCount'),
+        sheetWallets: document.getElementById('sheetWallets'),
+        sheetExchanges: document.getElementById('sheetExchanges'),
+        sheetBanks: document.getElementById('sheetBanks'),
+        printCount: document.getElementById('printCount'),
+        printWallets: document.getElementById('printWallets'),
+        printExchanges: document.getElementById('printExchanges'),
+        printBanks: document.getElementById('printBanks')
       };
 
       let entries = [];
@@ -959,8 +1229,8 @@
           .replace(/'/g,'&#39;');
       }
 
-      function resolveValue(selectEl, inputEl){
-        const custom = inputEl.value.trim();
+      function resolveChoice(selectEl, customEl){
+        const custom = customEl.value.trim();
         if(custom) return custom;
         return selectEl.value.trim();
       }
@@ -969,10 +1239,10 @@
         return {
           id: editId || createId(),
           name: formEls.name.value.trim(),
-          type: resolveValue(formEls.type, formEls.typeCustom),
-          chain: resolveValue(formEls.chainSelect, formEls.chainCustom),
-          platform: resolveValue(formEls.platformSelect, formEls.platformCustom),
-          status: resolveValue(formEls.status, formEls.statusCustom),
+          type: resolveChoice(formEls.type, formEls.typeCustom),
+          chain: resolveChoice(formEls.chainSelect, formEls.chainCustom),
+          platform: resolveChoice(formEls.platformSelect, formEls.platformCustom),
+          status: resolveChoice(formEls.status, formEls.statusCustom),
           usage: formEls.usage.value.trim(),
           address: formEls.address.value.trim(),
           note: formEls.note.value.trim(),
@@ -980,135 +1250,149 @@
         };
       }
 
-      function resetForm(){
-        editId = null;
-        Object.values(formEls).forEach(function(el){
-          el.value = '';
-        });
-        document.getElementById('addEntryBtn').textContent = 'Eintrag speichern';
+      function countByType(typeNames){
+        return entries.filter(function(entry){
+          return typeNames.includes(entry.type);
+        }).length;
       }
 
-      function applyToForm(entry){
-        editId = entry.id;
+      function updateSummary(){
+        const count = entries.length;
+        const wallets = countByType(['Wallet','Cold Wallet']);
+        const exchanges = countByType(['Börse']);
+        const banks = countByType(['Bankkonto']);
+        const others = Math.max(0, count - wallets - exchanges - banks);
+        const updated = count ? entries[0].updatedAt : '–';
 
-        formEls.name.value = entry.name || '';
-        formEls.usage.value = entry.usage || '';
-        formEls.address.value = entry.address || '';
-        formEls.note.value = entry.note || '';
+        summaryEls.count.textContent = String(count);
+        summaryEls.wallets.textContent = String(wallets);
+        summaryEls.exchanges.textContent = String(exchanges);
+        summaryEls.banks.textContent = String(banks);
+        summaryEls.others.textContent = String(others);
+        summaryEls.updated.textContent = updated;
 
-        if(Array.from(formEls.type.options).some(opt => opt.value === entry.type)){
-          formEls.type.value = entry.type || '';
-          formEls.typeCustom.value = '';
-        }else{
-          formEls.type.value = '';
-          formEls.typeCustom.value = entry.type || '';
-        }
+        summaryEls.statCount.textContent = String(count);
+        summaryEls.statWallets.textContent = String(wallets);
+        summaryEls.statExchanges.textContent = String(exchanges);
+        summaryEls.statBanks.textContent = String(banks);
 
-        if(Array.from(formEls.chainSelect.options).some(opt => opt.value === entry.chain)){
-          formEls.chainSelect.value = entry.chain || '';
-          formEls.chainCustom.value = '';
-        }else{
-          formEls.chainSelect.value = '';
-          formEls.chainCustom.value = entry.chain || '';
-        }
+        summaryEls.sheetCount.textContent = String(count);
+        summaryEls.sheetWallets.textContent = String(wallets);
+        summaryEls.sheetExchanges.textContent = String(exchanges);
+        summaryEls.sheetBanks.textContent = String(banks);
 
-        if(Array.from(formEls.platformSelect.options).some(opt => opt.value === entry.platform)){
-          formEls.platformSelect.value = entry.platform || '';
-          formEls.platformCustom.value = '';
-        }else{
-          formEls.platformSelect.value = '';
-          formEls.platformCustom.value = entry.platform || '';
-        }
-
-        if(Array.from(formEls.status.options).some(opt => opt.value === entry.status)){
-          formEls.status.value = entry.status || '';
-          formEls.statusCustom.value = '';
-        }else{
-          formEls.status.value = '';
-          formEls.statusCustom.value = entry.status || '';
-        }
-
-        document.getElementById('addEntryBtn').textContent = 'Eintrag aktualisieren';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        summaryEls.printCount.textContent = String(count);
+        summaryEls.printWallets.textContent = String(wallets);
+        summaryEls.printExchanges.textContent = String(exchanges);
+        summaryEls.printBanks.textContent = String(banks);
       }
 
-      function renderSummary(){
-        const total = entries.length;
-        const wallets = entries.filter(e => e.type === 'Wallet' || e.type === 'Cold Wallet').length;
-        const exchanges = entries.filter(e => e.type === 'Börse').length;
-        const banks = entries.filter(e => e.type === 'Bankkonto').length;
-        const others = total - wallets - exchanges - banks;
-        summary.count.textContent = String(total);
-        summary.wallets.textContent = String(wallets);
-        summary.exchanges.textContent = String(exchanges);
-        summary.banks.textContent = String(banks);
-        summary.others.textContent = String(others < 0 ? 0 : others);
-        summary.updated.textContent = total ? entries[0].updatedAt : '–';
+      function rowHtml(entry, index){
+        return `
+          <tr>
+            <td>${escapeHtml(entry.name)}</td>
+            <td>${escapeHtml(safeText(entry.type))}</td>
+            <td>${escapeHtml(safeText(entry.chain))}</td>
+            <td>${escapeHtml(safeText(entry.platform))}</td>
+            <td>${escapeHtml(safeText(entry.status))}</td>
+            <td>${escapeHtml(safeText(entry.usage))}</td>
+            <td>${escapeHtml(safeText(entry.address))}</td>
+            <td>${escapeHtml(safeText(entry.note))}</td>
+            <td>${escapeHtml(safeText(entry.updatedAt))}</td>
+            <td>
+              <div class="btn-row">
+                <button class="btn btn-secondary" type="button" data-action="edit" data-id="${entry.id}">Bearbeiten</button>
+                <button class="btn btn-danger" type="button" data-action="delete" data-id="${entry.id}">Löschen</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }
+
+      function printRowHtml(entry){
+        return `
+          <tr>
+            <td>${escapeHtml(entry.name)}</td>
+            <td>${escapeHtml(safeText(entry.type))}</td>
+            <td>${escapeHtml(safeText(entry.chain))}</td>
+            <td>${escapeHtml(safeText(entry.platform))}</td>
+            <td class="status">${escapeHtml(safeText(entry.status))}</td>
+            <td>${escapeHtml(safeText(entry.usage))}</td>
+            <td>${escapeHtml(safeText(entry.address))}</td>
+            <td>${escapeHtml(safeText(entry.note))}</td>
+          </tr>
+        `;
+      }
+
+      function screenPreviewRowHtml(entry){
+        return `
+          <tr>
+            <td>${escapeHtml(entry.name)}</td>
+            <td>${escapeHtml(safeText(entry.type))}</td>
+            <td>${escapeHtml(safeText(entry.chain))}</td>
+            <td>${escapeHtml(safeText(entry.platform))}</td>
+            <td>${escapeHtml(safeText(entry.status))}</td>
+            <td>${escapeHtml(safeText(entry.usage))}</td>
+            <td>${escapeHtml(safeText(entry.address))}</td>
+            <td>${escapeHtml(safeText(entry.note))}</td>
+          </tr>
+        `;
       }
 
       function renderEntries(){
-        renderSummary();
+        updateSummary();
 
         if(!entries.length){
-          listWrap.innerHTML = '';
+          tableBody.innerHTML = '';
+          printPreviewTableBody.innerHTML = '';
+          printSourceTableBody.innerHTML = '';
           emptyNotice.style.display = 'block';
           return;
         }
 
         emptyNotice.style.display = 'none';
-
-        listWrap.innerHTML = entries.map(function(entry, index){
-          return `
-            <article class="list-item">
-              <div class="list-top">
-                <div class="list-title">${escapeHtml(entry.name || 'Unbenannter Eintrag')}</div>
-                <div class="badges">
-                  <span class="pill pill-mint">${escapeHtml(entry.type || 'Typ offen')}</span>
-                  <span class="pill pill-pink">${escapeHtml(entry.status || 'Status offen')}</span>
-                  <span class="pill pill-grey">Quelle ${index + 1}</span>
-                </div>
-              </div>
-
-              <div class="meta-grid">
-                <div class="meta-box">
-                  <strong>Chain / Netzwerk</strong>
-                  <span>${escapeHtml(safeText(entry.chain))}</span>
-                </div>
-                <div class="meta-box">
-                  <strong>Anbieter / Plattform</strong>
-                  <span>${escapeHtml(safeText(entry.platform))}</span>
-                </div>
-                <div class="meta-box">
-                  <strong>Nutzung / Zweck</strong>
-                  <span>${escapeHtml(safeText(entry.usage))}</span>
-                </div>
-                <div class="meta-box">
-                  <strong>Adresse / Kennung</strong>
-                  <span>${escapeHtml(safeText(entry.address))}</span>
-                </div>
-                <div class="meta-box" style="grid-column:1 / -1;">
-                  <strong>Notiz</strong>
-                  <span>${escapeHtml(safeText(entry.note))}</span>
-                </div>
-                <div class="meta-box">
-                  <strong>Zuletzt gespeichert</strong>
-                  <span>${escapeHtml(safeText(entry.updatedAt))}</span>
-                </div>
-              </div>
-
-              <div class="item-actions">
-                <button class="btn btn-secondary" type="button" data-action="edit" data-id="${entry.id}">Bearbeiten</button>
-                <button class="btn btn-danger" type="button" data-action="delete" data-id="${entry.id}">Löschen</button>
-              </div>
-            </article>
-          `;
-        }).join('');
+        tableBody.innerHTML = entries.map(rowHtml).join('');
+        printPreviewTableBody.innerHTML = entries.map(screenPreviewRowHtml).join('');
+        printSourceTableBody.innerHTML = entries.map(printRowHtml).join('');
       }
 
-      function saveEntries(messageText){
+      function resetForm(){
+        editId = null;
+        Object.values(formEls).forEach(function(el){
+          el.value = '';
+        });
+        document.getElementById('addEntryBtn').textContent = 'Quelle speichern';
+      }
+
+      function applyChoice(selectEl, customEl, value){
+        const options = Array.from(selectEl.options).map(function(opt){ return opt.value; });
+        if(options.includes(value)){
+          selectEl.value = value;
+          customEl.value = '';
+        }else{
+          selectEl.value = '';
+          customEl.value = value || '';
+        }
+      }
+
+      function applyToForm(entry){
+        editId = entry.id;
+        formEls.name.value = entry.name || '';
+        applyChoice(formEls.type, formEls.typeCustom, entry.type || '');
+        applyChoice(formEls.chainSelect, formEls.chainCustom, entry.chain || '');
+        applyChoice(formEls.platformSelect, formEls.platformCustom, entry.platform || '');
+        applyChoice(formEls.status, formEls.statusCustom, entry.status || '');
+        formEls.usage.value = entry.usage || '';
+        formEls.address.value = entry.address || '';
+        formEls.note.value = entry.note || '';
+        document.getElementById('addEntryBtn').textContent = 'Quelle aktualisieren';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function saveEntries(message){
         localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
         renderEntries();
-        statusMessage.textContent = messageText || ('Stand gespeichert: ' + nowStamp());
+        statusMessage.textContent = message || ('Stand gespeichert: ' + nowStamp());
       }
 
       function loadEntries(){
@@ -1123,12 +1407,12 @@
           entries = Array.isArray(parsed) ? parsed : [];
           renderEntries();
           if(entries.length){
-            statusMessage.textContent = 'Vorhandene Einträge geladen.';
+            statusMessage.textContent = 'Vorhandene Quellen geladen.';
           }
         }catch(error){
           entries = [];
           renderEntries();
-          statusMessage.textContent = 'Gespeicherte Einträge konnten nicht gelesen werden.';
+          statusMessage.textContent = 'Gespeicherte Quellen konnten nicht gelesen werden.';
         }
       }
 
@@ -1151,10 +1435,10 @@
           entries = entries.map(function(entry){
             return entry.id === editId ? data : entry;
           });
-          saveEntries('Eintrag aktualisiert: ' + data.updatedAt);
+          saveEntries('Quelle aktualisiert: ' + data.updatedAt);
         }else{
           entries.unshift(data);
-          saveEntries('Eintrag gespeichert: ' + data.updatedAt);
+          saveEntries('Quelle gespeichert: ' + data.updatedAt);
         }
 
         resetForm();
@@ -1164,7 +1448,7 @@
         entries = entries.filter(function(entry){
           return entry.id !== id;
         });
-        saveEntries('Eintrag gelöscht.');
+        saveEntries('Quelle gelöscht.');
         if(editId === id){
           resetForm();
         }
@@ -1175,23 +1459,29 @@
         localStorage.removeItem(STORAGE_KEY);
         resetForm();
         renderEntries();
-        statusMessage.textContent = 'Alle Einträge wurden gelöscht.';
+        statusMessage.textContent = 'Alle Quellen wurden gelöscht.';
+      }
+
+      function printModule(){
+        window.print();
       }
 
       document.getElementById('addEntryBtn').addEventListener('click', addOrUpdateEntry);
       document.getElementById('saveTopBtn').addEventListener('click', addOrUpdateEntry);
-      document.getElementById('saveListBtn').addEventListener('click', function(){
-        saveEntries('Liste gespeichert: ' + nowStamp());
-      });
-      document.getElementById('printTopBtn').addEventListener('click', function(){ window.print(); });
-      document.getElementById('printListBtn').addEventListener('click', function(){ window.print(); });
       document.getElementById('resetFormBtn').addEventListener('click', function(){
         resetForm();
         statusMessage.textContent = 'Felder geleert.';
       });
       document.getElementById('clearAllBtn').addEventListener('click', clearAllEntries);
 
-      listWrap.addEventListener('click', function(event){
+      ['modulePrintBtn','modulePrintBtnHero','modulePrintBtnFooter'].forEach(function(id){
+        const el = document.getElementById(id);
+        if(el){
+          el.addEventListener('click', printModule);
+        }
+      });
+
+      tableBody.addEventListener('click', function(event){
         const button = event.target.closest('button[data-action]');
         if(!button) return;
 
@@ -1201,7 +1491,7 @@
 
         if(action === 'edit' && entry){
           applyToForm(entry);
-          statusMessage.textContent = 'Eintrag zur Bearbeitung geladen.';
+          statusMessage.textContent = 'Quelle zur Bearbeitung geladen.';
         }
 
         if(action === 'delete' && id){
@@ -1211,10 +1501,10 @@
 
       Object.values(formEls).forEach(function(field){
         field.addEventListener('input', function(){
-          statusMessage.textContent = editId ? 'Änderungen noch nicht aktualisiert.' : 'Neuer Eintrag noch nicht gespeichert.';
+          statusMessage.textContent = editId ? 'Änderungen noch nicht gespeichert.' : 'Neuer Eintrag noch nicht gespeichert.';
         });
         field.addEventListener('change', function(){
-          statusMessage.textContent = editId ? 'Änderungen noch nicht aktualisiert.' : 'Neuer Eintrag noch nicht gespeichert.';
+          statusMessage.textContent = editId ? 'Änderungen noch nicht gespeichert.' : 'Neuer Eintrag noch nicht gespeichert.';
         });
       });
 
