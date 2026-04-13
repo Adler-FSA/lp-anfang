@@ -1,25 +1,27 @@
 <!doctype html>
 <!--
   GitHub-Pfad: lp-anfang/pages/krypto-steuer-ordnung/auswertung/steuer-vorschau.html
-  Commit-Message: demo fall fuer steuer vorschau um echten gewinnfall steuer hausnummer und demo aus schalter erweitert
+  Commit-Message: steuer vorschau als neutrale ergebnisuebersicht fuer nutzer mit investiert gewinnen verlusten offenen faellen und vorlaeufige steuer komplett neu aufgebaut
   Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/krypto-steuer-ordnung/auswertung/steuer-vorschau.html?nocache=__TS__
+  Naechster Schritt: auswertung/steuerberater-pruefblatt.html als arbeitsansicht fuer den steuerberater mit vorgaengen wertbasis rueckfragen und pruefstatus neu aufbauen
 -->
 <html lang="de">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Steuer-Vorschau – Krypto-Steuer-Ordnung</title>
-  <meta name="description" content="Übersicht zu Gewinnen, Verlusten, offener Datenlage und geschätzter Steuer-Hausnummer." />
+  <meta name="description" content="Neutrale Ergebnisübersicht für Nutzer mit Investiert, Gewinne, Verluste, offene Fälle und vorläufige Steuer." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
       --bg:#ffffff;
-      --bg-soft:#f6fbfa;
+      --bg-soft:#f7fbfa;
       --panel:#ffffff;
       --panel-2:#fbfffe;
-      --text:#111111;
-      --muted:#62707b;
-      --line:rgba(17,17,17,.10);
+      --text:#101010;
+      --muted:#5f6d76;
+      --line:rgba(16,16,16,.10);
+      --line-strong:rgba(16,16,16,.18);
       --mint:#20d8b2;
       --mint-soft:rgba(32,216,178,.12);
       --pink:#ff4fb3;
@@ -28,10 +30,13 @@
       --warn-soft:rgba(245,158,11,.12);
       --danger:#dc2626;
       --danger-soft:rgba(220,38,38,.08);
-      --shadow:0 18px 50px rgba(0,0,0,.08);
+      --ok:#0f766e;
+      --ok-soft:rgba(15,118,110,.10);
+      --shadow:0 16px 46px rgba(0,0,0,.08);
       --radius:22px;
-      --max:1240px;
+      --max:1520px;
     }
+
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
     body{
@@ -39,156 +44,656 @@
       font-family:Arial,Helvetica,sans-serif;
       color:var(--text);
       background:
-        radial-gradient(circle at 8% 6%, rgba(32,216,178,.08), transparent 22%),
-        radial-gradient(circle at 94% 0%, rgba(255,79,179,.10), transparent 20%),
+        radial-gradient(circle at 8% 6%, rgba(32,216,178,.08), transparent 24%),
+        radial-gradient(circle at 94% 0%, rgba(255,79,179,.10), transparent 22%),
         linear-gradient(180deg,#ffffff 0%,#fbfffe 100%);
       line-height:1.55;
     }
+
     a{color:inherit;text-decoration:none}
-    button,input{font:inherit}
+    button,input,select,textarea{font:inherit}
     .wrap{width:min(var(--max), calc(100% - 28px));margin:0 auto}
+
     .topbar{
-      position:sticky;top:0;z-index:40;backdrop-filter:blur(10px);
-      background:rgba(255,255,255,.88);border-bottom:1px solid var(--line)
+      position:sticky;
+      top:0;
+      z-index:80;
+      backdrop-filter:blur(12px);
+      background:rgba(255,255,255,.90);
+      border-bottom:1px solid var(--line);
     }
+
     .topbar-inner{
-      min-height:74px;display:flex;align-items:center;justify-content:space-between;gap:18px
+      min-height:78px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      padding:10px 0;
     }
-    .brand{display:flex;align-items:center;gap:14px;min-width:0}
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+
     .brand-mark{
-      width:46px;height:46px;border-radius:14px;display:grid;place-items:center;
+      width:48px;
+      height:48px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
       background:linear-gradient(135deg,var(--mint-soft),var(--pink-soft));
-      border:1px solid rgba(17,17,17,.08);box-shadow:var(--shadow);flex:0 0 auto
+      border:1px solid rgba(16,16,16,.08);
+      box-shadow:var(--shadow);
+      flex:0 0 auto;
     }
-    .eyebrow{margin:0 0 2px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
-    .brand-title{margin:0;font-size:18px;font-weight:800;letter-spacing:.01em}
-    .nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-    .nav a{
-      padding:11px 14px;border-radius:999px;border:1px solid var(--line);
-      background:#fff;font-size:14px;font-weight:700
+
+    .eyebrow{
+      margin:0 0 3px;
+      font-size:12px;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--muted);
     }
-    .nav a.cta{
+
+    .brand-title{
+      margin:0;
+      font-size:18px;
+      font-weight:800;
+      line-height:1.08;
+    }
+
+    .nav{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .nav a,.nav button{
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-size:14px;
+      font-weight:700;
+      white-space:nowrap;
+      cursor:pointer;
+    }
+
+    .nav .cta{
+      color:#fff;
       background:linear-gradient(135deg,var(--mint),var(--pink));
-      color:#fff;border-color:transparent;box-shadow:0 14px 28px rgba(255,79,179,.18)
+      border-color:transparent;
+      box-shadow:0 14px 28px rgba(255,79,179,.18);
     }
+
     .hero,.section,.footer{padding:24px 0}
-    .hero-grid,.stats-grid,.detail-grid,.flow-grid,.tax-grid{display:grid;gap:18px}
-    .hero-grid{grid-template-columns:1.1fr .9fr}
-    .stats-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
-    .detail-grid,.flow-grid,.tax-grid{grid-template-columns:1fr 1fr}
+
+    .hero-grid,
+    .two-grid,
+    .three-grid,
+    .stats-grid,
+    .cards-grid,
+    .summary-grid,
+    .auto-grid-wide{
+      display:grid;
+      gap:18px;
+    }
+
+    .hero-grid{grid-template-columns:minmax(0,1.06fr) minmax(340px,.94fr)}
+    .two-grid{grid-template-columns:minmax(0,1.02fr) minmax(380px,.98fr)}
+    .three-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .stats-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+    .cards-grid{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+    .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .auto-grid-wide{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+
     .card{
       background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 100%);
-      border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
     }
+
     .hero-card,.side-card,.panel{padding:26px 24px}
+
     .chip{
-      display:inline-flex;align-items:center;gap:8px;margin:0 0 14px;padding:8px 12px;border-radius:999px;
-      background:var(--mint-soft);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin:0 0 14px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:var(--mint-soft);
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.12em;
+      text-transform:uppercase;
     }
+
     .chip.warn{background:var(--warn-soft);color:#8a5b00}
-    .chip.red{background:var(--danger-soft);color:#a61b1b}
-    .chip.pink{background:var(--pink-soft);color:#9f1f61}
-    .demo-banner{
-      display:none;margin:24px 0 0;border:1px solid rgba(220,38,38,.18);
-      border-radius:20px;background:linear-gradient(180deg,#fff6f8 0%, #fff 100%);
-      box-shadow:var(--shadow);overflow:hidden
+    .chip.red{background:var(--danger-soft);color:#aa2323}
+    .chip.pink{background:var(--pink-soft);color:#8d1f58}
+    .chip.ok{background:var(--ok-soft);color:var(--ok)}
+
+    h1{
+      margin:0 0 12px;
+      font-size:clamp(36px,5vw,60px);
+      line-height:1.02;
+      letter-spacing:-.03em;
+      text-wrap:balance;
     }
-    .demo-banner.active{display:block}
-    .demo-banner-inner{
-      padding:18px 20px;display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap
+
+    h2{
+      margin:0;
+      font-size:32px;
+      line-height:1.08;
+      letter-spacing:-.02em;
+      text-wrap:balance;
     }
-    .demo-banner-copy strong{display:block;margin-bottom:6px;font-size:18px}
-    .demo-banner-copy span{color:var(--muted);font-size:14px}
-    h1{margin:0 0 10px;font-size:clamp(34px,5vw,56px);line-height:1.02;letter-spacing:-.03em}
-    .lead{margin:0 0 16px;font-size:18px;color:#24323b}
-    .btn-row{display:flex;flex-wrap:wrap;gap:12px}
-    .btn{
-      appearance:none;border:none;cursor:pointer;border-radius:999px;padding:14px 18px;
-      display:inline-flex;align-items:center;justify-content:center;gap:10px;
-      font-size:15px;font-weight:800;letter-spacing:.01em
+
+    h3{
+      margin:0 0 8px;
+      font-size:19px;
+      line-height:1.15;
+      text-wrap:balance;
     }
-    .btn-primary{
-      color:#fff;background:linear-gradient(135deg,var(--mint),var(--pink));
-      box-shadow:0 16px 28px rgba(255,79,179,.18)
+
+    .lead{
+      margin:0 0 18px;
+      font-size:18px;
+      color:#24323b;
+      max-width:960px;
     }
-    .btn-secondary{
-      color:var(--text);background:#fff;border:1px solid var(--line);
-      box-shadow:0 8px 20px rgba(0,0,0,.06)
-    }
-    .btn-soft{color:#0d5648;background:var(--mint-soft);border:1px solid rgba(32,216,178,.22)}
-    .btn-danger{color:#a61b1b;background:var(--danger-soft);border:1px solid rgba(220,38,38,.16)}
-    .stat{padding:18px;border:1px solid var(--line);border-radius:18px;background:#fff}
-    .stat strong{display:block;font-size:30px;line-height:1;margin:0 0 8px}
-    .stat span{display:block;font-size:14px;color:var(--muted)}
+
     .section-head{
-      display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      flex-wrap:wrap;
+      gap:16px;
+      margin-bottom:18px;
     }
-    .section-head h2{margin:0;font-size:32px;letter-spacing:-.02em}
-    .section-head p{margin:8px 0 0;max-width:780px;color:var(--muted);font-size:16px}
-    .info-list{margin:0;padding:0;list-style:none;display:grid;gap:12px}
+
+    .section-head p{
+      margin:8px 0 0;
+      max-width:980px;
+      color:var(--muted);
+      font-size:16px;
+    }
+
+    .btn-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+    }
+
+    .btn{
+      appearance:none;
+      border:none;
+      border-radius:999px;
+      padding:14px 18px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      font-size:15px;
+      font-weight:800;
+      letter-spacing:.01em;
+      cursor:pointer;
+    }
+
+    .btn-primary{
+      color:#fff;
+      background:linear-gradient(135deg,var(--mint),var(--pink));
+      box-shadow:0 14px 28px rgba(255,79,179,.18);
+    }
+
+    .btn-secondary{
+      color:var(--text);
+      background:#fff;
+      border:1px solid var(--line);
+      box-shadow:0 8px 20px rgba(0,0,0,.06);
+    }
+
+    .btn-soft{
+      color:#0d5648;
+      background:var(--mint-soft);
+      border:1px solid rgba(32,216,178,.22);
+    }
+
+    .info-list{
+      margin:0;
+      padding:0;
+      list-style:none;
+      display:grid;
+      gap:12px;
+    }
+
     .info-list li{
-      display:flex;justify-content:space-between;gap:16px;align-items:flex-start;
-      padding-bottom:12px;border-bottom:1px solid var(--line);font-size:15px
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      align-items:flex-start;
+      padding-bottom:12px;
+      border-bottom:1px solid var(--line);
+      font-size:15px;
     }
+
     .info-list li:last-child{border-bottom:none;padding-bottom:0}
     .info-label{color:var(--muted)}
     .info-value{font-weight:800;text-align:right}
-    .tax-box{border:1px solid var(--line);border-radius:18px;background:#fff;padding:18px}
-    .tax-box h3{margin:0 0 8px;font-size:20px}
-    .tax-box p{margin:0;color:var(--muted);font-size:14px}
-    .tax-main{border:1px solid rgba(32,216,178,.22);background:linear-gradient(180deg,#ffffff 0%, #f7fffc 100%)}
-    .tax-main .big{display:block;margin:10px 0 8px;font-size:36px;font-weight:900;line-height:1}
-    .field{display:grid;gap:8px;margin-top:12px}
-    .field label{font-size:14px;font-weight:800}
-    .input{
-      width:100%;border:1px solid var(--line);background:#fff;border-radius:16px;padding:14px 15px;outline:none;
-      transition:border-color .18s ease, box-shadow .18s ease
+
+    .box,
+    .stat,
+    .entry-card,
+    .summary-item,
+    .jump-card{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      min-height:100%;
+      padding:18px;
     }
-    .input:focus{border-color:rgba(32,216,178,.65);box-shadow:0 0 0 4px rgba(32,216,178,.10)}
-    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:18px;background:#fff}
-    table{width:100%;border-collapse:collapse;min-width:1180px}
-    th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top;font-size:13px}
+
+    .box p,.entry-card p,.summary-item span,.jump-card p{
+      margin:0;
+      color:var(--muted);
+      font-size:15px;
+    }
+
+    .jump-card{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .jump-link{
+      margin-top:auto;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-weight:800;
+      color:#0d5648;
+    }
+
+    .stat strong{
+      display:block;
+      font-size:30px;
+      line-height:1;
+      margin:0 0 8px;
+    }
+
+    .stat span{
+      display:block;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .summary-item strong{
+      display:block;
+      margin-bottom:4px;
+      font-size:14px;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      width:100%;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:1900px;
+    }
+
+    th,td{
+      text-align:left;
+      padding:12px 10px;
+      border-bottom:1px solid var(--line);
+      vertical-align:top;
+      font-size:13px;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
     th{
-      background:#fbfffe;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em;position:sticky;top:0;z-index:1
+      background:#fbfffe;
+      color:#62707b;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      white-space:nowrap;
     }
+
     tr:last-child td{border-bottom:none}
-    .pill{
-      display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:800;
-      letter-spacing:.05em;text-transform:uppercase;white-space:nowrap
+
+    .sheet{
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:#fff;
+      box-shadow:var(--shadow);
+      overflow:hidden;
     }
-    .pill-green{background:rgba(32,216,178,.14);color:#0d6957}
-    .pill-pink{background:rgba(255,79,179,.12);color:#aa2368}
-    .pill-grey{background:#f3f5f7;color:#5f6a75}
-    .pill-warn{background:var(--warn-soft);color:#8a5b00}
-    .stack{display:grid;gap:12px}
-    .mini-card{border:1px solid var(--line);border-radius:18px;background:#fff;padding:16px}
-    .mini-card h3{margin:0 0 6px;font-size:18px;line-height:1.15}
-    .mini-card p{margin:0;color:var(--muted);font-size:14px}
-    .empty{border:1px dashed var(--line);border-radius:18px;background:#fff;padding:18px;color:var(--muted)}
+
+    .sheet-head{
+      display:flex;
+      justify-content:space-between;
+      gap:18px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+      padding:22px 22px 16px;
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg,#ffffff 0%,#fbfffe 100%);
+    }
+
+    .sheet-head h3{
+      margin:0 0 6px;
+      font-size:24px;
+    }
+
+    .sheet-meta{
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .sheet-body{padding:20px 22px 22px}
+
+    .sheet-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .sheet-box{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+      padding:14px;
+    }
+
+    .sheet-box strong{
+      display:block;
+      margin-bottom:6px;
+      font-size:15px;
+    }
+
+    .sheet-box span{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .notice{
+      margin-top:18px;
+      padding:16px 18px;
+      border-radius:18px;
+      border:1px solid rgba(32,216,178,.18);
+      background:linear-gradient(180deg,#f7fffc 0%,#fff 100%);
+      font-size:14px;
+      color:#1d3833;
+    }
+
+    .notice.warn{
+      border-color:rgba(245,158,11,.22);
+      background:linear-gradient(180deg,#fffaf1 0%,#fff 100%);
+      color:#805400;
+    }
+
     .footer-card{
-      border:1px solid var(--line);border-radius:18px;background:#fff;padding:18px;
-      display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:18px;
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
     }
-    @media (max-width:1100px){
-      .hero-grid,.stats-grid,.detail-grid,.flow-grid,.tax-grid{grid-template-columns:1fr}
+
+    .screen-only{display:block}
+    .print-only{display:none}
+    .print-pages{display:none}
+
+    .print-page{
+      background:#fff;
+      color:#000;
+      page-break-after:always;
+      break-after:page;
+      overflow:hidden;
+      box-shadow:none;
     }
+
+    .print-page:last-child{
+      page-break-after:auto;
+      break-after:auto;
+    }
+
+    .print-page.portrait{
+      page:portraitPage;
+      width:190mm;
+      min-height:277mm;
+      padding:12mm;
+      margin:0 auto;
+    }
+
+    .print-page.landscape{
+      page:landscapePage;
+      width:277mm;
+      min-height:190mm;
+      padding:9mm;
+      margin:0 auto;
+    }
+
+    .print-kicker{
+      display:inline-block;
+      padding:2.5mm 4mm;
+      border:1px solid #999;
+      border-radius:999px;
+      font-size:10pt;
+      font-weight:700;
+      margin-bottom:5mm;
+    }
+
+    .print-title{
+      font-size:24pt;
+      font-weight:800;
+      line-height:1.05;
+      margin:0 0 4mm 0;
+    }
+
+    .print-subtitle{
+      font-size:11pt;
+      color:#444;
+      margin:0 0 8mm 0;
+    }
+
+    .print-section-title{
+      font-size:15pt;
+      font-weight:800;
+      margin:0 0 4mm 0;
+      line-height:1.15;
+    }
+
+    .print-grid-2,
+    .print-grid-3,
+    .print-grid-4{
+      display:grid;
+      gap:4mm;
+    }
+
+    .print-grid-2{grid-template-columns:1fr 1fr}
+    .print-grid-3{grid-template-columns:repeat(3,1fr)}
+    .print-grid-4{grid-template-columns:repeat(4,1fr)}
+
+    .print-box{
+      border:1px solid #bdbdbd;
+      border-radius:4mm;
+      padding:4mm;
+      break-inside:avoid;
+      page-break-inside:avoid;
+      background:#fff;
+    }
+
+    .print-box strong{
+      display:block;
+      font-size:10.5pt;
+      margin-bottom:2mm;
+      line-height:1.2;
+    }
+
+    .print-box span,
+    .print-box p{
+      display:block;
+      margin:0;
+      font-size:9.5pt;
+      line-height:1.35;
+      color:#333;
+      word-break:normal;
+      overflow-wrap:break-word;
+      hyphens:none;
+    }
+
+    .print-note{
+      margin-top:4mm;
+      border:1px solid #bdbdbd;
+      border-radius:4mm;
+      padding:4mm;
+      font-size:9pt;
+      line-height:1.35;
+    }
+
+    .print-table{
+      width:100%;
+      min-width:0;
+      border-collapse:collapse;
+      table-layout:fixed;
+      margin-top:3mm;
+    }
+
+    .print-table th,
+    .print-table td{
+      border:1px solid #bdbdbd;
+      padding:2.1mm 1.6mm;
+      font-size:8pt;
+      line-height:1.18;
+      vertical-align:top;
+      word-break:normal;
+      overflow-wrap:break-word;
+      hyphens:none;
+    }
+
+    .print-table th{
+      background:#f3f3f3;
+      font-size:7.4pt;
+      text-transform:uppercase;
+      letter-spacing:.03em;
+      white-space:normal;
+      line-height:1.15;
+    }
+
+    .print-table.compact th,
+    .print-table.compact td{
+      font-size:7.2pt;
+      padding:1.7mm 1.4mm;
+    }
+
+    .print-table.compact th{
+      font-size:6.9pt;
+    }
+
+    .print-table.wide th,
+    .print-table.wide td{
+      font-size:7pt;
+      padding:1.5mm 1.2mm;
+    }
+
+    .print-table.wide th{
+      font-size:6.6pt;
+    }
+
+    .print-table .status{
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.02em;
+    }
+
+    @media (max-width:1160px){
+      .hero-grid,.two-grid,.three-grid,.stats-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:900px){
+      .summary-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
     @media (max-width:760px){
-      .topbar-inner{padding:12px 0;flex-direction:column;align-items:stretch}
-      .nav{flex-direction:column;align-items:stretch}
-      .nav a,.btn{width:100%;text-align:center}
+      .topbar-inner{
+        flex-direction:column;
+        align-items:stretch;
+      }
+      .nav{
+        flex-direction:column;
+        align-items:stretch;
+      }
+      .nav a,.nav button,.btn{
+        width:100%;
+        text-align:center;
+      }
       .hero-card,.side-card,.panel{padding:20px 18px}
-      .section-head h2{font-size:28px}
-      .demo-banner-inner{padding:16px}
-      .tax-main .big{font-size:30px}
+      h2{font-size:28px}
+      table{min-width:1280px}
+    }
+
+    @page portraitPage{
+      size:A4 portrait;
+      margin:10mm;
+    }
+
+    @page landscapePage{
+      size:A4 landscape;
+      margin:8mm;
+    }
+
+    @media print{
+      html,body{
+        background:#fff !important;
+        color:#000 !important;
+      }
+
+      .screen-only,
+      .topbar,
+      .hero,
+      .section,
+      .footer{
+        display:none !important;
+      }
+
+      .print-only,
+      .print-pages{
+        display:block !important;
+      }
     }
   </style>
 </head>
 <body>
-  <header class="topbar">
+  <header class="topbar screen-only">
     <div class="wrap topbar-inner">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">
-          <svg width="26" height="26" viewBox="0 0 64 64" fill="none">
+          <svg width="28" height="28" viewBox="0 0 64 64" fill="none">
             <path d="M12 20C12 15.5817 15.5817 12 20 12H44C48.4183 12 52 15.5817 52 20V44C52 48.4183 48.4183 52 44 52H20C15.5817 52 12 48.4183 12 44V20Z" stroke="#111111" stroke-width="3"/>
             <path d="M20 37L29 28L35 34L44 25" stroke="#111111" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
             <circle cx="20" cy="37" r="3" fill="#20d8b2"/>
@@ -203,255 +708,236 @@
         </div>
       </div>
 
-      <nav class="nav" aria-label="Hauptnavigation">
-        <a href="../index.html">Kurszentrale</a>
-        <a href="../module/06-wertermittlung.html">Modul 06</a>
-        <a href="#steuerblock">Steuerblock</a>
-        <a href="steuerberater-pruefblatt.html">Prüfblatt</a>
-        <a class="cta" href="steuerberater-pruefblatt.html">Weiter zum Prüfblatt</a>
+      <nav class="nav" aria-label="Auswertung Navigation">
+        <a href="../index.html">Zurück zur Kurszentrale</a>
+        <a href="../module/08-fragen-steuerberater.html">Zurück zu Modul 08</a>
+        <a class="cta" href="../auswertung/steuerberater-pruefblatt.html">Weiter zum Prüfblatt</a>
+        <button type="button" id="printBtnTop">Seite drucken</button>
       </nav>
     </div>
   </header>
 
-  <main>
+  <main class="screen-only">
     <section class="hero">
-      <div class="wrap">
-        <div id="demoBanner" class="demo-banner">
-          <div class="demo-banner-inner">
-            <div class="demo-banner-copy">
-              <strong>Beispielansicht aktiv</strong>
-              <span>Der Musterfall enthält Gewinnfall, Verlustfall, Gebühren und offene Einträge.</span>
-            </div>
-            <div class="btn-row">
-              <button class="btn btn-secondary" type="button" id="loadDemoBtnTop">Demo neu laden</button>
-              <button class="btn btn-danger" type="button" id="clearDemoBtn">Demo aus</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div class="wrap hero-grid">
         <article class="card hero-card">
-          <span class="chip">Steuer-Vorschau</span>
-          <h1>Geschätzte Steuer-Hausnummer, Gewinne, Verluste und offene Punkte.</h1>
+          <span class="chip">Ergebnisübersicht</span>
+          <h1>Hier sieht der Nutzer seinen aktuellen Ergebnisstand.</h1>
           <p class="lead">
-            Diese Seite zeigt eine vorläufige Orientierung aus den aktuell dokumentierten Daten.
+            Diese Seite bündelt die vorbereitete Ergebnisübersicht aus dem Kurs. Sichtbar werden Investiert, Gewinne,
+            Verluste, offene Fälle und eine vorläufige Steuer. Die Ansicht bleibt neutral und dient nur der geordneten
+            Vorbereitung des Falls.
           </p>
           <div class="btn-row">
-            <button class="btn btn-primary" type="button" id="refreshAll">Ansicht aktualisieren</button>
-            <button class="btn btn-secondary" type="button" id="loadDemoBtn">Demo laden</button>
-            <a class="btn btn-soft" href="steuerberater-pruefblatt.html">Zum Prüfblatt</a>
+            <button class="btn btn-primary" type="button" id="refreshBtn">Übersicht aktualisieren</button>
+            <button class="btn btn-secondary" type="button" id="printBtnHero">Seite drucken</button>
+            <a class="btn btn-soft" href="../auswertung/steuerberater-pruefblatt.html">Weiter zum Prüfblatt</a>
           </div>
         </article>
 
         <aside class="card side-card">
-          <span class="chip warn">Überblick</span>
+          <span class="chip warn">Feste Ergebniswörter</span>
           <ul class="info-list">
-            <li>
-              <span class="info-label">Vorgänge gesamt</span>
-              <span class="info-value" id="totalRows">0</span>
-            </li>
-            <li>
-              <span class="info-label">Nutzbare Einträge</span>
-              <span class="info-value" id="readyRows">0</span>
-            </li>
-            <li>
-              <span class="info-label">Offene Einträge</span>
-              <span class="info-value" id="openRows">0</span>
-            </li>
-            <li>
-              <span class="info-label">Gewinnfälle</span>
-              <span class="info-value" id="gainRows">0</span>
-            </li>
-            <li>
-              <span class="info-label">Verlustfälle</span>
-              <span class="info-value" id="lossRows">0</span>
-            </li>
+            <li><span class="info-label">Investiert</span><span class="info-value" id="heroInvested">0,00 €</span></li>
+            <li><span class="info-label">Gewinne</span><span class="info-value" id="heroProfit">0,00 €</span></li>
+            <li><span class="info-label">Verluste</span><span class="info-value" id="heroLoss">0,00 €</span></li>
+            <li><span class="info-label">Offene Fälle</span><span class="info-value" id="heroOpen">0</span></li>
+            <li><span class="info-label">Vorläufige Steuer</span><span class="info-value" id="heroTax">0,00 €</span></li>
           </ul>
         </aside>
       </div>
     </section>
 
-    <section class="section" id="steuerblock">
-      <div class="wrap tax-grid">
-        <div class="tax-box tax-main">
-          <span class="chip">Hausnummer</span>
-          <h3>Geschätzte Steuer</h3>
-          <span class="big" id="estimatedTax">0,00 €</span>
-          <p id="taxBasisText">Noch keine berechenbare Grundlage vorhanden.</p>
-
-          <div class="field">
-            <label for="taxRateInput">Schätzsatz in %</label>
-            <input id="taxRateInput" class="input" type="number" min="0" max="100" step="0.1" value="30" />
-          </div>
-
-          <div class="btn-row" style="margin-top:12px;">
-            <button class="btn btn-primary" type="button" id="saveTaxRateBtn">Schätzsatz speichern</button>
-            <button class="btn btn-secondary" type="button" id="resetTaxRateBtn">Auf 30 % zurücksetzen</button>
-            <button class="btn btn-danger" type="button" id="clearDemoBtnInline">Demo aus</button>
-          </div>
-        </div>
-
-        <div class="stack">
-          <div class="tax-box">
-            <h3>Dokumentierte Gewinne</h3>
-            <p id="gainSum">0,00 €</p>
-          </div>
-          <div class="tax-box">
-            <h3>Dokumentierte Verluste</h3>
-            <p id="lossSum">0,00 €</p>
-          </div>
-          <div class="tax-box">
-            <h3>Vorläufige steuerliche Basis</h3>
-            <p id="taxableBase">0,00 €</p>
-          </div>
-          <div class="tax-box">
-            <h3>Offene Auswirkung</h3>
-            <p id="openImpact">0 offene Einträge</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <section class="section">
-      <div class="wrap stats-grid">
-        <div class="stat">
-          <strong id="sumBuy">0,00 €</strong>
-          <span>Kauf- und Startwerte</span>
-        </div>
-        <div class="stat">
-          <strong id="sumExit">0,00 €</strong>
-          <span>Ausstiegs- und Rücktauschwerte</span>
-        </div>
-        <div class="stat">
-          <strong id="sumFees">0,00 €</strong>
-          <span>Gebühren</span>
-        </div>
-        <div class="stat">
-          <strong id="sumLoss">0,00 €</strong>
-          <span>Verlustsicht</span>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="wrap detail-grid">
-        <div class="card panel">
-          <div class="section-head">
-            <div>
-              <h2>Datenstand</h2>
-              <p>Übersicht zu Wertbasis, Gebühren, Status und offenen Punkten.</p>
-            </div>
-          </div>
-          <ul class="info-list">
-            <li>
-              <span class="info-label">Wertbasis vorhanden</span>
-              <span class="info-value" id="valueCoverage">0 %</span>
-            </li>
-            <li>
-              <span class="info-label">Gebühren dokumentiert</span>
-              <span class="info-value" id="feeCoverage">0 %</span>
-            </li>
-            <li>
-              <span class="info-label">Status sicher / indirekt / offen</span>
-              <span class="info-value" id="statusMix">-</span>
-            </li>
-            <li>
-              <span class="info-label">Offene Preisquellen</span>
-              <span class="info-value" id="openValueCount">0</span>
-            </li>
-            <li>
-              <span class="info-label">Sonderfälle</span>
-              <span class="info-value" id="unclearCount">0</span>
-            </li>
-          </ul>
-        </div>
-
-        <div class="card panel">
-          <div class="section-head">
-            <div>
-              <h2>Einordnung</h2>
-              <p>Übersicht zu nutzbaren, indirekten und offenen Einträgen.</p>
-            </div>
-          </div>
-          <div class="stack">
-            <div class="mini-card">
-              <h3>Nutzbar</h3>
-              <p>Wertbasis und Quellenweg sind vorhanden.</p>
-            </div>
-            <div class="mini-card">
-              <h3>Indirekt</h3>
-              <p>Ergänzungen oder Rekonstruktion sind noch sinnvoll.</p>
-            </div>
-            <div class="mini-card">
-              <h3>Offen</h3>
-              <p>Wertbasis, Quellenweg oder Einordnung fehlen noch.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="vorschautabelle">
       <div class="wrap card panel">
         <div class="section-head">
           <div>
-            <h2>Übersichtstabelle</h2>
-            <p>Alle erfassten Vorgänge mit Status und Einordnung.</p>
-          </div>
-          <div class="btn-row">
-            <button class="btn btn-secondary" type="button" id="refreshTable">Tabelle aktualisieren</button>
-            <a class="btn btn-primary" href="steuerberater-pruefblatt.html">Weiter zum Prüfblatt</a>
+            <h2>Gesamtergebnis auf einen Blick</h2>
+            <p>
+              Die Übersicht zieht ihren Stand aus den vorbereiteten Kursmodulen. Vor allem Wertermittlung, Problemfälle
+              und Rückfragen wirken hier zusammen.
+            </p>
           </div>
         </div>
 
-        <div class="table-wrap">
-          <table aria-label="Steuer-Vorschau Tabelle">
-            <thead>
-              <tr>
-                <th>Datum</th>
-                <th>Typ</th>
-                <th>From</th>
-                <th>To</th>
-                <th>Asset ab</th>
-                <th>Asset zu</th>
-                <th>Wertbasis</th>
-                <th>Gebühren</th>
-                <th>Ergebnis</th>
-                <th>Status</th>
-                <th>Einordnung</th>
-              </tr>
-            </thead>
-            <tbody id="previewBody">
-              <tr>
-                <td colspan="11">Noch keine Daten vorhanden.</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="stats-grid">
+          <div class="stat"><strong id="statInvested">0,00 €</strong><span>Investiert</span></div>
+          <div class="stat"><strong id="statProfit">0,00 €</strong><span>Gewinne</span></div>
+          <div class="stat"><strong id="statLoss">0,00 €</strong><span>Verluste</span></div>
+          <div class="stat"><strong id="statOpen">0</strong><span>Offene Fälle</span></div>
+          <div class="stat"><strong id="statTax">0,00 €</strong><span>Vorläufige Steuer</span></div>
+        </div>
+
+        <div class="notice">
+          Diese Übersicht dient der Vorbereitung. Die endgültige steuerliche Prüfung erfolgt durch den Steuerberater.
         </div>
       </div>
     </section>
 
     <section class="section">
-      <div class="wrap flow-grid">
-        <div class="card panel">
-          <div class="section-head">
-            <div>
-              <h2>Nutzbare Einträge</h2>
-              <p>Einträge mit vorhandener Grundlage für die weitere Auswertung.</p>
-            </div>
-          </div>
-          <div id="readyCases" class="empty">Noch keine Einträge vorhanden.</div>
+      <div class="wrap section-head">
+        <div>
+          <h2>Welche Daten einfließen</h2>
+          <p>Die Ergebnisübersicht verdichtet die vorbereiteten Daten aus den Kursmodulen in eine ruhige Lesefassung.</p>
         </div>
+      </div>
 
-        <div class="card panel">
+      <div class="wrap cards-grid">
+        <article class="jump-card">
+          <h3>Transaktionen</h3>
+          <p>Die Sammelstelle liefert Anzahl und Bearbeitungsbasis der Vorgänge.</p>
+          <a class="jump-link" href="../module/05-transaktionen.html">Modul 05 öffnen</a>
+        </article>
+        <article class="jump-card">
+          <h3>Wertermittlung</h3>
+          <p>Hier entstehen Gewinne, Verluste, Gebühren und offene Werte.</p>
+          <a class="jump-link" href="../module/06-wertermittlung.html">Modul 06 öffnen</a>
+        </article>
+        <article class="jump-card">
+          <h3>Problemfälle</h3>
+          <p>Diese Seite liefert offene Fälle und ungeklärte Positionen.</p>
+          <a class="jump-link" href="../module/07-problemfaelle.html">Modul 07 öffnen</a>
+        </article>
+        <article class="jump-card">
+          <h3>Fragen für den Steuerberater</h3>
+          <p>Offene Rückfragen bleiben hier für die spätere Übergabe sichtbar.</p>
+          <a class="jump-link" href="../module/08-fragen-steuerberater.html">Modul 08 öffnen</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap two-grid">
+        <article class="card panel">
           <div class="section-head">
             <div>
-              <h2>Offene Einträge</h2>
-              <p>Einträge mit fehlenden oder offenen Angaben.</p>
+              <h2>Ergebnisübersicht</h2>
+              <p>Neutrale Übersicht für den Nutzer mit den festen Ergebniswörtern.</p>
             </div>
           </div>
-          <div id="openCases" class="empty">Keine offenen Einträge vorhanden.</div>
+
+          <div class="summary-grid">
+            <div class="summary-item">
+              <strong>Investiert</strong>
+              <span id="summaryInvested">0,00 €</span>
+            </div>
+            <div class="summary-item">
+              <strong>Gewinne</strong>
+              <span id="summaryProfit">0,00 €</span>
+            </div>
+            <div class="summary-item">
+              <strong>Verluste</strong>
+              <span id="summaryLoss">0,00 €</span>
+            </div>
+            <div class="summary-item">
+              <strong>Offene Fälle</strong>
+              <span id="summaryOpen">0</span>
+            </div>
+            <div class="summary-item">
+              <strong>Vorläufige Steuer</strong>
+              <span id="summaryTax">0,00 €</span>
+            </div>
+            <div class="summary-item">
+              <strong>Zuletzt aktualisiert</strong>
+              <span id="summaryUpdated">–</span>
+            </div>
+          </div>
+
+          <div class="notice">
+            Diese Übersicht dient der Vorbereitung. Die endgültige steuerliche Prüfung erfolgt durch den Steuerberater.
+          </div>
+
+          <div class="btn-row" style="margin-top:18px;">
+            <button class="btn btn-primary" type="button" id="refreshBtnSecondary">Übersicht aktualisieren</button>
+            <button class="btn btn-secondary" type="button" id="printBtnMiddle">Seite drucken</button>
+          </div>
+        </article>
+
+        <aside class="card panel">
+          <div class="section-head">
+            <div>
+              <h2>Zusatzsicht</h2>
+              <p>Weitere vorbereitende Kennzahlen aus den vorangehenden Modulen.</p>
+            </div>
+          </div>
+
+          <div class="auto-grid-wide">
+            <div class="box"><h3>Transaktionen</h3><p id="boxTransactions">0 Einträge</p></div>
+            <div class="box"><h3>Wertermittlungen</h3><p id="boxValuations">0 Einträge</p></div>
+            <div class="box"><h3>Problemfälle</h3><p id="boxProblems">0 Einträge</p></div>
+            <div class="box"><h3>Rückfragen</h3><p id="boxQuestions">0 Einträge</p></div>
+            <div class="box"><h3>Gebühren gesamt</h3><p id="boxFees">0,00 €</p></div>
+            <div class="box"><h3>Steuerpflichtige Basis</h3><p id="boxTaxBase">0,00 €</p></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap sheet">
+        <div class="sheet-head">
+          <div>
+            <h3>PDF- und Druckvorschau für den Nutzer</h3>
+            <div class="sheet-meta">Die Druckansicht dieser Seite orientiert sich am ruhigen Druckstandard der Demo-Seite.</div>
+          </div>
+          <div class="chip pink">PDF Nutzer</div>
+        </div>
+        <div class="sheet-body">
+          <div class="sheet-grid">
+            <div class="sheet-box"><strong>Investiert</strong><span id="sheetInvested">0,00 €</span></div>
+            <div class="sheet-box"><strong>Gewinne</strong><span id="sheetProfit">0,00 €</span></div>
+            <div class="sheet-box"><strong>Verluste</strong><span id="sheetLoss">0,00 €</span></div>
+            <div class="sheet-box"><strong>Offene Fälle</strong><span id="sheetOpen">0</span></div>
+            <div class="sheet-box"><strong>Vorläufige Steuer</strong><span id="sheetTax">0,00 €</span></div>
+          </div>
+
+          <div class="table-wrap">
+            <table aria-label="Steuer Vorschau Übersicht">
+              <thead>
+                <tr>
+                  <th>Bereich</th>
+                  <th>Inhalt</th>
+                  <th>Stand</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Transaktionen</td>
+                  <td>Geordnete Sammelbasis der Vorgänge</td>
+                  <td id="tableTransactions">0 Einträge</td>
+                </tr>
+                <tr>
+                  <td>Wertermittlung</td>
+                  <td>Gewinne, Verluste, Gebühren, Wertbasis</td>
+                  <td id="tableValuations">0 Einträge</td>
+                </tr>
+                <tr>
+                  <td>Problemfälle</td>
+                  <td>Fehlende Werte, Exportlücken, offene Einordnung</td>
+                  <td id="tableProblems">0 Einträge</td>
+                </tr>
+                <tr>
+                  <td>Rückfragen</td>
+                  <td>Für spätere Übergabe geordnete Fragen</td>
+                  <td id="tableQuestions">0 Einträge</td>
+                </tr>
+                <tr>
+                  <td>Steuerbasis</td>
+                  <td>Gewinne minus Verluste, nicht unter null</td>
+                  <td id="tableTaxBase">0,00 €</td>
+                </tr>
+                <tr>
+                  <td>Vorläufige Steuer</td>
+                  <td>Vorbereitete Rechengröße aus dem aktuellen Stand</td>
+                  <td id="tableTax">0,00 €</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="notice">
+            Diese Übersicht dient der Vorbereitung. Die endgültige steuerliche Prüfung erfolgt durch den Steuerberater.
+          </div>
         </div>
       </div>
     </section>
@@ -459,568 +945,275 @@
     <section class="footer">
       <div class="wrap footer-card">
         <div>
-          Vorläufige Orientierung zu Gewinnen, Verlusten und geschätzter Steuer-Hausnummer.
+          Von hier geht es weiter zur Arbeitsansicht für den Steuerberater.
         </div>
         <div class="btn-row" style="margin-top:0;">
-          <a class="btn btn-secondary" href="../module/06-wertermittlung.html">Zurück zu Modul 06</a>
-          <a class="btn btn-primary" href="steuerberater-pruefblatt.html">Weiter zum Prüfblatt</a>
+          <a class="btn btn-secondary" href="../module/08-fragen-steuerberater.html">Zurück zu Modul 08</a>
+          <a class="btn btn-primary" href="../auswertung/steuerberater-pruefblatt.html">Weiter zum Prüfblatt</a>
+          <button class="btn btn-soft" type="button" id="printBtnFooter">Seite drucken</button>
         </div>
       </div>
     </section>
   </main>
 
+  <div class="print-pages print-only">
+    <section class="print-page portrait">
+      <div class="print-kicker">Auswertung</div>
+      <h1 class="print-title">Steuer-Vorschau – Druckfassung</h1>
+      <p class="print-subtitle">Neutrale Ergebnisübersicht für den Nutzer mit dem aktuellen Stand aus dem Kurs.</p>
+
+      <div class="print-grid-4">
+        <div class="print-box"><strong>Investiert</strong><span id="printInvested">0,00 €</span></div>
+        <div class="print-box"><strong>Gewinne</strong><span id="printProfit">0,00 €</span></div>
+        <div class="print-box"><strong>Verluste</strong><span id="printLoss">0,00 €</span></div>
+        <div class="print-box"><strong>Offene Fälle</strong><span id="printOpen">0</span></div>
+      </div>
+
+      <div class="print-grid-2" style="margin-top:4mm;">
+        <div class="print-box"><strong>Vorläufige Steuer</strong><span id="printTax">0,00 €</span></div>
+        <div class="print-box"><strong>Steuerpflichtige Basis</strong><span id="printTaxBase">0,00 €</span></div>
+      </div>
+
+      <div class="print-note">
+        Diese Übersicht dient der Vorbereitung. Die endgültige steuerliche Prüfung erfolgt durch den Steuerberater.
+      </div>
+    </section>
+
+    <section class="print-page portrait">
+      <h2 class="print-section-title">Zusammenfassung des aktuellen Stands</h2>
+
+      <div class="print-grid-4">
+        <div class="print-box"><strong>Transaktionen</strong><span id="printTransactions">0 Einträge</span></div>
+        <div class="print-box"><strong>Wertermittlungen</strong><span id="printValuations">0 Einträge</span></div>
+        <div class="print-box"><strong>Problemfälle</strong><span id="printProblems">0 Einträge</span></div>
+        <div class="print-box"><strong>Rückfragen</strong><span id="printQuestions">0 Einträge</span></div>
+      </div>
+
+      <table class="print-table compact">
+        <colgroup>
+          <col style="width:28%">
+          <col style="width:46%">
+          <col style="width:26%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Bereich</th>
+            <th>Inhalt</th>
+            <th>Stand</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Investiert</td>
+            <td>Vorbereitete Gesamtsumme aus den erfassten Anschaffungswerten</td>
+            <td id="printRowInvested">0,00 €</td>
+          </tr>
+          <tr>
+            <td>Gewinne</td>
+            <td>Positive Ergebnisse aus der Wertermittlung</td>
+            <td id="printRowProfit">0,00 €</td>
+          </tr>
+          <tr>
+            <td>Verluste</td>
+            <td>Negative Ergebnisse aus der Wertermittlung</td>
+            <td id="printRowLoss">0,00 €</td>
+          </tr>
+          <tr>
+            <td>Offene Fälle</td>
+            <td>Problemfälle und offene Rückfragen aus den Kursmodulen</td>
+            <td id="printRowOpen">0</td>
+          </tr>
+          <tr>
+            <td>Vorläufige Steuer</td>
+            <td>Rechengröße auf Basis des vorbereiteten aktuellen Stands</td>
+            <td id="printRowTax">0,00 €</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
   <script>
-    (() => {
-      const KEY_TX = 'kso_transactions';
-      const KEY_VAL = 'kso_valuations';
-      const KEY_DEMO = 'kso_demo_active';
-      const KEY_FALL = 'kso_fallstart';
-      const KEY_SOURCES = 'kso_sources';
-      const KEY_ARCHIVE = 'kso_year_archives';
-      const KEY_TAX = 'kso_tax_settings';
+    (function(){
+      const KEYS = {
+        transactions: 'kryptoSteuerOrdnung.module05.transactions',
+        valuations: 'kryptoSteuerOrdnung.module06.valuations',
+        problems: 'kryptoSteuerOrdnung.module07.problems',
+        questions: 'kryptoSteuerOrdnung.module08.questions'
+      };
 
-      const $ = (id) => document.getElementById(id);
-
-      function read(key, fallback){
+      function readList(key){
         try{
           const raw = localStorage.getItem(key);
-          return raw ? JSON.parse(raw) : fallback;
-        }catch(e){
-          return fallback;
+          const parsed = JSON.parse(raw || '[]');
+          return Array.isArray(parsed) ? parsed : [];
+        }catch(error){
+          return [];
         }
       }
 
-      function write(key, value){
-        localStorage.setItem(key, JSON.stringify(value));
-      }
-
-      function txList(){
-        const list = read(KEY_TX, []);
-        return Array.isArray(list) ? list : [];
-      }
-
-      function valuationList(){
-        const list = read(KEY_VAL, []);
-        return Array.isArray(list) ? list : [];
-      }
-
-      function toNumber(value){
-        if(typeof value === 'number') return value;
-        const str = String(value || '')
-          .replace(/\s/g,'')
-          .replace(/\./g,'')
-          .replace(',', '.')
-          .replace(/[^\d.-]/g,'');
-        const num = Number(str);
+      function parseEuro(value){
+        if(!value) return 0;
+        const normalized = String(value).trim().replace(/\./g,'').replace(',', '.').replace(/[^\d.-]/g,'');
+        const num = Number(normalized);
         return Number.isFinite(num) ? num : 0;
       }
 
-      function euro(value){
+      function formatEuro(number){
         return new Intl.NumberFormat('de-DE', {
-          style:'currency',
-          currency:'EUR'
-        }).format(value || 0);
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(number) + ' €';
       }
 
-      function normalizeText(value){
-        return String(value || '').toLowerCase();
+      function latestStamp(groups){
+        const all = groups.flat().map(function(item){
+          return item && item.updatedAt ? item.updatedAt : '';
+        }).filter(Boolean);
+        return all.length ? all[0] : '–';
       }
 
-      function pillForResult(value){
-        const v = normalizeText(value);
-        if(v.includes('verlust')) return '<span class="pill pill-pink">Verlust</span>';
-        if(v.includes('gewinn')) return '<span class="pill pill-green">Gewinn</span>';
-        if(v.includes('neutral')) return '<span class="pill pill-grey">Neutral</span>';
-        return '<span class="pill pill-grey">Offen</span>';
+      function setText(id, value){
+        const el = document.getElementById(id);
+        if(el) el.textContent = value;
       }
 
-      function pillForStatus(value){
-        const v = normalizeText(value);
-        if(v.includes('sicher')) return '<span class="pill pill-green">Sicher</span>';
-        if(v.includes('indirekt')) return '<span class="pill pill-warn">Indirekt</span>';
-        if(v.includes('offen')) return '<span class="pill pill-pink">Offen</span>';
-        return '<span class="pill pill-grey">Unklar</span>';
-      }
+      function buildSummary(){
+        const transactions = readList(KEYS.transactions);
+        const valuations = readList(KEYS.valuations);
+        const problems = readList(KEYS.problems);
+        const questions = readList(KEYS.questions);
 
-      function classifyReadiness(row){
-        const basis = normalizeText(row.basisWert);
-        const status = normalizeText(row.status);
-        const valueState = normalizeText(row.valueState || '');
-        const hasPath = row.from !== '-' || row.to !== '-';
+        let invested = 0;
+        let profit = 0;
+        let loss = 0;
+        let fees = 0;
 
-        if(row.typ === 'sonderfall-unklar') return 'Offen';
-        if(!hasPath) return 'Offen';
-        if(basis.includes('offen') || basis.includes('preisquelle offen')) return 'Offen';
-        if(status.includes('offen')) return 'Offen';
-        if(valueState.includes('verlust')) return 'Nutzbar';
-        if(valueState.includes('indirekt') || status.includes('indirekt')) return 'Indirekt';
-        if(status.includes('sicher')) return 'Nutzbar';
-        return 'Offen';
-      }
+        valuations.forEach(function(item){
+          const acquisition = parseEuro(item.acquisition);
+          const result = parseEuro(item.result);
+          const fee = parseEuro(item.fees);
 
-      function readinessPill(value){
-        const v = normalizeText(value);
-        if(v.includes('nutzbar')) return '<span class="pill pill-green">Nutzbar</span>';
-        if(v.includes('indirekt')) return '<span class="pill pill-warn">Indirekt</span>';
-        return '<span class="pill pill-grey">Offen</span>';
-      }
+          invested += acquisition;
+          fees += fee;
 
-      function getTaxRate(){
-        const saved = read(KEY_TAX, { rate: 30 });
-        const rate = Number(saved && saved.rate);
-        return Number.isFinite(rate) ? rate : 30;
-      }
-
-      function buildDemoData(){
-        const fallstart = {
-          fallname:'Demo-Fall 2025',
-          steuerjahr:'2025',
-          person:'Max Muster',
-          land:'Deutschland'
-        };
-
-        const sources = [
-          { id:'demo_bank_1', typ:'bankkonto', name:'Beispiel Girokonto', plattform:'Musterbank', chain:'-', adresse:'DEMO-BANK-001', rolle:'from', zeitraumVon:'2024', zeitraumBis:'heute', notiz:'Fiat-Ausgangspunkt' },
-          { id:'demo_boerse_1', typ:'boerse', name:'Beispiel Börse Spot', plattform:'Binance', chain:'mehrere', adresse:'internes Börsenkonto', rolle:'beides', zeitraumVon:'2024', zeitraumBis:'heute', notiz:'Kauf und Verkauf' },
-          { id:'demo_wallet_1', typ:'wallet', name:'MetaMask Hauptwallet', plattform:'MetaMask', chain:'Ethereum', adresse:'0xDemoWalletMain', rolle:'beides', zeitraumVon:'2024', zeitraumBis:'heute', notiz:'Hauptwallet' },
-          { id:'demo_dex_1', typ:'dex', name:'Uniswap', plattform:'Uniswap', chain:'Ethereum', adresse:'DEX', rolle:'beides', zeitraumVon:'2025', zeitraumBis:'heute', notiz:'DEX' }
-        ];
-
-        const transactions = [
-          {
-            typ:'fiat-zu-krypto',
-            datum:'2025-01-10',
-            uhrzeit:'09:15',
-            assetAb:'EUR 5.000,00',
-            assetZu:'ETH 2,00',
-            euroRein:'',
-            euroRaus:'5.000,00',
-            basisWert:'5.000,00 EUR Kaufwert',
-            gebuehren:'20,00',
-            ergebnis:'offen',
-            status:'sicher',
-            fromSourceName:'Beispiel Girokonto',
-            toSourceName:'Beispiel Börse Spot',
-            notiz:'Einstieg von EUR in ETH'
-          },
-          {
-            typ:'krypto-zu-fiat',
-            datum:'2025-03-15',
-            uhrzeit:'13:40',
-            assetAb:'ETH 0,50',
-            assetZu:'EUR 1.800,00',
-            euroRein:'1.800,00',
-            euroRaus:'',
-            basisWert:'1.200,00 EUR Anschaffungswert | 1.800,00 EUR Ausstiegswert',
-            gebuehren:'8,00',
-            ergebnis:'gewinn',
-            status:'sicher',
-            fromSourceName:'Beispiel Börse Spot',
-            toSourceName:'Beispiel Girokonto',
-            notiz:'Teilverkauf mit Gewinn'
-          },
-          {
-            typ:'krypto-zu-krypto',
-            datum:'2025-04-12',
-            uhrzeit:'17:10',
-            assetAb:'ETH 0,60',
-            assetZu:'TOKEN-A 36.000',
-            euroRein:'',
-            euroRaus:'',
-            basisWert:'1.500,00 EUR Anschaffungswert | 900,00 EUR Tauschwert',
-            gebuehren:'11,00',
-            ergebnis:'verlust',
-            status:'indirekt',
-            fromSourceName:'MetaMask Hauptwallet',
-            toSourceName:'Uniswap',
-            notiz:'Tausch mit Verlust'
-          },
-          {
-            typ:'reward-bonus-ertrag',
-            datum:'2025-05-03',
-            uhrzeit:'08:20',
-            assetAb:'-',
-            assetZu:'TOKEN-A 1.200',
-            euroRein:'',
-            euroRaus:'',
-            basisWert:'150,00 EUR Zuflusswert',
-            gebuehren:'0,00',
-            ergebnis:'gewinn',
-            status:'indirekt',
-            fromSourceName:'Projektpool Alpha',
-            toSourceName:'MetaMask Hauptwallet',
-            notiz:'Reward-Zufluss'
-          },
-          {
-            typ:'eigenuebertrag',
-            datum:'2025-05-20',
-            uhrzeit:'10:15',
-            assetAb:'ETH 0,20',
-            assetZu:'ETH 0,20',
-            euroRein:'',
-            euroRaus:'',
-            basisWert:'kein Verkauf / nur interner Transfer',
-            gebuehren:'3,00',
-            ergebnis:'neutral',
-            status:'sicher',
-            fromSourceName:'Beispiel Börse Spot',
-            toSourceName:'MetaMask Hauptwallet',
-            notiz:'Eigener Übertrag'
-          },
-          {
-            typ:'sonderfall-unklar',
-            datum:'2025-08-14',
-            uhrzeit:'16:35',
-            assetAb:'TOKEN-B unbekannt',
-            assetZu:'offen',
-            euroRein:'',
-            euroRaus:'',
-            basisWert:'Preisquelle offen',
-            gebuehren:'',
-            ergebnis:'offen',
-            status:'offen',
-            fromSourceName:'MetaMask Hauptwallet',
-            toSourceName:'Uniswap',
-            notiz:'Einordnung noch offen'
-          }
-        ];
-
-        const valuations = [
-          {
-            idx:1, datum:'2025-01-10', typ:'fiat-zu-krypto',
-            from:'Beispiel Girokonto', to:'Beispiel Börse Spot',
-            assetAb:'EUR 5.000,00', assetZu:'ETH 2,00',
-            basisWert:'5.000,00 EUR Kaufwert', gebuehren:'20,00',
-            ergebnis:'offen', status:'sicher', valueState:'Bewertbar',
-            buyValue:5000, exitValue:0, feeValue:20, lossValue:0, gainValue:0,
-            taxableGain:0, taxableLoss:0, note:'Einstieg von EUR in ETH'
-          },
-          {
-            idx:2, datum:'2025-03-15', typ:'krypto-zu-fiat',
-            from:'Beispiel Börse Spot', to:'Beispiel Girokonto',
-            assetAb:'ETH 0,50', assetZu:'EUR 1.800,00',
-            basisWert:'1.200,00 EUR Anschaffungswert | 1.800,00 EUR Ausstiegswert', gebuehren:'8,00',
-            ergebnis:'gewinn', status:'sicher', valueState:'Gewinn sichtbar',
-            buyValue:1200, exitValue:1800, feeValue:8, lossValue:0, gainValue:600,
-            taxableGain:600, taxableLoss:0, note:'Teilverkauf mit Gewinn'
-          },
-          {
-            idx:3, datum:'2025-04-12', typ:'krypto-zu-krypto',
-            from:'MetaMask Hauptwallet', to:'Uniswap',
-            assetAb:'ETH 0,60', assetZu:'TOKEN-A 36.000',
-            basisWert:'1.500,00 EUR Anschaffungswert | 900,00 EUR Tauschwert', gebuehren:'11,00',
-            ergebnis:'verlust', status:'indirekt', valueState:'Verlust sichtbar',
-            buyValue:1500, exitValue:900, feeValue:11, lossValue:600, gainValue:0,
-            taxableGain:0, taxableLoss:600, note:'Tausch mit Verlust'
-          },
-          {
-            idx:4, datum:'2025-05-03', typ:'reward-bonus-ertrag',
-            from:'Projektpool Alpha', to:'MetaMask Hauptwallet',
-            assetAb:'-', assetZu:'TOKEN-A 1.200',
-            basisWert:'150,00 EUR Zuflusswert', gebuehren:'0,00',
-            ergebnis:'gewinn', status:'indirekt', valueState:'Zuflusswert',
-            buyValue:150, exitValue:0, feeValue:0, lossValue:0, gainValue:150,
-            taxableGain:150, taxableLoss:0, note:'Reward-Zufluss'
-          },
-          {
-            idx:5, datum:'2025-05-20', typ:'eigenuebertrag',
-            from:'Beispiel Börse Spot', to:'MetaMask Hauptwallet',
-            assetAb:'ETH 0,20', assetZu:'ETH 0,20',
-            basisWert:'kein Verkauf / nur interner Transfer', gebuehren:'3,00',
-            ergebnis:'neutral', status:'sicher', valueState:'Neutral',
-            buyValue:0, exitValue:0, feeValue:3, lossValue:0, gainValue:0,
-            taxableGain:0, taxableLoss:0, note:'Eigener Übertrag'
-          },
-          {
-            idx:6, datum:'2025-08-14', typ:'sonderfall-unklar',
-            from:'MetaMask Hauptwallet', to:'Uniswap',
-            assetAb:'TOKEN-B unbekannt', assetZu:'offen',
-            basisWert:'Preisquelle offen', gebuehren:'',
-            ergebnis:'offen', status:'offen', valueState:'Offen',
-            buyValue:0, exitValue:0, feeValue:0, lossValue:0, gainValue:0,
-            taxableGain:0, taxableLoss:0, note:'Einordnung noch offen'
-          }
-        ];
-
-        return { fallstart, sources, transactions, valuations };
-      }
-
-      function applyDemoData(){
-        const demo = buildDemoData();
-        write(KEY_FALL, demo.fallstart);
-        write(KEY_SOURCES, demo.sources);
-        write(KEY_TX, demo.transactions);
-        write(KEY_VAL, demo.valuations);
-        write(KEY_DEMO, true);
-      }
-
-      function clearDemoAndReload(){
-        localStorage.removeItem(KEY_FALL);
-        localStorage.removeItem(KEY_TX);
-        localStorage.removeItem(KEY_VAL);
-        localStorage.removeItem(KEY_SOURCES);
-        localStorage.removeItem(KEY_ARCHIVE);
-        localStorage.removeItem(KEY_DEMO);
-        window.location.href = '../index.html?nocache=' + Date.now();
-      }
-
-      function buildRows(){
-        const txs = txList();
-        const vals = valuationList();
-
-        return txs.map((tx, index) => {
-          const v = vals[index] || {};
-          const row = {
-            datum: tx.datum || v.datum || '-',
-            typ: tx.typ || v.typ || '-',
-            from: tx.fromSourceName || v.from || '-',
-            to: tx.toSourceName || v.to || '-',
-            assetAb: tx.assetAb || v.assetAb || '-',
-            assetZu: tx.assetZu || v.assetZu || '-',
-            basisWert: tx.basisWert || v.basisWert || '-',
-            gebuehren: tx.gebuehren || v.gebuehren || '',
-            ergebnis: tx.ergebnis || v.ergebnis || 'offen',
-            status: tx.status || v.status || 'offen',
-            valueState: v.valueState || '',
-            note: tx.notiz || v.note || '',
-            lossValue: Number(v.lossValue || 0),
-            gainValue: Number(v.gainValue || 0),
-            taxableGain: Number(v.taxableGain || 0),
-            taxableLoss: Number(v.taxableLoss || 0),
-            buyValue: Number(v.buyValue || 0),
-            exitValue: Number(v.exitValue || 0),
-            feeValue: Number(v.feeValue || toNumber(tx.gebuehren))
-          };
-          row.readiness = classifyReadiness(row);
-          return row;
+          if(result > 0) profit += result;
+          if(result < 0) loss += Math.abs(result);
         });
-      }
 
-      function calculateTaxHouseNumber(rows){
-        const gainRows = rows.filter((r) => Number(r.taxableGain || 0) > 0 || normalizeText(r.ergebnis).includes('gewinn'));
-        const lossRows = rows.filter((r) => Number(r.taxableLoss || 0) > 0 || normalizeText(r.ergebnis).includes('verlust'));
-        const openRows = rows.filter((r) =>
-          normalizeText(r.readiness).includes('offen') ||
-          normalizeText(r.readiness).includes('indirekt')
-        );
-
-        const gainSum = gainRows.reduce((sum, row) => sum + (Number(row.taxableGain || 0)), 0);
-        const lossSum = lossRows.reduce((sum, row) => sum + (Number(row.taxableLoss || 0)), 0);
-        const taxableBase = Math.max(0, gainSum - lossSum);
-        const rate = getTaxRate();
-        const estimatedTax = taxableBase * (rate / 100);
-
-        return {
-          gainSum,
-          lossSum,
-          taxableBase,
-          estimatedTax,
-          gainRows: gainRows.length,
-          lossRows: lossRows.length,
-          openRows: openRows.length,
-          rate
-        };
-      }
-
-      function renderTaxBlock(rows){
-        const calc = calculateTaxHouseNumber(rows);
-        $('gainSum').textContent = euro(calc.gainSum);
-        $('lossSum').textContent = euro(calc.lossSum);
-        $('taxableBase').textContent = euro(calc.taxableBase);
-        $('estimatedTax').textContent = euro(calc.estimatedTax);
-        $('openImpact').textContent = `${calc.openRows} offene Einträge`;
-        $('taxRateInput').value = String(calc.rate).replace('.', ',');
-
-        let text = `Vorläufige Basis ${euro(calc.taxableBase)} bei einem Schätzsatz von ${String(calc.rate).replace('.', ',')} %.`;
-        if(calc.openRows > 0){
-          text += ` ${calc.openRows} offene Einträge können die Hausnummer noch verändern.`;
-        }
-        if(calc.taxableBase <= 0 && (calc.gainSum > 0 || calc.lossSum > 0)){
-          text = `Aus den aktuell dokumentierten Gewinnen und Verlusten ergibt sich derzeit keine positive vorläufige Basis.`;
-        }
-        if(calc.gainSum === 0 && calc.lossSum === 0){
-          text = `Noch keine berechenbare Grundlage vorhanden.`;
-        }
-
-        $('taxBasisText').textContent = text;
-        $('gainRows').textContent = String(calc.gainRows);
-        $('lossRows').textContent = String(calc.lossRows);
-      }
-
-      function renderSummary(rows){
-        const total = rows.length;
-        const ready = rows.filter(r => normalizeText(r.readiness).includes('nutzbar')).length;
-        const open = rows.filter(r => normalizeText(r.readiness).includes('offen') || normalizeText(r.readiness).includes('indirekt')).length;
-        const withPath = rows.filter(r => r.from !== '-' || r.to !== '-').length;
-
-        const sumBuy = rows.reduce((s, r) => s + (r.buyValue || 0), 0);
-        const sumExit = rows.reduce((s, r) => s + (r.exitValue || 0), 0);
-        const sumFees = rows.reduce((s, r) => s + (r.feeValue || 0), 0);
-        const sumLoss = rows.reduce((s, r) => s + (r.lossValue || 0), 0);
-
-        const withValue = rows.filter(r => {
-          const b = normalizeText(r.basisWert);
-          return r.basisWert && r.basisWert !== '-' && !b.includes('offen');
+        const openProblems = problems.filter(function(item){
+          return item.status === 'offen' || item.status === 'noch zu prüfen';
         }).length;
 
-        const withFees = rows.filter(r => (r.feeValue || 0) > 0).length;
-        const safe = rows.filter(r => normalizeText(r.status).includes('sicher')).length;
-        const indirect = rows.filter(r => normalizeText(r.status).includes('indirekt')).length;
-        const openStatus = rows.filter(r => normalizeText(r.status).includes('offen')).length;
-        const openValueCount = rows.filter(r => normalizeText(r.basisWert).includes('offen') || normalizeText(r.readiness).includes('offen')).length;
-        const unclearCount = rows.filter(r => r.typ === 'sonderfall-unklar').length;
+        const openQuestions = questions.filter(function(item){
+          return item.status === 'offen' || item.status === 'noch zu prüfen';
+        }).length;
 
-        $('totalRows').textContent = String(total);
-        $('readyRows').textContent = String(ready);
-        $('openRows').textContent = String(open);
+        const openCases = openProblems + openQuestions;
 
-        $('sumBuy').textContent = euro(sumBuy);
-        $('sumExit').textContent = euro(sumExit);
-        $('sumFees').textContent = euro(sumFees);
-        $('sumLoss').textContent = euro(sumLoss);
+        const taxBase = Math.max(profit - loss, 0);
+        const provisionalTax = taxBase * 0.30;
 
-        $('valueCoverage').textContent = total ? `${Math.round((withValue / total) * 100)} %` : '0 %';
-        $('feeCoverage').textContent = total ? `${Math.round((withFees / total) * 100)} %` : '0 %';
-        $('statusMix').textContent = `${safe} / ${indirect} / ${openStatus}`;
-        $('openValueCount').textContent = String(openValueCount);
-        $('unclearCount').textContent = String(unclearCount);
+        const updatedAt = latestStamp([transactions, valuations, problems, questions]);
+
+        return {
+          transactions,
+          valuations,
+          problems,
+          questions,
+          invested,
+          profit,
+          loss,
+          fees,
+          openCases,
+          taxBase,
+          provisionalTax,
+          updatedAt
+        };
       }
 
-      function renderTable(rows){
-        const body = $('previewBody');
+      function render(){
+        const data = buildSummary();
 
-        if(!rows.length){
-          body.innerHTML = '<tr><td colspan="11">Noch keine Daten vorhanden.</td></tr>';
-          return;
+        const investedText = formatEuro(data.invested);
+        const profitText = formatEuro(data.profit);
+        const lossText = formatEuro(data.loss);
+        const taxBaseText = formatEuro(data.taxBase);
+        const taxText = formatEuro(data.provisionalTax);
+        const feesText = formatEuro(data.fees);
+        const openText = String(data.openCases);
+
+        setText('heroInvested', investedText);
+        setText('heroProfit', profitText);
+        setText('heroLoss', lossText);
+        setText('heroOpen', openText);
+        setText('heroTax', taxText);
+
+        setText('statInvested', investedText);
+        setText('statProfit', profitText);
+        setText('statLoss', lossText);
+        setText('statOpen', openText);
+        setText('statTax', taxText);
+
+        setText('summaryInvested', investedText);
+        setText('summaryProfit', profitText);
+        setText('summaryLoss', lossText);
+        setText('summaryOpen', openText);
+        setText('summaryTax', taxText);
+        setText('summaryUpdated', data.updatedAt);
+
+        setText('boxTransactions', data.transactions.length + ' Einträge');
+        setText('boxValuations', data.valuations.length + ' Einträge');
+        setText('boxProblems', data.problems.length + ' Einträge');
+        setText('boxQuestions', data.questions.length + ' Einträge');
+        setText('boxFees', feesText);
+        setText('boxTaxBase', taxBaseText);
+
+        setText('sheetInvested', investedText);
+        setText('sheetProfit', profitText);
+        setText('sheetLoss', lossText);
+        setText('sheetOpen', openText);
+        setText('sheetTax', taxText);
+
+        setText('tableTransactions', data.transactions.length + ' Einträge');
+        setText('tableValuations', data.valuations.length + ' Einträge');
+        setText('tableProblems', data.problems.length + ' Einträge');
+        setText('tableQuestions', data.questions.length + ' Einträge');
+        setText('tableTaxBase', taxBaseText);
+        setText('tableTax', taxText);
+
+        setText('printInvested', investedText);
+        setText('printProfit', profitText);
+        setText('printLoss', lossText);
+        setText('printOpen', openText);
+        setText('printTax', taxText);
+        setText('printTaxBase', taxBaseText);
+        setText('printTransactions', data.transactions.length + ' Einträge');
+        setText('printValuations', data.valuations.length + ' Einträge');
+        setText('printProblems', data.problems.length + ' Einträge');
+        setText('printQuestions', data.questions.length + ' Einträge');
+        setText('printRowInvested', investedText);
+        setText('printRowProfit', profitText);
+        setText('printRowLoss', lossText);
+        setText('printRowOpen', openText);
+        setText('printRowTax', taxText);
+      }
+
+      function printPage(){
+        window.print();
+      }
+
+      document.getElementById('refreshBtn').addEventListener('click', render);
+      document.getElementById('refreshBtnSecondary').addEventListener('click', render);
+
+      ['printBtnTop','printBtnHero','printBtnMiddle','printBtnFooter'].forEach(function(id){
+        const el = document.getElementById(id);
+        if(el){
+          el.addEventListener('click', printPage);
         }
-
-        body.innerHTML = rows.map(r => `
-          <tr>
-            <td>${escapeHtml(r.datum)}</td>
-            <td>${escapeHtml(r.typ)}</td>
-            <td>${escapeHtml(r.from)}</td>
-            <td>${escapeHtml(r.to)}</td>
-            <td>${escapeHtml(r.assetAb)}</td>
-            <td>${escapeHtml(r.assetZu)}</td>
-            <td>${escapeHtml(r.basisWert)}</td>
-            <td>${escapeHtml(r.gebuehren || '-')}</td>
-            <td>${pillForResult(r.ergebnis)}</td>
-            <td>${pillForStatus(r.status)}</td>
-            <td>${readinessPill(r.readiness)}</td>
-          </tr>
-        `).join('');
-      }
-
-      function renderReadyCases(rows){
-        const node = $('readyCases');
-        const ready = rows.filter(r => normalizeText(r.readiness).includes('nutzbar'));
-
-        if(!ready.length){
-          node.className = 'empty';
-          node.innerHTML = 'Noch keine Einträge vorhanden.';
-          return;
-        }
-
-        node.className = 'stack';
-        node.innerHTML = ready.map(r => `
-          <div class="mini-card">
-            <h3>${escapeHtml(r.datum)} – ${escapeHtml(r.typ)}</h3>
-            <p>
-              From: ${escapeHtml(r.from)} | To: ${escapeHtml(r.to)}<br>
-              Wertbasis: ${escapeHtml(r.basisWert)}
-            </p>
-          </div>
-        `).join('');
-      }
-
-      function renderOpenCases(rows){
-        const node = $('openCases');
-        const open = rows.filter(r =>
-          normalizeText(r.readiness).includes('offen') ||
-          normalizeText(r.readiness).includes('indirekt')
-        );
-
-        if(!open.length){
-          node.className = 'empty';
-          node.innerHTML = 'Keine offenen Einträge vorhanden.';
-          return;
-        }
-
-        node.className = 'stack';
-        node.innerHTML = open.map(r => `
-          <div class="mini-card">
-            <h3>${escapeHtml(r.datum)} – ${escapeHtml(r.typ)}</h3>
-            <p>
-              From: ${escapeHtml(r.from)} | To: ${escapeHtml(r.to)}<br>
-              Wertbasis: ${escapeHtml(r.basisWert)}<br>
-              Hinweis: ${escapeHtml(r.note || 'Keine Zusatznotiz vorhanden.')}
-            </p>
-          </div>
-        `).join('');
-      }
-
-      function renderDemoState(){
-        const demoActive = read(KEY_DEMO, false) === true;
-        $('demoBanner').classList.toggle('active', demoActive);
-      }
-
-      function saveTaxRate(){
-        const raw = String($('taxRateInput').value || '').replace(',', '.');
-        const rate = Number(raw);
-        if(!Number.isFinite(rate) || rate < 0 || rate > 100){
-          alert('Bitte einen gültigen Prozentsatz zwischen 0 und 100 eingeben.');
-          return;
-        }
-        write(KEY_TAX, { rate });
-        renderAll();
-      }
-
-      function resetTaxRate(){
-        write(KEY_TAX, { rate: 30 });
-        renderAll();
-      }
-
-      function escapeHtml(value){
-        return String(value || '')
-          .replaceAll('&', '&amp;')
-          .replaceAll('<', '&lt;')
-          .replaceAll('>', '&gt;')
-          .replaceAll('"', '&quot;')
-          .replaceAll("'", '&#39;');
-      }
-
-      function renderAll(){
-        const rows = buildRows();
-        renderSummary(rows);
-        renderTaxBlock(rows);
-        renderTable(rows);
-        renderReadyCases(rows);
-        renderOpenCases(rows);
-        renderDemoState();
-      }
-
-      $('refreshAll').addEventListener('click', renderAll);
-      $('refreshTable').addEventListener('click', renderAll);
-      $('saveTaxRateBtn').addEventListener('click', saveTaxRate);
-      $('resetTaxRateBtn').addEventListener('click', resetTaxRate);
-
-      $('loadDemoBtn').addEventListener('click', () => {
-        applyDemoData();
-        renderAll();
-      });
-      $('loadDemoBtnTop').addEventListener('click', () => {
-        applyDemoData();
-        renderAll();
       });
 
-      $('clearDemoBtn').addEventListener('click', clearDemoAndReload);
-      $('clearDemoBtnInline').addEventListener('click', clearDemoAndReload);
-
-      if(read(KEY_DEMO, false) === true && (!txList().length || !valuationList().length)){
-        applyDemoData();
-      }
-
-      renderAll();
+      render();
     })();
   </script>
 </body>
