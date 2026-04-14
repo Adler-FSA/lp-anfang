@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>CSV-Import für Einsteiger – Krypto-Steuer-Ordnung</title>
-  <meta name="description" content="Geführte CSV-Import-Hilfe für Einsteiger. Wallets, Börsen und Plattformen Schritt für Schritt einordnen, importieren und als Masterliste sichern." />
+  <meta name="description" content="Geführte CSV-Import-Hilfe für Einsteiger. CSV zuerst laden, Quelle automatisch erkennen, prüfen und als einfache Masterliste übernehmen." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -152,12 +152,7 @@
     }
 
     .btn:hover{transform:translateY(-1px);text-decoration:none}
-
-    .btn:disabled{
-      opacity:.45;
-      cursor:not-allowed;
-      transform:none;
-    }
+    .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
 
     .btn-primary{
       color:#fff;
@@ -400,7 +395,6 @@
       margin:10px 0 0 18px;
       padding:0;
     }
-
     .checklist li{margin:0 0 8px}
 
     .result-box{
@@ -607,18 +601,18 @@
       <div class="step-grid">
         <div class="step-card">
           <div class="step-num">1</div>
-          <strong>Quelle anlegen</strong>
-          <div class="muted small">Zuerst wird eine Quelle als eigener Fall angelegt.</div>
+          <strong>CSV laden</strong>
+          <div class="muted small">Zuerst wird die CSV geladen und automatisch ausgelesen.</div>
         </div>
         <div class="step-card">
           <div class="step-num">2</div>
-          <strong>Datei laden</strong>
-          <div class="muted small">CSV-Datei auswählen oder CSV-Inhalt direkt einfügen.</div>
+          <strong>Quelle erkennen</strong>
+          <div class="muted small">Quelle, Profil, Jahr und weitere Hinweise werden automatisch vorgeschlagen.</div>
         </div>
         <div class="step-card">
           <div class="step-num">3</div>
-          <strong>Vorschlag prüfen</strong>
-          <div class="muted small">Die Seite erkennt die wichtigsten Felder automatisch.</div>
+          <strong>Kurzen Check machen</strong>
+          <div class="muted small">Nur noch prüfen, ergänzen oder bestätigen.</div>
         </div>
         <div class="step-card">
           <div class="step-num">4</div>
@@ -678,53 +672,12 @@
     </section>
 
     <section class="section panel">
-      <h2>Schritt 2 – Quelle anlegen und Datei laden</h2>
+      <h2>Schritt 2 – CSV laden und automatisch erkennen</h2>
       <p class="muted">
-        Jede Quelle wird als eigener Fall gespeichert. So siehst du später jederzeit, wie viele Quellen und wie viele CSV-Dateien bereits angelegt wurden.
+        In der Einsteiger-Ansicht wird zuerst die CSV gelesen. Danach werden Quelle, Jahr, Plattform und weitere Felder automatisch vorgeschlagen.
       </p>
 
-      <form id="simpleForm" class="form-grid" autocomplete="off">
-        <div class="field span-4">
-          <label for="caseName">Bezeichnung</label>
-          <input id="caseName" type="text" placeholder="z. B. Crypto.com Januar 2024 oder Wallet ETH Etherscan" />
-        </div>
-
-        <div class="field span-4">
-          <label for="network">Chain / Netzwerk</label>
-          <select id="network">
-            <option value="">Bitte auswählen</option>
-            <option>Bitcoin</option>
-            <option>Ethereum</option>
-            <option>BNB Chain</option>
-            <option>Arbitrum</option>
-            <option>Base</option>
-            <option>Polygon</option>
-            <option>Optimism</option>
-            <option>Solana</option>
-            <option value="Eigene Eingabe">Eigene Eingabe</option>
-          </select>
-        </div>
-
-        <div class="field span-4">
-          <label for="networkCustom">Eigene Chain</label>
-          <input id="networkCustom" type="text" placeholder="optional, z. B. Avalanche oder Tron" />
-        </div>
-
-        <div class="field span-4">
-          <label for="provider">Börse / Plattform / Explorer</label>
-          <input id="provider" type="text" placeholder="z. B. Crypto.com, Binance, Etherscan, Solscan" />
-        </div>
-
-        <div class="field span-4">
-          <label for="walletRef">Wallet-Adresse / Referenz</label>
-          <input id="walletRef" type="text" placeholder="optional, Adresse oder Fall-Referenz" />
-        </div>
-
-        <div class="field span-4">
-          <label for="year">Jahr</label>
-          <input id="year" type="number" min="2009" max="2100" step="1" placeholder="z. B. 2024" />
-        </div>
-
+      <form id="csvForm" class="form-grid" autocomplete="off">
         <div class="field span-12">
           <label for="csvFile">CSV-Datei laden</label>
           <input id="csvFile" type="file" accept=".csv,text/csv" />
@@ -737,10 +690,104 @@
         </div>
 
         <div class="span-12 toolbar no-print">
-          <button class="btn btn-primary" type="submit" id="btnSaveSource">Quelle speichern und analysieren</button>
-          <button class="btn btn-ghost" type="button" id="btnReset">Formular leeren</button>
+          <button class="btn btn-primary" type="submit">CSV auslesen und Quelle vorbereiten</button>
+          <button class="btn btn-ghost" type="button" id="btnResetCsv">Eingabe leeren</button>
         </div>
       </form>
+    </section>
+
+    <section class="section panel soft">
+      <h2>Automatisch erkannte Quelle</h2>
+      <p class="muted">
+        Die CSV füllt diese Angaben automatisch vor. Du kannst sie bei Bedarf noch anpassen, bevor die Quelle gespeichert wird.
+      </p>
+
+      <div id="autoSourceEmpty" class="empty">Noch keine CSV geladen.</div>
+
+      <div id="autoSourceBox" class="hidden">
+        <div class="result-box">
+          <div class="result-title">
+            <div>
+              <h3 id="autoResultTitle">Quellenvorschlag</h3>
+              <div class="small muted" id="autoResultSub">Bitte kurz prüfen und dann speichern.</div>
+            </div>
+            <div class="chips" id="autoResultChips"></div>
+          </div>
+
+          <div class="okbox" id="autoProfileBox">Profil wird nach dem Laden erkannt.</div>
+
+          <form id="sourceConfirmForm" class="form-grid" autocomplete="off" style="margin-top:14px;">
+            <div class="field span-4">
+              <label for="caseName">Bezeichnung</label>
+              <input id="caseName" type="text" placeholder="wird automatisch vorgeschlagen" />
+            </div>
+
+            <div class="field span-4">
+              <label for="network">Chain / Netzwerk</label>
+              <select id="network">
+                <option value="">Bitte auswählen</option>
+                <option>Bitcoin</option>
+                <option>Ethereum</option>
+                <option>BNB Chain</option>
+                <option>Arbitrum</option>
+                <option>Base</option>
+                <option>Polygon</option>
+                <option>Optimism</option>
+                <option>Solana</option>
+                <option value="Eigene Eingabe">Eigene Eingabe</option>
+              </select>
+            </div>
+
+            <div class="field span-4">
+              <label for="networkCustom">Eigene Chain</label>
+              <input id="networkCustom" type="text" placeholder="optional, z. B. Avalanche oder Tron" />
+            </div>
+
+            <div class="field span-4">
+              <label for="provider">Börse / Plattform / Explorer</label>
+              <input id="provider" type="text" placeholder="wird automatisch vorgeschlagen" />
+            </div>
+
+            <div class="field span-4">
+              <label for="walletRef">Wallet-Adresse / Referenz</label>
+              <input id="walletRef" type="text" placeholder="optional, falls aus CSV erkennbar oder manuell ergänzen" />
+            </div>
+
+            <div class="field span-4">
+              <label for="year">Jahr</label>
+              <input id="year" type="number" min="2009" max="2100" step="1" placeholder="wird möglichst automatisch ermittelt" />
+            </div>
+
+            <div class="field span-12">
+              <label for="sourceNote">Hinweis zur Quelle</label>
+              <textarea id="sourceNote" placeholder="optional, z. B. nur Rewards, nur Token Transfers oder Teilbereich einer Plattform"></textarea>
+            </div>
+
+            <div class="span-12 toolbar no-print">
+              <button class="btn btn-secondary" type="submit">Quelle speichern</button>
+            </div>
+          </form>
+
+          <div class="grid grid-2 section">
+            <div class="file-card">
+              <div class="file-head">
+                <div>
+                  <strong id="fileNameText">Datei</strong>
+                  <div class="small muted" id="fileMetaText">–</div>
+                </div>
+              </div>
+              <div class="small muted" id="columnsText" style="margin-top:10px;">–</div>
+            </div>
+
+            <div class="mini-card">
+              <strong>Was noch fehlen kann</strong>
+              <ul class="checklist" id="missingList">
+                <li>Noch keine Einschätzung vorhanden.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section class="section panel soft">
@@ -787,16 +834,16 @@
             <div class="file-card">
               <div class="file-head">
                 <div>
-                  <strong id="fileNameText">Datei</strong>
-                  <div class="small muted" id="fileMetaText">–</div>
+                  <strong id="openedFileNameText">Datei</strong>
+                  <div class="small muted" id="openedFileMetaText">–</div>
                 </div>
               </div>
-              <div class="small muted" id="columnsText" style="margin-top:10px;">–</div>
+              <div class="small muted" id="openedColumnsText" style="margin-top:10px;">–</div>
             </div>
 
             <div class="mini-card">
               <strong>Was noch fehlen kann</strong>
-              <ul class="checklist" id="missingList">
+              <ul class="checklist" id="openedMissingList">
                 <li>Noch keine Einschätzung vorhanden.</li>
               </ul>
             </div>
@@ -852,8 +899,8 @@
       <h2>Was diese Seite besonders gut macht</h2>
       <div class="grid grid-3">
         <div class="mini-card">
-          <strong>Einfacher Einstieg</strong>
-          <div class="muted small">Nicht jede CSV muss perfekt verstanden werden. Die Seite hilft dir mit einem einfachen ersten Schritt.</div>
+          <strong>CSV zuerst</strong>
+          <div class="muted small">Die Datei wird zuerst gelesen. Daraus wird die Quelle automatisch vorbereitet.</div>
         </div>
         <div class="mini-card">
           <strong>Klare Quellenliste</strong>
@@ -874,7 +921,7 @@
 
   <script>
     (() => {
-      const STORAGE_KEY = 'kso_csv_import_einsteiger_v2';
+      const STORAGE_KEY = 'kso_csv_import_einsteiger_v3';
 
       const AUTO_FIELDS = {
         date: ['date','datum','datetime (utc)','timestamp (utc)','time(utc)','created at','transaction date'],
@@ -893,19 +940,36 @@
         statFiles: document.getElementById('statFiles'),
         statMaster: document.getElementById('statMaster'),
         btnScrollStart: document.getElementById('btnScrollStart'),
-        simpleForm: document.getElementById('simpleForm'),
+
+        csvForm: document.getElementById('csvForm'),
+        csvFile: document.getElementById('csvFile'),
+        csvPaste: document.getElementById('csvPaste'),
+        btnResetCsv: document.getElementById('btnResetCsv'),
+
+        autoSourceEmpty: document.getElementById('autoSourceEmpty'),
+        autoSourceBox: document.getElementById('autoSourceBox'),
+        autoResultTitle: document.getElementById('autoResultTitle'),
+        autoResultSub: document.getElementById('autoResultSub'),
+        autoResultChips: document.getElementById('autoResultChips'),
+        autoProfileBox: document.getElementById('autoProfileBox'),
+        fileNameText: document.getElementById('fileNameText'),
+        fileMetaText: document.getElementById('fileMetaText'),
+        columnsText: document.getElementById('columnsText'),
+        missingList: document.getElementById('missingList'),
+
+        sourceConfirmForm: document.getElementById('sourceConfirmForm'),
         caseName: document.getElementById('caseName'),
         network: document.getElementById('network'),
         networkCustom: document.getElementById('networkCustom'),
         provider: document.getElementById('provider'),
         walletRef: document.getElementById('walletRef'),
         year: document.getElementById('year'),
-        csvFile: document.getElementById('csvFile'),
-        csvPaste: document.getElementById('csvPaste'),
-        btnReset: document.getElementById('btnReset'),
+        sourceNote: document.getElementById('sourceNote'),
+
         overviewChips: document.getElementById('overviewChips'),
         sourcesEmpty: document.getElementById('sourcesEmpty'),
         sourcesList: document.getElementById('sourcesList'),
+
         analysisEmpty: document.getElementById('analysisEmpty'),
         analysisBox: document.getElementById('analysisBox'),
         resultTitle: document.getElementById('resultTitle'),
@@ -914,11 +978,12 @@
         mappedChips: document.getElementById('mappedChips'),
         resultProfileBox: document.getElementById('resultProfileBox'),
         resultHintBox: document.getElementById('resultHintBox'),
-        fileNameText: document.getElementById('fileNameText'),
-        fileMetaText: document.getElementById('fileMetaText'),
-        columnsText: document.getElementById('columnsText'),
-        missingList: document.getElementById('missingList'),
+        openedFileNameText: document.getElementById('openedFileNameText'),
+        openedFileMetaText: document.getElementById('openedFileMetaText'),
+        openedColumnsText: document.getElementById('openedColumnsText'),
+        openedMissingList: document.getElementById('openedMissingList'),
         btnBuildMaster: document.getElementById('btnBuildMaster'),
+
         masterChips: document.getElementById('masterChips'),
         masterEmpty: document.getElementById('masterEmpty'),
         masterWrap: document.getElementById('masterWrap'),
@@ -928,6 +993,7 @@
       };
 
       const state = loadState();
+      let pendingSource = null;
 
       function loadState(){
         try{
@@ -978,12 +1044,6 @@
       function currentSourceKind(){
         const checked = document.querySelector('input[name="sourceKind"]:checked');
         return checked ? checked.value : 'wallet';
-      }
-
-      function currentChain(){
-        const selected = normalize(els.network.value);
-        if(selected === 'Eigene Eingabe') return normalize(els.networkCustom.value);
-        return selected || normalize(els.networkCustom.value);
       }
 
       function detectDelimiter(text){
@@ -1133,15 +1193,63 @@
         return 'Diese Datei wurde allgemein erkannt. Prüfe später in Ruhe, ob noch weitere Exportdateien nötig sind.';
       }
 
+      function guessProvider(profile, fileName, headers){
+        const lowerName = normalize(fileName).toLowerCase();
+        const headerText = headers.map(h => normalizeHeader(h)).join(' | ');
+
+        if(profile.startsWith('Etherscan')) return 'Etherscan';
+        if(lowerName.includes('crypto') || headerText.includes('transaction description')) return 'Crypto.com';
+        if(lowerName.includes('binance')) return 'Binance';
+        if(lowerName.includes('coinbase')) return 'Coinbase';
+        if(lowerName.includes('kraken')) return 'Kraken';
+        if(lowerName.includes('bitpanda')) return 'Bitpanda';
+        if(lowerName.includes('solscan')) return 'Solscan';
+        if(lowerName.includes('etherscan')) return 'Etherscan';
+        return '';
+      }
+
+      function guessChain(profile, fileName, headers){
+        const lowerName = normalize(fileName).toLowerCase();
+        const headerText = headers.map(h => normalizeHeader(h)).join(' | ');
+
+        if(profile.startsWith('Etherscan')) return 'Ethereum';
+        if(lowerName.includes('sol') || headerText.includes('solana')) return 'Solana';
+        if(lowerName.includes('bnb') || headerText.includes('bnb')) return 'BNB Chain';
+        if(lowerName.includes('btc') || headerText.includes('bitcoin')) return 'Bitcoin';
+        return '';
+      }
+
+      function guessYear(parsed, mappings){
+        const header = mappings.date || mappings.time;
+        if(!header || !parsed.data.length) return '';
+        for(const row of parsed.data){
+          const dt = splitDateTime(row[header] || '');
+          const date = normalize(dt.date);
+          const match = date.match(/^(\d{4})[-/]/);
+          if(match) return match[1];
+        }
+        return '';
+      }
+
+      function buildSuggestedName(provider, profile, year, chain){
+        const parts = [];
+        if(provider) parts.push(provider);
+        if(profile) parts.push(profile.replace('Allgemeine ', ''));
+        if(chain && !profile.toLowerCase().includes(chain.toLowerCase())) parts.push(chain);
+        if(year) parts.push(year);
+        return parts.join(' – ') || 'Unbenannte Quelle';
+      }
+
       function getCurrentSource(){
         return state.sources.find(source => source.id === state.currentSourceId) || null;
       }
 
-      function fillFormFromSource(source){
+      function fillPendingForm(source){
         els.caseName.value = source.caseName || '';
         els.provider.value = source.provider || '';
         els.walletRef.value = source.walletRef || '';
         els.year.value = source.year || '';
+        els.sourceNote.value = source.note || '';
         els.network.value = '';
         els.networkCustom.value = '';
 
@@ -1152,12 +1260,15 @@
           els.network.value = 'Eigene Eingabe';
           els.networkCustom.value = source.chain;
         }
+      }
 
+      function fillFormFromSource(source){
+        fillPendingForm(source);
         const radio = document.querySelector(`input[name="sourceKind"][value="${source.sourceKind || 'wallet'}"]`);
         if(radio) radio.checked = true;
       }
 
-      async function readInputContent(){
+      async function readCsvInput(){
         let content = normalize(els.csvPaste.value);
         let fileName = 'Direkteingabe.csv';
 
@@ -1173,25 +1284,56 @@
         return { content, fileName };
       }
 
-      function buildSourceObject(parsed, fileName){
-        const mappings = detectMappings(parsed.headers);
-        const profile = detectProfile(parsed.headers);
+      function renderPendingSource(){
+        if(!pendingSource){
+          els.autoSourceEmpty.classList.remove('hidden');
+          els.autoSourceBox.classList.add('hidden');
+          return;
+        }
 
-        return {
-          id: uid('source'),
-          sourceKind: currentSourceKind(),
-          caseName: normalize(els.caseName.value) || 'Unbenannte Quelle',
-          chain: currentChain(),
-          provider: normalize(els.provider.value),
-          walletRef: normalize(els.walletRef.value),
-          year: normalize(els.year.value),
-          fileName,
-          createdAt: new Date().toISOString(),
-          parsed,
-          mappings,
-          profile,
-          masterRows: []
-        };
+        els.autoSourceEmpty.classList.add('hidden');
+        els.autoSourceBox.classList.remove('hidden');
+        els.statStep.textContent = '2';
+
+        els.autoResultTitle.textContent = pendingSource.profile;
+        els.autoResultSub.textContent = `${pendingSource.parsed.data.length} Zeilen erkannt. Bitte kurz prüfen und dann speichern.`;
+
+        els.autoResultChips.innerHTML = '';
+        [
+          `${pendingSource.parsed.data.length} Zeilen`,
+          `${pendingSource.parsed.headers.length} Spalten`,
+          pendingSource.parsed.delimiter === ';' ? 'Trennzeichen ;' : 'Trennzeichen ,'
+        ].forEach(text => {
+          const span = document.createElement('span');
+          span.className = 'chip mint';
+          span.textContent = text;
+          els.autoResultChips.appendChild(span);
+        });
+
+        els.autoProfileBox.textContent = `Erkanntes Profil: ${pendingSource.profile}`;
+        els.fileNameText.textContent = pendingSource.fileName;
+        els.fileMetaText.textContent = `${pendingSource.parsed.data.length} Zeilen · ${pendingSource.parsed.headers.length} Spalten`;
+        els.columnsText.textContent = pendingSource.parsed.headers.join(' | ') || 'Keine Spalten erkannt';
+
+        const missing = [];
+        if(!pendingSource.mappings.asset) missing.push('Asset wurde nicht sicher erkannt.');
+        if(!pendingSource.mappings.amount) missing.push('Menge wurde nicht sicher erkannt.');
+        if(!pendingSource.mappings.txid) missing.push('TxID wurde nicht sicher erkannt.');
+        if(!pendingSource.mappings.value) missing.push('Gegenwert fehlt oder ist in dieser Datei nicht enthalten.');
+        if(!pendingSource.mappings.fee) missing.push('Gebühr fehlt oder ist in dieser Datei nicht enthalten.');
+
+        els.missingList.innerHTML = '';
+        if(!missing.length){
+          els.missingList.innerHTML = '<li>Die wichtigsten Felder wurden erkannt.</li>';
+        }else{
+          missing.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            els.missingList.appendChild(li);
+          });
+        }
+
+        fillPendingForm(pendingSource);
       }
 
       function renderOverview(){
@@ -1200,11 +1342,10 @@
         els.statFiles.textContent = String(totalFiles);
 
         els.overviewChips.innerHTML = '';
-        const chips = [
+        [
           `${state.sources.length} Quellen`,
           `${totalFiles} CSV-Dateien`
-        ];
-        chips.forEach((text, index) => {
+        ].forEach((text, index) => {
           const span = document.createElement('span');
           span.className = index === 0 ? 'chip mint' : 'chip';
           span.textContent = text;
@@ -1242,6 +1383,7 @@
               <div><strong>Datei:</strong> <span class="muted">${escapeHtml(source.fileName)}</span></div>
               ${source.walletRef ? `<div><strong>Wallet / Referenz:</strong> <span class="muted">${escapeHtml(source.walletRef)}</span></div>` : ''}
               <div><strong>Erkanntes Profil:</strong> <span class="muted">${escapeHtml(source.profile)}</span></div>
+              ${source.note ? `<div><strong>Hinweis:</strong> <span class="muted">${escapeHtml(source.note)}</span></div>` : ''}
             </div>
           `;
           els.sourcesList.appendChild(card);
@@ -1254,7 +1396,9 @@
         if(!source){
           els.analysisEmpty.classList.remove('hidden');
           els.analysisBox.classList.add('hidden');
-          els.statStep.textContent = state.sources.length ? '2' : '1';
+          if(!pendingSource){
+            els.statStep.textContent = state.sources.length ? '2' : '1';
+          }
           return;
         }
 
@@ -1263,7 +1407,7 @@
         els.statStep.textContent = '3';
 
         els.resultTitle.textContent = source.profile;
-        els.resultSub.textContent = `${source.parsed.data.length} Zeilen erkannt. Bitte den Vorschlag kurz prüfen.`;
+        els.resultSub.textContent = `${source.parsed.data.length} Zeilen erkannt. Bitte prüfe die Einschätzung.`;
 
         els.resultChips.innerHTML = '';
         [
@@ -1298,9 +1442,9 @@
 
         els.resultProfileBox.textContent = `Erkanntes Profil: ${source.profile}`;
         els.resultHintBox.textContent = profileHint(source.profile);
-        els.fileNameText.textContent = source.fileName;
-        els.fileMetaText.textContent = `${source.parsed.data.length} Zeilen · ${source.parsed.headers.length} Spalten`;
-        els.columnsText.textContent = source.parsed.headers.join(' | ') || 'Keine Spalten erkannt';
+        els.openedFileNameText.textContent = source.fileName;
+        els.openedFileMetaText.textContent = `${source.parsed.data.length} Zeilen · ${source.parsed.headers.length} Spalten`;
+        els.openedColumnsText.textContent = source.parsed.headers.join(' | ') || 'Keine Spalten erkannt';
 
         const missing = [];
         if(!source.mappings.asset) missing.push('Asset wurde nicht sicher erkannt.');
@@ -1309,14 +1453,14 @@
         if(!source.mappings.value) missing.push('Gegenwert fehlt oder ist in dieser Datei nicht enthalten.');
         if(!source.mappings.fee) missing.push('Gebühr fehlt oder ist in dieser Datei nicht enthalten.');
 
-        els.missingList.innerHTML = '';
+        els.openedMissingList.innerHTML = '';
         if(!missing.length){
-          els.missingList.innerHTML = '<li>Die wichtigsten Felder wurden erkannt.</li>';
+          els.openedMissingList.innerHTML = '<li>Die wichtigsten Felder wurden erkannt.</li>';
         }else{
           missing.forEach(item => {
             const li = document.createElement('li');
             li.textContent = item;
-            els.missingList.appendChild(li);
+            els.openedMissingList.appendChild(li);
           });
         }
       }
@@ -1429,31 +1573,97 @@
         setTimeout(() => URL.revokeObjectURL(url), 1000);
       }
 
-      async function handleSaveSource(event){
+      async function handleCsvRead(event){
         event.preventDefault();
 
-        const input = await readInputContent();
+        const input = await readCsvInput();
         if(!input){
           alert('Bitte lade eine CSV-Datei hoch oder füge CSV-Inhalt ein.');
           return;
         }
 
         const parsed = parseCsv(input.content);
-        const source = buildSourceObject(parsed, input.fileName);
+        const mappings = detectMappings(parsed.headers);
+        const profile = detectProfile(parsed.headers);
+        const provider = guessProvider(profile, input.fileName, parsed.headers);
+        const chain = guessChain(profile, input.fileName, parsed.headers);
+        const year = guessYear(parsed, mappings);
+        const caseName = buildSuggestedName(provider, profile, year, chain);
 
-        state.sources.unshift(source);
-        state.currentSourceId = source.id;
+        pendingSource = {
+          id: uid('source'),
+          sourceKind: currentSourceKind(),
+          caseName,
+          chain,
+          provider,
+          walletRef: '',
+          year,
+          note: '',
+          fileName: input.fileName,
+          createdAt: new Date().toISOString(),
+          parsed,
+          mappings,
+          profile,
+          masterRows: []
+        };
+
+        renderPendingSource();
+      }
+
+      async function readCsvInput(){
+        let content = normalize(els.csvPaste.value);
+        let fileName = 'Direkteingabe.csv';
+
+        if(!content && els.csvFile.files[0]){
+          content = await els.csvFile.files[0].text();
+          fileName = els.csvFile.files[0].name;
+        }
+
+        if(!content){
+          return null;
+        }
+
+        return { content, fileName };
+      }
+
+      function handleSaveSource(event){
+        event.preventDefault();
+
+        if(!pendingSource){
+          alert('Bitte zuerst eine CSV laden.');
+          return;
+        }
+
+        const selected = normalize(els.network.value);
+        const finalChain = selected === 'Eigene Eingabe'
+          ? normalize(els.networkCustom.value)
+          : selected || normalize(els.networkCustom.value);
+
+        pendingSource.caseName = normalize(els.caseName.value) || pendingSource.caseName;
+        pendingSource.chain = finalChain;
+        pendingSource.provider = normalize(els.provider.value);
+        pendingSource.walletRef = normalize(els.walletRef.value);
+        pendingSource.year = normalize(els.year.value);
+        pendingSource.note = normalize(els.sourceNote.value);
+
+        state.sources.unshift(pendingSource);
+        state.currentSourceId = pendingSource.id;
         state.masterRows = [];
+        pendingSource = null;
+
         saveState();
 
         els.csvFile.value = '';
         els.csvPaste.value = '';
 
+        renderPendingSource();
         renderAll();
       }
 
-      function resetFormOnly(){
-        els.simpleForm.reset();
+      function resetCsvInput(){
+        els.csvForm.reset();
+        pendingSource = null;
+        renderPendingSource();
       }
 
       function deleteSource(id){
@@ -1486,8 +1696,10 @@
         document.getElementById('startSection').scrollIntoView({ behavior:'smooth', block:'start' });
       });
 
-      els.simpleForm.addEventListener('submit', handleSaveSource);
-      els.btnReset.addEventListener('click', resetFormOnly);
+      els.csvForm.addEventListener('submit', handleCsvRead);
+      els.btnResetCsv.addEventListener('click', resetCsvInput);
+      els.sourceConfirmForm.addEventListener('submit', handleSaveSource);
+
       els.btnBuildMaster.addEventListener('click', () => {
         const source = getCurrentSource();
         if(!source){
@@ -1496,6 +1708,7 @@
         }
         buildMasterRowsForSource(source);
       });
+
       els.btnExportCsv.addEventListener('click', exportMasterCsv);
       els.btnPrint.addEventListener('click', () => window.print());
 
@@ -1530,6 +1743,7 @@
         saveState();
       }
 
+      renderPendingSource();
       renderAll();
     })();
   </script>
