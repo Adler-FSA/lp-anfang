@@ -975,7 +975,8 @@
     │   │   ├── import-csv-einsteiger.html
     │   │   ├── import-csv-fortgeschrittene.html
     │   │   ├── import-csv-hilfe.html
-    │   │   └── index.html
+    │   │   ├── index.html
+    │   │   └── sonderfaelle-erfassen.html
     │   ├── liquiditybooster/
     │   │   ├── krypto-setup-intro-en.html
     │   │   ├── krypto-setup-intro.html
@@ -1398,4 +1399,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.04.2026, 15:09)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.04.2026, 16:59)_
