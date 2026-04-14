@@ -1,0 +1,2965 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CSV-Import für Fortgeschrittene – Krypto-Steuer-Ordnung</title>
+  <meta name="description" content="Offene Arbeitsansicht für Fortgeschrittene. Mehrere Quellen, Masterliste, Auswertung, Archiv, Gerätewechsel, Excel-Export und Steuerberater-Ansicht." />
+  <meta name="robots" content="index,follow" />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --bg-soft:#f7fbfa;
+      --panel:#ffffff;
+      --panel-soft:#f3fbf8;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#d9efe8;
+      --line-strong:#9edecf;
+      --mint:#12c7a3;
+      --mint-dark:#0ea480;
+      --magenta:#ff4fb3;
+      --magenta-dark:#d93a96;
+      --warning:#b45309;
+      --danger:#b91c1c;
+      --shadow:0 18px 50px rgba(16,24,40,.08);
+      --radius:22px;
+      --max:1420px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      color:var(--text);
+      line-height:1.55;
+      background:
+        radial-gradient(circle at top left, rgba(18,199,163,.12), transparent 30%),
+        radial-gradient(circle at top right, rgba(255,79,179,.10), transparent 26%),
+        linear-gradient(180deg,#ffffff 0%, #f8fcfb 100%);
+    }
+
+    a{color:var(--mint-dark);text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    .wrap{
+      width:min(calc(100% - 28px),var(--max));
+      margin:0 auto;
+      padding:22px 0 56px;
+    }
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid rgba(18,199,163,.18);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:28px 22px;
+      background:
+        linear-gradient(135deg, rgba(18,199,163,.12), rgba(255,79,179,.10)),
+        #ffffff;
+    }
+
+    .hero::before,
+    .hero::after{
+      content:"";
+      position:absolute;
+      border-radius:999px;
+      pointer-events:none;
+      filter:blur(12px);
+    }
+
+    .hero::before{
+      width:220px;height:220px;
+      top:-50px;right:-40px;
+      background:rgba(255,79,179,.12);
+    }
+
+    .hero::after{
+      width:180px;height:180px;
+      bottom:-60px;left:-50px;
+      background:rgba(18,199,163,.14);
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      border-radius:999px;
+      padding:8px 12px;
+      border:1px solid rgba(18,199,163,.18);
+      background:rgba(18,199,163,.10);
+      color:var(--mint-dark);
+      font-size:12px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      margin-bottom:12px;
+    }
+
+    .eyebrow .dot{
+      width:10px;height:10px;border-radius:50%;
+      background:linear-gradient(135deg,var(--mint),var(--magenta));
+      box-shadow:0 0 16px rgba(255,79,179,.35);
+      flex:0 0 auto;
+    }
+
+    h1,h2,h3{margin:0 0 10px}
+    h1{
+      font-size:clamp(30px,4.8vw,48px);
+      line-height:1.04;
+      letter-spacing:-.02em;
+    }
+    h2{
+      font-size:clamp(22px,3vw,30px);
+      letter-spacing:-.02em;
+    }
+    h3{
+      font-size:19px;
+      letter-spacing:-.01em;
+    }
+
+    .sub{
+      max-width:1080px;
+      margin:0;
+      color:var(--muted);
+      font-size:17px;
+    }
+
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .btn{
+      appearance:none;
+      border:0;
+      border-radius:14px;
+      padding:12px 16px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:14px;
+      line-height:1.2;
+      transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .btn:hover{transform:translateY(-1px);text-decoration:none}
+    .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+    .btn-primary{
+      color:#fff;
+      background:linear-gradient(135deg,var(--mint-dark),var(--mint));
+      box-shadow:0 12px 28px rgba(18,199,163,.22);
+    }
+
+    .btn-secondary{
+      color:#fff;
+      background:linear-gradient(135deg,var(--magenta-dark),var(--magenta));
+      box-shadow:0 12px 28px rgba(255,79,179,.18);
+    }
+
+    .btn-ghost{
+      background:#fff;
+      color:var(--text);
+      border:1px solid var(--line-strong);
+    }
+
+    .btn-danger{
+      background:#fff5f5;
+      color:var(--danger);
+      border:1px solid #fecaca;
+    }
+
+    .section{margin-top:18px}
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+    .panel.soft{background:var(--panel-soft)}
+
+    .grid{display:grid;gap:18px}
+    .grid-2{grid-template-columns:1.06fr .94fr}
+    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .grid-5{grid-template-columns:repeat(5,minmax(0,1fr))}
+
+    .step-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .step-card,
+    .mini-card,
+    .choice-card,
+    .source-card,
+    .file-card,
+    .eval-card,
+    .archive-card,
+    .preview-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px;
+      min-height:100%;
+    }
+
+    .step-num{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:34px;height:34px;
+      border-radius:50%;
+      background:rgba(18,199,163,.10);
+      border:1px solid rgba(18,199,163,.18);
+      color:var(--mint-dark);
+      font-weight:800;
+      margin-bottom:8px;
+    }
+
+    .muted{color:var(--muted)}
+    .small{font-size:13px}
+
+    .note{
+      border-left:4px solid var(--magenta);
+      background:rgba(255,79,179,.07);
+      padding:12px 14px;
+      border-radius:12px;
+      color:#5f0e3b;
+      margin-top:10px;
+    }
+
+    .okbox{
+      border-left:4px solid var(--mint);
+      background:rgba(18,199,163,.08);
+      padding:12px 14px;
+      border-radius:12px;
+      color:#065f46;
+    }
+
+    .warnbox{
+      border-left:4px solid #f59e0b;
+      background:#fff8e8;
+      padding:12px 14px;
+      border-radius:12px;
+      color:#92400e;
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      font-weight:700;
+      border-radius:999px;
+      padding:8px 11px;
+      background:#f5fbf9;
+      border:1px solid var(--line);
+      color:var(--text);
+    }
+
+    .chip.mint{
+      background:rgba(18,199,163,.10);
+      border-color:rgba(18,199,163,.18);
+      color:var(--mint-dark);
+    }
+
+    .chip.magenta{
+      background:rgba(255,79,179,.10);
+      border-color:rgba(255,79,179,.18);
+      color:var(--magenta-dark);
+    }
+
+    .chip.warn{
+      background:#fff8e8;
+      border-color:#fcd34d;
+      color:#92400e;
+    }
+
+    .chip.gray{
+      background:#f8fafc;
+      border-color:#e2e8f0;
+      color:#334155;
+    }
+
+    .statusbar{
+      display:grid;
+      grid-template-columns:repeat(5,minmax(0,1fr));
+      gap:12px;
+      margin-top:16px;
+    }
+
+    .stat{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+    }
+
+    .stat .num{
+      font-size:28px;
+      line-height:1;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .choice-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .choice-card input[type="radio"],
+    .source-select{
+      transform:scale(1.15);
+    }
+
+    .choice-head{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:700;
+      margin-bottom:8px;
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(12,minmax(0,1fr));
+      gap:12px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+    }
+
+    .field label{
+      font-size:13px;
+      font-weight:700;
+      color:var(--text);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="file"],
+    textarea,
+    select{
+      width:100%;
+      border:1px solid var(--line-strong);
+      background:#fff;
+      color:var(--text);
+      border-radius:14px;
+      padding:12px 13px;
+      font:inherit;
+      min-height:46px;
+    }
+
+    textarea{
+      min-height:110px;
+      resize:vertical;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus{
+      outline:none;
+      border-color:var(--mint);
+      box-shadow:0 0 0 4px rgba(18,199,163,.12);
+    }
+
+    .span-12{grid-column:span 12}
+    .span-8{grid-column:span 8}
+    .span-6{grid-column:span 6}
+    .span-4{grid-column:span 4}
+    .span-3{grid-column:span 3}
+
+    .checklist{
+      margin:10px 0 0 18px;
+      padding:0;
+    }
+
+    .checklist li{margin:0 0 8px}
+
+    .result-box{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:16px;
+    }
+
+    .result-title{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+
+    .list-wrap{
+      display:grid;
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      margin-top:14px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:1180px;
+    }
+
+    th,td{
+      text-align:left;
+      vertical-align:top;
+      padding:12px;
+      border-bottom:1px solid #eef5f3;
+      font-size:14px;
+    }
+
+    th{
+      position:sticky;
+      top:0;
+      z-index:1;
+      background:#f6fcfa;
+      color:var(--text);
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+
+    .empty{
+      padding:18px;
+      border:1px dashed var(--line-strong);
+      border-radius:18px;
+      color:var(--muted);
+      background:#fcfffe;
+    }
+
+    .source-head,
+    .file-head,
+    .archive-head{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .source-meta{
+      display:grid;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .source-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .source-left{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .eval-grid{
+      display:grid;
+      grid-template-columns:repeat(5,minmax(0,1fr));
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .eval-card .value{
+      font-size:24px;
+      line-height:1.1;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .eval-card .label{
+      font-weight:700;
+      margin-bottom:4px;
+    }
+
+    .master-header{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:16px;
+      margin-top:14px;
+    }
+
+    .archive-list{
+      display:grid;
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .preview-modal,
+    .info-modal{
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.45);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:9999;
+    }
+
+    .preview-modal.show,
+    .info-modal.show{
+      display:flex;
+    }
+
+    .preview-shell,
+    .info-shell{
+      width:min(1220px,100%);
+      max-height:90vh;
+      overflow:auto;
+      background:#fff;
+      border-radius:24px;
+      box-shadow:0 24px 80px rgba(0,0,0,.18);
+      border:1px solid var(--line);
+      padding:18px;
+    }
+
+    .preview-toolbar,
+    .info-toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:14px;
+    }
+
+    .preview-body,
+    .info-body{
+      display:grid;
+      gap:18px;
+    }
+
+    .steuerberater-view{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:16px;
+      margin-top:14px;
+    }
+
+    .hidden{display:none !important}
+    .print-only{display:none}
+
+    @media (max-width:1120px){
+      .grid-2,
+      .grid-3,
+      .grid-4,
+      .grid-5,
+      .step-grid,
+      .statusbar,
+      .choice-grid,
+      .eval-grid{
+        grid-template-columns:1fr;
+      }
+      .span-8,.span-6,.span-4,.span-3{grid-column:span 12}
+    }
+
+    @media print{
+      body{
+        background:#fff;
+        color:#000;
+      }
+      .wrap{
+        width:100%;
+        max-width:none;
+        padding:0;
+      }
+      .hero,
+      .panel,
+      .step-card,
+      .mini-card,
+      .choice-card,
+      .source-card,
+      .file-card,
+      .eval-card,
+      .archive-card,
+      .preview-card,
+      .result-box,
+      .stat,
+      .table-wrap,
+      .master-header,
+      .steuerberater-view{
+        box-shadow:none !important;
+        border-color:#cfd8dc !important;
+        break-inside:avoid;
+      }
+      .toolbar,
+      .btn,
+      input,
+      textarea,
+      select,
+      .no-print,
+      .preview-modal,
+      .info-modal{
+        display:none !important;
+      }
+      .print-only{
+        display:block !important;
+      }
+      .hero,
+      .panel{
+        padding:14px;
+      }
+      table{
+        min-width:0;
+      }
+      th,td{
+        font-size:12px;
+        padding:8px;
+      }
+      a{
+        color:#000;
+        text-decoration:none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow"><span class="dot"></span> Offene Arbeitsansicht für Fortgeschrittene</div>
+      <h1>CSV-Import für Fortgeschrittene</h1>
+      <p class="sub">
+        Diese Seite richtet sich an Nutzer mit mehreren Wallets, Börsen, Explorern, Teilimporten und komplexeren Fällen.
+        Sie bündelt Rohdaten zu einer offenen FSA-Arbeitsdatei mit kombinierter Masterliste, Auswertung, Archiv, Vorschau,
+        Gerätewechsel und Steuerberater-Ansicht.
+      </p>
+
+      <div class="note">
+        <strong>Fortgeschrittene Logik:</strong><br>
+        Nicht nur Euro rein und Euro raus sind relevant. Auch Krypto-zu-Krypto, Projektinvestments, Rewards, Staking,
+        DeFi, LP-Token, Cashback, Voucher und Zwischenschritte können die wirtschaftliche Gesamtgeschichte verändern.
+      </div>
+
+      <div class="statusbar">
+        <div class="stat">
+          <div class="num" id="statStep">1</div>
+          <div><strong>Aktueller Schritt</strong></div>
+          <div class="small muted">offen statt geführt</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="statSources">0</div>
+          <div><strong>Quellen</strong></div>
+          <div class="small muted">angelegte Datenquellen</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="statFiles">0</div>
+          <div><strong>CSV-Dateien</strong></div>
+          <div class="small muted">in der Arbeitsumgebung</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="statMaster">0</div>
+          <div><strong>Kombinierte Zeilen</strong></div>
+          <div class="small muted">Sammelergebnis</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="statArchives">0</div>
+          <div><strong>Archivstände</strong></div>
+          <div class="small muted">gespeicherte Jahre / Stände</div>
+        </div>
+      </div>
+
+      <div class="toolbar no-print">
+        <a class="btn btn-ghost" href="import-csv-einsteiger.html">Zur Einsteiger-Ansicht</a>
+        <button class="btn btn-ghost" id="btnOpenInfo" type="button">Akademie-Aufklärung für Fortgeschrittene</button>
+        <button class="btn btn-primary" id="btnScrollStart" type="button">Zur Arbeitsfläche</button>
+      </div>
+    </section>
+
+    <section class="section panel soft">
+      <h2>Arbeitslogik für Fortgeschrittene</h2>
+      <div class="step-grid">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <strong>Mehrere Quellen laden</strong>
+          <div class="muted small">Wallets, Börsen, Explorer, Rewards, Teilimporte und Spezialfälle nebeneinander aufbauen.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <strong>Quelle fachlich prüfen</strong>
+          <div class="muted small">Profil, Jahr, Chain, Mapping, Datenlage und Prüffälle pro Quelle sichtbar machen.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <strong>Sammelergebnis bilden</strong>
+          <div class="muted small">Ausgewählte Quellen gemeinsam in Masterliste, Kennzahlen und Steuerberater-Sicht überführen.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <strong>Archivieren und mitnehmen</strong>
+          <div class="muted small">Arbeitsstände sichern, Gerätewechsel durchführen, CSV/Excel exportieren und drucken.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section panel" id="startSection">
+      <h2>Quelle grob einordnen</h2>
+      <div class="choice-grid">
+        <label class="choice-card">
+          <div class="choice-head">
+            <input type="radio" name="sourceKind" value="wallet" checked />
+            <span>Wallet / Explorer / Onchain</span>
+          </div>
+          <div class="muted small">Zum Beispiel Etherscan, BscScan, Solscan, Wallet-Historien, Onchain-Transaktionen, Token-Transfers.</div>
+        </label>
+
+        <label class="choice-card">
+          <div class="choice-head">
+            <input type="radio" name="sourceKind" value="exchange" />
+            <span>Börse / Plattform / Offchain</span>
+          </div>
+          <div class="muted small">Zum Beispiel Binance, Coinbase, Kraken, Crypto.com, Tax-Reports, Rewards, Earn, Statements.</div>
+        </label>
+      </div>
+    </section>
+
+    <section class="section panel">
+      <h2>CSV laden und Quelle vorbereiten</h2>
+      <form id="csvForm" class="form-grid" autocomplete="off">
+        <div class="field span-12">
+          <label for="csvFile">CSV-Datei laden</label>
+          <input id="csvFile" type="file" accept=".csv,text/csv" />
+          <div class="small muted">Fortgeschrittene Nutzer können nacheinander mehrere Dateien aus unterschiedlichen Quellen anlegen.</div>
+        </div>
+
+        <div class="field span-12">
+          <label for="csvPaste">Oder CSV-Inhalt direkt einfügen</label>
+          <textarea id="csvPaste" placeholder="CSV-Inhalt direkt einfügen"></textarea>
+        </div>
+
+        <div class="span-12 toolbar no-print">
+          <button class="btn btn-primary" type="submit">CSV auslesen und Quelle vorbereiten</button>
+          <button class="btn btn-ghost" type="button" id="btnResetCsv">Eingabe leeren</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="section panel soft">
+      <h2>Automatisch erkannte Quelle</h2>
+      <div id="autoSourceEmpty" class="empty">Noch keine CSV geladen.</div>
+
+      <div id="autoSourceBox" class="hidden">
+        <div class="result-box">
+          <div class="result-title">
+            <div>
+              <h3 id="autoResultTitle">Quellenvorschlag</h3>
+              <div class="small muted" id="autoResultSub">Bitte prüfen, fachlich einordnen und dann speichern.</div>
+            </div>
+            <div class="chips" id="autoResultChips"></div>
+          </div>
+
+          <div class="okbox" id="autoProfileBox">Profil wird nach dem Laden erkannt.</div>
+
+          <form id="sourceConfirmForm" class="form-grid" autocomplete="off" style="margin-top:14px;">
+            <div class="field span-4">
+              <label for="caseName">Bezeichnung</label>
+              <input id="caseName" type="text" placeholder="wird automatisch vorgeschlagen" />
+            </div>
+
+            <div class="field span-4">
+              <label for="network">Chain / Netzwerk</label>
+              <select id="network">
+                <option value="">Bitte auswählen</option>
+                <option>Bitcoin</option>
+                <option>Ethereum</option>
+                <option>BNB Chain</option>
+                <option>Arbitrum</option>
+                <option>Base</option>
+                <option>Polygon</option>
+                <option>Optimism</option>
+                <option>Solana</option>
+                <option value="Eigene Eingabe">Eigene Eingabe</option>
+              </select>
+            </div>
+
+            <div class="field span-4">
+              <label for="networkCustom">Eigene Chain</label>
+              <input id="networkCustom" type="text" placeholder="optional, z. B. Avalanche oder Tron" />
+            </div>
+
+            <div class="field span-4">
+              <label for="provider">Börse / Plattform / Explorer</label>
+              <input id="provider" type="text" placeholder="wird automatisch vorgeschlagen" />
+            </div>
+
+            <div class="field span-4">
+              <label for="walletRef">Wallet-Adresse / Referenz</label>
+              <input id="walletRef" type="text" placeholder="optional, falls aus CSV erkennbar oder manuell ergänzen" />
+            </div>
+
+            <div class="field span-4">
+              <label for="year">Jahr</label>
+              <input id="year" type="number" min="2009" max="2100" step="1" placeholder="wird möglichst automatisch ermittelt" />
+            </div>
+
+            <div class="field span-12">
+              <label for="sourceNote">Fachnotiz zur Quelle</label>
+              <textarea id="sourceNote" placeholder="z. B. Teilimport, Rewards, Projektinvestment, DeFi, LP, Gutscheinpfad, Prüffall"></textarea>
+            </div>
+
+            <div class="span-12 toolbar no-print">
+              <button class="btn btn-secondary" type="submit">Quelle speichern</button>
+            </div>
+          </form>
+
+          <div class="grid grid-2 section">
+            <div class="file-card">
+              <div class="file-head">
+                <div>
+                  <strong id="fileNameText">Datei</strong>
+                  <div class="small muted" id="fileMetaText">–</div>
+                </div>
+              </div>
+              <div class="small muted" id="columnsText" style="margin-top:10px;">–</div>
+            </div>
+
+            <div class="mini-card">
+              <strong>Offene Punkte</strong>
+              <ul class="checklist" id="missingList">
+                <li>Noch keine Einschätzung vorhanden.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section panel soft">
+      <h2>Quellenzentrale</h2>
+      <p class="muted">
+        Hier werden alle Quellen als Arbeitsblöcke verwaltet. Du entscheidest, welche Quellen in das Sammelergebnis einfließen.
+      </p>
+
+      <div class="toolbar no-print">
+        <button class="btn btn-ghost" type="button" id="btnSelectAllSources">Alle Quellen auswählen</button>
+        <button class="btn btn-ghost" type="button" id="btnDeselectAllSources">Alle Quellen abwählen</button>
+        <button class="btn btn-primary" type="button" id="btnBuildCombined">Kombinierte Masterliste erzeugen</button>
+      </div>
+
+      <div class="chips" id="overviewChips"></div>
+      <div id="sourcesEmpty" class="empty" style="margin-top:14px;">Noch keine Quellen angelegt.</div>
+      <div id="sourcesList" class="list-wrap"></div>
+    </section>
+
+    <section class="section panel soft">
+      <h2>Analyse der geöffneten Quelle</h2>
+      <div id="analysisEmpty" class="empty">Noch keine Quelle geöffnet.</div>
+
+      <div id="analysisBox" class="hidden">
+        <div class="result-box">
+          <div class="result-title">
+            <div>
+              <h3 id="resultTitle">Datei-Erkennung</h3>
+              <div class="small muted" id="resultSub">Bitte prüfe die Struktur und Einordnung.</div>
+            </div>
+            <div class="chips" id="resultChips"></div>
+          </div>
+
+          <div class="grid grid-2">
+            <div>
+              <div class="okbox" id="resultProfileBox">Profil wird nach dem Laden erkannt.</div>
+              <div class="chips" id="mappedChips"></div>
+            </div>
+            <div>
+              <div class="warnbox" id="resultHintBox">Falls etwas fehlt, bleibt die Quelle trotzdem dokumentationsrelevant.</div>
+            </div>
+          </div>
+
+          <div class="grid grid-2 section">
+            <div class="file-card">
+              <div class="file-head">
+                <div>
+                  <strong id="openedFileNameText">Datei</strong>
+                  <div class="small muted" id="openedFileMetaText">–</div>
+                </div>
+              </div>
+              <div class="small muted" id="openedColumnsText" style="margin-top:10px;">–</div>
+            </div>
+
+            <div class="mini-card">
+              <strong>Was noch fehlt oder geprüft werden sollte</strong>
+              <ul class="checklist" id="openedMissingList">
+                <li>Noch keine Einschätzung vorhanden.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="toolbar no-print">
+            <button class="btn btn-secondary" id="btnBuildSingleMaster" type="button">Einzelne Masterliste für diese Quelle erzeugen</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section panel">
+      <h2>Auswertung der geöffneten Quelle</h2>
+      <div id="singleEvaluationEmpty" class="empty">Noch keine Auswertung verfügbar. Erzeuge zuerst eine einzelne Masterliste für die geöffnete Quelle.</div>
+
+      <div id="singleEvaluationBox" class="hidden">
+        <div class="eval-grid">
+          <div class="eval-card"><div class="value" id="singleEvalTransactions">0</div><div class="label">Transaktionen</div><div class="small muted">erkannte Zeilen</div></div>
+          <div class="eval-card"><div class="value" id="singleEvalFees">0,00</div><div class="label">Gebühren gesamt</div><div class="small muted">erkannte Gebühren</div></div>
+          <div class="eval-card"><div class="value" id="singleEvalFiatIn">0,00</div><div class="label">Fiat eingezahlt / zugeführt</div><div class="small muted">erkannte Zuflüsse</div></div>
+          <div class="eval-card"><div class="value" id="singleEvalFiatOut">0,00</div><div class="label">Fiat ausgezahlt / zurückgeführt</div><div class="small muted">erkannte Abflüsse</div></div>
+          <div class="eval-card"><div class="value" id="singleEvalDifference">0,00</div><div class="label">Erkannte Differenz</div><div class="small muted">aus ausgezahlt minus eingezahlt</div></div>
+          <div class="eval-card"><div class="value" id="singleEvalProvisionalGain">–</div><div class="label">Vorläufiger Gewinn</div><div class="small muted">aus Fiat-Saldo</div></div>
+          <div class="eval-card"><div class="value" id="singleEvalProvisionalLoss">–</div><div class="label">Vorläufiger Verlust</div><div class="small muted">aus Fiat-Saldo</div></div>
+          <div class="eval-card"><div class="value" id="singleEvalGain">–</div><div class="label">Direkt erkannter Gewinn</div><div class="small muted">nur aus CSV-Spalten</div></div>
+          <div class="eval-card"><div class="value" id="singleEvalLoss">–</div><div class="label">Direkt erkannter Verlust</div><div class="small muted">nur aus CSV-Spalten</div></div>
+          <div class="eval-card"><div class="value" id="singleEvalAssets">0</div><div class="label">Erkannte Assets</div><div class="small muted">unterschiedliche Werte</div></div>
+          <div class="eval-card"><div class="value" id="singleEvalCheckRows">0</div><div class="label">Prüffälle</div><div class="small muted">offene Hinweise</div></div>
+        </div>
+
+        <div class="chips" id="singleEvaluationChips"></div>
+        <div class="note" id="singleEvaluationNote">
+          Diese Auswertung ist eine Arbeitsgrundlage. Für belastbare Ergebnisse braucht es Vollständigkeit und nachvollziehbare Zwischenschritte.
+        </div>
+      </div>
+    </section>
+
+    <section class="section panel">
+      <h2>Einzelne Masterliste der geöffneten Quelle</h2>
+      <div class="toolbar no-print">
+        <button class="btn btn-ghost" type="button" id="btnExportSingleCsv">Einzelne Masterliste als CSV exportieren</button>
+      </div>
+
+      <div class="chips" id="singleMasterChips"></div>
+      <div id="singleMasterEmpty" class="empty" style="margin-top:14px;">Noch keine einzelne Masterliste für eine Quelle erzeugt.</div>
+
+      <div class="table-wrap hidden" id="singleMasterWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Datum</th>
+              <th>Uhrzeit</th>
+              <th>Quelle</th>
+              <th>Chain</th>
+              <th>Plattform / Explorer</th>
+              <th>Wallet / Referenz</th>
+              <th>Asset</th>
+              <th>Menge</th>
+              <th>Gegenwert</th>
+              <th>Gebühr</th>
+              <th>TxID</th>
+              <th>Hinweis</th>
+            </tr>
+          </thead>
+          <tbody id="singleMasterBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section panel">
+      <h2>Kombinierte Auswertung der ausgewählten Quellen</h2>
+      <div id="combinedEvaluationEmpty" class="empty">Noch keine kombinierte Auswertung verfügbar. Wähle Quellen aus und erzeuge dann die kombinierte Masterliste.</div>
+
+      <div id="combinedEvaluationBox" class="hidden">
+        <div class="eval-grid">
+          <div class="eval-card"><div class="value" id="combinedEvalTransactions">0</div><div class="label">Transaktionen gesamt</div><div class="small muted">alle ausgewählten Quellen</div></div>
+          <div class="eval-card"><div class="value" id="combinedEvalFees">0,00</div><div class="label">Gebühren gesamt</div><div class="small muted">über alle Quellen</div></div>
+          <div class="eval-card"><div class="value" id="combinedEvalFiatIn">0,00</div><div class="label">Fiat gesamt eingezahlt</div><div class="small muted">erkannte Zuflüsse</div></div>
+          <div class="eval-card"><div class="value" id="combinedEvalFiatOut">0,00</div><div class="label">Fiat gesamt ausgezahlt</div><div class="small muted">erkannte Abflüsse</div></div>
+          <div class="eval-card"><div class="value" id="combinedEvalDifference">0,00</div><div class="label">Erkannte Gesamt-Differenz</div><div class="small muted">aus ausgezahlt minus eingezahlt</div></div>
+          <div class="eval-card"><div class="value" id="combinedEvalProvisionalGain">–</div><div class="label">Vorläufiger Gesamt-Gewinn</div><div class="small muted">aus Fiat-Saldo</div></div>
+          <div class="eval-card"><div class="value" id="combinedEvalProvisionalLoss">–</div><div class="label">Vorläufiger Gesamt-Verlust</div><div class="small muted">aus Fiat-Saldo</div></div>
+          <div class="eval-card"><div class="value" id="combinedEvalGain">–</div><div class="label">Direkt erkannter Gesamt-Gewinn</div><div class="small muted">nur aus CSV-Spalten</div></div>
+          <div class="eval-card"><div class="value" id="combinedEvalLoss">–</div><div class="label">Direkt erkannter Gesamt-Verlust</div><div class="small muted">nur aus CSV-Spalten</div></div>
+          <div class="eval-card"><div class="value" id="combinedEvalAssets">0</div><div class="label">Erkannte Assets</div><div class="small muted">über alle Quellen</div></div>
+          <div class="eval-card"><div class="value" id="combinedEvalCheckRows">0</div><div class="label">Prüffälle</div><div class="small muted">offene Hinweise</div></div>
+        </div>
+
+        <div class="chips" id="combinedEvaluationChips"></div>
+        <div class="note" id="combinedEvaluationNote">
+          Auch Fortgeschrittene erhalten hier bewusst zwei Ebenen: direkte CSV-Werte und zusätzlich einen vorläufigen Fiat-Saldo.
+        </div>
+      </div>
+    </section>
+
+    <section class="section panel">
+      <h2>Kombinierte Masterliste der ausgewählten Quellen</h2>
+
+      <div id="combinedMasterHeader" class="master-header hidden">
+        <h3>FSA-Masterliste – Krypto-Steuer-Ordnung</h3>
+        <div class="small muted" id="combinedHeaderSub">Fortgeschrittene Sammelansicht für Auswertung, Archiv und Steuerberater-Vorbereitung</div>
+        <div class="chips" id="combinedHeaderChips"></div>
+      </div>
+
+      <div class="toolbar no-print">
+        <button class="btn btn-primary" type="button" id="btnOpenPreview">Vorschau öffnen</button>
+        <button class="btn btn-ghost" type="button" id="btnExportCombinedCsv">Kombinierte Masterliste als CSV exportieren</button>
+        <button class="btn btn-ghost" type="button" id="btnExportCombinedExcel">Excel-Liste herunterladen</button>
+        <button class="btn btn-ghost" type="button" id="btnPrint">Kombinierte Masterliste drucken</button>
+      </div>
+
+      <div class="chips" id="combinedMasterChips"></div>
+      <div id="combinedMasterEmpty" class="empty" style="margin-top:14px;">Noch keine kombinierte Masterliste erzeugt.</div>
+
+      <div class="table-wrap hidden" id="combinedMasterWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Datum</th>
+              <th>Uhrzeit</th>
+              <th>Quelle</th>
+              <th>Chain</th>
+              <th>Plattform / Explorer</th>
+              <th>Wallet / Referenz</th>
+              <th>Asset</th>
+              <th>Menge</th>
+              <th>Gegenwert</th>
+              <th>Gebühr</th>
+              <th>TxID</th>
+              <th>Hinweis</th>
+            </tr>
+          </thead>
+          <tbody id="combinedMasterBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section panel">
+      <h2>Gerätewechsel / Kompletten Stand mitnehmen</h2>
+      <p class="muted">
+        Exportiere hier den kompletten Seitenstand als JSON-Datei und importiere ihn auf einem anderen Gerät wieder.
+      </p>
+
+      <div class="toolbar no-print">
+        <button class="btn btn-primary" type="button" id="btnStateExport">Kompletten Stand exportieren</button>
+        <label class="btn btn-ghost" for="stateImportFile">Stand importieren</label>
+        <input id="stateImportFile" type="file" accept=".json,application/json" class="hidden" />
+      </div>
+
+      <div class="note">
+        <strong>Wichtig:</strong><br>
+        Der Import überschreibt den aktuellen Stand auf diesem Gerät.
+      </div>
+
+      <div id="stateTransferStatus" class="empty" style="margin-top:14px;">
+        Noch kein Gerätewechsel-Export oder -Import ausgeführt.
+      </div>
+    </section>
+
+    <section class="section panel">
+      <h2>Archiv / Jahresstände</h2>
+      <p class="muted">
+        Speichere kombinierte Arbeitsstände als Archivlauf. So kannst du Jahre, Zwischenstände oder fertige Übergaben später wieder öffnen.
+      </p>
+
+      <form id="archiveForm" class="form-grid" autocomplete="off">
+        <div class="field span-4">
+          <label for="archiveName">Archivname</label>
+          <input id="archiveName" type="text" placeholder="z. B. Steuerjahr 2024 komplett" />
+        </div>
+        <div class="field span-4">
+          <label for="archiveYear">Jahr</label>
+          <input id="archiveYear" type="number" min="2009" max="2100" step="1" placeholder="z. B. 2024" />
+        </div>
+        <div class="field span-4">
+          <label for="archiveTag">Zusatz</label>
+          <input id="archiveTag" type="text" placeholder="z. B. Zwischenstand April" />
+        </div>
+        <div class="field span-12">
+          <label for="archiveNote">Notiz</label>
+          <textarea id="archiveNote" placeholder="Optionaler Hinweis zum Archivstand."></textarea>
+        </div>
+        <div class="span-12 toolbar no-print">
+          <button class="btn btn-primary" type="submit">Aktuellen Stand archivieren</button>
+        </div>
+      </form>
+
+      <div id="archiveEmpty" class="empty" style="margin-top:14px;">Noch keine Archivstände gespeichert.</div>
+      <div id="archiveList" class="archive-list"></div>
+    </section>
+
+    <section class="section panel">
+      <h2>Steuerberater-Ansicht</h2>
+      <p class="muted">
+        Diese Sicht bündelt das Sammelergebnis in ruhiger, sachlicher Form für PDF, Druck oder vorbereitende Übergabe.
+      </p>
+
+      <div id="taxEmpty" class="empty">Noch keine Steuerberater-Ansicht verfügbar. Erzeuge zuerst eine kombinierte Masterliste.</div>
+
+      <div id="taxBox" class="hidden">
+        <div class="steuerberater-view" id="taxView">
+          <h3>Steuerberater-Vorbereitung – Krypto-Steuer-Ordnung</h3>
+          <div class="small muted" id="taxSubline">Kombinierte Sicht nach aktuell ausgewählten Quellen</div>
+          <div class="chips" id="taxChips"></div>
+
+          <div class="eval-grid" style="margin-top:14px;">
+            <div class="eval-card"><div class="value" id="taxTransactions">0</div><div class="label">Transaktionen</div><div class="small muted">Sammelergebnis</div></div>
+            <div class="eval-card"><div class="value" id="taxFees">0,00</div><div class="label">Gebühren gesamt</div><div class="small muted">erkannte Gebühren</div></div>
+            <div class="eval-card"><div class="value" id="taxFiatIn">0,00</div><div class="label">Fiat eingezahlt</div><div class="small muted">erkannte Zuflüsse</div></div>
+            <div class="eval-card"><div class="value" id="taxFiatOut">0,00</div><div class="label">Fiat ausgezahlt</div><div class="small muted">erkannte Abflüsse</div></div>
+            <div class="eval-card"><div class="value" id="taxDifference">0,00</div><div class="label">Erkannte Differenz</div><div class="small muted">aus ausgezahlt minus eingezahlt</div></div>
+            <div class="eval-card"><div class="value" id="taxProvisionalGain">–</div><div class="label">Vorläufiger Gewinn</div><div class="small muted">aus Fiat-Saldo</div></div>
+            <div class="eval-card"><div class="value" id="taxProvisionalLoss">–</div><div class="label">Vorläufiger Verlust</div><div class="small muted">aus Fiat-Saldo</div></div>
+            <div class="eval-card"><div class="value" id="taxGain">–</div><div class="label">Direkt erkannter Gewinn</div><div class="small muted">nur aus CSV-Spalten</div></div>
+            <div class="eval-card"><div class="value" id="taxLoss">–</div><div class="label">Direkt erkannter Verlust</div><div class="small muted">nur aus CSV-Spalten</div></div>
+            <div class="eval-card"><div class="value" id="taxAssets">0</div><div class="label">Erkannte Assets</div><div class="small muted">über alle Quellen</div></div>
+            <div class="eval-card"><div class="value" id="taxCheckRows">0</div><div class="label">Prüffälle</div><div class="small muted">offene Hinweise</div></div>
+          </div>
+
+          <div class="warnbox" id="taxNote" style="margin-top:14px;">
+            Diese Ansicht basiert auf aktuell importierten und ausgewählten Rohdaten. Je nach Fall können weitere Nachweise, Quellen oder manuelle Ergänzungen nötig sein.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section panel soft">
+      <h2>Typische Spezialfälle in der Praxis</h2>
+      <div class="grid grid-4">
+        <div class="mini-card">
+          <strong>Wallet / Explorer</strong>
+          <ul class="checklist">
+            <li>Transactions</li>
+            <li>Token Transfers</li>
+            <li>Internal Transactions</li>
+            <li>mehrteilige Bewegungen</li>
+          </ul>
+        </div>
+        <div class="mini-card">
+          <strong>Börse / App</strong>
+          <ul class="checklist">
+            <li>Wallet History</li>
+            <li>Rewards / Earn</li>
+            <li>Tax / Reports</li>
+            <li>Trade History</li>
+          </ul>
+        </div>
+        <div class="mini-card">
+          <strong>Projekt / DeFi / LP</strong>
+          <ul class="checklist">
+            <li>Positionen</li>
+            <li>Claims</li>
+            <li>Rewards</li>
+            <li>LP-Daten / Totalverlust</li>
+          </ul>
+        </div>
+        <div class="mini-card">
+          <strong>Wertpfade</strong>
+          <ul class="checklist">
+            <li>Krypto-zu-Krypto</li>
+            <li>Projektinvestments</li>
+            <li>Voucher / Credits</li>
+            <li>Rabatt / Cashback</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section panel print-only">
+      <h2>Druckansicht – FSA-Masterliste für Fortgeschrittene</h2>
+      <p>Diese Druckansicht zeigt den aktuellen Stand der kombinierten Masterliste der ausgewählten Quellen.</p>
+    </section>
+  </div>
+
+  <div class="preview-modal" id="previewModal" aria-hidden="true">
+    <div class="preview-shell">
+      <div class="preview-toolbar no-print">
+        <div>
+          <h3>Vorschau – FSA-Masterliste</h3>
+          <div class="small muted">Kontrolle vor Export, Excel-Download oder Druck</div>
+        </div>
+        <div class="toolbar">
+          <button class="btn btn-ghost" id="btnPreviewCsv" type="button">CSV exportieren</button>
+          <button class="btn btn-ghost" id="btnPreviewExcel" type="button">Excel herunterladen</button>
+          <button class="btn btn-primary" id="btnPreviewPrint" type="button">Drucken</button>
+          <button class="btn btn-danger" id="btnClosePreview" type="button">Schließen</button>
+        </div>
+      </div>
+
+      <div class="preview-body">
+        <div class="preview-card">
+          <h3>Mastertitel mit Auswertung</h3>
+          <div class="chips" id="previewHeaderChips"></div>
+        </div>
+
+        <div class="preview-card">
+          <h3>Steuerberater-Ansicht</h3>
+          <div id="previewTax"></div>
+        </div>
+
+        <div class="preview-card">
+          <h3>Tabellenvorschau</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Datum</th>
+                  <th>Uhrzeit</th>
+                  <th>Quelle</th>
+                  <th>Chain</th>
+                  <th>Plattform / Explorer</th>
+                  <th>Wallet / Referenz</th>
+                  <th>Asset</th>
+                  <th>Menge</th>
+                  <th>Gegenwert</th>
+                  <th>Gebühr</th>
+                  <th>TxID</th>
+                  <th>Hinweis</th>
+                </tr>
+              </thead>
+              <tbody id="previewTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-modal" id="infoModal" aria-hidden="true">
+    <div class="info-shell">
+      <div class="info-toolbar no-print">
+        <div>
+          <h3>Akademie-Aufklärung für Fortgeschrittene</h3>
+          <div class="small muted">Warum Krypto-zu-Krypto, Projektfälle, Rewards, Cashback und Voucher dokumentationsrelevant sind</div>
+        </div>
+        <div class="toolbar">
+          <button class="btn btn-danger" id="btnCloseInfo" type="button">Schließen und zur Arbeitsseite zurück</button>
+        </div>
+      </div>
+
+      <div class="info-body">
+        <div class="grid grid-2">
+          <div class="preview-card">
+            <h3>Warum Krypto-zu-Krypto relevant ist</h3>
+            <ul class="checklist">
+              <li>Nicht nur Euro rein und Euro raus zählen.</li>
+              <li>Auch Tauschvorgänge zwischen Coins und Token sind wirtschaftlich relevant.</li>
+              <li>Zwischenschritte verändern die Gesamtgeschichte des Falls.</li>
+              <li>Ohne diese Schritte bleibt die Wertermittlung oft unvollständig.</li>
+            </ul>
+          </div>
+
+          <div class="preview-card">
+            <h3>Warum Projektinvestments oft falsch eingeschätzt werden</h3>
+            <ul class="checklist">
+              <li>Krypto in ein Projekt einzuzahlen ist kein unsichtbarer Vorgang.</li>
+              <li>Rewards, Rückflüsse, Projekt-Token oder Totalverluste brauchen Dokumentation.</li>
+              <li>Fehlende Rückführung in Fiat heißt nicht automatisch, dass der Fall irrelevant ist.</li>
+              <li>Projektfälle sind oft Prüffälle mit mehreren Nachweisquellen.</li>
+            </ul>
+          </div>
+
+          <div class="preview-card">
+            <h3>Warum Rewards, Staking, DeFi und LP problematisch sind</h3>
+            <ul class="checklist">
+              <li>Eine einzige CSV reicht hier oft nicht aus.</li>
+              <li>Rewards und LP-Bewegungen verteilen sich häufig auf mehrere Quellen.</li>
+              <li>Explorer, Dashboard, Plattform-CSV und manuelle Ergänzung können zusammen nötig sein.</li>
+              <li>Normale Tools übersehen genau hier oft die eigentliche wirtschaftliche Bewegung.</li>
+            </ul>
+          </div>
+
+          <div class="preview-card">
+            <h3>Warum Gutschein, Rabatt und Cashback wichtig sein können</h3>
+            <ul class="checklist">
+              <li>Wenn Werte über Krypto in Voucher, Credits oder Rabatte umgewandelt werden, bleibt das wirtschaftlich relevant.</li>
+              <li>Cashback, Credits oder Einkaufsvorteile können Teil des Wertpfads sein.</li>
+              <li>Solche Vorgänge verschwinden oft in normalen Übersichten, sind aber für die Gesamtbetrachtung wichtig.</li>
+              <li>Auch hier gilt: Was ging rein, was kam zurück, und in welcher Form?</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="preview-card">
+          <h3>Arbeitslogik der Akademie</h3>
+          <div class="note">
+            <strong>Der Kern für Fortgeschrittene:</strong><br>
+            Nicht nur direkte Gewinn- oder Verlustspalten zählen. Entscheidend ist, den wirtschaftlichen Weg zu verstehen:
+            Was ging rein, was kam raus, welche Zwischenschritte gab es, welche Werte sind belegt, und welche Teile bleiben Prüffall.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = 'kso_csv_import_fortgeschrittene_v1';
+
+      const AUTO_FIELDS = {
+        date: ['date','datum','datetime (utc)','timestamp (utc)','time(utc)','created at','transaction date'],
+        time: ['time','uhrzeit','datetime (utc)','timestamp (utc)','time(utc)','created at','transaction time'],
+        asset: ['asset','currency','coin','token','to currency','native currency','token symbol'],
+        amount: ['amount','qty','quantity','to amount','native amount','token amount'],
+        value: ['value (usd)','usd value','native amount (in usd)','eur value','value','gegenwert','fiat amount','quote amount'],
+        fee: ['txn fee','fee','fees','commission','network fee','gas fee','gebühr'],
+        txid: ['transaction hash','txid','txhash','hash','transaction id','signature'],
+        direction: ['transaction kind','direction','type','side','flow','method','transaction description'],
+        pnl: ['realized pnl','realised pnl','pnl','profit/loss','profit loss','profit and loss','gewinn/verlust'],
+        gain: ['gain','gewinn','profit','realized gain','realised gain'],
+        loss: ['loss','verlust','realized loss','realised loss']
+      };
+
+      const els = {
+        statStep: document.getElementById('statStep'),
+        statSources: document.getElementById('statSources'),
+        statFiles: document.getElementById('statFiles'),
+        statMaster: document.getElementById('statMaster'),
+        statArchives: document.getElementById('statArchives'),
+        btnScrollStart: document.getElementById('btnScrollStart'),
+        btnOpenInfo: document.getElementById('btnOpenInfo'),
+
+        csvForm: document.getElementById('csvForm'),
+        csvFile: document.getElementById('csvFile'),
+        csvPaste: document.getElementById('csvPaste'),
+        btnResetCsv: document.getElementById('btnResetCsv'),
+
+        autoSourceEmpty: document.getElementById('autoSourceEmpty'),
+        autoSourceBox: document.getElementById('autoSourceBox'),
+        autoResultTitle: document.getElementById('autoResultTitle'),
+        autoResultSub: document.getElementById('autoResultSub'),
+        autoResultChips: document.getElementById('autoResultChips'),
+        autoProfileBox: document.getElementById('autoProfileBox'),
+        fileNameText: document.getElementById('fileNameText'),
+        fileMetaText: document.getElementById('fileMetaText'),
+        columnsText: document.getElementById('columnsText'),
+        missingList: document.getElementById('missingList'),
+
+        sourceConfirmForm: document.getElementById('sourceConfirmForm'),
+        caseName: document.getElementById('caseName'),
+        network: document.getElementById('network'),
+        networkCustom: document.getElementById('networkCustom'),
+        provider: document.getElementById('provider'),
+        walletRef: document.getElementById('walletRef'),
+        year: document.getElementById('year'),
+        sourceNote: document.getElementById('sourceNote'),
+
+        btnSelectAllSources: document.getElementById('btnSelectAllSources'),
+        btnDeselectAllSources: document.getElementById('btnDeselectAllSources'),
+        btnBuildCombined: document.getElementById('btnBuildCombined'),
+        overviewChips: document.getElementById('overviewChips'),
+        sourcesEmpty: document.getElementById('sourcesEmpty'),
+        sourcesList: document.getElementById('sourcesList'),
+
+        analysisEmpty: document.getElementById('analysisEmpty'),
+        analysisBox: document.getElementById('analysisBox'),
+        resultTitle: document.getElementById('resultTitle'),
+        resultSub: document.getElementById('resultSub'),
+        resultChips: document.getElementById('resultChips'),
+        mappedChips: document.getElementById('mappedChips'),
+        resultProfileBox: document.getElementById('resultProfileBox'),
+        resultHintBox: document.getElementById('resultHintBox'),
+        openedFileNameText: document.getElementById('openedFileNameText'),
+        openedFileMetaText: document.getElementById('openedFileMetaText'),
+        openedColumnsText: document.getElementById('openedColumnsText'),
+        openedMissingList: document.getElementById('openedMissingList'),
+        btnBuildSingleMaster: document.getElementById('btnBuildSingleMaster'),
+
+        singleEvaluationEmpty: document.getElementById('singleEvaluationEmpty'),
+        singleEvaluationBox: document.getElementById('singleEvaluationBox'),
+        singleEvalTransactions: document.getElementById('singleEvalTransactions'),
+        singleEvalFees: document.getElementById('singleEvalFees'),
+        singleEvalFiatIn: document.getElementById('singleEvalFiatIn'),
+        singleEvalFiatOut: document.getElementById('singleEvalFiatOut'),
+        singleEvalDifference: document.getElementById('singleEvalDifference'),
+        singleEvalProvisionalGain: document.getElementById('singleEvalProvisionalGain'),
+        singleEvalProvisionalLoss: document.getElementById('singleEvalProvisionalLoss'),
+        singleEvalGain: document.getElementById('singleEvalGain'),
+        singleEvalLoss: document.getElementById('singleEvalLoss'),
+        singleEvalAssets: document.getElementById('singleEvalAssets'),
+        singleEvalCheckRows: document.getElementById('singleEvalCheckRows'),
+        singleEvaluationChips: document.getElementById('singleEvaluationChips'),
+        singleEvaluationNote: document.getElementById('singleEvaluationNote'),
+
+        singleMasterChips: document.getElementById('singleMasterChips'),
+        singleMasterEmpty: document.getElementById('singleMasterEmpty'),
+        singleMasterWrap: document.getElementById('singleMasterWrap'),
+        singleMasterBody: document.getElementById('singleMasterBody'),
+        btnExportSingleCsv: document.getElementById('btnExportSingleCsv'),
+
+        combinedEvaluationEmpty: document.getElementById('combinedEvaluationEmpty'),
+        combinedEvaluationBox: document.getElementById('combinedEvaluationBox'),
+        combinedEvalTransactions: document.getElementById('combinedEvalTransactions'),
+        combinedEvalFees: document.getElementById('combinedEvalFees'),
+        combinedEvalFiatIn: document.getElementById('combinedEvalFiatIn'),
+        combinedEvalFiatOut: document.getElementById('combinedEvalFiatOut'),
+        combinedEvalDifference: document.getElementById('combinedEvalDifference'),
+        combinedEvalProvisionalGain: document.getElementById('combinedEvalProvisionalGain'),
+        combinedEvalProvisionalLoss: document.getElementById('combinedEvalProvisionalLoss'),
+        combinedEvalGain: document.getElementById('combinedEvalGain'),
+        combinedEvalLoss: document.getElementById('combinedEvalLoss'),
+        combinedEvalAssets: document.getElementById('combinedEvalAssets'),
+        combinedEvalCheckRows: document.getElementById('combinedEvalCheckRows'),
+        combinedEvaluationChips: document.getElementById('combinedEvaluationChips'),
+        combinedEvaluationNote: document.getElementById('combinedEvaluationNote'),
+
+        combinedMasterHeader: document.getElementById('combinedMasterHeader'),
+        combinedHeaderSub: document.getElementById('combinedHeaderSub'),
+        combinedHeaderChips: document.getElementById('combinedHeaderChips'),
+        btnOpenPreview: document.getElementById('btnOpenPreview'),
+        btnExportCombinedCsv: document.getElementById('btnExportCombinedCsv'),
+        btnExportCombinedExcel: document.getElementById('btnExportCombinedExcel'),
+        combinedMasterChips: document.getElementById('combinedMasterChips'),
+        combinedMasterEmpty: document.getElementById('combinedMasterEmpty'),
+        combinedMasterWrap: document.getElementById('combinedMasterWrap'),
+        combinedMasterBody: document.getElementById('combinedMasterBody'),
+        btnPrint: document.getElementById('btnPrint'),
+
+        btnStateExport: document.getElementById('btnStateExport'),
+        stateImportFile: document.getElementById('stateImportFile'),
+        stateTransferStatus: document.getElementById('stateTransferStatus'),
+
+        archiveForm: document.getElementById('archiveForm'),
+        archiveName: document.getElementById('archiveName'),
+        archiveYear: document.getElementById('archiveYear'),
+        archiveTag: document.getElementById('archiveTag'),
+        archiveNote: document.getElementById('archiveNote'),
+        archiveEmpty: document.getElementById('archiveEmpty'),
+        archiveList: document.getElementById('archiveList'),
+
+        taxEmpty: document.getElementById('taxEmpty'),
+        taxBox: document.getElementById('taxBox'),
+        taxSubline: document.getElementById('taxSubline'),
+        taxChips: document.getElementById('taxChips'),
+        taxTransactions: document.getElementById('taxTransactions'),
+        taxFees: document.getElementById('taxFees'),
+        taxFiatIn: document.getElementById('taxFiatIn'),
+        taxFiatOut: document.getElementById('taxFiatOut'),
+        taxDifference: document.getElementById('taxDifference'),
+        taxProvisionalGain: document.getElementById('taxProvisionalGain'),
+        taxProvisionalLoss: document.getElementById('taxProvisionalLoss'),
+        taxGain: document.getElementById('taxGain'),
+        taxLoss: document.getElementById('taxLoss'),
+        taxAssets: document.getElementById('taxAssets'),
+        taxCheckRows: document.getElementById('taxCheckRows'),
+        taxNote: document.getElementById('taxNote'),
+        taxView: document.getElementById('taxView'),
+
+        previewModal: document.getElementById('previewModal'),
+        btnPreviewCsv: document.getElementById('btnPreviewCsv'),
+        btnPreviewExcel: document.getElementById('btnPreviewExcel'),
+        btnPreviewPrint: document.getElementById('btnPreviewPrint'),
+        btnClosePreview: document.getElementById('btnClosePreview'),
+        previewHeaderChips: document.getElementById('previewHeaderChips'),
+        previewTax: document.getElementById('previewTax'),
+        previewTableBody: document.getElementById('previewTableBody'),
+
+        infoModal: document.getElementById('infoModal'),
+        btnCloseInfo: document.getElementById('btnCloseInfo')
+      };
+
+      const state = loadState();
+      let pendingSource = null;
+
+      function loadState(){
+        try{
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if(!raw){
+            return {
+              sources: [],
+              currentSourceId: '',
+              combinedMasterRows: [],
+              archives: []
+            };
+          }
+          const parsed = JSON.parse(raw);
+          return {
+            sources: Array.isArray(parsed.sources) ? parsed.sources : [],
+            currentSourceId: typeof parsed.currentSourceId === 'string' ? parsed.currentSourceId : '',
+            combinedMasterRows: Array.isArray(parsed.combinedMasterRows) ? parsed.combinedMasterRows : [],
+            archives: Array.isArray(parsed.archives) ? parsed.archives : []
+          };
+        }catch{
+          return {
+            sources: [],
+            currentSourceId: '',
+            combinedMasterRows: [],
+            archives: []
+          };
+        }
+      }
+
+      function saveState(){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function uid(prefix='id'){
+        return prefix + '_' + Math.random().toString(36).slice(2,10) + '_' + Date.now().toString(36);
+      }
+
+      function normalize(value){
+        return String(value ?? '').trim();
+      }
+
+      function escapeHtml(value){
+        return String(value ?? '')
+          .replace(/&/g,'&amp;')
+          .replace(/</g,'&lt;')
+          .replace(/>/g,'&gt;')
+          .replace(/"/g,'&quot;')
+          .replace(/'/g,'&#39;');
+      }
+
+      function currentSourceKind(){
+        const checked = document.querySelector('input[name="sourceKind"]:checked');
+        return checked ? checked.value : 'wallet';
+      }
+
+      function detectDelimiter(text){
+        const sample = text.slice(0, 5000);
+        const commas = (sample.match(/,/g) || []).length;
+        const semis = (sample.match(/;/g) || []).length;
+        return semis > commas ? ';' : ',';
+      }
+
+      function parseCsv(text){
+        const delimiter = detectDelimiter(text);
+        const rows = [];
+        let row = [];
+        let cell = '';
+        let inQuotes = false;
+
+        for(let i=0;i<text.length;i++){
+          const ch = text[i];
+          const next = text[i+1];
+
+          if(ch === '"'){
+            if(inQuotes && next === '"'){
+              cell += '"';
+              i++;
+            }else{
+              inQuotes = !inQuotes;
+            }
+          }else if(ch === delimiter && !inQuotes){
+            row.push(cell);
+            cell = '';
+          }else if(ch === '\n' && !inQuotes){
+            row.push(cell);
+            if(row.some(v => normalize(v) !== '')) rows.push(row);
+            row = [];
+            cell = '';
+          }else if(ch === '\r'){
+          }else{
+            cell += ch;
+          }
+        }
+
+        row.push(cell);
+        if(row.some(v => normalize(v) !== '')) rows.push(row);
+
+        if(!rows.length) return { headers: [], data: [], delimiter };
+
+        const headers = rows[0].map(h => normalize(h));
+        const data = rows.slice(1).map(r => {
+          const obj = {};
+          headers.forEach((h, idx) => {
+            obj[h || ('Spalte ' + (idx + 1))] = normalize(r[idx] ?? '');
+          });
+          return obj;
+        }).filter(obj => Object.values(obj).some(v => normalize(v) !== ''));
+
+        return { headers, data, delimiter };
+      }
+
+      function normalizeHeader(value){
+        return normalize(value).toLowerCase().replace(/\s+/g,' ').replace(/[_-]+/g,' ');
+      }
+
+      function findHeader(headers, aliases){
+        const normalized = headers.map(h => ({ raw:h, norm: normalizeHeader(h) }));
+        for(const alias of aliases){
+          const found = normalized.find(h => h.norm === alias || h.norm.includes(alias));
+          if(found) return found.raw;
+        }
+        return '';
+      }
+
+      function detectMappings(headers){
+        return {
+          date: findHeader(headers, AUTO_FIELDS.date),
+          time: findHeader(headers, AUTO_FIELDS.time),
+          asset: findHeader(headers, AUTO_FIELDS.asset),
+          amount: findHeader(headers, AUTO_FIELDS.amount),
+          value: findHeader(headers, AUTO_FIELDS.value),
+          fee: findHeader(headers, AUTO_FIELDS.fee),
+          txid: findHeader(headers, AUTO_FIELDS.txid),
+          direction: findHeader(headers, AUTO_FIELDS.direction),
+          pnl: findHeader(headers, AUTO_FIELDS.pnl),
+          gain: findHeader(headers, AUTO_FIELDS.gain),
+          loss: findHeader(headers, AUTO_FIELDS.loss)
+        };
+      }
+
+      function detectProfile(headers){
+        const h = headers.map(normalizeHeader);
+        const has = key => h.some(item => item === key || item.includes(key));
+
+        if(has('transaction hash') && has('status') && has('method') && has('datetime (utc)') && has('amount') && has('token')){
+          return 'Etherscan Token Transfers';
+        }
+        if(has('transaction hash') && has('status') && has('method') && has('datetime (utc)') && has('txn fee')){
+          return 'Etherscan Normale Transaktionen';
+        }
+        if(has('timestamp (utc)') && has('transaction description') && has('currency') && has('amount') && has('transaction hash')){
+          return 'Crypto.com Transaktionsdatei';
+        }
+        if(has('timestamp') && has('amount') && has('currency') && has('transaction hash')){
+          return 'Allgemeine Plattform-Transaktionsdatei';
+        }
+        return 'Allgemeine CSV-Datei';
+      }
+
+      function cleanToken(value){
+        return normalize(value).replace(/<[^>]*>/g,'').trim();
+      }
+
+      function splitDateTime(value){
+        const raw = normalize(value);
+        if(!raw) return { date:'', time:'' };
+        const parts = raw.split(' ');
+        if(parts.length >= 2){
+          return { date: parts[0], time: parts[1] };
+        }
+        return { date: raw, time: '' };
+      }
+
+      function inferHint(row, mappings){
+        const directionRaw = normalize(row[mappings.direction] || '');
+        const hint = [];
+
+        if(directionRaw){
+          const lower = directionRaw.toLowerCase();
+          if(lower.includes('approve')) hint.push('Prüffall: Freigabe');
+          if(lower.includes('withdraw')) hint.push('Abgang prüfen');
+          if(lower.includes('deposit')) hint.push('Zugang prüfen');
+          if(lower.includes('error')) hint.push('Fehlgeschlagen prüfen');
+          if(lower.includes('swap')) hint.push('Swap prüfen');
+          if(lower.includes('reward')) hint.push('Reward prüfen');
+          if(lower.includes('sell')) hint.push('Verkauf prüfen');
+          if(lower.includes('buy')) hint.push('Kauf prüfen');
+          if(lower.includes('cashback')) hint.push('Cashback prüfen');
+          if(lower.includes('voucher')) hint.push('Voucher prüfen');
+        }
+
+        if(!mappings.value) hint.push('kein Gegenwert erkannt');
+        if(!mappings.fee) hint.push('keine Gebühr erkannt');
+        return hint.join(' | ');
+      }
+
+      function profileHint(profile){
+        if(profile === 'Etherscan Normale Transaktionen'){
+          return 'Diese Datei ist gut für Zeit, Gebühren, Status und TxID. Tokenbewegungen können trotzdem zusätzlich fehlen.';
+        }
+        if(profile === 'Etherscan Token Transfers'){
+          return 'Diese Datei ist gut für Token-Zugänge und Token-Abgänge. Sie zeigt oft nicht den ganzen Fall allein.';
+        }
+        if(profile === 'Crypto.com Transaktionsdatei'){
+          return 'Diese Datei eignet sich gut als erste Arbeitsgrundlage. Je nach Fall können Rewards, Cashback oder weitere Exportbereiche zusätzlich nötig sein.';
+        }
+        return 'Diese Datei wurde allgemein erkannt. Prüfe später in Ruhe, ob noch weitere Exportdateien, Projektbelege oder manuelle Ergänzungen nötig sind.';
+      }
+
+      function guessProvider(profile, fileName, headers){
+        const lowerName = normalize(fileName).toLowerCase();
+        const headerText = headers.map(h => normalizeHeader(h)).join(' | ');
+        if(profile.startsWith('Etherscan')) return 'Etherscan';
+        if(lowerName.includes('crypto') || headerText.includes('transaction description')) return 'Crypto.com';
+        if(lowerName.includes('binance')) return 'Binance';
+        if(lowerName.includes('coinbase')) return 'Coinbase';
+        if(lowerName.includes('kraken')) return 'Kraken';
+        if(lowerName.includes('bitpanda')) return 'Bitpanda';
+        if(lowerName.includes('solscan')) return 'Solscan';
+        if(lowerName.includes('etherscan')) return 'Etherscan';
+        return '';
+      }
+
+      function guessChain(profile, fileName, headers){
+        const lowerName = normalize(fileName).toLowerCase();
+        const headerText = headers.map(h => normalizeHeader(h)).join(' | ');
+        if(profile.startsWith('Etherscan')) return 'Ethereum';
+        if(lowerName.includes('sol') || headerText.includes('solana')) return 'Solana';
+        if(lowerName.includes('bnb') || headerText.includes('bnb')) return 'BNB Chain';
+        if(lowerName.includes('btc') || headerText.includes('bitcoin')) return 'Bitcoin';
+        return '';
+      }
+
+      function guessYear(parsed, mappings){
+        const header = mappings.date || mappings.time;
+        if(!header || !parsed.data.length) return '';
+        for(const row of parsed.data){
+          const dt = splitDateTime(row[header] || '');
+          const date = normalize(dt.date);
+          const match = date.match(/^(\d{4})[-/]/);
+          if(match) return match[1];
+        }
+        return '';
+      }
+
+      function buildSuggestedName(provider, profile, year, chain){
+        const parts = [];
+        if(provider) parts.push(provider);
+        if(profile) parts.push(profile.replace('Allgemeine ', ''));
+        if(chain && !profile.toLowerCase().includes(chain.toLowerCase())) parts.push(chain);
+        if(year) parts.push(year);
+        return parts.join(' – ') || 'Unbenannte Quelle';
+      }
+
+      function parseLooseNumber(value){
+        let raw = normalize(value);
+        if(!raw) return null;
+
+        raw = raw.replace(/<[^>]*>/g, '');
+        raw = raw.replace(/\s+/g, '');
+        raw = raw.replace(/[$€£]/g, '');
+        raw = raw.replace(/[A-Za-z]/g, '');
+
+        if(!raw) return null;
+
+        const hasComma = raw.includes(',');
+        const hasDot = raw.includes('.');
+
+        if(hasComma && hasDot){
+          const lastComma = raw.lastIndexOf(',');
+          const lastDot = raw.lastIndexOf('.');
+          if(lastComma > lastDot){
+            raw = raw.replace(/\./g, '').replace(',', '.');
+          }else{
+            raw = raw.replace(/,/g, '');
+          }
+        }else if(hasComma && !hasDot){
+          const parts = raw.split(',');
+          if(parts.length === 2 && parts[1].length <= 2){
+            raw = parts[0].replace(/\./g, '') + '.' + parts[1];
+          }else{
+            raw = raw.replace(/,/g, '');
+          }
+        }else{
+          raw = raw.replace(/,/g, '');
+        }
+
+        const num = Number(raw);
+        return Number.isFinite(num) ? num : null;
+      }
+
+      function formatNumber(value){
+        if(value === null || value === undefined || Number.isNaN(value)) return '–';
+        return value.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function compareDateTime(a, b){
+        const ad = `${a.date || ''} ${a.time || ''}`.trim();
+        const bd = `${b.date || ''} ${b.time || ''}`.trim();
+        return ad.localeCompare(bd);
+      }
+
+      function currentChainFromForm(){
+        const selected = normalize(els.network.value);
+        return selected === 'Eigene Eingabe'
+          ? normalize(els.networkCustom.value)
+          : selected || normalize(els.networkCustom.value);
+      }
+
+      function getCurrentSource(){
+        return state.sources.find(source => source.id === state.currentSourceId) || null;
+      }
+
+      function getSelectedSources(){
+        return state.sources.filter(source => source.selectedForCombined !== false);
+      }
+
+      function fillPendingForm(source){
+        els.caseName.value = source.caseName || '';
+        els.provider.value = source.provider || '';
+        els.walletRef.value = source.walletRef || '';
+        els.year.value = source.year || '';
+        els.sourceNote.value = source.note || '';
+        els.network.value = '';
+        els.networkCustom.value = '';
+
+        const chainOptions = Array.from(els.network.options).map(option => option.value);
+        if(chainOptions.includes(source.chain || '')){
+          els.network.value = source.chain || '';
+        }else if(source.chain){
+          els.network.value = 'Eigene Eingabe';
+          els.networkCustom.value = source.chain;
+        }
+      }
+
+      function fillFormFromSource(source){
+        fillPendingForm(source);
+        const radio = document.querySelector(`input[name="sourceKind"][value="${source.sourceKind || 'wallet'}"]`);
+        if(radio) radio.checked = true;
+      }
+
+      function buildRowsForSource(source){
+        return source.parsed.data.map((row, idx) => {
+          const dtHeader = source.mappings.date || source.mappings.time;
+          const dt = splitDateTime(row[dtHeader] || '');
+          const sameDateTimeField = source.mappings.date && source.mappings.time && source.mappings.date === source.mappings.time;
+
+          return {
+            uid: uid('row'),
+            sourceId: source.id,
+            index: idx + 1,
+            date: sameDateTimeField ? dt.date : (normalize(row[source.mappings.date]) || dt.date),
+            time: sameDateTimeField ? dt.time : (normalize(row[source.mappings.time]) || dt.time),
+            source: source.caseName,
+            chain: source.chain,
+            provider: source.provider,
+            wallet: source.walletRef,
+            asset: cleanToken(row[source.mappings.asset] || ''),
+            amount: normalize(row[source.mappings.amount] || ''),
+            value: normalize(row[source.mappings.value] || ''),
+            fee: normalize(row[source.mappings.fee] || ''),
+            txid: normalize(row[source.mappings.txid] || ''),
+            hint: inferHint(row, source.mappings),
+            rawDirection: normalize(row[source.mappings.direction] || ''),
+            rawPnl: normalize(row[source.mappings.pnl] || ''),
+            rawGain: normalize(row[source.mappings.gain] || ''),
+            rawLoss: normalize(row[source.mappings.loss] || '')
+          };
+        });
+      }
+
+      function calculateMetrics(rows){
+        const fiatAssets = new Set(['EUR','USD','USDT','USDC','DAI','BUSD','FDUSD']);
+        let feeTotal = 0;
+        let fiatIn = 0;
+        let fiatOut = 0;
+        const assetSet = new Set();
+        let checkRows = 0;
+        let gain = 0;
+        let loss = 0;
+        let gainDetected = false;
+        let lossDetected = false;
+        let pnlDetected = false;
+
+        rows.forEach(row => {
+          const feeNum = parseLooseNumber(row.fee);
+          if(feeNum !== null) feeTotal += Math.abs(feeNum);
+
+          const valueNum = parseLooseNumber(row.value);
+          const amountNum = parseLooseNumber(row.amount);
+          const asset = normalize(row.asset).toUpperCase();
+
+          if(row.asset) assetSet.add(row.asset);
+          if(row.hint) checkRows++;
+
+          const direction = normalize(row.rawDirection).toLowerCase();
+
+          if(fiatAssets.has(asset)){
+            if(amountNum !== null){
+              if(amountNum > 0) fiatIn += amountNum;
+              if(amountNum < 0) fiatOut += Math.abs(amountNum);
+            }
+          } else if(valueNum !== null){
+            if(direction.includes('sell') || direction.includes('withdraw') || direction.includes('abgang') || direction.includes('out')){
+              fiatIn += Math.abs(valueNum);
+            } else if(direction.includes('buy') || direction.includes('deposit') || direction.includes('zugang') || direction.includes('in')){
+              fiatOut += Math.abs(valueNum);
+            }
+          }
+
+          const pnlNum = parseLooseNumber(row.rawPnl);
+          if(pnlNum !== null){
+            pnlDetected = true;
+            if(pnlNum >= 0) gain += pnlNum;
+            if(pnlNum < 0) loss += Math.abs(pnlNum);
+          }
+
+          const gainNum = parseLooseNumber(row.rawGain);
+          if(gainNum !== null){
+            gainDetected = true;
+            gain += Math.abs(gainNum);
+          }
+
+          const lossNum = parseLooseNumber(row.rawLoss);
+          if(lossNum !== null){
+            lossDetected = true;
+            loss += Math.abs(lossNum);
+          }
+        });
+
+        const difference = fiatOut - fiatIn;
+        const provisionalGain = difference > 0 ? difference : null;
+        const provisionalLoss = difference < 0 ? Math.abs(difference) : null;
+
+        return {
+          transactions: rows.length,
+          fees: feeTotal,
+          fiatIn,
+          fiatOut,
+          difference,
+          provisionalGain,
+          provisionalLoss,
+          gain: gainDetected || pnlDetected ? gain : null,
+          loss: lossDetected || pnlDetected ? loss : null,
+          assets: assetSet.size,
+          checkRows,
+          hasGainLoss: pnlDetected || gainDetected || lossDetected
+        };
+      }
+
+      function renderMetrics(prefix, rows, labelText, chipsContainer, noteEl){
+        const metrics = calculateMetrics(rows);
+        els[`${prefix}EvalTransactions`].textContent = String(metrics.transactions);
+        els[`${prefix}EvalFees`].textContent = formatNumber(metrics.fees);
+        els[`${prefix}EvalFiatIn`].textContent = formatNumber(metrics.fiatIn);
+        els[`${prefix}EvalFiatOut`].textContent = formatNumber(metrics.fiatOut);
+        els[`${prefix}EvalDifference`].textContent = formatNumber(metrics.difference);
+        els[`${prefix}EvalProvisionalGain`].textContent = metrics.provisionalGain !== null ? formatNumber(metrics.provisionalGain) : '–';
+        els[`${prefix}EvalProvisionalLoss`].textContent = metrics.provisionalLoss !== null ? formatNumber(metrics.provisionalLoss) : '–';
+        els[`${prefix}EvalGain`].textContent = metrics.hasGainLoss ? formatNumber(metrics.gain || 0) : '–';
+        els[`${prefix}EvalLoss`].textContent = metrics.hasGainLoss ? formatNumber(metrics.loss || 0) : '–';
+        els[`${prefix}EvalAssets`].textContent = String(metrics.assets);
+        els[`${prefix}EvalCheckRows`].textContent = String(metrics.checkRows);
+
+        chipsContainer.innerHTML = '';
+        labelText.forEach((text, index) => {
+          const span = document.createElement('span');
+          span.className = index === 0 ? 'chip mint' : 'chip';
+          span.textContent = text;
+          chipsContainer.appendChild(span);
+        });
+
+        if(metrics.hasGainLoss){
+          noteEl.textContent = 'Direkt erkannte Gewinn- und Verlustwerte wurden aus vorhandenen CSV-Spalten übernommen. Zusätzlich wird ein vorläufiger Fiat-Saldo ausgewiesen, damit Zwischengeschichten und Gesamtpfade besser eingeordnet werden können.';
+        } else {
+          noteEl.textContent = 'Gewinn und Verlust konnten nicht direkt aus den CSV-Daten gelesen werden. Deshalb werden zusätzlich erkannte Differenz und vorläufiger Gewinn oder Verlust aus dem Fiat-Saldo angezeigt.';
+        }
+      }
+
+      function renderPendingSource(){
+        if(!pendingSource){
+          els.autoSourceEmpty.classList.remove('hidden');
+          els.autoSourceBox.classList.add('hidden');
+          return;
+        }
+
+        els.autoSourceEmpty.classList.add('hidden');
+        els.autoSourceBox.classList.remove('hidden');
+        els.statStep.textContent = '2';
+
+        els.autoResultTitle.textContent = pendingSource.profile;
+        els.autoResultSub.textContent = `${pendingSource.parsed.data.length} Zeilen erkannt. Bitte prüfen, fachlich einordnen und dann speichern.`;
+
+        els.autoResultChips.innerHTML = '';
+        [
+          `${pendingSource.parsed.data.length} Zeilen`,
+          `${pendingSource.parsed.headers.length} Spalten`,
+          pendingSource.parsed.delimiter === ';' ? 'Trennzeichen ;' : 'Trennzeichen ,'
+        ].forEach(text => {
+          const span = document.createElement('span');
+          span.className = 'chip mint';
+          span.textContent = text;
+          els.autoResultChips.appendChild(span);
+        });
+
+        els.autoProfileBox.textContent = `Erkanntes Profil: ${pendingSource.profile}`;
+        els.fileNameText.textContent = pendingSource.fileName;
+        els.fileMetaText.textContent = `${pendingSource.parsed.data.length} Zeilen · ${pendingSource.parsed.headers.length} Spalten`;
+        els.columnsText.textContent = pendingSource.parsed.headers.join(' | ') || 'Keine Spalten erkannt';
+
+        const missing = [];
+        if(!pendingSource.mappings.asset) missing.push('Asset wurde nicht sicher erkannt.');
+        if(!pendingSource.mappings.amount) missing.push('Menge wurde nicht sicher erkannt.');
+        if(!pendingSource.mappings.txid) missing.push('TxID wurde nicht sicher erkannt.');
+        if(!pendingSource.mappings.value) missing.push('Gegenwert fehlt oder ist in dieser Datei nicht enthalten.');
+        if(!pendingSource.mappings.fee) missing.push('Gebühr fehlt oder ist in dieser Datei nicht enthalten.');
+
+        els.missingList.innerHTML = '';
+        if(!missing.length){
+          els.missingList.innerHTML = '<li>Die wichtigsten Felder wurden erkannt.</li>';
+        }else{
+          missing.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            els.missingList.appendChild(li);
+          });
+        }
+
+        fillPendingForm(pendingSource);
+      }
+
+      function renderOverview(){
+        const totalFiles = state.sources.length;
+        const selectedSources = getSelectedSources();
+
+        els.statSources.textContent = String(state.sources.length);
+        els.statFiles.textContent = String(totalFiles);
+        els.statMaster.textContent = String(state.combinedMasterRows.length);
+        els.statArchives.textContent = String(state.archives.length);
+
+        els.overviewChips.innerHTML = '';
+        [
+          `${state.sources.length} Quellen`,
+          `${totalFiles} CSV-Dateien`,
+          `${selectedSources.length} ausgewählt`
+        ].forEach((text, index) => {
+          const span = document.createElement('span');
+          span.className = index === 0 ? 'chip mint' : 'chip';
+          span.textContent = text;
+          els.overviewChips.appendChild(span);
+        });
+
+        els.sourcesList.innerHTML = '';
+        els.sourcesEmpty.classList.toggle('hidden', state.sources.length > 0);
+
+        state.sources.forEach(source => {
+          const isCurrent = source.id === state.currentSourceId;
+          const selected = source.selectedForCombined !== false;
+          const rows = source.singleMasterRows || [];
+          const metrics = rows.length ? calculateMetrics(rows) : null;
+          const statusLabel = rows.length ? (metrics.checkRows ? 'Prüffall' : 'gut erkennbar') : 'noch nicht ausgewertet';
+
+          const card = document.createElement('div');
+          card.className = 'source-card';
+          card.innerHTML = `
+            <div class="source-head">
+              <div class="source-left">
+                <input class="source-select no-print" type="checkbox" data-action="toggle-select" data-id="${source.id}" ${selected ? 'checked' : ''} />
+                <div>
+                  <h3>${escapeHtml(source.caseName)}</h3>
+                  <div class="chips">
+                    <span class="chip mint">${escapeHtml(source.sourceKind === 'wallet' ? 'Wallet / Explorer' : 'Börse / Plattform')}</span>
+                    ${source.chain ? `<span class="chip">${escapeHtml(source.chain)}</span>` : ''}
+                    ${source.provider ? `<span class="chip">${escapeHtml(source.provider)}</span>` : ''}
+                    ${source.year ? `<span class="chip">${escapeHtml(source.year)}</span>` : ''}
+                    <span class="chip magenta">1 Datei</span>
+                    <span class="chip gray">${source.parsed.data.length} Zeilen</span>
+                    <span class="chip ${metrics && metrics.checkRows ? 'warn' : 'mint'}">${escapeHtml(statusLabel)}</span>
+                    ${selected ? `<span class="chip mint">Für Sammelergebnis aktiv</span>` : `<span class="chip warn">Nicht ausgewählt</span>`}
+                    ${isCurrent ? `<span class="chip warn">Geöffnet</span>` : ''}
+                  </div>
+                </div>
+              </div>
+              <div class="source-actions no-print">
+                <button class="btn btn-ghost" type="button" data-action="open" data-id="${source.id}">Öffnen</button>
+                <button class="btn btn-ghost" type="button" data-action="loadForm" data-id="${source.id}">In Formular laden</button>
+                <button class="btn btn-danger" type="button" data-action="delete" data-id="${source.id}">Löschen</button>
+              </div>
+            </div>
+            <div class="source-meta">
+              <div><strong>Datei:</strong> <span class="muted">${escapeHtml(source.fileName)}</span></div>
+              ${source.walletRef ? `<div><strong>Wallet / Referenz:</strong> <span class="muted">${escapeHtml(source.walletRef)}</span></div>` : ''}
+              <div><strong>Erkanntes Profil:</strong> <span class="muted">${escapeHtml(source.profile)}</span></div>
+              ${source.note ? `<div><strong>Fachnotiz:</strong> <span class="muted">${escapeHtml(source.note)}</span></div>` : ''}
+            </div>
+          `;
+          els.sourcesList.appendChild(card);
+        });
+      }
+
+      function renderAnalysis(){
+        const source = getCurrentSource();
+
+        if(!source){
+          els.analysisEmpty.classList.remove('hidden');
+          els.analysisBox.classList.add('hidden');
+          if(!pendingSource){
+            els.statStep.textContent = state.sources.length ? '2' : '1';
+          }
+          return;
+        }
+
+        els.analysisEmpty.classList.add('hidden');
+        els.analysisBox.classList.remove('hidden');
+        els.statStep.textContent = '3';
+
+        els.resultTitle.textContent = source.profile;
+        els.resultSub.textContent = `${source.parsed.data.length} Zeilen erkannt. Bitte prüfe Struktur und Einordnung.`;
+
+        els.resultChips.innerHTML = '';
+        [
+          `${source.parsed.data.length} Zeilen`,
+          `${source.parsed.headers.length} Spalten`,
+          source.parsed.delimiter === ';' ? 'Trennzeichen ;' : 'Trennzeichen ,'
+        ].forEach(text => {
+          const span = document.createElement('span');
+          span.className = 'chip mint';
+          span.textContent = text;
+          els.resultChips.appendChild(span);
+        });
+
+        els.mappedChips.innerHTML = '';
+        const mapLabels = {
+          date:'Datum',
+          time:'Uhrzeit',
+          asset:'Asset',
+          amount:'Menge',
+          value:'Gegenwert',
+          fee:'Gebühr',
+          txid:'TxID',
+          direction:'Hinweis',
+          pnl:'P&L',
+          gain:'Gewinn',
+          loss:'Verlust'
+        };
+
+        Object.entries(source.mappings).forEach(([key, header]) => {
+          if(!mapLabels[key]) return;
+          const span = document.createElement('span');
+          span.className = header ? 'chip mint' : 'chip warn';
+          span.textContent = header ? `${mapLabels[key]}: ${header}` : `${mapLabels[key]}: nicht erkannt`;
+          els.mappedChips.appendChild(span);
+        });
+
+        els.resultProfileBox.textContent = `Erkanntes Profil: ${source.profile}`;
+        els.resultHintBox.textContent = profileHint(source.profile);
+        els.openedFileNameText.textContent = source.fileName;
+        els.openedFileMetaText.textContent = `${source.parsed.data.length} Zeilen · ${source.parsed.headers.length} Spalten`;
+        els.openedColumnsText.textContent = source.parsed.headers.join(' | ') || 'Keine Spalten erkannt';
+
+        const missing = [];
+        if(!source.mappings.asset) missing.push('Asset wurde nicht sicher erkannt.');
+        if(!source.mappings.amount) missing.push('Menge wurde nicht sicher erkannt.');
+        if(!source.mappings.txid) missing.push('TxID wurde nicht sicher erkannt.');
+        if(!source.mappings.value) missing.push('Gegenwert fehlt oder ist in dieser Datei nicht enthalten.');
+        if(!source.mappings.fee) missing.push('Gebühr fehlt oder ist in dieser Datei nicht enthalten.');
+        if(!source.mappings.pnl && !source.mappings.gain && !source.mappings.loss) missing.push('Gewinn-/Verlust-Spalten wurden nicht direkt erkannt.');
+
+        els.openedMissingList.innerHTML = '';
+        if(!missing.length){
+          els.openedMissingList.innerHTML = '<li>Die wichtigsten Felder wurden erkannt.</li>';
+        }else{
+          missing.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            els.openedMissingList.appendChild(li);
+          });
+        }
+      }
+
+      function renderSingleMaster(){
+        const source = getCurrentSource();
+        const rows = source ? source.singleMasterRows || [] : [];
+
+        els.singleMasterBody.innerHTML = '';
+        els.singleMasterChips.innerHTML = '';
+
+        if(!rows.length){
+          els.singleMasterEmpty.classList.remove('hidden');
+          els.singleMasterWrap.classList.add('hidden');
+          els.singleEvaluationEmpty.classList.remove('hidden');
+          els.singleEvaluationBox.classList.add('hidden');
+          return;
+        }
+
+        els.singleMasterEmpty.classList.add('hidden');
+        els.singleMasterWrap.classList.remove('hidden');
+        els.singleEvaluationEmpty.classList.add('hidden');
+        els.singleEvaluationBox.classList.remove('hidden');
+
+        [
+          `${rows.length} Einträge`,
+          source.caseName,
+          source.chain || 'Chain offen',
+          source.provider || 'Quelle offen'
+        ].forEach((text, index) => {
+          const span = document.createElement('span');
+          span.className = index === 0 ? 'chip mint' : 'chip';
+          span.textContent = text;
+          els.singleMasterChips.appendChild(span);
+        });
+
+        rows.forEach((row, idx) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${idx + 1}</td>
+            <td>${escapeHtml(row.date)}</td>
+            <td>${escapeHtml(row.time)}</td>
+            <td>${escapeHtml(row.source)}</td>
+            <td>${escapeHtml(row.chain)}</td>
+            <td>${escapeHtml(row.provider)}</td>
+            <td>${escapeHtml(row.wallet)}</td>
+            <td>${escapeHtml(row.asset)}</td>
+            <td>${escapeHtml(row.amount)}</td>
+            <td>${escapeHtml(row.value)}</td>
+            <td>${escapeHtml(row.fee)}</td>
+            <td>${escapeHtml(row.txid)}</td>
+            <td>${escapeHtml(row.hint)}</td>
+          `;
+          els.singleMasterBody.appendChild(tr);
+        });
+
+        renderMetrics(
+          'single',
+          rows,
+          [source.caseName, source.profile, `${rows.length} Zeilen ausgewertet`],
+          els.singleEvaluationChips,
+          els.singleEvaluationNote
+        );
+      }
+
+      function renderCombinedHeader(){
+        const rows = state.combinedMasterRows || [];
+        const selected = getSelectedSources();
+        if(!rows.length){
+          els.combinedMasterHeader.classList.add('hidden');
+          els.combinedHeaderChips.innerHTML = '';
+          return;
+        }
+
+        els.combinedMasterHeader.classList.remove('hidden');
+        els.combinedHeaderSub.textContent = `Fortgeschrittene Sammelansicht für ${selected.length} ausgewählte Quellen`;
+
+        const metrics = calculateMetrics(rows);
+        els.combinedHeaderChips.innerHTML = '';
+        [
+          `${selected.length} Quellen`,
+          `${rows.length} Zeilen`,
+          `Fiat eingezahlt: ${formatNumber(metrics.fiatIn)}`,
+          `Fiat ausgezahlt: ${formatNumber(metrics.fiatOut)}`,
+          `Differenz: ${formatNumber(metrics.difference)}`,
+          `Vorläufiger Verlust: ${metrics.provisionalLoss !== null ? formatNumber(metrics.provisionalLoss) : '–'}`,
+          `Vorläufiger Gewinn: ${metrics.provisionalGain !== null ? formatNumber(metrics.provisionalGain) : '–'}`,
+          `Direkter Gewinn: ${metrics.hasGainLoss ? formatNumber(metrics.gain || 0) : '–'}`,
+          `Direkter Verlust: ${metrics.hasGainLoss ? formatNumber(metrics.loss || 0) : '–'}`,
+          `Gebühren: ${formatNumber(metrics.fees)}`,
+          `Prüffälle: ${metrics.checkRows}`
+        ].forEach((text, index) => {
+          const span = document.createElement('span');
+          span.className = index === 0 ? 'chip mint' : 'chip';
+          span.textContent = text;
+          els.combinedHeaderChips.appendChild(span);
+        });
+      }
+
+      function renderCombinedMaster(){
+        const rows = state.combinedMasterRows || [];
+        els.combinedMasterBody.innerHTML = '';
+        els.combinedMasterChips.innerHTML = '';
+        renderCombinedHeader();
+
+        if(!rows.length){
+          els.combinedMasterEmpty.classList.remove('hidden');
+          els.combinedMasterWrap.classList.add('hidden');
+          els.combinedEvaluationEmpty.classList.remove('hidden');
+          els.combinedEvaluationBox.classList.add('hidden');
+          renderTaxView();
+          return;
+        }
+
+        els.combinedMasterEmpty.classList.add('hidden');
+        els.combinedMasterWrap.classList.remove('hidden');
+        els.combinedEvaluationEmpty.classList.add('hidden');
+        els.combinedEvaluationBox.classList.remove('hidden');
+
+        const selectedCount = getSelectedSources().length;
+        [
+          `${rows.length} Einträge`,
+          `${selectedCount} Quellen kombiniert`,
+          `${new Set(rows.map(r => r.asset).filter(Boolean)).size} Assets`,
+          `${new Set(rows.map(r => r.chain).filter(Boolean)).size} Chains`
+        ].forEach((text, index) => {
+          const span = document.createElement('span');
+          span.className = index === 0 ? 'chip mint' : 'chip';
+          span.textContent = text;
+          els.combinedMasterChips.appendChild(span);
+        });
+
+        rows.forEach((row, idx) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${idx + 1}</td>
+            <td>${escapeHtml(row.date)}</td>
+            <td>${escapeHtml(row.time)}</td>
+            <td>${escapeHtml(row.source)}</td>
+            <td>${escapeHtml(row.chain)}</td>
+            <td>${escapeHtml(row.provider)}</td>
+            <td>${escapeHtml(row.wallet)}</td>
+            <td>${escapeHtml(row.asset)}</td>
+            <td>${escapeHtml(row.amount)}</td>
+            <td>${escapeHtml(row.value)}</td>
+            <td>${escapeHtml(row.fee)}</td>
+            <td>${escapeHtml(row.txid)}</td>
+            <td>${escapeHtml(row.hint)}</td>
+          `;
+          els.combinedMasterBody.appendChild(tr);
+        });
+
+        renderMetrics(
+          'combined',
+          rows,
+          [`${selectedCount} Quellen ausgewählt`, `${rows.length} Zeilen ausgewertet`, 'Fortgeschrittenes Sammelergebnis'],
+          els.combinedEvaluationChips,
+          els.combinedEvaluationNote
+        );
+
+        renderTaxView();
+      }
+
+      function renderTaxView(){
+        const rows = state.combinedMasterRows || [];
+        if(!rows.length){
+          els.taxEmpty.classList.remove('hidden');
+          els.taxBox.classList.add('hidden');
+          return;
+        }
+
+        const selected = getSelectedSources();
+        const metrics = calculateMetrics(rows);
+
+        els.taxEmpty.classList.add('hidden');
+        els.taxBox.classList.remove('hidden');
+        els.taxSubline.textContent = `Kombinierte Sicht nach aktuell ausgewählten ${selected.length} Quellen`;
+
+        els.taxTransactions.textContent = String(metrics.transactions);
+        els.taxFees.textContent = formatNumber(metrics.fees);
+        els.taxFiatIn.textContent = formatNumber(metrics.fiatIn);
+        els.taxFiatOut.textContent = formatNumber(metrics.fiatOut);
+        els.taxDifference.textContent = formatNumber(metrics.difference);
+        els.taxProvisionalGain.textContent = metrics.provisionalGain !== null ? formatNumber(metrics.provisionalGain) : '–';
+        els.taxProvisionalLoss.textContent = metrics.provisionalLoss !== null ? formatNumber(metrics.provisionalLoss) : '–';
+        els.taxGain.textContent = metrics.hasGainLoss ? formatNumber(metrics.gain || 0) : '–';
+        els.taxLoss.textContent = metrics.hasGainLoss ? formatNumber(metrics.loss || 0) : '–';
+        els.taxAssets.textContent = String(metrics.assets);
+        els.taxCheckRows.textContent = String(metrics.checkRows);
+
+        els.taxChips.innerHTML = '';
+        selected.forEach(source => {
+          const span = document.createElement('span');
+          span.className = 'chip mint';
+          span.textContent = source.caseName;
+          els.taxChips.appendChild(span);
+        });
+
+        els.taxNote.textContent = metrics.hasGainLoss
+          ? 'Diese Ansicht enthält direkt aus CSV-Spalten erkannte Gewinn- und Verlustwerte. Zusätzlich wird eine vorläufige Differenz aus eingezahlt und ausgezahlt ausgewiesen. Prüfe bei komplexen Fällen Projektwege, Krypto-zu-Krypto-Tausche, Rewards, LP, Cashback oder Voucher gesondert.'
+          : 'Diese Ansicht basiert auf aktuell importierten und ausgewählten Rohdaten. Gewinn und Verlust konnten nicht direkt aus CSV-Spalten gelesen werden. Deshalb wird zusätzlich eine vorläufige Differenz und ein vorläufiger Gewinn oder Verlust aus dem Fiat-Saldo ausgewiesen.';
+      }
+
+      function renderArchive(){
+        els.archiveList.innerHTML = '';
+        els.archiveEmpty.classList.toggle('hidden', state.archives.length > 0);
+        els.statArchives.textContent = String(state.archives.length);
+
+        state.archives.forEach(entry => {
+          const card = document.createElement('div');
+          card.className = 'archive-card';
+          card.innerHTML = `
+            <div class="archive-head">
+              <div>
+                <h3>${escapeHtml(entry.name)}</h3>
+                <div class="chips">
+                  ${entry.year ? `<span class="chip mint">${escapeHtml(entry.year)}</span>` : ''}
+                  ${entry.tag ? `<span class="chip">${escapeHtml(entry.tag)}</span>` : ''}
+                  <span class="chip">${entry.sources.length} Quellen</span>
+                  <span class="chip magenta">${entry.combinedMasterRows.length} Zeilen</span>
+                </div>
+              </div>
+              <div class="source-actions no-print">
+                <button class="btn btn-ghost" type="button" data-action="load-archive" data-id="${entry.id}">Öffnen</button>
+                <button class="btn btn-danger" type="button" data-action="delete-archive" data-id="${entry.id}">Löschen</button>
+              </div>
+            </div>
+            ${entry.note ? `<div class="small muted" style="margin-top:10px;">${escapeHtml(entry.note)}</div>` : ''}
+            <div class="small muted" style="margin-top:8px;">Gespeichert am ${new Date(entry.createdAt).toLocaleString('de-DE')}</div>
+          `;
+          els.archiveList.appendChild(card);
+        });
+      }
+
+      function openPreview(){
+        const rows = state.combinedMasterRows || [];
+        if(!rows.length){
+          alert('Bitte zuerst eine kombinierte Masterliste erzeugen.');
+          return;
+        }
+
+        els.previewHeaderChips.innerHTML = els.combinedHeaderChips.innerHTML;
+        els.previewTax.innerHTML = els.taxView.innerHTML;
+        els.previewTableBody.innerHTML = '';
+
+        rows.forEach((row, idx) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${idx + 1}</td>
+            <td>${escapeHtml(row.date)}</td>
+            <td>${escapeHtml(row.time)}</td>
+            <td>${escapeHtml(row.source)}</td>
+            <td>${escapeHtml(row.chain)}</td>
+            <td>${escapeHtml(row.provider)}</td>
+            <td>${escapeHtml(row.wallet)}</td>
+            <td>${escapeHtml(row.asset)}</td>
+            <td>${escapeHtml(row.amount)}</td>
+            <td>${escapeHtml(row.value)}</td>
+            <td>${escapeHtml(row.fee)}</td>
+            <td>${escapeHtml(row.txid)}</td>
+            <td>${escapeHtml(row.hint)}</td>
+          `;
+          els.previewTableBody.appendChild(tr);
+        });
+
+        els.previewModal.classList.add('show');
+        els.previewModal.setAttribute('aria-hidden', 'false');
+      }
+
+      function closePreview(){
+        els.previewModal.classList.remove('show');
+        els.previewModal.setAttribute('aria-hidden', 'true');
+      }
+
+      function openInfo(){
+        els.infoModal.classList.add('show');
+        els.infoModal.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeInfo(){
+        els.infoModal.classList.remove('show');
+        els.infoModal.setAttribute('aria-hidden', 'true');
+      }
+
+      function exportRowsCsv(rows, filename){
+        if(!rows.length){
+          alert('Es gibt keine Daten zum Exportieren.');
+          return;
+        }
+
+        const headers = ['Datum','Uhrzeit','Quelle','Chain','Plattform/Explorer','Wallet/Referenz','Asset','Menge','Gegenwert','Gebühr','TxID','Hinweis'];
+        const lines = [headers.join(';')];
+
+        rows.forEach(row => {
+          const values = [
+            row.date,row.time,row.source,row.chain,row.provider,row.wallet,row.asset,row.amount,row.value,row.fee,row.txid,row.hint
+          ].map(v => `"${String(v ?? '').replace(/"/g,'""')}"`);
+          lines.push(values.join(';'));
+        });
+
+        const blob = new Blob([lines.join('\n')], { type:'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+
+      function exportRowsExcel(rows, filename){
+        if(!rows.length){
+          alert('Es gibt keine Daten zum Downloaden.');
+          return;
+        }
+
+        const metrics = calculateMetrics(rows);
+        const titleHtml = `
+          <table border="1">
+            <tr><td colspan="12"><strong>FSA-Masterliste – Krypto-Steuer-Ordnung – Fortgeschrittene</strong></td></tr>
+            <tr><td>Quellen</td><td>${getSelectedSources().length}</td><td>Zeilen</td><td>${rows.length}</td><td>Assets</td><td>${metrics.assets}</td><td>Prüffälle</td><td>${metrics.checkRows}</td><td>Gebühren</td><td>${formatNumber(metrics.fees)}</td><td>Archivstände</td><td>${state.archives.length}</td></tr>
+            <tr><td>Fiat eingezahlt</td><td>${formatNumber(metrics.fiatIn)}</td><td>Fiat ausgezahlt</td><td>${formatNumber(metrics.fiatOut)}</td><td>Differenz</td><td>${formatNumber(metrics.difference)}</td><td>Vorläufiger Gewinn</td><td>${metrics.provisionalGain !== null ? formatNumber(metrics.provisionalGain) : '–'}</td><td>Vorläufiger Verlust</td><td>${metrics.provisionalLoss !== null ? formatNumber(metrics.provisionalLoss) : '–'}</td><td>Direkter Gewinn</td><td>${metrics.hasGainLoss ? formatNumber(metrics.gain || 0) : '–'}</td></tr>
+            <tr><td>Direkter Verlust</td><td>${metrics.hasGainLoss ? formatNumber(metrics.loss || 0) : '–'}</td><td colspan="11">Exportzeitpunkt: ${new Date().toLocaleString('de-DE')}</td></tr>
+          </table>
+          <br>
+        `;
+
+        const head = `
+          <tr>
+            <th>#</th>
+            <th>Datum</th>
+            <th>Uhrzeit</th>
+            <th>Quelle</th>
+            <th>Chain</th>
+            <th>Plattform / Explorer</th>
+            <th>Wallet / Referenz</th>
+            <th>Asset</th>
+            <th>Menge</th>
+            <th>Gegenwert</th>
+            <th>Gebühr</th>
+            <th>TxID</th>
+            <th>Hinweis</th>
+          </tr>
+        `;
+
+        const body = rows.map((row, idx) => `
+          <tr>
+            <td>${idx + 1}</td>
+            <td>${escapeHtml(row.date)}</td>
+            <td>${escapeHtml(row.time)}</td>
+            <td>${escapeHtml(row.source)}</td>
+            <td>${escapeHtml(row.chain)}</td>
+            <td>${escapeHtml(row.provider)}</td>
+            <td>${escapeHtml(row.wallet)}</td>
+            <td>${escapeHtml(row.asset)}</td>
+            <td>${escapeHtml(row.amount)}</td>
+            <td>${escapeHtml(row.value)}</td>
+            <td>${escapeHtml(row.fee)}</td>
+            <td>${escapeHtml(row.txid)}</td>
+            <td>${escapeHtml(row.hint)}</td>
+          </tr>
+        `).join('');
+
+        const html = `
+          <html xmlns:o="urn:schemas-microsoft-com:office:office"
+                xmlns:x="urn:schemas-microsoft-com:office:excel"
+                xmlns="http://www.w3.org/TR/REC-html40">
+          <head><meta charset="utf-8"></head>
+          <body>
+            ${titleHtml}
+            <table border="1">
+              ${head}
+              ${body}
+            </table>
+          </body>
+          </html>
+        `;
+
+        const blob = new Blob([html], { type:'application/vnd.ms-excel;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+
+      function setTransferStatus(message, type = 'empty'){
+        const box = els.stateTransferStatus;
+        if(!box) return;
+        box.className = type === 'ok'
+          ? 'okbox'
+          : type === 'warn'
+            ? 'warnbox'
+            : type === 'note'
+              ? 'note'
+              : 'empty';
+        box.innerHTML = message;
+      }
+
+      function exportCompleteState(){
+        try{
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if(!raw){
+            setTransferStatus('Es wurde noch kein Seitenstand gefunden, der exportiert werden kann.', 'warn');
+            return;
+          }
+
+          const parsed = JSON.parse(raw);
+          const payload = {
+            exportType: 'kso_csv_import_fortgeschrittene_full_state',
+            version: 1,
+            exportedAt: new Date().toISOString(),
+            storageKey: STORAGE_KEY,
+            data: parsed
+          };
+
+          const stamp = new Date();
+          const pad = n => String(n).padStart(2, '0');
+          const fileName =
+            'krypto-steuer-ordnung-fortgeschrittene-geraetewechsel-' +
+            stamp.getFullYear() +
+            pad(stamp.getMonth() + 1) +
+            pad(stamp.getDate()) + '-' +
+            pad(stamp.getHours()) +
+            pad(stamp.getMinutes()) +
+            pad(stamp.getSeconds()) +
+            '.json';
+
+          const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+          setTransferStatus('Kompletter Seitenstand wurde erfolgreich exportiert.<br>Datei: <strong>' + fileName + '</strong>', 'ok');
+        } catch {
+          setTransferStatus('Export fehlgeschlagen. Bitte erneut versuchen.', 'warn');
+        }
+      }
+
+      async function importCompleteState(file){
+        if(!file){
+          setTransferStatus('Keine Importdatei ausgewählt.', 'warn');
+          return;
+        }
+
+        try{
+          const text = await file.text();
+          const parsed = JSON.parse(text);
+
+          if(
+            !parsed ||
+            parsed.exportType !== 'kso_csv_import_fortgeschrittene_full_state' ||
+            !parsed.data ||
+            typeof parsed.data !== 'object'
+          ){
+            setTransferStatus('Die ausgewählte Datei ist kein gültiger Gerätewechsel-Import für diese Seite.', 'warn');
+            return;
+          }
+
+          const data = parsed.data;
+          const isValid =
+            Array.isArray(data.sources) &&
+            Array.isArray(data.combinedMasterRows) &&
+            Array.isArray(data.archives) &&
+            typeof data.currentSourceId === 'string';
+
+          if(!isValid){
+            setTransferStatus('Die Importdatei hat nicht die erwartete Struktur.', 'warn');
+            return;
+          }
+
+          const confirmImport = window.confirm('Der Import überschreibt den aktuellen Stand auf diesem Gerät. Wirklich fortsetzen?');
+          if(!confirmImport){
+            setTransferStatus('Import abgebrochen. Der aktuelle Stand wurde nicht verändert.', 'note');
+            return;
+          }
+
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          setTransferStatus('Import erfolgreich übernommen.<br>Die Seite wird jetzt neu geladen, damit alle Bereiche mit dem importierten Stand angezeigt werden.', 'ok');
+
+          setTimeout(() => {
+            window.location.reload();
+          }, 700);
+        } catch {
+          setTransferStatus('Import fehlgeschlagen. Bitte prüfe, ob du die richtige JSON-Datei gewählt hast.', 'warn');
+        }
+      }
+
+      async function handleCsvRead(event){
+        event.preventDefault();
+
+        const input = await readCsvInput();
+        if(!input){
+          alert('Bitte lade eine CSV-Datei hoch oder füge CSV-Inhalt ein.');
+          return;
+        }
+
+        const parsed = parseCsv(input.content);
+        const mappings = detectMappings(parsed.headers);
+        const profile = detectProfile(parsed.headers);
+        const provider = guessProvider(profile, input.fileName, parsed.headers);
+        const chain = guessChain(profile, input.fileName, parsed.headers);
+        const year = guessYear(parsed, mappings);
+        const caseName = buildSuggestedName(provider, profile, year, chain);
+
+        pendingSource = {
+          id: uid('source'),
+          sourceKind: currentSourceKind(),
+          caseName,
+          chain,
+          provider,
+          walletRef: '',
+          year,
+          note: '',
+          fileName: input.fileName,
+          createdAt: new Date().toISOString(),
+          parsed,
+          mappings,
+          profile,
+          singleMasterRows: [],
+          selectedForCombined: true
+        };
+
+        renderPendingSource();
+      }
+
+      async function readCsvInput(){
+        let content = normalize(els.csvPaste.value);
+        let fileName = 'Direkteingabe.csv';
+
+        if(!content && els.csvFile.files[0]){
+          content = await els.csvFile.files[0].text();
+          fileName = els.csvFile.files[0].name;
+        }
+
+        if(!content) return null;
+        return { content, fileName };
+      }
+
+      function handleSaveSource(event){
+        event.preventDefault();
+
+        if(!pendingSource){
+          alert('Bitte zuerst eine CSV laden.');
+          return;
+        }
+
+        const finalChain = currentChainFromForm();
+
+        pendingSource.caseName = normalize(els.caseName.value) || pendingSource.caseName;
+        pendingSource.chain = finalChain;
+        pendingSource.provider = normalize(els.provider.value);
+        pendingSource.walletRef = normalize(els.walletRef.value);
+        pendingSource.year = normalize(els.year.value);
+        pendingSource.note = normalize(els.sourceNote.value);
+
+        state.sources.unshift(pendingSource);
+        state.currentSourceId = pendingSource.id;
+        pendingSource = null;
+
+        saveState();
+        els.csvFile.value = '';
+        els.csvPaste.value = '';
+        renderAll();
+      }
+
+      function resetCsvInput(){
+        els.csvForm.reset();
+        pendingSource = null;
+        renderPendingSource();
+      }
+
+      function openSource(id){
+        state.currentSourceId = id;
+        saveState();
+        renderAll();
+      }
+
+      function deleteSource(id){
+        state.sources = state.sources.filter(source => source.id !== id);
+        if(state.currentSourceId === id){
+          state.currentSourceId = state.sources[0]?.id || '';
+        }
+        state.combinedMasterRows = state.combinedMasterRows.filter(row => row.sourceId !== id);
+        saveState();
+        renderAll();
+      }
+
+      function toggleSourceSelection(id){
+        const source = state.sources.find(item => item.id === id);
+        if(!source) return;
+        source.selectedForCombined = !(source.selectedForCombined === false);
+        saveState();
+        renderOverview();
+      }
+
+      function setAllSelections(value){
+        state.sources.forEach(source => {
+          source.selectedForCombined = value;
+        });
+        saveState();
+        renderOverview();
+      }
+
+      function buildSingleMaster(){
+        const source = getCurrentSource();
+        if(!source){
+          alert('Bitte zuerst eine Quelle öffnen.');
+          return;
+        }
+        source.singleMasterRows = buildRowsForSource(source).sort(compareDateTime);
+        saveState();
+        renderSingleMaster();
+      }
+
+      function buildCombinedMaster(){
+        const selected = getSelectedSources();
+        if(!selected.length){
+          alert('Bitte wähle mindestens eine Quelle für das Sammelergebnis aus.');
+          return;
+        }
+
+        const allRows = [];
+        selected.forEach(source => {
+          const rows = source.singleMasterRows && source.singleMasterRows.length
+            ? source.singleMasterRows
+            : buildRowsForSource(source);
+          allRows.push(...rows);
+        });
+
+        state.combinedMasterRows = allRows.sort(compareDateTime);
+        saveState();
+        renderCombinedMaster();
+      }
+
+      function saveArchive(event){
+        event.preventDefault();
+
+        if(!(state.combinedMasterRows || []).length){
+          alert('Bitte zuerst eine kombinierte Masterliste erzeugen.');
+          return;
+        }
+
+        const entry = {
+          id: uid('archive'),
+          name: normalize(els.archiveName.value) || 'Archivstand ohne Namen',
+          year: normalize(els.archiveYear.value),
+          tag: normalize(els.archiveTag.value),
+          note: normalize(els.archiveNote.value),
+          createdAt: new Date().toISOString(),
+          sources: JSON.parse(JSON.stringify(state.sources)),
+          currentSourceId: state.currentSourceId,
+          combinedMasterRows: JSON.parse(JSON.stringify(state.combinedMasterRows))
+        };
+
+        state.archives.unshift(entry);
+        saveState();
+        els.archiveForm.reset();
+        renderArchive();
+      }
+
+      function loadArchive(id){
+        const entry = state.archives.find(item => item.id === id);
+        if(!entry) return;
+
+        state.sources = JSON.parse(JSON.stringify(entry.sources));
+        state.currentSourceId = entry.currentSourceId || state.sources[0]?.id || '';
+        state.combinedMasterRows = JSON.parse(JSON.stringify(entry.combinedMasterRows));
+        saveState();
+        renderAll();
+      }
+
+      function deleteArchive(id){
+        state.archives = state.archives.filter(item => item.id !== id);
+        saveState();
+        renderArchive();
+      }
+
+      function renderAll(){
+        renderPendingSource();
+        renderOverview();
+        renderAnalysis();
+        renderSingleMaster();
+        renderCombinedMaster();
+        renderArchive();
+      }
+
+      els.btnScrollStart.addEventListener('click', () => {
+        document.getElementById('startSection').scrollIntoView({ behavior:'smooth', block:'start' });
+      });
+
+      els.btnOpenInfo.addEventListener('click', openInfo);
+      els.btnCloseInfo.addEventListener('click', closeInfo);
+
+      els.csvForm.addEventListener('submit', handleCsvRead);
+      els.btnResetCsv.addEventListener('click', resetCsvInput);
+      els.sourceConfirmForm.addEventListener('submit', handleSaveSource);
+
+      els.btnBuildSingleMaster.addEventListener('click', buildSingleMaster);
+      els.btnBuildCombined.addEventListener('click', buildCombinedMaster);
+      els.btnSelectAllSources.addEventListener('click', () => setAllSelections(true));
+      els.btnDeselectAllSources.addEventListener('click', () => setAllSelections(false));
+
+      els.btnExportSingleCsv.addEventListener('click', () => {
+        const source = getCurrentSource();
+        const rows = source ? source.singleMasterRows || [] : [];
+        exportRowsCsv(rows, `${(source?.caseName || 'einzel-masterliste').replace(/[^\w\-]+/g,'_')}.csv`);
+      });
+
+      els.btnOpenPreview.addEventListener('click', openPreview);
+      els.btnPreviewCsv.addEventListener('click', () => exportRowsCsv(state.combinedMasterRows || [], 'kombinierte-masterliste-fortgeschrittene.csv'));
+      els.btnPreviewExcel.addEventListener('click', () => exportRowsExcel(state.combinedMasterRows || [], 'kombinierte-masterliste-fortgeschrittene.xls'));
+      els.btnPreviewPrint.addEventListener('click', () => window.print());
+      els.btnClosePreview.addEventListener('click', closePreview);
+
+      els.btnExportCombinedCsv.addEventListener('click', () => exportRowsCsv(state.combinedMasterRows || [], 'kombinierte-masterliste-fortgeschrittene.csv'));
+      els.btnExportCombinedExcel.addEventListener('click', () => exportRowsExcel(state.combinedMasterRows || [], 'kombinierte-masterliste-fortgeschrittene.xls'));
+      els.btnPrint.addEventListener('click', () => window.print());
+
+      els.btnStateExport.addEventListener('click', exportCompleteState);
+      els.stateImportFile.addEventListener('change', (event) => {
+        const file = event.target.files && event.target.files[0] ? event.target.files[0] : null;
+        importCompleteState(file);
+        event.target.value = '';
+      });
+
+      els.archiveForm.addEventListener('submit', saveArchive);
+
+      document.addEventListener('click', (event) => {
+        const btn = event.target.closest('[data-action]');
+        if(!btn) return;
+
+        const action = btn.getAttribute('data-action');
+        const id = btn.getAttribute('data-id');
+
+        if(action === 'open') openSource(id);
+        if(action === 'loadForm'){
+          const source = state.sources.find(item => item.id === id);
+          if(source){
+            fillFormFromSource(source);
+            document.getElementById('startSection').scrollIntoView({ behavior:'smooth', block:'start' });
+          }
+        }
+        if(action === 'delete'){
+          if(confirm('Diese Quelle wirklich löschen?')){
+            deleteSource(id);
+          }
+        }
+        if(action === 'toggle-select'){
+          toggleSourceSelection(id);
+        }
+        if(action === 'load-archive') loadArchive(id);
+        if(action === 'delete-archive'){
+          if(confirm('Diesen Archivstand wirklich löschen?')){
+            deleteArchive(id);
+          }
+        }
+      });
+
+      document.addEventListener('change', (event) => {
+        const checkbox = event.target.closest('.source-select');
+        if(!checkbox) return;
+        const id = checkbox.getAttribute('data-id');
+        const source = state.sources.find(item => item.id === id);
+        if(!source) return;
+        source.selectedForCombined = checkbox.checked;
+        saveState();
+        renderOverview();
+      });
+
+      els.previewModal.addEventListener('click', (event) => {
+        if(event.target === els.previewModal){
+          closePreview();
+        }
+      });
+
+      els.infoModal.addEventListener('click', (event) => {
+        if(event.target === els.infoModal){
+          closeInfo();
+        }
+      });
+
+      if(state.currentSourceId && !getCurrentSource()){
+        state.currentSourceId = state.sources[0]?.id || '';
+        saveState();
+      }
+
+      renderAll();
+    })();
+  </script>
+</body>
+</html>
