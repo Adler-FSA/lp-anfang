@@ -1,11 +1,10 @@
-
 <!doctype html>
 <html lang="de">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>CSV-Import für Einsteiger – Krypto-Steuer-Ordnung</title>
-  <meta name="description" content="Geführte CSV-Import-Hilfe für Einsteiger. CSV zuerst laden, Quelle automatisch erkennen, prüfen und als einfache Masterlisten und Sammelergebnisse übernehmen." />
+  <meta name="description" content="Geführte CSV-Import-Hilfe für Einsteiger. CSV zuerst laden, Quelle automatisch erkennen, prüfen und als kombinierte Masterliste mit Archiv, Vorschau, Excel-Export und Steuerberater-Ansicht übernehmen." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -25,7 +24,7 @@
       --danger:#b91c1c;
       --shadow:0 18px 50px rgba(16,24,40,.08);
       --radius:22px;
-      --max:1320px;
+      --max:1380px;
     }
 
     *{box-sizing:border-box}
@@ -122,7 +121,7 @@
     }
 
     .sub{
-      max-width:1020px;
+      max-width:1040px;
       margin:0;
       color:var(--muted);
       font-size:17px;
@@ -205,7 +204,9 @@
     .choice-card,
     .source-card,
     .file-card,
-    .eval-card{
+    .eval-card,
+    .archive-card,
+    .preview-card{
       background:#fff;
       border:1px solid var(--line);
       border-radius:18px;
@@ -431,7 +432,7 @@
     table{
       width:100%;
       border-collapse:collapse;
-      min-width:1100px;
+      min-width:1120px;
     }
 
     th,td{
@@ -462,7 +463,8 @@
     }
 
     .source-head,
-    .file-head{
+    .file-head,
+    .archive-head{
       display:flex;
       flex-wrap:wrap;
       align-items:flex-start;
@@ -507,6 +509,72 @@
       margin-bottom:4px;
     }
 
+    .master-header{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:16px;
+      margin-top:14px;
+    }
+
+    .master-header h3{
+      margin-bottom:6px;
+    }
+
+    .archive-list{
+      display:grid;
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .preview-modal{
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.45);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:9999;
+    }
+
+    .preview-modal.show{
+      display:flex;
+    }
+
+    .preview-shell{
+      width:min(1200px,100%);
+      max-height:90vh;
+      overflow:auto;
+      background:#fff;
+      border-radius:24px;
+      box-shadow:0 24px 80px rgba(0,0,0,.18);
+      border:1px solid var(--line);
+      padding:18px;
+    }
+
+    .preview-toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:14px;
+    }
+
+    .preview-body{
+      display:grid;
+      gap:18px;
+    }
+
+    .steuerberater-view{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:16px;
+      margin-top:14px;
+    }
+
     .hidden{display:none !important}
     .print-only{display:none}
 
@@ -541,9 +609,13 @@
       .source-card,
       .file-card,
       .eval-card,
+      .archive-card,
+      .preview-card,
       .result-box,
       .stat,
-      .table-wrap{
+      .table-wrap,
+      .master-header,
+      .steuerberater-view{
         box-shadow:none !important;
         border-color:#cfd8dc !important;
         break-inside:avoid;
@@ -553,7 +625,8 @@
       input,
       textarea,
       select,
-      .no-print{
+      .no-print,
+      .preview-modal{
         display:none !important;
       }
       .print-only{
@@ -584,8 +657,13 @@
       <h1>CSV-Import für Einsteiger</h1>
       <p class="sub">
         Diese Seite führt dich Schritt für Schritt durch den Import deiner CSV-Datei. Sie hilft dir dabei, typische Datenquellen zu erkennen,
-        die Datei sinnvoll einzuordnen, einzelne Quellen zu öffnen und mehrere Quellen gemeinsam in eine kombinierte Masterliste mit Ergebnis zu übernehmen.
+        einzelne Quellen zu prüfen und mehrere Quellen gemeinsam in eine kombinierte FSA-Arbeitsdatei, Masterliste, Auswertung, Archiv-Ansicht und Steuerberater-Ansicht zu übernehmen.
       </p>
+
+      <div class="note">
+        <strong>Was hier entsteht:</strong><br>
+        Du importierst Rohdaten aus Börsen, Wallets, Explorern oder Plattformen. Daraus entsteht hier eine strukturierte FSA-Arbeitsdatei mit Masterliste, Kennzahlen, Archiv und druckbarer Übergabeansicht.
+      </div>
 
       <div class="statusbar">
         <div class="stat">
@@ -637,11 +715,8 @@
         <div class="step-card">
           <div class="step-num">4</div>
           <strong>Sammelergebnis bauen</strong>
-          <div class="muted small">Mehrere Quellen landen zusammen in einer Masterliste mit Auswertung.</div>
+          <div class="muted small">Mehrere Quellen landen zusammen in Masterliste, Archiv, Vorschau und Export.</div>
         </div>
-      </div>
-      <div class="note">
-        Diese Einsteiger-Seite ist bewusst einfacher aufgebaut. Für Spezialfälle, Mehrfach-Importe und freie Spalten-Zuordnung gibt es die Fortgeschrittenen-Ansicht.
       </div>
     </section>
 
@@ -672,10 +747,6 @@
 
     <section class="section panel">
       <h2>Schritt 2 – CSV laden und automatisch erkennen</h2>
-      <p class="muted">
-        In der Einsteiger-Ansicht wird zuerst die CSV gelesen. Danach werden Quelle, Jahr, Plattform und weitere Felder automatisch vorgeschlagen.
-      </p>
-
       <form id="csvForm" class="form-grid" autocomplete="off">
         <div class="field span-12">
           <label for="csvFile">CSV-Datei laden</label>
@@ -697,10 +768,6 @@
 
     <section class="section panel soft">
       <h2>Automatisch erkannte Quelle</h2>
-      <p class="muted">
-        Die CSV füllt diese Angaben automatisch vor. Du kannst sie bei Bedarf noch anpassen, bevor die Quelle gespeichert wird.
-      </p>
-
       <div id="autoSourceEmpty" class="empty">Noch keine CSV geladen.</div>
 
       <div id="autoSourceBox" class="hidden">
@@ -791,10 +858,6 @@
 
     <section class="section panel soft">
       <h2>Quellenübersicht</h2>
-      <p class="muted">
-        Hier siehst du jederzeit alle angelegten Quellen. Du kannst jede Quelle einzeln öffnen und zusätzlich auswählen, ob sie in der kombinierten Masterliste erscheinen soll.
-      </p>
-
       <div class="toolbar no-print">
         <button class="btn btn-ghost" type="button" id="btnSelectAllSources">Alle Quellen auswählen</button>
         <button class="btn btn-ghost" type="button" id="btnDeselectAllSources">Alle Quellen abwählen</button>
@@ -802,17 +865,12 @@
       </div>
 
       <div class="chips" id="overviewChips"></div>
-
       <div id="sourcesEmpty" class="empty" style="margin-top:14px;">Noch keine Quellen angelegt.</div>
       <div id="sourcesList" class="list-wrap"></div>
     </section>
 
     <section class="section panel soft">
       <h2>Datei- und Analyseansicht</h2>
-      <p class="muted">
-        Wenn du eine Quelle öffnest, siehst du hier die geladene CSV-Datei, das erkannte Profil und die einfache Einschätzung.
-      </p>
-
       <div id="analysisEmpty" class="empty">Noch keine Quelle geöffnet.</div>
 
       <div id="analysisBox" class="hidden">
@@ -863,58 +921,21 @@
 
     <section class="section panel">
       <h2>Vorläufige Auswertung der geöffneten Quelle</h2>
-      <p class="muted">
-        Diese Auswertung zeigt verwertbare Kennzahlen aus den bereits erkannten CSV-Daten der geöffneten Quelle.
-      </p>
-
       <div id="singleEvaluationEmpty" class="empty">Noch keine Auswertung verfügbar. Erzeuge zuerst eine einzelne Masterliste für die geöffnete Quelle.</div>
 
       <div id="singleEvaluationBox" class="hidden">
         <div class="eval-grid">
-          <div class="eval-card">
-            <div class="value" id="singleEvalTransactions">0</div>
-            <div class="label">Transaktionen</div>
-            <div class="small muted">erkannte Zeilen</div>
-          </div>
-          <div class="eval-card">
-            <div class="value" id="singleEvalFees">0,00</div>
-            <div class="label">Gebühren gesamt</div>
-            <div class="small muted">Summe erkannter Gebühren</div>
-          </div>
-          <div class="eval-card">
-            <div class="value" id="singleEvalFiatIn">0,00</div>
-            <div class="label">Fiat / Gegenwert rein</div>
-            <div class="small muted">positive erkannte Bewegungen</div>
-          </div>
-          <div class="eval-card">
-            <div class="value" id="singleEvalFiatOut">0,00</div>
-            <div class="label">Fiat / Gegenwert raus</div>
-            <div class="small muted">negative erkannte Bewegungen</div>
-          </div>
-          <div class="eval-card">
-            <div class="value" id="singleEvalGain">–</div>
-            <div class="label">Gewinn</div>
-            <div class="small muted">nur wenn CSV passende Spalten enthält</div>
-          </div>
-          <div class="eval-card">
-            <div class="value" id="singleEvalLoss">–</div>
-            <div class="label">Verlust</div>
-            <div class="small muted">nur wenn CSV passende Spalten enthält</div>
-          </div>
-          <div class="eval-card">
-            <div class="value" id="singleEvalAssets">0</div>
-            <div class="label">Erkannte Assets</div>
-            <div class="small muted">unterschiedliche Werte</div>
-          </div>
-          <div class="eval-card">
-            <div class="value" id="singleEvalCheckRows">0</div>
-            <div class="label">Prüffälle</div>
-            <div class="small muted">Zeilen mit offenen Hinweisen</div>
-          </div>
+          <div class="eval-card"><div class="value" id="singleEvalTransactions">0</div><div class="label">Transaktionen</div><div class="small muted">erkannte Zeilen</div></div>
+          <div class="eval-card"><div class="value" id="singleEvalFees">0,00</div><div class="label">Gebühren gesamt</div><div class="small muted">Summe erkannter Gebühren</div></div>
+          <div class="eval-card"><div class="value" id="singleEvalFiatIn">0,00</div><div class="label">Fiat eingezahlt / zugeführt</div><div class="small muted">positive erkannte Bewegungen</div></div>
+          <div class="eval-card"><div class="value" id="singleEvalFiatOut">0,00</div><div class="label">Fiat ausgezahlt / zurückgeführt</div><div class="small muted">negative erkannte Bewegungen</div></div>
+          <div class="eval-card"><div class="value" id="singleEvalGain">–</div><div class="label">Erkannter Gewinn</div><div class="small muted">nur wenn CSV passende Spalten enthält</div></div>
+          <div class="eval-card"><div class="value" id="singleEvalLoss">–</div><div class="label">Erkannter Verlust</div><div class="small muted">nur wenn CSV passende Spalten enthält</div></div>
+          <div class="eval-card"><div class="value" id="singleEvalAssets">0</div><div class="label">Erkannte Assets</div><div class="small muted">unterschiedliche Werte</div></div>
+          <div class="eval-card"><div class="value" id="singleEvalCheckRows">0</div><div class="label">Prüffälle</div><div class="small muted">Zeilen mit offenen Hinweisen</div></div>
         </div>
 
         <div class="chips" id="singleEvaluationChips"></div>
-
         <div class="note" id="singleEvaluationNote">
           Diese Auswertung ist eine Arbeitsgrundlage. Ein echter Gewinn-/Verlustnachweis braucht vollständige, zusammenhängende Daten über Käufe, Verkäufe, Tauschvorgänge und Gebühren.
         </div>
@@ -923,16 +944,11 @@
 
     <section class="section panel">
       <h2>Einzelne Masterliste der geöffneten Quelle</h2>
-      <p class="muted">
-        Diese Liste zeigt die aktuell geöffnete Quelle allein.
-      </p>
-
       <div class="toolbar no-print">
         <button class="btn btn-ghost" type="button" id="btnExportSingleCsv">Einzelne Masterliste als CSV exportieren</button>
       </div>
 
       <div class="chips" id="singleMasterChips"></div>
-
       <div id="singleMasterEmpty" class="empty" style="margin-top:14px;">Noch keine einzelne Masterliste für eine Quelle erzeugt.</div>
 
       <div class="table-wrap hidden" id="singleMasterWrap">
@@ -961,77 +977,44 @@
 
     <section class="section panel">
       <h2>Kombinierte Auswertung der ausgewählten Quellen</h2>
-      <p class="muted">
-        Hier werden alle ausgewählten Quellen gemeinsam ausgewertet. So kannst du mehrere CSVs aus verschiedenen Chains, Wallets oder Börsen zusammen in ein Sammelergebnis übernehmen.
-      </p>
-
       <div id="combinedEvaluationEmpty" class="empty">Noch keine kombinierte Auswertung verfügbar. Wähle Quellen aus und erzeuge dann die kombinierte Masterliste.</div>
 
       <div id="combinedEvaluationBox" class="hidden">
         <div class="eval-grid">
-          <div class="eval-card">
-            <div class="value" id="combinedEvalTransactions">0</div>
-            <div class="label">Transaktionen gesamt</div>
-            <div class="small muted">alle ausgewählten Quellen zusammen</div>
-          </div>
-          <div class="eval-card">
-            <div class="value" id="combinedEvalFees">0,00</div>
-            <div class="label">Gebühren gesamt</div>
-            <div class="small muted">über alle ausgewählten Quellen</div>
-          </div>
-          <div class="eval-card">
-            <div class="value" id="combinedEvalFiatIn">0,00</div>
-            <div class="label">Fiat / Gegenwert rein</div>
-            <div class="small muted">alle erkannten Zuflüsse zusammen</div>
-          </div>
-          <div class="eval-card">
-            <div class="value" id="combinedEvalFiatOut">0,00</div>
-            <div class="label">Fiat / Gegenwert raus</div>
-            <div class="small muted">alle erkannten Abflüsse zusammen</div>
-          </div>
-          <div class="eval-card">
-            <div class="value" id="combinedEvalGain">–</div>
-            <div class="label">Gewinn gesamt</div>
-            <div class="small muted">nur aus erkannten CSV-Spalten</div>
-          </div>
-          <div class="eval-card">
-            <div class="value" id="combinedEvalLoss">–</div>
-            <div class="label">Verlust gesamt</div>
-            <div class="small muted">nur aus erkannten CSV-Spalten</div>
-          </div>
-          <div class="eval-card">
-            <div class="value" id="combinedEvalAssets">0</div>
-            <div class="label">Erkannte Assets</div>
-            <div class="small muted">über alle ausgewählten Quellen</div>
-          </div>
-          <div class="eval-card">
-            <div class="value" id="combinedEvalCheckRows">0</div>
-            <div class="label">Prüffälle</div>
-            <div class="small muted">offene Hinweise im Sammelergebnis</div>
-          </div>
+          <div class="eval-card"><div class="value" id="combinedEvalTransactions">0</div><div class="label">Transaktionen gesamt</div><div class="small muted">alle ausgewählten Quellen zusammen</div></div>
+          <div class="eval-card"><div class="value" id="combinedEvalFees">0,00</div><div class="label">Gebühren gesamt</div><div class="small muted">über alle ausgewählten Quellen</div></div>
+          <div class="eval-card"><div class="value" id="combinedEvalFiatIn">0,00</div><div class="label">Fiat gesamt eingezahlt</div><div class="small muted">erkannte Zuflüsse zusammen</div></div>
+          <div class="eval-card"><div class="value" id="combinedEvalFiatOut">0,00</div><div class="label">Fiat gesamt ausgezahlt</div><div class="small muted">erkannte Abflüsse zusammen</div></div>
+          <div class="eval-card"><div class="value" id="combinedEvalGain">–</div><div class="label">Erkannter Gesamt-Gewinn</div><div class="small muted">nur aus erkannten CSV-Spalten</div></div>
+          <div class="eval-card"><div class="value" id="combinedEvalLoss">–</div><div class="label">Erkannter Gesamt-Verlust</div><div class="small muted">nur aus erkannten CSV-Spalten</div></div>
+          <div class="eval-card"><div class="value" id="combinedEvalAssets">0</div><div class="label">Erkannte Assets</div><div class="small muted">über alle ausgewählten Quellen</div></div>
+          <div class="eval-card"><div class="value" id="combinedEvalCheckRows">0</div><div class="label">Prüffälle</div><div class="small muted">offene Hinweise im Sammelergebnis</div></div>
         </div>
 
         <div class="chips" id="combinedEvaluationChips"></div>
-
         <div class="note" id="combinedEvaluationNote">
-          Das Sammelergebnis ist nur so stark wie die Vollständigkeit der ausgewählten Quellen. Fehlende Kaufdaten, Rewards oder Gegenwerte können die Aussagekraft einschränken.
+          Das Sammelergebnis ist nur so stark wie die Vollständigkeit der ausgewählten Quellen. Fehlende Kaufdaten, Rewards, DeFi-, Staking-, LP- oder Gegenwert-Daten können die Aussagekraft einschränken.
         </div>
       </div>
     </section>
 
     <section class="section panel">
       <h2>Kombinierte Masterliste der ausgewählten Quellen</h2>
-      <p class="muted">
-        Diese Liste führt alle ausgewählten Quellen in einer gemeinsamen Masterliste zusammen.
-      </p>
+
+      <div id="combinedMasterHeader" class="master-header hidden">
+        <h3>FSA-Masterliste – Krypto-Steuer-Ordnung</h3>
+        <div class="small muted" id="combinedHeaderSub">Sammelansicht für Auswertung, Archiv und Steuerberater-Vorbereitung</div>
+        <div class="chips" id="combinedHeaderChips"></div>
+      </div>
 
       <div class="toolbar no-print">
-        <button class="btn btn-primary" type="button" id="btnExportCombinedCsv">Kombinierte Masterliste als CSV exportieren</button>
+        <button class="btn btn-primary" type="button" id="btnOpenPreview">Vorschau öffnen</button>
+        <button class="btn btn-ghost" type="button" id="btnExportCombinedCsv">Kombinierte Masterliste als CSV exportieren</button>
+        <button class="btn btn-ghost" type="button" id="btnExportCombinedExcel">Excel-Liste herunterladen</button>
         <button class="btn btn-ghost" type="button" id="btnPrint">Kombinierte Masterliste drucken</button>
       </div>
 
       <div class="chips" id="combinedMasterChips"></div>
-
       <div id="combinedMasterEmpty" class="empty" style="margin-top:14px;">Noch keine kombinierte Masterliste erzeugt.</div>
 
       <div class="table-wrap hidden" id="combinedMasterWrap">
@@ -1059,32 +1042,175 @@
     </section>
 
     <section class="section panel">
-      <h2>Was diese Seite besonders gut macht</h2>
-      <div class="grid grid-3">
+      <h2>Archiv / Jahresstände</h2>
+      <p class="muted">
+        Speichere kombinierte Arbeitsstände als Archivlauf. So kannst du Jahre, Zwischenstände oder fertige Übergaben später wieder öffnen.
+      </p>
+
+      <form id="archiveForm" class="form-grid" autocomplete="off">
+        <div class="field span-4">
+          <label for="archiveName">Archivname</label>
+          <input id="archiveName" type="text" placeholder="z. B. Steuerjahr 2024 komplett" />
+        </div>
+        <div class="field span-4">
+          <label for="archiveYear">Jahr</label>
+          <input id="archiveYear" type="number" min="2009" max="2100" step="1" placeholder="z. B. 2024" />
+        </div>
+        <div class="field span-4">
+          <label for="archiveTag">Zusatz</label>
+          <input id="archiveTag" type="text" placeholder="z. B. Zwischenstand April" />
+        </div>
+        <div class="field span-12">
+          <label for="archiveNote">Notiz</label>
+          <textarea id="archiveNote" placeholder="Optionaler Hinweis zum Archivstand."></textarea>
+        </div>
+        <div class="span-12 toolbar no-print">
+          <button class="btn btn-primary" type="submit">Aktuellen Stand archivieren</button>
+        </div>
+      </form>
+
+      <div id="archiveEmpty" class="empty" style="margin-top:14px;">Noch keine Archivstände gespeichert.</div>
+      <div id="archiveList" class="archive-list"></div>
+    </section>
+
+    <section class="section panel">
+      <h2>Steuerberater-Ansicht</h2>
+      <p class="muted">
+        Diese Ansicht bündelt das Sammelergebnis in einer ruhigen, sachlichen Form für Druck, PDF oder vorbereitende Übergabe.
+      </p>
+
+      <div id="taxEmpty" class="empty">Noch keine Steuerberater-Ansicht verfügbar. Erzeuge zuerst eine kombinierte Masterliste.</div>
+
+      <div id="taxBox" class="hidden">
+        <div class="steuerberater-view" id="taxView">
+          <h3>Steuerberater-Vorbereitung – Krypto-Steuer-Ordnung</h3>
+          <div class="small muted" id="taxSubline">Kombinierte Sicht nach aktuell ausgewählten Quellen</div>
+          <div class="chips" id="taxChips"></div>
+
+          <div class="eval-grid" style="margin-top:14px;">
+            <div class="eval-card"><div class="value" id="taxTransactions">0</div><div class="label">Transaktionen</div><div class="small muted">Sammelergebnis</div></div>
+            <div class="eval-card"><div class="value" id="taxFees">0,00</div><div class="label">Gebühren gesamt</div><div class="small muted">erkannte Gebühren</div></div>
+            <div class="eval-card"><div class="value" id="taxFiatIn">0,00</div><div class="label">Fiat eingezahlt</div><div class="small muted">erkannte Zuflüsse</div></div>
+            <div class="eval-card"><div class="value" id="taxFiatOut">0,00</div><div class="label">Fiat ausgezahlt</div><div class="small muted">erkannte Abflüsse</div></div>
+            <div class="eval-card"><div class="value" id="taxGain">–</div><div class="label">Erkannter Gewinn</div><div class="small muted">nur wenn CSV-Spalten vorhanden sind</div></div>
+            <div class="eval-card"><div class="value" id="taxLoss">–</div><div class="label">Erkannter Verlust</div><div class="small muted">nur wenn CSV-Spalten vorhanden sind</div></div>
+            <div class="eval-card"><div class="value" id="taxAssets">0</div><div class="label">Erkannte Assets</div><div class="small muted">über alle Quellen</div></div>
+            <div class="eval-card"><div class="value" id="taxCheckRows">0</div><div class="label">Prüffälle</div><div class="small muted">offene Hinweise</div></div>
+          </div>
+
+          <div class="warnbox" id="taxNote" style="margin-top:14px;">
+            Diese Ansicht basiert auf aktuell importierten und ausgewählten Rohdaten. Je nach Fall können weitere Nachweise, Quellen oder manuelle Ergänzungen nötig sein.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section panel soft">
+      <h2>Wo Nutzer Daten für schwierige Fälle finden</h2>
+      <div class="grid grid-4">
         <div class="mini-card">
-          <strong>CSV zuerst</strong>
-          <div class="muted small">Die Datei wird zuerst gelesen. Daraus wird die Quelle automatisch vorbereitet.</div>
+          <strong>Börse / App</strong>
+          <ul class="checklist">
+            <li>Wallet History</li>
+            <li>Rewards / Earn</li>
+            <li>Tax / Reports</li>
+            <li>Trade History</li>
+          </ul>
         </div>
         <div class="mini-card">
-          <strong>Quellenauswahl</strong>
-          <div class="muted small">Du entscheidest aktiv, welche Quellen ins gemeinsame Ergebnis übernommen werden.</div>
+          <strong>Wallet / Explorer</strong>
+          <ul class="checklist">
+            <li>Transactions</li>
+            <li>Token Transfers</li>
+            <li>Internal Transactions</li>
+            <li>weitere Bewegungen</li>
+          </ul>
         </div>
         <div class="mini-card">
-          <strong>Sammelergebnis</strong>
-          <div class="muted small">Mehrere Quellen können gemeinsam in eine kombinierte Masterliste mit Auswertung überführt werden.</div>
+          <strong>Protokoll / Dashboard</strong>
+          <ul class="checklist">
+            <li>Positionen</li>
+            <li>Claims</li>
+            <li>Rewards</li>
+            <li>LP-Daten</li>
+          </ul>
+        </div>
+        <div class="mini-card">
+          <strong>Manuelle Ergänzung</strong>
+          <ul class="checklist">
+            <li>Staking</li>
+            <li>DeFi</li>
+            <li>Voucher / Credits</li>
+            <li>LP-Token / Spezialfälle</li>
+          </ul>
         </div>
       </div>
     </section>
 
     <section class="section panel print-only">
-      <h2>Druckansicht – CSV-Import für Einsteiger</h2>
+      <h2>Druckansicht – FSA-Masterliste</h2>
       <p>Diese Druckansicht zeigt den aktuellen Stand der kombinierten Masterliste der ausgewählten Quellen.</p>
     </section>
   </div>
 
+  <div class="preview-modal" id="previewModal" aria-hidden="true">
+    <div class="preview-shell">
+      <div class="preview-toolbar no-print">
+        <div>
+          <h3>Vorschau – FSA-Masterliste</h3>
+          <div class="small muted">Kontrolle vor Export, Excel-Download oder Druck</div>
+        </div>
+        <div class="toolbar">
+          <button class="btn btn-ghost" id="btnPreviewCsv" type="button">CSV exportieren</button>
+          <button class="btn btn-ghost" id="btnPreviewExcel" type="button">Excel herunterladen</button>
+          <button class="btn btn-primary" id="btnPreviewPrint" type="button">Drucken</button>
+          <button class="btn btn-danger" id="btnClosePreview" type="button">Schließen</button>
+        </div>
+      </div>
+
+      <div class="preview-body">
+        <div class="preview-card">
+          <h3>Mastertitel mit Auswertung</h3>
+          <div class="chips" id="previewHeaderChips"></div>
+        </div>
+
+        <div class="preview-card">
+          <h3>Steuerberater-Ansicht</h3>
+          <div id="previewTax"></div>
+        </div>
+
+        <div class="preview-card">
+          <h3>Tabellenvorschau</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Datum</th>
+                  <th>Uhrzeit</th>
+                  <th>Quelle</th>
+                  <th>Chain</th>
+                  <th>Plattform / Explorer</th>
+                  <th>Wallet / Referenz</th>
+                  <th>Asset</th>
+                  <th>Menge</th>
+                  <th>Gegenwert</th>
+                  <th>Gebühr</th>
+                  <th>TxID</th>
+                  <th>Hinweis</th>
+                </tr>
+              </thead>
+              <tbody id="previewTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     (() => {
-      const STORAGE_KEY = 'kso_csv_import_einsteiger_v5';
+      const STORAGE_KEY = 'kso_csv_import_einsteiger_v6';
 
       const AUTO_FIELDS = {
         date: ['date','datum','datetime (utc)','timestamp (utc)','time(utc)','created at','transaction date'],
@@ -1185,12 +1311,49 @@
         combinedEvaluationChips: document.getElementById('combinedEvaluationChips'),
         combinedEvaluationNote: document.getElementById('combinedEvaluationNote'),
 
+        combinedMasterHeader: document.getElementById('combinedMasterHeader'),
+        combinedHeaderSub: document.getElementById('combinedHeaderSub'),
+        combinedHeaderChips: document.getElementById('combinedHeaderChips'),
+        btnOpenPreview: document.getElementById('btnOpenPreview'),
+        btnExportCombinedCsv: document.getElementById('btnExportCombinedCsv'),
+        btnExportCombinedExcel: document.getElementById('btnExportCombinedExcel'),
         combinedMasterChips: document.getElementById('combinedMasterChips'),
         combinedMasterEmpty: document.getElementById('combinedMasterEmpty'),
         combinedMasterWrap: document.getElementById('combinedMasterWrap'),
         combinedMasterBody: document.getElementById('combinedMasterBody'),
-        btnExportCombinedCsv: document.getElementById('btnExportCombinedCsv'),
-        btnPrint: document.getElementById('btnPrint')
+        btnPrint: document.getElementById('btnPrint'),
+
+        archiveForm: document.getElementById('archiveForm'),
+        archiveName: document.getElementById('archiveName'),
+        archiveYear: document.getElementById('archiveYear'),
+        archiveTag: document.getElementById('archiveTag'),
+        archiveNote: document.getElementById('archiveNote'),
+        archiveEmpty: document.getElementById('archiveEmpty'),
+        archiveList: document.getElementById('archiveList'),
+
+        taxEmpty: document.getElementById('taxEmpty'),
+        taxBox: document.getElementById('taxBox'),
+        taxSubline: document.getElementById('taxSubline'),
+        taxChips: document.getElementById('taxChips'),
+        taxTransactions: document.getElementById('taxTransactions'),
+        taxFees: document.getElementById('taxFees'),
+        taxFiatIn: document.getElementById('taxFiatIn'),
+        taxFiatOut: document.getElementById('taxFiatOut'),
+        taxGain: document.getElementById('taxGain'),
+        taxLoss: document.getElementById('taxLoss'),
+        taxAssets: document.getElementById('taxAssets'),
+        taxCheckRows: document.getElementById('taxCheckRows'),
+        taxNote: document.getElementById('taxNote'),
+        taxView: document.getElementById('taxView'),
+
+        previewModal: document.getElementById('previewModal'),
+        btnPreviewCsv: document.getElementById('btnPreviewCsv'),
+        btnPreviewExcel: document.getElementById('btnPreviewExcel'),
+        btnPreviewPrint: document.getElementById('btnPreviewPrint'),
+        btnClosePreview: document.getElementById('btnClosePreview'),
+        previewHeaderChips: document.getElementById('previewHeaderChips'),
+        previewTax: document.getElementById('previewTax'),
+        previewTableBody: document.getElementById('previewTableBody')
       };
 
       const state = loadState();
@@ -1203,20 +1366,23 @@
             return {
               sources: [],
               currentSourceId: '',
-              combinedMasterRows: []
+              combinedMasterRows: [],
+              archives: []
             };
           }
           const parsed = JSON.parse(raw);
           return {
             sources: Array.isArray(parsed.sources) ? parsed.sources : [],
             currentSourceId: typeof parsed.currentSourceId === 'string' ? parsed.currentSourceId : '',
-            combinedMasterRows: Array.isArray(parsed.combinedMasterRows) ? parsed.combinedMasterRows : []
+            combinedMasterRows: Array.isArray(parsed.combinedMasterRows) ? parsed.combinedMasterRows : [],
+            archives: Array.isArray(parsed.archives) ? parsed.archives : []
           };
         }catch{
           return {
             sources: [],
             currentSourceId: '',
-            combinedMasterRows: []
+            combinedMasterRows: [],
+            archives: []
           };
         }
       }
@@ -1402,7 +1568,6 @@
       function guessProvider(profile, fileName, headers){
         const lowerName = normalize(fileName).toLowerCase();
         const headerText = headers.map(h => normalizeHeader(h)).join(' | ');
-
         if(profile.startsWith('Etherscan')) return 'Etherscan';
         if(lowerName.includes('crypto') || headerText.includes('transaction description')) return 'Crypto.com';
         if(lowerName.includes('binance')) return 'Binance';
@@ -1417,7 +1582,6 @@
       function guessChain(profile, fileName, headers){
         const lowerName = normalize(fileName).toLowerCase();
         const headerText = headers.map(h => normalizeHeader(h)).join(' | ');
-
         if(profile.startsWith('Etherscan')) return 'Ethereum';
         if(lowerName.includes('sol') || headerText.includes('solana')) return 'Solana';
         if(lowerName.includes('bnb') || headerText.includes('bnb')) return 'BNB Chain';
@@ -1585,7 +1749,6 @@
           const asset = normalize(row.asset).toUpperCase();
 
           if(row.asset) assetSet.add(row.asset);
-
           if(row.hint) checkRows++;
 
           const direction = normalize(row.rawDirection).toLowerCase();
@@ -1655,11 +1818,9 @@
           chipsContainer.appendChild(span);
         });
 
-        if(metrics.hasGainLoss){
-          noteEl.textContent = 'Gewinn- und Verlustwerte wurden direkt aus vorhandenen CSV-Spalten übernommen. Prüfe trotzdem, ob die zugrunde liegenden Dateien vollständig sind und alle relevanten Bereiche des Falls abdecken.';
-        } else {
-          noteEl.textContent = 'Gewinn und Verlust konnten nicht direkt aus den CSV-Daten gelesen werden. Für einen belastbaren Nachweis braucht es vollständige, zusammenhängende Daten zu Käufen, Verkäufen, Tauschvorgängen, Gebühren und Gegenwerten.';
-        }
+        noteEl.textContent = metrics.hasGainLoss
+          ? 'Gewinn- und Verlustwerte wurden direkt aus vorhandenen CSV-Spalten übernommen. Prüfe trotzdem, ob die zugrunde liegenden Dateien vollständig sind und alle relevanten Bereiche des Falls abdecken.'
+          : 'Gewinn und Verlust konnten nicht direkt aus den CSV-Daten gelesen werden. Für einen belastbaren Nachweis braucht es vollständige, zusammenhängende Daten zu Käufen, Verkäufen, Tauschvorgängen, Gebühren und Gegenwerten.';
       }
 
       function renderPendingSource(){
@@ -1740,6 +1901,10 @@
         state.sources.forEach(source => {
           const isCurrent = source.id === state.currentSourceId;
           const selected = source.selectedForCombined !== false;
+          const rows = source.singleMasterRows || [];
+          const metrics = rows.length ? calculateMetrics(rows) : null;
+          const statusLabel = rows.length ? (metrics.checkRows ? 'Prüffall' : 'gut erkennbar') : 'noch nicht ausgewertet';
+
           const card = document.createElement('div');
           card.className = 'source-card';
           card.innerHTML = `
@@ -1755,6 +1920,7 @@
                     ${source.year ? `<span class="chip">${escapeHtml(source.year)}</span>` : ''}
                     <span class="chip magenta">1 Datei</span>
                     <span class="chip gray">${source.parsed.data.length} Zeilen</span>
+                    <span class="chip ${metrics && metrics.checkRows ? 'warn' : 'mint'}">${escapeHtml(statusLabel)}</span>
                     ${selected ? `<span class="chip mint">Für Sammelergebnis aktiv</span>` : `<span class="chip warn">Nicht ausgewählt</span>`}
                     ${isCurrent ? `<span class="chip warn">Geöffnet</span>` : ''}
                   </div>
@@ -1918,16 +2084,47 @@
         );
       }
 
+      function renderCombinedHeader(){
+        const rows = state.combinedMasterRows || [];
+        const selected = getSelectedSources();
+        if(!rows.length){
+          els.combinedMasterHeader.classList.add('hidden');
+          els.combinedHeaderChips.innerHTML = '';
+          return;
+        }
+
+        els.combinedMasterHeader.classList.remove('hidden');
+        els.combinedHeaderSub.textContent = `Sammelansicht für ${selected.length} ausgewählte Quellen`;
+
+        const metrics = calculateMetrics(rows);
+        els.combinedHeaderChips.innerHTML = '';
+        [
+          `${selected.length} Quellen`,
+          `${rows.length} Zeilen`,
+          `Fiat eingezahlt: ${formatNumber(metrics.fiatIn)}`,
+          `Fiat ausgezahlt: ${formatNumber(metrics.fiatOut)}`,
+          `Gebühren: ${formatNumber(metrics.fees)}`,
+          `Prüffälle: ${metrics.checkRows}`
+        ].forEach((text, index) => {
+          const span = document.createElement('span');
+          span.className = index === 0 ? 'chip mint' : 'chip';
+          span.textContent = text;
+          els.combinedHeaderChips.appendChild(span);
+        });
+      }
+
       function renderCombinedMaster(){
         const rows = state.combinedMasterRows || [];
         els.combinedMasterBody.innerHTML = '';
         els.combinedMasterChips.innerHTML = '';
+        renderCombinedHeader();
 
         if(!rows.length){
           els.combinedMasterEmpty.classList.remove('hidden');
           els.combinedMasterWrap.classList.add('hidden');
           els.combinedEvaluationEmpty.classList.remove('hidden');
           els.combinedEvaluationBox.classList.add('hidden');
+          renderTaxView();
           return;
         }
 
@@ -1976,14 +2173,223 @@
           els.combinedEvaluationChips,
           els.combinedEvaluationNote
         );
+
+        renderTaxView();
       }
 
-      function renderAll(){
-        renderPendingSource();
-        renderOverview();
-        renderAnalysis();
-        renderSingleMaster();
-        renderCombinedMaster();
+      function renderTaxView(){
+        const rows = state.combinedMasterRows || [];
+        if(!rows.length){
+          els.taxEmpty.classList.remove('hidden');
+          els.taxBox.classList.add('hidden');
+          return;
+        }
+
+        const selected = getSelectedSources();
+        const metrics = calculateMetrics(rows);
+
+        els.taxEmpty.classList.add('hidden');
+        els.taxBox.classList.remove('hidden');
+        els.taxSubline.textContent = `Kombinierte Sicht nach aktuell ausgewählten ${selected.length} Quellen`;
+
+        els.taxTransactions.textContent = String(metrics.transactions);
+        els.taxFees.textContent = formatNumber(metrics.fees);
+        els.taxFiatIn.textContent = formatNumber(metrics.fiatIn);
+        els.taxFiatOut.textContent = formatNumber(metrics.fiatOut);
+        els.taxGain.textContent = metrics.hasGainLoss ? formatNumber(metrics.gain || 0) : '–';
+        els.taxLoss.textContent = metrics.hasGainLoss ? formatNumber(metrics.loss || 0) : '–';
+        els.taxAssets.textContent = String(metrics.assets);
+        els.taxCheckRows.textContent = String(metrics.checkRows);
+
+        els.taxChips.innerHTML = '';
+        selected.forEach(source => {
+          const span = document.createElement('span');
+          span.className = 'chip mint';
+          span.textContent = source.caseName;
+          els.taxChips.appendChild(span);
+        });
+
+        els.taxNote.textContent = metrics.hasGainLoss
+          ? 'Diese Ansicht enthält direkt aus CSV-Spalten erkannte Gewinn- und Verlustwerte. Bitte prüfen, ob alle relevanten Quellen, Rewards, DeFi-, LP- und Gebühren-Daten vollständig enthalten sind.'
+          : 'Diese Ansicht basiert auf aktuell importierten und ausgewählten Rohdaten. Gewinn und Verlust konnten nicht direkt aus CSV-Spalten gelesen werden. Weitere Nachweise oder Ergänzungen können nötig sein.';
+      }
+
+      function renderArchive(){
+        els.archiveList.innerHTML = '';
+        els.archiveEmpty.classList.toggle('hidden', state.archives.length > 0);
+
+        state.archives.forEach(entry => {
+          const card = document.createElement('div');
+          card.className = 'archive-card';
+          card.innerHTML = `
+            <div class="archive-head">
+              <div>
+                <h3>${escapeHtml(entry.name)}</h3>
+                <div class="chips">
+                  ${entry.year ? `<span class="chip mint">${escapeHtml(entry.year)}</span>` : ''}
+                  ${entry.tag ? `<span class="chip">${escapeHtml(entry.tag)}</span>` : ''}
+                  <span class="chip">${entry.sources.length} Quellen</span>
+                  <span class="chip magenta">${entry.combinedMasterRows.length} Zeilen</span>
+                </div>
+              </div>
+              <div class="source-actions no-print">
+                <button class="btn btn-ghost" type="button" data-action="load-archive" data-id="${entry.id}">Öffnen</button>
+                <button class="btn btn-danger" type="button" data-action="delete-archive" data-id="${entry.id}">Löschen</button>
+              </div>
+            </div>
+            ${entry.note ? `<div class="small muted" style="margin-top:10px;">${escapeHtml(entry.note)}</div>` : ''}
+            <div class="small muted" style="margin-top:8px;">Gespeichert am ${new Date(entry.createdAt).toLocaleString('de-DE')}</div>
+          `;
+          els.archiveList.appendChild(card);
+        });
+      }
+
+      function openPreview(){
+        const rows = state.combinedMasterRows || [];
+        if(!rows.length){
+          alert('Bitte zuerst eine kombinierte Masterliste erzeugen.');
+          return;
+        }
+
+        els.previewHeaderChips.innerHTML = els.combinedHeaderChips.innerHTML;
+        els.previewTax.innerHTML = els.taxView.innerHTML;
+        els.previewTableBody.innerHTML = '';
+
+        rows.forEach((row, idx) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${idx + 1}</td>
+            <td>${escapeHtml(row.date)}</td>
+            <td>${escapeHtml(row.time)}</td>
+            <td>${escapeHtml(row.source)}</td>
+            <td>${escapeHtml(row.chain)}</td>
+            <td>${escapeHtml(row.provider)}</td>
+            <td>${escapeHtml(row.wallet)}</td>
+            <td>${escapeHtml(row.asset)}</td>
+            <td>${escapeHtml(row.amount)}</td>
+            <td>${escapeHtml(row.value)}</td>
+            <td>${escapeHtml(row.fee)}</td>
+            <td>${escapeHtml(row.txid)}</td>
+            <td>${escapeHtml(row.hint)}</td>
+          `;
+          els.previewTableBody.appendChild(tr);
+        });
+
+        els.previewModal.classList.add('show');
+        els.previewModal.setAttribute('aria-hidden', 'false');
+      }
+
+      function closePreview(){
+        els.previewModal.classList.remove('show');
+        els.previewModal.setAttribute('aria-hidden', 'true');
+      }
+
+      function exportRowsCsv(rows, filename){
+        if(!rows.length){
+          alert('Es gibt keine Daten zum Exportieren.');
+          return;
+        }
+
+        const headers = ['Datum','Uhrzeit','Quelle','Chain','Plattform/Explorer','Wallet/Referenz','Asset','Menge','Gegenwert','Gebühr','TxID','Hinweis'];
+        const lines = [headers.join(';')];
+
+        rows.forEach(row => {
+          const values = [
+            row.date,row.time,row.source,row.chain,row.provider,row.wallet,row.asset,row.amount,row.value,row.fee,row.txid,row.hint
+          ].map(v => `"${String(v ?? '').replace(/"/g,'""')}"`);
+          lines.push(values.join(';'));
+        });
+
+        const blob = new Blob([lines.join('\n')], { type:'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+
+      function exportRowsExcel(rows, filename){
+        if(!rows.length){
+          alert('Es gibt keine Daten zum Downloaden.');
+          return;
+        }
+
+        const metrics = calculateMetrics(rows);
+        const titleHtml = `
+          <table border="1">
+            <tr><td colspan="8"><strong>FSA-Masterliste – Krypto-Steuer-Ordnung</strong></td></tr>
+            <tr><td>Quellen</td><td>${getSelectedSources().length}</td><td>Zeilen</td><td>${rows.length}</td><td>Assets</td><td>${metrics.assets}</td><td>Prüffälle</td><td>${metrics.checkRows}</td></tr>
+            <tr><td>Fiat eingezahlt</td><td>${formatNumber(metrics.fiatIn)}</td><td>Fiat ausgezahlt</td><td>${formatNumber(metrics.fiatOut)}</td><td>Gebühren</td><td>${formatNumber(metrics.fees)}</td><td>Gewinn</td><td>${metrics.hasGainLoss ? formatNumber(metrics.gain || 0) : '–'}</td></tr>
+            <tr><td>Verlust</td><td>${metrics.hasGainLoss ? formatNumber(metrics.loss || 0) : '–'}</td><td colspan="6">Exportzeitpunkt: ${new Date().toLocaleString('de-DE')}</td></tr>
+          </table>
+          <br>
+        `;
+
+        const head = `
+          <tr>
+            <th>#</th>
+            <th>Datum</th>
+            <th>Uhrzeit</th>
+            <th>Quelle</th>
+            <th>Chain</th>
+            <th>Plattform / Explorer</th>
+            <th>Wallet / Referenz</th>
+            <th>Asset</th>
+            <th>Menge</th>
+            <th>Gegenwert</th>
+            <th>Gebühr</th>
+            <th>TxID</th>
+            <th>Hinweis</th>
+          </tr>
+        `;
+
+        const body = rows.map((row, idx) => `
+          <tr>
+            <td>${idx + 1}</td>
+            <td>${escapeHtml(row.date)}</td>
+            <td>${escapeHtml(row.time)}</td>
+            <td>${escapeHtml(row.source)}</td>
+            <td>${escapeHtml(row.chain)}</td>
+            <td>${escapeHtml(row.provider)}</td>
+            <td>${escapeHtml(row.wallet)}</td>
+            <td>${escapeHtml(row.asset)}</td>
+            <td>${escapeHtml(row.amount)}</td>
+            <td>${escapeHtml(row.value)}</td>
+            <td>${escapeHtml(row.fee)}</td>
+            <td>${escapeHtml(row.txid)}</td>
+            <td>${escapeHtml(row.hint)}</td>
+          </tr>
+        `).join('');
+
+        const html = `
+          <html xmlns:o="urn:schemas-microsoft-com:office:office"
+                xmlns:x="urn:schemas-microsoft-com:office:excel"
+                xmlns="http://www.w3.org/TR/REC-html40">
+          <head>
+            <meta charset="utf-8">
+          </head>
+          <body>
+            ${titleHtml}
+            <table border="1">
+              ${head}
+              ${body}
+            </table>
+          </body>
+          </html>
+        `;
+
+        const blob = new Blob([html], { type:'application/vnd.ms-excel;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
       }
 
       async function handleCsvRead(event){
@@ -2078,11 +2484,9 @@
 
       function deleteSource(id){
         state.sources = state.sources.filter(source => source.id !== id);
-
         if(state.currentSourceId === id){
           state.currentSourceId = state.sources[0]?.id || '';
         }
-
         state.combinedMasterRows = state.combinedMasterRows.filter(row => row.sourceId !== id);
         saveState();
         renderAll();
@@ -2124,7 +2528,9 @@
 
         const allRows = [];
         selected.forEach(source => {
-          const rows = buildRowsForSource(source);
+          const rows = source.singleMasterRows && source.singleMasterRows.length
+            ? source.singleMasterRows
+            : buildRowsForSource(source);
           allRows.push(...rows);
         });
 
@@ -2133,31 +2539,56 @@
         renderCombinedMaster();
       }
 
-      function exportRowsCsv(rows, filename){
-        if(!rows.length){
-          alert('Es gibt keine Daten zum Exportieren.');
+      function saveArchive(event){
+        event.preventDefault();
+
+        if(!(state.combinedMasterRows || []).length){
+          alert('Bitte zuerst eine kombinierte Masterliste erzeugen.');
           return;
         }
 
-        const headers = ['Datum','Uhrzeit','Quelle','Chain','Plattform/Explorer','Wallet/Referenz','Asset','Menge','Gegenwert','Gebühr','TxID','Hinweis'];
-        const lines = [headers.join(';')];
+        const entry = {
+          id: uid('archive'),
+          name: normalize(els.archiveName.value) || 'Archivstand ohne Namen',
+          year: normalize(els.archiveYear.value),
+          tag: normalize(els.archiveTag.value),
+          note: normalize(els.archiveNote.value),
+          createdAt: new Date().toISOString(),
+          sources: JSON.parse(JSON.stringify(state.sources)),
+          currentSourceId: state.currentSourceId,
+          combinedMasterRows: JSON.parse(JSON.stringify(state.combinedMasterRows))
+        };
 
-        rows.forEach(row => {
-          const values = [
-            row.date,row.time,row.source,row.chain,row.provider,row.wallet,row.asset,row.amount,row.value,row.fee,row.txid,row.hint
-          ].map(v => `"${String(v ?? '').replace(/"/g,'""')}"`);
-          lines.push(values.join(';'));
-        });
+        state.archives.unshift(entry);
+        saveState();
+        els.archiveForm.reset();
+        renderArchive();
+      }
 
-        const blob = new Blob([lines.join('\n')], { type:'text/csv;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      function loadArchive(id){
+        const entry = state.archives.find(item => item.id === id);
+        if(!entry) return;
+
+        state.sources = JSON.parse(JSON.stringify(entry.sources));
+        state.currentSourceId = entry.currentSourceId || state.sources[0]?.id || '';
+        state.combinedMasterRows = JSON.parse(JSON.stringify(entry.combinedMasterRows));
+        saveState();
+        renderAll();
+      }
+
+      function deleteArchive(id){
+        state.archives = state.archives.filter(item => item.id !== id);
+        saveState();
+        renderArchive();
+      }
+
+      function renderAll(){
+        renderPendingSource();
+        renderOverview();
+        renderAnalysis();
+        renderSingleMaster();
+        renderCombinedMaster();
+        renderArchive();
       }
 
       els.btnScrollStart.addEventListener('click', () => {
@@ -2170,7 +2601,6 @@
 
       els.btnBuildSingleMaster.addEventListener('click', buildSingleMaster);
       els.btnBuildCombined.addEventListener('click', buildCombinedMaster);
-
       els.btnSelectAllSources.addEventListener('click', () => setAllSelections(true));
       els.btnDeselectAllSources.addEventListener('click', () => setAllSelections(false));
 
@@ -2180,11 +2610,17 @@
         exportRowsCsv(rows, `${(source?.caseName || 'einzel-masterliste').replace(/[^\w\-]+/g,'_')}.csv`);
       });
 
-      els.btnExportCombinedCsv.addEventListener('click', () => {
-        exportRowsCsv(state.combinedMasterRows || [], 'kombinierte-masterliste.csv');
-      });
+      els.btnOpenPreview.addEventListener('click', openPreview);
+      els.btnPreviewCsv.addEventListener('click', () => exportRowsCsv(state.combinedMasterRows || [], 'kombinierte-masterliste.csv'));
+      els.btnPreviewExcel.addEventListener('click', () => exportRowsExcel(state.combinedMasterRows || [], 'kombinierte-masterliste.xls'));
+      els.btnPreviewPrint.addEventListener('click', () => window.print());
+      els.btnClosePreview.addEventListener('click', closePreview);
 
+      els.btnExportCombinedCsv.addEventListener('click', () => exportRowsCsv(state.combinedMasterRows || [], 'kombinierte-masterliste.csv'));
+      els.btnExportCombinedExcel.addEventListener('click', () => exportRowsExcel(state.combinedMasterRows || [], 'kombinierte-masterliste.xls'));
       els.btnPrint.addEventListener('click', () => window.print());
+
+      els.archiveForm.addEventListener('submit', saveArchive);
 
       document.addEventListener('click', (event) => {
         const btn = event.target.closest('[data-action]');
@@ -2209,6 +2645,12 @@
         if(action === 'toggle-select'){
           toggleSourceSelection(id);
         }
+        if(action === 'load-archive') loadArchive(id);
+        if(action === 'delete-archive'){
+          if(confirm('Diesen Archivstand wirklich löschen?')){
+            deleteArchive(id);
+          }
+        }
       });
 
       document.addEventListener('change', (event) => {
@@ -2220,6 +2662,12 @@
         source.selectedForCombined = checkbox.checked;
         saveState();
         renderOverview();
+      });
+
+      els.previewModal.addEventListener('click', (event) => {
+        if(event.target === els.previewModal){
+          closePreview();
+        }
       });
 
       if(state.currentSourceId && !getCurrentSource()){
