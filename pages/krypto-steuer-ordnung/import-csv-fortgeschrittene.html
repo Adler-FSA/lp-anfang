@@ -2961,5 +2961,688 @@
       renderAll();
     })();
   </script>
+<script>
+(function(){
+  const STORAGE_KEYS = [
+    'kso_csv_import_fortgeschrittene_v2',
+    'kso_csv_import_fortgeschrittene_v1'
+  ];
+
+  const PATCH_ID = 'fsa-fortgeschrittene-baustein1-patch';
+  if (document.getElementById(PATCH_ID)) return;
+
+  function getStorageKey(){
+    for(const key of STORAGE_KEYS){
+      if(localStorage.getItem(key)) return key;
+    }
+    return STORAGE_KEYS[0];
+  }
+
+  function loadState(){
+    const key = getStorageKey();
+    try{
+      const raw = localStorage.getItem(key);
+      if(!raw){
+        return {
+          key,
+          data:{
+            sources:[],
+            currentSourceId:'',
+            combinedMasterRows:[],
+            archives:[]
+          }
+        };
+      }
+      const parsed = JSON.parse(raw);
+      return {
+        key,
+        data:{
+          sources:Array.isArray(parsed.sources) ? parsed.sources : [],
+          currentSourceId:typeof parsed.currentSourceId === 'string' ? parsed.currentSourceId : '',
+          combinedMasterRows:Array.isArray(parsed.combinedMasterRows) ? parsed.combinedMasterRows : [],
+          archives:Array.isArray(parsed.archives) ? parsed.archives : []
+        }
+      };
+    }catch{
+      return {
+        key,
+        data:{
+          sources:[],
+          currentSourceId:'',
+          combinedMasterRows:[],
+          archives:[]
+        }
+      };
+    }
+  }
+
+  function saveState(stateObj){
+    localStorage.setItem(stateObj.key, JSON.stringify(stateObj.data));
+  }
+
+  function normalize(value){
+    return String(value ?? '').trim();
+  }
+
+  function escapeHtml(value){
+    return String(value ?? '')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
+  }
+
+  function splitDateTime(value){
+    const raw = normalize(value);
+    if(!raw) return { date:'', time:'' };
+    const parts = raw.split(' ');
+    if(parts.length >= 2){
+      return { date:parts[0], time:parts.slice(1).join(' ') };
+    }
+    return { date:raw, time:'' };
+  }
+
+  function cleanToken(value){
+    return normalize(value).replace(/<[^>]*>/g,'').trim();
+  }
+
+  function compareDateTime(a, b){
+    const ad = `${a.date || ''} ${a.time || ''}`.trim();
+    const bd = `${b.date || ''} ${b.time || ''}`.trim();
+    return ad.localeCompare(bd);
+  }
+
+  function inferHint(row, mappings){
+    const directionRaw = normalize(row[mappings.direction] || '');
+    const hint = [];
+
+    if(directionRaw){
+      const lower = directionRaw.toLowerCase();
+      if(lower.includes('approve')) hint.push('Prüffall: Freigabe');
+      if(lower.includes('withdraw')) hint.push('Abgang prüfen');
+      if(lower.includes('deposit')) hint.push('Zugang prüfen');
+      if(lower.includes('error')) hint.push('Fehlgeschlagen prüfen');
+      if(lower.includes('swap')) hint.push('Swap prüfen');
+      if(lower.includes('reward')) hint.push('Reward prüfen');
+      if(lower.includes('sell')) hint.push('Verkauf prüfen');
+      if(lower.includes('buy')) hint.push('Kauf prüfen');
+      if(lower.includes('cashback')) hint.push('Cashback prüfen');
+      if(lower.includes('voucher')) hint.push('Voucher prüfen');
+    }
+
+    if(!mappings.value) hint.push('kein Gegenwert erkannt');
+    if(!mappings.fee) hint.push('keine Gebühr erkannt');
+    return hint.join(' | ');
+  }
+
+  function ensureMeta(source){
+    if(typeof source.selectedForCombined !== 'boolean') source.selectedForCombined = true;
+    if(typeof source.walletRef !== 'string') source.walletRef = '';
+    if(typeof source.caseName !== 'string') source.caseName = '';
+    if(typeof source.chain !== 'string') source.chain = '';
+    if(typeof source.provider !== 'string') source.provider = '';
+  }
+
+  function buildRowsForSource(source){
+    ensureMeta(source);
+    const parsed = source.parsed || { data:[] };
+    const mappings = source.mappings || {};
+
+    return (parsed.data || []).map((row, idx) => {
+      const dtHeader = mappings.date || mappings.time;
+      const dt = splitDateTime(row[dtHeader] || '');
+      const sameDateTimeField = mappings.date && mappings.time && mappings.date === mappings.time;
+
+      return {
+        sourceId: source.id,
+        index: idx + 1,
+        date: sameDateTimeField ? dt.date : (normalize(row[mappings.date]) || dt.date),
+        time: sameDateTimeField ? dt.time : (normalize(row[mappings.time]) || dt.time),
+        source: source.caseName || '',
+        chain: source.chain || '',
+        provider: source.provider || '',
+        wallet: source.walletRef || '',
+        asset: cleanToken(row[mappings.asset] || ''),
+        amount: normalize(row[mappings.amount] || ''),
+        value: normalize(row[mappings.value] || ''),
+        fee: normalize(row[mappings.fee] || ''),
+        txid: normalize(row[mappings.txid] || ''),
+        hint: inferHint(row, mappings),
+        rawDirection: normalize(row[mappings.direction] || ''),
+        rawPnl: normalize(row[mappings.pnl] || ''),
+        rawGain: normalize(row[mappings.gain] || ''),
+        rawLoss: normalize(row[mappings.loss] || '')
+      };
+    });
+  }
+
+  function parseLooseNumber(value){
+    let raw = normalize(value);
+    if(!raw) return null;
+
+    raw = raw.replace(/<[^>]*>/g, '');
+    raw = raw.replace(/\s+/g, '');
+    raw = raw.replace(/[$€£]/g, '');
+    raw = raw.replace(/[A-Za-z]/g, '');
+
+    if(!raw) return null;
+
+    const hasComma = raw.includes(',');
+    const hasDot = raw.includes('.');
+
+    if(hasComma && hasDot){
+      const lastComma = raw.lastIndexOf(',');
+      const lastDot = raw.lastIndexOf('.');
+      if(lastComma > lastDot){
+        raw = raw.replace(/\./g, '').replace(',', '.');
+      }else{
+        raw = raw.replace(/,/g, '');
+      }
+    }else if(hasComma && !hasDot){
+      const parts = raw.split(',');
+      if(parts.length === 2 && parts[1].length <= 2){
+        raw = parts[0].replace(/\./g, '') + '.' + parts[1];
+      }else{
+        raw = raw.replace(/,/g, '');
+      }
+    }else{
+      raw = raw.replace(/,/g, '');
+    }
+
+    const num = Number(raw);
+    return Number.isFinite(num) ? num : null;
+  }
+
+  function formatNumber(value){
+    if(value === null || value === undefined || Number.isNaN(value)) return '–';
+    return value.toLocaleString('de-DE', { minimumFractionDigits:2, maximumFractionDigits:2 });
+  }
+
+  function calculateMetrics(rows){
+    const fiatAssets = new Set(['EUR','USD','USDT','USDC','DAI','BUSD','FDUSD']);
+    let feeTotal = 0;
+    let fiatIn = 0;
+    let fiatOut = 0;
+    const assetSet = new Set();
+    let checkRows = 0;
+    let gain = 0;
+    let loss = 0;
+    let gainDetected = false;
+    let lossDetected = false;
+    let pnlDetected = false;
+
+    rows.forEach(row => {
+      const feeNum = parseLooseNumber(row.fee);
+      if(feeNum !== null) feeTotal += Math.abs(feeNum);
+
+      const valueNum = parseLooseNumber(row.value);
+      const amountNum = parseLooseNumber(row.amount);
+      const asset = normalize(row.asset).toUpperCase();
+
+      if(row.asset) assetSet.add(row.asset);
+      if(row.hint) checkRows++;
+
+      const direction = normalize(row.rawDirection).toLowerCase();
+
+      if(fiatAssets.has(asset)){
+        if(amountNum !== null){
+          if(amountNum > 0) fiatIn += amountNum;
+          if(amountNum < 0) fiatOut += Math.abs(amountNum);
+        }
+      }else if(valueNum !== null){
+        if(direction.includes('sell') || direction.includes('withdraw') || direction.includes('abgang') || direction.includes('out')){
+          fiatIn += Math.abs(valueNum);
+        }else if(direction.includes('buy') || direction.includes('deposit') || direction.includes('zugang') || direction.includes('in')){
+          fiatOut += Math.abs(valueNum);
+        }
+      }
+
+      const pnlNum = parseLooseNumber(row.rawPnl);
+      if(pnlNum !== null){
+        pnlDetected = true;
+        if(pnlNum >= 0) gain += pnlNum;
+        if(pnlNum < 0) loss += Math.abs(pnlNum);
+      }
+
+      const gainNum = parseLooseNumber(row.rawGain);
+      if(gainNum !== null){
+        gainDetected = true;
+        gain += Math.abs(gainNum);
+      }
+
+      const lossNum = parseLooseNumber(row.rawLoss);
+      if(lossNum !== null){
+        lossDetected = true;
+        loss += Math.abs(lossNum);
+      }
+    });
+
+    const difference = fiatOut - fiatIn;
+    const provisionalGain = difference > 0 ? difference : null;
+    const provisionalLoss = difference < 0 ? Math.abs(difference) : null;
+
+    return {
+      transactions: rows.length,
+      fees: feeTotal,
+      fiatIn,
+      fiatOut,
+      difference,
+      provisionalGain,
+      provisionalLoss,
+      gain: gainDetected || pnlDetected ? gain : null,
+      loss: lossDetected || pnlDetected ? loss : null,
+      assets: assetSet.size,
+      checkRows,
+      hasGainLoss: pnlDetected || gainDetected || lossDetected
+    };
+  }
+
+  function injectStyles(){
+    const style = document.createElement('style');
+    style.id = PATCH_ID;
+    style.textContent = `
+      .fsa-source-inline-select{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        margin-bottom:10px;
+        font-size:13px;
+        font-weight:700;
+        color:#0ea480;
+      }
+      .fsa-source-inline-select input{
+        transform:scale(1.15);
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function injectHeroButton(){
+    const toolbar = document.querySelector('.hero .toolbar');
+    if(!toolbar || toolbar.querySelector('[data-fsa-sonderfaelle-button]')) return;
+
+    const btn = document.createElement('a');
+    btn.href = 'sonderfaelle-erfassen.html';
+    btn.className = 'btn btn-secondary';
+    btn.setAttribute('data-fsa-sonderfaelle-button', '1');
+    btn.textContent = 'Zu Sonderfälle erfassen';
+    toolbar.appendChild(btn);
+  }
+
+  function patchSourceCards(){
+    const { data } = loadState();
+    const list = document.getElementById('sourcesList');
+    if(!list) return;
+
+    list.querySelectorAll('.source-card').forEach(card => {
+      const openBtn = card.querySelector('[data-action="open"]');
+      if(!openBtn) return;
+
+      const sourceId = openBtn.getAttribute('data-id');
+      const source = data.sources.find(s => s.id === sourceId);
+      if(!source) return;
+      ensureMeta(source);
+
+      if(!card.querySelector('[data-fsa-inline-select]')){
+        const sourceLeft = card.querySelector('.source-left') || card.firstElementChild || card;
+        const label = document.createElement('label');
+        label.className = 'fsa-source-inline-select no-print';
+        label.setAttribute('data-fsa-inline-select', '1');
+        label.innerHTML = `
+          <input type="checkbox" data-fsa-source-id="${source.id}">
+          <span>Diese Quelle in die kombinierte Masterliste übernehmen</span>
+        `;
+        sourceLeft.prepend(label);
+      }
+
+      const cb = card.querySelector(`[data-fsa-source-id="${source.id}"]`);
+      if(cb) cb.checked = source.selectedForCombined !== false;
+    });
+  }
+
+  function patchButtons(){
+    const btnAll = document.getElementById('btnSelectAllSources');
+    const btnNone = document.getElementById('btnDeselectAllSources');
+    const btnBuild = document.getElementById('btnBuildCombined');
+
+    if(btnAll && !btnAll.dataset.fsaPatchBound){
+      btnAll.dataset.fsaPatchBound = '1';
+      btnAll.addEventListener('click', function(ev){
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+        const stateObj = loadState();
+        stateObj.data.sources.forEach(source => {
+          ensureMeta(source);
+          source.selectedForCombined = true;
+        });
+        saveState(stateObj);
+        refreshView();
+      }, true);
+    }
+
+    if(btnNone && !btnNone.dataset.fsaPatchBound){
+      btnNone.dataset.fsaPatchBound = '1';
+      btnNone.addEventListener('click', function(ev){
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+        const stateObj = loadState();
+        stateObj.data.sources.forEach(source => {
+          ensureMeta(source);
+          source.selectedForCombined = false;
+        });
+        saveState(stateObj);
+        refreshView();
+      }, true);
+    }
+
+    if(btnBuild && !btnBuild.dataset.fsaPatchBound){
+      btnBuild.dataset.fsaPatchBound = '1';
+      btnBuild.addEventListener('click', function(ev){
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+        rebuildCombinedFromSelected();
+      }, true);
+    }
+  }
+
+  function bindCheckboxes(){
+    document.querySelectorAll('[data-fsa-source-id]').forEach(cb => {
+      if(cb.dataset.fsaBound) return;
+      cb.dataset.fsaBound = '1';
+      cb.addEventListener('change', function(){
+        const stateObj = loadState();
+        const source = stateObj.data.sources.find(s => s.id === this.getAttribute('data-fsa-source-id'));
+        if(!source) return;
+        ensureMeta(source);
+        source.selectedForCombined = this.checked;
+        saveState(stateObj);
+        updateOverviewChips();
+      });
+    });
+  }
+
+  function updateOverviewChips(){
+    const { data } = loadState();
+    const chips = document.getElementById('overviewChips');
+    if(!chips) return;
+
+    const selectedCount = data.sources.filter(s => s.selectedForCombined !== false).length;
+    chips.innerHTML = `
+      <span class="chip mint">${data.sources.length} Quellen</span>
+      <span class="chip">${data.sources.length} CSV-Dateien</span>
+      <span class="chip">${selectedCount} einzeln ausgewählt</span>
+    `;
+  }
+
+  function rebuildCombinedFromSelected(){
+    const stateObj = loadState();
+    const selected = stateObj.data.sources.filter(source => {
+      ensureMeta(source);
+      return source.selectedForCombined !== false;
+    });
+
+    if(!selected.length){
+      stateObj.data.combinedMasterRows = [];
+      saveState(stateObj);
+      renderCombined([], []);
+      return;
+    }
+
+    const rows = [];
+    selected.forEach(source => {
+      if(!Array.isArray(source.singleMasterRows) || !source.singleMasterRows.length){
+        source.singleMasterRows = buildRowsForSource(source).sort(compareDateTime);
+      }
+      rows.push(...source.singleMasterRows);
+    });
+
+    stateObj.data.combinedMasterRows = rows.sort(compareDateTime);
+    saveState(stateObj);
+    renderCombined(stateObj.data.combinedMasterRows, selected);
+  }
+
+  function renderCombined(rows, selectedSources){
+    const combinedEvaluationEmpty = document.getElementById('combinedEvaluationEmpty');
+    const combinedEvaluationBox = document.getElementById('combinedEvaluationBox');
+    const combinedMasterEmpty = document.getElementById('combinedMasterEmpty');
+    const combinedMasterWrap = document.getElementById('combinedMasterWrap');
+    const combinedMasterBody = document.getElementById('combinedMasterBody');
+    const combinedMasterHeader = document.getElementById('combinedMasterHeader');
+    const combinedHeaderSub = document.getElementById('combinedHeaderSub');
+    const combinedHeaderChips = document.getElementById('combinedHeaderChips');
+    const combinedMasterChips = document.getElementById('combinedMasterChips');
+
+    if(!rows.length){
+      if(combinedEvaluationEmpty) combinedEvaluationEmpty.classList.remove('hidden');
+      if(combinedEvaluationBox) combinedEvaluationBox.classList.add('hidden');
+      if(combinedMasterEmpty) combinedMasterEmpty.classList.remove('hidden');
+      if(combinedMasterWrap) combinedMasterWrap.classList.add('hidden');
+      if(combinedMasterHeader) combinedMasterHeader.classList.add('hidden');
+      setText('statMaster', 0);
+      renderTax([]);
+      renderPreview([]);
+      return;
+    }
+
+    const metrics = calculateMetrics(rows);
+
+    if(combinedEvaluationEmpty) combinedEvaluationEmpty.classList.add('hidden');
+    if(combinedEvaluationBox) combinedEvaluationBox.classList.remove('hidden');
+    if(combinedMasterEmpty) combinedMasterEmpty.classList.add('hidden');
+    if(combinedMasterWrap) combinedMasterWrap.classList.remove('hidden');
+    if(combinedMasterHeader) combinedMasterHeader.classList.remove('hidden');
+
+    setText('combinedEvalTransactions', metrics.transactions);
+    setText('combinedEvalFees', formatNumber(metrics.fees));
+    setText('combinedEvalFiatIn', formatNumber(metrics.fiatIn));
+    setText('combinedEvalFiatOut', formatNumber(metrics.fiatOut));
+    setText('combinedEvalDifference', formatNumber(metrics.difference));
+    setText('combinedEvalProvisionalGain', metrics.provisionalGain !== null ? formatNumber(metrics.provisionalGain) : '–');
+    setText('combinedEvalProvisionalLoss', metrics.provisionalLoss !== null ? formatNumber(metrics.provisionalLoss) : '–');
+    setText('combinedEvalGain', metrics.hasGainLoss ? formatNumber(metrics.gain || 0) : '–');
+    setText('combinedEvalLoss', metrics.hasGainLoss ? formatNumber(metrics.loss || 0) : '–');
+    setText('combinedEvalAssets', metrics.assets);
+    setText('combinedEvalCheckRows', metrics.checkRows);
+
+    const combinedEvaluationChips = document.getElementById('combinedEvaluationChips');
+    if(combinedEvaluationChips){
+      combinedEvaluationChips.innerHTML = `
+        <span class="chip mint">${selectedSources.length} Quellen ausgewählt</span>
+        <span class="chip">${rows.length} Zeilen ausgewertet</span>
+        <span class="chip">Sammelergebnis</span>
+      `;
+    }
+
+    const combinedEvaluationNote = document.getElementById('combinedEvaluationNote');
+    if(combinedEvaluationNote){
+      combinedEvaluationNote.textContent = metrics.hasGainLoss
+        ? 'Direkt erkannte Gewinn- und Verlustwerte wurden aus vorhandenen CSV-Spalten übernommen. Zusätzlich wird die erkannte Differenz aus eingezahlt und ausgezahlt ausgewiesen.'
+        : 'Gewinn und Verlust konnten nicht direkt aus den CSV-Daten gelesen werden. Deshalb wird zusätzlich die erkannte Differenz sowie ein vorläufiger Gewinn oder Verlust aus dem Fiat-Saldo ausgewiesen.';
+    }
+
+    if(combinedHeaderSub){
+      combinedHeaderSub.textContent = `Fortgeschrittene Sammelansicht für ${selectedSources.length} einzeln gewählte Quellen`;
+    }
+
+    if(combinedHeaderChips){
+      combinedHeaderChips.innerHTML = `
+        <span class="chip mint">${selectedSources.length} Quellen</span>
+        <span class="chip">${rows.length} Zeilen</span>
+        <span class="chip">Fiat eingezahlt: ${formatNumber(metrics.fiatIn)}</span>
+        <span class="chip">Fiat ausgezahlt: ${formatNumber(metrics.fiatOut)}</span>
+        <span class="chip">Differenz: ${formatNumber(metrics.difference)}</span>
+        <span class="chip">Vorläufiger Gewinn: ${metrics.provisionalGain !== null ? formatNumber(metrics.provisionalGain) : '–'}</span>
+        <span class="chip">Vorläufiger Verlust: ${metrics.provisionalLoss !== null ? formatNumber(metrics.provisionalLoss) : '–'}</span>
+        <span class="chip">Direkter Gewinn: ${metrics.hasGainLoss ? formatNumber(metrics.gain || 0) : '–'}</span>
+        <span class="chip">Direkter Verlust: ${metrics.hasGainLoss ? formatNumber(metrics.loss || 0) : '–'}</span>
+        <span class="chip">Gebühren: ${formatNumber(metrics.fees)}</span>
+        <span class="chip">Prüffälle: ${metrics.checkRows}</span>
+      `;
+    }
+
+    if(combinedMasterChips){
+      combinedMasterChips.innerHTML = `
+        <span class="chip mint">${rows.length} Einträge</span>
+        <span class="chip">${selectedSources.length} Quellen kombiniert</span>
+        <span class="chip">${metrics.assets} Assets</span>
+        <span class="chip">${new Set(rows.map(r => r.chain).filter(Boolean)).size} Chains</span>
+      `;
+    }
+
+    if(combinedMasterBody){
+      combinedMasterBody.innerHTML = rows.map((row, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${escapeHtml(row.date)}</td>
+          <td>${escapeHtml(row.time)}</td>
+          <td>${escapeHtml(row.source)}</td>
+          <td>${escapeHtml(row.chain)}</td>
+          <td>${escapeHtml(row.provider)}</td>
+          <td>${escapeHtml(row.wallet)}</td>
+          <td>${escapeHtml(row.asset)}</td>
+          <td>${escapeHtml(row.amount)}</td>
+          <td>${escapeHtml(row.value)}</td>
+          <td>${escapeHtml(row.fee)}</td>
+          <td>${escapeHtml(row.txid)}</td>
+          <td>${escapeHtml(row.hint)}</td>
+        </tr>
+      `).join('');
+    }
+
+    setText('statMaster', rows.length);
+    renderTax(rows);
+    renderPreview(rows);
+  }
+
+  function renderTax(rows){
+    const { data } = loadState();
+    const selectedSources = data.sources.filter(s => s.selectedForCombined !== false);
+
+    const taxEmpty = document.getElementById('taxEmpty');
+    const taxBox = document.getElementById('taxBox');
+    if(!taxEmpty || !taxBox) return;
+
+    if(!rows.length){
+      taxEmpty.classList.remove('hidden');
+      taxBox.classList.add('hidden');
+      return;
+    }
+
+    const metrics = calculateMetrics(rows);
+
+    taxEmpty.classList.add('hidden');
+    taxBox.classList.remove('hidden');
+
+    setText('taxTransactions', metrics.transactions);
+    setText('taxFees', formatNumber(metrics.fees));
+    setText('taxFiatIn', formatNumber(metrics.fiatIn));
+    setText('taxFiatOut', formatNumber(metrics.fiatOut));
+    setText('taxDifference', formatNumber(metrics.difference));
+    setText('taxProvisionalGain', metrics.provisionalGain !== null ? formatNumber(metrics.provisionalGain) : '–');
+    setText('taxProvisionalLoss', metrics.provisionalLoss !== null ? formatNumber(metrics.provisionalLoss) : '–');
+    setText('taxGain', metrics.hasGainLoss ? formatNumber(metrics.gain || 0) : '–');
+    setText('taxLoss', metrics.hasGainLoss ? formatNumber(metrics.loss || 0) : '–');
+    setText('taxAssets', metrics.assets);
+    setText('taxCheckRows', metrics.checkRows);
+    setText('taxSubline', `Kombinierte Sicht nach aktuell ausgewählten ${selectedSources.length} Quellen`);
+
+    const taxChips = document.getElementById('taxChips');
+    if(taxChips){
+      taxChips.innerHTML = selectedSources.map(source => {
+        return `<span class="chip mint">${escapeHtml(source.caseName || 'Quelle')}</span>`;
+      }).join('');
+    }
+  }
+
+  function renderPreview(rows){
+    const previewTableBody = document.getElementById('previewTableBody');
+    const previewTax = document.getElementById('previewTax');
+    const previewHeaderChips = document.getElementById('previewHeaderChips');
+    const taxView = document.getElementById('taxView');
+    const combinedHeaderChips = document.getElementById('combinedHeaderChips');
+
+    if(previewTax && taxView) previewTax.innerHTML = taxView.innerHTML;
+    if(previewHeaderChips && combinedHeaderChips) previewHeaderChips.innerHTML = combinedHeaderChips.innerHTML;
+
+    if(previewTableBody){
+      previewTableBody.innerHTML = rows.map((row, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${escapeHtml(row.date)}</td>
+          <td>${escapeHtml(row.time)}</td>
+          <td>${escapeHtml(row.source)}</td>
+          <td>${escapeHtml(row.chain)}</td>
+          <td>${escapeHtml(row.provider)}</td>
+          <td>${escapeHtml(row.wallet)}</td>
+          <td>${escapeHtml(row.asset)}</td>
+          <td>${escapeHtml(row.amount)}</td>
+          <td>${escapeHtml(row.value)}</td>
+          <td>${escapeHtml(row.fee)}</td>
+          <td>${escapeHtml(row.txid)}</td>
+          <td>${escapeHtml(row.hint)}</td>
+        </tr>
+      `).join('');
+    }
+  }
+
+  function setText(id, value){
+    const el = document.getElementById(id);
+    if(el) el.textContent = String(value);
+  }
+
+  function refreshView(){
+    patchSourceCards();
+    bindCheckboxes();
+    updateOverviewChips();
+
+    const { data } = loadState();
+    if(Array.isArray(data.combinedMasterRows) && data.combinedMasterRows.length){
+      rebuildCombinedFromSelected();
+    }else{
+      renderCombined([], data.sources.filter(s => s.selectedForCombined !== false));
+    }
+
+    setText('statSources', data.sources.length);
+    setText('statFiles', data.sources.length);
+    setText('statArchives', Array.isArray(data.archives) ? data.archives.length : 0);
+  }
+
+  function bindRefreshObservers(){
+    const sourcesList = document.getElementById('sourcesList');
+    if(sourcesList && !sourcesList.dataset.fsaObserved){
+      sourcesList.dataset.fsaObserved = '1';
+      const observer = new MutationObserver(() => {
+        patchSourceCards();
+        bindCheckboxes();
+        updateOverviewChips();
+      });
+      observer.observe(sourcesList, { childList:true, subtree:true });
+    }
+
+    window.addEventListener('storage', function(e){
+      if(STORAGE_KEYS.includes(e.key)){
+        refreshView();
+      }
+    });
+  }
+
+  function init(){
+    injectStyles();
+    injectHeroButton();
+    patchButtons();
+    patchSourceCards();
+    bindCheckboxes();
+    bindRefreshObservers();
+    refreshView();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  }else{
+    init();
+  }
+})();
+</script>
 </body>
 </html>
