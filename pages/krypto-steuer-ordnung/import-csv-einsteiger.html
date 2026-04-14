@@ -2714,5 +2714,169 @@
       renderAll();
     })();
   </script>
+<section class="section panel">
+  <h2>Gerätewechsel / Kompletten Stand mitnehmen</h2>
+  <p class="muted">
+    Exportiere hier den kompletten Seitenstand als JSON-Datei und importiere ihn auf einem anderen Gerät wieder.
+    Dabei werden Quellen, kombinierte Masterliste, Archivstände und Auswahlstatus übernommen.
+  </p>
+
+  <div class="toolbar no-print">
+    <button class="btn btn-primary" type="button" id="btnStateExport">Kompletten Stand exportieren</button>
+    <label class="btn btn-ghost" for="stateImportFile">Stand importieren</label>
+    <input id="stateImportFile" type="file" accept=".json,application/json" class="hidden" />
+  </div>
+
+  <div class="note">
+    <strong>Wichtig:</strong><br>
+    Der Import überschreibt den aktuellen Stand dieser Seite auf dem Gerät.
+  </div>
+
+  <div id="stateTransferStatus" class="empty" style="margin-top:14px;">
+    Noch kein Gerätewechsel-Export oder -Import ausgeführt.
+  </div>
+</section>
+
+<script>
+(() => {
+  const STORAGE_KEY_DEVICE_TRANSFER = 'kso_csv_import_einsteiger_v7';
+
+  function normalizeTransfer(value){
+    return String(value ?? '').trim();
+  }
+
+  function setTransferStatus(message, type = 'empty'){
+    const box = document.getElementById('stateTransferStatus');
+    if(!box) return;
+    box.className = type === 'ok'
+      ? 'okbox'
+      : type === 'warn'
+        ? 'warnbox'
+        : type === 'note'
+          ? 'note'
+          : 'empty';
+    box.innerHTML = message;
+  }
+
+  function exportCompleteState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY_DEVICE_TRANSFER);
+      if(!raw){
+        setTransferStatus('Es wurde noch kein Seitenstand gefunden, der exportiert werden kann.', 'warn');
+        return;
+      }
+
+      const parsed = JSON.parse(raw);
+      const payload = {
+        exportType: 'kso_csv_import_einsteiger_full_state',
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        storageKey: STORAGE_KEY_DEVICE_TRANSFER,
+        data: parsed
+      };
+
+      const stamp = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const fileName =
+        'krypto-steuer-ordnung-geraetewechsel-' +
+        stamp.getFullYear() +
+        pad(stamp.getMonth() + 1) +
+        pad(stamp.getDate()) + '-' +
+        pad(stamp.getHours()) +
+        pad(stamp.getMinutes()) +
+        pad(stamp.getSeconds()) +
+        '.json';
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+      setTransferStatus(
+        'Kompletter Seitenstand wurde erfolgreich exportiert.<br>Datei: <strong>' + fileName + '</strong>',
+        'ok'
+      );
+    } catch (error) {
+      setTransferStatus('Export fehlgeschlagen. Bitte erneut versuchen.', 'warn');
+    }
+  }
+
+  async function importCompleteState(file){
+    if(!file){
+      setTransferStatus('Keine Importdatei ausgewählt.', 'warn');
+      return;
+    }
+
+    try{
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+
+      if(
+        !parsed ||
+        parsed.exportType !== 'kso_csv_import_einsteiger_full_state' ||
+        !parsed.data ||
+        typeof parsed.data !== 'object'
+      ){
+        setTransferStatus('Die ausgewählte Datei ist kein gültiger Gerätewechsel-Import für diese Seite.', 'warn');
+        return;
+      }
+
+      const data = parsed.data;
+      const isValid =
+        Array.isArray(data.sources) &&
+        Array.isArray(data.combinedMasterRows) &&
+        Array.isArray(data.archives) &&
+        typeof data.currentSourceId === 'string';
+
+      if(!isValid){
+        setTransferStatus('Die Importdatei hat nicht die erwartete Struktur.', 'warn');
+        return;
+      }
+
+      const confirmImport = window.confirm(
+        'Der Import überschreibt den aktuellen Stand auf diesem Gerät. Wirklich fortsetzen?'
+      );
+
+      if(!confirmImport){
+        setTransferStatus('Import abgebrochen. Der aktuelle Stand wurde nicht verändert.', 'note');
+        return;
+      }
+
+      localStorage.setItem(STORAGE_KEY_DEVICE_TRANSFER, JSON.stringify(data));
+
+      setTransferStatus(
+        'Import erfolgreich übernommen.<br>Die Seite wird jetzt neu geladen, damit alle Bereiche mit dem importierten Stand angezeigt werden.',
+        'ok'
+      );
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 700);
+    } catch (error) {
+      setTransferStatus('Import fehlgeschlagen. Bitte prüfe, ob du die richtige JSON-Datei gewählt hast.', 'warn');
+    }
+  }
+
+  const exportBtn = document.getElementById('btnStateExport');
+  const importInput = document.getElementById('stateImportFile');
+
+  if(exportBtn){
+    exportBtn.addEventListener('click', exportCompleteState);
+  }
+
+  if(importInput){
+    importInput.addEventListener('change', (event) => {
+      const file = event.target.files && event.target.files[0] ? event.target.files[0] : null;
+      importCompleteState(file);
+      event.target.value = '';
+    });
+  }
+})();
+</script>
 </body>
 </html>
