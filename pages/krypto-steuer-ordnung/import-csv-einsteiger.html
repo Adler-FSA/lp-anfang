@@ -204,7 +204,8 @@
     .mini-card,
     .choice-card,
     .source-card,
-    .file-card{
+    .file-card,
+    .eval-card{
       background:#fff;
       border:1px solid var(--line);
       border-radius:18px;
@@ -481,6 +482,25 @@
       gap:8px;
     }
 
+    .eval-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .eval-card .value{
+      font-size:24px;
+      line-height:1.1;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .eval-card .label{
+      font-weight:700;
+      margin-bottom:4px;
+    }
+
     .hidden{display:none !important}
     .print-only{display:none}
 
@@ -490,7 +510,8 @@
       .grid-4,
       .step-grid,
       .statusbar,
-      .choice-grid{
+      .choice-grid,
+      .eval-grid{
         grid-template-columns:1fr;
       }
       .span-8,.span-6,.span-4,.span-3{grid-column:span 12}
@@ -515,6 +536,7 @@
       .choice-card,
       .source-card,
       .file-card,
+      .eval-card,
       .result-box,
       .stat,
       .table-wrap{
@@ -815,7 +837,7 @@
           <div class="result-title">
             <div>
               <h3 id="resultTitle">Datei-Erkennung</h3>
-              <div class="small muted" id="resultSub">Bitte prüfe die Vorschläge.</div>
+              <div class="small muted" id="resultSub">Bitte prüfe die Einschätzung.</div>
             </div>
             <div class="chips" id="resultChips"></div>
           </div>
@@ -852,6 +874,67 @@
           <div class="toolbar no-print">
             <button class="btn btn-secondary" id="btnBuildMaster" type="button">Einfache Masterliste für diese Quelle erzeugen</button>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section panel">
+      <h2>Vorläufige Auswertung der geöffneten Quelle</h2>
+      <p class="muted">
+        Diese Auswertung zeigt verwertbare Kennzahlen aus den bereits erkannten CSV-Daten. Sie ist nur so stark wie die Datenlage der Quelle.
+        Wenn Gegenwerte, Richtungen oder Gewinn-/Verlust-Spalten fehlen, zeigt die Seite das offen an.
+      </p>
+
+      <div id="evaluationEmpty" class="empty">Noch keine Auswertung verfügbar. Erzeuge zuerst eine Masterliste für die geöffnete Quelle.</div>
+
+      <div id="evaluationBox" class="hidden">
+        <div class="eval-grid">
+          <div class="eval-card">
+            <div class="value" id="evalTransactions">0</div>
+            <div class="label">Transaktionen</div>
+            <div class="small muted">erkannte Zeilen in der Masterliste</div>
+          </div>
+          <div class="eval-card">
+            <div class="value" id="evalFees">0,00</div>
+            <div class="label">Gebühren gesamt</div>
+            <div class="small muted">Summe erkannter Transaktionsgebühren</div>
+          </div>
+          <div class="eval-card">
+            <div class="value" id="evalFiatIn">0,00</div>
+            <div class="label">Fiat / Gegenwert rein</div>
+            <div class="small muted">erkannt aus positiven Fiat- oder Gegenwert-Zeilen</div>
+          </div>
+          <div class="eval-card">
+            <div class="value" id="evalFiatOut">0,00</div>
+            <div class="label">Fiat / Gegenwert raus</div>
+            <div class="small muted">erkannt aus negativen Fiat- oder Gegenwert-Zeilen</div>
+          </div>
+          <div class="eval-card">
+            <div class="value" id="evalGain">–</div>
+            <div class="label">Gewinn</div>
+            <div class="small muted">nur wenn CSV eine Gewinn-/P&amp;L-Spalte enthält</div>
+          </div>
+          <div class="eval-card">
+            <div class="value" id="evalLoss">–</div>
+            <div class="label">Verlust</div>
+            <div class="small muted">nur wenn CSV eine Verlust-/P&amp;L-Spalte enthält</div>
+          </div>
+          <div class="eval-card">
+            <div class="value" id="evalAssets">0</div>
+            <div class="label">Erkannte Assets</div>
+            <div class="small muted">unterschiedliche Werte in der Masterliste</div>
+          </div>
+          <div class="eval-card">
+            <div class="value" id="evalCheckRows">0</div>
+            <div class="label">Prüffälle</div>
+            <div class="small muted">Zeilen mit offenen Hinweisen oder Lücken</div>
+          </div>
+        </div>
+
+        <div class="chips" id="evaluationChips"></div>
+
+        <div class="note" id="evaluationNote">
+          Diese Auswertung ist eine Arbeitsgrundlage. Ein echter Gewinn-/Verlustnachweis braucht vollständige, zusammenhängende Daten über Käufe, Verkäufe, Tauschvorgänge und Gebühren.
         </div>
       </div>
     </section>
@@ -907,8 +990,8 @@
           <div class="muted small">Alle angelegten Quellen bleiben sichtbar und können einzeln wieder geöffnet werden.</div>
         </div>
         <div class="mini-card">
-          <strong>Druck und PDF</strong>
-          <div class="muted small">Die Seite ist für Ausdrucke und PDF-Sicherungen mit optimierter Druckansicht vorbereitet.</div>
+          <strong>Vorläufige Kennzahlen</strong>
+          <div class="muted small">Gebühren, Summen, Prüffälle und CSV-gestützte Steuerkennzahlen werden offen ausgewiesen.</div>
         </div>
       </div>
     </section>
@@ -921,7 +1004,7 @@
 
   <script>
     (() => {
-      const STORAGE_KEY = 'kso_csv_import_einsteiger_v3';
+      const STORAGE_KEY = 'kso_csv_import_einsteiger_v4';
 
       const AUTO_FIELDS = {
         date: ['date','datum','datetime (utc)','timestamp (utc)','time(utc)','created at','transaction date'],
@@ -931,7 +1014,10 @@
         value: ['value (usd)','usd value','native amount (in usd)','eur value','value','gegenwert'],
         fee: ['txn fee','fee','fees','commission','network fee','gas fee','gebühr'],
         txid: ['transaction hash','txid','txhash','hash','transaction id','signature'],
-        direction: ['transaction kind','direction','type','side','flow','method','transaction description']
+        direction: ['transaction kind','direction','type','side','flow','method','transaction description'],
+        pnl: ['realized pnl','realised pnl','pnl','profit/loss','profit loss','profit and loss','gewinn/verlust'],
+        gain: ['gain','gewinn','profit','realized gain','realised gain'],
+        loss: ['loss','verlust','realized loss','realised loss']
       };
 
       const els = {
@@ -983,6 +1069,19 @@
         openedColumnsText: document.getElementById('openedColumnsText'),
         openedMissingList: document.getElementById('openedMissingList'),
         btnBuildMaster: document.getElementById('btnBuildMaster'),
+
+        evaluationEmpty: document.getElementById('evaluationEmpty'),
+        evaluationBox: document.getElementById('evaluationBox'),
+        evalTransactions: document.getElementById('evalTransactions'),
+        evalFees: document.getElementById('evalFees'),
+        evalFiatIn: document.getElementById('evalFiatIn'),
+        evalFiatOut: document.getElementById('evalFiatOut'),
+        evalGain: document.getElementById('evalGain'),
+        evalLoss: document.getElementById('evalLoss'),
+        evalAssets: document.getElementById('evalAssets'),
+        evalCheckRows: document.getElementById('evalCheckRows'),
+        evaluationChips: document.getElementById('evaluationChips'),
+        evaluationNote: document.getElementById('evaluationNote'),
 
         masterChips: document.getElementById('masterChips'),
         masterEmpty: document.getElementById('masterEmpty'),
@@ -1124,7 +1223,10 @@
           value: findHeader(headers, AUTO_FIELDS.value),
           fee: findHeader(headers, AUTO_FIELDS.fee),
           txid: findHeader(headers, AUTO_FIELDS.txid),
-          direction: findHeader(headers, AUTO_FIELDS.direction)
+          direction: findHeader(headers, AUTO_FIELDS.direction),
+          pnl: findHeader(headers, AUTO_FIELDS.pnl),
+          gain: findHeader(headers, AUTO_FIELDS.gain),
+          loss: findHeader(headers, AUTO_FIELDS.loss)
         };
       }
 
@@ -1173,6 +1275,8 @@
           if(lower.includes('error')) hint.push('Fehlgeschlagen prüfen');
           if(lower.includes('swap')) hint.push('Swap prüfen');
           if(lower.includes('reward')) hint.push('Reward prüfen');
+          if(lower.includes('sell')) hint.push('Verkauf prüfen');
+          if(lower.includes('buy')) hint.push('Kauf prüfen');
         }
 
         if(!mappings.value) hint.push('kein Gegenwert erkannt');
@@ -1240,6 +1344,48 @@
         return parts.join(' – ') || 'Unbenannte Quelle';
       }
 
+      function parseLooseNumber(value){
+        let raw = normalize(value);
+        if(!raw) return null;
+
+        raw = raw.replace(/<[^>]*>/g, '');
+        raw = raw.replace(/\s+/g, '');
+        raw = raw.replace(/[$€£]/g, '');
+        raw = raw.replace(/[A-Za-z]/g, '');
+
+        if(!raw) return null;
+
+        const hasComma = raw.includes(',');
+        const hasDot = raw.includes('.');
+
+        if(hasComma && hasDot){
+          const lastComma = raw.lastIndexOf(',');
+          const lastDot = raw.lastIndexOf('.');
+          if(lastComma > lastDot){
+            raw = raw.replace(/\./g, '').replace(',', '.');
+          }else{
+            raw = raw.replace(/,/g, '');
+          }
+        }else if(hasComma && !hasDot){
+          const parts = raw.split(',');
+          if(parts.length === 2 && parts[1].length <= 2){
+            raw = parts[0].replace(/\./g, '') + '.' + parts[1];
+          }else{
+            raw = raw.replace(/,/g, '');
+          }
+        }else{
+          raw = raw.replace(/,/g, '');
+        }
+
+        const num = Number(raw);
+        return Number.isFinite(num) ? num : null;
+      }
+
+      function formatNumber(value){
+        if(value === null || value === undefined || Number.isNaN(value)) return '–';
+        return value.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
       function getCurrentSource(){
         return state.sources.find(source => source.id === state.currentSourceId) || null;
       }
@@ -1266,22 +1412,6 @@
         fillPendingForm(source);
         const radio = document.querySelector(`input[name="sourceKind"][value="${source.sourceKind || 'wallet'}"]`);
         if(radio) radio.checked = true;
-      }
-
-      async function readCsvInput(){
-        let content = normalize(els.csvPaste.value);
-        let fileName = 'Direkteingabe.csv';
-
-        if(!content && els.csvFile.files[0]){
-          content = await els.csvFile.files[0].text();
-          fileName = els.csvFile.files[0].name;
-        }
-
-        if(!content){
-          return null;
-        }
-
-        return { content, fileName };
       }
 
       function renderPendingSource(){
@@ -1430,10 +1560,14 @@
           value:'Gegenwert',
           fee:'Gebühr',
           txid:'TxID',
-          direction:'Hinweis'
+          direction:'Hinweis',
+          pnl:'P&L',
+          gain:'Gewinn',
+          loss:'Verlust'
         };
 
         Object.entries(source.mappings).forEach(([key, header]) => {
+          if(!mapLabels[key]) return;
           const span = document.createElement('span');
           span.className = header ? 'chip mint' : 'chip warn';
           span.textContent = header ? `${mapLabels[key]}: ${header}` : `${mapLabels[key]}: nicht erkannt`;
@@ -1452,6 +1586,7 @@
         if(!source.mappings.txid) missing.push('TxID wurde nicht sicher erkannt.');
         if(!source.mappings.value) missing.push('Gegenwert fehlt oder ist in dieser Datei nicht enthalten.');
         if(!source.mappings.fee) missing.push('Gebühr fehlt oder ist in dieser Datei nicht enthalten.');
+        if(!source.mappings.pnl && !source.mappings.gain && !source.mappings.loss) missing.push('Gewinn-/Verlust-Spalten wurden nicht direkt erkannt.');
 
         els.openedMissingList.innerHTML = '';
         if(!missing.length){
@@ -1484,7 +1619,11 @@
             value: normalize(row[source.mappings.value] || ''),
             fee: normalize(row[source.mappings.fee] || ''),
             txid: normalize(row[source.mappings.txid] || ''),
-            hint: inferHint(row, source.mappings)
+            hint: inferHint(row, source.mappings),
+            rawDirection: normalize(row[source.mappings.direction] || ''),
+            rawPnl: normalize(row[source.mappings.pnl] || ''),
+            rawGain: normalize(row[source.mappings.gain] || ''),
+            rawLoss: normalize(row[source.mappings.loss] || '')
           };
         });
 
@@ -1492,6 +1631,110 @@
         state.masterRows = rows;
         saveState();
         renderMaster();
+        renderEvaluation();
+      }
+
+      function renderEvaluation(){
+        const source = getCurrentSource();
+        const rows = source ? source.masterRows || [] : [];
+
+        if(!rows.length){
+          els.evaluationEmpty.classList.remove('hidden');
+          els.evaluationBox.classList.add('hidden');
+          return;
+        }
+
+        els.evaluationEmpty.classList.add('hidden');
+        els.evaluationBox.classList.remove('hidden');
+
+        const fiatAssets = new Set(['EUR','USD','USDT','USDC','DAI','BUSD','FDUSD']);
+        let feeTotal = 0;
+        let fiatIn = 0;
+        let fiatOut = 0;
+        let assetCount = new Set();
+        let checkRows = 0;
+        let gain = 0;
+        let loss = 0;
+        let gainDetected = false;
+        let lossDetected = false;
+        let pnlDetected = false;
+
+        rows.forEach(row => {
+          const feeNum = parseLooseNumber(row.fee);
+          if(feeNum !== null) feeTotal += Math.abs(feeNum);
+
+          const valueNum = parseLooseNumber(row.value);
+          const amountNum = parseLooseNumber(row.amount);
+          const asset = normalize(row.asset).toUpperCase();
+
+          if(row.asset) assetCount.add(row.asset);
+
+          if(row.hint && row.hint !== 'kein Gegenwert erkannt | keine Gebühr erkannt') checkRows++;
+
+          const direction = normalize(row.rawDirection).toLowerCase();
+
+          if(fiatAssets.has(asset)){
+            if(amountNum !== null){
+              if(amountNum > 0) fiatIn += amountNum;
+              if(amountNum < 0) fiatOut += Math.abs(amountNum);
+            }
+          } else if(valueNum !== null){
+            if(direction.includes('sell') || direction.includes('withdraw') || direction.includes('abgang')){
+              fiatIn += Math.abs(valueNum);
+            } else if(direction.includes('buy') || direction.includes('deposit') || direction.includes('zugang')){
+              fiatOut += Math.abs(valueNum);
+            }
+          }
+
+          const pnlNum = parseLooseNumber(row.rawPnl);
+          if(pnlNum !== null){
+            pnlDetected = true;
+            if(pnlNum >= 0) gain += pnlNum;
+            if(pnlNum < 0) loss += Math.abs(pnlNum);
+          }
+
+          const gainNum = parseLooseNumber(row.rawGain);
+          if(gainNum !== null){
+            gainDetected = true;
+            gain += Math.abs(gainNum);
+          }
+
+          const lossNum = parseLooseNumber(row.rawLoss);
+          if(lossNum !== null){
+            lossDetected = true;
+            loss += Math.abs(lossNum);
+          }
+        });
+
+        els.evalTransactions.textContent = String(rows.length);
+        els.evalFees.textContent = formatNumber(feeTotal);
+        els.evalFiatIn.textContent = formatNumber(fiatIn);
+        els.evalFiatOut.textContent = formatNumber(fiatOut);
+        els.evalAssets.textContent = String(assetCount.size);
+        els.evalCheckRows.textContent = String(checkRows);
+
+        const hasGainLoss = pnlDetected || gainDetected || lossDetected;
+        els.evalGain.textContent = hasGainLoss ? formatNumber(gain) : '–';
+        els.evalLoss.textContent = hasGainLoss ? formatNumber(loss) : '–';
+
+        els.evaluationChips.innerHTML = '';
+        [
+          source.caseName,
+          source.profile,
+          hasGainLoss ? 'Gewinn/Verlust aus CSV erkannt' : 'Gewinn/Verlust nicht direkt in CSV erkannt',
+          `${rows.length} Zeilen ausgewertet`
+        ].forEach((text, index) => {
+          const span = document.createElement('span');
+          span.className = index === 2 && !hasGainLoss ? 'chip warn' : (index === 0 ? 'chip mint' : 'chip');
+          span.textContent = text;
+          els.evaluationChips.appendChild(span);
+        });
+
+        if(hasGainLoss){
+          els.evaluationNote.textContent = 'Gewinn- und Verlustwerte wurden direkt aus vorhandenen CSV-Spalten übernommen. Prüfe trotzdem, ob die zugrunde liegende Datei vollständig ist und alle relevanten Bereiche des Falls abdeckt.';
+        } else {
+          els.evaluationNote.textContent = 'Gewinn und Verlust konnten nicht direkt aus der CSV gelesen werden. Für einen belastbaren Nachweis braucht es vollständige, zusammenhängende Daten zu Käufen, Verkäufen, Tauschvorgängen, Gebühren und Gegenwerten.';
+        }
       }
 
       function renderMaster(){
@@ -1504,6 +1747,7 @@
         if(!rows.length){
           els.masterEmpty.classList.remove('hidden');
           els.masterWrap.classList.add('hidden');
+          renderEvaluation();
           return;
         }
 
@@ -1542,6 +1786,8 @@
           `;
           els.masterBody.appendChild(tr);
         });
+
+        renderEvaluation();
       }
 
       function exportMasterCsv(){
