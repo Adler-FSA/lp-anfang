@@ -973,6 +973,7 @@
     │   │   │   └── 08-fragen-steuerberater.html
     │   │   ├── hilfe.html
     │   │   ├── import-csv-einsteiger.html
+    │   │   ├── import-csv-fortgeschrittene.html
     │   │   ├── import-csv-hilfe.html
     │   │   └── index.html
     │   ├── liquiditybooster/
@@ -1397,4 +1398,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.04.2026, 13:42)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.04.2026, 15:09)_
