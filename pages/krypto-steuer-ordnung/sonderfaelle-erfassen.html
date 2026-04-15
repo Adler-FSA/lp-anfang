@@ -453,6 +453,13 @@
       margin-bottom:14px;
     }
 
+    .source-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+
     .hidden{display:none !important}
     .print-only{display:none}
 
@@ -559,6 +566,7 @@
         <a class="btn btn-ghost" href="import-csv-einsteiger.html">Zur Einsteiger-Ansicht</a>
         <a class="btn btn-ghost" href="import-csv-fortgeschrittene.html">Zur Fortgeschrittenen-Ansicht</a>
         <button class="btn btn-primary" type="button" id="btnScrollForm">Jetzt Sonderfall erfassen</button>
+        <button class="btn btn-danger" type="button" id="btnHardReset">Diese Seite komplett zurücksetzen</button>
       </div>
     </section>
 
@@ -587,7 +595,7 @@
     <section class="section panel" id="formSection">
       <h2>Sonderfall anlegen</h2>
       <p class="muted">
-        Wähle zuerst eine bestehende Quelle aus Einsteiger oder Fortgeschrittene aus oder dokumentiere einen freien Sonderfall ohne Quellenbezug.
+        Der Quellenbezug ist hier bewusst neutral. Nur wenn du eine Quelle wirklich übernehmen willst, klickst du später auf „Quelle ins Formular übernehmen“.
       </p>
 
       <form id="caseForm" class="form-grid" autocomplete="off">
@@ -748,6 +756,9 @@
 
     <section class="section panel soft">
       <h2>Quellenübersicht aus Einsteiger und Fortgeschrittene</h2>
+      <p class="muted">
+        Die Quellen werden hier nur als Übersicht angezeigt. Nichts wird automatisch ins Formular gezogen. Erst ein bewusster Klick übernimmt eine Quelle.
+      </p>
       <div id="sourceEmpty" class="empty">Noch keine importierten Quellen aus den anderen Seiten gefunden.</div>
       <div id="sourceList" class="list-wrap"></div>
     </section>
@@ -820,6 +831,7 @@
         </div>
         <div class="span-12 toolbar no-print">
           <button class="btn btn-primary" type="submit">Aktuellen Sonderfall-Stand archivieren</button>
+          <button class="btn btn-danger" type="button" id="btnArchiveReset">Nur Archiv dieser Seite löschen</button>
         </div>
       </form>
 
@@ -907,7 +919,8 @@
 
   <script>
     (() => {
-      const STORAGE_KEY = 'kso_sonderfaelle_v1';
+      const STORAGE_KEY = 'kso_sonderfaelle_v2';
+      const LEGACY_KEYS = ['kso_sonderfaelle_v1'];
       const SOURCE_KEYS = [
         'kso_csv_import_einsteiger_v7',
         'kso_csv_import_einsteiger_v6',
@@ -918,6 +931,7 @@
 
       const els = {
         btnScrollForm: document.getElementById('btnScrollForm'),
+        btnHardReset: document.getElementById('btnHardReset'),
         statSources: document.getElementById('statSources'),
         statCases: document.getElementById('statCases'),
         statRelevant: document.getElementById('statRelevant'),
@@ -966,6 +980,7 @@
         archiveNote: document.getElementById('archiveNote'),
         archiveEmpty: document.getElementById('archiveEmpty'),
         archiveList: document.getElementById('archiveList'),
+        btnArchiveReset: document.getElementById('btnArchiveReset'),
 
         btnStateExport: document.getElementById('btnStateExport'),
         stateImportFile: document.getElementById('stateImportFile'),
@@ -982,21 +997,32 @@
 
       const state = loadState();
       let editId = '';
+      let cachedSources = [];
 
       function loadState(){
         try{
           const raw = localStorage.getItem(STORAGE_KEY);
-          if(!raw){
-            return { cases:[], archives:[] };
+          if(raw){
+            const parsed = JSON.parse(raw);
+            return {
+              cases: Array.isArray(parsed.cases) ? parsed.cases : [],
+              archives: Array.isArray(parsed.archives) ? parsed.archives : []
+            };
           }
-          const parsed = JSON.parse(raw);
-          return {
-            cases: Array.isArray(parsed.cases) ? parsed.cases : [],
-            archives: Array.isArray(parsed.archives) ? parsed.archives : []
-          };
-        }catch{
-          return { cases:[], archives:[] };
-        }
+
+          for(const key of LEGACY_KEYS){
+            const legacyRaw = localStorage.getItem(key);
+            if(legacyRaw){
+              const parsed = JSON.parse(legacyRaw);
+              return {
+                cases: Array.isArray(parsed.cases) ? parsed.cases : [],
+                archives: Array.isArray(parsed.archives) ? parsed.archives : []
+              };
+            }
+          }
+        }catch{}
+
+        return { cases:[], archives:[] };
       }
 
       function saveState(){
@@ -1100,18 +1126,23 @@
             <div class="small muted" style="margin-top:10px;">
               ${source.walletRef ? `Wallet / Referenz: ${escapeHtml(source.walletRef)}` : 'Keine Wallet / Referenz gespeichert.'}
             </div>
+            <div class="source-actions no-print">
+              <button class="btn btn-ghost" type="button" data-source-action="apply" data-id="${escapeHtml(source.id)}">Quelle ins Formular übernehmen</button>
+            </div>
           </div>
         `).join('');
       }
 
-      function autoFillFromSource(sourceId){
-        const sources = collectSources();
-        const source = sources.find(item => item.id === sourceId);
+      function applySourceById(sourceId){
+        const source = cachedSources.find(item => item.id === sourceId);
         if(!source) return;
 
+        els.caseSourceSelect.value = source.id || '';
         if(!els.caseChain.value) els.caseChain.value = source.chain || '';
         if(!els.casePlatform.value) els.casePlatform.value = source.provider || '';
         if(!els.caseWallet.value) els.caseWallet.value = source.walletRef || '';
+
+        document.getElementById('formSection').scrollIntoView({ behavior:'smooth', block:'start' });
       }
 
       function resetForm(){
@@ -1124,8 +1155,7 @@
 
       function saveCaseFromForm(){
         const sourceId = normalize(els.caseSourceSelect.value);
-        const sources = collectSources();
-        const source = sources.find(item => item.id === sourceId) || null;
+        const source = cachedSources.find(item => item.id === sourceId) || null;
 
         const record = {
           id: editId || uid('case'),
@@ -1534,6 +1564,26 @@
         renderAll();
       }
 
+      function resetArchivesOnly(){
+        if(!confirm('Nur das Archiv dieser Sonderfall-Seite löschen? Die Sonderfälle selbst bleiben erhalten.')) return;
+        state.archives = [];
+        saveState();
+        renderAll();
+      }
+
+      function hardResetPage(){
+        if(!confirm('Diese Sonderfall-Seite komplett zurücksetzen? Alle Sonderfälle und Archivstände dieser Seite werden gelöscht.')) return;
+        localStorage.removeItem(STORAGE_KEY);
+        LEGACY_KEYS.forEach(key => localStorage.removeItem(key));
+        state.cases = [];
+        state.archives = [];
+        editId = '';
+        els.stateStatus.textContent = 'Diese Sonderfall-Seite wurde komplett zurückgesetzt.';
+        resetForm();
+        els.archiveForm.reset();
+        renderAll();
+      }
+
       function downloadFile(content, fileName, contentType){
         const blob = new Blob([content], { type: contentType });
         const url = URL.createObjectURL(blob);
@@ -1547,9 +1597,9 @@
       }
 
       function renderAll(){
-        const sources = collectSources();
-        fillSourceSelect(sources);
-        renderSources(sources);
+        cachedSources = collectSources();
+        fillSourceSelect(cachedSources);
+        renderSources(cachedSources);
         renderCaseCards();
         renderArchives();
         renderPreview();
@@ -1560,7 +1610,6 @@
       });
 
       els.caseSourceSelect.addEventListener('change', () => {
-        autoFillFromSource(els.caseSourceSelect.value);
       });
 
       els.caseForm.addEventListener('submit', event => {
@@ -1594,6 +1643,12 @@
         const archiveDelete = event.target.closest('[data-archive-action="delete"]');
         if(archiveDelete){
           deleteArchive(archiveDelete.getAttribute('data-id'));
+          return;
+        }
+
+        const sourceApply = event.target.closest('[data-source-action="apply"]');
+        if(sourceApply){
+          applySourceById(sourceApply.getAttribute('data-id'));
         }
       });
 
@@ -1601,6 +1656,9 @@
         event.preventDefault();
         archiveCurrent();
       });
+
+      els.btnArchiveReset.addEventListener('click', resetArchivesOnly);
+      els.btnHardReset.addEventListener('click', hardResetPage);
 
       els.btnExportCsv.addEventListener('click', exportCsv);
       els.btnExportExcel.addEventListener('click', exportExcel);
@@ -1627,7 +1685,7 @@
       });
 
       window.addEventListener('storage', event => {
-        if([...SOURCE_KEYS, STORAGE_KEY].includes(event.key)){
+        if([...SOURCE_KEYS, STORAGE_KEY, ...LEGACY_KEYS].includes(event.key)){
           renderAll();
         }
       });
