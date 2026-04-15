@@ -1322,6 +1322,7 @@
     │   ├── affiliate-magazin.html
     │   ├── album-liquiditybooster.html
     │   ├── botschafter-sein.html
+    │   ├── club-marktplatz.html
     │   ├── community.html
     │   ├── das-was-war-ist-jetzt-vorbei.html
     │   ├── der-naechste-schritt.html
@@ -1406,4 +1407,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.04.2026, 15:01)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.04.2026, 16:56)_
