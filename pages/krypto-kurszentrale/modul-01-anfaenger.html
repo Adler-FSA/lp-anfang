@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Krypto-Kurszentrale – Modul 01 Anfänger</title>
-  <meta name="description" content="Modul 01 Anfänger der Krypto-Kurszentrale: CSV laden, Originaldaten verstehen, erste Auswertung erzeugen und einfache Quellen geordnet sichern." />
+  <meta name="description" content="Modul 01 Anfänger der Krypto-Kurszentrale: mehrere CSV-Dateien laden, Originaldaten verstehen, erste Auswertung erzeugen, Quellen gezielt auswählen und archivieren." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -22,9 +22,10 @@
       --magenta-dark:#d93a96;
       --warn:#b45309;
       --danger:#b91c1c;
+      --danger-soft:#fff5f5;
       --shadow:0 18px 50px rgba(16,24,40,.08);
       --radius:22px;
-      --max:1460px;
+      --max:1480px;
     }
 
     *{box-sizing:border-box}
@@ -107,13 +108,13 @@
 
     h1,h2,h3{margin:0 0 10px}
     h1{
-      font-size:clamp(30px,4.8vw,48px);
+      font-size:clamp(30px,4.8vw,50px);
       line-height:1.04;
       letter-spacing:-.02em;
-      max-width:980px;
+      max-width:1000px;
     }
     h2{
-      font-size:clamp(22px,3vw,30px);
+      font-size:clamp(22px,3vw,31px);
       letter-spacing:-.02em;
     }
     h3{
@@ -122,7 +123,7 @@
     }
 
     .sub{
-      max-width:1020px;
+      max-width:1080px;
       margin:0;
       color:var(--muted);
       font-size:17px;
@@ -173,13 +174,12 @@
     }
 
     .btn-danger{
-      background:#fff5f5;
+      background:var(--danger-soft);
       color:var(--danger);
       border:1px solid #fecaca;
     }
 
     .section{margin-top:18px}
-
     .panel{
       background:var(--panel);
       border:1px solid var(--line);
@@ -190,7 +190,7 @@
     .panel.soft{background:var(--panel-soft)}
 
     .grid{display:grid;gap:18px}
-    .grid-2{grid-template-columns:1.04fr .96fr}
+    .grid-2{grid-template-columns:1.03fr .97fr}
     .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
     .grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
 
@@ -205,7 +205,8 @@
     .stat,
     .step-card,
     .source-card,
-    .archive-card{
+    .archive-card,
+    .preview-card{
       background:#fff;
       border:1px solid var(--line);
       border-radius:18px;
@@ -273,6 +274,12 @@
       background:#fff8e8;
       border-color:#fcd34d;
       color:#92400e;
+    }
+
+    .chip.active{
+      background:rgba(18,199,163,.12);
+      border-color:rgba(18,199,163,.24);
+      color:var(--mint-dark);
     }
 
     .note{
@@ -363,6 +370,12 @@
       box-shadow:0 0 0 4px rgba(18,199,163,.12);
     }
 
+    input[type="checkbox"]{
+      width:18px;
+      height:18px;
+      accent-color:var(--mint-dark);
+    }
+
     .span-12{grid-column:span 12}
     .span-8{grid-column:span 8}
     .span-6{grid-column:span 6}
@@ -380,7 +393,7 @@
     table{
       width:100%;
       border-collapse:collapse;
-      min-width:980px;
+      min-width:1100px;
     }
 
     th,td{
@@ -410,12 +423,21 @@
       background:#fcfffe;
     }
 
-    .preview-shell{
-      border:1px solid var(--line);
-      border-radius:18px;
-      background:#fff;
-      padding:16px;
-      margin-top:14px;
+    .source-head,
+    .archive-head{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+    }
+
+    .source-select-line{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      font-weight:700;
+      margin-bottom:10px;
     }
 
     .source-actions,
@@ -442,7 +464,7 @@
     @media print{
       body{background:#fff;color:#000}
       .wrap{width:100%;max-width:none;padding:0}
-      .hero,.panel,.card,.stat,.step-card,.source-card,.archive-card,.table-wrap,.preview-shell{
+      .hero,.panel,.card,.stat,.step-card,.source-card,.archive-card,.preview-card,.table-wrap{
         box-shadow:none !important;
         border-color:#cfd8dc !important;
         break-inside:avoid;
@@ -464,13 +486,15 @@
       <h1>Rohdaten verstehen und erste Auswertung aufbauen</h1>
       <p class="sub">
         Dieses Modul ist für den ruhigen Einstieg gedacht. Hier wird zuerst die Original-CSV sichtbar gemacht, damit der Nutzer wirklich sieht,
-        welche Daten vorhanden sind. Erst danach wird eine erste einfache Arbeits- und Auswertungsansicht aufgebaut.
+        welche Daten vorhanden sind. Danach entsteht eine erste ruhige Arbeitsansicht. Mehrere CSV-Dateien und viele Quellen sind möglich,
+        aber die aktuelle Vorschau zeigt immer nur die Quellen, die gezielt ausgewählt wurden.
       </p>
 
       <div class="chips">
-        <span class="chip mint">Original-CSV zuerst</span>
-        <span class="chip">erste Auswertung</span>
-        <span class="chip">einfache Quellenliste</span>
+        <span class="chip mint">Mehrfach-Aufnahme</span>
+        <span class="chip">Original-CSV zuerst</span>
+        <span class="chip">Auto-Erkennung</span>
+        <span class="chip">gezielte Auswahl</span>
         <span class="chip">Archiv</span>
         <span class="chip magenta">Arbeitsbereich separat zurücksetzen</span>
       </div>
@@ -489,7 +513,7 @@
         <div class="step-card">
           <div class="step-num">1</div>
           <strong>CSV laden</strong>
-          <div class="muted small">Datei hochladen oder CSV-Inhalt einfügen.</div>
+          <div class="muted small">Eine oder mehrere CSV-Dateien laden oder CSV-Inhalt einfügen.</div>
         </div>
         <div class="step-card">
           <div class="step-num">2</div>
@@ -504,13 +528,13 @@
         <div class="step-card">
           <div class="step-num">4</div>
           <strong>Sichern und später weiterarbeiten</strong>
-          <div class="muted small">Quelle speichern, Archivlauf anlegen und sauber wieder aufrufen.</div>
+          <div class="muted small">Quellen speichern, gezielt auswählen, Archivlauf anlegen und sauber wieder aufrufen.</div>
         </div>
       </div>
     </section>
 
     <section class="section panel" id="startSection">
-      <h2>CSV laden</h2>
+      <h2>CSV laden und automatisch vorbelegen</h2>
       <form id="csvForm" class="form-grid" autocomplete="off">
         <div class="field span-4">
           <label for="caseName">Bezeichnung</label>
@@ -554,8 +578,9 @@
         </div>
 
         <div class="field span-12">
-          <label for="csvFile">CSV-Datei laden</label>
-          <input id="csvFile" type="file" accept=".csv,text/csv" />
+          <label for="csvFiles">CSV-Dateien laden</label>
+          <input id="csvFiles" type="file" accept=".csv,text/csv" multiple />
+          <div class="small muted">Du kannst mehrere CSV-Dateien auf einmal laden. Jede Datei wird als eigene Quelle vorbereitet.</div>
         </div>
 
         <div class="field span-12">
@@ -576,7 +601,7 @@
         <div class="stat">
           <div class="num" id="statRows">0</div>
           <div><strong>Zeilen</strong></div>
-          <div class="small muted">in der aktuell geladenen CSV</div>
+          <div class="small muted">in der geöffneten Quelle</div>
         </div>
         <div class="stat">
           <div class="num" id="statColumns">0</div>
@@ -596,29 +621,29 @@
       </div>
 
       <div class="chips" id="statusChips"></div>
-      <div class="warnbox" id="statusNote">
+      <div id="statusNote" class="warnbox">
         Noch keine CSV geladen. Erst nach dem Laden wird sichtbar, welche Daten vorhanden sind und welche Lücken es geben könnte.
       </div>
     </section>
 
     <section class="section panel">
-      <h2>Original-CSV Vorschau</h2>
-      <div id="rawEmpty" class="empty">Noch keine CSV geladen.</div>
+      <h2>Original-CSV Vorschau der geöffneten Quelle</h2>
+      <div id="rawEmpty" class="empty">Noch keine Quelle geöffnet.</div>
 
       <div id="rawBox" class="hidden">
-        <div class="preview-shell">
+        <div class="preview-card">
           <h3 id="rawTitle">Originaldaten</h3>
           <div class="muted small" id="rawMeta">–</div>
 
           <div class="chips" id="columnChips"></div>
 
           <div class="okbox" id="rawInsightBox">
-            Hier siehst du zuerst den echten Inhalt deiner CSV. Das ist wichtig, weil viele Dateien keine direkten Gewinn- oder Verlust-Spalten enthalten.
+            Hier siehst du zuerst den echten Inhalt der geöffneten CSV. Das ist wichtig, weil viele Dateien keine direkten Gewinn- oder Verlust-Spalten enthalten.
           </div>
 
           <div class="toolbar no-print">
             <button class="btn btn-secondary" type="button" id="btnAnalyze">Jetzt auswerten</button>
-            <button class="btn btn-ghost" type="button" id="btnSaveSource" disabled>Quelle speichern</button>
+            <button class="btn btn-ghost" type="button" id="btnSaveCurrent" disabled>Geöffnete Quelle aktualisieren</button>
           </div>
 
           <div class="table-wrap">
@@ -632,15 +657,15 @@
     </section>
 
     <section class="section panel soft">
-      <h2>Einfache Auswertung</h2>
-      <div id="analysisEmpty" class="empty">Noch keine Auswertung vorhanden. Klicke nach der Rohdaten-Vorschau auf „Jetzt auswerten“.</div>
+      <h2>Einfache Auswertung der ausgewählten Quellen</h2>
+      <div id="analysisEmpty" class="empty">Noch keine Auswertung vorhanden. Öffne eine Quelle und klicke auf „Jetzt auswerten“ oder wähle mehrere bereits ausgewertete Quellen aus.</div>
 
       <div id="analysisBox" class="hidden">
         <div class="grid grid-4">
           <div class="stat">
             <div class="num" id="evalTransactions">0</div>
             <div><strong>Vorgänge</strong></div>
-            <div class="small muted">erkannte Zeilen</div>
+            <div class="small muted">ausgewählte Zeilen</div>
           </div>
           <div class="stat">
             <div class="num" id="evalAssets">0</div>
@@ -674,15 +699,17 @@
           </div>
         </div>
 
-        <div class="preview-shell">
+        <div class="preview-card">
           <h3>Einfache Arbeitsliste</h3>
-          <div class="muted small">Hier wird aus den Originaldaten eine erste ruhige Arbeitsansicht erzeugt.</div>
+          <div class="muted small">Hier wird aus den ausgewählten Originaldaten eine erste ruhige Arbeitsansicht erzeugt.</div>
+          <div class="chips" id="combinedInfoChips"></div>
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
                   <th>#</th>
                   <th>Datum</th>
+                  <th>Quelle</th>
                   <th>Beschreibung / Typ</th>
                   <th>Asset</th>
                   <th>Menge</th>
@@ -713,6 +740,7 @@
       <h2>Archiv</h2>
       <p class="muted">
         Sichere hier Arbeitsstände aus Modul 01. Das Archiv bleibt erhalten, auch wenn der aktuelle Arbeitsbereich zurückgesetzt wird.
+        Ein Archivstand kann später geladen und daraus wieder gezielt manuell zusammengestellt werden.
       </p>
 
       <form id="archiveForm" class="form-grid" autocomplete="off">
@@ -750,10 +778,19 @@
 
   <script>
     (() => {
-      const STORAGE_KEY = 'krypto_kurszentrale_modul_01_anfaenger_v1';
+      const STORAGE_KEY = 'krypto_kurszentrale_modul_01_anfaenger_v2';
+
+      const FIELD_GROUPS = {
+        date: ['timestamp','timestamp (utc)','datetime','datetime (utc)','date','datum','created at','time','zeit'],
+        description: ['transaction description','description','type','kind','transaction kind','method','side','direction','status'],
+        asset: ['currency','asset','coin','token','to currency','native currency','symbol'],
+        amount: ['amount','qty','quantity','to amount','native amount','token amount'],
+        value: ['native amount (in usd)','value (usd)','usd value','eur value','value','gegenwert','native amount'],
+        fee: ['fee','fees','txn fee','gas fee','network fee','commission','gebühr'],
+        txid: ['transaction hash','txid','txhash','hash','transaction id','signature']
+      };
 
       const state = loadState();
-      let currentImport = null;
 
       const els = {
         btnScrollStart: document.getElementById('btnScrollStart'),
@@ -767,7 +804,7 @@
         provider: document.getElementById('provider'),
         walletRef: document.getElementById('walletRef'),
         year: document.getElementById('year'),
-        csvFile: document.getElementById('csvFile'),
+        csvFiles: document.getElementById('csvFiles'),
         csvPaste: document.getElementById('csvPaste'),
 
         statRows: document.getElementById('statRows'),
@@ -784,7 +821,7 @@
         columnChips: document.getElementById('columnChips'),
         rawInsightBox: document.getElementById('rawInsightBox'),
         btnAnalyze: document.getElementById('btnAnalyze'),
-        btnSaveSource: document.getElementById('btnSaveSource'),
+        btnSaveCurrent: document.getElementById('btnSaveCurrent'),
         rawHead: document.getElementById('rawHead'),
         rawBody: document.getElementById('rawBody'),
 
@@ -798,6 +835,7 @@
         knownList: document.getElementById('knownList'),
         missingList: document.getElementById('missingList'),
         analysisBody: document.getElementById('analysisBody'),
+        combinedInfoChips: document.getElementById('combinedInfoChips'),
 
         btnDeselectAll: document.getElementById('btnDeselectAll'),
         btnSelectAll: document.getElementById('btnSelectAll'),
@@ -814,30 +852,31 @@
         archiveList: document.getElementById('archiveList')
       };
 
-      const FIELD_GROUPS = {
-        date: ['timestamp','timestamp (utc)','datetime','datetime (utc)','date','datum','created at','time'],
-        description: ['transaction description','description','type','kind','transaction kind','method','side','direction'],
-        asset: ['currency','asset','coin','token','to currency','native currency'],
-        amount: ['amount','qty','quantity','to amount','native amount','token amount'],
-        value: ['native amount (in usd)','value (usd)','usd value','eur value','value','gegenwert'],
-        fee: ['fee','fees','txn fee','gas fee','network fee','commission'],
-        txid: ['transaction hash','txid','txhash','hash','transaction id','signature']
-      };
-
       function loadState(){
         try{
           const raw = localStorage.getItem(STORAGE_KEY);
           if(!raw){
-            return { sources: [], archives: [], current: null };
+            return {
+              sources: [],
+              archives: [],
+              currentSourceId: '',
+              draftMeta: {}
+            };
           }
           const parsed = JSON.parse(raw);
           return {
             sources: Array.isArray(parsed.sources) ? parsed.sources : [],
             archives: Array.isArray(parsed.archives) ? parsed.archives : [],
-            current: parsed.current && typeof parsed.current === 'object' ? parsed.current : null
+            currentSourceId: typeof parsed.currentSourceId === 'string' ? parsed.currentSourceId : '',
+            draftMeta: parsed.draftMeta && typeof parsed.draftMeta === 'object' ? parsed.draftMeta : {}
           };
         }catch{
-          return { sources: [], archives: [], current: null };
+          return {
+            sources: [],
+            archives: [],
+            currentSourceId: '',
+            draftMeta: {}
+          };
         }
       }
 
@@ -868,6 +907,7 @@
         let value = '';
         let i = 0;
         let inQuotes = false;
+        let delimiter = '';
 
         while(i < text.length){
           const char = text[i];
@@ -884,7 +924,11 @@
             continue;
           }
 
-          if(!inQuotes && (char === ';' || char === ',')){
+          if(!inQuotes && !delimiter && (char === ';' || char === ',')){
+            delimiter = char;
+          }
+
+          if(!inQuotes && delimiter && char === delimiter){
             row.push(value);
             value = '';
             i += 1;
@@ -912,11 +956,11 @@
           rows.push(row);
         }
 
-        const headers = (rows.shift() || []).map(item => normalize(item));
+        const headers = (rows.shift() || []).map((item, index) => normalize(item) || ('Spalte ' + (index + 1)));
         const objects = rows.map(line => {
           const obj = {};
           headers.forEach((header, index) => {
-            obj[header || ('Spalte ' + (index + 1))] = normalize(line[index] ?? '');
+            obj[header] = normalize(line[index] ?? '');
           });
           return obj;
         });
@@ -926,10 +970,10 @@
 
       function findField(headers, group){
         const lowerHeaders = headers.map(header => normalize(header).toLowerCase());
-        const patterns = FIELD_GROUPS[group];
+        const patterns = FIELD_GROUPS[group] || [];
         for(const pattern of patterns){
-          const index = lowerHeaders.indexOf(pattern);
-          if(index >= 0) return headers[index];
+          const exact = lowerHeaders.indexOf(pattern);
+          if(exact >= 0) return headers[exact];
         }
         for(let i = 0; i < lowerHeaders.length; i++){
           if(patterns.some(pattern => lowerHeaders[i].includes(pattern))){
@@ -946,7 +990,6 @@
           .replace(/\.(?=\d{3}(?:\D|$))/g,'')
           .replace(',', '.')
           .trim();
-
         const num = Number(cleaned);
         return Number.isFinite(num) ? num : 0;
       }
@@ -955,25 +998,88 @@
         return Number(value || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       }
 
-      function guessProfile(importData){
-        const headersLower = importData.headers.map(header => header.toLowerCase());
-        const hasDescription = headersLower.some(item => item.includes('transaction description'));
-        const hasNativeUsd = headersLower.some(item => item.includes('native amount (in usd)'));
-        const hasHash = headersLower.some(item => item.includes('transaction hash') || item.includes('hash'));
+      function formatDate(dateStr){
+        const date = new Date(dateStr);
+        if(Number.isNaN(date.getTime())) return '';
+        return String(date.getFullYear());
+      }
 
-        if(hasDescription && hasNativeUsd){
-          return 'CSV mit Transaktionsbeschreibung und Gegenwerten erkannt';
+      function getField(headers, row, group){
+        const field = findField(headers, group);
+        return field ? normalize(row[field]) : '';
+      }
+
+      function guessProvider(fileName, headers){
+        const text = (fileName + ' ' + headers.join(' ')).toLowerCase();
+        if(text.includes('crypto.com') || text.includes('transaction description') || text.includes('native amount (in usd)')) return 'Crypto.com';
+        if(text.includes('binance')) return 'Binance';
+        if(text.includes('coinbase')) return 'Coinbase';
+        if(text.includes('kraken')) return 'Kraken';
+        if(text.includes('bitpanda')) return 'Bitpanda';
+        if(text.includes('etherscan')) return 'Etherscan';
+        if(text.includes('bscscan')) return 'BscScan';
+        if(text.includes('solscan')) return 'Solscan';
+        if(text.includes('blockchair')) return 'Blockchair';
+        return '';
+      }
+
+      function guessNetwork(fileName, headers, rows){
+        const text = (fileName + ' ' + headers.join(' ') + ' ' + rows.slice(0,3).map(row => Object.values(row).join(' ')).join(' ')).toLowerCase();
+        if(text.includes('ethereum') || text.includes('eth')) return 'Ethereum';
+        if(text.includes('bnb') || text.includes('bsc')) return 'BNB Chain';
+        if(text.includes('solana') || text.includes('sol')) return 'Solana';
+        if(text.includes('bitcoin') || text.includes('btc')) return 'Bitcoin';
+        if(text.includes('arbitrum')) return 'Arbitrum';
+        if(text.includes('base')) return 'Base';
+        if(text.includes('polygon') || text.includes('matic')) return 'Polygon';
+        if(text.includes('optimism') || text.includes('op ')) return 'Optimism';
+        return '';
+      }
+
+      function guessYear(headers, rows){
+        const field = findField(headers, 'date');
+        if(!field) return '';
+        for(const row of rows.slice(0,10)){
+          const value = normalize(row[field]);
+          const yearMatch = value.match(/(20\d{2})/);
+          if(yearMatch) return yearMatch[1];
         }
-        if(hasHash){
+        return '';
+      }
+
+      function guessProfile(fileName, headers){
+        const text = (fileName + ' ' + headers.join(' ')).toLowerCase();
+        if(text.includes('transaction description') && text.includes('native amount (in usd)')){
+          return 'Börsen-CSV mit Transaktionsbeschreibung und Gegenwerten erkannt';
+        }
+        if(text.includes('transaction hash') || text.includes('txid') || text.includes('hash')){
           return 'CSV mit Hash-/Transaktionsbezug erkannt';
+        }
+        if(text.includes('token') || text.includes('transfer')){
+          return 'CSV mit Token-/Transferbezug erkannt';
         }
         return 'CSV-Struktur erkannt – zuerst Originaldaten prüfen';
       }
 
-      function buildAnalysis(importData){
-        const headers = importData.headers;
-        const rows = importData.rows;
+      function buildMetaFromDetection(fileName, headers, rows){
+        const provider = guessProvider(fileName, headers);
+        const network = guessNetwork(fileName, headers, rows);
+        const year = guessYear(headers, rows);
+        const profile = guessProfile(fileName, headers);
+        const caseName = provider && year ? (provider + ' – ' + year) : (provider || fileName.replace(/\.csv$/i,'') || 'CSV-Datei');
 
+        return {
+          caseName,
+          network,
+          networkCustom: '',
+          provider,
+          walletRef: '',
+          year,
+          profile
+        };
+      }
+
+      function buildAnalysis(headers, rows){
         const fields = {
           date: findField(headers, 'date'),
           description: findField(headers, 'description'),
@@ -987,15 +1093,14 @@
         const assets = new Set();
         let feeSum = 0;
         let checkRows = 0;
-
         const simpleRows = rows.map((row, index) => {
-          const date = row[fields.date] || '';
-          const description = row[fields.description] || '';
-          const asset = row[fields.asset] || '';
-          const amount = row[fields.amount] || '';
-          const value = row[fields.value] || '';
-          const fee = row[fields.fee] || '';
-          const txid = row[fields.txid] || '';
+          const date = fields.date ? normalize(row[fields.date]) : '';
+          const description = fields.description ? normalize(row[fields.description]) : '';
+          const asset = fields.asset ? normalize(row[fields.asset]) : '';
+          const amount = fields.amount ? normalize(row[fields.amount]) : '';
+          const value = fields.value ? normalize(row[fields.value]) : '';
+          const fee = fields.fee ? normalize(row[fields.fee]) : '';
+          const txid = fields.txid ? normalize(row[fields.txid]) : '';
 
           if(asset) assets.add(asset);
           if(fee) feeSum += toNumber(fee);
@@ -1039,27 +1144,48 @@
 
         return {
           fields,
-          simpleRows,
           assets: assets.size,
           feeSum,
           checkRows,
+          simpleRows,
           known,
           missing
         };
       }
 
-      function fillFormFromStateCurrent(){
-        if(!state.current || !state.current.meta) return;
-        const meta = state.current.meta;
-        els.caseName.value = meta.caseName || '';
-        els.network.value = meta.network === 'Eigene Eingabe' ? 'Eigene Eingabe' : (meta.network || '');
-        els.networkCustom.value = meta.networkCustom || '';
-        els.provider.value = meta.provider || '';
-        els.walletRef.value = meta.walletRef || '';
-        els.year.value = meta.year || '';
+      function createSourceFromParsed(fileName, parsed, overrides = {}){
+        const detected = buildMetaFromDetection(fileName, parsed.headers, parsed.rows);
+        const meta = {
+          caseName: overrides.caseName || detected.caseName,
+          network: overrides.network || detected.network,
+          networkCustom: overrides.networkCustom || detected.networkCustom,
+          provider: overrides.provider || detected.provider,
+          walletRef: overrides.walletRef || detected.walletRef,
+          year: overrides.year || detected.year,
+          profile: detected.profile
+        };
+
+        return {
+          id: uid('source'),
+          fileName: fileName || 'Direkteingabe.csv',
+          headers: parsed.headers,
+          rows: parsed.rows,
+          meta,
+          analysis: null,
+          selected: true,
+          createdAt: new Date().toISOString()
+        };
       }
 
-      function readInputMeta(){
+      function currentSource(){
+        return state.sources.find(source => source.id === state.currentSourceId) || null;
+      }
+
+      function selectedSources(){
+        return state.sources.filter(source => source.selected);
+      }
+
+      function readFormMeta(){
         return {
           caseName: normalize(els.caseName.value),
           network: normalize(els.network.value),
@@ -1070,88 +1196,242 @@
         };
       }
 
+      function writeFormMeta(meta){
+        els.caseName.value = meta.caseName || '';
+        els.network.value = meta.network || '';
+        els.networkCustom.value = meta.networkCustom || '';
+        els.provider.value = meta.provider || '';
+        els.walletRef.value = meta.walletRef || '';
+        els.year.value = meta.year || '';
+      }
+
+      function applyCurrentToForm(){
+        const source = currentSource();
+        if(source){
+          writeFormMeta(source.meta);
+        }
+      }
+
+      function resetFormOnly(){
+        els.csvForm.reset();
+      }
+
+      function readFilesAsText(files){
+        return Promise.all(Array.from(files).map(file => new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve({ fileName: file.name, text: String(reader.result || '') });
+          reader.onerror = reject;
+          reader.readAsText(file, 'utf-8');
+        })));
+      }
+
+      function loadCsvEntries(entries, baseMeta){
+        const newSources = entries.map(entry => {
+          const parsed = parseCsv(entry.text);
+          return createSourceFromParsed(entry.fileName, parsed, baseMeta);
+        });
+
+        if(!newSources.length) return;
+
+        state.sources.unshift(...newSources);
+        state.currentSourceId = newSources[0].id;
+        saveState();
+        applyCurrentToForm();
+        renderAll();
+      }
+
+      function openSource(id){
+        state.currentSourceId = id;
+        saveState();
+        applyCurrentToForm();
+        renderAll();
+      }
+
+      function toggleSource(id){
+        const source = state.sources.find(item => item.id === id);
+        if(!source) return;
+        source.selected = !source.selected;
+        saveState();
+        renderAll();
+      }
+
+      function deleteSource(id){
+        if(!confirm('Diese Quelle wirklich löschen?')) return;
+        state.sources = state.sources.filter(item => item.id !== id);
+        if(state.currentSourceId === id){
+          state.currentSourceId = state.sources[0]?.id || '';
+        }
+        saveState();
+        applyCurrentToForm();
+        renderAll();
+      }
+
+      function analyzeCurrentSource(){
+        const source = currentSource();
+        if(!source) return;
+        source.analysis = buildAnalysis(source.headers, source.rows);
+        source.meta = { ...source.meta, ...readFormMeta() };
+        saveState();
+        renderAll();
+      }
+
+      function updateCurrentSourceMeta(){
+        const source = currentSource();
+        if(!source) return;
+        source.meta = { ...source.meta, ...readFormMeta() };
+        saveState();
+        renderAll();
+      }
+
+      function buildCombinedAnalysis(){
+        const selected = selectedSources();
+        const analyzed = selected.filter(source => source.analysis);
+
+        if(!analyzed.length){
+          return null;
+        }
+
+        const allRows = [];
+        const fieldsSet = new Set();
+        const known = new Set();
+        const missing = new Set();
+        const assets = new Set();
+        let feeSum = 0;
+        let checks = 0;
+
+        analyzed.forEach(source => {
+          Object.values(source.analysis.fields).forEach(value => {
+            if(value) fieldsSet.add(value);
+          });
+          source.analysis.known.forEach(item => known.add(item));
+          source.analysis.missing.forEach(item => missing.add(item));
+          feeSum += source.analysis.feeSum;
+          checks += source.analysis.checkRows;
+
+          source.analysis.simpleRows.forEach(row => {
+            if(row.asset) assets.add(row.asset);
+            allRows.push({
+              sourceName: source.meta.caseName || source.fileName,
+              ...row
+            });
+          });
+        });
+
+        return {
+          selectedCount: selected.length,
+          analyzedCount: analyzed.length,
+          transactions: allRows.length,
+          assets: assets.size,
+          feeSum,
+          checks,
+          fieldNames: Array.from(fieldsSet),
+          known: Array.from(known),
+          missing: Array.from(missing),
+          rows: allRows
+        };
+      }
+
       function renderStatus(){
-        els.statRows.textContent = String(currentImport?.rows?.length || state.current?.rows?.length || 0);
-        els.statColumns.textContent = String(currentImport?.headers?.length || state.current?.headers?.length || 0);
+        const current = currentSource();
+        const combined = buildCombinedAnalysis();
+        const rows = current ? current.rows.length : 0;
+        const columns = current ? current.headers.length : 0;
+
+        els.statRows.textContent = String(rows);
+        els.statColumns.textContent = String(columns);
         els.statSources.textContent = String(state.sources.length);
         els.statArchives.textContent = String(state.archives.length);
 
         const chips = [];
-        if(currentImport?.headers?.length){
-          chips.push('<span class="chip mint">CSV aktuell geladen</span>');
+        if(current){
+          chips.push('<span class="chip mint">Quelle geöffnet</span>');
         }
         if(state.sources.length){
-          chips.push('<span class="chip">' + state.sources.length + ' gespeicherte Quellen</span>');
+          chips.push('<span class="chip">' + state.sources.length + ' Quellen gespeichert</span>');
         }
-        if(state.archives.length){
-          chips.push('<span class="chip magenta">' + state.archives.length + ' Archivstände</span>');
+        if(selectedSources().length){
+          chips.push('<span class="chip active">' + selectedSources().length + ' Quellen ausgewählt</span>');
         }
-        if(currentImport?.analysis){
-          chips.push('<span class="chip warn">erste Auswertung vorhanden</span>');
+        if(combined){
+          chips.push('<span class="chip warn">' + combined.analyzedCount + ' Quellen ausgewertet</span>');
+        }
+        els.statusChips.innerHTML = chips.join('');
+
+        if(!current){
+          els.statusNote.className = 'warnbox';
+          els.statusNote.textContent = 'Noch keine CSV geladen. Erst nach dem Laden wird sichtbar, welche Daten vorhanden sind und welche Lücken es geben könnte.';
+          return;
         }
 
-        els.statusChips.innerHTML = chips.join('');
+        if(current && !current.analysis){
+          els.statusNote.className = 'okbox';
+          els.statusNote.textContent = 'Die Quelle ist geladen und geöffnet. Jetzt siehst du die Originaldaten. Der nächste Schritt ist die erste Auswertung.';
+          return;
+        }
+
+        els.statusNote.className = 'okbox';
+        els.statusNote.textContent = 'Die geöffnete Quelle wurde bereits ausgewertet. Unten siehst du zusätzlich die kombinierte Anfänger-Auswertung aller aktuell ausgewählten und bereits ausgewerteten Quellen.';
       }
 
-      function renderRaw(importData){
-        if(!importData){
+      function renderRaw(){
+        const source = currentSource();
+        if(!source){
           els.rawEmpty.classList.remove('hidden');
           els.rawBox.classList.add('hidden');
-          els.btnSaveSource.disabled = true;
+          els.btnSaveCurrent.disabled = true;
           return;
         }
 
         els.rawEmpty.classList.add('hidden');
         els.rawBox.classList.remove('hidden');
 
-        const profile = guessProfile(importData);
-        els.rawTitle.textContent = importData.meta.caseName || 'Original-CSV Vorschau';
-        els.rawMeta.textContent = `${importData.rows.length} Zeilen · ${importData.headers.length} Spalten`;
-        els.rawInsightBox.textContent = profile;
+        els.rawTitle.textContent = source.meta.caseName || source.fileName || 'Originaldaten';
+        els.rawMeta.textContent = `${source.rows.length} Zeilen · ${source.headers.length} Spalten · ${escapeHtml(source.fileName)}`;
+        els.rawInsightBox.textContent = source.meta.profile || 'CSV-Struktur erkannt – zuerst Originaldaten prüfen.';
+        els.btnSaveCurrent.disabled = false;
 
-        els.columnChips.innerHTML = importData.headers.map(header => `<span class="chip">${escapeHtml(header)}</span>`).join('');
+        els.columnChips.innerHTML = source.headers.map(header => `<span class="chip">${escapeHtml(header)}</span>`).join('');
 
-        els.rawHead.innerHTML = '<tr>' + importData.headers.map(header => `<th>${escapeHtml(header)}</th>`).join('') + '</tr>';
+        els.rawHead.innerHTML = '<tr>' + source.headers.map(header => `<th>${escapeHtml(header)}</th>`).join('') + '</tr>';
 
-        const previewRows = importData.rows.slice(0, 25);
+        const previewRows = source.rows.slice(0, 25);
         els.rawBody.innerHTML = previewRows.map(row => `
-          <tr>${importData.headers.map(header => `<td>${escapeHtml(row[header] || '')}</td>`).join('')}</tr>
+          <tr>${source.headers.map(header => `<td>${escapeHtml(row[header] || '')}</td>`).join('')}</tr>
         `).join('');
-
-        els.btnSaveSource.disabled = !importData.analysis;
       }
 
-      function renderAnalysis(importData){
-        if(!importData || !importData.analysis){
+      function renderCombinedAnalysis(){
+        const combined = buildCombinedAnalysis();
+
+        if(!combined){
           els.analysisEmpty.classList.remove('hidden');
           els.analysisBox.classList.add('hidden');
           return;
         }
 
-        const analysis = importData.analysis;
         els.analysisEmpty.classList.add('hidden');
         els.analysisBox.classList.remove('hidden');
 
-        els.evalTransactions.textContent = String(analysis.simpleRows.length);
-        els.evalAssets.textContent = String(analysis.assets);
-        els.evalFees.textContent = formatNumber(analysis.feeSum);
-        els.evalChecks.textContent = String(analysis.checkRows);
+        els.evalTransactions.textContent = String(combined.transactions);
+        els.evalAssets.textContent = String(combined.assets);
+        els.evalFees.textContent = formatNumber(combined.feeSum);
+        els.evalChecks.textContent = String(combined.checks);
 
-        const chips = [];
-        Object.entries(analysis.fields).forEach(([key, value]) => {
-          if(value){
-            chips.push(`<span class="chip mint">${escapeHtml(key)}: ${escapeHtml(value)}</span>`);
-          }
-        });
-        els.evalChips.innerHTML = chips.join('');
+        els.evalChips.innerHTML = combined.fieldNames.map(field => `<span class="chip mint">${escapeHtml(field)}</span>`).join('');
+        els.knownList.innerHTML = combined.known.map(item => `<li>${escapeHtml(item)}</li>`).join('');
+        els.missingList.innerHTML = combined.missing.map(item => `<li>${escapeHtml(item)}</li>`).join('');
 
-        els.knownList.innerHTML = analysis.known.map(item => `<li>${escapeHtml(item)}</li>`).join('');
-        els.missingList.innerHTML = analysis.missing.map(item => `<li>${escapeHtml(item)}</li>`).join('');
+        els.combinedInfoChips.innerHTML = `
+          <span class="chip mint">${combined.selectedCount} Quellen ausgewählt</span>
+          <span class="chip">${combined.analyzedCount} Quellen bereits ausgewertet</span>
+          <span class="chip warn">${combined.transactions} Zeilen in der aktuellen Anfänger-Vorschau</span>
+        `;
 
-        els.analysisBody.innerHTML = analysis.simpleRows.slice(0, 50).map(row => `
+        els.analysisBody.innerHTML = combined.rows.slice(0, 120).map((row, idx) => `
           <tr>
-            <td>${row.index}</td>
+            <td>${idx + 1}</td>
             <td>${escapeHtml(row.date)}</td>
+            <td>${escapeHtml(row.sourceName)}</td>
             <td>${escapeHtml(row.description)}</td>
             <td>${escapeHtml(row.asset)}</td>
             <td>${escapeHtml(row.amount)}</td>
@@ -1170,25 +1450,46 @@
         }
 
         els.sourcesEmpty.classList.add('hidden');
-        els.sourcesList.innerHTML = state.sources.map(source => `
-          <div class="source-card">
-            <strong>${escapeHtml(source.meta.caseName || 'Ohne Bezeichnung')}</strong>
-            <div class="chips">
-              <span class="chip mint">${escapeHtml(source.meta.provider || 'Quelle')}</span>
-              ${(source.meta.network || source.meta.networkCustom) ? `<span class="chip">${escapeHtml(source.meta.network === 'Eigene Eingabe' ? source.meta.networkCustom : source.meta.network)}</span>` : ''}
-              ${source.meta.year ? `<span class="chip">${escapeHtml(source.meta.year)}</span>` : ''}
-              ${source.selected ? `<span class="chip magenta">ausgewählt</span>` : ''}
+        els.sourcesList.innerHTML = state.sources.map(source => {
+          const active = state.currentSourceId === source.id;
+          const networkLabel = source.meta.network === 'Eigene Eingabe' ? source.meta.networkCustom : source.meta.network;
+          return `
+            <div class="source-card">
+              <label class="source-select-line">
+                <input type="checkbox" data-source-action="select" data-id="${source.id}" ${source.selected ? 'checked' : ''}>
+                <span>Diese Quelle in die Anfänger-Vorschau übernehmen</span>
+              </label>
+
+              <div class="source-head">
+                <div>
+                  <strong>${escapeHtml(source.meta.caseName || source.fileName)}</strong>
+                  <div class="chips">
+                    ${source.meta.provider ? `<span class="chip mint">${escapeHtml(source.meta.provider)}</span>` : '<span class="chip mint">Quelle</span>'}
+                    ${networkLabel ? `<span class="chip">${escapeHtml(networkLabel)}</span>` : ''}
+                    ${source.meta.year ? `<span class="chip">${escapeHtml(source.meta.year)}</span>` : ''}
+                    <span class="chip">${source.rows.length} Zeilen</span>
+                    <span class="chip">${source.headers.length} Spalten</span>
+                    ${source.analysis ? '<span class="chip warn">ausgewertet</span>' : '<span class="chip">noch nicht ausgewertet</span>'}
+                    ${active ? '<span class="chip active">geöffnet</span>' : ''}
+                  </div>
+                </div>
+              </div>
+
+              <div class="small muted" style="margin-top:10px;">
+                Datei: ${escapeHtml(source.fileName)}
+              </div>
+              <div class="small muted">
+                Profil: ${escapeHtml(source.meta.profile || 'CSV-Struktur erkannt')}
+              </div>
+
+              <div class="source-actions no-print">
+                <button class="btn btn-ghost" type="button" data-source-action="open" data-id="${source.id}">Öffnen</button>
+                <button class="btn btn-ghost" type="button" data-source-action="toggle" data-id="${source.id}">${source.selected ? 'Abwählen' : 'Auswählen'}</button>
+                <button class="btn btn-danger" type="button" data-source-action="delete" data-id="${source.id}">Löschen</button>
+              </div>
             </div>
-            <div class="small muted" style="margin-top:10px;">
-              ${source.rows.length} Zeilen · ${source.headers.length} Spalten
-            </div>
-            <div class="source-actions no-print">
-              <button class="btn btn-ghost" type="button" data-source-action="open" data-id="${source.id}">Öffnen</button>
-              <button class="btn btn-ghost" type="button" data-source-action="toggle" data-id="${source.id}">${source.selected ? 'Abwählen' : 'Auswählen'}</button>
-              <button class="btn btn-danger" type="button" data-source-action="delete" data-id="${source.id}">Löschen</button>
-            </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
       }
 
       function renderArchives(){
@@ -1201,67 +1502,25 @@
         els.archiveEmpty.classList.add('hidden');
         els.archiveList.innerHTML = state.archives.map(archive => `
           <div class="archive-card">
-            <strong>${escapeHtml(archive.name)}</strong>
-            <div class="chips">
-              ${archive.year ? `<span class="chip mint">${escapeHtml(archive.year)}</span>` : ''}
-              ${archive.tag ? `<span class="chip">${escapeHtml(archive.tag)}</span>` : ''}
-              <span class="chip">${archive.sources.length} Quellen</span>
+            <div class="archive-head">
+              <div>
+                <strong>${escapeHtml(archive.name)}</strong>
+                <div class="chips">
+                  ${archive.year ? `<span class="chip mint">${escapeHtml(archive.year)}</span>` : ''}
+                  ${archive.tag ? `<span class="chip">${escapeHtml(archive.tag)}</span>` : ''}
+                  <span class="chip">${archive.sources.length} Quellen</span>
+                </div>
+              </div>
             </div>
+
             ${archive.note ? `<div class="small muted" style="margin-top:10px;">${escapeHtml(archive.note)}</div>` : ''}
+
             <div class="archive-actions no-print">
               <button class="btn btn-ghost" type="button" data-archive-action="load" data-id="${archive.id}">Archiv laden</button>
               <button class="btn btn-danger" type="button" data-archive-action="delete" data-id="${archive.id}">Löschen</button>
             </div>
           </div>
         `).join('');
-      }
-
-      function renderAll(){
-        renderStatus();
-        renderRaw(currentImport || state.current);
-        renderAnalysis(currentImport || state.current);
-        renderSources();
-        renderArchives();
-      }
-
-      function resetFormOnly(){
-        els.csvForm.reset();
-      }
-
-      function setCurrentFromSource(source){
-        currentImport = JSON.parse(JSON.stringify(source));
-        state.current = JSON.parse(JSON.stringify(source));
-        saveState();
-        fillFormFromStateCurrent();
-        renderAll();
-      }
-
-      function saveCurrentSource(){
-        if(!currentImport || !currentImport.analysis) return;
-        const source = JSON.parse(JSON.stringify(currentImport));
-        source.id = uid('source');
-        source.selected = true;
-        state.sources.unshift(source);
-        state.current = JSON.parse(JSON.stringify(source));
-        saveState();
-        renderAll();
-      }
-
-      function resetWorkspace(){
-        if(!confirm('Arbeitsbereich wirklich auf null setzen? Das Archiv bleibt erhalten.')) return;
-        state.sources = [];
-        state.current = null;
-        currentImport = null;
-        saveState();
-        els.csvForm.reset();
-        renderAll();
-      }
-
-      function resetArchive(){
-        if(!confirm('Archiv dieses Moduls wirklich komplett löschen?')) return;
-        state.archives = [];
-        saveState();
-        renderAll();
       }
 
       function archiveCurrentState(){
@@ -1277,8 +1536,8 @@
           year: normalize(els.archiveYear.value),
           tag: normalize(els.archiveTag.value),
           note: normalize(els.archiveNote.value),
+          currentSourceId: state.currentSourceId,
           sources: JSON.parse(JSON.stringify(state.sources)),
-          current: state.current ? JSON.parse(JSON.stringify(state.current)) : null,
           createdAt: new Date().toISOString()
         });
 
@@ -1287,53 +1546,47 @@
         renderAll();
       }
 
-      function detectDelimiter(text){
-        const firstLine = (text.split(/\r?\n/).find(line => normalize(line)) || '');
-        const semicolons = (firstLine.match(/;/g) || []).length;
-        const commas = (firstLine.match(/,/g) || []).length;
-        if(semicolons >= commas) return ';';
-        return ',';
+      function loadArchive(id){
+        const archive = state.archives.find(item => item.id === id);
+        if(!archive) return;
+        if(!confirm('Diesen Archivstand laden? Der aktuelle Arbeitsbereich dieses Moduls wird ersetzt.')) return;
+
+        state.sources = JSON.parse(JSON.stringify(archive.sources || []));
+        state.currentSourceId = archive.currentSourceId || state.sources[0]?.id || '';
+        saveState();
+        applyCurrentToForm();
+        renderAll();
       }
 
-      function normalizeCsvText(text){
-        const delimiter = detectDelimiter(text);
-        if(delimiter === ';') return text;
-        return text;
-      }
-
-      function importCsvText(text){
-        const normalizedText = normalizeCsvText(text);
-        const parsed = parseCsv(normalizedText);
-        const meta = readInputMeta();
-
-        currentImport = {
-          id: uid('current'),
-          meta,
-          headers: parsed.headers,
-          rows: parsed.rows,
-          analysis: null,
-          selected: true
-        };
-
-        state.current = JSON.parse(JSON.stringify(currentImport));
+      function deleteArchive(id){
+        if(!confirm('Diesen Archivstand wirklich löschen?')) return;
+        state.archives = state.archives.filter(item => item.id !== id);
         saveState();
         renderAll();
       }
 
-      function analyzeCurrent(){
-        if(!currentImport) return;
-        currentImport.analysis = buildAnalysis(currentImport);
-        state.current = JSON.parse(JSON.stringify(currentImport));
+      function resetWorkspace(){
+        if(!confirm('Arbeitsbereich wirklich auf null setzen? Das Archiv bleibt erhalten.')) return;
+        state.sources = [];
+        state.currentSourceId = '';
+        saveState();
+        els.csvForm.reset();
+        renderAll();
+      }
+
+      function resetArchive(){
+        if(!confirm('Archiv dieses Moduls wirklich komplett löschen?')) return;
+        state.archives = [];
         saveState();
         renderAll();
       }
 
-      function readFile(file){
-        const reader = new FileReader();
-        reader.onload = () => {
-          importCsvText(String(reader.result || ''));
-        };
-        reader.readAsText(file, 'utf-8');
+      function renderAll(){
+        renderStatus();
+        renderRaw();
+        renderCombinedAnalysis();
+        renderSources();
+        renderArchives();
       }
 
       els.btnScrollStart.addEventListener('click', () => {
@@ -1343,27 +1596,8 @@
       els.btnResetWorkspace.addEventListener('click', resetWorkspace);
       els.btnResetForm.addEventListener('click', resetFormOnly);
       els.btnResetArchive.addEventListener('click', resetArchive);
-
-      els.csvForm.addEventListener('submit', event => {
-        event.preventDefault();
-        const pasted = normalize(els.csvPaste.value);
-        const file = els.csvFile.files && els.csvFile.files[0];
-
-        if(file){
-          readFile(file);
-          return;
-        }
-
-        if(pasted){
-          importCsvText(pasted);
-          return;
-        }
-
-        alert('Bitte eine CSV-Datei laden oder CSV-Inhalt einfügen.');
-      });
-
-      els.btnAnalyze.addEventListener('click', analyzeCurrent);
-      els.btnSaveSource.addEventListener('click', saveCurrentSource);
+      els.btnAnalyze.addEventListener('click', analyzeCurrentSource);
+      els.btnSaveCurrent.addEventListener('click', updateCurrentSourceMeta);
 
       els.btnSelectAll.addEventListener('click', () => {
         state.sources.forEach(source => source.selected = true);
@@ -1377,40 +1611,51 @@
         renderAll();
       });
 
-      els.archiveForm.addEventListener('submit', event => {
+      els.csvForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const files = els.csvFiles.files;
+        const pasted = normalize(els.csvPaste.value);
+        const baseMeta = readFormMeta();
+
+        if(files && files.length){
+          const entries = await readFilesAsText(files);
+          loadCsvEntries(entries, baseMeta);
+          return;
+        }
+
+        if(pasted){
+          loadCsvEntries([{ fileName: 'Direkteingabe.csv', text: pasted }], baseMeta);
+          return;
+        }
+
+        alert('Bitte mindestens eine CSV-Datei laden oder CSV-Inhalt einfügen.');
+      });
+
+      els.archiveForm.addEventListener('submit', (event) => {
         event.preventDefault();
         archiveCurrentState();
       });
 
-      document.addEventListener('click', event => {
+      document.addEventListener('click', (event) => {
         const sourceBtn = event.target.closest('[data-source-action]');
         if(sourceBtn){
           const id = sourceBtn.getAttribute('data-id');
           const action = sourceBtn.getAttribute('data-source-action');
-          const source = state.sources.find(item => item.id === id);
-          if(!source) return;
 
           if(action === 'open'){
-            setCurrentFromSource(source);
+            openSource(id);
             return;
           }
 
           if(action === 'toggle'){
-            source.selected = !source.selected;
-            saveState();
-            renderAll();
+            toggleSource(id);
             return;
           }
 
           if(action === 'delete'){
-            if(!confirm('Diese Quelle wirklich löschen?')) return;
-            state.sources = state.sources.filter(item => item.id !== id);
-            if(state.current && state.current.id === id){
-              state.current = null;
-              currentImport = null;
-            }
-            saveState();
-            renderAll();
+            deleteSource(id);
+            return;
           }
         }
 
@@ -1418,30 +1663,34 @@
         if(archiveBtn){
           const id = archiveBtn.getAttribute('data-id');
           const action = archiveBtn.getAttribute('data-archive-action');
-          const archive = state.archives.find(item => item.id === id);
-          if(!archive) return;
 
           if(action === 'load'){
-            state.sources = JSON.parse(JSON.stringify(archive.sources || []));
-            state.current = archive.current ? JSON.parse(JSON.stringify(archive.current)) : null;
-            currentImport = archive.current ? JSON.parse(JSON.stringify(archive.current)) : null;
-            saveState();
-            fillFormFromStateCurrent();
-            renderAll();
+            loadArchive(id);
             return;
           }
 
           if(action === 'delete'){
-            if(!confirm('Diesen Archivstand wirklich löschen?')) return;
-            state.archives = state.archives.filter(item => item.id !== id);
-            saveState();
-            renderAll();
+            deleteArchive(id);
           }
         }
       });
 
-      fillFormFromStateCurrent();
-      currentImport = state.current ? JSON.parse(JSON.stringify(state.current)) : null;
+      document.addEventListener('change', (event) => {
+        const sourceCheckbox = event.target.closest('[data-source-action="select"]');
+        if(sourceCheckbox){
+          const id = sourceCheckbox.getAttribute('data-id');
+          const source = state.sources.find(item => item.id === id);
+          if(!source) return;
+          source.selected = sourceCheckbox.checked;
+          saveState();
+          renderAll();
+        }
+      });
+
+      if(state.currentSourceId){
+        applyCurrentToForm();
+      }
+
       renderAll();
     })();
   </script>
