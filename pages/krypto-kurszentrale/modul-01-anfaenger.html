@@ -1,0 +1,1449 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Krypto-Kurszentrale – Modul 01 Anfänger</title>
+  <meta name="description" content="Modul 01 Anfänger der Krypto-Kurszentrale: CSV laden, Originaldaten verstehen, erste Auswertung erzeugen und einfache Quellen geordnet sichern." />
+  <meta name="robots" content="index,follow" />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --bg-soft:#f7fbfa;
+      --panel:#ffffff;
+      --panel-soft:#f3fbf8;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#d9efe8;
+      --line-strong:#9edecf;
+      --mint:#12c7a3;
+      --mint-dark:#0ea480;
+      --magenta:#ff4fb3;
+      --magenta-dark:#d93a96;
+      --warn:#b45309;
+      --danger:#b91c1c;
+      --shadow:0 18px 50px rgba(16,24,40,.08);
+      --radius:22px;
+      --max:1460px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      color:var(--text);
+      line-height:1.55;
+      background:
+        radial-gradient(circle at top left, rgba(18,199,163,.12), transparent 30%),
+        radial-gradient(circle at top right, rgba(255,79,179,.10), transparent 26%),
+        linear-gradient(180deg,#ffffff 0%, #f8fcfb 100%);
+    }
+
+    a{color:var(--mint-dark);text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    .wrap{
+      width:min(calc(100% - 28px),var(--max));
+      margin:0 auto;
+      padding:22px 0 56px;
+    }
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid rgba(18,199,163,.18);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:28px 22px;
+      background:
+        linear-gradient(135deg, rgba(18,199,163,.12), rgba(255,79,179,.10)),
+        #ffffff;
+    }
+
+    .hero::before,
+    .hero::after{
+      content:"";
+      position:absolute;
+      border-radius:999px;
+      pointer-events:none;
+      filter:blur(12px);
+    }
+
+    .hero::before{
+      width:220px;height:220px;
+      top:-50px;right:-40px;
+      background:rgba(255,79,179,.12);
+    }
+
+    .hero::after{
+      width:180px;height:180px;
+      bottom:-60px;left:-50px;
+      background:rgba(18,199,163,.14);
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      border-radius:999px;
+      padding:8px 12px;
+      border:1px solid rgba(18,199,163,.18);
+      background:rgba(18,199,163,.10);
+      color:var(--mint-dark);
+      font-size:12px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      margin-bottom:12px;
+    }
+
+    .eyebrow .dot{
+      width:10px;height:10px;border-radius:50%;
+      background:linear-gradient(135deg,var(--mint),var(--magenta));
+      box-shadow:0 0 16px rgba(255,79,179,.35);
+      flex:0 0 auto;
+    }
+
+    h1,h2,h3{margin:0 0 10px}
+    h1{
+      font-size:clamp(30px,4.8vw,48px);
+      line-height:1.04;
+      letter-spacing:-.02em;
+      max-width:980px;
+    }
+    h2{
+      font-size:clamp(22px,3vw,30px);
+      letter-spacing:-.02em;
+    }
+    h3{
+      font-size:19px;
+      letter-spacing:-.01em;
+    }
+
+    .sub{
+      max-width:1020px;
+      margin:0;
+      color:var(--muted);
+      font-size:17px;
+    }
+
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .btn{
+      appearance:none;
+      border:0;
+      border-radius:14px;
+      padding:12px 16px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:14px;
+      line-height:1.2;
+      transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .btn:hover{transform:translateY(-1px);text-decoration:none}
+    .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+    .btn-primary{
+      color:#fff;
+      background:linear-gradient(135deg,var(--mint-dark),var(--mint));
+      box-shadow:0 12px 28px rgba(18,199,163,.22);
+    }
+
+    .btn-secondary{
+      color:#fff;
+      background:linear-gradient(135deg,var(--magenta-dark),var(--magenta));
+      box-shadow:0 12px 28px rgba(255,79,179,.18);
+    }
+
+    .btn-ghost{
+      background:#fff;
+      color:var(--text);
+      border:1px solid var(--line-strong);
+    }
+
+    .btn-danger{
+      background:#fff5f5;
+      color:var(--danger);
+      border:1px solid #fecaca;
+    }
+
+    .section{margin-top:18px}
+
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+    .panel.soft{background:var(--panel-soft)}
+
+    .grid{display:grid;gap:18px}
+    .grid-2{grid-template-columns:1.04fr .96fr}
+    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+    .step-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .card,
+    .stat,
+    .step-card,
+    .source-card,
+    .archive-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px;
+      min-height:100%;
+    }
+
+    .stat .num{
+      font-size:28px;
+      line-height:1;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .step-num{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:34px;height:34px;
+      border-radius:50%;
+      background:rgba(18,199,163,.10);
+      border:1px solid rgba(18,199,163,.18);
+      color:var(--mint-dark);
+      font-weight:800;
+      margin-bottom:8px;
+    }
+
+    .muted{color:var(--muted)}
+    .small{font-size:13px}
+    .tiny{font-size:12px}
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      font-weight:700;
+      border-radius:999px;
+      padding:8px 11px;
+      background:#f5fbf9;
+      border:1px solid var(--line);
+      color:var(--text);
+    }
+
+    .chip.mint{
+      background:rgba(18,199,163,.10);
+      border-color:rgba(18,199,163,.18);
+      color:var(--mint-dark);
+    }
+
+    .chip.magenta{
+      background:rgba(255,79,179,.10);
+      border-color:rgba(255,79,179,.18);
+      color:var(--magenta-dark);
+    }
+
+    .chip.warn{
+      background:#fff8e8;
+      border-color:#fcd34d;
+      color:#92400e;
+    }
+
+    .note{
+      border-left:4px solid var(--magenta);
+      background:rgba(255,79,179,.07);
+      padding:12px 14px;
+      border-radius:12px;
+      color:#5f0e3b;
+      margin-top:10px;
+    }
+
+    .okbox{
+      border-left:4px solid var(--mint);
+      background:rgba(18,199,163,.08);
+      padding:12px 14px;
+      border-radius:12px;
+      color:#065f46;
+      margin-top:10px;
+    }
+
+    .warnbox{
+      border-left:4px solid #f59e0b;
+      background:#fff8e8;
+      padding:12px 14px;
+      border-radius:12px;
+      color:#92400e;
+      margin-top:10px;
+    }
+
+    .dangerbox{
+      border-left:4px solid #ef4444;
+      background:#fff5f5;
+      padding:12px 14px;
+      border-radius:12px;
+      color:#991b1b;
+      margin-top:10px;
+    }
+
+    .checklist{
+      margin:10px 0 0 18px;
+      padding:0;
+    }
+    .checklist li{margin:0 0 8px}
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(12,minmax(0,1fr));
+      gap:12px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+    }
+
+    .field label{
+      font-size:13px;
+      font-weight:700;
+      color:var(--text);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="file"],
+    textarea,
+    select{
+      width:100%;
+      border:1px solid var(--line-strong);
+      background:#fff;
+      color:var(--text);
+      border-radius:14px;
+      padding:12px 13px;
+      font:inherit;
+      min-height:46px;
+    }
+
+    textarea{
+      min-height:120px;
+      resize:vertical;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus{
+      outline:none;
+      border-color:var(--mint);
+      box-shadow:0 0 0 4px rgba(18,199,163,.12);
+    }
+
+    .span-12{grid-column:span 12}
+    .span-8{grid-column:span 8}
+    .span-6{grid-column:span 6}
+    .span-4{grid-column:span 4}
+    .span-3{grid-column:span 3}
+
+    .table-wrap{
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      margin-top:14px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:980px;
+    }
+
+    th,td{
+      text-align:left;
+      vertical-align:top;
+      padding:12px;
+      border-bottom:1px solid #eef5f3;
+      font-size:14px;
+    }
+
+    th{
+      position:sticky;
+      top:0;
+      z-index:1;
+      background:#f6fcfa;
+      color:var(--text);
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+
+    .empty{
+      padding:18px;
+      border:1px dashed var(--line-strong);
+      border-radius:18px;
+      color:var(--muted);
+      background:#fcfffe;
+    }
+
+    .preview-shell{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:16px;
+      margin-top:14px;
+    }
+
+    .source-actions,
+    .archive-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .hidden{display:none !important}
+    .print-only{display:none}
+
+    @media (max-width:1120px){
+      .grid-2,
+      .grid-3,
+      .grid-4,
+      .step-grid{
+        grid-template-columns:1fr;
+      }
+      .span-8,.span-6,.span-4,.span-3{grid-column:span 12}
+    }
+
+    @media print{
+      body{background:#fff;color:#000}
+      .wrap{width:100%;max-width:none;padding:0}
+      .hero,.panel,.card,.stat,.step-card,.source-card,.archive-card,.table-wrap,.preview-shell{
+        box-shadow:none !important;
+        border-color:#cfd8dc !important;
+        break-inside:avoid;
+      }
+      .toolbar,.btn,input,textarea,select,.no-print{
+        display:none !important;
+      }
+      .print-only{display:block !important}
+      table{min-width:0}
+      th,td{font-size:12px;padding:8px}
+      a{color:#000;text-decoration:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow"><span class="dot"></span> Modul 01 – Anfänger</div>
+      <h1>Rohdaten verstehen und erste Auswertung aufbauen</h1>
+      <p class="sub">
+        Dieses Modul ist für den ruhigen Einstieg gedacht. Hier wird zuerst die Original-CSV sichtbar gemacht, damit der Nutzer wirklich sieht,
+        welche Daten vorhanden sind. Erst danach wird eine erste einfache Arbeits- und Auswertungsansicht aufgebaut.
+      </p>
+
+      <div class="chips">
+        <span class="chip mint">Original-CSV zuerst</span>
+        <span class="chip">erste Auswertung</span>
+        <span class="chip">einfache Quellenliste</span>
+        <span class="chip">Archiv</span>
+        <span class="chip magenta">Arbeitsbereich separat zurücksetzen</span>
+      </div>
+
+      <div class="toolbar no-print">
+        <a class="btn btn-ghost" href="dashboard.html">Zurück zum Dashboard</a>
+        <a class="btn btn-ghost" href="modul-02-anwender.html">Weiter zu Modul 02 – Anwender</a>
+        <button class="btn btn-primary" type="button" id="btnScrollStart">Jetzt mit CSV starten</button>
+        <button class="btn btn-danger" type="button" id="btnResetWorkspace">Arbeitsbereich auf null setzen</button>
+      </div>
+    </section>
+
+    <section class="section panel soft">
+      <h2>So arbeitet Modul 01</h2>
+      <div class="step-grid">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <strong>CSV laden</strong>
+          <div class="muted small">Datei hochladen oder CSV-Inhalt einfügen.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <strong>Originaldaten sehen</strong>
+          <div class="muted small">Spalten, Zeilen und echte Rohdaten zuerst sichtbar machen.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <strong>Jetzt auswerten</strong>
+          <div class="muted small">Erst danach eine einfache FSA-Arbeitsansicht erzeugen.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <strong>Sichern und später weiterarbeiten</strong>
+          <div class="muted small">Quelle speichern, Archivlauf anlegen und sauber wieder aufrufen.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section panel" id="startSection">
+      <h2>CSV laden</h2>
+      <form id="csvForm" class="form-grid" autocomplete="off">
+        <div class="field span-4">
+          <label for="caseName">Bezeichnung</label>
+          <input id="caseName" type="text" placeholder="z. B. Crypto.com 2024 oder Wallet ETH Export" />
+        </div>
+
+        <div class="field span-4">
+          <label for="network">Chain / Netzwerk</label>
+          <select id="network">
+            <option value="">Bitte auswählen</option>
+            <option>Bitcoin</option>
+            <option>Ethereum</option>
+            <option>BNB Chain</option>
+            <option>Arbitrum</option>
+            <option>Base</option>
+            <option>Polygon</option>
+            <option>Optimism</option>
+            <option>Solana</option>
+            <option>Eigene Eingabe</option>
+          </select>
+        </div>
+
+        <div class="field span-4">
+          <label for="networkCustom">Eigene Chain</label>
+          <input id="networkCustom" type="text" placeholder="optional, z. B. Avalanche oder Tron" />
+        </div>
+
+        <div class="field span-4">
+          <label for="provider">Börse / Plattform / Explorer</label>
+          <input id="provider" type="text" placeholder="z. B. Crypto.com, Binance, Coinbase, Etherscan" />
+        </div>
+
+        <div class="field span-4">
+          <label for="walletRef">Wallet-Adresse / Referenz</label>
+          <input id="walletRef" type="text" placeholder="optional" />
+        </div>
+
+        <div class="field span-4">
+          <label for="year">Jahr</label>
+          <input id="year" type="number" min="2009" max="2100" step="1" placeholder="z. B. 2024" />
+        </div>
+
+        <div class="field span-12">
+          <label for="csvFile">CSV-Datei laden</label>
+          <input id="csvFile" type="file" accept=".csv,text/csv" />
+        </div>
+
+        <div class="field span-12">
+          <label for="csvPaste">Oder CSV-Inhalt direkt einfügen</label>
+          <textarea id="csvPaste" placeholder="Falls du keine Datei hochladen willst, kannst du CSV-Inhalte hier direkt einfügen."></textarea>
+        </div>
+
+        <div class="span-12 toolbar no-print">
+          <button class="btn btn-primary" type="submit">Original-CSV einlesen</button>
+          <button class="btn btn-ghost" type="button" id="btnResetForm">Formular leeren</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="section panel soft">
+      <h2>Status und erste Einordnung</h2>
+      <div class="grid grid-4">
+        <div class="stat">
+          <div class="num" id="statRows">0</div>
+          <div><strong>Zeilen</strong></div>
+          <div class="small muted">in der aktuell geladenen CSV</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="statColumns">0</div>
+          <div><strong>Spalten</strong></div>
+          <div class="small muted">erkannte Struktur</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="statSources">0</div>
+          <div><strong>Quellen</strong></div>
+          <div class="small muted">gespeicherte Anfänger-Quellen</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="statArchives">0</div>
+          <div><strong>Archivstände</strong></div>
+          <div class="small muted">gesicherte Arbeitsläufe</div>
+        </div>
+      </div>
+
+      <div class="chips" id="statusChips"></div>
+      <div class="warnbox" id="statusNote">
+        Noch keine CSV geladen. Erst nach dem Laden wird sichtbar, welche Daten vorhanden sind und welche Lücken es geben könnte.
+      </div>
+    </section>
+
+    <section class="section panel">
+      <h2>Original-CSV Vorschau</h2>
+      <div id="rawEmpty" class="empty">Noch keine CSV geladen.</div>
+
+      <div id="rawBox" class="hidden">
+        <div class="preview-shell">
+          <h3 id="rawTitle">Originaldaten</h3>
+          <div class="muted small" id="rawMeta">–</div>
+
+          <div class="chips" id="columnChips"></div>
+
+          <div class="okbox" id="rawInsightBox">
+            Hier siehst du zuerst den echten Inhalt deiner CSV. Das ist wichtig, weil viele Dateien keine direkten Gewinn- oder Verlust-Spalten enthalten.
+          </div>
+
+          <div class="toolbar no-print">
+            <button class="btn btn-secondary" type="button" id="btnAnalyze">Jetzt auswerten</button>
+            <button class="btn btn-ghost" type="button" id="btnSaveSource" disabled>Quelle speichern</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead id="rawHead"></thead>
+              <tbody id="rawBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section panel soft">
+      <h2>Einfache Auswertung</h2>
+      <div id="analysisEmpty" class="empty">Noch keine Auswertung vorhanden. Klicke nach der Rohdaten-Vorschau auf „Jetzt auswerten“.</div>
+
+      <div id="analysisBox" class="hidden">
+        <div class="grid grid-4">
+          <div class="stat">
+            <div class="num" id="evalTransactions">0</div>
+            <div><strong>Vorgänge</strong></div>
+            <div class="small muted">erkannte Zeilen</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="evalAssets">0</div>
+            <div><strong>Assets</strong></div>
+            <div class="small muted">unterschiedliche Werte</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="evalFees">0,00</div>
+            <div><strong>Gebühren gesamt</strong></div>
+            <div class="small muted">soweit erkennbar</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="evalChecks">0</div>
+            <div><strong>Prüffälle</strong></div>
+            <div class="small muted">offene Hinweise</div>
+          </div>
+        </div>
+
+        <div class="grid grid-3 section">
+          <div class="card">
+            <strong>Erkannte Schwerpunkte</strong>
+            <div class="chips" id="evalChips"></div>
+          </div>
+          <div class="card">
+            <strong>Was direkt sichtbar ist</strong>
+            <ul class="checklist" id="knownList"></ul>
+          </div>
+          <div class="card">
+            <strong>Was noch fehlen kann</strong>
+            <ul class="checklist" id="missingList"></ul>
+          </div>
+        </div>
+
+        <div class="preview-shell">
+          <h3>Einfache Arbeitsliste</h3>
+          <div class="muted small">Hier wird aus den Originaldaten eine erste ruhige Arbeitsansicht erzeugt.</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Datum</th>
+                  <th>Beschreibung / Typ</th>
+                  <th>Asset</th>
+                  <th>Menge</th>
+                  <th>Gegenwert</th>
+                  <th>Gebühr</th>
+                  <th>TxID / Hash</th>
+                </tr>
+              </thead>
+              <tbody id="analysisBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section panel">
+      <h2>Gespeicherte Quellen</h2>
+      <div class="toolbar no-print">
+        <button class="btn btn-ghost" type="button" id="btnDeselectAll">Alle Quellen abwählen</button>
+        <button class="btn btn-ghost" type="button" id="btnSelectAll">Alle Quellen auswählen</button>
+      </div>
+
+      <div id="sourcesEmpty" class="empty" style="margin-top:14px;">Noch keine Quelle gespeichert.</div>
+      <div id="sourcesList" class="grid grid-2"></div>
+    </section>
+
+    <section class="section panel">
+      <h2>Archiv</h2>
+      <p class="muted">
+        Sichere hier Arbeitsstände aus Modul 01. Das Archiv bleibt erhalten, auch wenn der aktuelle Arbeitsbereich zurückgesetzt wird.
+      </p>
+
+      <form id="archiveForm" class="form-grid" autocomplete="off">
+        <div class="field span-4">
+          <label for="archiveName">Archivname</label>
+          <input id="archiveName" type="text" placeholder="z. B. Anfänger Stand März 2024" />
+        </div>
+        <div class="field span-4">
+          <label for="archiveYear">Jahr</label>
+          <input id="archiveYear" type="number" min="2009" max="2100" step="1" placeholder="z. B. 2024" />
+        </div>
+        <div class="field span-4">
+          <label for="archiveTag">Zusatz</label>
+          <input id="archiveTag" type="text" placeholder="z. B. erster Import" />
+        </div>
+        <div class="field span-12">
+          <label for="archiveNote">Notiz</label>
+          <textarea id="archiveNote" placeholder="Optionaler Hinweis zum Arbeitsstand."></textarea>
+        </div>
+        <div class="span-12 toolbar no-print">
+          <button class="btn btn-primary" type="submit">Aktuellen Stand archivieren</button>
+          <button class="btn btn-danger" type="button" id="btnResetArchive">Nur Archiv löschen</button>
+        </div>
+      </form>
+
+      <div id="archiveEmpty" class="empty" style="margin-top:14px;">Noch keine Archivstände gespeichert.</div>
+      <div id="archiveList" class="grid grid-2"></div>
+    </section>
+
+    <section class="section panel print-only">
+      <h2>Druckansicht – Modul 01 Anfänger</h2>
+      <p>Diese Druckansicht zeigt den aktuellen Stand der Anfänger-Arbeitsansicht.</p>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = 'krypto_kurszentrale_modul_01_anfaenger_v1';
+
+      const state = loadState();
+      let currentImport = null;
+
+      const els = {
+        btnScrollStart: document.getElementById('btnScrollStart'),
+        btnResetWorkspace: document.getElementById('btnResetWorkspace'),
+        btnResetForm: document.getElementById('btnResetForm'),
+
+        csvForm: document.getElementById('csvForm'),
+        caseName: document.getElementById('caseName'),
+        network: document.getElementById('network'),
+        networkCustom: document.getElementById('networkCustom'),
+        provider: document.getElementById('provider'),
+        walletRef: document.getElementById('walletRef'),
+        year: document.getElementById('year'),
+        csvFile: document.getElementById('csvFile'),
+        csvPaste: document.getElementById('csvPaste'),
+
+        statRows: document.getElementById('statRows'),
+        statColumns: document.getElementById('statColumns'),
+        statSources: document.getElementById('statSources'),
+        statArchives: document.getElementById('statArchives'),
+        statusChips: document.getElementById('statusChips'),
+        statusNote: document.getElementById('statusNote'),
+
+        rawEmpty: document.getElementById('rawEmpty'),
+        rawBox: document.getElementById('rawBox'),
+        rawTitle: document.getElementById('rawTitle'),
+        rawMeta: document.getElementById('rawMeta'),
+        columnChips: document.getElementById('columnChips'),
+        rawInsightBox: document.getElementById('rawInsightBox'),
+        btnAnalyze: document.getElementById('btnAnalyze'),
+        btnSaveSource: document.getElementById('btnSaveSource'),
+        rawHead: document.getElementById('rawHead'),
+        rawBody: document.getElementById('rawBody'),
+
+        analysisEmpty: document.getElementById('analysisEmpty'),
+        analysisBox: document.getElementById('analysisBox'),
+        evalTransactions: document.getElementById('evalTransactions'),
+        evalAssets: document.getElementById('evalAssets'),
+        evalFees: document.getElementById('evalFees'),
+        evalChecks: document.getElementById('evalChecks'),
+        evalChips: document.getElementById('evalChips'),
+        knownList: document.getElementById('knownList'),
+        missingList: document.getElementById('missingList'),
+        analysisBody: document.getElementById('analysisBody'),
+
+        btnDeselectAll: document.getElementById('btnDeselectAll'),
+        btnSelectAll: document.getElementById('btnSelectAll'),
+        sourcesEmpty: document.getElementById('sourcesEmpty'),
+        sourcesList: document.getElementById('sourcesList'),
+
+        archiveForm: document.getElementById('archiveForm'),
+        archiveName: document.getElementById('archiveName'),
+        archiveYear: document.getElementById('archiveYear'),
+        archiveTag: document.getElementById('archiveTag'),
+        archiveNote: document.getElementById('archiveNote'),
+        btnResetArchive: document.getElementById('btnResetArchive'),
+        archiveEmpty: document.getElementById('archiveEmpty'),
+        archiveList: document.getElementById('archiveList')
+      };
+
+      const FIELD_GROUPS = {
+        date: ['timestamp','timestamp (utc)','datetime','datetime (utc)','date','datum','created at','time'],
+        description: ['transaction description','description','type','kind','transaction kind','method','side','direction'],
+        asset: ['currency','asset','coin','token','to currency','native currency'],
+        amount: ['amount','qty','quantity','to amount','native amount','token amount'],
+        value: ['native amount (in usd)','value (usd)','usd value','eur value','value','gegenwert'],
+        fee: ['fee','fees','txn fee','gas fee','network fee','commission'],
+        txid: ['transaction hash','txid','txhash','hash','transaction id','signature']
+      };
+
+      function loadState(){
+        try{
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if(!raw){
+            return { sources: [], archives: [], current: null };
+          }
+          const parsed = JSON.parse(raw);
+          return {
+            sources: Array.isArray(parsed.sources) ? parsed.sources : [],
+            archives: Array.isArray(parsed.archives) ? parsed.archives : [],
+            current: parsed.current && typeof parsed.current === 'object' ? parsed.current : null
+          };
+        }catch{
+          return { sources: [], archives: [], current: null };
+        }
+      }
+
+      function saveState(){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function uid(prefix='id'){
+        return prefix + '_' + Math.random().toString(36).slice(2,10) + '_' + Date.now().toString(36);
+      }
+
+      function normalize(value){
+        return String(value ?? '').trim();
+      }
+
+      function escapeHtml(value){
+        return String(value ?? '')
+          .replace(/&/g,'&amp;')
+          .replace(/</g,'&lt;')
+          .replace(/>/g,'&gt;')
+          .replace(/"/g,'&quot;')
+          .replace(/'/g,'&#39;');
+      }
+
+      function parseCsv(text){
+        const rows = [];
+        let row = [];
+        let value = '';
+        let i = 0;
+        let inQuotes = false;
+
+        while(i < text.length){
+          const char = text[i];
+          const next = text[i + 1];
+
+          if(char === '"'){
+            if(inQuotes && next === '"'){
+              value += '"';
+              i += 2;
+              continue;
+            }
+            inQuotes = !inQuotes;
+            i += 1;
+            continue;
+          }
+
+          if(!inQuotes && (char === ';' || char === ',')){
+            row.push(value);
+            value = '';
+            i += 1;
+            continue;
+          }
+
+          if(!inQuotes && (char === '\n' || char === '\r')){
+            if(char === '\r' && next === '\n') i += 1;
+            row.push(value);
+            if(row.some(cell => normalize(cell) !== '')){
+              rows.push(row);
+            }
+            row = [];
+            value = '';
+            i += 1;
+            continue;
+          }
+
+          value += char;
+          i += 1;
+        }
+
+        row.push(value);
+        if(row.some(cell => normalize(cell) !== '')){
+          rows.push(row);
+        }
+
+        const headers = (rows.shift() || []).map(item => normalize(item));
+        const objects = rows.map(line => {
+          const obj = {};
+          headers.forEach((header, index) => {
+            obj[header || ('Spalte ' + (index + 1))] = normalize(line[index] ?? '');
+          });
+          return obj;
+        });
+
+        return { headers, rows: objects };
+      }
+
+      function findField(headers, group){
+        const lowerHeaders = headers.map(header => normalize(header).toLowerCase());
+        const patterns = FIELD_GROUPS[group];
+        for(const pattern of patterns){
+          const index = lowerHeaders.indexOf(pattern);
+          if(index >= 0) return headers[index];
+        }
+        for(let i = 0; i < lowerHeaders.length; i++){
+          if(patterns.some(pattern => lowerHeaders[i].includes(pattern))){
+            return headers[i];
+          }
+        }
+        return '';
+      }
+
+      function toNumber(value){
+        const cleaned = String(value ?? '')
+          .replace(/\s/g,'')
+          .replace(/[A-Za-z$€₿()%]/g,'')
+          .replace(/\.(?=\d{3}(?:\D|$))/g,'')
+          .replace(',', '.')
+          .trim();
+
+        const num = Number(cleaned);
+        return Number.isFinite(num) ? num : 0;
+      }
+
+      function formatNumber(value){
+        return Number(value || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function guessProfile(importData){
+        const headersLower = importData.headers.map(header => header.toLowerCase());
+        const hasDescription = headersLower.some(item => item.includes('transaction description'));
+        const hasNativeUsd = headersLower.some(item => item.includes('native amount (in usd)'));
+        const hasHash = headersLower.some(item => item.includes('transaction hash') || item.includes('hash'));
+
+        if(hasDescription && hasNativeUsd){
+          return 'CSV mit Transaktionsbeschreibung und Gegenwerten erkannt';
+        }
+        if(hasHash){
+          return 'CSV mit Hash-/Transaktionsbezug erkannt';
+        }
+        return 'CSV-Struktur erkannt – zuerst Originaldaten prüfen';
+      }
+
+      function buildAnalysis(importData){
+        const headers = importData.headers;
+        const rows = importData.rows;
+
+        const fields = {
+          date: findField(headers, 'date'),
+          description: findField(headers, 'description'),
+          asset: findField(headers, 'asset'),
+          amount: findField(headers, 'amount'),
+          value: findField(headers, 'value'),
+          fee: findField(headers, 'fee'),
+          txid: findField(headers, 'txid')
+        };
+
+        const assets = new Set();
+        let feeSum = 0;
+        let checkRows = 0;
+
+        const simpleRows = rows.map((row, index) => {
+          const date = row[fields.date] || '';
+          const description = row[fields.description] || '';
+          const asset = row[fields.asset] || '';
+          const amount = row[fields.amount] || '';
+          const value = row[fields.value] || '';
+          const fee = row[fields.fee] || '';
+          const txid = row[fields.txid] || '';
+
+          if(asset) assets.add(asset);
+          if(fee) feeSum += toNumber(fee);
+          if(!date || !asset || !description) checkRows += 1;
+
+          return {
+            index: index + 1,
+            date,
+            description,
+            asset,
+            amount,
+            value,
+            fee,
+            txid
+          };
+        });
+
+        const known = [];
+        const missing = [];
+
+        if(fields.date) known.push('Datum / Zeit ist direkt in der CSV erkennbar.');
+        else missing.push('Datum / Zeit wurde nicht eindeutig erkannt.');
+
+        if(fields.description) known.push('Transaktionsbeschreibung oder Typ ist erkennbar.');
+        else missing.push('Beschreibung / Typ der Transaktion wurde nicht eindeutig erkannt.');
+
+        if(fields.asset) known.push('Asset / Coin / Currency ist erkennbar.');
+        else missing.push('Asset / Coin / Currency wurde nicht eindeutig erkannt.');
+
+        if(fields.amount) known.push('Menge / Amount ist erkennbar.');
+        else missing.push('Menge / Amount wurde nicht eindeutig erkannt.');
+
+        if(fields.value) known.push('Ein Gegenwert ist in der CSV erkennbar.');
+        else missing.push('Ein direkter Gegenwert wurde nicht eindeutig erkannt.');
+
+        if(fields.fee) known.push('Gebührenfeld ist vorhanden.');
+        else missing.push('Gebühren wurden nicht eindeutig erkannt.');
+
+        if(fields.txid) known.push('TxID / Hash ist vorhanden oder teilweise vorhanden.');
+        else missing.push('TxID / Hash wurde nicht eindeutig erkannt.');
+
+        return {
+          fields,
+          simpleRows,
+          assets: assets.size,
+          feeSum,
+          checkRows,
+          known,
+          missing
+        };
+      }
+
+      function fillFormFromStateCurrent(){
+        if(!state.current || !state.current.meta) return;
+        const meta = state.current.meta;
+        els.caseName.value = meta.caseName || '';
+        els.network.value = meta.network === 'Eigene Eingabe' ? 'Eigene Eingabe' : (meta.network || '');
+        els.networkCustom.value = meta.networkCustom || '';
+        els.provider.value = meta.provider || '';
+        els.walletRef.value = meta.walletRef || '';
+        els.year.value = meta.year || '';
+      }
+
+      function readInputMeta(){
+        return {
+          caseName: normalize(els.caseName.value),
+          network: normalize(els.network.value),
+          networkCustom: normalize(els.networkCustom.value),
+          provider: normalize(els.provider.value),
+          walletRef: normalize(els.walletRef.value),
+          year: normalize(els.year.value)
+        };
+      }
+
+      function renderStatus(){
+        els.statRows.textContent = String(currentImport?.rows?.length || state.current?.rows?.length || 0);
+        els.statColumns.textContent = String(currentImport?.headers?.length || state.current?.headers?.length || 0);
+        els.statSources.textContent = String(state.sources.length);
+        els.statArchives.textContent = String(state.archives.length);
+
+        const chips = [];
+        if(currentImport?.headers?.length){
+          chips.push('<span class="chip mint">CSV aktuell geladen</span>');
+        }
+        if(state.sources.length){
+          chips.push('<span class="chip">' + state.sources.length + ' gespeicherte Quellen</span>');
+        }
+        if(state.archives.length){
+          chips.push('<span class="chip magenta">' + state.archives.length + ' Archivstände</span>');
+        }
+        if(currentImport?.analysis){
+          chips.push('<span class="chip warn">erste Auswertung vorhanden</span>');
+        }
+
+        els.statusChips.innerHTML = chips.join('');
+      }
+
+      function renderRaw(importData){
+        if(!importData){
+          els.rawEmpty.classList.remove('hidden');
+          els.rawBox.classList.add('hidden');
+          els.btnSaveSource.disabled = true;
+          return;
+        }
+
+        els.rawEmpty.classList.add('hidden');
+        els.rawBox.classList.remove('hidden');
+
+        const profile = guessProfile(importData);
+        els.rawTitle.textContent = importData.meta.caseName || 'Original-CSV Vorschau';
+        els.rawMeta.textContent = `${importData.rows.length} Zeilen · ${importData.headers.length} Spalten`;
+        els.rawInsightBox.textContent = profile;
+
+        els.columnChips.innerHTML = importData.headers.map(header => `<span class="chip">${escapeHtml(header)}</span>`).join('');
+
+        els.rawHead.innerHTML = '<tr>' + importData.headers.map(header => `<th>${escapeHtml(header)}</th>`).join('') + '</tr>';
+
+        const previewRows = importData.rows.slice(0, 25);
+        els.rawBody.innerHTML = previewRows.map(row => `
+          <tr>${importData.headers.map(header => `<td>${escapeHtml(row[header] || '')}</td>`).join('')}</tr>
+        `).join('');
+
+        els.btnSaveSource.disabled = !importData.analysis;
+      }
+
+      function renderAnalysis(importData){
+        if(!importData || !importData.analysis){
+          els.analysisEmpty.classList.remove('hidden');
+          els.analysisBox.classList.add('hidden');
+          return;
+        }
+
+        const analysis = importData.analysis;
+        els.analysisEmpty.classList.add('hidden');
+        els.analysisBox.classList.remove('hidden');
+
+        els.evalTransactions.textContent = String(analysis.simpleRows.length);
+        els.evalAssets.textContent = String(analysis.assets);
+        els.evalFees.textContent = formatNumber(analysis.feeSum);
+        els.evalChecks.textContent = String(analysis.checkRows);
+
+        const chips = [];
+        Object.entries(analysis.fields).forEach(([key, value]) => {
+          if(value){
+            chips.push(`<span class="chip mint">${escapeHtml(key)}: ${escapeHtml(value)}</span>`);
+          }
+        });
+        els.evalChips.innerHTML = chips.join('');
+
+        els.knownList.innerHTML = analysis.known.map(item => `<li>${escapeHtml(item)}</li>`).join('');
+        els.missingList.innerHTML = analysis.missing.map(item => `<li>${escapeHtml(item)}</li>`).join('');
+
+        els.analysisBody.innerHTML = analysis.simpleRows.slice(0, 50).map(row => `
+          <tr>
+            <td>${row.index}</td>
+            <td>${escapeHtml(row.date)}</td>
+            <td>${escapeHtml(row.description)}</td>
+            <td>${escapeHtml(row.asset)}</td>
+            <td>${escapeHtml(row.amount)}</td>
+            <td>${escapeHtml(row.value)}</td>
+            <td>${escapeHtml(row.fee)}</td>
+            <td>${escapeHtml(row.txid)}</td>
+          </tr>
+        `).join('');
+      }
+
+      function renderSources(){
+        if(!state.sources.length){
+          els.sourcesEmpty.classList.remove('hidden');
+          els.sourcesList.innerHTML = '';
+          return;
+        }
+
+        els.sourcesEmpty.classList.add('hidden');
+        els.sourcesList.innerHTML = state.sources.map(source => `
+          <div class="source-card">
+            <strong>${escapeHtml(source.meta.caseName || 'Ohne Bezeichnung')}</strong>
+            <div class="chips">
+              <span class="chip mint">${escapeHtml(source.meta.provider || 'Quelle')}</span>
+              ${(source.meta.network || source.meta.networkCustom) ? `<span class="chip">${escapeHtml(source.meta.network === 'Eigene Eingabe' ? source.meta.networkCustom : source.meta.network)}</span>` : ''}
+              ${source.meta.year ? `<span class="chip">${escapeHtml(source.meta.year)}</span>` : ''}
+              ${source.selected ? `<span class="chip magenta">ausgewählt</span>` : ''}
+            </div>
+            <div class="small muted" style="margin-top:10px;">
+              ${source.rows.length} Zeilen · ${source.headers.length} Spalten
+            </div>
+            <div class="source-actions no-print">
+              <button class="btn btn-ghost" type="button" data-source-action="open" data-id="${source.id}">Öffnen</button>
+              <button class="btn btn-ghost" type="button" data-source-action="toggle" data-id="${source.id}">${source.selected ? 'Abwählen' : 'Auswählen'}</button>
+              <button class="btn btn-danger" type="button" data-source-action="delete" data-id="${source.id}">Löschen</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function renderArchives(){
+        if(!state.archives.length){
+          els.archiveEmpty.classList.remove('hidden');
+          els.archiveList.innerHTML = '';
+          return;
+        }
+
+        els.archiveEmpty.classList.add('hidden');
+        els.archiveList.innerHTML = state.archives.map(archive => `
+          <div class="archive-card">
+            <strong>${escapeHtml(archive.name)}</strong>
+            <div class="chips">
+              ${archive.year ? `<span class="chip mint">${escapeHtml(archive.year)}</span>` : ''}
+              ${archive.tag ? `<span class="chip">${escapeHtml(archive.tag)}</span>` : ''}
+              <span class="chip">${archive.sources.length} Quellen</span>
+            </div>
+            ${archive.note ? `<div class="small muted" style="margin-top:10px;">${escapeHtml(archive.note)}</div>` : ''}
+            <div class="archive-actions no-print">
+              <button class="btn btn-ghost" type="button" data-archive-action="load" data-id="${archive.id}">Archiv laden</button>
+              <button class="btn btn-danger" type="button" data-archive-action="delete" data-id="${archive.id}">Löschen</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function renderAll(){
+        renderStatus();
+        renderRaw(currentImport || state.current);
+        renderAnalysis(currentImport || state.current);
+        renderSources();
+        renderArchives();
+      }
+
+      function resetFormOnly(){
+        els.csvForm.reset();
+      }
+
+      function setCurrentFromSource(source){
+        currentImport = JSON.parse(JSON.stringify(source));
+        state.current = JSON.parse(JSON.stringify(source));
+        saveState();
+        fillFormFromStateCurrent();
+        renderAll();
+      }
+
+      function saveCurrentSource(){
+        if(!currentImport || !currentImport.analysis) return;
+        const source = JSON.parse(JSON.stringify(currentImport));
+        source.id = uid('source');
+        source.selected = true;
+        state.sources.unshift(source);
+        state.current = JSON.parse(JSON.stringify(source));
+        saveState();
+        renderAll();
+      }
+
+      function resetWorkspace(){
+        if(!confirm('Arbeitsbereich wirklich auf null setzen? Das Archiv bleibt erhalten.')) return;
+        state.sources = [];
+        state.current = null;
+        currentImport = null;
+        saveState();
+        els.csvForm.reset();
+        renderAll();
+      }
+
+      function resetArchive(){
+        if(!confirm('Archiv dieses Moduls wirklich komplett löschen?')) return;
+        state.archives = [];
+        saveState();
+        renderAll();
+      }
+
+      function archiveCurrentState(){
+        const name = normalize(els.archiveName.value);
+        if(!name){
+          alert('Bitte einen Archivnamen eintragen.');
+          return;
+        }
+
+        state.archives.unshift({
+          id: uid('archive'),
+          name,
+          year: normalize(els.archiveYear.value),
+          tag: normalize(els.archiveTag.value),
+          note: normalize(els.archiveNote.value),
+          sources: JSON.parse(JSON.stringify(state.sources)),
+          current: state.current ? JSON.parse(JSON.stringify(state.current)) : null,
+          createdAt: new Date().toISOString()
+        });
+
+        saveState();
+        els.archiveForm.reset();
+        renderAll();
+      }
+
+      function detectDelimiter(text){
+        const firstLine = (text.split(/\r?\n/).find(line => normalize(line)) || '');
+        const semicolons = (firstLine.match(/;/g) || []).length;
+        const commas = (firstLine.match(/,/g) || []).length;
+        if(semicolons >= commas) return ';';
+        return ',';
+      }
+
+      function normalizeCsvText(text){
+        const delimiter = detectDelimiter(text);
+        if(delimiter === ';') return text;
+        return text;
+      }
+
+      function importCsvText(text){
+        const normalizedText = normalizeCsvText(text);
+        const parsed = parseCsv(normalizedText);
+        const meta = readInputMeta();
+
+        currentImport = {
+          id: uid('current'),
+          meta,
+          headers: parsed.headers,
+          rows: parsed.rows,
+          analysis: null,
+          selected: true
+        };
+
+        state.current = JSON.parse(JSON.stringify(currentImport));
+        saveState();
+        renderAll();
+      }
+
+      function analyzeCurrent(){
+        if(!currentImport) return;
+        currentImport.analysis = buildAnalysis(currentImport);
+        state.current = JSON.parse(JSON.stringify(currentImport));
+        saveState();
+        renderAll();
+      }
+
+      function readFile(file){
+        const reader = new FileReader();
+        reader.onload = () => {
+          importCsvText(String(reader.result || ''));
+        };
+        reader.readAsText(file, 'utf-8');
+      }
+
+      els.btnScrollStart.addEventListener('click', () => {
+        document.getElementById('startSection').scrollIntoView({ behavior:'smooth', block:'start' });
+      });
+
+      els.btnResetWorkspace.addEventListener('click', resetWorkspace);
+      els.btnResetForm.addEventListener('click', resetFormOnly);
+      els.btnResetArchive.addEventListener('click', resetArchive);
+
+      els.csvForm.addEventListener('submit', event => {
+        event.preventDefault();
+        const pasted = normalize(els.csvPaste.value);
+        const file = els.csvFile.files && els.csvFile.files[0];
+
+        if(file){
+          readFile(file);
+          return;
+        }
+
+        if(pasted){
+          importCsvText(pasted);
+          return;
+        }
+
+        alert('Bitte eine CSV-Datei laden oder CSV-Inhalt einfügen.');
+      });
+
+      els.btnAnalyze.addEventListener('click', analyzeCurrent);
+      els.btnSaveSource.addEventListener('click', saveCurrentSource);
+
+      els.btnSelectAll.addEventListener('click', () => {
+        state.sources.forEach(source => source.selected = true);
+        saveState();
+        renderAll();
+      });
+
+      els.btnDeselectAll.addEventListener('click', () => {
+        state.sources.forEach(source => source.selected = false);
+        saveState();
+        renderAll();
+      });
+
+      els.archiveForm.addEventListener('submit', event => {
+        event.preventDefault();
+        archiveCurrentState();
+      });
+
+      document.addEventListener('click', event => {
+        const sourceBtn = event.target.closest('[data-source-action]');
+        if(sourceBtn){
+          const id = sourceBtn.getAttribute('data-id');
+          const action = sourceBtn.getAttribute('data-source-action');
+          const source = state.sources.find(item => item.id === id);
+          if(!source) return;
+
+          if(action === 'open'){
+            setCurrentFromSource(source);
+            return;
+          }
+
+          if(action === 'toggle'){
+            source.selected = !source.selected;
+            saveState();
+            renderAll();
+            return;
+          }
+
+          if(action === 'delete'){
+            if(!confirm('Diese Quelle wirklich löschen?')) return;
+            state.sources = state.sources.filter(item => item.id !== id);
+            if(state.current && state.current.id === id){
+              state.current = null;
+              currentImport = null;
+            }
+            saveState();
+            renderAll();
+          }
+        }
+
+        const archiveBtn = event.target.closest('[data-archive-action]');
+        if(archiveBtn){
+          const id = archiveBtn.getAttribute('data-id');
+          const action = archiveBtn.getAttribute('data-archive-action');
+          const archive = state.archives.find(item => item.id === id);
+          if(!archive) return;
+
+          if(action === 'load'){
+            state.sources = JSON.parse(JSON.stringify(archive.sources || []));
+            state.current = archive.current ? JSON.parse(JSON.stringify(archive.current)) : null;
+            currentImport = archive.current ? JSON.parse(JSON.stringify(archive.current)) : null;
+            saveState();
+            fillFormFromStateCurrent();
+            renderAll();
+            return;
+          }
+
+          if(action === 'delete'){
+            if(!confirm('Diesen Archivstand wirklich löschen?')) return;
+            state.archives = state.archives.filter(item => item.id !== id);
+            saveState();
+            renderAll();
+          }
+        }
+      });
+
+      fillFormFromStateCurrent();
+      currentImport = state.current ? JSON.parse(JSON.stringify(state.current)) : null;
+      renderAll();
+    })();
+  </script>
+</body>
+</html>
