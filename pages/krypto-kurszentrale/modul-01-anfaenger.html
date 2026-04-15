@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Krypto-Kurszentrale – Modul 01 Anfänger</title>
-  <meta name="description" content="Modul 01 Anfänger der Krypto-Kurszentrale: mehrere CSV-Dateien laden, Originaldaten verstehen, erste Auswertung erzeugen, Quellen gezielt auswählen und archivieren." />
+  <meta name="description" content="Modul 01 Anfänger der Krypto-Kurszentrale: mehrere CSV-Dateien laden, Originaldaten verstehen, echte Summen auswerten, Quellen gezielt auswählen und archivieren." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -193,6 +193,8 @@
     .grid-2{grid-template-columns:1.03fr .97fr}
     .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
     .grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .grid-5{grid-template-columns:repeat(5,minmax(0,1fr))}
+    .grid-6{grid-template-columns:repeat(6,minmax(0,1fr))}
 
     .step-grid{
       display:grid;
@@ -280,6 +282,12 @@
       background:rgba(18,199,163,.12);
       border-color:rgba(18,199,163,.24);
       color:var(--mint-dark);
+    }
+
+    .chip.danger{
+      background:#fff5f5;
+      border-color:#fecaca;
+      color:#991b1b;
     }
 
     .note{
@@ -393,7 +401,7 @@
     table{
       width:100%;
       border-collapse:collapse;
-      min-width:1100px;
+      min-width:1150px;
     }
 
     th,td{
@@ -448,6 +456,10 @@
       margin-top:10px;
     }
 
+    .good{color:#065f46}
+    .bad{color:#991b1b}
+    .neutral{color:#334155}
+
     .hidden{display:none !important}
     .print-only{display:none}
 
@@ -455,6 +467,8 @@
       .grid-2,
       .grid-3,
       .grid-4,
+      .grid-5,
+      .grid-6,
       .step-grid{
         grid-template-columns:1fr;
       }
@@ -486,16 +500,17 @@
       <h1>Rohdaten verstehen und erste Auswertung aufbauen</h1>
       <p class="sub">
         Dieses Modul ist für den ruhigen Einstieg gedacht. Hier wird zuerst die Original-CSV sichtbar gemacht, damit der Nutzer wirklich sieht,
-        welche Daten vorhanden sind. Danach entsteht eine erste ruhige Arbeitsansicht. Mehrere CSV-Dateien und viele Quellen sind möglich,
-        aber die aktuelle Vorschau zeigt immer nur die Quellen, die gezielt ausgewählt wurden.
+        welche Daten vorhanden sind. Danach entsteht eine erste steuerlich brauchbare Arbeitsauswertung mit Summen, Bewegungsarten,
+        Gegenwerten und Hinweisen. Mehrere CSV-Dateien und viele Quellen sind möglich, aber die aktuelle Vorschau zeigt immer nur die Quellen,
+        die gezielt ausgewählt wurden.
       </p>
 
       <div class="chips">
         <span class="chip mint">Mehrfach-Aufnahme</span>
         <span class="chip">Original-CSV zuerst</span>
         <span class="chip">Auto-Erkennung</span>
+        <span class="chip">Summen & Bewegungen</span>
         <span class="chip">gezielte Auswahl</span>
-        <span class="chip">Archiv</span>
         <span class="chip magenta">Arbeitsbereich separat zurücksetzen</span>
       </div>
 
@@ -523,7 +538,7 @@
         <div class="step-card">
           <div class="step-num">3</div>
           <strong>Jetzt auswerten</strong>
-          <div class="muted small">Erst danach eine einfache FSA-Arbeitsansicht erzeugen.</div>
+          <div class="muted small">Summen, Gegenwerte, Bewegungsarten und offene Punkte auslesen.</div>
         </div>
         <div class="step-card">
           <div class="step-num">4</div>
@@ -657,11 +672,11 @@
     </section>
 
     <section class="section panel soft">
-      <h2>Einfache Auswertung der ausgewählten Quellen</h2>
+      <h2>Echte Anfänger-Auswertung der ausgewählten Quellen</h2>
       <div id="analysisEmpty" class="empty">Noch keine Auswertung vorhanden. Öffne eine Quelle und klicke auf „Jetzt auswerten“ oder wähle mehrere bereits ausgewertete Quellen aus.</div>
 
       <div id="analysisBox" class="hidden">
-        <div class="grid grid-4">
+        <div class="grid grid-6">
           <div class="stat">
             <div class="num" id="evalTransactions">0</div>
             <div><strong>Vorgänge</strong></div>
@@ -673,6 +688,16 @@
             <div class="small muted">unterschiedliche Werte</div>
           </div>
           <div class="stat">
+            <div class="num" id="evalFiatIn">0,00</div>
+            <div><strong>Fiat gesamt rein</strong></div>
+            <div class="small muted">erkannte Zuflüsse</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="evalFiatOut">0,00</div>
+            <div><strong>Fiat gesamt raus</strong></div>
+            <div class="small muted">erkannte Abflüsse</div>
+          </div>
+          <div class="stat">
             <div class="num" id="evalFees">0,00</div>
             <div><strong>Gebühren gesamt</strong></div>
             <div class="small muted">soweit erkennbar</div>
@@ -681,6 +706,34 @@
             <div class="num" id="evalChecks">0</div>
             <div><strong>Prüffälle</strong></div>
             <div class="small muted">offene Hinweise</div>
+          </div>
+        </div>
+
+        <div class="grid grid-5 section">
+          <div class="stat">
+            <div class="num" id="evalBuys">0</div>
+            <div><strong>Käufe</strong></div>
+            <div class="small muted">erkannte Kaufzeilen</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="evalSells">0</div>
+            <div><strong>Verkäufe</strong></div>
+            <div class="small muted">erkannte Verkaufszeilen</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="evalDeposits">0</div>
+            <div><strong>Einzahlungen</strong></div>
+            <div class="small muted">erkannte Zuführungen</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="evalWithdrawals">0</div>
+            <div><strong>Auszahlungen</strong></div>
+            <div class="small muted">erkannte Abführungen</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="evalUnclear">0</div>
+            <div><strong>Unklare Zeilen</strong></div>
+            <div class="small muted">für spätere Prüfung</div>
           </div>
         </div>
 
@@ -699,10 +752,36 @@
           </div>
         </div>
 
-        <div class="preview-card">
+        <div class="grid grid-2 section">
+          <div class="preview-card">
+            <h3>Steuerberater-relevante Arbeitszusammenfassung</h3>
+            <div class="chips" id="combinedInfoChips"></div>
+            <div class="okbox" id="summaryBox"></div>
+            <div class="warnbox" id="explainBox"></div>
+          </div>
+          <div class="preview-card">
+            <h3>Asset-Übersicht</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Asset</th>
+                    <th>Zeilen</th>
+                    <th>Menge rein</th>
+                    <th>Menge raus</th>
+                    <th>Gegenwert rein</th>
+                    <th>Gegenwert raus</th>
+                  </tr>
+                </thead>
+                <tbody id="assetBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-card section">
           <h3>Einfache Arbeitsliste</h3>
           <div class="muted small">Hier wird aus den ausgewählten Originaldaten eine erste ruhige Arbeitsansicht erzeugt.</div>
-          <div class="chips" id="combinedInfoChips"></div>
           <div class="table-wrap">
             <table>
               <thead>
@@ -710,12 +789,14 @@
                   <th>#</th>
                   <th>Datum</th>
                   <th>Quelle</th>
+                  <th>Bewegung</th>
                   <th>Beschreibung / Typ</th>
                   <th>Asset</th>
                   <th>Menge</th>
                   <th>Gegenwert</th>
                   <th>Gebühr</th>
                   <th>TxID / Hash</th>
+                  <th>Hinweis</th>
                 </tr>
               </thead>
               <tbody id="analysisBody"></tbody>
@@ -778,14 +859,16 @@
 
   <script>
     (() => {
-      const STORAGE_KEY = 'krypto_kurszentrale_modul_01_anfaenger_v2';
+      const STORAGE_KEY = 'krypto_kurszentrale_modul_01_anfaenger_v3';
 
       const FIELD_GROUPS = {
         date: ['timestamp','timestamp (utc)','datetime','datetime (utc)','date','datum','created at','time','zeit'],
         description: ['transaction description','description','type','kind','transaction kind','method','side','direction','status'],
         asset: ['currency','asset','coin','token','to currency','native currency','symbol'],
-        amount: ['amount','qty','quantity','to amount','native amount','token amount'],
+        amount: ['amount','qty','quantity','to amount','token amount'],
         value: ['native amount (in usd)','value (usd)','usd value','eur value','value','gegenwert','native amount'],
+        nativeAmount: ['native amount','native amount (in usd)','quote amount'],
+        nativeCurrency: ['native currency','fiat currency','quote currency'],
         fee: ['fee','fees','txn fee','gas fee','network fee','commission','gebühr'],
         txid: ['transaction hash','txid','txhash','hash','transaction id','signature']
       };
@@ -829,13 +912,23 @@
         analysisBox: document.getElementById('analysisBox'),
         evalTransactions: document.getElementById('evalTransactions'),
         evalAssets: document.getElementById('evalAssets'),
+        evalFiatIn: document.getElementById('evalFiatIn'),
+        evalFiatOut: document.getElementById('evalFiatOut'),
         evalFees: document.getElementById('evalFees'),
         evalChecks: document.getElementById('evalChecks'),
+        evalBuys: document.getElementById('evalBuys'),
+        evalSells: document.getElementById('evalSells'),
+        evalDeposits: document.getElementById('evalDeposits'),
+        evalWithdrawals: document.getElementById('evalWithdrawals'),
+        evalUnclear: document.getElementById('evalUnclear'),
         evalChips: document.getElementById('evalChips'),
         knownList: document.getElementById('knownList'),
         missingList: document.getElementById('missingList'),
         analysisBody: document.getElementById('analysisBody'),
         combinedInfoChips: document.getElementById('combinedInfoChips'),
+        summaryBox: document.getElementById('summaryBox'),
+        explainBox: document.getElementById('explainBox'),
+        assetBody: document.getElementById('assetBody'),
 
         btnDeselectAll: document.getElementById('btnDeselectAll'),
         btnSelectAll: document.getElementById('btnSelectAll'),
@@ -859,23 +952,20 @@
             return {
               sources: [],
               archives: [],
-              currentSourceId: '',
-              draftMeta: {}
+              currentSourceId: ''
             };
           }
           const parsed = JSON.parse(raw);
           return {
             sources: Array.isArray(parsed.sources) ? parsed.sources : [],
             archives: Array.isArray(parsed.archives) ? parsed.archives : [],
-            currentSourceId: typeof parsed.currentSourceId === 'string' ? parsed.currentSourceId : '',
-            draftMeta: parsed.draftMeta && typeof parsed.draftMeta === 'object' ? parsed.draftMeta : {}
+            currentSourceId: typeof parsed.currentSourceId === 'string' ? parsed.currentSourceId : ''
           };
         }catch{
           return {
             sources: [],
             archives: [],
-            currentSourceId: '',
-            draftMeta: {}
+            currentSourceId: ''
           };
         }
       }
@@ -998,17 +1088,6 @@
         return Number(value || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       }
 
-      function formatDate(dateStr){
-        const date = new Date(dateStr);
-        if(Number.isNaN(date.getTime())) return '';
-        return String(date.getFullYear());
-      }
-
-      function getField(headers, row, group){
-        const field = findField(headers, group);
-        return field ? normalize(row[field]) : '';
-      }
-
       function guessProvider(fileName, headers){
         const text = (fileName + ' ' + headers.join(' ')).toLowerCase();
         if(text.includes('crypto.com') || text.includes('transaction description') || text.includes('native amount (in usd)')) return 'Crypto.com';
@@ -1025,14 +1104,14 @@
 
       function guessNetwork(fileName, headers, rows){
         const text = (fileName + ' ' + headers.join(' ') + ' ' + rows.slice(0,3).map(row => Object.values(row).join(' ')).join(' ')).toLowerCase();
-        if(text.includes('ethereum') || text.includes('eth')) return 'Ethereum';
         if(text.includes('bnb') || text.includes('bsc')) return 'BNB Chain';
+        if(text.includes('ethereum') || text.includes('eth')) return 'Ethereum';
         if(text.includes('solana') || text.includes('sol')) return 'Solana';
         if(text.includes('bitcoin') || text.includes('btc')) return 'Bitcoin';
         if(text.includes('arbitrum')) return 'Arbitrum';
         if(text.includes('base')) return 'Base';
         if(text.includes('polygon') || text.includes('matic')) return 'Polygon';
-        if(text.includes('optimism') || text.includes('op ')) return 'Optimism';
+        if(text.includes('optimism')) return 'Optimism';
         return '';
       }
 
@@ -1079,44 +1158,51 @@
         };
       }
 
-      function buildAnalysis(headers, rows){
+      function classifyMovement(description, amountValue, valueValue){
+        const text = normalize(description).toLowerCase();
+
+        if(text.includes('bought') || text.includes('buy') || text.includes('crypto_purchase')){
+          return 'Kauf';
+        }
+        if(text.includes('sold') || text.includes('sell') || text.includes('card_top_up') || text.includes('viban_exchange')){
+          return 'Verkauf';
+        }
+        if(text.includes('deposit') || text.includes('crypto_deposit') || text.includes('fiat_deposit') || text.includes('top_up_credit')){
+          return 'Einzahlung';
+        }
+        if(text.includes('withdraw') || text.includes('withdrawal') || text.includes('crypto_withdrawal') || text.includes('fiat_withdrawal')){
+          return 'Auszahlung';
+        }
+        if(text.includes('reward') || text.includes('earn') || text.includes('staking')){
+          return 'Reward';
+        }
+        if(text.includes('transfer')){
+          return 'Transfer';
+        }
+
+        if(amountValue > 0 && valueValue > 0) return 'Einzahlung';
+        if(amountValue < 0 && valueValue < 0) return 'Verkauf';
+        if(amountValue < 0 && valueValue > 0) return 'Auszahlung';
+        if(amountValue > 0 && valueValue < 0) return 'Kauf';
+
+        return 'Unklar';
+      }
+
+      function buildAnalysis(source){
+        const headers = source.headers;
+        const rows = source.rows;
+
         const fields = {
           date: findField(headers, 'date'),
           description: findField(headers, 'description'),
           asset: findField(headers, 'asset'),
           amount: findField(headers, 'amount'),
           value: findField(headers, 'value'),
+          nativeAmount: findField(headers, 'nativeAmount'),
+          nativeCurrency: findField(headers, 'nativeCurrency'),
           fee: findField(headers, 'fee'),
           txid: findField(headers, 'txid')
         };
-
-        const assets = new Set();
-        let feeSum = 0;
-        let checkRows = 0;
-        const simpleRows = rows.map((row, index) => {
-          const date = fields.date ? normalize(row[fields.date]) : '';
-          const description = fields.description ? normalize(row[fields.description]) : '';
-          const asset = fields.asset ? normalize(row[fields.asset]) : '';
-          const amount = fields.amount ? normalize(row[fields.amount]) : '';
-          const value = fields.value ? normalize(row[fields.value]) : '';
-          const fee = fields.fee ? normalize(row[fields.fee]) : '';
-          const txid = fields.txid ? normalize(row[fields.txid]) : '';
-
-          if(asset) assets.add(asset);
-          if(fee) feeSum += toNumber(fee);
-          if(!date || !asset || !description) checkRows += 1;
-
-          return {
-            index: index + 1,
-            date,
-            description,
-            asset,
-            amount,
-            value,
-            fee,
-            txid
-          };
-        });
 
         const known = [];
         const missing = [];
@@ -1133,7 +1219,7 @@
         if(fields.amount) known.push('Menge / Amount ist erkennbar.');
         else missing.push('Menge / Amount wurde nicht eindeutig erkannt.');
 
-        if(fields.value) known.push('Ein Gegenwert ist in der CSV erkennbar.');
+        if(fields.value || fields.nativeAmount) known.push('Ein Gegenwert ist in der CSV erkennbar.');
         else missing.push('Ein direkter Gegenwert wurde nicht eindeutig erkannt.');
 
         if(fields.fee) known.push('Gebührenfeld ist vorhanden.');
@@ -1142,14 +1228,122 @@
         if(fields.txid) known.push('TxID / Hash ist vorhanden oder teilweise vorhanden.');
         else missing.push('TxID / Hash wurde nicht eindeutig erkannt.');
 
+        const assets = new Set();
+        const assetMap = new Map();
+
+        let feeSum = 0;
+        let fiatIn = 0;
+        let fiatOut = 0;
+        let checks = 0;
+        let buys = 0;
+        let sells = 0;
+        let deposits = 0;
+        let withdrawals = 0;
+        let unclear = 0;
+
+        const simpleRows = rows.map((row, index) => {
+          const date = fields.date ? normalize(row[fields.date]) : '';
+          const description = fields.description ? normalize(row[fields.description]) : '';
+          const asset = fields.asset ? normalize(row[fields.asset]) : '';
+          const amountRaw = fields.amount ? normalize(row[fields.amount]) : '';
+          const valueRaw = fields.value ? normalize(row[fields.value]) : '';
+          const nativeAmountRaw = fields.nativeAmount ? normalize(row[fields.nativeAmount]) : '';
+          const nativeCurrency = fields.nativeCurrency ? normalize(row[fields.nativeCurrency]) : '';
+          const feeRaw = fields.fee ? normalize(row[fields.fee]) : '';
+          const txid = fields.txid ? normalize(row[fields.txid]) : '';
+
+          const amount = amountRaw ? toNumber(amountRaw) : 0;
+          const value = valueRaw ? toNumber(valueRaw) : (nativeAmountRaw ? toNumber(nativeAmountRaw) : 0);
+          const fee = feeRaw ? Math.abs(toNumber(feeRaw)) : 0;
+
+          const movement = classifyMovement(description, amount, value);
+          const absValue = Math.abs(value);
+
+          if(asset) assets.add(asset);
+          feeSum += fee;
+
+          if(movement === 'Kauf' || movement === 'Einzahlung' || movement === 'Reward'){
+            fiatIn += absValue;
+          } else if(movement === 'Verkauf' || movement === 'Auszahlung'){
+            fiatOut += absValue;
+          }
+
+          if(movement === 'Kauf') buys += 1;
+          else if(movement === 'Verkauf') sells += 1;
+          else if(movement === 'Einzahlung') deposits += 1;
+          else if(movement === 'Auszahlung') withdrawals += 1;
+          else unclear += 1;
+
+          let hint = '';
+          if(!date || !asset || !description){
+            checks += 1;
+            hint = 'Grunddaten unvollständig';
+          } else if(movement === 'Unklar'){
+            checks += 1;
+            hint = 'Bewegung später prüfen';
+          } else if(!valueRaw && !nativeAmountRaw){
+            checks += 1;
+            hint = 'Kein Gegenwert direkt erkannt';
+          }
+
+          if(asset){
+            if(!assetMap.has(asset)){
+              assetMap.set(asset, {
+                asset,
+                count: 0,
+                amountIn: 0,
+                amountOut: 0,
+                valueIn: 0,
+                valueOut: 0
+              });
+            }
+            const entry = assetMap.get(asset);
+            entry.count += 1;
+            if(amount >= 0) entry.amountIn += amount;
+            else entry.amountOut += Math.abs(amount);
+
+            if(movement === 'Kauf' || movement === 'Einzahlung' || movement === 'Reward'){
+              entry.valueIn += absValue;
+            } else if(movement === 'Verkauf' || movement === 'Auszahlung'){
+              entry.valueOut += absValue;
+            }
+          }
+
+          return {
+            index: index + 1,
+            date,
+            description,
+            asset,
+            amountRaw,
+            amount,
+            valueRaw: valueRaw || nativeAmountRaw,
+            value,
+            feeRaw,
+            fee,
+            txid,
+            movement,
+            hint,
+            nativeCurrency
+          };
+        });
+
         return {
           fields,
-          assets: assets.size,
-          feeSum,
-          checkRows,
-          simpleRows,
           known,
-          missing
+          missing,
+          transactions: simpleRows.length,
+          assets: assets.size,
+          fiatIn,
+          fiatOut,
+          feeSum,
+          checks,
+          buys,
+          sells,
+          deposits,
+          withdrawals,
+          unclear,
+          simpleRows,
+          assetRows: Array.from(assetMap.values()).sort((a,b) => a.asset.localeCompare(b.asset, 'de'))
         };
       }
 
@@ -1269,8 +1463,8 @@
       function analyzeCurrentSource(){
         const source = currentSource();
         if(!source) return;
-        source.analysis = buildAnalysis(source.headers, source.rows);
         source.meta = { ...source.meta, ...readFormMeta() };
+        source.analysis = buildAnalysis(source);
         saveState();
         renderAll();
       }
@@ -1291,43 +1485,90 @@
           return null;
         }
 
-        const allRows = [];
-        const fieldsSet = new Set();
         const known = new Set();
         const missing = new Set();
-        const assets = new Set();
-        let feeSum = 0;
+        const fieldNames = new Set();
+
+        let transactions = 0;
+        let assets = new Set();
+        let fiatIn = 0;
+        let fiatOut = 0;
+        let fees = 0;
         let checks = 0;
+        let buys = 0;
+        let sells = 0;
+        let deposits = 0;
+        let withdrawals = 0;
+        let unclear = 0;
+
+        const rows = [];
+        const assetMap = new Map();
 
         analyzed.forEach(source => {
-          Object.values(source.analysis.fields).forEach(value => {
-            if(value) fieldsSet.add(value);
-          });
           source.analysis.known.forEach(item => known.add(item));
           source.analysis.missing.forEach(item => missing.add(item));
-          feeSum += source.analysis.feeSum;
-          checks += source.analysis.checkRows;
+          Object.values(source.analysis.fields).forEach(value => {
+            if(value) fieldNames.add(value);
+          });
+
+          transactions += source.analysis.transactions;
+          fiatIn += source.analysis.fiatIn;
+          fiatOut += source.analysis.fiatOut;
+          fees += source.analysis.feeSum;
+          checks += source.analysis.checks;
+          buys += source.analysis.buys;
+          sells += source.analysis.sells;
+          deposits += source.analysis.deposits;
+          withdrawals += source.analysis.withdrawals;
+          unclear += source.analysis.unclear;
 
           source.analysis.simpleRows.forEach(row => {
             if(row.asset) assets.add(row.asset);
-            allRows.push({
+            rows.push({
               sourceName: source.meta.caseName || source.fileName,
               ...row
             });
+          });
+
+          source.analysis.assetRows.forEach(item => {
+            if(!assetMap.has(item.asset)){
+              assetMap.set(item.asset, {
+                asset: item.asset,
+                count: 0,
+                amountIn: 0,
+                amountOut: 0,
+                valueIn: 0,
+                valueOut: 0
+              });
+            }
+            const target = assetMap.get(item.asset);
+            target.count += item.count;
+            target.amountIn += item.amountIn;
+            target.amountOut += item.amountOut;
+            target.valueIn += item.valueIn;
+            target.valueOut += item.valueOut;
           });
         });
 
         return {
           selectedCount: selected.length,
           analyzedCount: analyzed.length,
-          transactions: allRows.length,
+          transactions,
           assets: assets.size,
-          feeSum,
+          fiatIn,
+          fiatOut,
+          fees,
           checks,
-          fieldNames: Array.from(fieldsSet),
+          buys,
+          sells,
+          deposits,
+          withdrawals,
+          unclear,
+          rows,
+          fieldNames: Array.from(fieldNames),
           known: Array.from(known),
           missing: Array.from(missing),
-          rows: allRows
+          assetRows: Array.from(assetMap.values()).sort((a,b) => a.asset.localeCompare(b.asset, 'de'))
         };
       }
 
@@ -1343,18 +1584,10 @@
         els.statArchives.textContent = String(state.archives.length);
 
         const chips = [];
-        if(current){
-          chips.push('<span class="chip mint">Quelle geöffnet</span>');
-        }
-        if(state.sources.length){
-          chips.push('<span class="chip">' + state.sources.length + ' Quellen gespeichert</span>');
-        }
-        if(selectedSources().length){
-          chips.push('<span class="chip active">' + selectedSources().length + ' Quellen ausgewählt</span>');
-        }
-        if(combined){
-          chips.push('<span class="chip warn">' + combined.analyzedCount + ' Quellen ausgewertet</span>');
-        }
+        if(current) chips.push('<span class="chip mint">Quelle geöffnet</span>');
+        if(state.sources.length) chips.push('<span class="chip">' + state.sources.length + ' Quellen gespeichert</span>');
+        if(selectedSources().length) chips.push('<span class="chip active">' + selectedSources().length + ' Quellen ausgewählt</span>');
+        if(combined) chips.push('<span class="chip warn">' + combined.analyzedCount + ' Quellen ausgewertet</span>');
         els.statusChips.innerHTML = chips.join('');
 
         if(!current){
@@ -1365,7 +1598,7 @@
 
         if(current && !current.analysis){
           els.statusNote.className = 'okbox';
-          els.statusNote.textContent = 'Die Quelle ist geladen und geöffnet. Jetzt siehst du die Originaldaten. Der nächste Schritt ist die erste Auswertung.';
+          els.statusNote.textContent = 'Die Quelle ist geladen und geöffnet. Jetzt siehst du die Originaldaten. Der nächste Schritt ist die erste Auswertung mit Summen und Bewegungsarten.';
           return;
         }
 
@@ -1414,8 +1647,16 @@
 
         els.evalTransactions.textContent = String(combined.transactions);
         els.evalAssets.textContent = String(combined.assets);
-        els.evalFees.textContent = formatNumber(combined.feeSum);
+        els.evalFiatIn.textContent = formatNumber(combined.fiatIn);
+        els.evalFiatOut.textContent = formatNumber(combined.fiatOut);
+        els.evalFees.textContent = formatNumber(combined.fees);
         els.evalChecks.textContent = String(combined.checks);
+
+        els.evalBuys.textContent = String(combined.buys);
+        els.evalSells.textContent = String(combined.sells);
+        els.evalDeposits.textContent = String(combined.deposits);
+        els.evalWithdrawals.textContent = String(combined.withdrawals);
+        els.evalUnclear.textContent = String(combined.unclear);
 
         els.evalChips.innerHTML = combined.fieldNames.map(field => `<span class="chip mint">${escapeHtml(field)}</span>`).join('');
         els.knownList.innerHTML = combined.known.map(item => `<li>${escapeHtml(item)}</li>`).join('');
@@ -1427,17 +1668,47 @@
           <span class="chip warn">${combined.transactions} Zeilen in der aktuellen Anfänger-Vorschau</span>
         `;
 
-        els.analysisBody.innerHTML = combined.rows.slice(0, 120).map((row, idx) => `
+        els.summaryBox.innerHTML = `
+          <strong>Aktuell sichtbar:</strong><br>
+          Fiat rein: ${formatNumber(combined.fiatIn)} ·
+          Fiat raus: ${formatNumber(combined.fiatOut)} ·
+          Gebühren: ${formatNumber(combined.fees)} ·
+          Käufe: ${combined.buys} ·
+          Verkäufe: ${combined.sells} ·
+          Einzahlungen: ${combined.deposits} ·
+          Auszahlungen: ${combined.withdrawals}
+        `;
+
+        els.explainBox.innerHTML = `
+          <strong>Wichtig:</strong><br>
+          Diese Anfänger-Auswertung liest bereits steuerberater-relevante Bewegungswerte aus, soweit sie direkt in den CSV-Daten erkennbar sind.
+          Unklare Zeilen, fehlende Gegenwerte oder besondere Fälle müssen später in Anwender oder Sonderfälle weiter geprüft werden.
+        `;
+
+        els.assetBody.innerHTML = combined.assetRows.map(item => `
+          <tr>
+            <td>${escapeHtml(item.asset)}</td>
+            <td>${item.count}</td>
+            <td>${formatNumber(item.amountIn)}</td>
+            <td>${formatNumber(item.amountOut)}</td>
+            <td>${formatNumber(item.valueIn)}</td>
+            <td>${formatNumber(item.valueOut)}</td>
+          </tr>
+        `).join('');
+
+        els.analysisBody.innerHTML = combined.rows.slice(0, 160).map((row, idx) => `
           <tr>
             <td>${idx + 1}</td>
             <td>${escapeHtml(row.date)}</td>
             <td>${escapeHtml(row.sourceName)}</td>
+            <td class="${row.movement === 'Kauf' || row.movement === 'Einzahlung' || row.movement === 'Reward' ? 'good' : row.movement === 'Verkauf' || row.movement === 'Auszahlung' ? 'bad' : 'neutral'}">${escapeHtml(row.movement)}</td>
             <td>${escapeHtml(row.description)}</td>
             <td>${escapeHtml(row.asset)}</td>
-            <td>${escapeHtml(row.amount)}</td>
-            <td>${escapeHtml(row.value)}</td>
-            <td>${escapeHtml(row.fee)}</td>
+            <td>${escapeHtml(row.amountRaw)}</td>
+            <td>${escapeHtml(row.valueRaw)}</td>
+            <td>${escapeHtml(row.feeRaw)}</td>
             <td>${escapeHtml(row.txid)}</td>
+            <td>${escapeHtml(row.hint || '–')}</td>
           </tr>
         `).join('');
       }
@@ -1453,6 +1724,8 @@
         els.sourcesList.innerHTML = state.sources.map(source => {
           const active = state.currentSourceId === source.id;
           const networkLabel = source.meta.network === 'Eigene Eingabe' ? source.meta.networkCustom : source.meta.network;
+          const analysis = source.analysis;
+
           return `
             <div class="source-card">
               <label class="source-select-line">
@@ -1469,18 +1742,23 @@
                     ${source.meta.year ? `<span class="chip">${escapeHtml(source.meta.year)}</span>` : ''}
                     <span class="chip">${source.rows.length} Zeilen</span>
                     <span class="chip">${source.headers.length} Spalten</span>
-                    ${source.analysis ? '<span class="chip warn">ausgewertet</span>' : '<span class="chip">noch nicht ausgewertet</span>'}
+                    ${analysis ? '<span class="chip warn">ausgewertet</span>' : '<span class="chip">noch nicht ausgewertet</span>'}
                     ${active ? '<span class="chip active">geöffnet</span>' : ''}
                   </div>
                 </div>
               </div>
 
-              <div class="small muted" style="margin-top:10px;">
-                Datei: ${escapeHtml(source.fileName)}
-              </div>
-              <div class="small muted">
-                Profil: ${escapeHtml(source.meta.profile || 'CSV-Struktur erkannt')}
-              </div>
+              <div class="small muted" style="margin-top:10px;">Datei: ${escapeHtml(source.fileName)}</div>
+              <div class="small muted">Profil: ${escapeHtml(source.meta.profile || 'CSV-Struktur erkannt')}</div>
+
+              ${analysis ? `
+                <div class="chips">
+                  <span class="chip mint">Fiat rein ${formatNumber(analysis.fiatIn)}</span>
+                  <span class="chip">${formatNumber(analysis.fiatOut)} Fiat raus</span>
+                  <span class="chip">${analysis.assets} Assets</span>
+                  <span class="chip ${analysis.checks ? 'danger' : 'mint'}">${analysis.checks} Prüffälle</span>
+                </div>
+              ` : ''}
 
               <div class="source-actions no-print">
                 <button class="btn btn-ghost" type="button" data-source-action="open" data-id="${source.id}">Öffnen</button>
@@ -1616,16 +1894,37 @@
 
         const files = els.csvFiles.files;
         const pasted = normalize(els.csvPaste.value);
-        const baseMeta = readFormMeta();
+        const baseMeta = {
+          caseName: normalize(els.caseName.value),
+          network: normalize(els.network.value),
+          networkCustom: normalize(els.networkCustom.value),
+          provider: normalize(els.provider.value),
+          walletRef: normalize(els.walletRef.value),
+          year: normalize(els.year.value)
+        };
 
         if(files && files.length){
           const entries = await readFilesAsText(files);
-          loadCsvEntries(entries, baseMeta);
+          const newSources = entries.map(entry => {
+            const parsed = parseCsv(entry.text);
+            return createSourceFromParsed(entry.fileName, parsed, baseMeta);
+          });
+          state.sources.unshift(...newSources);
+          state.currentSourceId = newSources[0]?.id || state.currentSourceId;
+          saveState();
+          applyCurrentToForm();
+          renderAll();
           return;
         }
 
         if(pasted){
-          loadCsvEntries([{ fileName: 'Direkteingabe.csv', text: pasted }], baseMeta);
+          const parsed = parseCsv(pasted);
+          const source = createSourceFromParsed('Direkteingabe.csv', parsed, baseMeta);
+          state.sources.unshift(source);
+          state.currentSourceId = source.id;
+          saveState();
+          applyCurrentToForm();
+          renderAll();
           return;
         }
 
@@ -1644,7 +1943,10 @@
           const action = sourceBtn.getAttribute('data-source-action');
 
           if(action === 'open'){
-            openSource(id);
+            state.currentSourceId = id;
+            saveState();
+            applyCurrentToForm();
+            renderAll();
             return;
           }
 
@@ -1654,7 +1956,16 @@
           }
 
           if(action === 'delete'){
-            deleteSource(id);
+            const source = state.sources.find(item => item.id === id);
+            if(!source) return;
+            if(!confirm('Diese Quelle wirklich löschen?')) return;
+            state.sources = state.sources.filter(item => item.id !== id);
+            if(state.currentSourceId === id){
+              state.currentSourceId = state.sources[0]?.id || '';
+            }
+            saveState();
+            applyCurrentToForm();
+            renderAll();
             return;
           }
         }
@@ -1692,6 +2003,23 @@
       }
 
       renderAll();
+
+      function toggleSource(id){
+        const source = state.sources.find(item => item.id === id);
+        if(!source) return;
+        source.selected = !source.selected;
+        saveState();
+        renderAll();
+      }
+
+      function readFilesAsText(files){
+        return Promise.all(Array.from(files).map(file => new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve({ fileName: file.name, text: String(reader.result || '') });
+          reader.onerror = reject;
+          reader.readAsText(file, 'utf-8');
+        })));
+      }
     })();
   </script>
 </body>
