@@ -1,0 +1,1234 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Krypto-Kurszentrale – Modul 04 Backoffice</title>
+  <meta name="description" content="Modul 04 Backoffice der Krypto-Kurszentrale: Daten aus Modul 01, 02 und 03 zusammenführen, gezielt auswählen, archivieren und für die spätere Ausgabe vorbereiten." />
+  <meta name="robots" content="index,follow" />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --bg-soft:#f7fbfa;
+      --panel:#ffffff;
+      --panel-soft:#f3fbf8;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#d9efe8;
+      --line-strong:#9edecf;
+      --mint:#12c7a3;
+      --mint-dark:#0ea480;
+      --magenta:#ff4fb3;
+      --magenta-dark:#d93a96;
+      --warn:#b45309;
+      --danger:#b91c1c;
+      --danger-soft:#fff5f5;
+      --shadow:0 18px 50px rgba(16,24,40,.08);
+      --radius:22px;
+      --max:1520px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      color:var(--text);
+      line-height:1.55;
+      background:
+        radial-gradient(circle at top left, rgba(18,199,163,.12), transparent 30%),
+        radial-gradient(circle at top right, rgba(255,79,179,.10), transparent 26%),
+        linear-gradient(180deg,#ffffff 0%, #f8fcfb 100%);
+    }
+
+    a{color:var(--mint-dark);text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    .wrap{
+      width:min(calc(100% - 28px),var(--max));
+      margin:0 auto;
+      padding:22px 0 56px;
+    }
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid rgba(18,199,163,.18);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:28px 22px;
+      background:
+        linear-gradient(135deg, rgba(18,199,163,.12), rgba(255,79,179,.10)),
+        #ffffff;
+    }
+
+    .hero::before,
+    .hero::after{
+      content:"";
+      position:absolute;
+      border-radius:999px;
+      pointer-events:none;
+      filter:blur(12px);
+    }
+
+    .hero::before{
+      width:220px;height:220px;
+      top:-50px;right:-40px;
+      background:rgba(255,79,179,.12);
+    }
+
+    .hero::after{
+      width:180px;height:180px;
+      bottom:-60px;left:-50px;
+      background:rgba(18,199,163,.14);
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      border-radius:999px;
+      padding:8px 12px;
+      border:1px solid rgba(18,199,163,.18);
+      background:rgba(18,199,163,.10);
+      color:var(--mint-dark);
+      font-size:12px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      margin-bottom:12px;
+    }
+
+    .eyebrow .dot{
+      width:10px;height:10px;border-radius:50%;
+      background:linear-gradient(135deg,var(--mint),var(--magenta));
+      box-shadow:0 0 16px rgba(255,79,179,.35);
+      flex:0 0 auto;
+    }
+
+    h1,h2,h3{margin:0 0 10px}
+    h1{
+      font-size:clamp(30px,4.8vw,50px);
+      line-height:1.04;
+      letter-spacing:-.02em;
+      max-width:1050px;
+    }
+    h2{
+      font-size:clamp(22px,3vw,31px);
+      letter-spacing:-.02em;
+    }
+    h3{
+      font-size:19px;
+      letter-spacing:-.01em;
+    }
+
+    .sub{
+      max-width:1080px;
+      margin:0;
+      color:var(--muted);
+      font-size:17px;
+    }
+
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .btn{
+      appearance:none;
+      border:0;
+      border-radius:14px;
+      padding:12px 16px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:14px;
+      line-height:1.2;
+      transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .btn:hover{transform:translateY(-1px);text-decoration:none}
+    .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+    .btn-primary{
+      color:#fff;
+      background:linear-gradient(135deg,var(--mint-dark),var(--mint));
+      box-shadow:0 12px 28px rgba(18,199,163,.22);
+    }
+
+    .btn-secondary{
+      color:#fff;
+      background:linear-gradient(135deg,var(--magenta-dark),var(--magenta));
+      box-shadow:0 12px 28px rgba(255,79,179,.18);
+    }
+
+    .btn-ghost{
+      background:#fff;
+      color:var(--text);
+      border:1px solid var(--line-strong);
+    }
+
+    .btn-danger{
+      background:var(--danger-soft);
+      color:var(--danger);
+      border:1px solid #fecaca;
+    }
+
+    .section{margin-top:18px}
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+    .panel.soft{background:var(--panel-soft)}
+
+    .grid{display:grid;gap:18px}
+    .grid-2{grid-template-columns:1.03fr .97fr}
+    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .grid-5{grid-template-columns:repeat(5,minmax(0,1fr))}
+    .grid-6{grid-template-columns:repeat(6,minmax(0,1fr))}
+
+    .step-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .card,
+    .stat,
+    .step-card,
+    .data-card,
+    .archive-card,
+    .preview-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px;
+      min-height:100%;
+    }
+
+    .stat .num{
+      font-size:28px;
+      line-height:1;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .step-num{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:34px;height:34px;
+      border-radius:50%;
+      background:rgba(18,199,163,.10);
+      border:1px solid rgba(18,199,163,.18);
+      color:var(--mint-dark);
+      font-weight:800;
+      margin-bottom:8px;
+    }
+
+    .muted{color:var(--muted)}
+    .small{font-size:13px}
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      font-weight:700;
+      border-radius:999px;
+      padding:8px 11px;
+      background:#f5fbf9;
+      border:1px solid var(--line);
+      color:var(--text);
+    }
+
+    .chip.mint{
+      background:rgba(18,199,163,.10);
+      border-color:rgba(18,199,163,.18);
+      color:var(--mint-dark);
+    }
+
+    .chip.magenta{
+      background:rgba(255,79,179,.10);
+      border-color:rgba(255,79,179,.18);
+      color:var(--magenta-dark);
+    }
+
+    .chip.warn{
+      background:#fff8e8;
+      border-color:#fcd34d;
+      color:#92400e;
+    }
+
+    .chip.active{
+      background:rgba(18,199,163,.12);
+      border-color:rgba(18,199,163,.24);
+      color:var(--mint-dark);
+    }
+
+    .chip.danger{
+      background:#fff5f5;
+      border-color:#fecaca;
+      color:#991b1b;
+    }
+
+    .okbox{
+      border-left:4px solid var(--mint);
+      background:rgba(18,199,163,.08);
+      padding:12px 14px;
+      border-radius:12px;
+      color:#065f46;
+      margin-top:10px;
+    }
+
+    .warnbox{
+      border-left:4px solid #f59e0b;
+      background:#fff8e8;
+      padding:12px 14px;
+      border-radius:12px;
+      color:#92400e;
+      margin-top:10px;
+    }
+
+    .note{
+      border-left:4px solid var(--magenta);
+      background:rgba(255,79,179,.07);
+      padding:12px 14px;
+      border-radius:12px;
+      color:#5f0e3b;
+      margin-top:10px;
+    }
+
+    .dangerbox{
+      border-left:4px solid #ef4444;
+      background:#fff5f5;
+      padding:12px 14px;
+      border-radius:12px;
+      color:#991b1b;
+      margin-top:10px;
+    }
+
+    .checklist{
+      margin:10px 0 0 18px;
+      padding:0;
+    }
+    .checklist li{margin:0 0 8px}
+
+    input[type="checkbox"]{
+      width:18px;
+      height:18px;
+      accent-color:var(--mint-dark);
+    }
+
+    .table-wrap{
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      margin-top:14px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:1400px;
+    }
+
+    th,td{
+      text-align:left;
+      vertical-align:top;
+      padding:12px;
+      border-bottom:1px solid #eef5f3;
+      font-size:14px;
+    }
+
+    th{
+      position:sticky;
+      top:0;
+      z-index:1;
+      background:#f6fcfa;
+      color:var(--text);
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+
+    .empty{
+      padding:18px;
+      border:1px dashed var(--line-strong);
+      border-radius:18px;
+      color:var(--muted);
+      background:#fcfffe;
+    }
+
+    .data-head,
+    .archive-head{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+    }
+
+    .select-line{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      font-weight:700;
+      margin-bottom:10px;
+    }
+
+    .data-actions,
+    .archive-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .good{color:#065f46}
+    .bad{color:#991b1b}
+    .neutral{color:#334155}
+
+    .hidden{display:none !important}
+    .print-only{display:none}
+
+    @media (max-width:1120px){
+      .grid-2,
+      .grid-3,
+      .grid-4,
+      .grid-5,
+      .grid-6,
+      .step-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media print{
+      body{background:#fff;color:#000}
+      .wrap{width:100%;max-width:none;padding:0}
+      .hero,.panel,.card,.stat,.step-card,.data-card,.archive-card,.preview-card,.table-wrap{
+        box-shadow:none !important;
+        border-color:#cfd8dc !important;
+        break-inside:avoid;
+      }
+      .toolbar,.btn,input,.no-print{
+        display:none !important;
+      }
+      .print-only{display:block !important}
+      table{min-width:0}
+      th,td{font-size:12px;padding:8px}
+      a{color:#000;text-decoration:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow"><span class="dot"></span> Modul 04 – Backoffice</div>
+      <h1>Alles zusammenführen, auswählen und für die Übergabe vorbereiten</h1>
+      <p class="sub">
+        Dieses Modul führt die Daten aus Modul 01, Modul 02 und Modul 03 in einer Arbeitsseite zusammen.
+        Hier wird konsequent in Multi-Logik gedacht: viele Quellen, viele Fälle, gezielte Auswahl per Häkchen,
+        kombinierte Vorschau, Archivstände und vorbereitende Zusammenstellungen für die spätere Ausgabe.
+      </p>
+
+      <div class="chips">
+        <span class="chip mint">Zusammenführung</span>
+        <span class="chip">Multi-Auswahl</span>
+        <span class="chip">manuelle Zusammenstellung</span>
+        <span class="chip">Archiv</span>
+        <span class="chip">Backoffice-Vorschau</span>
+        <span class="chip magenta">Arbeitsbereich separat zurücksetzen</span>
+      </div>
+
+      <div class="toolbar no-print">
+        <a class="btn btn-ghost" href="dashboard.html">Zurück zum Dashboard</a>
+        <a class="btn btn-ghost" href="modul-03-sonderfaelle.html">Zurück zu Modul 03 – Sonderfälle</a>
+        <a class="btn btn-ghost" href="modul-05-steuerberater-ausgabe.html">Weiter zu Modul 05 – Steuerberater-Ausgabe</a>
+        <button class="btn btn-primary" type="button" id="btnScrollData">Zu den Datenblöcken</button>
+        <button class="btn btn-danger" type="button" id="btnResetWorkspace">Arbeitsbereich auf null setzen</button>
+      </div>
+    </section>
+
+    <section class="section panel soft">
+      <h2>So arbeitet das Backoffice</h2>
+      <div class="step-grid">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <strong>Datenblöcke lesen</strong>
+          <div class="muted small">Quellen aus Modul 01 und 02 sowie Sonderfälle aus Modul 03 sichtbar machen.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <strong>Gezielt auswählen</strong>
+          <div class="muted small">Nur die Datenblöcke aktivieren, die aktuell in die Arbeitsvorschau sollen.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <strong>Kombiniert prüfen</strong>
+          <div class="muted small">Kennzahlen, Übersicht und Arbeitsliste aus den ausgewählten Datenblöcken bilden.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <strong>Archivieren und weitergeben</strong>
+          <div class="muted small">Zusammenstellungen sichern und in Modul 05 als Basis für die Ausgabe weiterführen.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section panel soft">
+      <h2>Status und Zusammenstellung</h2>
+      <div class="grid grid-6">
+        <div class="stat">
+          <div class="num" id="statBegSources">0</div>
+          <div><strong>Anfänger-Quellen</strong></div>
+          <div class="small muted">aus Modul 01</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="statAdvSources">0</div>
+          <div><strong>Anwender-Quellen</strong></div>
+          <div class="small muted">aus Modul 02</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="statSpecials">0</div>
+          <div><strong>Sonderfälle</strong></div>
+          <div class="small muted">aus Modul 03</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="statSelected">0</div>
+          <div><strong>Ausgewählt</strong></div>
+          <div class="small muted">aktive Datenblöcke</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="statRows">0</div>
+          <div><strong>Vorschau-Zeilen</strong></div>
+          <div class="small muted">aus Auswahl gebildet</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="statArchives">0</div>
+          <div><strong>Archivstände</strong></div>
+          <div class="small muted">gesicherte Zusammenstellungen</div>
+        </div>
+      </div>
+
+      <div class="toolbar no-print">
+        <button class="btn btn-ghost" type="button" id="btnSelectAll">Alles auswählen</button>
+        <button class="btn btn-ghost" type="button" id="btnDeselectAll">Alles abwählen</button>
+      </div>
+
+      <div class="chips" id="statusChips"></div>
+      <div id="statusNote" class="warnbox">
+        Noch keine Backoffice-Auswahl aktiv.
+      </div>
+    </section>
+
+    <section class="section panel" id="dataSection">
+      <h2>Datenblöcke aus den Modulen</h2>
+      <div id="dataEmpty" class="empty">Noch keine Daten aus Modul 01, 02 oder 03 gefunden.</div>
+      <div id="dataList" class="grid grid-2"></div>
+    </section>
+
+    <section class="section panel soft">
+      <h2>Kombinierte Backoffice-Vorschau</h2>
+      <div id="combinedEmpty" class="empty">Noch keine Datenblöcke ausgewählt.</div>
+
+      <div id="combinedBox" class="hidden">
+        <div class="grid grid-6">
+          <div class="stat"><div class="num" id="combinedItems">0</div><div><strong>Datenblöcke</strong></div><div class="small muted">ausgewählt</div></div>
+          <div class="stat"><div class="num" id="combinedRows">0</div><div><strong>Zeilen / Fälle</strong></div><div class="small muted">sichtbar</div></div>
+          <div class="stat"><div class="num" id="combinedFiatIn">0,00</div><div><strong>Fiat rein</strong></div><div class="small muted">erkannte Zuflüsse</div></div>
+          <div class="stat"><div class="num" id="combinedFiatOut">0,00</div><div><strong>Fiat raus</strong></div><div class="small muted">erkannte Abflüsse</div></div>
+          <div class="stat"><div class="num" id="combinedFees">0,00</div><div><strong>Gebühren</strong></div><div class="small muted">soweit erkennbar</div></div>
+          <div class="stat"><div class="num" id="combinedChecks">0</div><div><strong>Prüffälle</strong></div><div class="small muted">offene Hinweise</div></div>
+        </div>
+
+        <div class="grid grid-5 section">
+          <div class="stat"><div class="num" id="combinedBuys">0</div><div><strong>Käufe</strong></div><div class="small muted">erkannte Kaufzeilen</div></div>
+          <div class="stat"><div class="num" id="combinedSells">0</div><div><strong>Verkäufe</strong></div><div class="small muted">erkannte Verkaufszeilen</div></div>
+          <div class="stat"><div class="num" id="combinedDeposits">0</div><div><strong>Einzahlungen</strong></div><div class="small muted">erkannte Zuführungen</div></div>
+          <div class="stat"><div class="num" id="combinedWithdrawals">0</div><div><strong>Auszahlungen</strong></div><div class="small muted">erkannte Abführungen</div></div>
+          <div class="stat"><div class="num" id="combinedSpecials">0</div><div><strong>Sonderfälle</strong></div><div class="small muted">aus Modul 03</div></div>
+        </div>
+
+        <div class="grid grid-2 section">
+          <div class="preview-card">
+            <h3>Arbeitszusammenfassung</h3>
+            <div class="chips" id="combinedInfoChips"></div>
+            <div class="okbox" id="combinedSummaryBox"></div>
+            <div class="warnbox" id="combinedExplainBox"></div>
+          </div>
+
+          <div class="preview-card">
+            <h3>Weitergabe-Logik</h3>
+            <div class="chips" id="handoverInfoChips"></div>
+            <div class="okbox" id="handoverSummaryBox"></div>
+            <div class="note" id="handoverExplainBox"></div>
+          </div>
+        </div>
+
+        <div class="preview-card section">
+          <h3>Backoffice-Arbeitsliste</h3>
+          <div class="muted small">Hier werden Quellen- und Sonderfall-Daten in einer gemeinsamen Arbeitsvorschau sichtbar.</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Modul</th>
+                  <th>Blocktyp</th>
+                  <th>Quelle / Titel</th>
+                  <th>Datum</th>
+                  <th>Bewegung / Typ</th>
+                  <th>Asset</th>
+                  <th>Menge / Eingang</th>
+                  <th>Gegenwert / Ausgang</th>
+                  <th>Gebühr</th>
+                  <th>Steuerberater</th>
+                  <th>Hinweis</th>
+                </tr>
+              </thead>
+              <tbody id="combinedBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section panel">
+      <h2>Archiv</h2>
+      <div class="grid grid-2">
+        <div>
+          <div class="card">
+            <strong>Aktuellen Backoffice-Stand sichern</strong>
+            <div class="small muted" style="margin-top:8px;">Die aktuelle Auswahl und Vorschau kann als eigener Arbeitsstand gesichert werden.</div>
+            <div class="toolbar no-print">
+              <button class="btn btn-primary" type="button" id="btnArchiveCurrent">Aktuellen Stand archivieren</button>
+              <button class="btn btn-danger" type="button" id="btnResetArchive">Nur Archiv löschen</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="note">
+            Das Archiv dieses Moduls speichert die aktuelle Auswahl der Datenblöcke. So können verschiedene Zusammenstellungen parallel aufgebaut und später wieder aktiviert werden.
+          </div>
+        </div>
+      </div>
+
+      <div id="archiveEmpty" class="empty" style="margin-top:14px;">Noch keine Archivstände gespeichert.</div>
+      <div id="archiveList" class="grid grid-2"></div>
+    </section>
+
+    <section class="section panel print-only">
+      <h2>Druckansicht – Modul 04 Backoffice</h2>
+      <p>Diese Druckansicht zeigt die aktuelle Backoffice-Vorschau der ausgewählten Datenblöcke.</p>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = 'krypto_kurszentrale_modul_04_backoffice_v1';
+
+      const MODULES = [
+        {
+          storageKey:'krypto_kurszentrale_modul_01_anfaenger_v3',
+          label:'Modul 01 – Anfänger',
+          kind:'source',
+          mode:'source'
+        },
+        {
+          storageKey:'krypto_kurszentrale_modul_02_anwender_v1',
+          label:'Modul 02 – Anwender',
+          kind:'source',
+          mode:'source'
+        },
+        {
+          storageKey:'krypto_kurszentrale_modul_03_sonderfaelle_v1',
+          label:'Modul 03 – Sonderfälle',
+          kind:'case',
+          mode:'case'
+        }
+      ];
+
+      const state = loadState();
+
+      const els = {
+        btnScrollData: document.getElementById('btnScrollData'),
+        btnResetWorkspace: document.getElementById('btnResetWorkspace'),
+        btnSelectAll: document.getElementById('btnSelectAll'),
+        btnDeselectAll: document.getElementById('btnDeselectAll'),
+
+        statBegSources: document.getElementById('statBegSources'),
+        statAdvSources: document.getElementById('statAdvSources'),
+        statSpecials: document.getElementById('statSpecials'),
+        statSelected: document.getElementById('statSelected'),
+        statRows: document.getElementById('statRows'),
+        statArchives: document.getElementById('statArchives'),
+        statusChips: document.getElementById('statusChips'),
+        statusNote: document.getElementById('statusNote'),
+
+        dataEmpty: document.getElementById('dataEmpty'),
+        dataList: document.getElementById('dataList'),
+
+        combinedEmpty: document.getElementById('combinedEmpty'),
+        combinedBox: document.getElementById('combinedBox'),
+        combinedItems: document.getElementById('combinedItems'),
+        combinedRows: document.getElementById('combinedRows'),
+        combinedFiatIn: document.getElementById('combinedFiatIn'),
+        combinedFiatOut: document.getElementById('combinedFiatOut'),
+        combinedFees: document.getElementById('combinedFees'),
+        combinedChecks: document.getElementById('combinedChecks'),
+        combinedBuys: document.getElementById('combinedBuys'),
+        combinedSells: document.getElementById('combinedSells'),
+        combinedDeposits: document.getElementById('combinedDeposits'),
+        combinedWithdrawals: document.getElementById('combinedWithdrawals'),
+        combinedSpecials: document.getElementById('combinedSpecials'),
+        combinedInfoChips: document.getElementById('combinedInfoChips'),
+        combinedSummaryBox: document.getElementById('combinedSummaryBox'),
+        combinedExplainBox: document.getElementById('combinedExplainBox'),
+        handoverInfoChips: document.getElementById('handoverInfoChips'),
+        handoverSummaryBox: document.getElementById('handoverSummaryBox'),
+        handoverExplainBox: document.getElementById('handoverExplainBox'),
+        combinedBody: document.getElementById('combinedBody'),
+
+        btnArchiveCurrent: document.getElementById('btnArchiveCurrent'),
+        btnResetArchive: document.getElementById('btnResetArchive'),
+        archiveEmpty: document.getElementById('archiveEmpty'),
+        archiveList: document.getElementById('archiveList')
+      };
+
+      function loadState(){
+        try{
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if(!raw){
+            return { selectedMap:{}, archives:[] };
+          }
+          const parsed = JSON.parse(raw);
+          return {
+            selectedMap: parsed.selectedMap && typeof parsed.selectedMap === 'object' ? parsed.selectedMap : {},
+            archives: Array.isArray(parsed.archives) ? parsed.archives : []
+          };
+        }catch{
+          return { selectedMap:{}, archives:[] };
+        }
+      }
+
+      function saveState(){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function uid(prefix='id'){
+        return prefix + '_' + Math.random().toString(36).slice(2,10) + '_' + Date.now().toString(36);
+      }
+
+      function normalize(value){
+        return String(value ?? '').trim();
+      }
+
+      function escapeHtml(value){
+        return String(value ?? '')
+          .replace(/&/g,'&amp;')
+          .replace(/</g,'&lt;')
+          .replace(/>/g,'&gt;')
+          .replace(/"/g,'&quot;')
+          .replace(/'/g,'&#39;');
+      }
+
+      function formatNumber(value){
+        return Number(value || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function isSelected(blockId){
+        return !!state.selectedMap[blockId];
+      }
+
+      function collectBlocks(){
+        const blocks = [];
+
+        MODULES.forEach(module => {
+          try{
+            const raw = localStorage.getItem(module.storageKey);
+            if(!raw) return;
+            const parsed = JSON.parse(raw);
+
+            if(module.mode === 'source'){
+              const sources = Array.isArray(parsed.sources) ? parsed.sources : [];
+              sources.forEach(source => {
+                const blockId = module.storageKey + '::source::' + source.id;
+                const analysis = source.analysis || null;
+                const network = normalize(source.meta?.network === 'Eigene Eingabe' ? source.meta?.networkCustom : source.meta?.network);
+                blocks.push({
+                  blockId,
+                  storageKey: module.storageKey,
+                  moduleLabel: module.label,
+                  blockType: 'Quelle',
+                  title: normalize(source.meta?.caseName || source.fileName || 'Quelle'),
+                  provider: normalize(source.meta?.provider),
+                  year: normalize(source.meta?.year),
+                  network,
+                  walletRef: normalize(source.meta?.walletRef),
+                  profile: normalize(source.meta?.profile),
+                  analysis,
+                  selected: isSelected(blockId),
+                  rows: Array.isArray(source.rows) ? source.rows.length : 0
+                });
+              });
+            }
+
+            if(module.mode === 'case'){
+              const cases = Array.isArray(parsed.cases) ? parsed.cases : [];
+              cases.forEach(item => {
+                const blockId = module.storageKey + '::case::' + item.id;
+                blocks.push({
+                  blockId,
+                  storageKey: module.storageKey,
+                  moduleLabel: module.label,
+                  blockType: 'Sonderfall',
+                  title: normalize(item.title),
+                  provider: normalize(item.platform),
+                  year: normalize(item.year),
+                  network: normalize(item.chain),
+                  walletRef: normalize(item.walletRef),
+                  profile: normalize(item.type),
+                  caseData: item,
+                  selected: isSelected(blockId),
+                  rows: 1
+                });
+              });
+            }
+          }catch{}
+        });
+
+        return blocks;
+      }
+
+      function selectedBlocks(blocks){
+        return blocks.filter(block => block.selected);
+      }
+
+      function buildCombined(blocks){
+        const selected = selectedBlocks(blocks);
+        if(!selected.length) return null;
+
+        let fiatIn = 0;
+        let fiatOut = 0;
+        let fees = 0;
+        let checks = 0;
+        let buys = 0;
+        let sells = 0;
+        let deposits = 0;
+        let withdrawals = 0;
+        let specials = 0;
+
+        const rows = [];
+
+        selected.forEach(block => {
+          if(block.blockType === 'Quelle' && block.analysis){
+            fiatIn += Number(block.analysis.fiatIn || 0);
+            fiatOut += Number(block.analysis.fiatOut || 0);
+            fees += Number(block.analysis.feeSum || 0);
+            checks += Number(block.analysis.checks || 0);
+            buys += Number(block.analysis.buys || 0);
+            sells += Number(block.analysis.sells || 0);
+            deposits += Number(block.analysis.deposits || 0);
+            withdrawals += Number(block.analysis.withdrawals || 0);
+
+            (block.analysis.simpleRows || []).forEach(row => {
+              rows.push({
+                moduleLabel:block.moduleLabel,
+                blockType:block.blockType,
+                title:block.title,
+                date:normalize(row.date),
+                movement:normalize(row.movement),
+                asset:normalize(row.asset),
+                amount:normalize(row.amountRaw),
+                value:normalize(row.valueRaw),
+                fee:normalize(row.feeRaw),
+                taxRelevant:'Ja',
+                hint:normalize(row.hint || row.description || '')
+              });
+            });
+          }
+
+          if(block.blockType === 'Sonderfall'){
+            specials += 1;
+            const c = block.caseData || {};
+            if(normalize(c.taxRelevant) === 'Ja') checks += 1;
+
+            rows.push({
+              moduleLabel:block.moduleLabel,
+              blockType:block.blockType,
+              title:block.title,
+              date:normalize(c.date || c.year),
+              movement:normalize(c.type),
+              asset:normalize(c.chain),
+              amount:normalize(c.economicInput),
+              value:normalize(c.countervalue || c.economicOutput),
+              fee:'',
+              taxRelevant:normalize(c.taxRelevant || 'Ja'),
+              hint:normalize(c.note || c.description || c.result || '')
+            });
+          }
+        });
+
+        return {
+          selectedItems:selected.length,
+          rows,
+          fiatIn,
+          fiatOut,
+          fees,
+          checks,
+          buys,
+          sells,
+          deposits,
+          withdrawals,
+          specials
+        };
+      }
+
+      function renderStatus(blocks){
+        const selected = selectedBlocks(blocks);
+        const combined = buildCombined(blocks);
+
+        const begCount = blocks.filter(block => block.moduleLabel.includes('Anfänger')).length;
+        const advCount = blocks.filter(block => block.moduleLabel.includes('Anwender')).length;
+        const specialCount = blocks.filter(block => block.blockType === 'Sonderfall').length;
+
+        els.statBegSources.textContent = String(begCount);
+        els.statAdvSources.textContent = String(advCount);
+        els.statSpecials.textContent = String(specialCount);
+        els.statSelected.textContent = String(selected.length);
+        els.statRows.textContent = String(combined ? combined.rows.length : 0);
+        els.statArchives.textContent = String(state.archives.length);
+
+        els.statusChips.innerHTML = `
+          ${begCount ? `<span class="chip mint">${begCount} Anfänger-Quellen</span>` : ''}
+          ${advCount ? `<span class="chip">${advCount} Anwender-Quellen</span>` : ''}
+          ${specialCount ? `<span class="chip magenta">${specialCount} Sonderfälle</span>` : ''}
+          ${selected.length ? `<span class="chip active">${selected.length} ausgewählt</span>` : ''}
+        `;
+
+        if(!blocks.length){
+          els.statusNote.className = 'warnbox';
+          els.statusNote.textContent = 'Noch keine Daten aus Modul 01, 02 oder 03 gefunden.';
+          return;
+        }
+
+        if(!selected.length){
+          els.statusNote.className = 'warnbox';
+          els.statusNote.textContent = 'Daten wurden gefunden. Jetzt die gewünschten Blöcke gezielt auswählen.';
+          return;
+        }
+
+        els.statusNote.className = 'okbox';
+        els.statusNote.textContent = 'Das Backoffice zeigt jetzt nur die aktuell ausgewählten Datenblöcke in der kombinierten Vorschau.';
+      }
+
+      function renderDataBlocks(blocks){
+        if(!blocks.length){
+          els.dataEmpty.classList.remove('hidden');
+          els.dataList.innerHTML = '';
+          return;
+        }
+
+        els.dataEmpty.classList.add('hidden');
+        els.dataList.innerHTML = blocks.map(block => {
+          const isSource = block.blockType === 'Quelle';
+          return `
+            <div class="data-card">
+              <label class="select-line">
+                <input type="checkbox" data-block-id="${block.blockId}" ${block.selected ? 'checked' : ''}>
+                <span>Diesen Datenblock in die Backoffice-Vorschau übernehmen</span>
+              </label>
+
+              <div class="data-head">
+                <div>
+                  <strong>${escapeHtml(block.title || 'Datenblock')}</strong>
+                  <div class="chips">
+                    <span class="chip mint">${escapeHtml(block.moduleLabel)}</span>
+                    <span class="chip">${escapeHtml(block.blockType)}</span>
+                    ${block.provider ? `<span class="chip">${escapeHtml(block.provider)}</span>` : ''}
+                    ${block.network ? `<span class="chip">${escapeHtml(block.network)}</span>` : ''}
+                    ${block.year ? `<span class="chip">${escapeHtml(block.year)}</span>` : ''}
+                    ${block.selected ? `<span class="chip active">ausgewählt</span>` : ''}
+                  </div>
+                </div>
+              </div>
+
+              ${isSource ? `
+                <div class="small muted" style="margin-top:10px;">${block.rows} Rohzeilen in der Quelle</div>
+                ${block.analysis ? `
+                  <div class="chips">
+                    <span class="chip mint">Fiat rein ${formatNumber(block.analysis.fiatIn)}</span>
+                    <span class="chip">Fiat raus ${formatNumber(block.analysis.fiatOut)}</span>
+                    <span class="chip">Gebühren ${formatNumber(block.analysis.feeSum)}</span>
+                    <span class="chip ${block.analysis.checks ? 'danger' : 'mint'}">${block.analysis.checks} Prüffälle</span>
+                  </div>
+                ` : `<div class="warnbox">Diese Quelle ist im Ursprungsmodul noch nicht ausgewertet.</div>`}
+              ` : `
+                <div class="small muted" style="margin-top:10px;">${block.caseData?.sourceLabel ? 'Quellenbezug: ' + escapeHtml(block.caseData.sourceLabel) : 'Freier Sonderfall ohne Quellenbezug'}</div>
+                <div class="chips">
+                  ${block.caseData?.taxRelevant === 'Ja' ? '<span class="chip magenta">steuerberater-relevant</span>' : ''}
+                  ${block.caseData?.result ? `<span class="chip warn">${escapeHtml(block.caseData.result)}</span>` : ''}
+                </div>
+              `}
+            </div>
+          `;
+        }).join('');
+      }
+
+      function renderCombined(blocks){
+        const combined = buildCombined(blocks);
+
+        if(!combined){
+          els.combinedEmpty.classList.remove('hidden');
+          els.combinedBox.classList.add('hidden');
+          return;
+        }
+
+        els.combinedEmpty.classList.add('hidden');
+        els.combinedBox.classList.remove('hidden');
+
+        els.combinedItems.textContent = String(combined.selectedItems);
+        els.combinedRows.textContent = String(combined.rows.length);
+        els.combinedFiatIn.textContent = formatNumber(combined.fiatIn);
+        els.combinedFiatOut.textContent = formatNumber(combined.fiatOut);
+        els.combinedFees.textContent = formatNumber(combined.fees);
+        els.combinedChecks.textContent = String(combined.checks);
+        els.combinedBuys.textContent = String(combined.buys);
+        els.combinedSells.textContent = String(combined.sells);
+        els.combinedDeposits.textContent = String(combined.deposits);
+        els.combinedWithdrawals.textContent = String(combined.withdrawals);
+        els.combinedSpecials.textContent = String(combined.specials);
+
+        els.combinedInfoChips.innerHTML = `
+          <span class="chip mint">${combined.selectedItems} Datenblöcke ausgewählt</span>
+          <span class="chip">${combined.rows.length} Zeilen / Fälle sichtbar</span>
+          <span class="chip warn">${combined.checks} Prüffälle</span>
+        `;
+
+        els.combinedSummaryBox.innerHTML = `
+          <strong>Aktuell sichtbar:</strong><br>
+          Fiat rein: ${formatNumber(combined.fiatIn)} ·
+          Fiat raus: ${formatNumber(combined.fiatOut)} ·
+          Gebühren: ${formatNumber(combined.fees)} ·
+          Käufe: ${combined.buys} ·
+          Verkäufe: ${combined.sells} ·
+          Einzahlungen: ${combined.deposits} ·
+          Auszahlungen: ${combined.withdrawals}
+        `;
+
+        els.combinedExplainBox.innerHTML = `
+          Diese Backoffice-Vorschau zeigt nur die aktuell ausgewählten Quellen und Sonderfälle.
+          So können gezielt verschiedene Zusammenstellungen gebaut und später an Modul 05 weitergegeben werden.
+        `;
+
+        els.handoverInfoChips.innerHTML = `
+          <span class="chip magenta">Vorbereitung für Modul 05</span>
+          <span class="chip">${combined.selectedItems} ausgewählt</span>
+          <span class="chip">${combined.specials} Sonderfälle</span>
+        `;
+
+        els.handoverSummaryBox.innerHTML = `
+          <strong>Weitergabe-Basis:</strong><br>
+          Diese Auswahl ist die Arbeitsgrundlage für die spätere Steuerberater-Ausgabe.
+          Im nächsten Modul wird genau diese manuelle Zusammenstellung in eine ruhige Übergabeansicht überführt.
+        `;
+
+        els.handoverExplainBox.innerHTML = `
+          Backoffice bedeutet hier: nicht alles blind übernehmen, sondern bewusst auswählen, prüfen, kombinieren und dann erst als Ausgabe vorbereiten.
+        `;
+
+        els.combinedBody.innerHTML = combined.rows.slice(0,260).map((row, idx) => `
+          <tr>
+            <td>${idx + 1}</td>
+            <td>${escapeHtml(row.moduleLabel)}</td>
+            <td>${escapeHtml(row.blockType)}</td>
+            <td>${escapeHtml(row.title)}</td>
+            <td>${escapeHtml(row.date)}</td>
+            <td class="${row.movement === 'Kauf' || row.movement === 'Einzahlung' || row.movement === 'Reward' ? 'good' : row.movement === 'Verkauf' || row.movement === 'Auszahlung' ? 'bad' : 'neutral'}">${escapeHtml(row.movement)}</td>
+            <td>${escapeHtml(row.asset)}</td>
+            <td>${escapeHtml(row.amount)}</td>
+            <td>${escapeHtml(row.value)}</td>
+            <td>${escapeHtml(row.fee)}</td>
+            <td>${escapeHtml(row.taxRelevant)}</td>
+            <td>${escapeHtml(row.hint)}</td>
+          </tr>
+        `).join('');
+      }
+
+      function renderArchives(){
+        if(!state.archives.length){
+          els.archiveEmpty.classList.remove('hidden');
+          els.archiveList.innerHTML = '';
+          return;
+        }
+
+        els.archiveEmpty.classList.add('hidden');
+        els.archiveList.innerHTML = state.archives.map(archive => `
+          <div class="archive-card">
+            <div class="archive-head">
+              <div>
+                <strong>${escapeHtml(archive.name)}</strong>
+                <div class="chips">
+                  <span class="chip mint">${archive.selectedCount} ausgewählt</span>
+                  <span class="chip">${archive.rowsCount} Zeilen / Fälle</span>
+                </div>
+              </div>
+            </div>
+            ${archive.note ? `<div class="small muted" style="margin-top:10px;">${escapeHtml(archive.note)}</div>` : ''}
+            <div class="archive-actions no-print">
+              <button class="btn btn-ghost" type="button" data-archive-action="load" data-id="${archive.id}">Archiv laden</button>
+              <button class="btn btn-danger" type="button" data-archive-action="delete" data-id="${archive.id}">Löschen</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function archiveCurrent(blocks){
+        const combined = buildCombined(blocks);
+        const selectedCount = selectedBlocks(blocks).length;
+
+        if(!selectedCount){
+          alert('Bitte zuerst Datenblöcke auswählen.');
+          return;
+        }
+
+        const name = prompt('Archivname für den aktuellen Backoffice-Stand:');
+        const archiveName = normalize(name);
+        if(!archiveName) return;
+
+        state.archives.unshift({
+          id: uid('archive'),
+          name: archiveName,
+          selectedMap: JSON.parse(JSON.stringify(state.selectedMap)),
+          selectedCount,
+          rowsCount: combined ? combined.rows.length : 0,
+          note: 'Backoffice-Zusammenstellung',
+          createdAt: new Date().toISOString()
+        });
+
+        saveState();
+        renderAll();
+      }
+
+      function loadArchive(id){
+        const archive = state.archives.find(item => item.id === id);
+        if(!archive) return;
+        if(!confirm('Diesen Archivstand laden? Die aktuelle Auswahl wird ersetzt.')) return;
+        state.selectedMap = JSON.parse(JSON.stringify(archive.selectedMap || {}));
+        saveState();
+        renderAll();
+      }
+
+      function deleteArchive(id){
+        if(!confirm('Diesen Archivstand wirklich löschen?')) return;
+        state.archives = state.archives.filter(item => item.id !== id);
+        saveState();
+        renderAll();
+      }
+
+      function resetWorkspace(){
+        if(!confirm('Arbeitsbereich wirklich auf null setzen? Das Archiv bleibt erhalten.')) return;
+        state.selectedMap = {};
+        saveState();
+        renderAll();
+      }
+
+      function resetArchive(){
+        if(!confirm('Archiv dieses Moduls wirklich komplett löschen?')) return;
+        state.archives = [];
+        saveState();
+        renderAll();
+      }
+
+      function renderAll(){
+        const blocks = collectBlocks();
+        renderStatus(blocks);
+        renderDataBlocks(blocks);
+        renderCombined(blocks);
+        renderArchives();
+      }
+
+      els.btnScrollData.addEventListener('click', () => {
+        document.getElementById('dataSection').scrollIntoView({ behavior:'smooth', block:'start' });
+      });
+
+      els.btnResetWorkspace.addEventListener('click', resetWorkspace);
+      els.btnResetArchive.addEventListener('click', resetArchive);
+
+      els.btnSelectAll.addEventListener('click', () => {
+        const blocks = collectBlocks();
+        blocks.forEach(block => { state.selectedMap[block.blockId] = true; });
+        saveState();
+        renderAll();
+      });
+
+      els.btnDeselectAll.addEventListener('click', () => {
+        state.selectedMap = {};
+        saveState();
+        renderAll();
+      });
+
+      els.btnArchiveCurrent.addEventListener('click', () => {
+        archiveCurrent(collectBlocks());
+      });
+
+      document.addEventListener('change', (event) => {
+        const checkbox = event.target.closest('[data-block-id]');
+        if(checkbox){
+          const blockId = checkbox.getAttribute('data-block-id');
+          state.selectedMap[blockId] = checkbox.checked;
+          if(!checkbox.checked){
+            delete state.selectedMap[blockId];
+          }
+          saveState();
+          renderAll();
+        }
+      });
+
+      document.addEventListener('click', (event) => {
+        const archiveBtn = event.target.closest('[data-archive-action]');
+        if(archiveBtn){
+          const id = archiveBtn.getAttribute('data-id');
+          const action = archiveBtn.getAttribute('data-archive-action');
+
+          if(action === 'load'){
+            loadArchive(id);
+            return;
+          }
+
+          if(action === 'delete'){
+            deleteArchive(id);
+          }
+        }
+      });
+
+      window.addEventListener('storage', (event) => {
+        if(MODULES.some(module => module.storageKey === event.key) || event.key === STORAGE_KEY){
+          renderAll();
+        }
+      });
+
+      renderAll();
+    })();
+  </script>
+</body>
+</html>
