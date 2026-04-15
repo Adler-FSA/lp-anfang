@@ -933,7 +933,9 @@
     │   ├── krypto-kurszentrale/
     │   │   ├── dashboard.html
     │   │   ├── modul-01-anfaenger.html
-    │   │   └── modul-02-anwender.html
+    │   │   ├── modul-02-anwender.html
+    │   │   ├── modul-03-sonderfaelle.html
+    │   │   └── modul-04-backoffice.html
     │   ├── krypto-steuer-ordnung/
     │   │   ├── archiv/
     │   │   │   └── jahresarchiv.html
@@ -1404,4 +1406,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.04.2026, 13:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.04.2026, 15:01)_
