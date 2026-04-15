@@ -930,7 +930,8 @@
     │   │   ├── modul-3-risiken-szenarien.html
     │   │   └── modul-4-empfehlungen-grenzen.html
     │   ├── krypto-kurszentrale/
-    │   │   └── dashboard.html
+    │   │   ├── dashboard.html
+    │   │   └── modul-01-anfaenger.html
     │   ├── krypto-steuer-ordnung/
     │   │   ├── archiv/
     │   │   │   └── jahresarchiv.html
@@ -1401,4 +1402,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.04.2026, 08:25)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.04.2026, 10:12)_
