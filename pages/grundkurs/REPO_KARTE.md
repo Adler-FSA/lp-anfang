@@ -612,6 +612,7 @@
     │   │   ├── akademie-trustyfy-erklaerung.html
     │   │   ├── akademie-trustyfy-firmen-expose.html
     │   │   ├── akademie-trustyfy-ueberblick.html
+    │   │   ├── beta-tester-stellenausschreibung.html
     │   │   ├── fsa-akademie-flyer.html
     │   │   └── verdienst-rechner.html
     │   ├── akquise/
@@ -1402,4 +1403,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.04.2026, 10:12)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.04.2026, 11:52)_
