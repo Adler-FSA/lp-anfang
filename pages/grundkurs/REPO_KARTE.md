@@ -935,7 +935,8 @@
     │   │   ├── modul-01-anfaenger.html
     │   │   ├── modul-02-anwender.html
     │   │   ├── modul-03-sonderfaelle.html
-    │   │   └── modul-04-backoffice.html
+    │   │   ├── modul-04-backoffice.html
+    │   │   └── modul-05-steuerberater-ausgabe.html
     │   ├── krypto-steuer-ordnung/
     │   │   ├── archiv/
     │   │   │   └── jahresarchiv.html
@@ -1407,4 +1408,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.04.2026, 16:56)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.04.2026, 18:03)_
