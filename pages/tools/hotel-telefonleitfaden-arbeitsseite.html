@@ -1,8 +1,8 @@
 <!doctype html>
 <!--
   GitHub-Pfad: lp-anfang/pages/tools/hotel-telefonleitfaden-arbeitsseite.html
-  Commit-Message: hotel telefonleitfaden arbeitsseite mit kontaktliste archiv druck und fachbegriffs hilfe aufgebaut
-  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/tools/hotel-telefonleitfaden-arbeitsseite.html?nocache=1776349800
+  Commit-Message: telefon arbeitsseite ohne demo liste mit kontaktlisten speicherung csv import lokaler archivzuordnung finalisiert
+  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/tools/hotel-telefonleitfaden-arbeitsseite.html?nocache=1776351600
 -->
 <html lang="de">
 <head>
@@ -112,6 +112,13 @@
       box-shadow:0 10px 22px rgba(255,79,179,.18);
     }
 
+    .btn.danger{
+      background:#fff5f5;
+      color:#942c2c;
+      border:1px solid #f1c9c9;
+      box-shadow:none;
+    }
+
     .top-form{
       margin-top:16px;
       display:grid;
@@ -212,9 +219,24 @@
       padding:12px;
     }
 
-    .upload-box input[type="file"]{
-      width:100%;
+    .upload-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .file-row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
       margin-top:8px;
+    }
+
+    .file-row input[type="file"]{
+      flex:1 1 220px;
+      min-width:220px;
     }
 
     .contact-search{
@@ -245,6 +267,7 @@
       padding:12px;
       cursor:pointer;
       transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+      text-align:left;
     }
 
     .contact-item:hover{
@@ -359,7 +382,7 @@
       display:grid;
       grid-template-columns:1fr;
       gap:10px;
-      max-height:640px;
+      max-height:520px;
       overflow:auto;
       padding-right:4px;
     }
@@ -429,7 +452,7 @@
     table{
       width:100%;
       border-collapse:collapse;
-      min-width:980px;
+      min-width:1180px;
       font-size:.92rem;
     }
 
@@ -470,7 +493,14 @@
       margin:12px 0;
     }
 
-    .hidden{display:none !important}
+    .empty-box{
+      border:1px dashed #cfe4de;
+      background:#fcfffe;
+      border-radius:16px;
+      padding:14px;
+      color:var(--muted);
+      line-height:1.5;
+    }
 
     @media (max-width:1380px){
       .layout{grid-template-columns:320px 1fr}
@@ -493,13 +523,8 @@
     }
 
     @media print{
-      body{
-        background:#fff !important;
-      }
-      .page{
-        width:100%;
-        margin:0;
-      }
+      body{background:#fff !important}
+      .page{width:100%;margin:0}
       .hero-actions,
       .controls,
       .contact-search,
@@ -512,12 +537,13 @@
       #clearProtocolBtn,
       #printBtn,
       #exportArchiveBtn,
-      #resetArchiveBtn{
+      #resetArchiveBtn,
+      #exportContactsBtn,
+      #clearContactsBtn,
+      #newListBtn{
         display:none !important;
       }
-      .layout{
-        display:block;
-      }
+      .layout{display:block}
       .section,
       .field,
       .call-box,
@@ -527,13 +553,8 @@
         break-inside:avoid;
         page-break-inside:avoid;
       }
-      table{
-        min-width:0;
-        font-size:.8rem;
-      }
-      th{
-        position:static;
-      }
+      table{min-width:0;font-size:.8rem}
+      th{position:static}
     }
   </style>
 </head>
@@ -544,13 +565,12 @@
         <div class="brand">
           <h1>Arbeitsseite – Telefonleitfaden & Anrufprotokoll</h1>
           <p>
-            Kontakt auswählen, Leitfaden ablesen, Fachbegriffe zur Hand haben, Anruf dokumentieren,
-            Wiedervorlagen setzen und alles lokal auf dem Gerät archivieren.
+            Kontaktliste lokal speichern, neue Liste einlesen, Leitfaden ablesen, Fachbegriffe parat haben,
+            Anrufe dokumentieren und alles sauber im eigenen Browser archivieren.
           </p>
         </div>
 
         <div class="hero-actions">
-          <button class="btn alt" id="loadDemoBtn" type="button">Liste laden</button>
           <button class="btn alt" id="printBtn" type="button">Drucken / PDF</button>
           <button class="btn pink" id="exportArchiveBtn" type="button">Archiv als CSV exportieren</button>
         </div>
@@ -587,14 +607,24 @@
     <section class="layout">
       <aside class="section" id="contactPanel">
         <h2>Abzutelefonierende Liste</h2>
+
         <div class="controls">
           <div class="upload-box">
-            <strong>Import</strong>
+            <strong>Kontaktliste laden / speichern</strong>
             <div class="tiny muted" style="margin-top:6px;">
-              CSV funktioniert direkt. XLSX ist ohne externe Bibliothek im Browser nicht sauber auslesbar.
-              Für neue Listen bitte Excel als CSV speichern und hier laden.
+              Diese Seite speichert die aktuelle Kontaktliste lokal im Browser. Für Excel bitte als CSV importieren oder exportieren.
+              Das Archiv bleibt separat und wird nicht importiert.
             </div>
-            <input id="fileInput" type="file" accept=".csv,.xlsx,.xls" />
+
+            <div class="file-row">
+              <input id="fileInput" type="file" accept=".csv,.xlsx,.xls" />
+              <button class="btn alt" id="newListBtn" type="button">Neue Liste einlesen</button>
+            </div>
+
+            <div class="upload-actions">
+              <button class="btn alt" id="exportContactsBtn" type="button">Kontaktliste für Excel speichern</button>
+              <button class="btn danger" id="clearContactsBtn" type="button">Kontaktliste löschen</button>
+            </div>
           </div>
 
           <div class="contact-search">
@@ -707,7 +737,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
             <button class="btn" id="saveProtocolBtn" type="button">Ins Archiv speichern</button>
             <button class="btn alt" id="clearProtocolBtn" type="button">Formular leeren</button>
-            <button class="btn alt" id="resetArchiveBtn" type="button">Archiv löschen</button>
+            <button class="btn danger" id="resetArchiveBtn" type="button">Archiv löschen</button>
           </div>
         </div>
       </main>
@@ -725,7 +755,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
 
         <h2>Archiv / Anrufhistorie</h2>
         <div class="muted small">
-          Lokal gespeichert im Browser. Jeder gespeicherte Anruf kann später gedruckt oder als CSV exportiert werden.
+          Jeder gespeicherte Anruf enthält die beim Speichern hinterlegte Adresse bzw. den damaligen Kontaktdatensatz aus der geladenen Liste.
         </div>
 
         <div class="archive-table-wrap">
@@ -737,6 +767,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
                 <th>Kontakt</th>
                 <th>Firma</th>
                 <th>Telefon</th>
+                <th>E-Mail</th>
                 <th>Wiedervorlage / Termin</th>
                 <th>Nächster Schritt</th>
                 <th>Notiz</th>
@@ -747,14 +778,14 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         </div>
 
         <div class="callout">
-          <strong>Hinweis:</strong>
-          Diese Seite ist absichtlich als praktische Laien-Hilfe aufgebaut: links die Liste, in der Mitte der Leitfaden,
-          rechts die Begriffe, unten das Protokoll. So bleibt das Gespräch ruhig, glaubwürdig und strukturiert.
+          <strong>Wichtig:</strong>
+          Die Kontaktliste wird getrennt vom Archiv verwaltet. Neue CSV einlesen ersetzt auf Wunsch die bisherige Kontaktliste,
+          ohne das Anrufarchiv zu importieren.
         </div>
 
         <div class="footer-note">
-          Empfehlung für neue Listen: In Excel die Spalten <strong>Anrede</strong>, <strong>Vorname</strong>, <strong>Nachname</strong>,
-          <strong>E-Mail</strong>, <strong>Telefon 1</strong> und <strong>Firma - Name</strong> führen und als CSV speichern.
+          Erwartete Spalten für die Kontaktliste: <strong>Anrede</strong>, <strong>Vorname</strong>, <strong>Nachname</strong>,
+          <strong>E-Mail</strong>, <strong>Telefon 1</strong> und <strong>Firma - Name</strong>.
         </div>
       </aside>
     </section>
@@ -762,42 +793,9 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
 
   <script>
     (function(){
-      const CONTACTS_KEY = 'hotelCallContacts_v1';
-      const ARCHIVE_KEY = 'hotelCallArchive_v1';
-      const SETTINGS_KEY = 'hotelCallSettings_v1';
-
-      const demoContacts = [
-        {"Anrede":"Herr","Vorname":"René","Nachname":"Kloppenburg","E-Mail":"info@hotel-marcopolo.de","Telefon 1":"0251-9609200-0","Firma - Name":"Hotel Marco Polo"},
-        {"Anrede":"Herr","Vorname":"Ralf","Nachname":"Gerlach","E-Mail":"info@cuxland-ferienparks.de","Telefon 1":"04741-390","Firma - Name":"Cuxland Ferienparks"},
-        {"Anrede":"Herr","Vorname":"Heinrich","Nachname":"Laurenz","E-Mail":"info@ferienhof-laurenz.de","Telefon 1":"02562 - 3100","Firma - Name":"Familotel Ferienhof Laurenz"},
-        {"Anrede":"Frau","Vorname":"Margarete","Nachname":"Zavoral","E-Mail":"villaduerkopp@bsw24.de","Telefon 1":"05222-395-0","Firma - Name":"Hotel Villa Dürkopp"},
-        {"Anrede":"Herr","Vorname":"Kai","Nachname":"Kröger","E-Mail":"anfrage@kroeger-spiekeroog.de","Telefon 1":"04976-9105-0","Firma - Name":"Hotel Zur alten Inselkirche"},
-        {"Anrede":"Herr","Vorname":"Friedrich-Wilhelm","Nachname":"von Landsberg-Velen","E-Mail":"ferienzentrum@schloss-dankern.de","Telefon 1":"05932-7223-0","Firma - Name":"Ferienzentrum Schloss Dankern"},
-        {"Anrede":"Frau","Vorname":"Gundula","Nachname":"Schlichtmann","E-Mail":"info@hotel-herrenhof.de","Telefon 1":"0451-46027","Firma - Name":"Hotel Herrenhof"},
-        {"Anrede":"Frau","Vorname":"Claudia","Nachname":"Kloft","E-Mail":"gast@fleesensee-resort.de","Telefon 1":"039932-80700","Firma - Name":"Fleesensee SPA & Hotel"},
-        {"Anrede":"Herr","Vorname":"Werner","Nachname":"Scheidt","E-Mail":"sylt@hotel-niedersachsen.de","Telefon 1":"04651-9222-0","Firma - Name":"Hotel Niedersachsen"},
-        {"Anrede":"Herr","Vorname":"Markus","Nachname":"Pohlmann","E-Mail":"info@strandhotel-duehnen.de","Telefon 1":"04721-4040","Firma - Name":"Strandhotel Duhnen"},
-        {"Anrede":"Herr","Vorname":"Arne","Nachname":"Dibbern","E-Mail":"info@hotel-seeschloesschen.de","Telefon 1":"04503-6010","Firma - Name":"Hotel Seeschlösschen"},
-        {"Anrede":"Herr","Vorname":"Thomas","Nachname":"Dreyer","E-Mail":"info@hotel-upstalsboom.de","Telefon 1":"04921-89970","Firma - Name":"Upstalsboom Parkhotel"},
-        {"Anrede":"Herr","Vorname":"Dirk","Nachname":"Sander","E-Mail":"info@hotel-neptun.de","Telefon 1":"0381-7770","Firma - Name":"Hotel Neptun"},
-        {"Anrede":"Herr","Vorname":"Stephan","Nachname":"Behrens","E-Mail":"info@freesenholstein.de","Telefon 1":"0431-99090","Firma - Name":"Hotel Freesenholm"},
-        {"Anrede":"Herr","Vorname":"Marcus","Nachname":"Köhler","E-Mail":"info@hotel-ambassador.de","Telefon 1":"04651-46060","Firma - Name":"Hotel Ambassador"},
-        {"Anrede":"Herr","Vorname":"Jens","Nachname":"Sander","E-Mail":"info@romantikseehotel.de","Telefon 1":"04527-860","Firma - Name":"Romantik Seehotel"},
-        {"Anrede":"Herr","Vorname":"Thorsten","Nachname":"Peters","E-Mail":"info@hotel-residenz.de","Telefon 1":"04931-9550","Firma - Name":"Hotel Residenz"},
-        {"Anrede":"Frau","Vorname":"Anke","Nachname":"Lange","E-Mail":"info@hotel-meerblick.de","Telefon 1":"038378-4770","Firma - Name":"Hotel Meerblick"},
-        {"Anrede":"Herr","Vorname":"Oliver","Nachname":"Schröder","E-Mail":"info@hotel-seeterrassen.de","Telefon 1":"0471-93240","Firma - Name":"Hotel Seeterrassen"},
-        {"Anrede":"Herr","Vorname":"Volker","Nachname":"Meyer","E-Mail":"info@hotel-inselhof.de","Telefon 1":"04725-8050","Firma - Name":"Hotel Inselhof"},
-        {"Anrede":"Herr","Vorname":"Rainer","Nachname":"Kühl","E-Mail":"info@hotel-nordkap.de","Telefon 1":"04931-98450","Firma - Name":"Hotel Nordkap"},
-        {"Anrede":"Frau","Vorname":"Petra","Nachname":"Wendt","E-Mail":"info@villa-sophie.de","Telefon 1":"038293-810","Firma - Name":"Hotel Villa Sophie"},
-        {"Anrede":"Herr","Vorname":"Matthias","Nachname":"Groß","E-Mail":"info@hotel-wellenberg.de","Telefon 1":"04834-9950","Firma - Name":"Hotel Wellenberg"},
-        {"Anrede":"Herr","Vorname":"Jan","Nachname":"Fischer","E-Mail":"info@hotel-hanseat.de","Telefon 1":"0471-94120","Firma - Name":"Hotel Hanseat"},
-        {"Anrede":"Frau","Vorname":"Katrin","Nachname":"Wulf","E-Mail":"info@hotel-lueneburg.de","Telefon 1":"04131-7780","Firma - Name":"Hotel Lüneburg"},
-        {"Anrede":"Herr","Vorname":"Thomas","Nachname":"Berg","E-Mail":"info@hotel-am-meer.de","Telefon 1":"04932-9300","Firma - Name":"Hotel am Meer"},
-        {"Anrede":"Herr","Vorname":"Michael","Nachname":"Kruse","E-Mail":"info@hotel-ostseeperle.de","Telefon 1":"04371-8620","Firma - Name":"Hotel Ostseeperle"},
-        {"Anrede":"Frau","Vorname":"Silke","Nachname":"Meier","E-Mail":"info@hotel-wattblick.de","Telefon 1":"04841-7700","Firma - Name":"Hotel Wattblick"},
-        {"Anrede":"Herr","Vorname":"Uwe","Nachname":"Brockmann","E-Mail":"info@hotel-sonneninsel.de","Telefon 1":"04651-98800","Firma - Name":"Hotel Sonneninsel"},
-        {"Anrede":"Herr","Vorname":"Lars","Nachname":"Tiedemann","E-Mail":"info@hotel-heimathafen.de","Telefon 1":"0471-99010","Firma - Name":"Hotel Heimathafen"}
-      ];
+      const CONTACTS_KEY = 'hotelCallContacts_v2';
+      const ARCHIVE_KEY = 'hotelCallArchive_v2';
+      const SETTINGS_KEY = 'hotelCallSettings_v2';
 
       const glossary = [
         {
@@ -871,7 +869,9 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         contactList: document.getElementById('contactList'),
         contactSearch: document.getElementById('contactSearch'),
         fileInput: document.getElementById('fileInput'),
-        loadDemoBtn: document.getElementById('loadDemoBtn'),
+        newListBtn: document.getElementById('newListBtn'),
+        exportContactsBtn: document.getElementById('exportContactsBtn'),
+        clearContactsBtn: document.getElementById('clearContactsBtn'),
         selectedContact: document.getElementById('selectedContact'),
         selectedCompany: document.getElementById('selectedCompany'),
         selectedPhone: document.getElementById('selectedPhone'),
@@ -900,6 +900,71 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
 
       function safe(value){
         return (value ?? '').toString().trim();
+      }
+
+      function escapeHtml(value){
+        return String(value ?? '')
+          .replace(/&/g,'&amp;')
+          .replace(/</g,'&lt;')
+          .replace(/>/g,'&gt;')
+          .replace(/"/g,'&quot;')
+          .replace(/'/g,'&#039;');
+      }
+
+      function todayValue(){
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth()+1).padStart(2,'0');
+        const day = String(d.getDate()).padStart(2,'0');
+        return `${y}-${m}-${day}`;
+      }
+
+      function csvCell(value){
+        const text = String(value ?? '');
+        if(/[;"\n\r]/.test(text)){
+          return '"' + text.replace(/"/g,'""') + '"';
+        }
+        return text;
+      }
+
+      function downloadFile(content, filename, mimeType){
+        const blob = new Blob([content], {type:mimeType});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function buildDisplayName(contact){
+        const anrede = safe(contact['Anrede']);
+        const vorname = safe(contact['Vorname']);
+        const nachname = safe(contact['Nachname']);
+        return [anrede, vorname, nachname].filter(Boolean).join(' ').trim() || 'Unbekannter Kontakt';
+      }
+
+      function normalizeContact(raw){
+        return {
+          'Anrede': safe(raw['Anrede']),
+          'Vorname': safe(raw['Vorname']),
+          'Nachname': safe(raw['Nachname']),
+          'E-Mail': safe(raw['E-Mail']),
+          'Telefon 1': safe(raw['Telefon 1']),
+          'Firma - Name': safe(raw['Firma - Name'])
+        };
+      }
+
+      function resetSelectionFields(){
+        selectedIndex = -1;
+        el.selectedContact.value = '';
+        el.selectedCompany.value = '';
+        el.selectedPhone.value = '';
+        el.selectedEmail.value = '';
+        el.badgeTarget.textContent = 'Kontakt: –';
+        el.scriptContactName.textContent = 'Herr/Frau …';
       }
 
       function loadState(){
@@ -934,22 +999,12 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
       }
 
-      function buildDisplayName(contact){
-        const anrede = safe(contact['Anrede']);
-        const vorname = safe(contact['Vorname']);
-        const nachname = safe(contact['Nachname']);
-        return [anrede, vorname, nachname].filter(Boolean).join(' ').trim() || 'Unbekannter Kontakt';
-      }
-
-      function normalizeContact(raw){
-        return {
-          'Anrede': safe(raw['Anrede']),
-          'Vorname': safe(raw['Vorname']),
-          'Nachname': safe(raw['Nachname']),
-          'E-Mail': safe(raw['E-Mail']),
-          'Telefon 1': safe(raw['Telefon 1']),
-          'Firma - Name': safe(raw['Firma - Name'])
-        };
+      function updateCallerBadges(){
+        const callerName = el.callerName.value.trim() || 'XXX';
+        const callerCompany = el.callerCompany.value.trim() || 'Evolution24';
+        el.badgeCaller.textContent = 'Anrufer: ' + callerName;
+        el.scriptCallerName.textContent = callerName;
+        el.scriptCallerCompany.textContent = callerCompany;
       }
 
       function renderContacts(){
@@ -969,11 +1024,22 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
             return haystack.includes(query);
           });
 
+        if(!contacts.length){
+          el.contactList.innerHTML = `
+            <div class="empty-box">
+              Noch keine Kontaktliste geladen.<br><br>
+              Bitte oben über <strong>Neue Liste einlesen</strong> eine CSV-Datei laden.
+            </div>
+          `;
+          return;
+        }
+
         if(!filtered.length){
-          const empty = document.createElement('div');
-          empty.className = 'contact-item';
-          empty.innerHTML = '<div class="contact-name">Keine Treffer</div><div class="muted tiny">Bitte Suche anpassen oder zuerst eine Liste laden.</div>';
-          el.contactList.appendChild(empty);
+          el.contactList.innerHTML = `
+            <div class="empty-box">
+              Keine Treffer für deine Suche.
+            </div>
+          `;
           return;
         }
 
@@ -1017,14 +1083,6 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         renderContacts();
       }
 
-      function updateCallerBadges(){
-        const callerName = el.callerName.value.trim() || 'XXX';
-        const callerCompany = el.callerCompany.value.trim() || 'Evolution24';
-        el.badgeCaller.textContent = 'Anrufer: ' + callerName;
-        el.scriptCallerName.textContent = callerName;
-        el.scriptCallerCompany.textContent = callerCompany;
-      }
-
       function renderGlossary(){
         const query = el.glossarySearch.value.trim().toLowerCase();
         const items = glossary.filter(entry=>{
@@ -1044,7 +1102,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         if(!archive.length){
           el.archiveTableBody.innerHTML = `
             <tr>
-              <td colspan="8" class="muted">Noch keine Einträge im Archiv.</td>
+              <td colspan="9" class="muted">Noch keine Einträge im Archiv.</td>
             </tr>
           `;
           return;
@@ -1052,7 +1110,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
 
         el.archiveTableBody.innerHTML = archive
           .slice()
-          .sort((a,b)=> String(b.createdAt).localeCompare(String(a.createdAt)))
+          .sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)))
           .map(entry=>`
             <tr>
               <td>${escapeHtml(entry.callDate || '–')}</td>
@@ -1060,6 +1118,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
               <td>${escapeHtml(entry.contactName || '–')}</td>
               <td>${escapeHtml(entry.company || '–')}</td>
               <td>${escapeHtml(entry.phone || '–')}</td>
+              <td>${escapeHtml(entry.email || '–')}</td>
               <td>${escapeHtml(entry.callbackDate || '–')}</td>
               <td>${escapeHtml(entry.nextStep || '–')}</td>
               <td>${escapeHtml(entry.summary || '–')}</td>
@@ -1160,11 +1219,39 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         downloadFile(csv, 'anrufarchiv-hotelkontakte.csv', 'text/csv;charset=utf-8;');
       }
 
+      function exportContactsCsv(){
+        if(!contacts.length){
+          alert('Es ist keine Kontaktliste vorhanden.');
+          return;
+        }
+
+        const headers = ['Anrede','Vorname','Nachname','E-Mail','Telefon 1','Firma - Name'];
+        const lines = [headers];
+        contacts.forEach(contact=>{
+          lines.push([
+            safe(contact['Anrede']),
+            safe(contact['Vorname']),
+            safe(contact['Nachname']),
+            safe(contact['E-Mail']),
+            safe(contact['Telefon 1']),
+            safe(contact['Firma - Name'])
+          ]);
+        });
+
+        const csv = lines.map(row=>row.map(csvCell).join(';')).join('\n');
+        downloadFile(csv, 'kontaktliste-fuer-excel.csv', 'text/csv;charset=utf-8;');
+      }
+
       function parseCsv(text){
         const rows = [];
         let row = [];
         let cell = '';
         let inQuotes = false;
+        let delimiter = ';';
+
+        const firstLine = text.split(/\r?\n/).find(line => line.trim() !== '') || '';
+        if(firstLine.includes(';')) delimiter = ';';
+        else if(firstLine.includes(',')) delimiter = ',';
 
         for(let i=0;i<text.length;i++){
           const char = text[i];
@@ -1177,7 +1264,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
             }else{
               inQuotes = !inQuotes;
             }
-          }else if((char === ';' || char === ',') && !inQuotes){
+          }else if(char === delimiter && !inQuotes){
             row.push(cell);
             cell = '';
           }else if((char === '\n' || char === '\r') && !inQuotes){
@@ -1241,57 +1328,32 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         }
 
         contacts = parsed;
-        selectedIndex = -1;
         saveContacts();
-        renderContacts();
         resetSelectionFields();
-        alert(parsed.length + ' Kontakte wurden importiert.');
+        renderContacts();
+        alert(parsed.length + ' Kontakte wurden übernommen und lokal gespeichert.');
       }
 
-      function resetSelectionFields(){
-        el.selectedContact.value = '';
-        el.selectedCompany.value = '';
-        el.selectedPhone.value = '';
-        el.selectedEmail.value = '';
-        el.badgeTarget.textContent = 'Kontakt: –';
-        el.scriptContactName.textContent = 'Herr/Frau …';
-      }
+      function handleFileImport(file){
+        if(!file) return;
 
-      function csvCell(value){
-        const text = String(value ?? '');
-        if(/[;"\n\r]/.test(text)){
-          return '"' + text.replace(/"/g,'""') + '"';
+        const name = file.name.toLowerCase();
+
+        if(name.endsWith('.xlsx') || name.endsWith('.xls')){
+          alert('Bitte die Excel-Datei zuerst als CSV speichern und dann hier einlesen. Diese Seite importiert Kontaktlisten direkt als CSV.');
+          return;
         }
-        return text;
-      }
 
-      function downloadFile(content, filename, mimeType){
-        const blob = new Blob([content], {type:mimeType});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-      }
+        if(!name.endsWith('.csv')){
+          alert('Bitte eine CSV-Datei laden.');
+          return;
+        }
 
-      function escapeHtml(value){
-        return String(value ?? '')
-          .replace(/&/g,'&amp;')
-          .replace(/</g,'&lt;')
-          .replace(/>/g,'&gt;')
-          .replace(/"/g,'&quot;')
-          .replace(/'/g,'&#039;');
-      }
-
-      function todayValue(){
-        const d = new Date();
-        const y = d.getFullYear();
-        const m = String(d.getMonth()+1).padStart(2,'0');
-        const day = String(d.getDate()).padStart(2,'0');
-        return `${y}-${m}-${day}`;
+        file.text().then(text=>{
+          importCsv(text);
+        }).catch(()=>{
+          alert('Die Datei konnte nicht gelesen werden.');
+        });
       }
 
       function bindEvents(){
@@ -1307,6 +1369,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
 
         el.printBtn.addEventListener('click', ()=>window.print());
         el.exportArchiveBtn.addEventListener('click', exportArchiveCsv);
+        el.exportContactsBtn.addEventListener('click', exportContactsCsv);
         el.saveProtocolBtn.addEventListener('click', saveProtocol);
         el.clearProtocolBtn.addEventListener('click', clearProtocol);
 
@@ -1317,52 +1380,33 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
           renderArchive();
         });
 
-        el.loadDemoBtn.addEventListener('click', ()=>{
-          contacts = demoContacts.map(normalizeContact);
+        el.clearContactsBtn.addEventListener('click', ()=>{
+          if(!confirm('Kontaktliste wirklich komplett löschen?')) return;
+          contacts = [];
           saveContacts();
-          selectedIndex = -1;
-          renderContacts();
           resetSelectionFields();
-          alert('Deine Kontaktliste wurde geladen.');
+          renderContacts();
         });
 
-        el.fileInput.addEventListener('change', async (event)=>{
+        el.newListBtn.addEventListener('click', ()=>{
+          el.fileInput.click();
+        });
+
+        el.fileInput.addEventListener('change', (event)=>{
           const file = event.target.files && event.target.files[0];
           if(!file) return;
-
-          const name = file.name.toLowerCase();
-          if(name.endsWith('.xlsx') || name.endsWith('.xls')){
-            alert('Direkter XLSX-Import ist in dieser Offline-Seite ohne Zusatzbibliothek nicht sauber möglich. Bitte die Excel-Datei als CSV speichern und erneut laden.');
-            event.target.value = '';
-            return;
-          }
-
-          if(!name.endsWith('.csv')){
-            alert('Bitte eine CSV-Datei laden.');
-            event.target.value = '';
-            return;
-          }
-
-          const text = await file.text();
-          importCsv(text);
+          handleFileImport(file);
           event.target.value = '';
         });
       }
 
       function init(){
         loadState();
-
-        if(!contacts.length){
-          contacts = demoContacts.map(normalizeContact);
-          saveContacts();
-        }
-
         el.callDate.value = todayValue();
-
         bindEvents();
         updateCallerBadges();
-        renderContacts();
         renderGlossary();
+        renderContacts();
         renderArchive();
       }
 
