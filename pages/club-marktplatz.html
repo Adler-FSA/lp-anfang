@@ -51,7 +51,7 @@
       height:42vw;
       border-radius:50%;
       filter:blur(42px);
-      z-index:-5;
+      z-index:-6;
       opacity:.20;
       pointer-events:none;
       animation:floatGlow 16s ease-in-out infinite;
@@ -212,12 +212,43 @@
       50%{transform:scale(1.04); opacity:1}
     }
 
-    .fx-layer{
+    .fx-back,
+    .fx-mid,
+    .fx-front{
       position:fixed;
       inset:0;
       pointer-events:none;
       overflow:hidden;
-      z-index:70;
+    }
+
+    .fx-back{z-index:8}
+    .fx-mid{z-index:24}
+    .fx-front{z-index:70}
+
+    .parallax-blob{
+      position:absolute;
+      border-radius:50%;
+      filter:blur(34px);
+      opacity:.16;
+      animation:blobFloat 16s ease-in-out infinite;
+      will-change:transform;
+    }
+
+    .parallax-blob.mint{
+      background:radial-gradient(circle, rgba(42,174,192,.34), rgba(42,174,192,0) 70%);
+    }
+
+    .parallax-blob.pink{
+      background:radial-gradient(circle, rgba(194,45,122,.24), rgba(194,45,122,0) 70%);
+    }
+
+    .parallax-blob.gold{
+      background:radial-gradient(circle, rgba(242,211,109,.24), rgba(242,211,109,0) 70%);
+    }
+
+    @keyframes blobFloat{
+      0%,100%{transform:translate3d(0,0,0) scale(1)}
+      50%{transform:translate3d(0,-22px,0) scale(1.08)}
     }
 
     .bg-ray{
@@ -225,51 +256,32 @@
       top:-10vh;
       width:26vw;
       height:140vh;
-      opacity:.18;
+      opacity:.16;
       filter:blur(2px);
       background:linear-gradient(180deg, rgba(255,255,255,.00) 0%, rgba(255,255,255,.28) 10%, rgba(255,255,255,.08) 50%, rgba(255,255,255,0) 100%);
       clip-path:polygon(42% 0,58% 0,100% 100%,0 100%);
       animation:rayMove 12s ease-in-out infinite;
+      will-change:transform;
     }
 
     .bg-ray.r1{left:10%; animation-delay:0s}
-    .bg-ray.r2{left:41%; opacity:.14; animation-delay:-4s}
-    .bg-ray.r3{left:72%; opacity:.16; animation-delay:-8s}
+    .bg-ray.r2{left:41%; opacity:.12; animation-delay:-4s}
+    .bg-ray.r3{left:72%; opacity:.14; animation-delay:-8s}
 
     @keyframes rayMove{
       0%,100%{transform:translateY(0) scaleY(1)}
       50%{transform:translateY(24px) scaleY(1.05)}
     }
 
-    .orb{
-      position:absolute;
-      width:26px;
-      height:26px;
-      border-radius:50%;
-      opacity:.16;
-      filter:blur(2px);
-      animation:orbFloat 14s ease-in-out infinite;
-    }
-
-    .orb.mint{background:radial-gradient(circle, rgba(42,174,192,.42), rgba(42,174,192,0) 72%)}
-    .orb.pink{background:radial-gradient(circle, rgba(194,45,122,.38), rgba(194,45,122,0) 72%)}
-    .orb.gold{background:radial-gradient(circle, rgba(242,211,109,.36), rgba(242,211,109,0) 72%)}
-
-    @keyframes orbFloat{
-      0%,100%{transform:translate3d(0,0,0) scale(1)}
-      50%{transform:translate3d(0,-18px,0) scale(1.14)}
-    }
-
     .heart{
       position:absolute;
       bottom:-14vh;
-      opacity:.36;
+      opacity:.34;
       animation-name:heartRise;
       animation-timing-function:linear;
       animation-iteration-count:infinite;
       filter:drop-shadow(0 8px 20px rgba(23,41,52,.14));
       will-change:transform,opacity;
-      z-index:72;
     }
 
     .heart svg{
@@ -315,35 +327,11 @@
       pointer-events:none;
     }
 
-    .network-lines{
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      z-index:25;
-      opacity:.18;
-      mix-blend-mode:screen;
-    }
-
-    .network-lines path{
-      fill:none;
-      stroke-linecap:round;
-      stroke-width:1.4;
-      stroke-dasharray:8 16;
-      animation:dashFlow 12s linear infinite;
-    }
-
-    .network-lines .mint{stroke:rgba(42,174,192,.62)}
-    .network-lines .pink{stroke:rgba(194,45,122,.48)}
-    .network-lines .gold{stroke:rgba(242,211,109,.48)}
-
-    @keyframes dashFlow{
-      to{stroke-dashoffset:-140}
-    }
-
     .wrap{
       width:min(calc(100% - 32px),var(--max));
       margin:0 auto;
       position:relative;
+      z-index:3;
     }
 
     .hero{
@@ -509,6 +497,7 @@
       position:relative;
       overflow:hidden;
       transition:transform var(--transition), box-shadow var(--transition);
+      z-index:2;
     }
 
     .song-card:hover{
@@ -833,7 +822,12 @@
       border:1px solid rgba(223,231,236,.92);
       box-shadow:var(--lb-shadow);
       border-radius:28px;
-      transition:transform var(--transition), box-shadow var(--transition), border-color var(--transition), filter var(--transition), opacity var(--transition);
+      transition:
+        transform .55s cubic-bezier(.22,1,.36,1),
+        box-shadow .55s cubic-bezier(.22,1,.36,1),
+        border-color .45s ease,
+        filter .45s ease,
+        opacity .45s ease;
       position:relative;
       overflow:hidden;
       isolation:isolate;
@@ -853,69 +847,76 @@
     .panel::after{
       content:"";
       position:absolute;
-      inset:-1px;
+      inset:-3px;
       border-radius:30px;
       pointer-events:none;
       opacity:0;
       z-index:1;
       background:
-        linear-gradient(90deg, rgba(42,174,192,.18), rgba(194,45,122,.12), rgba(242,211,109,.14), rgba(42,174,192,.18));
-      filter:blur(16px);
-      transition:opacity .35s ease, transform .35s ease;
+        linear-gradient(90deg, rgba(42,174,192,.14), rgba(194,45,122,.10), rgba(242,211,109,.11), rgba(42,174,192,.14));
+      filter:blur(18px);
+      transition:opacity .5s ease, transform .5s ease;
       transform:scale(.985);
     }
 
-    .panel.active-section{
-      border-color:rgba(42,174,192,.34);
-      box-shadow:
-        0 26px 66px rgba(23,41,52,.15),
-        0 0 0 1px rgba(42,174,192,.10),
-        0 0 24px rgba(42,174,192,.10),
-        0 0 28px rgba(194,45,122,.07);
-      transform:translateY(-6px);
+    .panel .edge-breath{
+      position:absolute;
+      inset:-1px;
+      border-radius:30px;
+      pointer-events:none;
+      opacity:0;
+      z-index:2;
+      background:
+        linear-gradient(135deg,
+          rgba(42,174,192,.24),
+          rgba(194,45,122,.18) 36%,
+          rgba(242,211,109,.16) 68%,
+          rgba(42,174,192,.18));
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite:xor;
+      mask-composite:exclude;
+      padding:1.5px;
+      filter:drop-shadow(0 0 8px rgba(42,174,192,.10)) drop-shadow(0 0 14px rgba(194,45,122,.08));
+      transition:opacity .45s ease;
     }
 
-    .panel.active-section::after{
+    .panel.float-live{
+      transform:translateY(-8px) scale(1.005);
+      border-color:rgba(42,174,192,.30);
+      box-shadow:
+        0 30px 72px rgba(23,41,52,.15),
+        0 0 0 1px rgba(42,174,192,.10),
+        0 0 28px rgba(42,174,192,.08),
+        0 0 34px rgba(194,45,122,.06);
+    }
+
+    .panel.float-live::after{
       opacity:1;
       transform:scale(1);
     }
 
-    .panel.active-section .gloss{
-      animation:glossRun 1.1s ease forwards;
+    .panel.float-live .edge-breath{
+      opacity:1;
+      animation:edgeBreathe 3.6s ease-in-out infinite;
     }
 
-    .gloss{
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      z-index:3;
+    .panel.float-live .gloss::before{
+      animation:glossSweep 1.05s ease forwards;
     }
 
-    .gloss::before{
-      content:"";
-      position:absolute;
-      top:0;
-      left:-35%;
-      width:28%;
-      height:100%;
-      background:linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.44) 48%, rgba(255,255,255,0) 100%);
-      transform:skewX(-14deg);
-      opacity:0;
-    }
-
-    @keyframes glossRun{
-      0%{}
-      100%{}
-    }
-
-    .panel.active-section .gloss::before{
-      animation:glossSweep 1.1s ease forwards;
-    }
-
-    @keyframes glossSweep{
-      0%{left:-35%; opacity:0}
-      18%{opacity:.9}
-      100%{left:120%; opacity:0}
+    @keyframes edgeBreathe{
+      0%,100%{
+        transform:scale(1);
+        opacity:.58;
+        filter:drop-shadow(0 0 8px rgba(42,174,192,.10)) drop-shadow(0 0 14px rgba(194,45,122,.08));
+      }
+      50%{
+        transform:scale(1.007);
+        opacity:.95;
+        filter:drop-shadow(0 0 12px rgba(42,174,192,.14)) drop-shadow(0 0 20px rgba(194,45,122,.10));
+      }
     }
 
     .card,.list-card,.band,.final-box{position:relative}
@@ -952,6 +953,31 @@
 
     .band p,.final-box p{max-width:980px;margin-left:auto;margin-right:auto}
     .card p:last-child,.list-card p:last-child,.band p:last-child,.final-box p:last-child{margin-bottom:0}
+
+    .gloss{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      z-index:3;
+    }
+
+    .gloss::before{
+      content:"";
+      position:absolute;
+      top:0;
+      left:-35%;
+      width:28%;
+      height:100%;
+      background:linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.42) 48%, rgba(255,255,255,0) 100%);
+      transform:skewX(-14deg);
+      opacity:0;
+    }
+
+    @keyframes glossSweep{
+      0%{left:-35%; opacity:0}
+      18%{opacity:.88}
+      100%{left:120%; opacity:0}
+    }
 
     .mini-grid{
       display:grid;
@@ -1037,6 +1063,7 @@
       border:1px solid rgba(255,255,255,.8);
       transition:transform var(--transition), box-shadow var(--transition);
       isolation:isolate;
+      z-index:2;
     }
 
     .cashback-visual:hover{
@@ -1169,6 +1196,8 @@
     .cashback-text{
       padding:8px 0;
       align-self:center;
+      position:relative;
+      z-index:2;
     }
 
     .cashback-text h2{
@@ -1281,8 +1310,7 @@
         transform .82s cubic-bezier(.22,1,.36,1),
         box-shadow .4s ease,
         border-color .4s ease,
-        filter .4s ease,
-        background-color .4s ease;
+        filter .4s ease;
       will-change:transform,opacity;
       filter:blur(4px);
     }
@@ -1375,7 +1403,9 @@
         transform:none !important;
         filter:none !important;
       }
-      .fx-layer,
+      .fx-back,
+      .fx-mid,
+      .fx-front,
       .network-lines{display:none !important}
     }
 
@@ -1422,7 +1452,6 @@
 
       .heart{opacity:.28 !important}
       .bg-ray{width:44vw}
-      .network-lines{opacity:.12}
     }
   </style>
 </head>
@@ -1447,51 +1476,48 @@
     </div>
   </div>
 
-  <svg class="network-lines" viewBox="0 0 1440 1400" preserveAspectRatio="none" aria-hidden="true">
-    <path class="mint" d="M40,220 C220,250 280,360 420,420 S680,520 820,620 1080,740 1400,820" />
-    <path class="pink" d="M0,820 C180,760 240,660 390,620 S620,540 780,430 1040,260 1440,240" />
-    <path class="gold" d="M140,1180 C320,1040 460,980 620,920 S940,760 1100,620 1290,430 1420,300" />
-  </svg>
+  <div class="fx-back" aria-hidden="true">
+    <div class="parallax-blob mint" data-depth="0.12" style="left:-10vw; top:18vh; width:28vw; height:28vw;"></div>
+    <div class="parallax-blob pink" data-depth="0.10" style="right:-8vw; top:36vh; width:24vw; height:24vw; animation-delay:-6s;"></div>
+    <div class="parallax-blob gold" data-depth="0.08" style="left:58vw; top:88vh; width:22vw; height:22vw; animation-delay:-10s;"></div>
+    <div class="parallax-blob mint" data-depth="0.14" style="left:8vw; top:150vh; width:20vw; height:20vw; animation-delay:-4s;"></div>
+  </div>
 
-  <div class="fx-layer" aria-hidden="true">
-    <div class="bg-ray r1"></div>
-    <div class="bg-ray r2"></div>
-    <div class="bg-ray r3"></div>
+  <div class="fx-mid" aria-hidden="true">
+    <div class="bg-ray r1" data-depth="0.24"></div>
+    <div class="bg-ray r2" data-depth="0.18"></div>
+    <div class="bg-ray r3" data-depth="0.22"></div>
+  </div>
 
-    <div class="orb mint" style="left:9%; top:20%; animation-delay:-2s;"></div>
-    <div class="orb pink" style="left:84%; top:18%; animation-delay:-5s;"></div>
-    <div class="orb gold" style="left:72%; top:72%; animation-delay:-8s;"></div>
-    <div class="orb mint" style="left:18%; top:62%; animation-delay:-11s;"></div>
-    <div class="orb pink" style="left:62%; top:40%; animation-delay:-6s;"></div>
-
-    <div class="heart" style="left:4%;width:26px;height:26px;animation-duration:17s;animation-delay:-2s;--drift:42px;">
+  <div class="fx-front" aria-hidden="true">
+    <div class="heart" data-depth="0.34" style="left:4%;width:26px;height:26px;animation-duration:17s;animation-delay:-2s;--drift:42px;">
       <svg viewBox="0 0 64 64"><path fill="rgba(42,174,192,.78)" d="M32 56c-1.2 0-2.4-.4-3.4-1.2C19.1 46.7 8 37.9 8 24.8 8 16.1 14.8 9 23.3 9c4.8 0 9.3 2.2 12.2 5.9C38.4 11.2 42.9 9 47.7 9 56.2 9 63 16.1 63 24.8c0 13.1-11.1 21.9-20.6 30-1 .8-2.2 1.2-3.4 1.2H32z"/></svg>
     </div>
-    <div class="heart" style="left:11%;width:20px;height:20px;animation-duration:20s;animation-delay:-7s;--drift:-18px;">
+    <div class="heart" data-depth="0.30" style="left:11%;width:20px;height:20px;animation-duration:20s;animation-delay:-7s;--drift:-18px;">
       <svg viewBox="0 0 64 64"><path fill="rgba(194,45,122,.74)" d="M32 56c-1.2 0-2.4-.4-3.4-1.2C19.1 46.7 8 37.9 8 24.8 8 16.1 14.8 9 23.3 9c4.8 0 9.3 2.2 12.2 5.9C38.4 11.2 42.9 9 47.7 9 56.2 9 63 16.1 63 24.8c0 13.1-11.1 21.9-20.6 30-1 .8-2.2 1.2-3.4 1.2H32z"/></svg>
     </div>
-    <div class="heart" style="left:18%;width:30px;height:30px;animation-duration:18s;animation-delay:-11s;--drift:24px;">
+    <div class="heart" data-depth="0.28" style="left:18%;width:30px;height:30px;animation-duration:18s;animation-delay:-11s;--drift:24px;">
       <svg viewBox="0 0 64 64"><path fill="rgba(242,211,109,.70)" d="M32 56c-1.2 0-2.4-.4-3.4-1.2C19.1 46.7 8 37.9 8 24.8 8 16.1 14.8 9 23.3 9c4.8 0 9.3 2.2 12.2 5.9C38.4 11.2 42.9 9 47.7 9 56.2 9 63 16.1 63 24.8c0 13.1-11.1 21.9-20.6 30-1 .8-2.2 1.2-3.4 1.2H32z"/></svg>
     </div>
-    <div class="heart" style="left:28%;width:22px;height:22px;animation-duration:16s;animation-delay:-5s;--drift:-28px;">
+    <div class="heart" data-depth="0.26" style="left:28%;width:22px;height:22px;animation-duration:16s;animation-delay:-5s;--drift:-28px;">
       <svg viewBox="0 0 64 64"><path fill="rgba(42,174,192,.72)" d="M32 56c-1.2 0-2.4-.4-3.4-1.2C19.1 46.7 8 37.9 8 24.8 8 16.1 14.8 9 23.3 9c4.8 0 9.3 2.2 12.2 5.9C38.4 11.2 42.9 9 47.7 9 56.2 9 63 16.1 63 24.8c0 13.1-11.1 21.9-20.6 30-1 .8-2.2 1.2-3.4 1.2H32z"/></svg>
     </div>
-    <div class="heart" style="left:38%;width:28px;height:28px;animation-duration:19s;animation-delay:-8s;--drift:18px;">
+    <div class="heart" data-depth="0.32" style="left:38%;width:28px;height:28px;animation-duration:19s;animation-delay:-8s;--drift:18px;">
       <svg viewBox="0 0 64 64"><path fill="rgba(194,45,122,.76)" d="M32 56c-1.2 0-2.4-.4-3.4-1.2C19.1 46.7 8 37.9 8 24.8 8 16.1 14.8 9 23.3 9c4.8 0 9.3 2.2 12.2 5.9C38.4 11.2 42.9 9 47.7 9 56.2 9 63 16.1 63 24.8c0 13.1-11.1 21.9-20.6 30-1 .8-2.2 1.2-3.4 1.2H32z"/></svg>
     </div>
-    <div class="heart" style="left:48%;width:18px;height:18px;animation-duration:15s;animation-delay:-4s;--drift:-16px;">
+    <div class="heart" data-depth="0.22" style="left:48%;width:18px;height:18px;animation-duration:15s;animation-delay:-4s;--drift:-16px;">
       <svg viewBox="0 0 64 64"><path fill="rgba(242,211,109,.74)" d="M32 56c-1.2 0-2.4-.4-3.4-1.2C19.1 46.7 8 37.9 8 24.8 8 16.1 14.8 9 23.3 9c4.8 0 9.3 2.2 12.2 5.9C38.4 11.2 42.9 9 47.7 9 56.2 9 63 16.1 63 24.8c0 13.1-11.1 21.9-20.6 30-1 .8-2.2 1.2-3.4 1.2H32z"/></svg>
     </div>
-    <div class="heart" style="left:58%;width:30px;height:30px;animation-duration:18s;animation-delay:-10s;--drift:36px;">
+    <div class="heart" data-depth="0.34" style="left:58%;width:30px;height:30px;animation-duration:18s;animation-delay:-10s;--drift:36px;">
       <svg viewBox="0 0 64 64"><path fill="rgba(42,174,192,.78)" d="M32 56c-1.2 0-2.4-.4-3.4-1.2C19.1 46.7 8 37.9 8 24.8 8 16.1 14.8 9 23.3 9c4.8 0 9.3 2.2 12.2 5.9C38.4 11.2 42.9 9 47.7 9 56.2 9 63 16.1 63 24.8c0 13.1-11.1 21.9-20.6 30-1 .8-2.2 1.2-3.4 1.2H32z"/></svg>
     </div>
-    <div class="heart" style="left:68%;width:22px;height:22px;animation-duration:20s;animation-delay:-12s;--drift:-20px;">
+    <div class="heart" data-depth="0.24" style="left:68%;width:22px;height:22px;animation-duration:20s;animation-delay:-12s;--drift:-20px;">
       <svg viewBox="0 0 64 64"><path fill="rgba(194,45,122,.74)" d="M32 56c-1.2 0-2.4-.4-3.4-1.2C19.1 46.7 8 37.9 8 24.8 8 16.1 14.8 9 23.3 9c4.8 0 9.3 2.2 12.2 5.9C38.4 11.2 42.9 9 47.7 9 56.2 9 63 16.1 63 24.8c0 13.1-11.1 21.9-20.6 30-1 .8-2.2 1.2-3.4 1.2H32z"/></svg>
     </div>
-    <div class="heart" style="left:79%;width:28px;height:28px;animation-duration:17s;animation-delay:-14s;--drift:22px;">
+    <div class="heart" data-depth="0.30" style="left:79%;width:28px;height:28px;animation-duration:17s;animation-delay:-14s;--drift:22px;">
       <svg viewBox="0 0 64 64"><path fill="rgba(242,211,109,.70)" d="M32 56c-1.2 0-2.4-.4-3.4-1.2C19.1 46.7 8 37.9 8 24.8 8 16.1 14.8 9 23.3 9c4.8 0 9.3 2.2 12.2 5.9C38.4 11.2 42.9 9 47.7 9 56.2 9 63 16.1 63 24.8c0 13.1-11.1 21.9-20.6 30-1 .8-2.2 1.2-3.4 1.2H32z"/></svg>
     </div>
-    <div class="heart" style="left:90%;width:20px;height:20px;animation-duration:16s;animation-delay:-9s;--drift:-24px;">
+    <div class="heart" data-depth="0.26" style="left:90%;width:20px;height:20px;animation-duration:16s;animation-delay:-9s;--drift:-24px;">
       <svg viewBox="0 0 64 64"><path fill="rgba(42,174,192,.72)" d="M32 56c-1.2 0-2.4-.4-3.4-1.2C19.1 46.7 8 37.9 8 24.8 8 16.1 14.8 9 23.3 9c4.8 0 9.3 2.2 12.2 5.9C38.4 11.2 42.9 9 47.7 9 56.2 9 63 16.1 63 24.8c0 13.1-11.1 21.9-20.6 30-1 .8-2.2 1.2-3.4 1.2H32z"/></svg>
     </div>
   </div>
@@ -1509,6 +1535,7 @@
 
       <section class="intro-stage">
         <div class="intro-shell panel reveal zoom">
+          <div class="edge-breath"></div>
           <div class="gloss"></div>
           <div class="intro-grid">
             <div class="intro-player">
@@ -1609,6 +1636,7 @@ Und LiquidityBooster wird für alle wahr</p>
 
       <section class="section reveal">
         <div class="band panel">
+          <div class="edge-breath"></div>
           <div class="gloss"></div>
           <h2>Ein Marktplatz von Mensch zu Mensch</h2>
           <p>
@@ -1660,6 +1688,7 @@ Und LiquidityBooster wird für alle wahr</p>
       <section class="section">
         <div class="split">
           <div class="card panel reveal left">
+            <div class="edge-breath"></div>
             <div class="gloss"></div>
             <h2>Was Anbieter hier gewinnen</h2>
             <p>
@@ -1687,6 +1716,7 @@ Und LiquidityBooster wird für alle wahr</p>
           </div>
 
           <div class="card panel reveal right">
+            <div class="edge-breath"></div>
             <div class="gloss"></div>
             <h2>Warum Vertrauen hier schneller wächst</h2>
             <p>
@@ -1718,6 +1748,7 @@ Und LiquidityBooster wird für alle wahr</p>
       <section class="section">
         <div class="split">
           <div class="list-card panel reveal left">
+            <div class="edge-breath"></div>
             <div class="gloss"></div>
             <h2>Welche Bereiche hier sichtbar werden können</h2>
             <p>Zum Beispiel aus diesen Hauptkategorien:</p>
@@ -1736,6 +1767,7 @@ Und LiquidityBooster wird für alle wahr</p>
           </div>
 
           <div class="list-card panel reveal right">
+            <div class="edge-breath"></div>
             <div class="gloss"></div>
             <h2>Was zusätzlich möglich ist</h2>
             <p>Auch weitere Angebote, Fachgebiete, Wissensbereiche, Produkte und Dienstleistungen passen in diesen neuen CLUB - Marktplatz.</p>
@@ -1768,6 +1800,7 @@ Und LiquidityBooster wird für alle wahr</p>
       <section class="section">
         <div class="split">
           <div class="card panel reveal left">
+            <div class="edge-breath"></div>
             <div class="gloss"></div>
             <h2>Für wen dieser Bereich besonders interessant ist</h2>
             <p>
@@ -1781,6 +1814,7 @@ Und LiquidityBooster wird für alle wahr</p>
           </div>
 
           <div class="card panel reveal right">
+            <div class="edge-breath"></div>
             <div class="gloss"></div>
             <h2>Warum hier alle profitieren können</h2>
             <p>
@@ -1797,6 +1831,7 @@ Und LiquidityBooster wird für alle wahr</p>
 
       <section class="section reveal zoom">
         <div class="final-box panel">
+          <div class="edge-breath"></div>
           <div class="gloss"></div>
           <h2>Fazit</h2>
           <p>
@@ -1816,6 +1851,7 @@ Und LiquidityBooster wird für alle wahr</p>
       const revealItems = Array.from(document.querySelectorAll('.reveal'));
       const staggerItems = Array.from(document.querySelectorAll('.stagger'));
       const panelItems = Array.from(document.querySelectorAll('.panel'));
+      const parallaxItems = Array.from(document.querySelectorAll('[data-depth]'));
       const audio = document.getElementById('marketAudio');
       const loopBtn = document.getElementById('loopBtn');
       const lyricsToggle = document.getElementById('lyricsToggle');
@@ -1882,15 +1918,15 @@ Und LiquidityBooster wird für alle wahr</p>
         });
       }
 
-      function updatePanelActivity(){
+      function activateFloatPanel(){
         const viewMid = window.innerHeight * 0.48;
         let activePanel = null;
         let bestDistance = Infinity;
 
         panelItems.forEach(function(panel){
+          panel.classList.remove('float-live');
           const rect = panel.getBoundingClientRect();
-          const visible = rect.bottom > 100 && rect.top < window.innerHeight - 60;
-          panel.classList.remove('active-section');
+          const visible = rect.bottom > 90 && rect.top < window.innerHeight - 60;
           if(!visible) return;
           const center = rect.top + rect.height / 2;
           const distance = Math.abs(center - viewMid);
@@ -1901,7 +1937,7 @@ Und LiquidityBooster wird für alle wahr</p>
         });
 
         if(activePanel){
-          activePanel.classList.add('active-section');
+          activePanel.classList.add('float-live');
         }
       }
 
@@ -1936,7 +1972,16 @@ Und LiquidityBooster wird für alle wahr</p>
           }
         });
 
-        updatePanelActivity();
+        activateFloatPanel();
+      }
+
+      function updateParallax(){
+        const scrollY = window.scrollY || window.pageYOffset || 0;
+        parallaxItems.forEach(function(item){
+          const depth = parseFloat(item.dataset.depth || '0');
+          const moveY = scrollY * depth;
+          item.style.transform = 'translate3d(0,' + (moveY * -1) + 'px,0)';
+        });
       }
 
       async function startExperience(){
@@ -1957,6 +2002,7 @@ Und LiquidityBooster wird für alle wahr</p>
 
         closeWelcomeOverlay();
         updateRevealStates();
+        updateParallax();
 
         if(started){
           enterExperienceBtn.textContent = 'Geöffnet';
@@ -1974,6 +2020,7 @@ Und LiquidityBooster wird für alle wahr</p>
         ticking = true;
         requestAnimationFrame(function(){
           updateRevealStates();
+          updateParallax();
           ticking = false;
         });
       }
@@ -2009,9 +2056,13 @@ Und LiquidityBooster wird für alle wahr</p>
 
       window.addEventListener('scroll', onScrollOrResize, { passive:true });
       window.addEventListener('resize', onScrollOrResize);
-      window.addEventListener('load', updateRevealStates);
+      window.addEventListener('load', function(){
+        updateRevealStates();
+        updateParallax();
+      });
 
       updateRevealStates();
+      updateParallax();
     })();
   </script>
 </body>
