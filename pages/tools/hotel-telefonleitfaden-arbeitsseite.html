@@ -1,15 +1,15 @@
 <!doctype html>
 <!--
   GitHub-Pfad: lp-anfang/pages/tools/hotel-telefonleitfaden-arbeitsseite.html
-  Commit-Message: telefon arbeitsseite ohne demo liste mit kontaktlisten speicherung csv import lokaler archivzuordnung finalisiert
-  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/tools/hotel-telefonleitfaden-arbeitsseite.html?nocache=1776351600
+  Commit-Message: telefon arbeitsseite importfluss vereinfacht liste erst anzeigen dann optional lokal speichern
+  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/tools/hotel-telefonleitfaden-arbeitsseite.html?nocache=1776352200
 -->
 <html lang="de">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Arbeitsseite – Telefonleitfaden Hotelkontakt</title>
-  <meta name="description" content="Arbeitsseite mit Telefonleitfaden, Kontaktliste, Fachbegriffen, Anrufprotokoll, Archiv und Druckfunktion für Hotelkontakte." />
+  <meta name="description" content="Arbeitsseite mit Telefonleitfaden, Kontaktliste, Fachbegriffen, Anrufprotokoll, Archiv und optional speicherbarer Kontaktliste." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -22,14 +22,10 @@
       --mint:#18c7aa;
       --mint-2:#8df1df;
       --pink:#ff4fb3;
-      --pink-2:#ffd3ea;
       --danger:#d94a4a;
-      --ok:#0f8f68;
       --shadow:0 18px 50px rgba(18,35,34,.08);
       --radius:22px;
-      --radius-sm:14px;
     }
-
     *{box-sizing:border-box}
     html,body{margin:0;padding:0}
     body{
@@ -40,12 +36,7 @@
         linear-gradient(180deg,#fbfffe 0%, #f5fbfa 100%);
       color:var(--text);
     }
-
-    .page{
-      width:min(1680px, calc(100% - 32px));
-      margin:18px auto 28px;
-    }
-
+    .page{width:min(1680px,calc(100% - 32px));margin:18px auto 28px}
     .hero{
       background:linear-gradient(135deg, rgba(24,199,170,.12), rgba(255,79,179,.08));
       border:1px solid rgba(24,199,170,.18);
@@ -54,460 +45,127 @@
       padding:18px 18px 16px;
       margin-bottom:16px;
     }
-
     .hero-top{
-      display:flex;
-      gap:14px;
-      justify-content:space-between;
-      align-items:flex-start;
-      flex-wrap:wrap;
+      display:flex;gap:14px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;
     }
-
-    .brand{
-      min-width:280px;
-    }
-
-    .brand h1{
-      margin:0 0 6px;
-      font-size:clamp(1.45rem,2.2vw,2rem);
-      line-height:1.15;
-      letter-spacing:.01em;
-    }
-
-    .brand p{
-      margin:0;
-      color:var(--muted);
-      max-width:920px;
-      line-height:1.5;
-    }
-
-    .hero-actions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:center;
-      justify-content:flex-end;
-    }
-
+    .brand h1{margin:0 0 6px;font-size:clamp(1.45rem,2.2vw,2rem);line-height:1.15}
+    .brand p{margin:0;color:var(--muted);max-width:920px;line-height:1.5}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-end}
     .btn{
-      border:0;
-      cursor:pointer;
-      border-radius:999px;
-      padding:12px 16px;
-      font-weight:700;
-      color:#0f1a19;
-      background:linear-gradient(135deg,var(--mint),var(--mint-2));
+      border:0;cursor:pointer;border-radius:999px;padding:12px 16px;font-weight:700;
+      color:#0f1a19;background:linear-gradient(135deg,var(--mint),var(--mint-2));
       box-shadow:0 10px 22px rgba(24,199,170,.18);
     }
-
-    .btn.alt{
-      background:#fff;
-      color:var(--text);
-      border:1px solid var(--line);
-      box-shadow:none;
-    }
-
-    .btn.pink{
-      background:linear-gradient(135deg,var(--pink),#ffa4d4);
-      box-shadow:0 10px 22px rgba(255,79,179,.18);
-    }
-
-    .btn.danger{
-      background:#fff5f5;
-      color:#942c2c;
-      border:1px solid #f1c9c9;
-      box-shadow:none;
-    }
-
+    .btn.alt{background:#fff;color:var(--text);border:1px solid var(--line);box-shadow:none}
+    .btn.pink{background:linear-gradient(135deg,var(--pink),#ffa4d4);box-shadow:0 10px 22px rgba(255,79,179,.18)}
+    .btn.danger{background:#fff5f5;color:#942c2c;border:1px solid #f1c9c9;box-shadow:none}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
     .top-form{
-      margin-top:16px;
-      display:grid;
-      grid-template-columns:repeat(6,minmax(0,1fr));
-      gap:12px;
+      margin-top:16px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;
     }
-
-    .field,
-    .card,
-    .section{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
+    .field,.section{
+      background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
     }
-
-    .field{
-      padding:12px;
-      min-height:92px;
+    .field{padding:12px;min-height:92px}
+    .field label{display:block;font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:6px}
+    .field input,.field textarea{
+      width:100%;border:1px solid #cfe4de;border-radius:12px;padding:11px 12px;font:inherit;color:var(--text);background:#fff;outline:none;
     }
-
-    .field label{
-      display:block;
-      font-size:.82rem;
-      font-weight:700;
-      color:var(--muted);
-      margin-bottom:6px;
-    }
-
-    .field input,
-    .field select,
-    .field textarea{
-      width:100%;
-      border:1px solid #cfe4de;
-      border-radius:12px;
-      padding:11px 12px;
-      font:inherit;
-      color:var(--text);
-      background:#fff;
-      outline:none;
-    }
-
-    .field textarea{
-      min-height:96px;
-      resize:vertical;
-    }
-
-    .field input:focus,
-    .field select:focus,
-    .field textarea:focus{
-      border-color:var(--mint);
-      box-shadow:0 0 0 4px rgba(24,199,170,.12);
-    }
-
+    .field textarea{min-height:96px;resize:vertical}
+    .field input:focus,.field textarea:focus{border-color:var(--mint);box-shadow:0 0 0 4px rgba(24,199,170,.12)}
     .layout{
-      display:grid;
-      grid-template-columns:360px minmax(0,1.15fr) minmax(0,.95fr);
-      gap:16px;
-      align-items:start;
+      display:grid;grid-template-columns:360px minmax(0,1.15fr) minmax(0,.95fr);gap:16px;align-items:start;
     }
-
-    .section{
-      padding:14px;
-    }
-
-    .section h2{
-      margin:0 0 10px;
-      font-size:1.05rem;
-    }
-
-    .section h3{
-      margin:0 0 8px;
-      font-size:.96rem;
-    }
-
-    .muted{
-      color:var(--muted);
-    }
-
-    .small{
-      font-size:.9rem;
-    }
-
-    .tiny{
-      font-size:.8rem;
-    }
-
-    .controls{
-      display:grid;
-      gap:10px;
-      margin-bottom:12px;
-    }
-
+    .section{padding:14px}
+    .section h2{margin:0 0 10px;font-size:1.05rem}
+    .section h3{margin:0 0 8px;font-size:.96rem}
+    .muted{color:var(--muted)}
+    .small{font-size:.9rem}
+    .tiny{font-size:.8rem}
+    .controls{display:grid;gap:10px;margin-bottom:12px}
     .upload-box{
-      background:var(--panel-soft);
-      border:1px dashed #b9ddd5;
-      border-radius:16px;
-      padding:12px;
+      background:var(--panel-soft);border:1px dashed #b9ddd5;border-radius:16px;padding:12px;
     }
-
-    .upload-actions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top:10px;
+    .upload-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+    .file-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+    .file-row input[type="file"]{flex:1 1 220px;min-width:220px}
+    .status-line{
+      margin-top:8px;padding:10px 12px;border-radius:12px;background:#fff;border:1px solid var(--line);font-size:.88rem;color:#29423d;
     }
-
-    .file-row{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-      margin-top:8px;
-    }
-
-    .file-row input[type="file"]{
-      flex:1 1 220px;
-      min-width:220px;
-    }
-
-    .contact-search{
-      margin-bottom:10px;
-    }
-
     .contact-search input{
-      width:100%;
-      border:1px solid #cfe4de;
-      border-radius:12px;
-      padding:11px 12px;
-      font:inherit;
-      background:#fff;
+      width:100%;border:1px solid #cfe4de;border-radius:12px;padding:11px 12px;font:inherit;background:#fff;
     }
-
     .contact-list{
-      display:grid;
-      gap:10px;
-      max-height:980px;
-      overflow:auto;
-      padding-right:4px;
+      display:grid;gap:10px;max-height:980px;overflow:auto;padding-right:4px;
     }
-
     .contact-item{
-      border:1px solid var(--line);
-      border-radius:16px;
-      background:#fff;
-      padding:12px;
-      cursor:pointer;
-      transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-      text-align:left;
+      border:1px solid var(--line);border-radius:16px;background:#fff;padding:12px;cursor:pointer;
+      transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;text-align:left;
     }
-
-    .contact-item:hover{
-      transform:translateY(-1px);
-      box-shadow:0 10px 20px rgba(18,35,34,.08);
-    }
-
+    .contact-item:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(18,35,34,.08)}
     .contact-item.active{
-      border-color:var(--mint);
-      box-shadow:0 0 0 4px rgba(24,199,170,.12);
-      background:linear-gradient(180deg,#ffffff 0%, #f6fffc 100%);
+      border-color:var(--mint);box-shadow:0 0 0 4px rgba(24,199,170,.12);background:linear-gradient(180deg,#ffffff 0%, #f6fffc 100%);
     }
-
-    .contact-name{
-      font-weight:700;
-      margin-bottom:4px;
-    }
-
-    .contact-company{
-      color:var(--muted);
-      font-size:.92rem;
-      margin-bottom:6px;
-    }
-
-    .chip-row{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top:8px;
-    }
-
+    .contact-name{font-weight:700;margin-bottom:4px}
+    .contact-company{color:var(--muted);font-size:.92rem;margin-bottom:6px}
+    .chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
     .chip{
-      background:#f4faf8;
-      border:1px solid var(--line);
-      border-radius:999px;
-      padding:6px 10px;
-      font-size:.78rem;
-      color:#29423d;
+      background:#f4faf8;border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:.78rem;color:#29423d;
     }
-
     .script-header{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-      align-items:flex-start;
-      margin-bottom:10px;
+      display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-bottom:10px;
     }
-
-    .nameplate{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:center;
-    }
-
+    .nameplate{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
     .badge{
       background:linear-gradient(135deg,#ffffff,var(--panel-soft));
-      border:1px solid var(--line);
-      border-radius:999px;
-      padding:8px 12px;
-      font-size:.86rem;
-      font-weight:700;
+      border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-size:.86rem;font-weight:700;
     }
-
     .call-box{
       background:linear-gradient(180deg,#ffffff 0%, #fbfffe 100%);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:14px;
-      margin-bottom:12px;
+      border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:12px;
     }
-
-    .call-box h3{
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-
+    .call-box h3{display:flex;align-items:center;gap:10px}
     .num{
-      width:28px;
-      height:28px;
-      border-radius:999px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      background:linear-gradient(135deg,var(--mint),var(--mint-2));
-      font-size:.85rem;
+      width:28px;height:28px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;
+      background:linear-gradient(135deg,var(--mint),var(--mint-2));font-size:.85rem;
     }
-
-    .script-line{
-      font-size:1rem;
-      line-height:1.6;
-      white-space:pre-wrap;
-    }
-
-    .prompt-list{
-      margin:10px 0 0;
-      padding-left:18px;
-      line-height:1.55;
-    }
-
+    .script-line{font-size:1rem;line-height:1.6;white-space:pre-wrap}
+    .prompt-list{margin:10px 0 0;padding-left:18px;line-height:1.55}
     .prompt-list li{margin:0 0 8px}
-
-    .glossary-tools{
-      display:grid;
-      gap:10px;
-      margin-bottom:10px;
-    }
-
-    .glossary-grid{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:10px;
-      max-height:520px;
-      overflow:auto;
-      padding-right:4px;
-    }
-
-    .glossary-card{
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:12px;
-      background:#fff;
-    }
-
-    .glossary-card strong{
-      display:block;
-      margin-bottom:6px;
-      font-size:1rem;
-    }
-
-    .glossary-card p{
-      margin:0;
-      color:#2f4742;
-      line-height:1.55;
-    }
-
-    .mini-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top:10px;
-    }
-
-    .status-grid{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:10px;
-      margin-top:8px;
-    }
-
+    .glossary-grid{display:grid;grid-template-columns:1fr;gap:10px;max-height:520px;overflow:auto;padding-right:4px}
+    .glossary-card{border:1px solid var(--line);border-radius:18px;padding:12px;background:#fff}
+    .glossary-card strong{display:block;margin-bottom:6px;font-size:1rem}
+    .glossary-card p{margin:0;color:#2f4742;line-height:1.55}
+    .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .status-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:8px}
     .status-btn{
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:#fff;
-      padding:11px 10px;
-      font-weight:700;
-      cursor:pointer;
+      border:1px solid var(--line);border-radius:14px;background:#fff;padding:11px 10px;font-weight:700;cursor:pointer;
     }
-
     .status-btn.active{
-      border-color:var(--pink);
-      background:linear-gradient(180deg,#fff 0%, #fff3fa 100%);
-      box-shadow:0 0 0 4px rgba(255,79,179,.10);
+      border-color:var(--pink);background:linear-gradient(180deg,#fff 0%, #fff3fa 100%);box-shadow:0 0 0 4px rgba(255,79,179,.10);
     }
-
-    .protocol{
-      margin-top:14px;
-      display:grid;
-      gap:10px;
-    }
-
+    .protocol{margin-top:14px;display:grid;gap:10px}
     .archive-table-wrap{
-      overflow:auto;
-      margin-top:10px;
-      border:1px solid var(--line);
-      border-radius:16px;
-      background:#fff;
+      overflow:auto;margin-top:10px;border:1px solid var(--line);border-radius:16px;background:#fff;
     }
-
-    table{
-      width:100%;
-      border-collapse:collapse;
-      min-width:1180px;
-      font-size:.92rem;
-    }
-
-    th,td{
-      padding:10px 12px;
-      border-bottom:1px solid #e4f0ec;
-      text-align:left;
-      vertical-align:top;
-    }
-
-    th{
-      background:#f4faf8;
-      color:#2a433e;
-      position:sticky;
-      top:0;
-      z-index:1;
-    }
-
+    table{width:100%;border-collapse:collapse;min-width:1180px;font-size:.92rem}
+    th,td{padding:10px 12px;border-bottom:1px solid #e4f0ec;text-align:left;vertical-align:top}
+    th{background:#f4faf8;color:#2a433e;position:sticky;top:0;z-index:1}
     .callout{
-      margin-top:10px;
-      background:#fff9fd;
-      border:1px solid #ffd4eb;
-      color:#5d2f4a;
-      border-radius:16px;
-      padding:12px;
+      margin-top:10px;background:#fff9fd;border:1px solid #ffd4eb;color:#5d2f4a;border-radius:16px;padding:12px;
     }
-
-    .footer-note{
-      margin-top:10px;
-      color:var(--muted);
-      font-size:.86rem;
-      line-height:1.45;
-    }
-
+    .footer-note{margin-top:10px;color:var(--muted);font-size:.86rem;line-height:1.45}
     .divider{
-      height:1px;
-      background:linear-gradient(90deg,transparent,var(--line),transparent);
-      margin:12px 0;
+      height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:12px 0;
     }
-
     .empty-box{
-      border:1px dashed #cfe4de;
-      background:#fcfffe;
-      border-radius:16px;
-      padding:14px;
-      color:var(--muted);
-      line-height:1.5;
+      border:1px dashed #cfe4de;background:#fcfffe;border-radius:16px;padding:14px;color:var(--muted);line-height:1.5;
     }
-
     @media (max-width:1380px){
       .layout{grid-template-columns:320px 1fr}
       .right-col{grid-column:1 / -1}
       .top-form{grid-template-columns:repeat(3,minmax(0,1fr))}
     }
-
     @media (max-width:900px){
       .page{width:min(100% - 20px, 100%)}
       .layout{grid-template-columns:1fr}
@@ -515,43 +173,22 @@
       .status-grid{grid-template-columns:1fr 1fr}
       .mini-grid{grid-template-columns:1fr}
     }
-
     @media (max-width:640px){
       .top-form{grid-template-columns:1fr}
       .status-grid{grid-template-columns:1fr}
       .hero-actions{justify-content:flex-start}
     }
-
     @media print{
       body{background:#fff !important}
       .page{width:100%;margin:0}
-      .hero-actions,
-      .controls,
-      .contact-search,
-      .upload-box,
-      #contactPanel,
-      .footer-note,
-      .callout,
-      #statusButtons,
-      #saveProtocolBtn,
-      #clearProtocolBtn,
-      #printBtn,
-      #exportArchiveBtn,
-      #resetArchiveBtn,
-      #exportContactsBtn,
-      #clearContactsBtn,
-      #newListBtn{
+      .hero-actions,.controls,#contactPanel,.callout,.footer-note,
+      #statusButtons,#saveProtocolBtn,#clearProtocolBtn,#printBtn,#exportArchiveBtn,
+      #saveContactsBtn,#discardPreviewBtn,#replaceSavedBtn,#clearContactsBtn{
         display:none !important;
       }
       .layout{display:block}
-      .section,
-      .field,
-      .call-box,
-      .glossary-card{
-        box-shadow:none !important;
-        border-color:#cfcfcf !important;
-        break-inside:avoid;
-        page-break-inside:avoid;
+      .section,.field,.call-box,.glossary-card{
+        box-shadow:none !important;border-color:#cfcfcf !important;break-inside:avoid;page-break-inside:avoid;
       }
       table{min-width:0;font-size:.8rem}
       th{position:static}
@@ -565,11 +202,9 @@
         <div class="brand">
           <h1>Arbeitsseite – Telefonleitfaden & Anrufprotokoll</h1>
           <p>
-            Kontaktliste lokal speichern, neue Liste einlesen, Leitfaden ablesen, Fachbegriffe parat haben,
-            Anrufe dokumentieren und alles sauber im eigenen Browser archivieren.
+            Datei auswählen, Kontaktliste sofort anzeigen lassen und erst danach entscheiden, ob die Liste lokal gespeichert werden soll.
           </p>
         </div>
-
         <div class="hero-actions">
           <button class="btn alt" id="printBtn" type="button">Drucken / PDF</button>
           <button class="btn pink" id="exportArchiveBtn" type="button">Archiv als CSV exportieren</button>
@@ -610,20 +245,24 @@
 
         <div class="controls">
           <div class="upload-box">
-            <strong>Kontaktliste laden / speichern</strong>
+            <strong>Kontaktliste einlesen</strong>
             <div class="tiny muted" style="margin-top:6px;">
-              Diese Seite speichert die aktuelle Kontaktliste lokal im Browser. Für Excel bitte als CSV importieren oder exportieren.
-              Das Archiv bleibt separat und wird nicht importiert.
+              CSV wird sofort eingelesen und direkt angezeigt. Danach kannst du entscheiden, ob du die eingelesene Liste lokal speichern willst.
             </div>
 
             <div class="file-row">
               <input id="fileInput" type="file" accept=".csv,.xlsx,.xls" />
-              <button class="btn alt" id="newListBtn" type="button">Neue Liste einlesen</button>
             </div>
 
             <div class="upload-actions">
-              <button class="btn alt" id="exportContactsBtn" type="button">Kontaktliste für Excel speichern</button>
-              <button class="btn danger" id="clearContactsBtn" type="button">Kontaktliste löschen</button>
+              <button class="btn" id="saveContactsBtn" type="button" disabled>Eingelesene Liste speichern</button>
+              <button class="btn alt" id="discardPreviewBtn" type="button" disabled>Eingelesene Liste verwerfen</button>
+              <button class="btn alt" id="replaceSavedBtn" type="button" disabled>Gespeicherte Liste anzeigen</button>
+              <button class="btn danger" id="clearContactsBtn" type="button">Gespeicherte Liste löschen</button>
+            </div>
+
+            <div class="status-line" id="importStatus">
+              Keine neue Liste eingelesen.
             </div>
           </div>
 
@@ -639,9 +278,7 @@
         <div class="script-header">
           <div>
             <h2>Telefonleitfaden</h2>
-            <div class="muted small">
-              Ablese-Vorlage für ein authentisches Gespräch mit klarem Ziel: Termin vereinbaren.
-            </div>
+            <div class="muted small">Ablese-Vorlage für ein authentisches Gespräch mit klarem Ziel: Termin vereinbaren.</div>
           </div>
           <div class="nameplate">
             <div class="badge" id="badgeCaller">Anrufer: –</div>
@@ -737,7 +374,6 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
             <button class="btn" id="saveProtocolBtn" type="button">Ins Archiv speichern</button>
             <button class="btn alt" id="clearProtocolBtn" type="button">Formular leeren</button>
-            <button class="btn danger" id="resetArchiveBtn" type="button">Archiv löschen</button>
           </div>
         </div>
       </main>
@@ -745,7 +381,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
       <aside class="section right-col">
         <h2>Fachbegriffe & Kurz-Erklärungen</h2>
 
-        <div class="glossary-tools">
+        <div style="margin-bottom:10px;">
           <input id="glossarySearch" type="text" placeholder="Begriff suchen, z. B. OTA oder RevPAR" style="width:100%;border:1px solid #cfe4de;border-radius:12px;padding:11px 12px;font:inherit;background:#fff;" />
         </div>
 
@@ -755,7 +391,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
 
         <h2>Archiv / Anrufhistorie</h2>
         <div class="muted small">
-          Jeder gespeicherte Anruf enthält die beim Speichern hinterlegte Adresse bzw. den damaligen Kontaktdatensatz aus der geladenen Liste.
+          Jeder gespeicherte Anruf enthält die Kontaktdaten, die zum Zeitpunkt des Speicherns aktiv waren.
         </div>
 
         <div class="archive-table-wrap">
@@ -779,12 +415,11 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
 
         <div class="callout">
           <strong>Wichtig:</strong>
-          Die Kontaktliste wird getrennt vom Archiv verwaltet. Neue CSV einlesen ersetzt auf Wunsch die bisherige Kontaktliste,
-          ohne das Anrufarchiv zu importieren.
+          Neue eingelesene Listen werden sofort sichtbar. Speichern ist danach nur optional.
         </div>
 
         <div class="footer-note">
-          Erwartete Spalten für die Kontaktliste: <strong>Anrede</strong>, <strong>Vorname</strong>, <strong>Nachname</strong>,
+          Erwartete Spalten: <strong>Anrede</strong>, <strong>Vorname</strong>, <strong>Nachname</strong>,
           <strong>E-Mail</strong>, <strong>Telefon 1</strong> und <strong>Firma - Name</strong>.
         </div>
       </aside>
@@ -793,85 +428,45 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
 
   <script>
     (function(){
-      const CONTACTS_KEY = 'hotelCallContacts_v2';
-      const ARCHIVE_KEY = 'hotelCallArchive_v2';
-      const SETTINGS_KEY = 'hotelCallSettings_v2';
+      const CONTACTS_KEY = 'hotelCallContacts_v3';
+      const ARCHIVE_KEY = 'hotelCallArchive_v3';
+      const SETTINGS_KEY = 'hotelCallSettings_v3';
 
       const glossary = [
-        {
-          term:'OTA',
-          description:'Online Travel Agency. Gemeint sind Buchungsplattformen wie große Reise- und Hotelportale. Der Punkt im Gespräch: Je höher die OTA-Abhängigkeit, desto mehr Provision und fremde Abhängigkeit entstehen.'
-        },
-        {
-          term:'RevPAR',
-          description:'Kennzahl zur Bewertung von Hotels. Vereinfacht: Umsatz pro verfügbarem Zimmer. Damit lässt sich einschätzen, wie gut Auslastung und Preisniveau zusammenspielen.'
-        },
-        {
-          term:'Direktbuchung',
-          description:'Eine Buchung, die direkt über das Hotel läuft und nicht über ein fremdes Portal. Meist attraktiver für die Marge und besser für die Beziehung zum Gast.'
-        },
-        {
-          term:'Direktbuchungs-Ökosystem',
-          description:'Das Zusammenspiel aus Website, Angeboten, Anreizen, Sichtbarkeit, regionalen Inhalten und klaren Buchungswegen, damit Gäste direkt beim Hotel buchen.'
-        },
-        {
-          term:'Cashback',
-          description:'Ein Rückvergütungs- oder Vorteilsmodell, das den Gast motivieren kann, direkt zu buchen, statt über Drittplattformen zu gehen.'
-        },
-        {
-          term:'Marge',
-          description:'Der Teil vom Umsatz, der nach Kosten übrig bleibt. Wenn Portale, Werbung und Gästegewinnung teurer werden, sinkt die Marge.'
-        },
-        {
-          term:'Gästegewinnung',
-          description:'Alle Maßnahmen, mit denen neue Gäste gewonnen werden. Dazu gehören Werbung, Reichweite, Empfehlungen, Sichtbarkeit und Buchungsanreize.'
-        },
-        {
-          term:'Buchungskosten',
-          description:'Kosten pro Buchung, zum Beispiel Provisionen, Agenturkosten oder Werbekosten. Im Gespräch geht es darum, diese Kosten zu senken.'
-        },
-        {
-          term:'Zusatzumsatz pro Gast',
-          description:'Alles, was zusätzlich zur Übernachtung verkauft wird, etwa Frühstück, Wellness, Arrangements, Restaurant oder regionale Extras.'
-        },
-        {
-          term:'Marketingagentur',
-          description:'Externer Dienstleister für Werbung, Sichtbarkeit oder Kampagnen. Im Gespräch hilft die Frage dabei, ob das Hotel intern arbeitet oder bereits extern begleitet wird.'
-        },
-        {
-          term:'Kampagne',
-          description:'Gezielte Aktion mit klarer Botschaft, Zielgruppe und Zeitraum. Zum Beispiel eine Aktion, um mehr Direktbuchungen oder mehr Nebenerlöse zu erzeugen.'
-        },
-        {
-          term:'Abhängigkeit von OTAs',
-          description:'Wenn ein großer Teil der Buchungen über Portale kommt, entstehen Fremdabhängigkeit, Provisionen und oft weniger Kontrolle über den direkten Kundenzugang.'
-        },
-        {
-          term:'Rabattschlacht',
-          description:'Preiskampf über Rabatte. Im Leitfaden ist wichtig: Direktbuchung stärken, ohne sich nur über Preisnachlässe zu verkaufen.'
-        },
-        {
-          term:'Onlinepräsentation',
-          description:'Der eigentliche nächste Schritt im Gespräch. Keine lange Beratung, sondern ein kompakter Termin von etwa 20 Minuten mit konkretem Blick auf das Haus.'
-        },
-        {
-          term:'Hebel',
-          description:'Der Bereich mit der größten Wirkung. Also dort ansetzen, wo mit wenig Änderung spürbar mehr Direktanfragen, bessere Marge oder mehr Zusatzumsatz entsteht.'
-        }
+        {term:'OTA',description:'Online Travel Agency. Gemeint sind Buchungsplattformen wie große Reise- und Hotelportale. Je höher die OTA-Abhängigkeit, desto mehr Provision und Fremdabhängigkeit entstehen.'},
+        {term:'RevPAR',description:'Kennzahl zur Bewertung von Hotels. Vereinfacht: Umsatz pro verfügbarem Zimmer. Damit lässt sich einschätzen, wie gut Auslastung und Preisniveau zusammenspielen.'},
+        {term:'Direktbuchung',description:'Eine Buchung, die direkt über das Hotel läuft und nicht über ein fremdes Portal. Meist attraktiver für die Marge und besser für die Beziehung zum Gast.'},
+        {term:'Direktbuchungs-Ökosystem',description:'Das Zusammenspiel aus Website, Angeboten, Anreizen, Sichtbarkeit, regionalen Inhalten und klaren Buchungswegen, damit Gäste direkt beim Hotel buchen.'},
+        {term:'Cashback',description:'Ein Rückvergütungs- oder Vorteilsmodell, das den Gast motivieren kann, direkt zu buchen, statt über Drittplattformen zu gehen.'},
+        {term:'Marge',description:'Der Teil vom Umsatz, der nach Kosten übrig bleibt. Wenn Portale, Werbung und Gästegewinnung teurer werden, sinkt die Marge.'},
+        {term:'Gästegewinnung',description:'Alle Maßnahmen, mit denen neue Gäste gewonnen werden. Dazu gehören Werbung, Reichweite, Empfehlungen, Sichtbarkeit und Buchungsanreize.'},
+        {term:'Buchungskosten',description:'Kosten pro Buchung, zum Beispiel Provisionen, Agenturkosten oder Werbekosten. Im Gespräch geht es darum, diese Kosten zu senken.'},
+        {term:'Zusatzumsatz pro Gast',description:'Alles, was zusätzlich zur Übernachtung verkauft wird, etwa Frühstück, Wellness, Arrangements, Restaurant oder regionale Extras.'},
+        {term:'Marketingagentur',description:'Externer Dienstleister für Werbung, Sichtbarkeit oder Kampagnen. Im Gespräch hilft die Frage dabei, ob das Hotel intern arbeitet oder bereits extern begleitet wird.'},
+        {term:'Kampagne',description:'Gezielte Aktion mit klarer Botschaft, Zielgruppe und Zeitraum. Zum Beispiel eine Aktion, um mehr Direktbuchungen oder mehr Nebenerlöse zu erzeugen.'},
+        {term:'Abhängigkeit von OTAs',description:'Wenn ein großer Teil der Buchungen über Portale kommt, entstehen Fremdabhängigkeit, Provisionen und oft weniger Kontrolle über den direkten Kundenzugang.'},
+        {term:'Rabattschlacht',description:'Preiskampf über Rabatte. Im Leitfaden ist wichtig: Direktbuchung stärken, ohne sich nur über Preisnachlässe zu verkaufen.'},
+        {term:'Onlinepräsentation',description:'Der eigentliche nächste Schritt im Gespräch. Keine lange Beratung, sondern ein kompakter Termin von etwa 20 Minuten mit konkretem Blick auf das Haus.'},
+        {term:'Hebel',description:'Der Bereich mit der größten Wirkung. Also dort ansetzen, wo mit wenig Änderung spürbar mehr Direktanfragen, bessere Marge oder mehr Zusatzumsatz entsteht.'}
       ];
 
-      let contacts = [];
+      let savedContacts = [];
+      let previewContacts = [];
+      let visibleContacts = [];
       let archive = [];
       let selectedIndex = -1;
       let activeStatus = '';
+      let showingPreview = false;
 
       const el = {
         contactList: document.getElementById('contactList'),
         contactSearch: document.getElementById('contactSearch'),
         fileInput: document.getElementById('fileInput'),
-        newListBtn: document.getElementById('newListBtn'),
-        exportContactsBtn: document.getElementById('exportContactsBtn'),
+        saveContactsBtn: document.getElementById('saveContactsBtn'),
+        discardPreviewBtn: document.getElementById('discardPreviewBtn'),
+        replaceSavedBtn: document.getElementById('replaceSavedBtn'),
         clearContactsBtn: document.getElementById('clearContactsBtn'),
+        importStatus: document.getElementById('importStatus'),
         selectedContact: document.getElementById('selectedContact'),
         selectedCompany: document.getElementById('selectedCompany'),
         selectedPhone: document.getElementById('selectedPhone'),
@@ -894,13 +489,10 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         printBtn: document.getElementById('printBtn'),
         exportArchiveBtn: document.getElementById('exportArchiveBtn'),
         saveProtocolBtn: document.getElementById('saveProtocolBtn'),
-        clearProtocolBtn: document.getElementById('clearProtocolBtn'),
-        resetArchiveBtn: document.getElementById('resetArchiveBtn')
+        clearProtocolBtn: document.getElementById('clearProtocolBtn')
       };
 
-      function safe(value){
-        return (value ?? '').toString().trim();
-      }
+      function safe(value){ return (value ?? '').toString().trim(); }
 
       function escapeHtml(value){
         return String(value ?? '')
@@ -921,9 +513,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
 
       function csvCell(value){
         const text = String(value ?? '');
-        if(/[;"\n\r]/.test(text)){
-          return '"' + text.replace(/"/g,'""') + '"';
-        }
+        if(/[;"\n\r]/.test(text)) return '"' + text.replace(/"/g,'""') + '"';
         return text;
       }
 
@@ -939,13 +529,6 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         URL.revokeObjectURL(url);
       }
 
-      function buildDisplayName(contact){
-        const anrede = safe(contact['Anrede']);
-        const vorname = safe(contact['Vorname']);
-        const nachname = safe(contact['Nachname']);
-        return [anrede, vorname, nachname].filter(Boolean).join(' ').trim() || 'Unbekannter Kontakt';
-      }
-
       function normalizeContact(raw){
         return {
           'Anrede': safe(raw['Anrede']),
@@ -955,6 +538,13 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
           'Telefon 1': safe(raw['Telefon 1']),
           'Firma - Name': safe(raw['Firma - Name'])
         };
+      }
+
+      function buildDisplayName(contact){
+        const anrede = safe(contact['Anrede']);
+        const vorname = safe(contact['Vorname']);
+        const nachname = safe(contact['Nachname']);
+        return [anrede, vorname, nachname].filter(Boolean).join(' ').trim() || 'Unbekannter Kontakt';
       }
 
       function resetSelectionFields(){
@@ -968,35 +558,29 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
       }
 
       function loadState(){
-        try{
-          contacts = JSON.parse(localStorage.getItem(CONTACTS_KEY) || '[]');
-        }catch(e){ contacts = []; }
-
-        try{
-          archive = JSON.parse(localStorage.getItem(ARCHIVE_KEY) || '[]');
-        }catch(e){ archive = []; }
-
+        try{ savedContacts = JSON.parse(localStorage.getItem(CONTACTS_KEY) || '[]'); }catch(e){ savedContacts = []; }
+        try{ archive = JSON.parse(localStorage.getItem(ARCHIVE_KEY) || '[]'); }catch(e){ archive = []; }
         try{
           const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
           el.callerName.value = settings.callerName || '';
           el.callerCompany.value = settings.callerCompany || 'Evolution24';
         }catch(e){}
+        visibleContacts = savedContacts.slice();
       }
 
-      function saveContacts(){
-        localStorage.setItem(CONTACTS_KEY, JSON.stringify(contacts));
+      function saveSettings(){
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+          callerName: el.callerName.value.trim(),
+          callerCompany: el.callerCompany.value.trim()
+        }));
+      }
+
+      function saveContactsToLocalStorage(){
+        localStorage.setItem(CONTACTS_KEY, JSON.stringify(savedContacts));
       }
 
       function saveArchive(){
         localStorage.setItem(ARCHIVE_KEY, JSON.stringify(archive));
-      }
-
-      function saveSettings(){
-        const settings = {
-          callerName: el.callerName.value.trim(),
-          callerCompany: el.callerCompany.value.trim()
-        };
-        localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
       }
 
       function updateCallerBadges(){
@@ -1007,11 +591,30 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         el.scriptCallerCompany.textContent = callerCompany;
       }
 
+      function updateImportUi(){
+        el.saveContactsBtn.disabled = previewContacts.length === 0;
+        el.discardPreviewBtn.disabled = previewContacts.length === 0;
+        el.replaceSavedBtn.disabled = savedContacts.length === 0 && !showingPreview;
+
+        if(showingPreview && previewContacts.length){
+          el.importStatus.textContent = 'Neue Liste eingelesen: ' + previewContacts.length + ' Kontakte sichtbar. Jetzt kannst du speichern oder verwerfen.';
+        }else if(savedContacts.length){
+          el.importStatus.textContent = 'Gespeicherte Liste aktiv: ' + savedContacts.length + ' Kontakte.';
+        }else{
+          el.importStatus.textContent = 'Keine gespeicherte Liste vorhanden. Bitte Datei auswählen.';
+        }
+      }
+
       function renderContacts(){
         const query = el.contactSearch.value.trim().toLowerCase();
         el.contactList.innerHTML = '';
 
-        const filtered = contacts
+        if(!visibleContacts.length){
+          el.contactList.innerHTML = `<div class="empty-box">Noch keine Liste sichtbar.<br><br>Bitte CSV-Datei auswählen.</div>`;
+          return;
+        }
+
+        const filtered = visibleContacts
           .map((contact,index)=>({contact,index}))
           .filter(({contact})=>{
             if(!query) return true;
@@ -1024,22 +627,8 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
             return haystack.includes(query);
           });
 
-        if(!contacts.length){
-          el.contactList.innerHTML = `
-            <div class="empty-box">
-              Noch keine Kontaktliste geladen.<br><br>
-              Bitte oben über <strong>Neue Liste einlesen</strong> eine CSV-Datei laden.
-            </div>
-          `;
-          return;
-        }
-
         if(!filtered.length){
-          el.contactList.innerHTML = `
-            <div class="empty-box">
-              Keine Treffer für deine Suche.
-            </div>
-          `;
+          el.contactList.innerHTML = `<div class="empty-box">Keine Treffer für deine Suche.</div>`;
           return;
         }
 
@@ -1063,7 +652,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
 
       function selectContact(index){
         selectedIndex = index;
-        const contact = contacts[index];
+        const contact = visibleContacts[index];
         if(!contact) return;
 
         const displayName = buildDisplayName(contact);
@@ -1100,11 +689,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
 
       function renderArchive(){
         if(!archive.length){
-          el.archiveTableBody.innerHTML = `
-            <tr>
-              <td colspan="9" class="muted">Noch keine Einträge im Archiv.</td>
-            </tr>
-          `;
+          el.archiveTableBody.innerHTML = `<tr><td colspan="9" class="muted">Noch keine Einträge im Archiv.</td></tr>`;
           return;
         }
 
@@ -1143,18 +728,17 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
       }
 
       function saveProtocol(){
-        const contact = contacts[selectedIndex];
+        const contact = visibleContacts[selectedIndex];
         if(!contact){
-          alert('Bitte zuerst einen Kontakt aus der Liste auswählen.');
+          alert('Bitte zuerst einen Kontakt aus der sichtbaren Liste auswählen.');
           return;
         }
-
         if(!activeStatus){
           alert('Bitte zuerst einen Status auswählen.');
           return;
         }
 
-        const entry = {
+        archive.push({
           createdAt: new Date().toISOString(),
           callDate: el.callDate.value || '',
           status: activeStatus,
@@ -1168,9 +752,8 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
           keywordsUsed: el.keywordsUsed.value.trim(),
           callerName: el.callerName.value.trim(),
           callerCompany: el.callerCompany.value.trim()
-        };
+        });
 
-        archive.push(entry);
         saveArchive();
         renderArchive();
         alert('Eintrag wurde ins Archiv gespeichert.');
@@ -1181,22 +764,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
           alert('Das Archiv ist leer.');
           return;
         }
-
-        const headers = [
-          'Datum',
-          'Status',
-          'Kontakt',
-          'Firma',
-          'Telefon',
-          'E-Mail',
-          'Wiedervorlage / Termin',
-          'Nächster Schritt',
-          'Kurzprotokoll',
-          'Stichworte',
-          'Anrufer',
-          'Firma Anrufer'
-        ];
-
+        const headers = ['Datum','Status','Kontakt','Firma','Telefon','E-Mail','Wiedervorlage / Termin','Nächster Schritt','Kurzprotokoll','Stichworte','Anrufer','Firma Anrufer'];
         const lines = [headers];
         archive.forEach(entry=>{
           lines.push([
@@ -1214,32 +782,8 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
             entry.callerCompany || ''
           ]);
         });
-
         const csv = lines.map(row=>row.map(csvCell).join(';')).join('\n');
         downloadFile(csv, 'anrufarchiv-hotelkontakte.csv', 'text/csv;charset=utf-8;');
-      }
-
-      function exportContactsCsv(){
-        if(!contacts.length){
-          alert('Es ist keine Kontaktliste vorhanden.');
-          return;
-        }
-
-        const headers = ['Anrede','Vorname','Nachname','E-Mail','Telefon 1','Firma - Name'];
-        const lines = [headers];
-        contacts.forEach(contact=>{
-          lines.push([
-            safe(contact['Anrede']),
-            safe(contact['Vorname']),
-            safe(contact['Nachname']),
-            safe(contact['E-Mail']),
-            safe(contact['Telefon 1']),
-            safe(contact['Firma - Name'])
-          ]);
-        });
-
-        const csv = lines.map(row=>row.map(csvCell).join(';')).join('\n');
-        downloadFile(csv, 'kontaktliste-fuer-excel.csv', 'text/csv;charset=utf-8;');
       }
 
       function parseCsv(text){
@@ -1296,8 +840,8 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         const headers = rows[0].map(h=>String(h).trim());
         const normalizedHeaders = headers.map(h=>h.toLowerCase());
 
-        function headerIndex(possibleNames){
-          for(const name of possibleNames){
+        function headerIndex(names){
+          for(const name of names){
             const idx = normalizedHeaders.indexOf(name.toLowerCase());
             if(idx > -1) return idx;
           }
@@ -1327,25 +871,25 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
           return;
         }
 
-        contacts = parsed;
-        saveContacts();
+        previewContacts = parsed;
+        visibleContacts = previewContacts.slice();
+        showingPreview = true;
         resetSelectionFields();
         renderContacts();
-        alert(parsed.length + ' Kontakte wurden übernommen und lokal gespeichert.');
+        updateImportUi();
       }
 
       function handleFileImport(file){
         if(!file) return;
-
         const name = file.name.toLowerCase();
 
         if(name.endsWith('.xlsx') || name.endsWith('.xls')){
-          alert('Bitte die Excel-Datei zuerst als CSV speichern und dann hier einlesen. Diese Seite importiert Kontaktlisten direkt als CSV.');
+          alert('Native Excel-Dateien können in dieser Version nicht direkt ohne Zusatzbibliothek gelesen werden. Bitte die Datei in Excel als CSV speichern und dann hier auswählen.');
           return;
         }
 
         if(!name.endsWith('.csv')){
-          alert('Bitte eine CSV-Datei laden.');
+          alert('Bitte eine CSV-Datei auswählen.');
           return;
         }
 
@@ -1367,47 +911,71 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
           btn.addEventListener('click', ()=>setActiveStatus(btn.dataset.status));
         });
 
-        el.printBtn.addEventListener('click', ()=>window.print());
-        el.exportArchiveBtn.addEventListener('click', exportArchiveCsv);
-        el.exportContactsBtn.addEventListener('click', exportContactsCsv);
-        el.saveProtocolBtn.addEventListener('click', saveProtocol);
-        el.clearProtocolBtn.addEventListener('click', clearProtocol);
-
-        el.resetArchiveBtn.addEventListener('click', ()=>{
-          if(!confirm('Archiv wirklich komplett löschen?')) return;
-          archive = [];
-          saveArchive();
-          renderArchive();
-        });
-
-        el.clearContactsBtn.addEventListener('click', ()=>{
-          if(!confirm('Kontaktliste wirklich komplett löschen?')) return;
-          contacts = [];
-          saveContacts();
-          resetSelectionFields();
-          renderContacts();
-        });
-
-        el.newListBtn.addEventListener('click', ()=>{
-          el.fileInput.click();
-        });
-
         el.fileInput.addEventListener('change', (event)=>{
           const file = event.target.files && event.target.files[0];
           if(!file) return;
           handleFileImport(file);
           event.target.value = '';
         });
+
+        el.saveContactsBtn.addEventListener('click', ()=>{
+          if(!previewContacts.length) return;
+          savedContacts = previewContacts.slice();
+          visibleContacts = savedContacts.slice();
+          previewContacts = [];
+          showingPreview = false;
+          saveContactsToLocalStorage();
+          resetSelectionFields();
+          renderContacts();
+          updateImportUi();
+          alert('Die eingelesene Liste wurde lokal gespeichert.');
+        });
+
+        el.discardPreviewBtn.addEventListener('click', ()=>{
+          previewContacts = [];
+          showingPreview = false;
+          visibleContacts = savedContacts.slice();
+          resetSelectionFields();
+          renderContacts();
+          updateImportUi();
+        });
+
+        el.replaceSavedBtn.addEventListener('click', ()=>{
+          showingPreview = false;
+          visibleContacts = savedContacts.slice();
+          previewContacts = [];
+          resetSelectionFields();
+          renderContacts();
+          updateImportUi();
+        });
+
+        el.clearContactsBtn.addEventListener('click', ()=>{
+          if(!confirm('Gespeicherte Kontaktliste wirklich löschen?')) return;
+          savedContacts = [];
+          if(!showingPreview){
+            visibleContacts = [];
+          }
+          localStorage.removeItem(CONTACTS_KEY);
+          resetSelectionFields();
+          renderContacts();
+          updateImportUi();
+        });
+
+        el.printBtn.addEventListener('click', ()=>window.print());
+        el.exportArchiveBtn.addEventListener('click', exportArchiveCsv);
+        el.saveProtocolBtn.addEventListener('click', saveProtocol);
+        el.clearProtocolBtn.addEventListener('click', clearProtocol);
       }
 
       function init(){
         loadState();
         el.callDate.value = todayValue();
-        bindEvents();
         updateCallerBadges();
         renderGlossary();
         renderContacts();
         renderArchive();
+        updateImportUi();
+        bindEvents();
       }
 
       init();
