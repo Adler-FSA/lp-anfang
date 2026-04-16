@@ -1207,6 +1207,7 @@
     │   │   ├── beratermarkt-index-dach.html
     │   │   ├── dach-demand-dashboard.html
     │   │   ├── einkaufsmeile-prozess-pixel.html
+    │   │   ├── hotel-telefonleitfaden-arbeitsseite.html
     │   │   ├── lokal-speicher-erklaerung.html
     │   │   ├── promotor-onboarding-checkin.html
     │   │   ├── quicklinks-hub.html
@@ -1411,4 +1412,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.04.2026, 13:52)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.04.2026, 15:22)_
