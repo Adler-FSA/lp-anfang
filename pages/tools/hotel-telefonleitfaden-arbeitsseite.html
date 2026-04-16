@@ -1,15 +1,15 @@
 <!doctype html>
 <!--
   GitHub-Pfad: lp-anfang/pages/tools/hotel-telefonleitfaden-arbeitsseite.html
-  Commit-Message: telefon arbeitsseite importfluss vereinfacht liste erst anzeigen dann optional lokal speichern
-  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/tools/hotel-telefonleitfaden-arbeitsseite.html?nocache=1776352200
+  Commit-Message: telefon arbeitsseite mit direktem xlsx und csv import sofortanzeige und optionalem speichern final
+  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/tools/hotel-telefonleitfaden-arbeitsseite.html?nocache=1776356400
 -->
 <html lang="de">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Arbeitsseite – Telefonleitfaden Hotelkontakt</title>
-  <meta name="description" content="Arbeitsseite mit Telefonleitfaden, Kontaktliste, Fachbegriffen, Anrufprotokoll, Archiv und optional speicherbarer Kontaktliste." />
+  <meta name="description" content="Arbeitsseite mit Telefonleitfaden, direktem Excel- und CSV-Import, Kontaktliste, Fachbegriffen und Anrufarchiv." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -202,7 +202,7 @@
         <div class="brand">
           <h1>Arbeitsseite – Telefonleitfaden & Anrufprotokoll</h1>
           <p>
-            Datei auswählen, Kontaktliste sofort anzeigen lassen und erst danach entscheiden, ob die Liste lokal gespeichert werden soll.
+            Datei auswählen, Excel oder CSV sofort einlesen, Liste direkt anzeigen und danach optional lokal speichern.
           </p>
         </div>
         <div class="hero-actions">
@@ -247,7 +247,7 @@
           <div class="upload-box">
             <strong>Kontaktliste einlesen</strong>
             <div class="tiny muted" style="margin-top:6px;">
-              CSV wird sofort eingelesen und direkt angezeigt. Danach kannst du entscheiden, ob du die eingelesene Liste lokal speichern willst.
+              XLSX und CSV werden direkt eingelesen. Erst nach dem Anzeigen entscheidest du, ob die eingelesene Liste lokal gespeichert werden soll.
             </div>
 
             <div class="file-row">
@@ -261,9 +261,7 @@
               <button class="btn danger" id="clearContactsBtn" type="button">Gespeicherte Liste löschen</button>
             </div>
 
-            <div class="status-line" id="importStatus">
-              Keine neue Liste eingelesen.
-            </div>
+            <div class="status-line" id="importStatus">Keine neue Liste eingelesen.</div>
           </div>
 
           <div class="contact-search">
@@ -428,9 +426,9 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
 
   <script>
     (function(){
-      const CONTACTS_KEY = 'hotelCallContacts_v3';
-      const ARCHIVE_KEY = 'hotelCallArchive_v3';
-      const SETTINGS_KEY = 'hotelCallSettings_v3';
+      const CONTACTS_KEY = 'hotelCallContacts_v4';
+      const ARCHIVE_KEY = 'hotelCallArchive_v4';
+      const SETTINGS_KEY = 'hotelCallSettings_v4';
 
       const glossary = [
         {term:'OTA',description:'Online Travel Agency. Gemeint sind Buchungsplattformen wie große Reise- und Hotelportale. Je höher die OTA-Abhängigkeit, desto mehr Provision und Fremdabhängigkeit entstehen.'},
@@ -597,7 +595,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         el.replaceSavedBtn.disabled = savedContacts.length === 0 && !showingPreview;
 
         if(showingPreview && previewContacts.length){
-          el.importStatus.textContent = 'Neue Liste eingelesen: ' + previewContacts.length + ' Kontakte sichtbar. Jetzt kannst du speichern oder verwerfen.';
+          el.importStatus.textContent = 'Neue Liste eingelesen: ' + previewContacts.length + ' Kontakte sichtbar. Jetzt speichern oder verwerfen.';
         }else if(savedContacts.length){
           el.importStatus.textContent = 'Gespeicherte Liste aktiv: ' + savedContacts.length + ' Kontakte.';
         }else{
@@ -610,7 +608,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         el.contactList.innerHTML = '';
 
         if(!visibleContacts.length){
-          el.contactList.innerHTML = `<div class="empty-box">Noch keine Liste sichtbar.<br><br>Bitte CSV-Datei auswählen.</div>`;
+          el.contactList.innerHTML = `<div class="empty-box">Noch keine Liste sichtbar.<br><br>Bitte Excel- oder CSV-Datei auswählen.</div>`;
           return;
         }
 
@@ -830,14 +828,10 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         return rows.filter(r=>r.some(cell=>String(cell).trim() !== ''));
       }
 
-      function importCsv(text){
-        const rows = parseCsv(text);
-        if(rows.length < 2){
-          alert('Die CSV enthält zu wenig Daten.');
-          return;
-        }
+      function tableToContacts(rows){
+        if(!rows || rows.length < 2) return [];
 
-        const headers = rows[0].map(h=>String(h).trim());
+        const headers = rows[0].map(h=>String(h ?? '').trim());
         const normalizedHeaders = headers.map(h=>h.toLowerCase());
 
         function headerIndex(names){
@@ -852,10 +846,10 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         const iVorname = headerIndex(['Vorname']);
         const iNachname = headerIndex(['Nachname']);
         const iEmail = headerIndex(['E-Mail','Email','Mail']);
-        const iTelefon = headerIndex(['Telefon 1','Telefon','Telefon1','Phone']);
-        const iFirma = headerIndex(['Firma - Name','Firma','Firma Name','Unternehmen','Hotel']);
+        const iTelefon = headerIndex(['Telefon 1','Telefon','Telefon1','Phone','Telefonnummer']);
+        const iFirma = headerIndex(['Firma - Name','Firma','Firma Name','Unternehmen','Hotel','Hotel / Firma']);
 
-        const parsed = rows.slice(1).map(cols=>normalizeContact({
+        return rows.slice(1).map(cols=>normalizeContact({
           'Anrede': iAnrede > -1 ? cols[iAnrede] : '',
           'Vorname': iVorname > -1 ? cols[iVorname] : '',
           'Nachname': iNachname > -1 ? cols[iNachname] : '',
@@ -865,12 +859,14 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         })).filter(contact=>{
           return buildDisplayName(contact) !== 'Unbekannter Kontakt' || safe(contact['Firma - Name']) || safe(contact['Telefon 1']) || safe(contact['E-Mail']);
         });
+      }
 
+      function importRows(rows){
+        const parsed = tableToContacts(rows);
         if(!parsed.length){
-          alert('Aus der CSV konnten keine gültigen Kontakte gelesen werden.');
+          alert('Aus der Datei konnten keine gültigen Kontakte gelesen werden.');
           return;
         }
-
         previewContacts = parsed;
         visibleContacts = previewContacts.slice();
         showingPreview = true;
@@ -879,25 +875,33 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         updateImportUi();
       }
 
-      function handleFileImport(file){
+      async function handleFileImport(file){
         if(!file) return;
         const name = file.name.toLowerCase();
 
-        if(name.endsWith('.xlsx') || name.endsWith('.xls')){
-          alert('Native Excel-Dateien können in dieser Version nicht direkt ohne Zusatzbibliothek gelesen werden. Bitte die Datei in Excel als CSV speichern und dann hier auswählen.');
-          return;
-        }
+        try{
+          if(name.endsWith('.csv')){
+            const text = await file.text();
+            importRows(parseCsv(text));
+            return;
+          }
 
-        if(!name.endsWith('.csv')){
-          alert('Bitte eine CSV-Datei auswählen.');
-          return;
-        }
+          if(name.endsWith('.xlsx')){
+            const rows = await parseXlsxFile(file);
+            importRows(rows);
+            return;
+          }
 
-        file.text().then(text=>{
-          importCsv(text);
-        }).catch(()=>{
-          alert('Die Datei konnte nicht gelesen werden.');
-        });
+          if(name.endsWith('.xls')){
+            alert('Alte XLS-Dateien werden in dieser Version nicht unterstützt. Bitte die Datei einmal als XLSX oder CSV speichern und erneut auswählen.');
+            return;
+          }
+
+          alert('Bitte eine CSV- oder XLSX-Datei auswählen.');
+        }catch(err){
+          console.error(err);
+          alert('Die Datei konnte nicht sauber eingelesen werden.');
+        }
       }
 
       function bindEvents(){
@@ -911,10 +915,10 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
           btn.addEventListener('click', ()=>setActiveStatus(btn.dataset.status));
         });
 
-        el.fileInput.addEventListener('change', (event)=>{
+        el.fileInput.addEventListener('change', async (event)=>{
           const file = event.target.files && event.target.files[0];
           if(!file) return;
-          handleFileImport(file);
+          await handleFileImport(file);
           event.target.value = '';
         });
 
@@ -952,9 +956,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         el.clearContactsBtn.addEventListener('click', ()=>{
           if(!confirm('Gespeicherte Kontaktliste wirklich löschen?')) return;
           savedContacts = [];
-          if(!showingPreview){
-            visibleContacts = [];
-          }
+          if(!showingPreview) visibleContacts = [];
           localStorage.removeItem(CONTACTS_KEY);
           resetSelectionFields();
           renderContacts();
@@ -979,6 +981,223 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
       }
 
       init();
+
+      async function parseXlsxFile(file){
+        const buffer = await file.arrayBuffer();
+        const zipEntries = await unzipXlsx(buffer);
+
+        const workbookXml = getZipText(zipEntries, 'xl/workbook.xml');
+        const relsXml = getZipText(zipEntries, 'xl/_rels/workbook.xml.rels');
+        const sharedStringsXml = getZipText(zipEntries, 'xl/sharedStrings.xml', true);
+
+        if(!workbookXml || !relsXml){
+          throw new Error('workbook.xml oder workbook rels fehlen');
+        }
+
+        const workbookDoc = parseXml(workbookXml);
+        const relsDoc = parseXml(relsXml);
+        const sharedStrings = sharedStringsXml ? parseSharedStrings(parseXml(sharedStringsXml)) : [];
+
+        const sheetPath = resolveFirstWorksheetPath(workbookDoc, relsDoc);
+        const sheetXml = getZipText(zipEntries, sheetPath);
+        if(!sheetXml) throw new Error('Worksheet nicht gefunden: ' + sheetPath);
+
+        const sheetDoc = parseXml(sheetXml);
+        return worksheetToRows(sheetDoc, sharedStrings);
+      }
+
+      async function unzipXlsx(arrayBuffer){
+        const view = new DataView(arrayBuffer);
+        const bytes = new Uint8Array(arrayBuffer);
+        const eocdOffset = findEndOfCentralDirectory(view);
+        if(eocdOffset < 0) throw new Error('ZIP End of Central Directory nicht gefunden');
+
+        const totalEntries = view.getUint16(eocdOffset + 10, true);
+        const centralDirOffset = view.getUint32(eocdOffset + 16, true);
+
+        let ptr = centralDirOffset;
+        const entries = {};
+
+        for(let i=0;i<totalEntries;i++){
+          const sig = view.getUint32(ptr, true);
+          if(sig !== 0x02014b50) throw new Error('Ungültiger Central Directory Header');
+
+          const compressionMethod = view.getUint16(ptr + 10, true);
+          const compressedSize = view.getUint32(ptr + 20, true);
+          const uncompressedSize = view.getUint32(ptr + 24, true);
+          const fileNameLength = view.getUint16(ptr + 28, true);
+          const extraLength = view.getUint16(ptr + 30, true);
+          const commentLength = view.getUint16(ptr + 32, true);
+          const localHeaderOffset = view.getUint32(ptr + 42, true);
+
+          const fileName = decodeUtf8(bytes.slice(ptr + 46, ptr + 46 + fileNameLength));
+
+          const localSig = view.getUint32(localHeaderOffset, true);
+          if(localSig !== 0x04034b50) throw new Error('Ungültiger Local Header');
+
+          const localNameLength = view.getUint16(localHeaderOffset + 26, true);
+          const localExtraLength = view.getUint16(localHeaderOffset + 28, true);
+          const dataStart = localHeaderOffset + 30 + localNameLength + localExtraLength;
+          const compressedData = bytes.slice(dataStart, dataStart + compressedSize);
+
+          let uncompressed;
+          if(compressionMethod === 0){
+            uncompressed = compressedData;
+          }else if(compressionMethod === 8){
+            uncompressed = await inflateRaw(compressedData);
+          }else{
+            throw new Error('Nicht unterstützte ZIP-Kompression: ' + compressionMethod);
+          }
+
+          if(uncompressedSize && uncompressed.length !== uncompressedSize){
+          }
+
+          entries[fileName] = uncompressed;
+          ptr += 46 + fileNameLength + extraLength + commentLength;
+        }
+
+        return entries;
+      }
+
+      function findEndOfCentralDirectory(view){
+        const min = Math.max(0, view.byteLength - 65557);
+        for(let i=view.byteLength - 22; i>=min; i--){
+          if(view.getUint32(i, true) === 0x06054b50) return i;
+        }
+        return -1;
+      }
+
+      async function inflateRaw(uint8){
+        if(typeof DecompressionStream !== 'undefined'){
+          const ds = new DecompressionStream('deflate-raw');
+          const stream = new Blob([uint8]).stream().pipeThrough(ds);
+          const response = new Response(stream);
+          return new Uint8Array(await response.arrayBuffer());
+        }
+        throw new Error('DecompressionStream wird im Browser nicht unterstützt');
+      }
+
+      function decodeUtf8(uint8){
+        return new TextDecoder('utf-8').decode(uint8);
+      }
+
+      function getZipText(entries, path, optional){
+        const found = entries[path];
+        if(!found){
+          if(optional) return '';
+          return '';
+        }
+        return decodeUtf8(found);
+      }
+
+      function parseXml(text){
+        return new DOMParser().parseFromString(text, 'application/xml');
+      }
+
+      function parseSharedStrings(doc){
+        const sis = Array.from(doc.getElementsByTagName('si'));
+        return sis.map(si=>{
+          const ts = Array.from(si.getElementsByTagName('t'));
+          return ts.map(t=>t.textContent || '').join('');
+        });
+      }
+
+      function resolveFirstWorksheetPath(workbookDoc, relsDoc){
+        const sheet = workbookDoc.getElementsByTagName('sheet')[0];
+        if(!sheet) throw new Error('Kein Sheet in workbook.xml gefunden');
+
+        const relId = sheet.getAttribute('r:id') || sheet.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'id');
+        if(!relId) throw new Error('Sheet Relationship ID fehlt');
+
+        const rels = Array.from(relsDoc.getElementsByTagName('Relationship'));
+        const rel = rels.find(r => r.getAttribute('Id') === relId);
+        if(!rel) throw new Error('Passende Relationship für Sheet nicht gefunden');
+
+        let target = rel.getAttribute('Target') || '';
+        if(target.startsWith('/')) target = target.slice(1);
+        if(!target.startsWith('xl/')) target = 'xl/' + target.replace(/^\/+/, '');
+        return normalizePath(target);
+      }
+
+      function normalizePath(path){
+        const parts = [];
+        path.split('/').forEach(part=>{
+          if(!part || part === '.') return;
+          if(part === '..') parts.pop();
+          else parts.push(part);
+        });
+        return parts.join('/');
+      }
+
+      function worksheetToRows(sheetDoc, sharedStrings){
+        const sheetData = sheetDoc.getElementsByTagName('sheetData')[0];
+        if(!sheetData) return [];
+
+        const rows = [];
+        const rowEls = Array.from(sheetData.getElementsByTagName('row'));
+
+        rowEls.forEach(rowEl=>{
+          const cells = Array.from(rowEl.getElementsByTagName('c'));
+          const row = [];
+          cells.forEach(cell=>{
+            const ref = cell.getAttribute('r') || '';
+            const colIndex = columnLettersToIndex(ref.replace(/[0-9]/g, ''));
+            const value = getCellValue(cell, sharedStrings);
+            while(row.length < colIndex) row.push('');
+            row[colIndex] = value;
+          });
+          rows.push(row);
+        });
+
+        const maxLen = rows.reduce((m, r)=>Math.max(m, r.length), 0);
+        return rows.map(r=>{
+          const copy = r.slice();
+          while(copy.length < maxLen) copy.push('');
+          return copy;
+        }).filter(r=>r.some(cell=>String(cell).trim() !== ''));
+      }
+
+      function getCellValue(cell, sharedStrings){
+        const type = cell.getAttribute('t') || '';
+        const v = cell.getElementsByTagName('v')[0];
+        const isNode = cell.getElementsByTagName('is')[0];
+
+        if(type === 'inlineStr' && isNode){
+          const ts = Array.from(isNode.getElementsByTagName('t'));
+          return ts.map(t=>t.textContent || '').join('');
+        }
+
+        if(type === 's'){
+          const idx = v ? parseInt(v.textContent || '0', 10) : 0;
+          return sharedStrings[idx] ?? '';
+        }
+
+        if(type === 'b'){
+          return v && v.textContent === '1' ? 'WAHR' : 'FALSCH';
+        }
+
+        if(type === 'str'){
+          return v ? (v.textContent || '') : '';
+        }
+
+        if(type === 'e'){
+          return v ? (v.textContent || '') : '';
+        }
+
+        return v ? (v.textContent || '') : '';
+      }
+
+      function columnLettersToIndex(letters){
+        let result = 0;
+        const text = String(letters || '').toUpperCase();
+        for(let i=0;i<text.length;i++){
+          const code = text.charCodeAt(i);
+          if(code >= 65 && code <= 90){
+            result = result * 26 + (code - 64);
+          }
+        }
+        return Math.max(0, result - 1);
+      }
     })();
   </script>
 </body>
