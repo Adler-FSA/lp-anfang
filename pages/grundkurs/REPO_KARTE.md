@@ -731,6 +731,8 @@
     │   │   ├── weekend-sprecher-packliste.html
     │   │   ├── weekend-teilnehmer-checkliste.html
     │   │   └── wichtig-archiv.html
+    │   ├── club-marktplatz/
+    │   │   └── tragfaehigkeits-rechner.html
     │   ├── club-vertrieb/
     │   │   └── leitfaeden/
     │   │       ├── index.html
@@ -1409,4 +1411,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.04.2026, 09:13)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.04.2026, 10:57)_
