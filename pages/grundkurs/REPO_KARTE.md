@@ -754,6 +754,8 @@
     │   │       ├── abfragebogen.html
     │   │       ├── index.html
     │   │       └── wichtige-hinweise.html
+    │   ├── evolution24/
+    │   │   └── hotel-akquise.html
     │   ├── faq/
     │   │   ├── faq/
     │   │   │   └── einkommen-auszahlung.html
@@ -1412,4 +1414,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 18.04.2026, 04:28)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 18.04.2026, 06:10)_
