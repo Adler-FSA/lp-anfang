@@ -1,15 +1,15 @@
 <!doctype html>
 <!--
   GitHub-Pfad: pages/evolution24/hotel-akquise.html
-  Commit-Message: hotel akquise arbeitsseite mit einem leitfadenfeld sekretariatshilfe und reduziertem fokus final ueberarbeitet
-  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/evolution24/hotel-akquise.html?nocache=1776511800
+  Commit-Message: hotel akquise leitfaden final ohne interne scrollleiste mit sekretariatshilfe fachbegriffen und archiv
+  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/evolution24/hotel-akquise.html?nocache=1776577200
 -->
 <html lang="de">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Hotel-Akquise – Arbeitsseite</title>
-  <meta name="description" content="Arbeitsseite für Hotel-Akquise mit Excel- und CSV-Import, einem großen editierbaren Leitfadenfeld, Sekretariatshilfe, Kontaktliste, Archiv und Anrufprotokoll." />
+  <meta name="description" content="Arbeitsseite für Hotel-Akquise mit Excel- und CSV-Import, einem großen editierbaren Leitfadenfeld ohne interne Scrollleiste, Sekretariatshilfe, Fachbegriffen, Kontaktliste, Archiv und Anrufprotokoll." />
   <meta name="robots" content="index,follow" />
   <style>
     :root{
@@ -55,7 +55,21 @@
       border-color:var(--mint);
       box-shadow:0 0 0 4px rgba(34,204,177,.12);
     }
-    textarea{resize:vertical}
+
+    textarea{
+      resize:none !important;
+      overflow:hidden !important;
+      overflow-y:hidden !important;
+      overflow-x:hidden !important;
+      -ms-overflow-style:none;
+      scrollbar-width:none;
+    }
+    textarea::-webkit-scrollbar{
+      display:none !important;
+      width:0 !important;
+      height:0 !important;
+    }
+
     strong{font-weight:800}
 
     .page{
@@ -149,6 +163,7 @@
       border:1px solid var(--line);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
+      overflow:visible;
     }
 
     .field{
@@ -178,6 +193,10 @@
       margin:0 0 12px;
       font-size:1.05rem;
       letter-spacing:-.01em;
+    }
+    .section h3{
+      margin:0 0 10px;
+      font-size:.97rem;
     }
 
     .muted{color:var(--muted)}
@@ -447,8 +466,8 @@
     }
 
     .guide-editor{
-      min-height:650px;
-      line-height:1.68;
+      min-height:280px;
+      line-height:1.72;
       font-size:1rem;
     }
 
@@ -486,6 +505,40 @@
       grid-template-columns:1fr 1fr;
       gap:12px;
       margin-top:2px;
+    }
+
+    .glossary-wrap{
+      margin-top:14px;
+    }
+    .glossary-grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      max-height:520px;
+      overflow:auto;
+      padding-right:4px;
+    }
+    .glossary-card{
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:13px 13px 12px;
+      background:#fff;
+    }
+    .glossary-card strong{
+      display:block;
+      margin-bottom:6px;
+      font-size:1rem;
+    }
+    .glossary-card p{
+      margin:0;
+      color:#35504a;
+      line-height:1.56;
+    }
+
+    .divider{
+      height:1px;
+      background:linear-gradient(90deg,transparent,var(--line),transparent);
+      margin:14px 0;
     }
 
     .archive-table-wrap{
@@ -877,7 +930,7 @@
         <div class="script-header">
           <div>
             <h2>Telefonleitfaden</h2>
-            <div class="muted small">Ein einziges großes Arbeitsfeld. Darin steht der Leitfaden, den du direkt lesen, anpassen und speichern kannst.</div>
+            <div class="muted small">Ein einziges großes Arbeitsfeld. Kein zweiter Leitfaden. Kein internes Scrollen im Leitfadenfeld.</div>
           </div>
           <div class="nameplate">
             <div class="badge" id="badgeCaller">Anrufer: –</div>
@@ -998,6 +1051,18 @@
           Das Archiv ist nicht nur Ablage. Jeder Eintrag kann wieder in die Arbeitsfläche geladen und weitergeführt werden.
         </div>
 
+        <div class="divider"></div>
+
+        <h2>Fachbegriffe &amp; Kurz-Erklärungen</h2>
+        <div class="muted small">Hier kannst du bei Bedarf während des Gesprächs Begriffe direkt nachschlagen.</div>
+
+        <div class="glossary-wrap">
+          <div style="margin-bottom:10px;">
+            <input id="glossarySearch" type="text" placeholder="Begriff suchen, z. B. OTA oder RevPAR" />
+          </div>
+          <div class="glossary-grid" id="glossaryGrid"></div>
+        </div>
+
         <div class="footer-note">
           Erwartete Spalten: <strong>Anrede</strong>, <strong>Vorname</strong>, <strong>Nachname</strong>, <strong>E-Mail</strong>, <strong>Telefon 1</strong> und <strong>Firma - Name</strong>.
         </div>
@@ -1064,11 +1129,29 @@
 
   <script>
     (function(){
-      const CONTACTS_KEY = 'hotelAkquiseContacts_v2';
-      const CONTACTS_META_KEY = 'hotelAkquiseContactsMeta_v2';
-      const ARCHIVE_KEY = 'hotelAkquiseArchive_v2';
-      const SETTINGS_KEY = 'hotelAkquiseSettings_v2';
-      const GUIDE_TEMPLATE_KEY = 'hotelAkquiseGuideTemplate_v2';
+      const CONTACTS_KEY = 'hotelAkquiseContacts_v3';
+      const CONTACTS_META_KEY = 'hotelAkquiseContactsMeta_v3';
+      const ARCHIVE_KEY = 'hotelAkquiseArchive_v3';
+      const SETTINGS_KEY = 'hotelAkquiseSettings_v3';
+      const GUIDE_TEMPLATE_KEY = 'hotelAkquiseGuideTemplate_v3';
+
+      const glossary = [
+        {term:'OTA',description:'Online Travel Agency. Gemeint sind Buchungsplattformen wie große Reise- und Hotelportale. Je höher die OTA-Abhängigkeit, desto mehr Provision und Fremdabhängigkeit entstehen.'},
+        {term:'RevPAR',description:'Kennzahl zur Bewertung von Hotels. Vereinfacht: Umsatz pro verfügbarem Zimmer. Damit lässt sich einschätzen, wie gut Auslastung und Preisniveau zusammenspielen.'},
+        {term:'Direktbuchung',description:'Eine Buchung, die direkt über das Hotel läuft und nicht über ein fremdes Portal. Meist attraktiver für die Marge und besser für die Beziehung zum Gast.'},
+        {term:'Direktbuchungs-Ökosystem',description:'Das Zusammenspiel aus Website, Angeboten, Anreizen, Sichtbarkeit, regionalen Inhalten und klaren Buchungswegen, damit Gäste direkt beim Hotel buchen.'},
+        {term:'Cashback',description:'Ein Rückvergütungs- oder Vorteilsmodell, das den Gast motivieren kann, direkt zu buchen, statt über Drittplattformen zu gehen.'},
+        {term:'Marge',description:'Der Teil vom Umsatz, der nach Kosten übrig bleibt. Wenn Portale, Werbung und Gästegewinnung teurer werden, sinkt die Marge.'},
+        {term:'Gästegewinnung',description:'Alle Maßnahmen, mit denen neue Gäste gewonnen werden. Dazu gehören Werbung, Reichweite, Empfehlungen, Sichtbarkeit und Buchungsanreize.'},
+        {term:'Buchungskosten',description:'Kosten pro Buchung, zum Beispiel Provisionen, Agenturkosten oder Werbekosten. Im Gespräch geht es darum, diese Kosten zu senken.'},
+        {term:'Zusatzumsatz pro Gast',description:'Alles, was zusätzlich zur Übernachtung verkauft wird, etwa Frühstück, Wellness, Arrangements, Restaurant oder regionale Extras.'},
+        {term:'Marketingagentur',description:'Externer Dienstleister für Werbung, Sichtbarkeit oder Kampagnen. Im Gespräch hilft die Frage dabei, ob das Hotel intern arbeitet oder bereits extern begleitet wird.'},
+        {term:'Kampagne',description:'Gezielte Aktion mit klarer Botschaft, Zielgruppe und Zeitraum. Zum Beispiel eine Aktion, um mehr Direktbuchungen oder mehr Nebenerlöse zu erzeugen.'},
+        {term:'Abhängigkeit von OTAs',description:'Wenn ein großer Teil der Buchungen über Portale kommt, entstehen Fremdabhängigkeit, Provisionen und oft weniger Kontrolle über den direkten Kundenzugang.'},
+        {term:'Rabattschlacht',description:'Preiskampf über Rabatte. Im Leitfaden ist wichtig: Direktbuchung stärken, ohne sich nur über Preisnachlässe zu verkaufen.'},
+        {term:'Onlinepräsentation',description:'Der eigentliche nächste Schritt im Gespräch. Keine lange Beratung, sondern ein kompakter Termin von etwa 20 Minuten mit konkretem Blick auf das Haus.'},
+        {term:'Hebel',description:'Der Bereich mit der größten Wirkung. Also dort ansetzen, wo mit wenig Änderung spürbar mehr Direktanfragen, bessere Marge oder mehr Zusatzumsatz entsteht.'}
+      ];
 
       const DEFAULT_GUIDE_TEMPLATE = `Guten Tag, mein Name ist [ANRUFER] von [ABSENDER], Könnte ich bitte [ANREDE] [NACHNAME] sprechen?
 
@@ -1191,6 +1274,8 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         helperPreview: document.getElementById('helperPreview'),
         helperCopyBtn: document.getElementById('helperCopyBtn'),
         helperGroups: document.getElementById('helperGroups'),
+        glossarySearch: document.getElementById('glossarySearch'),
+        glossaryGrid: document.getElementById('glossaryGrid'),
         callDate: document.getElementById('callDate'),
         callbackDate: document.getElementById('callbackDate'),
         callSummary: document.getElementById('callSummary'),
@@ -1224,6 +1309,12 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
           .replace(/>/g,'&gt;')
           .replace(/"/g,'&quot;')
           .replace(/'/g,'&#039;');
+      }
+
+      function autoGrow(textarea){
+        if(!textarea) return;
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
       }
 
       function todayValue(){
@@ -1390,6 +1481,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         const contact = getSelectedContactObject();
         const template = getBaseTemplate();
         el.guideEditor.value = applyGuideTemplate(template, contact);
+        autoGrow(el.guideEditor);
       }
 
       function resetSelectionFields(){
@@ -1560,6 +1652,21 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         updatePrintSheet();
       }
 
+      function renderGlossary(){
+        const query = el.glossarySearch.value.trim().toLowerCase();
+        const items = glossary.filter(entry=>{
+          if(!query) return true;
+          return (entry.term + ' ' + entry.description).toLowerCase().includes(query);
+        });
+
+        el.glossaryGrid.innerHTML = items.map(entry=>`
+          <div class="glossary-card">
+            <strong>${escapeHtml(entry.term)}</strong>
+            <p>${escapeHtml(entry.description)}</p>
+          </div>
+        `).join('');
+      }
+
       function renderHelper(){
         el.helperGroups.innerHTML = helperGroups.map(group=>`
           <div class="helper-group">
@@ -1728,6 +1835,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         el.keywordsUsed.value = entry.keywordsUsed || '';
         el.nextStep.value = entry.nextStep || '';
         el.guideEditor.value = entry.guideText || el.guideEditor.value || applyGuideTemplate(getBaseTemplate(), contact);
+        autoGrow(el.guideEditor);
         setActiveStatus(entry.status || '');
 
         editingArchiveId = entry.id;
@@ -1967,13 +2075,35 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
 
       function bindEvents(){
         el.contactSearch.addEventListener('input', renderContacts);
+        el.glossarySearch.addEventListener('input', renderGlossary);
 
-        el.callerName.addEventListener('input', ()=>{ saveSettings(); updateCallerBadges(); insertGuideIntoEditor(); updatePrintSheet(); });
-        el.callerCompany.addEventListener('input', ()=>{ saveSettings(); updateCallerBadges(); insertGuideIntoEditor(); updatePrintSheet(); });
+        el.callerName.addEventListener('input', ()=>{
+          saveSettings();
+          updateCallerBadges();
+          insertGuideIntoEditor();
+          updatePrintSheet();
+        });
+
+        el.callerCompany.addEventListener('input', ()=>{
+          saveSettings();
+          updateCallerBadges();
+          insertGuideIntoEditor();
+          updatePrintSheet();
+        });
 
         [el.callDate, el.callbackDate, el.callSummary, el.keywordsUsed, el.nextStep].forEach(node=>{
-          node.addEventListener('input', updatePrintSheet);
+          node.addEventListener('input', ()=>{
+            autoGrow(node);
+            updatePrintSheet();
+          });
           node.addEventListener('change', updatePrintSheet);
+        });
+
+        el.guideEditor.addEventListener('input', ()=>{
+          if(!editingArchiveId){
+            saveBaseTemplate(el.guideEditor.value);
+          }
+          autoGrow(el.guideEditor);
         });
 
         document.querySelectorAll('.status-btn').forEach(btn=>{
@@ -2049,12 +2179,6 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
           insertGuideIntoEditor();
         });
 
-        el.guideEditor.addEventListener('input', ()=>{
-          if(!editingArchiveId){
-            saveBaseTemplate(el.guideEditor.value);
-          }
-        });
-
         el.helperToggleBtn.addEventListener('click', ()=>toggleHelper());
         el.helperCloseBtn.addEventListener('click', ()=>toggleHelper(false));
         el.helperCopyBtn.addEventListener('click', async ()=>{
@@ -2089,6 +2213,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         loadState();
         el.callDate.value = todayValue();
         updateCallerBadges();
+        renderGlossary();
         renderHelper();
         renderContacts();
         renderArchive();
@@ -2096,6 +2221,7 @@ Wäre für Sie nächste Woche eher ein Vormittag oder eher ein späterer Nachmit
         bindEvents();
         resetEditingMode();
         insertGuideIntoEditor();
+        autoGrow(el.callSummary);
         toggleHelper(false);
         updatePrintSheet();
       }
