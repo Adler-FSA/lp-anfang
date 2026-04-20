@@ -634,6 +634,8 @@
     │   │   ├── muster-system-07-webinar-landing.html
     │   │   ├── muster-system-08-ticketseite.html
     │   │   └── muster-system.html
+    │   ├── blog/
+    │   │   └── unternehmerschaft.html
     │   ├── buch/
     │   │   ├── buch-video-intro.html
     │   │   ├── index.html
@@ -1414,4 +1416,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.04.2026, 05:34)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.04.2026, 07:57)_
