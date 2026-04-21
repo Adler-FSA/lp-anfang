@@ -735,6 +735,7 @@
     │   │   └── wichtig-archiv.html
     │   ├── club-marktplatz/
     │   │   ├── tragfaehigkeits-rechner-01.html
+    │   │   ├── tragfaehigkeits-rechner-unternehmer.html
     │   │   └── tragfaehigkeits-rechner.html
     │   ├── club-vertrieb/
     │   │   └── leitfaeden/
@@ -1417,4 +1418,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.04.2026, 05:22)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.04.2026, 07:26)_
