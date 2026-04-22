@@ -1377,7 +1377,8 @@
     │   ├── weihnachtsgeschenk-akademie-share-2.html
     │   ├── weihnachtsgeschenk-akademie.html
     │   ├── wieder-ich.html
-    │   └── wissenstest-finanzielle-souveraenitaet-komplett.html
+    │   ├── wissenstest-finanzielle-souveraenitaet-komplett.html
+    │   └── zoom-termine.html
     ├── shows/
     │   ├── bastai.json
     │   ├── blockhaeuser.json
@@ -1418,4 +1419,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.04.2026, 05:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.04.2026, 07:24)_
