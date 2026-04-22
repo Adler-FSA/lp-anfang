@@ -267,7 +267,8 @@
     │   │   ├── weihnachtsgeschenk-akademie.jpeg
     │   │   ├── weihnachtsgruss-geschenk-min.jpeg
     │   │   ├── weihnachtsgruss-geschenk.jpg
-    │   │   └── weihnachtsgruss-motiv-3.jpg
+    │   │   ├── weihnachtsgruss-motiv-3.jpg
+    │   │   └── zoom-raum-hintergrund.JPG
     │   ├── js/
     │   │   ├── shared/
     │   │   │   ├── campus-core.js
@@ -1419,4 +1420,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.04.2026, 12:01)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.04.2026, 14:43)_
