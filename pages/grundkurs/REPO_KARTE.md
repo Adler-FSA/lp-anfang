@@ -324,6 +324,7 @@
     │   │   ├── topbar-autohide.js
     │   │   └── topbar-patch.js
     │   ├── logos/
+    │   │   ├── club-marktplatz-clubleader.JPG
     │   │   ├── club-marktplatz-vorschau.jpeg
     │   │   ├── clubleader-aufbau-program.jpeg
     │   │   └── liquiditybooster-logo.png
@@ -1423,4 +1424,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.04.2026, 05:33)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.04.2026, 07:20)_
