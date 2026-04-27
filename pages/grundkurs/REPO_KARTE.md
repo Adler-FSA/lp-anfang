@@ -324,6 +324,8 @@
     │   │   ├── topbar-autohide.js
     │   │   └── topbar-patch.js
     │   ├── logos/
+    │   │   ├── auf-einen-blick.JPG
+    │   │   ├── bewegung.JPG
     │   │   ├── club-marktplatz-clubleader.JPG
     │   │   ├── club-marktplatz-vorschau.jpeg
     │   │   ├── clubleader-aufbau-program.jpeg
@@ -1169,6 +1171,8 @@
     │   │   ├── share-adler.html
     │   │   ├── share-akademie.html
     │   │   └── share-netzwerk.html
+    │   ├── social-media/
+    │   │   └── whatsup-facebook-email.html
     │   ├── song-banner/
     │   │   ├── der-club-marktplatz-banner.html
     │   │   └── die-seele-erwacht-banner.html
@@ -1424,4 +1428,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.04.2026, 12:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.04.2026, 15:02)_
