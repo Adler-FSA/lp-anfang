@@ -1,8 +1,8 @@
 <!doctype html>
 <!--
   GitHub-Pfad: lp-anfang/pages/social-media/whatsup-facebook-email.html
-  Commit-Message: social media vorlagen ohne logo mit bildvorlagen und kopierfunktion erweitert
-  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/social-media/whatsup-facebook-email.html?nocache=1777276800
+  Commit-Message: social media vorlagen mit empfängernamen feld und automatischer textuebernahme erweitert
+  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/social-media/whatsup-facebook-email.html?nocache=1777277400
 -->
 <html lang="de">
 <head>
@@ -354,6 +354,70 @@
       background:linear-gradient(135deg,var(--mint),var(--magenta));
     }
 
+    .name-tool{
+      margin:0 0 22px;
+      padding:16px;
+      border-radius:22px;
+      background:linear-gradient(135deg,rgba(232,249,251,.94),rgba(253,235,245,.88));
+      border:1px solid rgba(233,238,238,.95);
+      box-shadow:0 10px 24px rgba(20,36,42,.06);
+      display:grid;
+      gap:10px;
+    }
+
+    .name-tool label{
+      display:block;
+      font-size:15px;
+      font-weight:900;
+      color:#222;
+    }
+
+    .name-row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    .name-row input{
+      width:100%;
+      min-height:46px;
+      border:1px solid #dce9e9;
+      border-radius:999px;
+      padding:0 16px;
+      font-size:15px;
+      font-weight:800;
+      color:#222;
+      outline:none;
+      background:#fff;
+      box-shadow:0 8px 18px rgba(20,36,42,.05);
+    }
+
+    .name-row input:focus{
+      border-color:rgba(38,183,200,.62);
+      box-shadow:0 0 0 4px rgba(38,183,200,.14);
+    }
+
+    .name-clear{
+      appearance:none;
+      border:1px solid var(--line);
+      background:#fff;
+      color:#333;
+      border-radius:999px;
+      padding:12px 16px;
+      font-size:13px;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:0 8px 18px rgba(20,36,42,.05);
+      white-space:nowrap;
+    }
+
+    .name-tool p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:800;
+    }
+
     .group{display:none}
     .group.is-active{
       display:block;
@@ -602,13 +666,15 @@
       .section-title{font-size:24px}
 
       .copy-row,
-      .image-meta{
+      .image-meta,
+      .name-row{
         flex-direction:column;
         align-items:stretch;
       }
 
       .copy-btn,
-      .image-btn{
+      .image-btn,
+      .name-clear{
         width:100%;
         justify-content:center;
       }
@@ -805,6 +871,15 @@
           <button class="tab" type="button" data-tab="email">E-Mail</button>
           <button class="tab" type="button" data-tab="einwaende">Einwände</button>
         </nav>
+
+        <div class="name-tool" aria-label="Empfängername einsetzen">
+          <label for="recipientName">Empfängername einsetzen</label>
+          <div class="name-row">
+            <input id="recipientName" type="text" placeholder="z. B. Anna" autocomplete="off" />
+            <button class="name-clear" type="button" id="clearRecipientName">Leeren</button>
+          </div>
+          <p>Der Name ersetzt automatisch <strong>[Name]</strong> in allen Textvorlagen.</p>
+        </div>
 
         <div class="group is-active" id="whatsapp" data-group>
           <div class="cards">
@@ -1333,7 +1408,36 @@ Ich bin auch dabei.
       const groups = document.querySelectorAll("[data-group]");
       const toast = document.getElementById("toast");
       const toastText = document.getElementById("toastText");
+      const recipientInput = document.getElementById("recipientName");
+      const clearRecipientName = document.getElementById("clearRecipientName");
+      const templateAreas = document.querySelectorAll(".message-box");
       let toastTimer = null;
+
+      templateAreas.forEach(function(area){
+        area.dataset.template = area.value;
+      });
+
+      function applyRecipientName(){
+        const rawName = recipientInput ? recipientInput.value.trim() : "";
+        const finalName = rawName || "[Name]";
+
+        templateAreas.forEach(function(area){
+          const template = area.dataset.template || area.value;
+          area.value = template.replaceAll("[Name]", finalName);
+        });
+      }
+
+      if(recipientInput){
+        recipientInput.addEventListener("input", applyRecipientName);
+      }
+
+      if(clearRecipientName){
+        clearRecipientName.addEventListener("click", function(){
+          recipientInput.value = "";
+          applyRecipientName();
+          recipientInput.focus();
+        });
+      }
 
       function showToast(message){
         toastText.textContent = message;
@@ -1443,6 +1547,8 @@ Ich bin auch dabei.
           });
         }
       });
+
+      applyRecipientName();
     })();
   </script>
 </body>
