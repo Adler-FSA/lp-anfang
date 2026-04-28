@@ -326,10 +326,15 @@
     │   ├── logos/
     │   │   ├── auf-einen-blick.JPG
     │   │   ├── bewegung.JPG
+    │   │   ├── club leader-kms-schulung-einarbeitung.jpg
+    │   │   ├── club-leader-aufbauprogramm.PNG
     │   │   ├── club-marktplatz-clubleader.JPG
     │   │   ├── club-marktplatz-vorschau.jpeg
+    │   │   ├── club-treffen-dienstag.PNG
+    │   │   ├── club-treffen-montag.PNG
     │   │   ├── clubleader-aufbau-program.jpeg
-    │   │   └── liquiditybooster-logo.png
+    │   │   ├── liquiditybooster-logo.png
+    │   │   └── peters-stammtisch.PNG
     │   ├── music/
     │   │   ├── pool/
     │   │   │   ├── README.txt
@@ -1172,6 +1177,7 @@
     │   │   ├── share-akademie.html
     │   │   └── share-netzwerk.html
     │   ├── social-media/
+    │   │   ├── gaeste-einladen-zoom-vorlagen.html
     │   │   └── whatsup-facebook-email.html
     │   ├── song-banner/
     │   │   ├── der-club-marktplatz-banner.html
@@ -1428,4 +1434,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.04.2026, 05:53)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.04.2026, 08:14)_
