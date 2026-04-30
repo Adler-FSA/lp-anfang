@@ -645,6 +645,8 @@
     │   │   ├── muster-system-07-webinar-landing.html
     │   │   ├── muster-system-08-ticketseite.html
     │   │   └── muster-system.html
+    │   ├── betrug-aufklaerung/
+    │   │   └── wallet-drailer-link.html
     │   ├── blog/
     │   │   └── unternehmerschaft.html
     │   ├── buch/
@@ -1434,4 +1436,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 30.04.2026, 06:23)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 30.04.2026, 09:09)_
