@@ -1,8 +1,8 @@
 <!doctype html>
 <!--
   GitHub-Pfad: lp-anfang/pages/club-leader-verdienstvorschau-aufbauprogramm.html
-  Commit-Message: tragfaehigkeits rechner mit grossen monatskarten und chronologischer mehrjahrestabelle vereinfacht
-  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/club-leader-verdienstvorschau-aufbauprogramm.html?nocache=1778089800
+  Commit-Message: tragfaehigkeits rechner mit optimierter pdf ausgabe und separater unternehmer auswertung finalisiert
+  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/club-leader-verdienstvorschau-aufbauprogramm.html?nocache=1778093400
 -->
 <html lang="de">
 <head>
@@ -224,13 +224,6 @@
       color:var(--text-dark);
     }
 
-    h4{
-      margin:0 0 12px;
-      font-size:1rem;
-      line-height:1.3;
-      color:var(--text-dark);
-    }
-
     p{
       margin:0 0 16px;
       font-size:1rem;
@@ -251,14 +244,11 @@
       margin-right:auto;
     }
 
-    .model-grid,
-    .result-grid{
+    .model-grid{
       display:grid;
+      grid-template-columns:repeat(3,1fr);
       gap:20px;
     }
-
-    .model-grid{grid-template-columns:repeat(3,1fr)}
-    .result-grid{grid-template-columns:1fr 1fr}
 
     .card{
       position:relative;
@@ -299,7 +289,7 @@
 
     .calc-wrap{
       display:grid;
-      grid-template-columns:minmax(0,1fr) minmax(380px,.92fr);
+      grid-template-columns:minmax(0,1fr) minmax(410px,.9fr);
       gap:24px;
       align-items:start;
     }
@@ -459,7 +449,7 @@
     .big-metric strong{
       display:block;
       color:var(--text-dark);
-      font-size:clamp(1.25rem,2.5vw,1.9rem);
+      font-size:clamp(1.24rem,2.4vw,1.86rem);
       line-height:1.16;
       font-weight:800;
       white-space:normal;
@@ -540,21 +530,89 @@
       opacity:.94;
     }
 
+    .org-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:16px;
+      margin-top:16px;
+    }
+
+    .org-card{
+      background:var(--panel-soft);
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:18px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .org-card::before{
+      content:"";
+      position:absolute;
+      inset:0 auto auto 0;
+      width:100%;
+      height:4px;
+      background:linear-gradient(90deg,var(--mint),var(--pink),var(--gold));
+      opacity:.9;
+    }
+
+    .org-card span{
+      display:block;
+      color:var(--muted);
+      line-height:1.4;
+      margin-bottom:8px;
+      font-weight:700;
+    }
+
+    .org-card strong{
+      display:block;
+      color:var(--text-dark);
+      font-size:clamp(1.35rem,2.4vw,2rem);
+      line-height:1.14;
+      font-weight:800;
+    }
+
+    .table-scroll-hint{
+      margin:10px 0 0;
+      color:var(--muted);
+      font-size:.94rem;
+      line-height:1.4;
+      display:none;
+    }
+
     .table-wrap{
       width:100%;
-      overflow:auto;
+      overflow-x:auto;
+      overflow-y:hidden;
       border-radius:22px;
       border:1px solid var(--line);
       background:#fff;
       box-shadow:0 12px 28px rgba(0,0,0,.04);
       margin-top:18px;
+      scrollbar-color:var(--mint) #edf3f6;
+      scrollbar-width:thin;
+    }
+
+    .table-wrap::-webkit-scrollbar{
+      height:12px;
+    }
+
+    .table-wrap::-webkit-scrollbar-track{
+      background:#edf3f6;
+      border-radius:999px;
+    }
+
+    .table-wrap::-webkit-scrollbar-thumb{
+      background:linear-gradient(90deg,var(--mint),var(--pink));
+      border-radius:999px;
+      border:2px solid #edf3f6;
     }
 
     table{
       width:100%;
       border-collapse:separate;
       border-spacing:0;
-      min-width:980px;
+      min-width:860px;
     }
 
     th,
@@ -689,7 +747,8 @@
     @media (max-width:1080px){
       .calc-wrap,
       .model-grid,
-      .level-grid{
+      .level-grid,
+      .org-grid{
         grid-template-columns:1fr;
       }
 
@@ -698,9 +757,12 @@
 
     @media (max-width:840px){
       .pill-list,
-      .result-grid,
       .result-grid-large{
         grid-template-columns:1fr;
+      }
+
+      .table-scroll-hint{
+        display:block;
       }
     }
 
@@ -720,7 +782,7 @@
 
     @page{
       size:A4 landscape;
-      margin:10mm;
+      margin:8mm;
     }
 
     @media print{
@@ -729,15 +791,19 @@
         print-color-adjust:exact;
       }
 
+      html,
       body{
         background:#fff !important;
         color:#000 !important;
+        overflow:visible !important;
       }
 
       .page::before,
       .hero::before,
       .top-actions,
-      .bottom-nav{
+      .bottom-nav,
+      details,
+      .table-scroll-hint{
         display:none !important;
       }
 
@@ -748,13 +814,14 @@
 
       .hero{
         text-align:left !important;
-        padding:0 0 8mm !important;
+        padding:0 0 5mm !important;
       }
 
       .hero h1{
-        font-size:24pt !important;
+        font-size:21pt !important;
         color:#000 !important;
         letter-spacing:0 !important;
+        margin:0 0 4mm !important;
       }
 
       .hero h1 .accent{
@@ -764,8 +831,12 @@
       .hero p,
       p{
         color:#222 !important;
-        font-size:9.5pt !important;
-        line-height:1.45 !important;
+        font-size:8.8pt !important;
+        line-height:1.35 !important;
+      }
+
+      .section{
+        padding:0 0 5mm !important;
       }
 
       .panel,
@@ -773,7 +844,7 @@
       .input-card,
       .result-card,
       .level-card,
-      details,
+      .org-card,
       .table-wrap{
         box-shadow:none !important;
         border:1px solid #b8b8b8 !important;
@@ -781,22 +852,66 @@
         page-break-inside:avoid !important;
       }
 
+      .panel{
+        border-radius:10px !important;
+      }
+
       .panel-inner{
-        padding:7mm !important;
+        padding:5mm !important;
+      }
+
+      .panel::before,
+      .card::before,
+      .input-card::before,
+      .result-card::before,
+      .level-card::before,
+      .org-card::before{
+        height:2px !important;
+        background:#000 !important;
+      }
+
+      .model-grid,
+      .calc-wrap,
+      .level-grid,
+      .org-grid,
+      .result-grid-large{
+        display:grid !important;
+        gap:4mm !important;
+      }
+
+      .model-grid,
+      .level-grid{
+        grid-template-columns:repeat(3,1fr) !important;
+      }
+
+      .org-grid{
+        grid-template-columns:repeat(4,1fr) !important;
+      }
+
+      .calc-wrap{
+        grid-template-columns:1fr 1fr !important;
+      }
+
+      .result-grid-large{
+        grid-template-columns:repeat(2,1fr) !important;
       }
 
       h2{
-        font-size:18pt !important;
+        font-size:16pt !important;
         color:#000 !important;
+        margin-bottom:3mm !important;
       }
 
-      h3,
-      h4{
+      h3{
+        font-size:11pt !important;
         color:#000 !important;
+        margin-bottom:2mm !important;
       }
 
       .kicker{
         color:#000 !important;
+        font-size:7.5pt !important;
+        margin-bottom:2mm !important;
       }
 
       input,
@@ -805,39 +920,84 @@
         color:#000 !important;
         background:#fff !important;
         min-height:auto !important;
-        padding:5px 6px !important;
+        padding:4px 5px !important;
+        box-shadow:none !important;
+        font-size:8pt !important;
+      }
+
+      label,
+      .input-sub,
+      .member-rate-badge{
+        font-size:8pt !important;
+      }
+
+      .member-rate-badge{
+        min-height:auto !important;
+        padding:5px 7px !important;
         box-shadow:none !important;
       }
 
       .metric{
         color:#000 !important;
         border-bottom:1px dotted #aaa !important;
+        padding:5px 0 !important;
+        font-size:8pt !important;
       }
 
       .metric strong,
-      .big-metric strong{
+      .big-metric strong,
+      .org-card strong{
         color:#000 !important;
+      }
+
+      .big-metric{
+        padding:6px 0 !important;
+      }
+
+      .big-metric span,
+      .org-card span{
+        font-size:7.7pt !important;
+        margin-bottom:2px !important;
+      }
+
+      .big-metric strong{
+        font-size:13pt !important;
       }
 
       .year-total .big{
         color:#000 !important;
+        font-size:16pt !important;
+      }
+
+      .org-card strong{
+        font-size:15pt !important;
+      }
+
+      .table-wrap{
+        overflow:visible !important;
+        border-radius:10px !important;
       }
 
       table{
         min-width:0 !important;
+        width:100% !important;
         table-layout:fixed !important;
+        border-collapse:collapse !important;
       }
 
       th,
       td{
-        font-size:8pt !important;
-        padding:5px 6px !important;
+        font-size:7.4pt !important;
+        padding:4px 5px !important;
         white-space:normal !important;
         color:#000 !important;
+        border:1px solid #d0d0d0 !important;
+        line-height:1.2 !important;
       }
 
       th{
         background:#f1f1f1 !important;
+        letter-spacing:.03em !important;
       }
     }
   </style>
@@ -1080,7 +1240,6 @@
                     <div class="big" id="totalPreview">0,00 €</div>
                     <div class="metric"><span>Kumulierter Bestand</span><strong id="totalRecurring">0,00 €</strong></div>
                     <div class="metric"><span>Kumuliertes Setup</span><strong id="totalSetup">0,00 €</strong></div>
-                    <div class="metric"><span>Neue Unternehmer</span><strong id="totalContracts">0</strong></div>
                   </article>
                 </div>
 
@@ -1115,6 +1274,28 @@
                 <div class="metric"><span>Kumuliert Vorschau</span><strong id="l3Total">0,00 €</strong></div>
               </article>
             </div>
+
+            <div class="org-grid">
+              <article class="org-card">
+                <span>Neue Unternehmer Ebene 1</span>
+                <strong id="orgL1">0</strong>
+              </article>
+
+              <article class="org-card">
+                <span>Neue Unternehmer Ebene 2</span>
+                <strong id="orgL2">0</strong>
+              </article>
+
+              <article class="org-card">
+                <span>Neue Unternehmer Ebene 3</span>
+                <strong id="orgL3">0</strong>
+              </article>
+
+              <article class="org-card">
+                <span>Gesamt Organisation</span>
+                <strong id="orgTotal">0</strong>
+              </article>
+            </div>
           </div>
         </div>
       </section>
@@ -1127,19 +1308,19 @@
             <p>
               Diese Tabelle zeigt den Aufbau Jahr für Jahr. Sichtbar wird getrennt, was aus eigener Aktivität kommt, was aus Ebene 2 entsteht und was aus Ebene 3 hinzukommt.
             </p>
+            <p class="table-scroll-hint">Tabelle seitlich scrollen →</p>
 
             <div class="table-wrap">
               <table aria-label="Mehrjahres-Vorschau">
                 <thead>
                   <tr>
                     <th>Jahr</th>
-                    <th>Ebene 1 eigener Umsatz</th>
-                    <th>Ebene 2 Teamlinie</th>
-                    <th>Ebene 3 Teamlinie</th>
-                    <th>Setup gesamt</th>
+                    <th>Ebene 1</th>
+                    <th>Ebene 2</th>
+                    <th>Ebene 3</th>
+                    <th>Setup</th>
                     <th>Jahresgesamt</th>
                     <th>Bestand Monatsende</th>
-                    <th>Neue Unternehmer gesamt</th>
                   </tr>
                 </thead>
                 <tbody id="yearTableBody">
@@ -1151,7 +1332,6 @@
                     <td>0,00 €</td>
                     <td><strong>0,00 €</strong></td>
                     <td>0,00 €</td>
-                    <td>0</td>
                   </tr>
                 </tbody>
               </table>
@@ -1336,13 +1516,7 @@
           totalCumulative:recurringCumulative + setupCumulative,
           l1Total:l1Recurring + l1Setup,
           l2Total:l2Recurring + l2Setup,
-          l3Total:l3Recurring + l3Setup,
-          l1Recurring,
-          l2Recurring,
-          l3Recurring,
-          l1Setup,
-          l2Setup,
-          l3Setup
+          l3Total:l3Recurring + l3Setup
         };
       }
 
@@ -1373,31 +1547,25 @@
             base.l3.monthlyCommission
           ) * endMonth;
 
-        const monthlyContracts =
-          base.l1.monthlyContracts +
-          base.l2.monthlyContracts +
-          base.l3.monthlyContracts;
-
         return {
           l1:l1Recurring + l1Setup,
           l2:l2Recurring + l2Setup,
           l3:l3Recurring + l3Setup,
           setupTotal,
           yearTotal,
-          monthEndRecurring,
-          contractsTotal:monthlyContracts * endMonth
+          monthEndRecurring
         };
       }
 
-      function contractsToMonth(month){
+      function contractsByLevel(month){
         const base = getBase();
 
-        const monthlyContracts =
-          base.l1.monthlyContracts +
-          base.l2.monthlyContracts +
-          base.l3.monthlyContracts;
-
-        return monthlyContracts * month;
+        return {
+          l1:base.l1.monthlyContracts * month,
+          l2:base.l2.monthlyContracts * month,
+          l3:base.l3.monthlyContracts * month,
+          total:(base.l1.monthlyContracts + base.l2.monthlyContracts + base.l3.monthlyContracts) * month
+        };
       }
 
       function updateYearTable(years){
@@ -1416,7 +1584,6 @@
           html += "<td>" + euro(row.setupTotal) + "</td>";
           html += "<td><strong>" + euro(row.yearTotal) + "</strong></td>";
           html += "<td>" + euro(row.monthEndRecurring) + "</td>";
-          html += "<td>" + formatInt(row.contractsTotal) + "</td>";
           html += "</tr>";
         }
 
@@ -1431,6 +1598,7 @@
         const m3 = monthSnapshot(3);
         const m12 = monthSnapshot(12);
         const endTotal = cumulativeToMonth(endMonth);
+        const org = contractsByLevel(endMonth);
 
         set("m1Recurring", euro(m1.recurring));
         set("m1Setup", euro(m1.setup));
@@ -1447,7 +1615,6 @@
         set("totalPreview", euro(endTotal.totalCumulative));
         set("totalRecurring", euro(endTotal.recurringCumulative));
         set("totalSetup", euro(endTotal.setupCumulative));
-        set("totalContracts", formatInt(contractsToMonth(endMonth)));
 
         const base = getBase();
 
@@ -1462,6 +1629,11 @@
         set("l3New", euro(base.l3.monthlyCommission));
         set("l3Setup", euro(base.l3.setupCommission));
         set("l3Total", euro(endTotal.l3Total));
+
+        set("orgL1", formatInt(org.l1));
+        set("orgL2", formatInt(org.l2));
+        set("orgL3", formatInt(org.l3));
+        set("orgTotal", formatInt(org.total));
 
         updateYearTable(years);
       }
