@@ -1349,6 +1349,7 @@
     │   ├── album-liquiditybooster.html
     │   ├── botschafter-sein.html
     │   ├── business-booster-mitgliedschaften.html
+    │   ├── club-leader-verdienstvorschau-aufbauprogramm.html
     │   ├── club-marktplatz.html
     │   ├── community.html
     │   ├── das-was-war-ist-jetzt-vorbei.html
@@ -1436,4 +1437,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.05.2026, 08:14)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.05.2026, 11:01)_
