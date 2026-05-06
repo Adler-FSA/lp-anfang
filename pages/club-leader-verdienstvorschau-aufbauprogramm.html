@@ -1,1352 +1,1503 @@
 <!doctype html>
 <!--
   GitHub-Pfad: lp-anfang/pages/club-leader-verdienstvorschau-aufbauprogramm.html
-  Commit-Message: club leader verdienstvorschau mit businessbooster verkaufslogik neu aufgebaut
-  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/club-leader-verdienstvorschau-aufbauprogramm.html?nocache=1778064600
+  Commit-Message: club leader tragfaehigkeitsrechner mit drei ebenen businessbooster logic neu aufgebaut
+  Testlink (nocache): https://adler-fsa.github.io/lp-anfang/pages/club-leader-verdienstvorschau-aufbauprogramm.html?nocache=1778068200
 -->
 <html lang="de">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ClubLeader Verdienstvorschau – BusinessBooster</title>
-  <meta name="description" content="Verdienstvorschau für ClubLeader mit BusinessBooster Unternehmer-Mitgliedschaften, Setup-Gebühren und 3-Ebenen-Logik." />
+  <title>ClubLeader Tragfähigkeits-Rechner | BusinessBooster</title>
+  <meta name="description" content="Tragfähigkeits-Rechner für ClubLeader mit BusinessBooster Unternehmer-Mitgliedschaften, Setup-Gebühren, ClubLeader-Mitgliedschaften und 3-Ebenen-Logik." />
   <meta name="robots" content="noindex,nofollow" />
   <style>
     :root{
-      --bg:#ffffff;
-      --text:#0b0f14;
-      --muted:#5e6673;
-      --line:rgba(11,15,20,.12);
-      --soft:#f7f8fb;
-      --mint:#00e0b8;
-      --mint-soft:rgba(0,224,184,.14);
-      --magenta:#ff2aa3;
-      --magenta-soft:rgba(255,42,163,.14);
-      --dark:#10131a;
-      --shadow:0 24px 70px rgba(10,16,30,.12);
-      --radius:26px;
-      --radius2:18px;
+      --mint:#2aaec0;
+      --pink:#c22d7a;
+      --gold:#f2d36d;
+      --text:#3d3d3d;
+      --text-dark:#1f2933;
+      --muted:#66717c;
+      --panel:#ffffff;
+      --panel-soft:#eef4f7;
+      --line:#dfe7ec;
+      --warn-bg:#fff3f2;
+      --shadow:0 20px 54px rgba(23,41,52,.08);
+      --radius-xl:30px;
+      --radius-lg:24px;
       --max:1180px;
-      --font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      --transition:280ms ease;
     }
 
-    *{
-      box-sizing:border-box;
-    }
-
-    html{
-      scroll-behavior:smooth;
-    }
-
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
     body{
       margin:0;
-      font-family:var(--font);
+      font-family:Arial,Helvetica,sans-serif;
       color:var(--text);
       background:
-        radial-gradient(circle at 12% 8%, rgba(0,224,184,.18), transparent 28%),
-        radial-gradient(circle at 88% 12%, rgba(255,42,163,.16), transparent 30%),
-        linear-gradient(180deg,#ffffff 0%,#fbfcff 46%,#ffffff 100%);
+        radial-gradient(circle at 12% 8%, rgba(42,174,192,.10), transparent 24%),
+        radial-gradient(circle at 86% 12%, rgba(194,45,122,.09), transparent 22%),
+        radial-gradient(circle at 72% 72%, rgba(242,211,109,.10), transparent 20%),
+        linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
       overflow-x:hidden;
     }
 
-    button,input{
-      font:inherit;
-    }
+    a{color:inherit;text-decoration:none}
+    .wrap{width:min(calc(100% - 32px),var(--max));margin:0 auto}
 
     .page{
+      position:relative;
+      isolation:isolate;
       min-height:100vh;
-      position:relative;
     }
 
-    .glow{
-      position:fixed;
-      inset:auto;
-      width:420px;
-      height:420px;
-      border-radius:999px;
-      filter:blur(28px);
-      opacity:.26;
-      pointer-events:none;
-      z-index:0;
-      animation:floatGlow 9s ease-in-out infinite alternate;
-    }
-
-    .glow.one{
-      left:-170px;
-      top:100px;
-      background:var(--mint);
-    }
-
-    .glow.two{
-      right:-180px;
-      top:360px;
-      background:var(--magenta);
-      animation-delay:-3s;
-    }
-
-    @keyframes floatGlow{
-      from{transform:translate3d(0,0,0) scale(1)}
-      to{transform:translate3d(34px,38px,0) scale(1.08)}
-    }
-
-    .wrap{
-      width:min(var(--max),calc(100% - 32px));
-      margin:0 auto;
-      position:relative;
-      z-index:1;
-    }
-
-    header{
-      padding:34px 0 18px;
-    }
-
-    .hero{
-      display:grid;
-      grid-template-columns:1.15fr .85fr;
-      gap:24px;
-      align-items:stretch;
-      padding:24px 0 24px;
-    }
-
-    .hero-card{
-      background:rgba(255,255,255,.9);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:34px;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .hero-card:before{
+    .page::before{
       content:"";
       position:absolute;
       inset:0;
       background:
-        linear-gradient(135deg,rgba(0,224,184,.18),transparent 34%),
-        linear-gradient(315deg,rgba(255,42,163,.14),transparent 36%);
+        linear-gradient(180deg, rgba(255,255,255,.32), rgba(255,255,255,.78)),
+        repeating-linear-gradient(
+          90deg,
+          rgba(255,255,255,0) 0,
+          rgba(255,255,255,0) 88px,
+          rgba(42,174,192,.018) 88px,
+          rgba(42,174,192,.018) 89px
+        );
       pointer-events:none;
+      z-index:-1;
     }
 
-    .hero-card > *{
+    .hero{
+      padding:56px 0 26px;
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:auto 8% 26px 8%;
+      height:220px;
+      border-radius:999px;
+      background:
+        radial-gradient(circle at 18% 50%, rgba(42,174,192,.15), transparent 32%),
+        radial-gradient(circle at 84% 46%, rgba(194,45,122,.12), transparent 32%),
+        radial-gradient(circle at 50% 50%, rgba(242,211,109,.12), transparent 26%);
+      filter:blur(10px);
+      pointer-events:none;
+      animation:breathe 8s ease-in-out infinite;
+    }
+
+    @keyframes breathe{
+      0%,100%{transform:scale(1);opacity:.88}
+      50%{transform:scale(1.04);opacity:1}
+    }
+
+    .hero h1{
+      margin:0 0 16px;
+      font-size:clamp(2.2rem,4.8vw,4.1rem);
+      line-height:1.06;
+      font-weight:400;
+      color:var(--mint);
+      letter-spacing:-.03em;
+      position:relative;
+      z-index:2;
+    }
+
+    .hero h1 .accent{
+      display:block;
+      margin-top:10px;
+      color:var(--pink);
+    }
+
+    .hero p{
+      margin:0 auto;
+      max-width:980px;
+      font-size:1.06rem;
+      line-height:1.9;
+      color:#555;
+      position:relative;
+      z-index:2;
+    }
+
+    .top-actions{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:24px;
+      position:relative;
+      z-index:2;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:52px;
+      padding:14px 20px;
+      border-radius:999px;
+      border:1px solid rgba(223,231,236,.98);
+      background:#fff;
+      box-shadow:0 12px 28px rgba(0,0,0,.05);
+      font-size:1rem;
+      font-weight:700;
+      line-height:1.2;
+      cursor:pointer;
+      transition:transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    }
+
+    .btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 18px 34px rgba(0,0,0,.08);
+      border-color:rgba(42,174,192,.25);
+    }
+
+    .btn.primary{
+      border:0;
+      color:#111;
+      background:linear-gradient(90deg,#ef4fa8 0%, #9a59c9 38%, #20d8b2 100%);
+      box-shadow:0 18px 42px rgba(42,174,192,.18);
+    }
+
+    .section{padding:0 0 28px}
+
+    .panel{
+      position:relative;
+      background:rgba(255,255,255,.92);
+      border:1px solid rgba(223,231,236,.96);
+      border-radius:var(--radius-xl);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .panel::before{
+      content:"";
+      position:absolute;
+      inset:0 auto auto 0;
+      width:100%;
+      height:5px;
+      background:linear-gradient(90deg,var(--mint),var(--pink),var(--gold));
+    }
+
+    .panel-inner{
       position:relative;
       z-index:1;
+      padding:28px 24px;
     }
 
     .kicker{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      padding:9px 12px;
-      border:1px solid rgba(0,224,184,.35);
-      border-radius:999px;
-      background:rgba(0,224,184,.08);
-      color:#04745f;
-      font-size:12px;
-      font-weight:950;
-      letter-spacing:.12em;
+      margin:0 0 10px;
+      color:var(--pink);
+      font-size:.92rem;
+      line-height:1.2;
+      letter-spacing:.16em;
       text-transform:uppercase;
-      margin:0 0 18px;
+      font-weight:700;
     }
 
-    .kicker svg{
-      width:18px;
-      height:18px;
-      flex:0 0 auto;
+    h2{
+      margin:0 0 16px;
+      font-size:clamp(1.8rem,2.8vw,3rem);
+      line-height:1.1;
+      font-weight:400;
+      color:var(--text-dark);
+      letter-spacing:-.03em;
     }
 
-    h1{
-      font-size:clamp(34px,5vw,68px);
-      line-height:.96;
-      letter-spacing:-.055em;
-      margin:0 0 18px;
+    h3{
+      margin:0 0 12px;
+      font-size:1.18rem;
+      line-height:1.3;
+      color:var(--text-dark);
     }
 
-    .lead{
-      font-size:clamp(17px,2vw,21px);
-      line-height:1.55;
-      color:#252a33;
-      max-width:780px;
-      margin:0;
+    h4{
+      margin:0 0 12px;
+      font-size:1rem;
+      line-height:1.3;
+      color:var(--text-dark);
     }
 
-    .hero-note{
-      margin-top:22px;
+    p{
+      margin:0 0 16px;
+      font-size:1rem;
+      line-height:1.84;
+      color:#5a5a5a;
+    }
+
+    p:last-child{margin-bottom:0}
+
+    .intro-short{
+      text-align:center;
+      background:linear-gradient(180deg, rgba(238,244,247,.94), rgba(255,255,255,.94));
+    }
+
+    .intro-short p{
+      max-width:980px;
+      margin-left:auto;
+      margin-right:auto;
+    }
+
+    .model-grid,
+    .result-grid,
+    .faq-grid{
       display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:12px;
+      gap:20px;
     }
 
-    .mini-stat{
+    .model-grid{grid-template-columns:repeat(3,1fr)}
+    .result-grid{grid-template-columns:1fr 1fr}
+    .faq-grid{grid-template-columns:1fr 1fr}
+
+    .card{
+      position:relative;
+      background:var(--panel-soft);
       border:1px solid var(--line);
-      border-radius:18px;
-      padding:15px;
-      background:rgba(255,255,255,.76);
+      border-radius:var(--radius-lg);
+      box-shadow:0 12px 28px rgba(0,0,0,.04);
+      padding:22px 18px;
+      overflow:hidden;
     }
 
-    .mini-stat strong{
-      display:block;
-      font-size:24px;
-      line-height:1;
-      letter-spacing:-.04em;
-      margin-bottom:7px;
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:0 auto auto 0;
+      width:100%;
+      height:4px;
+      background:linear-gradient(90deg,var(--mint),var(--pink),var(--gold));
+      opacity:.94;
     }
 
-    .mini-stat span{
-      display:block;
+    .price{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-top:14px;
+    }
+
+    .price strong{
+      font-size:1.15rem;
+      color:var(--text-dark);
+    }
+
+    .price span{
       color:var(--muted);
-      font-size:13px;
-      line-height:1.35;
+      line-height:1.5;
     }
 
-    .side-card{
-      border-radius:var(--radius);
-      background:#10131a;
-      color:#fff;
-      padding:26px;
-      box-shadow:var(--shadow);
+    .calc-wrap{
+      display:grid;
+      grid-template-columns:minmax(0,1.08fr) minmax(360px,.92fr);
+      gap:24px;
+      align-items:start;
+    }
+
+    .form-grid{
+      display:grid;
+      gap:16px;
+    }
+
+    .input-card{
+      background:var(--panel-soft);
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:18px;
       position:relative;
       overflow:hidden;
-      min-height:100%;
     }
 
-    .side-card:before{
+    .input-card::before{
       content:"";
       position:absolute;
-      width:270px;
-      height:270px;
-      border-radius:999px;
-      right:-100px;
-      top:-90px;
-      background:radial-gradient(circle,rgba(255,42,163,.62),transparent 66%);
+      inset:0 auto auto 0;
+      width:100%;
+      height:4px;
+      background:linear-gradient(90deg,var(--mint),var(--pink),var(--gold));
+      opacity:.9;
     }
 
-    .side-card:after{
-      content:"";
-      position:absolute;
-      width:290px;
-      height:290px;
-      border-radius:999px;
-      left:-120px;
-      bottom:-130px;
-      background:radial-gradient(circle,rgba(0,224,184,.55),transparent 68%);
-    }
-
-    .side-card > *{
-      position:relative;
-      z-index:1;
-    }
-
-    .logic-list{
-      display:grid;
+    .input-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
       gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .input-sub{
+      color:var(--muted);
+      font-size:.94rem;
+      line-height:1.5;
+    }
+
+    .member-rate-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:44px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid #d8e2e8;
+      color:var(--text-dark);
+      font-size:.95rem;
+      font-weight:700;
+      line-height:1.2;
+      box-shadow:0 8px 18px rgba(0,0,0,.04);
+    }
+
+    .level-input-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:14px;
+      margin-top:8px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    label{
+      font-size:.95rem;
+      line-height:1.4;
+      color:var(--text-dark);
+      font-weight:700;
+    }
+
+    input[type="number"]{
+      width:100%;
+      min-height:52px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid #cfd9df;
+      background:#fff;
+      color:var(--text-dark);
+      font:inherit;
+      outline:none;
+      transition:border-color var(--transition), box-shadow var(--transition);
+    }
+
+    input[type="number"]:focus{
+      border-color:rgba(42,174,192,.72);
+      box-shadow:0 0 0 4px rgba(42,174,192,.10);
+    }
+
+    .summary{
+      display:grid;
+      gap:16px;
+      position:sticky;
+      top:18px;
+    }
+
+    .result-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:22px;
+      box-shadow:0 12px 28px rgba(0,0,0,.04);
+      padding:18px;
+      position:relative;
+      overflow:hidden;
+      min-width:0;
+    }
+
+    .result-card::before{
+      content:"";
+      position:absolute;
+      inset:0 auto auto 0;
+      width:100%;
+      height:4px;
+      background:linear-gradient(90deg,var(--mint),var(--pink),var(--gold));
+      opacity:.94;
+    }
+
+    .result-card h3{
+      margin-bottom:14px;
+      font-size:clamp(1.05rem,2vw,1.28rem);
+      padding-right:8px;
+    }
+
+    .metric{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      padding:10px 0;
+      border-bottom:1px dashed rgba(61,61,61,.12);
+      line-height:1.5;
+      color:#4c5660;
+    }
+
+    .metric:last-child{border-bottom:0;padding-bottom:0}
+    .metric:first-of-type{padding-top:0}
+
+    .metric span{
+      flex:1 1 auto;
+      min-width:0;
+      word-break:break-word;
+    }
+
+    .metric strong{
+      color:var(--text-dark);
+      font-size:1.02rem;
+      flex:0 0 auto;
+      white-space:nowrap;
+      text-align:right;
+    }
+
+    .year-total{
+      background:linear-gradient(135deg, rgba(42,174,192,.10), rgba(194,45,122,.08) 54%, rgba(242,211,109,.12));
+      border-color:rgba(42,174,192,.18);
+    }
+
+    .year-total .big{
+      font-size:clamp(1.5rem,2.4vw,2.3rem);
+      line-height:1.18;
+      color:var(--mint);
+      letter-spacing:-.02em;
+      margin:4px 0 10px;
+      font-weight:700;
+      word-break:break-word;
+      overflow-wrap:anywhere;
+    }
+
+    .level-preview-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:20px;
+    }
+
+    .level-preview{
+      position:relative;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:22px;
+      box-shadow:0 12px 28px rgba(0,0,0,.04);
+      padding:18px;
+      overflow:hidden;
+    }
+
+    .level-preview::before{
+      content:"";
+      position:absolute;
+      inset:0 auto auto 0;
+      width:100%;
+      height:4px;
+      background:linear-gradient(90deg,var(--mint),var(--pink),var(--gold));
+      opacity:.94;
+    }
+
+    .level-preview h3{
+      margin-bottom:6px;
+    }
+
+    .level-preview .level-sub{
+      color:var(--muted);
+      font-size:.94rem;
+      line-height:1.5;
+      margin-bottom:14px;
+    }
+
+    .timeline{
+      position:relative;
+      display:grid;
+      gap:18px;
+      padding-left:22px;
+    }
+
+    .timeline::before{
+      content:"";
+      position:absolute;
+      left:10px;
+      top:6px;
+      bottom:6px;
+      width:3px;
+      border-radius:999px;
+      background:linear-gradient(180deg,var(--mint),var(--pink),var(--gold));
+      opacity:.9;
+    }
+
+    .timeline-item{
+      position:relative;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:22px;
+      box-shadow:0 12px 28px rgba(0,0,0,.04);
+      padding:20px 18px 18px 22px;
+      overflow:hidden;
+    }
+
+    .timeline-item::before{
+      content:"";
+      position:absolute;
+      left:-18px;
+      top:26px;
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      background:linear-gradient(135deg,var(--mint),var(--pink));
+      box-shadow:0 8px 18px rgba(42,174,192,.22);
+      border:3px solid #fff;
+    }
+
+    .timeline-item::after{
+      content:"";
+      position:absolute;
+      inset:0 auto auto 0;
+      width:100%;
+      height:4px;
+      background:linear-gradient(90deg,var(--mint),var(--pink),var(--gold));
+      opacity:.92;
+    }
+
+    .timeline-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+
+    .timeline-month{
+      font-size:1.18rem;
+      line-height:1.2;
+      color:var(--text-dark);
+      font-weight:700;
+    }
+
+    .timeline-phase{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:36px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:var(--panel-soft);
+      border:1px solid var(--line);
+      color:var(--text-dark);
+      font-size:.92rem;
+      font-weight:700;
+    }
+
+    .timeline-split{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:16px;
+      margin-top:16px;
+      margin-bottom:14px;
+    }
+
+    .timeline-box{
+      background:var(--panel-soft);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+    }
+
+    .timeline-status{
+      margin-top:10px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:40px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:linear-gradient(90deg, rgba(239,79,168,.12), rgba(154,89,201,.10) 40%, rgba(32,216,178,.12));
+      border:1px solid rgba(42,174,192,.14);
+      color:var(--text-dark);
+      font-weight:700;
+      line-height:1.3;
+    }
+
+    details{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:#fff;
+      box-shadow:0 10px 22px rgba(0,0,0,.04);
+      overflow:hidden;
+      margin-bottom:14px;
+    }
+
+    summary{
+      list-style:none;
+      cursor:pointer;
+      padding:18px 20px;
+      font-size:1rem;
+      font-weight:700;
+      color:var(--text-dark);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+
+    summary::-webkit-details-marker{display:none}
+
+    .summary-icon{
+      width:30px;
+      height:30px;
+      flex:0 0 30px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg,var(--mint),var(--pink));
+      color:#fff;
+      font-size:18px;
+      line-height:1;
+      box-shadow:0 8px 18px rgba(42,174,192,.18);
+      transition:transform var(--transition);
+    }
+
+    details[open] .summary-icon{transform:rotate(45deg)}
+
+    .details-body{
+      padding:0 20px 20px;
+      color:#5a5a5a;
+    }
+
+    .pill-list{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
       margin:0;
       padding:0;
       list-style:none;
     }
 
-    .logic-list li{
+    .pill-list li{
       display:flex;
-      gap:11px;
       align-items:flex-start;
-      padding:13px;
-      border:1px solid rgba(255,255,255,.12);
+      gap:12px;
+      padding:15px 16px;
+      min-height:74px;
       border-radius:18px;
-      background:rgba(255,255,255,.06);
-      backdrop-filter:blur(12px);
+      background:#fff;
+      border:1px solid #dde5ea;
+      box-shadow:0 10px 20px rgba(0,0,0,.04);
+      line-height:1.55;
+      color:#404040;
     }
 
     .dot{
-      width:26px;
-      height:26px;
-      border-radius:999px;
-      flex:0 0 auto;
+      width:24px;
+      height:24px;
+      flex:0 0 24px;
+      border-radius:50%;
       display:grid;
       place-items:center;
+      color:#fff;
       font-size:12px;
-      font-weight:1000;
-      color:#081014;
-      background:var(--mint);
-      box-shadow:0 0 24px rgba(0,224,184,.4);
+      background:linear-gradient(135deg,var(--mint),var(--pink));
+      box-shadow:0 8px 18px rgba(42,174,192,.24);
+      margin-top:1px;
     }
 
-    .logic-list b{
-      display:block;
-      font-size:14px;
-      margin-bottom:2px;
-    }
-
-    .logic-list span{
-      display:block;
-      font-size:13px;
-      color:rgba(255,255,255,.72);
-      line-height:1.35;
-    }
-
-    main{
-      padding:8px 0 54px;
-    }
-
-    .section-title{
+    .bottom-nav{
       display:flex;
-      justify-content:space-between;
-      align-items:flex-end;
-      gap:18px;
-      margin:30px 0 15px;
-    }
-
-    .section-title h2{
-      font-size:clamp(24px,3vw,38px);
-      line-height:1.05;
-      letter-spacing:-.045em;
-      margin:0;
-    }
-
-    .section-title p{
-      margin:0;
-      color:var(--muted);
-      line-height:1.45;
-      max-width:650px;
-    }
-
-    .panel{
-      background:rgba(255,255,255,.9);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:24px;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .panel:before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:linear-gradient(135deg,rgba(0,224,184,.07),transparent 28%,rgba(255,42,163,.07));
-      pointer-events:none;
-    }
-
-    .panel > *{
-      position:relative;
-      z-index:1;
-    }
-
-    .level-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:16px;
-    }
-
-    .level-card{
-      border:1px solid var(--line);
-      border-radius:22px;
-      background:#fff;
-      padding:18px;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .level-card:nth-child(1){
-      box-shadow:0 18px 45px rgba(0,224,184,.10);
-    }
-
-    .level-card:nth-child(2){
-      box-shadow:0 18px 45px rgba(255,42,163,.10);
-    }
-
-    .level-card:nth-child(3){
-      box-shadow:0 18px 45px rgba(16,19,26,.10);
-    }
-
-    .level-head{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:flex-start;
-      margin-bottom:14px;
-    }
-
-    .level-head h3{
-      margin:0;
-      font-size:22px;
-      line-height:1.1;
-      letter-spacing:-.035em;
-    }
-
-    .level-head span{
-      display:inline-flex;
-      align-items:center;
       justify-content:center;
-      border-radius:999px;
-      padding:7px 10px;
-      background:#10131a;
-      color:#fff;
-      font-size:12px;
-      font-weight:950;
-      white-space:nowrap;
-    }
-
-    .level-card p{
-      margin:0 0 14px;
-      color:var(--muted);
-      line-height:1.45;
-      font-size:14px;
-    }
-
-    label.field{
-      display:grid;
-      gap:7px;
-      color:var(--muted);
-      font-size:12px;
-      font-weight:900;
-      letter-spacing:.04em;
-      text-transform:uppercase;
-    }
-
-    .field input{
-      width:100%;
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:#fff;
-      padding:12px 12px;
-      color:var(--text);
-      outline:none;
-      transition:.18s ease;
-    }
-
-    .field input:focus{
-      border-color:rgba(0,224,184,.85);
-      box-shadow:0 0 0 4px rgba(0,224,184,.12);
-    }
-
-    .products-table{
-      overflow:auto;
-      border:1px solid var(--line);
-      border-radius:22px;
-      background:#fff;
-    }
-
-    table{
-      width:100%;
-      border-collapse:collapse;
-      min-width:980px;
-    }
-
-    th,td{
-      padding:13px 14px;
-      border-bottom:1px solid rgba(11,15,20,.08);
-      text-align:right;
-      white-space:nowrap;
-      font-size:14px;
-    }
-
-    th:first-child,
-    td:first-child{
-      text-align:left;
-    }
-
-    th{
-      background:#f8f9fc;
-      color:#363d49;
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.08em;
-    }
-
-    tbody tr:hover{
-      background:rgba(0,224,184,.055);
-    }
-
-    .product-name{
-      display:grid;
-      gap:4px;
-    }
-
-    .product-name strong{
-      font-size:15px;
-    }
-
-    .product-name span{
-      color:var(--muted);
-      font-size:12px;
-    }
-
-    .mini-input{
-      width:92px;
-      max-width:100%;
-      border:1px solid var(--line);
-      border-radius:13px;
-      padding:10px 10px;
-      text-align:right;
-      outline:none;
-    }
-
-    .mini-input:focus{
-      border-color:rgba(255,42,163,.75);
-      box-shadow:0 0 0 4px rgba(255,42,163,.10);
-    }
-
-    .results-grid{
-      display:grid;
-      grid-template-columns:1.1fr .9fr;
-      gap:16px;
-      align-items:stretch;
-    }
-
-    .big-result{
-      border-radius:var(--radius);
-      background:#10131a;
-      color:#fff;
-      padding:25px;
-      position:relative;
-      overflow:hidden;
-      min-height:300px;
-    }
-
-    .big-result:before{
-      content:"";
-      position:absolute;
-      width:330px;
-      height:330px;
-      border-radius:999px;
-      right:-120px;
-      top:-120px;
-      background:radial-gradient(circle,rgba(255,42,163,.58),transparent 66%);
-    }
-
-    .big-result:after{
-      content:"";
-      position:absolute;
-      width:300px;
-      height:300px;
-      border-radius:999px;
-      left:-120px;
-      bottom:-120px;
-      background:radial-gradient(circle,rgba(0,224,184,.5),transparent 70%);
-    }
-
-    .big-result > *{
-      position:relative;
-      z-index:1;
-    }
-
-    .result-label{
-      color:rgba(255,255,255,.68);
-      text-transform:uppercase;
-      letter-spacing:.13em;
-      font-size:12px;
-      font-weight:900;
-      margin-bottom:8px;
-    }
-
-    .result-main{
-      font-size:clamp(42px,6vw,76px);
-      line-height:.95;
-      letter-spacing:-.06em;
-      margin:0 0 8px;
-      font-weight:1000;
-    }
-
-    .result-sub{
-      margin:0 0 22px;
-      color:rgba(255,255,255,.75);
-      line-height:1.45;
-      max-width:650px;
-    }
-
-    .split-results{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
       gap:12px;
-    }
-
-    .result-pill{
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:18px;
-      padding:14px;
-      background:rgba(255,255,255,.06);
-      backdrop-filter:blur(10px);
-    }
-
-    .result-pill span{
-      display:block;
-      color:rgba(255,255,255,.65);
-      font-size:12px;
-      margin-bottom:6px;
-    }
-
-    .result-pill strong{
-      display:block;
-      font-size:23px;
-      letter-spacing:-.04em;
-    }
-
-    .side-results{
-      display:grid;
-      gap:12px;
-    }
-
-    .result-card{
-      border:1px solid var(--line);
-      border-radius:22px;
-      background:#fff;
-      padding:18px;
-    }
-
-    .result-card span{
-      display:block;
-      color:var(--muted);
-      font-size:12px;
-      font-weight:900;
-      letter-spacing:.09em;
-      text-transform:uppercase;
-      margin-bottom:7px;
-    }
-
-    .result-card strong{
-      display:block;
-      font-size:30px;
-      line-height:1;
-      letter-spacing:-.045em;
-    }
-
-    .result-card em{
-      display:block;
-      margin-top:8px;
-      color:var(--muted);
-      font-style:normal;
-      font-size:13px;
-      line-height:1.35;
-    }
-
-    .breakdown-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:16px;
-    }
-
-    .breakdown-card{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:22px;
-      padding:18px;
-    }
-
-    .breakdown-card h3{
-      margin:0 0 10px;
-      font-size:20px;
-      letter-spacing:-.03em;
-    }
-
-    .breakdown-row{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      padding:10px 0;
-      border-bottom:1px solid rgba(11,15,20,.08);
-      color:var(--muted);
-      font-size:14px;
-    }
-
-    .breakdown-row:last-child{
-      border-bottom:0;
-    }
-
-    .breakdown-row strong{
-      color:var(--text);
-    }
-
-    .actions{
-      display:flex;
       flex-wrap:wrap;
-      gap:10px;
-      margin-top:18px;
+      padding:8px 0 28px;
     }
 
-    .btn{
-      border:none;
-      border-radius:999px;
-      padding:12px 16px;
-      cursor:pointer;
-      font-weight:950;
-      color:#081014;
-      background:linear-gradient(135deg,var(--mint),var(--magenta));
-      box-shadow:0 16px 36px rgba(255,42,163,.18);
-      transition:.18s ease;
-    }
-
-    .btn:hover{
-      transform:translateY(-1px);
-      box-shadow:0 20px 46px rgba(0,224,184,.2);
-    }
-
-    .btn.secondary{
-      background:#10131a;
-      color:#fff;
-      box-shadow:none;
-    }
-
-    .notice{
-      margin-top:14px;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.45;
-    }
-
-    footer{
-      padding:22px 0 42px;
-      color:var(--muted);
-      font-size:13px;
-      text-align:center;
-    }
-
-    @media(max-width:980px){
-      .hero,
-      .results-grid,
-      .level-grid,
-      .breakdown-grid{
+    @media (max-width:1080px){
+      .calc-wrap,
+      .model-grid,
+      .level-preview-grid{
         grid-template-columns:1fr;
       }
+      .summary{position:static}
     }
 
-    @media(max-width:680px){
-      .wrap{
-        width:min(100% - 22px,var(--max));
-      }
-
-      .hero-card,
-      .side-card,
-      .panel,
-      .big-result{
-        padding:20px;
-        border-radius:22px;
-      }
-
-      .hero-note,
-      .split-results{
+    @media (max-width:840px){
+      .pill-list,
+      .result-grid,
+      .timeline-split,
+      .faq-grid,
+      .level-input-grid{
         grid-template-columns:1fr;
       }
-
-      .section-title{
-        display:block;
+      .timeline{
+        padding-left:18px;
       }
-
-      .section-title p{
-        margin-top:8px;
+      .timeline::before{
+        left:8px;
       }
+      .timeline-item::before{
+        left:-15px;
+      }
+    }
 
-      .result-main{
-        font-size:42px;
+    @media (max-width:720px){
+      .hero{padding-top:42px}
+      .panel-inner{padding:24px 18px}
+      .card{padding:20px 16px}
+      .hero p{font-size:1rem}
+      .timeline-item{padding:18px 16px 16px 20px}
+      .year-total .big{
+        font-size:1.9rem;
+        line-height:1.16;
       }
     }
 
     @media print{
       body{
-        background:#fff;
+        background:#fff !important;
       }
-
-      .glow,
-      .actions{
+      .top-actions,
+      .bottom-nav{
         display:none !important;
       }
-
-      .wrap{
-        width:100%;
-        max-width:none;
-      }
-
-      header,
-      main,
-      footer{
-        padding:0;
-      }
-
-      .hero,
-      .level-grid,
-      .results-grid,
-      .breakdown-grid{
-        display:block;
-      }
-
-      .hero-card,
-      .side-card,
       .panel,
-      .level-card,
-      .big-result,
+      .card,
+      .input-card,
       .result-card,
-      .breakdown-card{
+      .level-preview,
+      .timeline-item,
+      details{
         box-shadow:none !important;
         break-inside:avoid;
         page-break-inside:avoid;
-        margin:0 0 12px;
       }
-
-      .side-card,
-      .big-result{
-        color:#000;
-        background:#fff;
-        border:1px solid #ddd;
-      }
-
-      .side-card *,
-      .big-result *{
-        color:#000 !important;
+      .summary{
+        position:static !important;
       }
     }
   </style>
 </head>
 <body>
   <div class="page">
-    <div class="glow one"></div>
-    <div class="glow two"></div>
+    <main class="wrap">
+      <section class="hero">
+        <h1>
+          Tragfähigkeits-Rechner
+          <span class="accent">für ClubLeader im BusinessBooster</span>
+        </h1>
+        <p>
+          Dieser Rechner verbindet die 3-Ebenen-Logik mit einer sichtbaren Tragfähigkeitsentwicklung über 12 Monate.
+          Jede Ebene hat ihre eigene Verdienstvorschau: Anna auf Ebene 1 mit 20 %, Klaus auf Ebene 2 mit 15 % und Helga auf Ebene 3 mit 10 %.
+        </p>
+        <div class="top-actions">
+          <a class="btn" href="../club-marktplatz.html">Zurück zur CLUB - Marktplatz Seite</a>
+          <a class="btn primary" href="#rechner">Direkt zum Rechner</a>
+        </div>
+      </section>
 
-    <header>
-      <div class="wrap">
-        <section class="hero" aria-label="Einführung">
-          <div class="hero-card">
-            <div class="kicker">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 2.4 14.8 9l7.2.6-5.45 4.7 1.65 7.05L12 17.6l-6.2 3.75 1.65-7.05L2 9.6 9.2 9 12 2.4Z" fill="currentColor"/>
-              </svg>
-              BusinessBooster · 3 Ebenen Logic
+      <section class="section">
+        <div class="panel intro-short">
+          <div class="panel-inner">
+            <p class="kicker">Kurz erklärt</p>
+            <h2>Worum es hier geht</h2>
+            <p>
+              Es geht nicht um eine Aktivitätsquote und nicht um eine automatische Simulation. Es geht nur um bezahlte Verkäufe:
+              Wie viele ClubLeader sind auf Ebene 1, Ebene 2 und Ebene 3 eingebunden – und wie viele Verkäufe entstehen je ClubLeader pro Monat?
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="model-grid">
+          <article class="card">
+            <h3>Small Business Booster</h3>
+            <p>Unternehmer-Mitgliedschaft mit monatlicher Leistung und einmaligem Setup.</p>
+            <div class="price">
+              <strong>499 € monatlich</strong>
+              <span>499 € einmalige Setup-Gebühr</span>
             </div>
-            <h1>ClubLeader Verdienstvorschau</h1>
-            <p class="lead">
-              Dieser Rechner zeigt Annas Provision aus bezahlten Verkäufen über drei Ebenen.
-              Entscheidend ist nicht, wer welches Produkt empfiehlt, sondern auf welcher Ebene der bezahlte Umsatz entsteht.
+          </article>
+
+          <article class="card">
+            <h3>Premium Business Booster</h3>
+            <p>Unternehmer-Mitgliedschaft mit monatlicher Leistung und einmaligem Setup.</p>
+            <div class="price">
+              <strong>999 € monatlich</strong>
+              <span>999 € einmalige Setup-Gebühr</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>Enterprise Business Booster</h3>
+            <p>Unternehmer-Mitgliedschaft mit monatlicher Leistung und einmaligem Setup.</p>
+            <div class="price">
+              <strong>1.999 € monatlich</strong>
+              <span>1.999 € einmalige Setup-Gebühr</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="rechner" class="section">
+        <div class="panel">
+          <div class="panel-inner">
+            <p class="kicker">3 Ebenen · getrennte Verdienstvorschau</p>
+            <h2>Mini-Rechner für 12 Monate</h2>
+            <p>
+              Trage zuerst ein, wie viele ClubLeader auf jeder Ebene eingebunden sind. Danach trägst du ein,
+              wie viele Verkäufe ein ClubLeader je Ebene pro Monat macht. Jede Ebene wird separat berechnet.
             </p>
 
-            <div class="hero-note">
-              <div class="mini-stat">
-                <strong>20 %</strong>
-                <span>Ebene 1: Anna verkauft selbst oder bindet direkt ein</span>
+            <div class="calc-wrap">
+              <div class="form-grid">
+                <div class="input-card">
+                  <div class="input-head">
+                    <div>
+                      <h3>Teamgröße je Ebene</h3>
+                      <div class="input-sub">Diese Werte bestimmen, wie oft die Verkäufe je ClubLeader auf der jeweiligen Ebene gezählt werden.</div>
+                    </div>
+                  </div>
+                  <div class="level-input-grid">
+                    <div class="field">
+                      <label for="leadersL1">ClubLeader Ebene 1 / Anna</label>
+                      <input id="leadersL1" type="number" min="0" step="1" value="1" />
+                    </div>
+                    <div class="field">
+                      <label for="leadersL2">ClubLeader Ebene 2 / Klaus</label>
+                      <input id="leadersL2" type="number" min="0" step="1" value="1" />
+                    </div>
+                    <div class="field">
+                      <label for="leadersL3">ClubLeader Ebene 3 / Helga</label>
+                      <input id="leadersL3" type="number" min="0" step="1" value="1" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="input-card">
+                  <div class="input-head">
+                    <div>
+                      <h3>Small Business Booster</h3>
+                      <div class="input-sub">499 € monatlich + 499 € einmalige Setup-Gebühr</div>
+                    </div>
+                    <div class="member-rate-badge">monatlich + Setup</div>
+                  </div>
+                  <div class="level-input-grid">
+                    <div class="field">
+                      <label for="smallL1">Verkäufe je ClubLeader Ebene 1</label>
+                      <input id="smallL1" type="number" min="0" step="1" value="1" />
+                    </div>
+                    <div class="field">
+                      <label for="smallL2">Verkäufe je ClubLeader Ebene 2</label>
+                      <input id="smallL2" type="number" min="0" step="1" value="1" />
+                    </div>
+                    <div class="field">
+                      <label for="smallL3">Verkäufe je ClubLeader Ebene 3</label>
+                      <input id="smallL3" type="number" min="0" step="1" value="1" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="input-card">
+                  <div class="input-head">
+                    <div>
+                      <h3>Premium Business Booster</h3>
+                      <div class="input-sub">999 € monatlich + 999 € einmalige Setup-Gebühr</div>
+                    </div>
+                    <div class="member-rate-badge">monatlich + Setup</div>
+                  </div>
+                  <div class="level-input-grid">
+                    <div class="field">
+                      <label for="premiumL1">Verkäufe je ClubLeader Ebene 1</label>
+                      <input id="premiumL1" type="number" min="0" step="1" value="0" />
+                    </div>
+                    <div class="field">
+                      <label for="premiumL2">Verkäufe je ClubLeader Ebene 2</label>
+                      <input id="premiumL2" type="number" min="0" step="1" value="0" />
+                    </div>
+                    <div class="field">
+                      <label for="premiumL3">Verkäufe je ClubLeader Ebene 3</label>
+                      <input id="premiumL3" type="number" min="0" step="1" value="0" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="input-card">
+                  <div class="input-head">
+                    <div>
+                      <h3>Enterprise Business Booster</h3>
+                      <div class="input-sub">1.999 € monatlich + 1.999 € einmalige Setup-Gebühr</div>
+                    </div>
+                    <div class="member-rate-badge">monatlich + Setup</div>
+                  </div>
+                  <div class="level-input-grid">
+                    <div class="field">
+                      <label for="enterpriseL1">Verkäufe je ClubLeader Ebene 1</label>
+                      <input id="enterpriseL1" type="number" min="0" step="1" value="0" />
+                    </div>
+                    <div class="field">
+                      <label for="enterpriseL2">Verkäufe je ClubLeader Ebene 2</label>
+                      <input id="enterpriseL2" type="number" min="0" step="1" value="0" />
+                    </div>
+                    <div class="field">
+                      <label for="enterpriseL3">Verkäufe je ClubLeader Ebene 3</label>
+                      <input id="enterpriseL3" type="number" min="0" step="1" value="0" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="input-card">
+                  <div class="input-head">
+                    <div>
+                      <h3>ClubLeader Mitgliedschaften</h3>
+                      <div class="input-sub">189 € halbjährlicher Beitrag. Hier wird nur der bezahlte Verkauf im jeweiligen Monat gerechnet.</div>
+                    </div>
+                    <div class="member-rate-badge">189 € bezahlt</div>
+                  </div>
+                  <div class="level-input-grid">
+                    <div class="field">
+                      <label for="clubL1">ClubLeader-Verkäufe je ClubLeader Ebene 1</label>
+                      <input id="clubL1" type="number" min="0" step="1" value="0" />
+                    </div>
+                    <div class="field">
+                      <label for="clubL2">ClubLeader-Verkäufe je ClubLeader Ebene 2</label>
+                      <input id="clubL2" type="number" min="0" step="1" value="0" />
+                    </div>
+                    <div class="field">
+                      <label for="clubL3">ClubLeader-Verkäufe je ClubLeader Ebene 3</label>
+                      <input id="clubL3" type="number" min="0" step="1" value="0" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="input-card">
+                  <h3>Rechenlogik</h3>
+                  <p>
+                    Ebene 1: ClubLeader × Verkäufe je ClubLeader × Produktpreis × 20 %.
+                    Ebene 2: ClubLeader × Verkäufe je ClubLeader × Produktpreis × 15 %.
+                    Ebene 3: ClubLeader × Verkäufe je ClubLeader × Produktpreis × 10 %.
+                  </p>
+                </div>
               </div>
-              <div class="mini-stat">
-                <strong>15 %</strong>
-                <span>Ebene 2: Verkäufe aus Annas erster Teamlinie</span>
-              </div>
-              <div class="mini-stat">
-                <strong>10 %</strong>
-                <span>Ebene 3: Verkäufe aus der nächsten Teamlinie</span>
+
+              <div class="summary">
+                <div class="level-preview-grid">
+                  <article class="level-preview">
+                    <h3>Anna · Ebene 1</h3>
+                    <div class="level-sub">Eigene Ebene · 20 %</div>
+                    <div class="metric"><span>Monat 1</span><strong id="l1Month1">0,00 €</strong></div>
+                    <div class="metric"><span>Monat 3</span><strong id="l1Month3">0,00 €</strong></div>
+                    <div class="metric"><span>Monat 12</span><strong id="l1Month12">0,00 €</strong></div>
+                    <div class="metric"><span>12 Monate kumuliert</span><strong id="l1Year">0,00 €</strong></div>
+                  </article>
+
+                  <article class="level-preview">
+                    <h3>Klaus · Ebene 2</h3>
+                    <div class="level-sub">Erste Teamlinie · 15 %</div>
+                    <div class="metric"><span>Monat 1</span><strong id="l2Month1">0,00 €</strong></div>
+                    <div class="metric"><span>Monat 3</span><strong id="l2Month3">0,00 €</strong></div>
+                    <div class="metric"><span>Monat 12</span><strong id="l2Month12">0,00 €</strong></div>
+                    <div class="metric"><span>12 Monate kumuliert</span><strong id="l2Year">0,00 €</strong></div>
+                  </article>
+
+                  <article class="level-preview">
+                    <h3>Helga · Ebene 3</h3>
+                    <div class="level-sub">Zweite Teamlinie · 10 %</div>
+                    <div class="metric"><span>Monat 1</span><strong id="l3Month1">0,00 €</strong></div>
+                    <div class="metric"><span>Monat 3</span><strong id="l3Month3">0,00 €</strong></div>
+                    <div class="metric"><span>Monat 12</span><strong id="l3Month12">0,00 €</strong></div>
+                    <div class="metric"><span>12 Monate kumuliert</span><strong id="l3Year">0,00 €</strong></div>
+                  </article>
+                </div>
+
+                <div class="result-grid">
+                  <article class="result-card">
+                    <h3>Monat 1 gesamt</h3>
+                    <div class="metric"><span>Mitgliedschafts-Provision</span><strong id="m1Recurring">0,00 €</strong></div>
+                    <div class="metric"><span>Setup-Provision</span><strong id="m1Setup">0,00 €</strong></div>
+                    <div class="metric"><span>ClubLeader-Provision</span><strong id="m1Club">0,00 €</strong></div>
+                    <div class="metric"><span>Gesamtverdienst</span><strong id="m1Total">0,00 €</strong></div>
+                  </article>
+
+                  <article class="result-card">
+                    <h3>Monat 2 gesamt</h3>
+                    <div class="metric"><span>Mitgliedschafts-Provision</span><strong id="m2Recurring">0,00 €</strong></div>
+                    <div class="metric"><span>Setup-Provision</span><strong id="m2Setup">0,00 €</strong></div>
+                    <div class="metric"><span>ClubLeader-Provision</span><strong id="m2Club">0,00 €</strong></div>
+                    <div class="metric"><span>Gesamtverdienst</span><strong id="m2Total">0,00 €</strong></div>
+                  </article>
+
+                  <article class="result-card">
+                    <h3>Monat 3 gesamt</h3>
+                    <div class="metric"><span>Mitgliedschafts-Provision</span><strong id="m3Recurring">0,00 €</strong></div>
+                    <div class="metric"><span>Setup-Provision</span><strong id="m3Setup">0,00 €</strong></div>
+                    <div class="metric"><span>ClubLeader-Provision</span><strong id="m3Club">0,00 €</strong></div>
+                    <div class="metric"><span>Gesamtverdienst</span><strong id="m3Total">0,00 €</strong></div>
+                  </article>
+
+                  <article class="result-card">
+                    <h3>Monat 6 gesamt</h3>
+                    <div class="metric"><span>Mitgliedschafts-Provision</span><strong id="m6Recurring">0,00 €</strong></div>
+                    <div class="metric"><span>Setup-Provision</span><strong id="m6Setup">0,00 €</strong></div>
+                    <div class="metric"><span>ClubLeader-Provision</span><strong id="m6Club">0,00 €</strong></div>
+                    <div class="metric"><span>Gesamtverdienst</span><strong id="m6Total">0,00 €</strong></div>
+                  </article>
+
+                  <article class="result-card">
+                    <h3>Monat 12 gesamt</h3>
+                    <div class="metric"><span>Mitgliedschafts-Provision</span><strong id="m12Recurring">0,00 €</strong></div>
+                    <div class="metric"><span>Setup-Provision</span><strong id="m12Setup">0,00 €</strong></div>
+                    <div class="metric"><span>ClubLeader-Provision</span><strong id="m12Club">0,00 €</strong></div>
+                    <div class="metric"><span>Gesamtverdienst</span><strong id="m12Total">0,00 €</strong></div>
+                  </article>
+
+                  <article class="result-card year-total">
+                    <h3>Tragfähigkeits-Vorschau 12 Monate</h3>
+                    <div class="big" id="yearTotal">0,00 €</div>
+                    <div class="metric"><span>Kumulierter Mitgliedschaftsverdienst</span><strong id="yearRecurring">0,00 €</strong></div>
+                    <div class="metric"><span>Kumulierter Setup-Verdienst</span><strong id="yearSetup">0,00 €</strong></div>
+                    <div class="metric"><span>Kumulierter ClubLeader-Verdienst</span><strong id="yearClub">0,00 €</strong></div>
+                  </article>
+                </div>
+
+                <article class="result-card">
+                  <h3>Rechenhinweis</h3>
+                  <p>
+                    Die laufenden Unternehmer-Mitgliedschaften wachsen Monat für Monat im Bestand weiter.
+                    Setup-Gebühren und ClubLeader-Mitgliedschaften werden als bezahlte Verkäufe im jeweiligen Monat gerechnet.
+                    Jede Ebene bleibt in der Verdienstvorschau getrennt sichtbar.
+                  </p>
+                </article>
               </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          <aside class="side-card">
-            <ul class="logic-list">
-              <li>
-                <div class="dot">1</div>
-                <div>
-                  <b>Anna / Ebene 1</b>
-                  <span>Alle bezahlten Verkäufe auf Ebene 1 werden mit 20 % berechnet.</span>
+      <section class="section">
+        <div class="panel">
+          <div class="panel-inner">
+            <p class="kicker">90-Tage-Aufbau zur Tragfähigkeit</p>
+            <h2>Wie sich das Einkommensfundament formiert</h2>
+            <p>
+              Die 90-Tage-Sicht zeigt, wie sich das Ergebnis aus allen drei Ebenen zusammensetzt.
+              Entscheidend ist, dass der laufende Unternehmer-Bestand wächst, während Setup- und ClubLeader-Verkäufe zusätzliche Startimpulse geben.
+            </p>
+
+            <div class="timeline">
+              <article class="timeline-item">
+                <div class="timeline-head">
+                  <div class="timeline-month">Monat 1 – Der erste Aufbau beginnt</div>
+                  <div class="timeline-phase">Startphase</div>
                 </div>
-              </li>
-              <li>
-                <div class="dot">2</div>
-                <div>
-                  <b>Klaus / Ebene 2</b>
-                  <span>Alle bezahlten Verkäufe auf Ebene 2 werden mit 15 % berechnet.</span>
+                <p>
+                  Im ersten Monat entstehen die ersten bezahlten Verkäufe auf Ebene 1, Ebene 2 und Ebene 3.
+                </p>
+
+                <div class="timeline-split">
+                  <div class="timeline-box">
+                    <h4>Anna · Ebene 1</h4>
+                    <div class="metric"><span>Mitgliedschaft</span><strong id="t1L1Recurring">0,00 €</strong></div>
+                    <div class="metric"><span>Setup + ClubLeader</span><strong id="t1L1Extra">0,00 €</strong></div>
+                    <div class="metric"><span>Gesamt</span><strong id="t1L1Total">0,00 €</strong></div>
+                  </div>
+                  <div class="timeline-box">
+                    <h4>Klaus · Ebene 2</h4>
+                    <div class="metric"><span>Mitgliedschaft</span><strong id="t1L2Recurring">0,00 €</strong></div>
+                    <div class="metric"><span>Setup + ClubLeader</span><strong id="t1L2Extra">0,00 €</strong></div>
+                    <div class="metric"><span>Gesamt</span><strong id="t1L2Total">0,00 €</strong></div>
+                  </div>
+                  <div class="timeline-box">
+                    <h4>Helga · Ebene 3</h4>
+                    <div class="metric"><span>Mitgliedschaft</span><strong id="t1L3Recurring">0,00 €</strong></div>
+                    <div class="metric"><span>Setup + ClubLeader</span><strong id="t1L3Extra">0,00 €</strong></div>
+                    <div class="metric"><span>Gesamt</span><strong id="t1L3Total">0,00 €</strong></div>
+                  </div>
                 </div>
-              </li>
-              <li>
-                <div class="dot">3</div>
-                <div>
-                  <b>Helga / Ebene 3</b>
-                  <span>Alle bezahlten Verkäufe auf Ebene 3 werden mit 10 % berechnet.</span>
+
+                <div class="metric"><span>Gesamt im Monat 1</span><strong id="t1Total">0,00 €</strong></div>
+                <div class="timeline-status" id="t1Status">Das erste Fundament ist gelegt.</div>
+              </article>
+
+              <article class="timeline-item">
+                <div class="timeline-head">
+                  <div class="timeline-month">Monat 2 – Das Fundament wächst</div>
+                  <div class="timeline-phase">Aufbauphase</div>
                 </div>
-              </li>
+                <p>
+                  Im zweiten Monat kommt die laufende Wirkung aus dem ersten Monat hinzu.
+                </p>
+
+                <div class="timeline-split">
+                  <div class="timeline-box">
+                    <h4>Anna · Ebene 1</h4>
+                    <div class="metric"><span>Mitgliedschaft</span><strong id="t2L1Recurring">0,00 €</strong></div>
+                    <div class="metric"><span>Setup + ClubLeader</span><strong id="t2L1Extra">0,00 €</strong></div>
+                    <div class="metric"><span>Gesamt</span><strong id="t2L1Total">0,00 €</strong></div>
+                  </div>
+                  <div class="timeline-box">
+                    <h4>Klaus · Ebene 2</h4>
+                    <div class="metric"><span>Mitgliedschaft</span><strong id="t2L2Recurring">0,00 €</strong></div>
+                    <div class="metric"><span>Setup + ClubLeader</span><strong id="t2L2Extra">0,00 €</strong></div>
+                    <div class="metric"><span>Gesamt</span><strong id="t2L2Total">0,00 €</strong></div>
+                  </div>
+                  <div class="timeline-box">
+                    <h4>Helga · Ebene 3</h4>
+                    <div class="metric"><span>Mitgliedschaft</span><strong id="t2L3Recurring">0,00 €</strong></div>
+                    <div class="metric"><span>Setup + ClubLeader</span><strong id="t2L3Extra">0,00 €</strong></div>
+                    <div class="metric"><span>Gesamt</span><strong id="t2L3Total">0,00 €</strong></div>
+                  </div>
+                </div>
+
+                <div class="metric"><span>Gesamt im Monat 2</span><strong id="t2Total">0,00 €</strong></div>
+                <div class="metric"><span>Kumuliert bis Monat 2</span><strong id="t2Cumulated">0,00 €</strong></div>
+                <div class="timeline-status" id="t2Status">Dein Einkommensfundament wächst sichtbar an.</div>
+              </article>
+
+              <article class="timeline-item">
+                <div class="timeline-head">
+                  <div class="timeline-month">Monat 3 – Nach 90 Tagen wird Stabilität sichtbar</div>
+                  <div class="timeline-phase">Stabilisierungsphase</div>
+                </div>
+                <p>
+                  Nach 90 Tagen wird sichtbar, wie stark die drei Ebenen zusammenwirken und ob daraus ein tragfähiger Rahmen entstehen kann.
+                </p>
+
+                <div class="timeline-split">
+                  <div class="timeline-box">
+                    <h4>Anna · Ebene 1</h4>
+                    <div class="metric"><span>Mitgliedschaft</span><strong id="t3L1Recurring">0,00 €</strong></div>
+                    <div class="metric"><span>Setup + ClubLeader</span><strong id="t3L1Extra">0,00 €</strong></div>
+                    <div class="metric"><span>Gesamt</span><strong id="t3L1Total">0,00 €</strong></div>
+                  </div>
+                  <div class="timeline-box">
+                    <h4>Klaus · Ebene 2</h4>
+                    <div class="metric"><span>Mitgliedschaft</span><strong id="t3L2Recurring">0,00 €</strong></div>
+                    <div class="metric"><span>Setup + ClubLeader</span><strong id="t3L2Extra">0,00 €</strong></div>
+                    <div class="metric"><span>Gesamt</span><strong id="t3L2Total">0,00 €</strong></div>
+                  </div>
+                  <div class="timeline-box">
+                    <h4>Helga · Ebene 3</h4>
+                    <div class="metric"><span>Mitgliedschaft</span><strong id="t3L3Recurring">0,00 €</strong></div>
+                    <div class="metric"><span>Setup + ClubLeader</span><strong id="t3L3Extra">0,00 €</strong></div>
+                    <div class="metric"><span>Gesamt</span><strong id="t3L3Total">0,00 €</strong></div>
+                  </div>
+                </div>
+
+                <div class="metric"><span>Gesamt im Monat 3</span><strong id="t3Total">0,00 €</strong></div>
+                <div class="metric"><span>Kumuliert bis Monat 3</span><strong id="t3Cumulated">0,00 €</strong></div>
+                <div class="timeline-status" id="t3Status">Die erste Form von Tragfähigkeit wird sichtbar.</div>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <details>
+          <summary>
+            Wie der Rechner funktioniert
+            <span class="summary-icon">+</span>
+          </summary>
+          <div class="details-body">
+            <p>
+              Der Rechner arbeitet ausschließlich mit Verkäufen. Es gibt keine Aktivitätsquote und keine automatische Team-Simulation.
+              Du gibst ein, wie viele ClubLeader auf Ebene 1, Ebene 2 und Ebene 3 vorhanden sind und wie viele Verkäufe je ClubLeader entstehen.
+            </p>
+            <ul class="pill-list">
+              <li><span class="dot">1</span><span>Ebene 1 / Anna wird mit 20 % berechnet.</span></li>
+              <li><span class="dot">2</span><span>Ebene 2 / Klaus wird mit 15 % berechnet.</span></li>
+              <li><span class="dot">3</span><span>Ebene 3 / Helga wird mit 10 % berechnet.</span></li>
+              <li><span class="dot">✓</span><span>Jede Ebene hat ihre eigene Verdienstvorschau.</span></li>
             </ul>
-          </aside>
-        </section>
-      </div>
-    </header>
-
-    <main>
-      <div class="wrap">
-        <div class="section-title">
-          <h2>Teamgröße je Ebene</h2>
-          <p>Hier wird nur eingetragen, wie viele ClubLeader auf der jeweiligen Ebene eingebunden sind. Keine Aktivitätsquote, keine automatische Simulation.</p>
-        </div>
-
-        <section class="panel">
-          <div class="level-grid">
-            <article class="level-card">
-              <div class="level-head">
-                <h3>Anna</h3>
-                <span>Ebene 1 · 20 %</span>
-              </div>
-              <p>Direkte Ebene. Verkäufe auf dieser Ebene werden mit 20 % für Anna berechnet.</p>
-              <label class="field">
-                ClubLeader in Ebene 1
-                <input id="leadersL1" type="number" min="0" step="1" value="1">
-              </label>
-            </article>
-
-            <article class="level-card">
-              <div class="level-head">
-                <h3>Klaus</h3>
-                <span>Ebene 2 · 15 %</span>
-              </div>
-              <p>Erste Teamlinie unter Anna. Verkäufe auf dieser Ebene werden mit 15 % berechnet.</p>
-              <label class="field">
-                ClubLeader in Ebene 2
-                <input id="leadersL2" type="number" min="0" step="1" value="1">
-              </label>
-            </article>
-
-            <article class="level-card">
-              <div class="level-head">
-                <h3>Helga</h3>
-                <span>Ebene 3 · 10 %</span>
-              </div>
-              <p>Zweite Teamlinie. Verkäufe auf dieser Ebene werden mit 10 % berechnet.</p>
-              <label class="field">
-                ClubLeader in Ebene 3
-                <input id="leadersL3" type="number" min="0" step="1" value="1">
-              </label>
-            </article>
           </div>
-        </section>
+        </details>
 
-        <div class="section-title">
-          <h2>Verkäufe je ClubLeader</h2>
-          <p>Hier wird eingetragen, wie viele Verkäufe ein ClubLeader auf der jeweiligen Ebene macht. Der Rechner multipliziert automatisch mit der Anzahl der ClubLeader je Ebene.</p>
-        </div>
-
-        <section class="panel">
-          <div class="products-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Produkt</th>
-                  <th>Preis netto</th>
-                  <th>Art</th>
-                  <th>Anna je ClubLeader</th>
-                  <th>Klaus je ClubLeader</th>
-                  <th>Helga je ClubLeader</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <div class="product-name">
-                      <strong>Small Business Booster</strong>
-                      <span>monatliche Unternehmer-Mitgliedschaft</span>
-                    </div>
-                  </td>
-                  <td>499 €</td>
-                  <td>monatlich</td>
-                  <td><input class="mini-input" id="smallL1" type="number" min="0" step="1" value="1"></td>
-                  <td><input class="mini-input" id="smallL2" type="number" min="0" step="1" value="1"></td>
-                  <td><input class="mini-input" id="smallL3" type="number" min="0" step="1" value="1"></td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <div class="product-name">
-                      <strong>Setup Small Business Booster</strong>
-                      <span>einmalige Setup-Gebühr</span>
-                    </div>
-                  </td>
-                  <td>499 €</td>
-                  <td>einmalig</td>
-                  <td><input class="mini-input" id="setupSmallL1" type="number" min="0" step="1" value="1"></td>
-                  <td><input class="mini-input" id="setupSmallL2" type="number" min="0" step="1" value="1"></td>
-                  <td><input class="mini-input" id="setupSmallL3" type="number" min="0" step="1" value="1"></td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <div class="product-name">
-                      <strong>Premium Business Booster</strong>
-                      <span>monatliche Unternehmer-Mitgliedschaft</span>
-                    </div>
-                  </td>
-                  <td>999 €</td>
-                  <td>monatlich</td>
-                  <td><input class="mini-input" id="premiumL1" type="number" min="0" step="1" value="0"></td>
-                  <td><input class="mini-input" id="premiumL2" type="number" min="0" step="1" value="0"></td>
-                  <td><input class="mini-input" id="premiumL3" type="number" min="0" step="1" value="0"></td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <div class="product-name">
-                      <strong>Setup Premium Business Booster</strong>
-                      <span>einmalige Setup-Gebühr</span>
-                    </div>
-                  </td>
-                  <td>999 €</td>
-                  <td>einmalig</td>
-                  <td><input class="mini-input" id="setupPremiumL1" type="number" min="0" step="1" value="0"></td>
-                  <td><input class="mini-input" id="setupPremiumL2" type="number" min="0" step="1" value="0"></td>
-                  <td><input class="mini-input" id="setupPremiumL3" type="number" min="0" step="1" value="0"></td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <div class="product-name">
-                      <strong>Enterprise Business Booster</strong>
-                      <span>monatliche Unternehmer-Mitgliedschaft</span>
-                    </div>
-                  </td>
-                  <td>1.999 €</td>
-                  <td>monatlich</td>
-                  <td><input class="mini-input" id="enterpriseL1" type="number" min="0" step="1" value="0"></td>
-                  <td><input class="mini-input" id="enterpriseL2" type="number" min="0" step="1" value="0"></td>
-                  <td><input class="mini-input" id="enterpriseL3" type="number" min="0" step="1" value="0"></td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <div class="product-name">
-                      <strong>Setup Enterprise Business Booster</strong>
-                      <span>einmalige Setup-Gebühr</span>
-                    </div>
-                  </td>
-                  <td>1.999 €</td>
-                  <td>einmalig</td>
-                  <td><input class="mini-input" id="setupEnterpriseL1" type="number" min="0" step="1" value="0"></td>
-                  <td><input class="mini-input" id="setupEnterpriseL2" type="number" min="0" step="1" value="0"></td>
-                  <td><input class="mini-input" id="setupEnterpriseL3" type="number" min="0" step="1" value="0"></td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <div class="product-name">
-                      <strong>ClubLeader Mitgliedschaft</strong>
-                      <span>halbjährlicher ClubLeader-Beitrag</span>
-                    </div>
-                  </td>
-                  <td>189 €</td>
-                  <td>halbjährlich</td>
-                  <td><input class="mini-input" id="clubLeaderL1" type="number" min="0" step="1" value="0"></td>
-                  <td><input class="mini-input" id="clubLeaderL2" type="number" min="0" step="1" value="0"></td>
-                  <td><input class="mini-input" id="clubLeaderL3" type="number" min="0" step="1" value="0"></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="actions">
-            <button class="btn" type="button" id="resetBtn">Beispielwerte zurücksetzen</button>
-            <button class="btn secondary" type="button" onclick="window.print()">Druck / PDF</button>
-          </div>
-
-          <p class="notice">
-            Rechenlogik: Anzahl ClubLeader je Ebene × Verkäufe je ClubLeader × Produktpreis × Provision der Ebene.
-          </p>
-        </section>
-
-        <div class="section-title">
-          <h2>Ergebnis für Anna</h2>
-          <p>Die Provision wird strikt nach Ebene berechnet: Ebene 1 mit 20 %, Ebene 2 mit 15 %, Ebene 3 mit 10 %.</p>
-        </div>
-
-        <section class="results-grid">
-          <div class="big-result">
-            <div class="result-label">Gesamtprovision</div>
-            <div class="result-main" id="totalCommission">0 €</div>
-            <p class="result-sub">
-              Summe aus Annas Provision auf bezahlte Verkäufe über Ebene 1, Ebene 2 und Ebene 3.
+        <details>
+          <summary>
+            Warum Setup-Gebühren getrennt sichtbar sind
+            <span class="summary-icon">+</span>
+          </summary>
+          <div class="details-body">
+            <p>
+              Die Setup-Gebühr fällt pro neuem Unternehmer-Abschluss einmalig an. Sie erzeugt einen Startimpuls,
+              läuft aber nicht als monatlicher Bestand weiter. Deshalb trennt der Rechner Mitgliedschaft, Setup und ClubLeader-Beiträge.
             </p>
-            <div class="split-results">
-              <div class="result-pill">
-                <span>Gesamtumsatz</span>
-                <strong id="totalRevenue">0 €</strong>
-              </div>
-              <div class="result-pill">
-                <span>Monatliche Produkte</span>
-                <strong id="monthlyRevenue">0 €</strong>
-              </div>
-              <div class="result-pill">
-                <span>Setup-Gebühren</span>
-                <strong id="setupRevenue">0 €</strong>
-              </div>
-              <div class="result-pill">
-                <span>ClubLeader-Beiträge</span>
-                <strong id="clubRevenue">0 €</strong>
-              </div>
-            </div>
           </div>
+        </details>
 
-          <div class="side-results">
-            <div class="result-card">
-              <span>Provision Ebene 1</span>
-              <strong id="commissionL1">0 €</strong>
-              <em>Anna / direkte Ebene mit 20 %.</em>
-            </div>
-            <div class="result-card">
-              <span>Provision Ebene 2</span>
-              <strong id="commissionL2">0 €</strong>
-              <em>Klaus / erste Teamlinie mit 15 %.</em>
-            </div>
-            <div class="result-card">
-              <span>Provision Ebene 3</span>
-              <strong id="commissionL3">0 €</strong>
-              <em>Helga / zweite Teamlinie mit 10 %.</em>
-            </div>
+        <details>
+          <summary>
+            Was Tragfähigkeit in diesem Rechner bedeutet
+            <span class="summary-icon">+</span>
+          </summary>
+          <div class="details-body">
+            <p>
+              Tragfähigkeit entsteht nicht aus einem einzelnen Abschluss, sondern aus wiederholbaren Verkäufen,
+              wachsendem Unternehmer-Bestand und klaren Ebenen. Die 12-Monats-Vorschau zeigt, ob daraus ein belastbares Fundament entstehen kann.
+            </p>
           </div>
-        </section>
+        </details>
+      </section>
 
-        <div class="section-title">
-          <h2>Aufteilung nach Ebenen</h2>
-          <p>Hier siehst du transparent, welcher Umsatz auf welcher Ebene entsteht und welche Provision daraus berechnet wird.</p>
-        </div>
-
-        <section class="breakdown-grid">
-          <article class="breakdown-card">
-            <h3>Anna · Ebene 1</h3>
-            <div class="breakdown-row"><span>ClubLeader</span><strong id="leadersOutL1">0</strong></div>
-            <div class="breakdown-row"><span>Umsatz</span><strong id="revenueL1">0 €</strong></div>
-            <div class="breakdown-row"><span>Provision</span><strong id="provisionOutL1">0 €</strong></div>
-          </article>
-
-          <article class="breakdown-card">
-            <h3>Klaus · Ebene 2</h3>
-            <div class="breakdown-row"><span>ClubLeader</span><strong id="leadersOutL2">0</strong></div>
-            <div class="breakdown-row"><span>Umsatz</span><strong id="revenueL2">0 €</strong></div>
-            <div class="breakdown-row"><span>Provision</span><strong id="provisionOutL2">0 €</strong></div>
-          </article>
-
-          <article class="breakdown-card">
-            <h3>Helga · Ebene 3</h3>
-            <div class="breakdown-row"><span>ClubLeader</span><strong id="leadersOutL3">0</strong></div>
-            <div class="breakdown-row"><span>Umsatz</span><strong id="revenueL3">0 €</strong></div>
-            <div class="breakdown-row"><span>Provision</span><strong id="provisionOutL3">0 €</strong></div>
-          </article>
-        </section>
+      <div class="bottom-nav">
+        <a class="btn" href="../club-marktplatz.html">Zurück zur CLUB - Marktplatz Seite</a>
+        <button class="btn primary" type="button" onclick="window.print()">Druck / PDF</button>
       </div>
     </main>
-
-    <footer>
-      <div class="wrap">
-        BusinessBooster Verdienstvorschau · 3-Ebenen-Logik auf bezahlte Verkäufe
-      </div>
-    </footer>
   </div>
 
   <script>
-    const rates = {
-      L1:0.20,
-      L2:0.15,
-      L3:0.10
-    };
+    (function(){
+      const PRICES = {
+        small:499,
+        premium:999,
+        enterprise:1999,
+        club:189
+      };
 
-    const products = [
-      {
-        name:"Small Business Booster",
-        price:499,
-        type:"monthly",
-        L1:"smallL1",
-        L2:"smallL2",
-        L3:"smallL3"
-      },
-      {
-        name:"Setup Small Business Booster",
-        price:499,
-        type:"setup",
-        L1:"setupSmallL1",
-        L2:"setupSmallL2",
-        L3:"setupSmallL3"
-      },
-      {
-        name:"Premium Business Booster",
-        price:999,
-        type:"monthly",
-        L1:"premiumL1",
-        L2:"premiumL2",
-        L3:"premiumL3"
-      },
-      {
-        name:"Setup Premium Business Booster",
-        price:999,
-        type:"setup",
-        L1:"setupPremiumL1",
-        L2:"setupPremiumL2",
-        L3:"setupPremiumL3"
-      },
-      {
-        name:"Enterprise Business Booster",
-        price:1999,
-        type:"monthly",
-        L1:"enterpriseL1",
-        L2:"enterpriseL2",
-        L3:"enterpriseL3"
-      },
-      {
-        name:"Setup Enterprise Business Booster",
-        price:1999,
-        type:"setup",
-        L1:"setupEnterpriseL1",
-        L2:"setupEnterpriseL2",
-        L3:"setupEnterpriseL3"
-      },
-      {
-        name:"ClubLeader Mitgliedschaft",
-        price:189,
-        type:"club",
-        L1:"clubLeaderL1",
-        L2:"clubLeaderL2",
-        L3:"clubLeaderL3"
+      const RATES = {
+        L1:0.20,
+        L2:0.15,
+        L3:0.10
+      };
+
+      const inputs = [
+        "leadersL1","leadersL2","leadersL3",
+        "smallL1","smallL2","smallL3",
+        "premiumL1","premiumL2","premiumL3",
+        "enterpriseL1","enterpriseL2","enterpriseL3",
+        "clubL1","clubL2","clubL3"
+      ];
+
+      function euro(value){
+        return new Intl.NumberFormat("de-DE",{
+          style:"currency",
+          currency:"EUR",
+          minimumFractionDigits:2,
+          maximumFractionDigits:2
+        }).format(value || 0);
       }
-    ];
 
-    const inputIds = [
-      "leadersL1","leadersL2","leadersL3",
-      "smallL1","smallL2","smallL3",
-      "setupSmallL1","setupSmallL2","setupSmallL3",
-      "premiumL1","premiumL2","premiumL3",
-      "setupPremiumL1","setupPremiumL2","setupPremiumL3",
-      "enterpriseL1","enterpriseL2","enterpriseL3",
-      "setupEnterpriseL1","setupEnterpriseL2","setupEnterpriseL3",
-      "clubLeaderL1","clubLeaderL2","clubLeaderL3"
-    ];
-
-    const euro = new Intl.NumberFormat("de-DE",{
-      style:"currency",
-      currency:"EUR",
-      maximumFractionDigits:0
-    });
-
-    function getNumber(id){
-      const el = document.getElementById(id);
-      if(!el) return 0;
-      const value = Number(el.value);
-      return Number.isFinite(value) && value >= 0 ? value : 0;
-    }
-
-    function money(value){
-      return euro.format(Math.round(value || 0));
-    }
-
-    function calculate(){
-      const leaders = {
-        L1:getNumber("leadersL1"),
-        L2:getNumber("leadersL2"),
-        L3:getNumber("leadersL3")
-      };
-
-      const revenue = {
-        L1:0,
-        L2:0,
-        L3:0
-      };
-
-      const commission = {
-        L1:0,
-        L2:0,
-        L3:0
-      };
-
-      let monthlyRevenue = 0;
-      let setupRevenue = 0;
-      let clubRevenue = 0;
-
-      products.forEach(product=>{
-        ["L1","L2","L3"].forEach(level=>{
-          const amountPerLeader = getNumber(product[level]);
-          const totalSales = leaders[level] * amountPerLeader;
-          const productRevenue = totalSales * product.price;
-
-          revenue[level] += productRevenue;
-          commission[level] += productRevenue * rates[level];
-
-          if(product.type === "monthly"){
-            monthlyRevenue += productRevenue;
-          }
-
-          if(product.type === "setup"){
-            setupRevenue += productRevenue;
-          }
-
-          if(product.type === "club"){
-            clubRevenue += productRevenue;
-          }
-        });
-      });
-
-      const totalRevenue = revenue.L1 + revenue.L2 + revenue.L3;
-      const totalCommission = commission.L1 + commission.L2 + commission.L3;
-
-      document.getElementById("totalRevenue").textContent = money(totalRevenue);
-      document.getElementById("totalCommission").textContent = money(totalCommission);
-      document.getElementById("monthlyRevenue").textContent = money(monthlyRevenue);
-      document.getElementById("setupRevenue").textContent = money(setupRevenue);
-      document.getElementById("clubRevenue").textContent = money(clubRevenue);
-
-      document.getElementById("commissionL1").textContent = money(commission.L1);
-      document.getElementById("commissionL2").textContent = money(commission.L2);
-      document.getElementById("commissionL3").textContent = money(commission.L3);
-
-      document.getElementById("leadersOutL1").textContent = Math.round(leaders.L1);
-      document.getElementById("leadersOutL2").textContent = Math.round(leaders.L2);
-      document.getElementById("leadersOutL3").textContent = Math.round(leaders.L3);
-
-      document.getElementById("revenueL1").textContent = money(revenue.L1);
-      document.getElementById("revenueL2").textContent = money(revenue.L2);
-      document.getElementById("revenueL3").textContent = money(revenue.L3);
-
-      document.getElementById("provisionOutL1").textContent = money(commission.L1);
-      document.getElementById("provisionOutL2").textContent = money(commission.L2);
-      document.getElementById("provisionOutL3").textContent = money(commission.L3);
-    }
-
-    function resetExample(){
-      const defaults = {
-        leadersL1:1,
-        leadersL2:1,
-        leadersL3:1,
-
-        smallL1:1,
-        smallL2:1,
-        smallL3:1,
-
-        setupSmallL1:1,
-        setupSmallL2:1,
-        setupSmallL3:1,
-
-        premiumL1:0,
-        premiumL2:0,
-        premiumL3:0,
-
-        setupPremiumL1:0,
-        setupPremiumL2:0,
-        setupPremiumL3:0,
-
-        enterpriseL1:0,
-        enterpriseL2:0,
-        enterpriseL3:0,
-
-        setupEnterpriseL1:0,
-        setupEnterpriseL2:0,
-        setupEnterpriseL3:0,
-
-        clubLeaderL1:0,
-        clubLeaderL2:0,
-        clubLeaderL3:0
-      };
-
-      Object.entries(defaults).forEach(([id,value])=>{
+      function intVal(id){
         const el = document.getElementById(id);
-        if(el) el.value = value;
+        if(!el) return 0;
+        const value = parseInt(el.value,10);
+        return Number.isFinite(value) && value > 0 ? value : 0;
+      }
+
+      function set(id,value){
+        const el = document.getElementById(id);
+        if(el) el.textContent = value;
+      }
+
+      function levelBase(level){
+        const leaders = intVal("leaders" + level);
+
+        const smallSales = leaders * intVal("small" + level);
+        const premiumSales = leaders * intVal("premium" + level);
+        const enterpriseSales = leaders * intVal("enterprise" + level);
+        const clubSales = leaders * intVal("club" + level);
+
+        const membershipRevenue =
+          (smallSales * PRICES.small) +
+          (premiumSales * PRICES.premium) +
+          (enterpriseSales * PRICES.enterprise);
+
+        const setupRevenue = membershipRevenue;
+
+        const clubRevenue = clubSales * PRICES.club;
+
+        return {
+          leaders,
+          membershipRevenue,
+          setupRevenue,
+          clubRevenue,
+          membershipCommission:membershipRevenue * RATES[level],
+          setupCommission:setupRevenue * RATES[level],
+          clubCommission:clubRevenue * RATES[level]
+        };
+      }
+
+      function monthSnapshot(month){
+        const l1 = levelBase("L1");
+        const l2 = levelBase("L2");
+        const l3 = levelBase("L3");
+
+        const levels = {L1:l1,L2:l2,L3:l3};
+
+        Object.keys(levels).forEach(function(level){
+          const base = levels[level];
+          base.monthMembershipCommission = base.membershipCommission * month;
+          base.monthSetupCommission = base.setupCommission;
+          base.monthClubCommission = base.clubCommission;
+          base.monthTotal =
+            base.monthMembershipCommission +
+            base.monthSetupCommission +
+            base.monthClubCommission;
+        });
+
+        const recurring =
+          l1.monthMembershipCommission +
+          l2.monthMembershipCommission +
+          l3.monthMembershipCommission;
+
+        const setup =
+          l1.monthSetupCommission +
+          l2.monthSetupCommission +
+          l3.monthSetupCommission;
+
+        const club =
+          l1.monthClubCommission +
+          l2.monthClubCommission +
+          l3.monthClubCommission;
+
+        return {
+          levels,
+          recurring,
+          setup,
+          club,
+          total:recurring + setup + club
+        };
+      }
+
+      function cumulativeToMonth(month){
+        const l1 = levelBase("L1");
+        const l2 = levelBase("L2");
+        const l3 = levelBase("L3");
+
+        const recurringBase =
+          l1.membershipCommission +
+          l2.membershipCommission +
+          l3.membershipCommission;
+
+        const setupBase =
+          l1.setupCommission +
+          l2.setupCommission +
+          l3.setupCommission;
+
+        const clubBase =
+          l1.clubCommission +
+          l2.clubCommission +
+          l3.clubCommission;
+
+        const recurringCumulative = recurringBase * (month * (month + 1) / 2);
+        const setupCumulative = setupBase * month;
+        const clubCumulative = clubBase * month;
+
+        const levelYear = {
+          L1:(l1.membershipCommission * (month * (month + 1) / 2)) + (l1.setupCommission * month) + (l1.clubCommission * month),
+          L2:(l2.membershipCommission * (month * (month + 1) / 2)) + (l2.setupCommission * month) + (l2.clubCommission * month),
+          L3:(l3.membershipCommission * (month * (month + 1) / 2)) + (l3.setupCommission * month) + (l3.clubCommission * month)
+        };
+
+        return {
+          recurringCumulative,
+          setupCumulative,
+          clubCumulative,
+          levelYear,
+          totalCumulative:recurringCumulative + setupCumulative + clubCumulative
+        };
+      }
+
+      function statusTextForMonth(month,total){
+        if(total <= 0){
+          if(month === 1) return "Das erste Fundament ist gelegt.";
+          if(month === 2) return "Dein Einkommensfundament wächst sichtbar an.";
+          return "Die erste Form von Tragfähigkeit wird sichtbar.";
+        }
+
+        if(month === 1){
+          if(total < 1500) return "Der erste eigene Verdienst wird sichtbar.";
+          if(total < 4000) return "Das erste Fundament trägt bereits spürbar.";
+          return "Der Start zeigt eine starke erste Wirkung.";
+        }
+
+        if(month === 2){
+          if(total < 3000) return "Das Einkommensfundament wächst sichtbar an.";
+          if(total < 7000) return "Der Aufbau beginnt klar zu tragen.";
+          return "Der zweite Monat zeigt bereits deutliche Stabilität.";
+        }
+
+        if(total < 5000) return "Die erste Form von Tragfähigkeit wird sichtbar.";
+        if(total < 12000) return "Nach 90 Tagen entsteht ein klarer Sicherheitsrahmen.";
+        return "Nach 90 Tagen wird eine starke erste Stabilisierung sichtbar.";
+      }
+
+      function updateMonthCards(month,prefix){
+        const snap = monthSnapshot(month);
+
+        set(prefix + "Recurring", euro(snap.recurring));
+        set(prefix + "Setup", euro(snap.setup));
+        set(prefix + "Club", euro(snap.club));
+        set(prefix + "Total", euro(snap.total));
+      }
+
+      function updateLevelPreview(){
+        const m1 = monthSnapshot(1);
+        const m3 = monthSnapshot(3);
+        const m12 = monthSnapshot(12);
+        const year = cumulativeToMonth(12);
+
+        ["L1","L2","L3"].forEach(function(level){
+          const lower = level.toLowerCase();
+          set(lower + "Month1", euro(m1.levels[level].monthTotal));
+          set(lower + "Month3", euro(m3.levels[level].monthTotal));
+          set(lower + "Month12", euro(m12.levels[level].monthTotal));
+          set(lower + "Year", euro(year.levelYear[level]));
+        });
+      }
+
+      function updateTimeline(prefix,month){
+        const snap = monthSnapshot(month);
+
+        ["L1","L2","L3"].forEach(function(level){
+          set(prefix + level + "Recurring", euro(snap.levels[level].monthMembershipCommission));
+          set(prefix + level + "Extra", euro(snap.levels[level].monthSetupCommission + snap.levels[level].monthClubCommission));
+          set(prefix + level + "Total", euro(snap.levels[level].monthTotal));
+        });
+
+        set(prefix + "Total", euro(snap.total));
+        set(prefix + "Status", statusTextForMonth(month,snap.total));
+
+        if(month === 2){
+          set("t2Cumulated", euro(cumulativeToMonth(2).totalCumulative));
+        }
+
+        if(month === 3){
+          set("t3Cumulated", euro(cumulativeToMonth(3).totalCumulative));
+        }
+      }
+
+      function updateResults(){
+        updateMonthCards(1,"m1");
+        updateMonthCards(2,"m2");
+        updateMonthCards(3,"m3");
+        updateMonthCards(6,"m6");
+        updateMonthCards(12,"m12");
+
+        const year = cumulativeToMonth(12);
+        set("yearRecurring", euro(year.recurringCumulative));
+        set("yearSetup", euro(year.setupCumulative));
+        set("yearClub", euro(year.clubCumulative));
+        set("yearTotal", euro(year.totalCumulative));
+
+        updateLevelPreview();
+
+        updateTimeline("t1",1);
+        updateTimeline("t2",2);
+        updateTimeline("t3",3);
+      }
+
+      inputs.forEach(function(id){
+        const el = document.getElementById(id);
+        if(el){
+          el.addEventListener("input",updateResults);
+          el.addEventListener("change",updateResults);
+        }
       });
 
-      calculate();
-    }
-
-    inputIds.forEach(id=>{
-      const el = document.getElementById(id);
-      if(el){
-        el.addEventListener("input",calculate);
-        el.addEventListener("change",calculate);
-      }
-    });
-
-    document.getElementById("resetBtn").addEventListener("click",resetExample);
-
-    calculate();
+      updateResults();
+    })();
   </script>
 </body>
 </html>
