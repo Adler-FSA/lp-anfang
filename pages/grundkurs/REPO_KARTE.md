@@ -1162,6 +1162,8 @@
     │   │   ├── orange-cat-energy.html
     │   │   ├── projektpruefung-rechtsrahmen.html
     │   │   └── rechtsrahmen.html
+    │   ├── promotion/
+    │   │   └── akquise-strategie-kalkulation.html
     │   ├── recht/
     │   │   └── gwg-meldeverordnung-einfach-erklaert.html
     │   ├── schnellstart/
@@ -1437,4 +1439,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.05.2026, 03:38)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.05.2026, 07:39)_
