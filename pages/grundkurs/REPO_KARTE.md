@@ -1163,7 +1163,10 @@
     │   │   ├── projektpruefung-rechtsrahmen.html
     │   │   └── rechtsrahmen.html
     │   ├── promotion/
-    │   │   └── akquise-strategie-kalkulation.html
+    │   │   ├── Bildschirmfoto 2026-05-22 um 09.44.41.jpeg
+    │   │   ├── Bildschirmfoto 2026-05-22 um 09.48.22.jpeg
+    │   │   ├── akquise-strategie-kalkulation.html
+    │   │   └── liquiditybooster_umfrage_und_mitgabeblatt_a4.pdf
     │   ├── recht/
     │   │   └── gwg-meldeverordnung-einfach-erklaert.html
     │   ├── schnellstart/
@@ -1439,4 +1442,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.05.2026, 07:39)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.05.2026, 10:44)_
