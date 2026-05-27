@@ -648,6 +648,8 @@
     │   ├── betrug-aufklaerung/
     │   │   └── wallet-drailer-link.html
     │   ├── blog/
+    │   │   ├── 4F1AEA3D-0FDE-4E4E-96F5-59BA94F1E57E.png
+    │   │   ├── heute-am-see.html
     │   │   └── unternehmerschaft.html
     │   ├── buch/
     │   │   ├── buch-video-intro.html
@@ -1446,4 +1448,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.05.2026, 04:21)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.05.2026, 08:36)_
