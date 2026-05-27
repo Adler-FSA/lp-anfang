@@ -1166,13 +1166,15 @@
     │   │   └── rechtsrahmen.html
     │   ├── promotion/
     │   │   ├── 79B6578F-CD20-4F77-BD20-E4825223BB4D.PNG
+    │   │   ├── BDCDF160-660D-44CF-BA54-C3054196B81A.png
     │   │   ├── Bildschirmfoto 2026-05-22 um 09.44.41.jpeg
     │   │   ├── Bildschirmfoto 2026-05-22 um 09.48.22.jpeg
     │   │   ├── akquise-strategie-kalkulation.html
     │   │   ├── club-promotion-aufbauprogramm.html
     │   │   ├── club-promotion-wochenauswertung-v2.pdf
     │   │   ├── liquiditybooster_club_promotion_startleitfaden_mit_umfrage.pdf
-    │   │   └── liquiditybooster_umfrage_und_mitgabeblatt_a4.pdf
+    │   │   ├── liquiditybooster_umfrage_und_mitgabeblatt_a4.pdf
+    │   │   └── weekend_setup_interessenabfrage_mitgabeblatt_promotion.pdf
     │   ├── recht/
     │   │   └── gwg-meldeverordnung-einfach-erklaert.html
     │   ├── schnellstart/
@@ -1448,4 +1450,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.05.2026, 08:36)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.05.2026, 16:33)_
