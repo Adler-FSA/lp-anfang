@@ -1165,10 +1165,15 @@
     │   │   ├── projektpruefung-rechtsrahmen.html
     │   │   └── rechtsrahmen.html
     │   ├── promotion/
+    │   │   ├── 2064DD3A-12F9-485F-8321-BB841DFBF4BC.png
+    │   │   ├── 6EDB5088-4228-44BB-A205-08156C170F78.png
+    │   │   ├── 788C5F75-2475-4D8F-A06D-EBEAF0DB291F.png
     │   │   ├── 79B6578F-CD20-4F77-BD20-E4825223BB4D.PNG
+    │   │   ├── 918765B6-113C-484A-96DE-44F1D79D67E3.png
     │   │   ├── BDCDF160-660D-44CF-BA54-C3054196B81A.png
     │   │   ├── Bildschirmfoto 2026-05-22 um 09.44.41.jpeg
     │   │   ├── Bildschirmfoto 2026-05-22 um 09.48.22.jpeg
+    │   │   ├── D5D182A3-3D10-4A45-AE9A-1C7419744438.png
     │   │   ├── akquise-strategie-kalkulation.html
     │   │   ├── club-promotion-aufbauprogramm.html
     │   │   ├── club-promotion-wochenauswertung-v2.pdf
@@ -1450,4 +1455,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.05.2026, 10:51)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.05.2026, 14:33)_
