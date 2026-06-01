@@ -241,6 +241,7 @@
     │   │   ├── IMG_6043.jpeg
     │   │   ├── IMG_6050.jpeg
     │   │   ├── README.txt
+    │   │   ├── angebot.PNG
     │   │   ├── botschafter-sein.jpeg
     │   │   ├── botschafter.PNG
     │   │   ├── ceo-bausteine.PNG
@@ -1365,6 +1366,7 @@
     │   ├── admin-config.json
     │   ├── affiliate-magazin.html
     │   ├── album-liquiditybooster.html
+    │   ├── angebot-michael-rau.html
     │   ├── botschafter-sein.html
     │   ├── business-booster-mitgliedschaften.html
     │   ├── club-leader-verdienstvorschau-aufbauprogramm.html
@@ -1455,4 +1457,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.06.2026, 21:25)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.06.2026, 23:23)_
