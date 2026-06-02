@@ -1178,6 +1178,7 @@
     │   │   ├── akquise-strategie-kalkulation.html
     │   │   ├── club-promotion-aufbauprogramm.html
     │   │   ├── club-promotion-wochenauswertung-v2.pdf
+    │   │   ├── liquiditybooster-online-interessen-umfrage.html
     │   │   ├── liquiditybooster_club_promotion_startleitfaden_mit_umfrage.pdf
     │   │   ├── liquiditybooster_umfrage_und_mitgabeblatt_a4.pdf
     │   │   └── weekend_setup_interessenabfrage_mitgabeblatt_promotion.pdf
@@ -1457,4 +1458,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.06.2026, 02:59)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.06.2026, 08:00)_
