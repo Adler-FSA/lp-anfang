@@ -1177,6 +1177,7 @@
     │   │   ├── D5D182A3-3D10-4A45-AE9A-1C7419744438.png
     │   │   ├── akquise-strategie-kalkulation.html
     │   │   ├── club-promotion-aufbauprogramm.html
+    │   │   ├── club-promotion-materialshop.html
     │   │   ├── club-promotion-wochenauswertung-v2.pdf
     │   │   ├── liquiditybooster-online-interessen-umfrage.html
     │   │   ├── liquiditybooster_club_promotion_startleitfaden_mit_umfrage.pdf
@@ -1458,4 +1459,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.06.2026, 12:11)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.06.2026, 17:15)_
