@@ -1,34 +1,34 @@
 <!doctype html>
 <!--
 GitHub-Pfad: pages/heinz-riedel.html
-Commit-Message: Add xxl.immo Immobilienrechner in Schwarz-Weiß
-Testlink: https://adler-fsa.github.io/lp-anfang/pages/heinz-riedel.html?nocache=202606042245
-Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.immo Rechner - Anforderungen.pdf](sediment://file_000000001960720c89003e9b9fcbc690)
+Commit-Message: Simplify xxl.immo calculator to one property with adjustable appreciation rate
+Testlink: https://adler-fsa.github.io/lp-anfang/pages/heinz-riedel.html?nocache=202606042340
+Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf
+Berechnungslogik: linear ohne Zinseszins. Beispiel: 130.000 Euro im Juni 2001 ergeben bei 5 Prozent im Juni 2026 rund 292.500 Euro.
 -->
 <html lang="de">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>xxl.immo Immobilienrechner</title>
-  <meta name="description" content="Modellhafte Immobilienwertentwicklung mit Portfolioübersicht, Prognose und Zehn-Jahres-Hinweis." />
+  <meta name="description" content="Immobilienwert-Rechner für eine modellhafte lineare Wertentwicklung mit frei wählbarer Jahresrate." />
 
   <style>
     :root{
-      --bg:#f4f4f2;
+      --bg:#f3f3f1;
       --paper:#ffffff;
       --ink:#111111;
-      --muted:#626262;
-      --line:#d2d2cf;
-      --soft:#eeeeeb;
-      --dark:#000000;
-      --shadow:0 14px 38px rgba(0,0,0,.08);
+      --muted:#686868;
+      --line:#d2d2ce;
+      --soft:#f2f2ef;
+      --black:#000000;
+      --shadow:0 14px 34px rgba(0,0,0,.07);
       --radius:18px;
       --radius-small:11px;
-      --max:1440px;
+      --max:1380px;
     }
 
     *{box-sizing:border-box}
-
     html{scroll-behavior:smooth}
 
     body{
@@ -40,15 +40,11 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
     }
 
     button,
-    input,
-    select,
-    textarea{
+    input{
       font:inherit;
     }
 
     button{cursor:pointer}
-
-    a{color:inherit}
 
     .shell{
       width:min(var(--max),calc(100% - 32px));
@@ -56,23 +52,22 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
     }
 
     .topbar{
-      background:#000;
       color:#fff;
-      border-bottom:1px solid #000;
+      background:#000;
     }
 
     .topbar-inner{
-      min-height:72px;
+      min-height:70px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:18px;
+      gap:16px;
     }
 
     .brand{
       display:flex;
       align-items:center;
-      gap:14px;
+      gap:13px;
       min-width:0;
     }
 
@@ -86,70 +81,62 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
       border-radius:50%;
     }
 
-    .brand-text{min-width:0}
-
     .brand-title{
       display:block;
-      color:#fff;
-      font-size:1.08rem;
       font-weight:800;
       letter-spacing:.03em;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
     }
 
     .brand-subtitle{
       display:block;
-      color:#cacaca;
-      font-size:.76rem;
+      color:#c7c7c7;
+      font-size:.73rem;
       letter-spacing:.11em;
       text-transform:uppercase;
     }
 
-    .top-actions{
+    .language-buttons{
       display:flex;
-      align-items:center;
       gap:8px;
     }
 
     .lang-btn{
       min-width:42px;
-      border:1px solid #5f5f5f;
+      padding:8px 10px;
+      border:1px solid #5d5d5d;
+      border-radius:999px;
       color:#fff;
       background:#111;
-      padding:8px 10px;
-      border-radius:999px;
       font-size:.76rem;
       font-weight:800;
       letter-spacing:.08em;
     }
 
     .lang-btn.active{
-      background:#fff;
-      color:#000;
       border-color:#fff;
+      color:#000;
+      background:#fff;
     }
 
-    .hero{padding:42px 0 24px}
+    .hero{padding:40px 0 18px}
 
     .hero-card{
-      background:#fff;
+      position:relative;
+      overflow:hidden;
+      padding:clamp(24px,4vw,50px);
       border:1px solid var(--line);
       border-radius:var(--radius);
-      padding:clamp(24px,4vw,52px);
+      background:#fff;
       box-shadow:var(--shadow);
-      overflow:hidden;
-      position:relative;
     }
 
     .hero-card::after{
       content:"";
       position:absolute;
-      width:310px;
-      height:310px;
-      right:-160px;
+      width:300px;
+      height:300px;
       top:-160px;
+      right:-150px;
       border:34px solid #000;
       border-radius:50%;
       opacity:.045;
@@ -158,30 +145,28 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
 
     .eyebrow{
       margin:0 0 10px;
+      color:#515151;
       font-size:.76rem;
       font-weight:800;
       letter-spacing:.18em;
       text-transform:uppercase;
-      color:#4c4c4c;
     }
 
     h1,
     h2,
     h3,
-    p{
-      margin-top:0;
-    }
+    p{margin-top:0}
 
     h1{
-      max-width:920px;
+      max-width:930px;
       margin-bottom:14px;
-      font-size:clamp(2rem,5vw,4.5rem);
+      font-size:clamp(2rem,5vw,4.4rem);
       line-height:1.04;
       letter-spacing:-.065em;
     }
 
     .hero-copy{
-      max-width:940px;
+      max-width:960px;
       margin:0;
       color:#444;
       font-size:1.02rem;
@@ -195,37 +180,34 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
     }
 
     .fact{
+      padding-top:13px;
       border-top:2px solid #000;
-      padding:14px 0 0;
     }
 
-    .fact strong{
-      display:block;
-      font-size:1.06rem;
-    }
+    .fact strong{display:block}
 
     .fact span{
       display:block;
-      margin-top:3px;
+      margin-top:4px;
       color:#676767;
-      font-size:.88rem;
+      font-size:.87rem;
     }
 
-    main{padding:0 0 54px}
+    main{padding:0 0 52px}
 
     .grid{
       display:grid;
-      grid-template-columns:minmax(0,1.12fr) minmax(340px,.88fr);
+      grid-template-columns:minmax(0,.95fr) minmax(360px,1.05fr);
       gap:18px;
       margin-top:18px;
       align-items:start;
     }
 
     .card{
-      background:#fff;
+      padding:22px;
       border:1px solid var(--line);
       border-radius:var(--radius);
-      padding:22px;
+      background:#fff;
       box-shadow:var(--shadow);
     }
 
@@ -263,27 +245,63 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
     label{
       display:block;
       margin-bottom:6px;
-      font-size:.82rem;
       color:#313131;
+      font-size:.82rem;
       font-weight:800;
     }
 
-    input,
-    select{
+    input{
       width:100%;
       min-height:45px;
+      padding:10px 12px;
       border:1px solid #bebeb9;
       border-radius:9px;
-      padding:10px 12px;
+      outline:none;
       color:#111;
       background:#fff;
-      outline:none;
     }
 
-    input:focus,
-    select:focus{
+    input:focus{
       border-color:#000;
       box-shadow:0 0 0 3px rgba(0,0,0,.08);
+    }
+
+    input[type="range"]{
+      min-height:auto;
+      padding:0;
+      border:0;
+      accent-color:#000;
+      box-shadow:none;
+    }
+
+    .rate-panel{
+      margin-top:16px;
+      padding:15px;
+      border:1px solid #d4d4d0;
+      border-radius:11px;
+      background:#f8f8f6;
+    }
+
+    .rate-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 118px;
+      gap:14px;
+      align-items:end;
+    }
+
+    .rate-caption{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      margin-top:7px;
+      color:#6a6a6a;
+      font-size:.76rem;
+    }
+
+    .rate-note{
+      margin:11px 0 0;
+      color:#525252;
+      font-size:.82rem;
     }
 
     .btn-row{
@@ -299,46 +317,41 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
       align-items:center;
       justify-content:center;
       gap:8px;
+      padding:10px 16px;
       border:1px solid #000;
       border-radius:999px;
-      padding:10px 16px;
-      background:#000;
       color:#fff;
-      font-weight:800;
+      background:#000;
       font-size:.88rem;
+      font-weight:800;
       transition:transform .18s ease,background .18s ease,color .18s ease;
     }
 
     .btn:hover{transform:translateY(-1px)}
 
     .btn.secondary{
+      color:#000;
       background:#fff;
-      color:#000;
-    }
-
-    .btn.ghost{
-      background:#f5f5f3;
-      color:#000;
-      border-color:#cfcfca;
     }
 
     .btn.danger{
-      background:#fff;
       color:#000;
-      border-color:#000;
+      background:#fff;
     }
 
     .btn.small{
-      min-height:34px;
-      padding:7px 11px;
+      min-height:36px;
+      padding:8px 12px;
       font-size:.78rem;
     }
+
+    .btn[hidden]{display:none}
 
     .btn svg{
       width:16px;
       height:16px;
-      stroke:currentColor;
       fill:none;
+      stroke:currentColor;
       stroke-width:1.8;
       stroke-linecap:round;
       stroke-linejoin:round;
@@ -352,204 +365,76 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
 
     .metrics{
       display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
+      grid-template-columns:repeat(2,minmax(0,1fr));
       gap:10px;
     }
 
     .metric{
-      min-height:114px;
+      min-height:112px;
       display:flex;
       flex-direction:column;
       justify-content:space-between;
-      border:1px solid #d5d5d1;
-      border-radius:var(--radius-small);
       padding:14px;
+      border:1px solid #d5d5d1;
+      border-radius:11px;
       background:#fafaf8;
     }
 
     .metric span{
-      font-size:.78rem;
       color:#5e5e5e;
+      font-size:.76rem;
       font-weight:800;
-      text-transform:uppercase;
       letter-spacing:.06em;
+      text-transform:uppercase;
     }
 
     .metric strong{
       display:block;
-      margin-top:12px;
-      font-size:clamp(1.05rem,2.1vw,1.55rem);
+      margin-top:11px;
+      font-size:clamp(1.05rem,2vw,1.52rem);
       line-height:1.04;
       letter-spacing:-.045em;
     }
 
-    .update-line{
+    .result-actions{
       display:flex;
-      flex-wrap:wrap;
       align-items:center;
       justify-content:space-between;
       gap:10px;
+      flex-wrap:wrap;
       margin-top:14px;
       padding-top:14px;
       border-top:1px solid #deded9;
     }
 
     .last-update{
-      font-size:.82rem;
       color:#626262;
-    }
-
-    .chart-wrap{
-      border:1px solid #d8d8d3;
-      border-radius:var(--radius-small);
-      background:#fcfcfb;
-      padding:12px;
-      overflow:hidden;
-    }
-
-    .chart-toolbar{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      margin-bottom:9px;
-      flex-wrap:wrap;
-    }
-
-    .chart-toolbar strong{font-size:.94rem}
-
-    .chart-toolbar span{
-      font-size:.8rem;
-      color:#666;
-    }
-
-    #valueChart{
-      width:100%;
-      height:auto;
-      display:block;
-      min-height:260px;
-    }
-
-    .projection-grid{
-      display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:10px;
-      margin-top:14px;
-    }
-
-    .projection{
-      border-left:3px solid #000;
-      background:#f5f5f3;
-      padding:12px;
-      min-height:82px;
-    }
-
-    .projection span{
-      display:block;
-      color:#666;
-      font-size:.78rem;
-    }
-
-    .projection strong{
-      display:block;
-      margin-top:8px;
-      font-size:1rem;
-      letter-spacing:-.03em;
-    }
-
-    .portfolio-card{margin-top:18px}
-
-    .table-shell{
-      overflow:auto;
-      border:1px solid #d5d5d1;
-      border-radius:var(--radius-small);
-    }
-
-    table{
-      width:100%;
-      min-width:1080px;
-      border-collapse:collapse;
-      background:#fff;
-    }
-
-    th,
-    td{
-      padding:12px 11px;
-      border-bottom:1px solid #e0e0dc;
-      text-align:left;
-      vertical-align:top;
-    }
-
-    th{
-      background:#f5f5f3;
-      color:#444;
-      font-size:.71rem;
-      text-transform:uppercase;
-      letter-spacing:.06em;
-    }
-
-    td{font-size:.84rem}
-
-    tr:last-child td{border-bottom:0}
-
-    .object-name{
-      display:block;
-      font-weight:800;
-    }
-
-    .object-address{
-      display:block;
-      margin-top:3px;
-      color:#747474;
-      font-size:.76rem;
-    }
-
-    .status{
-      display:inline-block;
-      max-width:240px;
-      border:1px solid #a9a9a5;
-      border-radius:999px;
-      padding:5px 8px;
-      background:#fff;
-      font-size:.72rem;
-      line-height:1.3;
-      font-weight:800;
-    }
-
-    .status.ok{
-      background:#000;
-      color:#fff;
-      border-color:#000;
-    }
-
-    .table-actions{
-      display:flex;
-      gap:6px;
-      flex-wrap:wrap;
+      font-size:.82rem;
     }
 
     .empty{
       padding:24px 14px;
       border:1px dashed #bfbfbb;
-      border-radius:var(--radius-small);
+      border-radius:11px;
       color:#646464;
       text-align:center;
       background:#fafaf8;
       font-size:.9rem;
     }
 
-    .details-layout{display:grid;gap:12px}
-
-    .detail-title{
-      margin:0;
-      font-size:1.2rem;
-      letter-spacing:-.04em;
+    .detail-header{
+      margin-bottom:13px;
     }
 
-    .detail-sub{
-      margin:2px 0 0;
-      color:#666;
-      font-size:.83rem;
+    .detail-header h3{
+      margin-bottom:2px;
+      letter-spacing:-.035em;
+    }
+
+    .detail-header p{
+      margin:0;
+      color:#686868;
+      font-size:.84rem;
     }
 
     .detail-grid{
@@ -559,19 +444,19 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
     }
 
     .detail-box{
+      padding:12px;
       border:1px solid #d8d8d3;
       border-radius:10px;
-      padding:12px;
       background:#fafaf8;
     }
 
     .detail-box span{
       display:block;
       color:#666;
-      font-size:.74rem;
-      text-transform:uppercase;
-      letter-spacing:.055em;
+      font-size:.72rem;
       font-weight:800;
+      letter-spacing:.055em;
+      text-transform:uppercase;
     }
 
     .detail-box strong{
@@ -582,38 +467,54 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
     }
 
     .detail-note{
-      margin:0;
+      margin:13px 0 0;
       padding:12px;
       border-left:3px solid #000;
-      background:#f4f4f2;
       color:#414141;
+      background:#f4f4f2;
       font-size:.83rem;
     }
 
-    .scenario-grid{
+    .projection-grid{
       display:grid;
-      grid-template-columns:minmax(0,1fr) 150px;
+      grid-template-columns:repeat(4,minmax(0,1fr));
       gap:10px;
-    }
-
-    .scenario-summary{
       margin-top:14px;
-      display:grid;
-      gap:8px;
     }
 
-    .scenario-row{
-      display:flex;
-      justify-content:space-between;
-      gap:18px;
-      padding:9px 0;
-      border-bottom:1px solid #e1e1dd;
-      font-size:.84rem;
+    .projection{
+      min-height:82px;
+      padding:12px;
+      border-left:3px solid #000;
+      background:#f5f5f3;
     }
 
-    .scenario-row:last-child{border-bottom:0}
+    .projection span{
+      display:block;
+      color:#666;
+      font-size:.77rem;
+    }
 
-    .scenario-row strong{text-align:right}
+    .projection strong{
+      display:block;
+      margin-top:8px;
+      font-size:1rem;
+      letter-spacing:-.03em;
+    }
+
+    .chart-wrap{
+      overflow:hidden;
+      padding:12px;
+      border:1px solid #d8d8d3;
+      border-radius:11px;
+      background:#fcfcfb;
+    }
+
+    #valueChart{
+      width:100%;
+      min-height:270px;
+      display:block;
+    }
 
     .notice-card{
       margin-top:18px;
@@ -638,19 +539,19 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
     .notices li::before{
       content:"";
       position:absolute;
-      left:0;
       top:.53em;
+      left:0;
       width:9px;
       height:9px;
-      background:#000;
       border-radius:50%;
+      background:#000;
     }
 
     footer{
       padding:0 0 28px;
       color:#666;
-      font-size:.76rem;
       text-align:center;
+      font-size:.76rem;
     }
 
     .toast{
@@ -677,63 +578,37 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
       transform:translateY(0);
     }
 
-    @media (max-width:1060px){
+    @media (max-width:1020px){
       .grid{grid-template-columns:1fr}
     }
 
     @media (max-width:760px){
       .facts,
-      .metrics,
       .projection-grid{
         grid-template-columns:repeat(2,minmax(0,1fr));
       }
 
       .form-grid{grid-template-columns:1fr}
-
       .field.full{grid-column:auto}
-
       .hero{padding-top:24px}
-
-      .topbar-inner{min-height:64px}
-
       .brand-subtitle{display:none}
     }
 
     @media (max-width:480px){
-      .shell{
-        width:min(var(--max),calc(100% - 20px));
-      }
-
+      .shell{width:min(var(--max),calc(100% - 20px))}
       .card{padding:16px}
-
       .hero-card{padding:22px 18px}
-
-      .metrics{grid-template-columns:1fr 1fr}
-
-      .metric{
-        min-height:102px;
-        padding:11px;
-      }
-
+      .rate-grid{grid-template-columns:1fr}
       .detail-grid{grid-template-columns:1fr}
-
-      .scenario-grid{grid-template-columns:1fr}
     }
 
     @media print{
-      :root{
-        --bg:#fff;
-        --shadow:none;
-      }
-
       body{background:#fff}
 
       .topbar,
       .hero,
       .form-card,
-      .btn-row,
-      .update-line .btn,
-      .top-actions,
+      .result-actions,
       .toast{
         display:none!important;
       }
@@ -751,34 +626,14 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
       }
 
       .card{
-        box-shadow:none;
+        margin:0 0 12px!important;
         border:1px solid #999;
         border-radius:0;
-        margin:0 0 12px!important;
+        box-shadow:none;
         break-inside:avoid;
       }
 
-      .portfolio-card{margin-top:12px}
-
-      .table-shell{
-        overflow:visible;
-        border-radius:0;
-      }
-
-      table{
-        min-width:0;
-        font-size:10px;
-      }
-
-      th,
-      td{
-        padding:7px 5px;
-      }
-
-      .table-actions{display:none}
-
-      #valueChart{max-height:230px}
-
+      #valueChart{max-height:240px}
       footer{padding-top:12px}
     }
   </style>
@@ -790,19 +645,19 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">
           <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 20h18"/>
-            <path d="M5 20V9l7-5 7 5v11"/>
-            <path d="M9 20v-6h6v6"/>
+            <path d="M3 20h18" />
+            <path d="M5 20V9l7-5 7 5v11" />
+            <path d="M9 20v-6h6v6" />
           </svg>
         </div>
 
-        <div class="brand-text">
+        <div>
           <span class="brand-title">xxl.immo Immobilienrechner</span>
-          <span class="brand-subtitle" data-i18n="brandSubtitle">Modellhafte Wertentwicklung</span>
+          <span class="brand-subtitle" data-i18n="brandSubtitle">Lineare Modellrechnung</span>
         </div>
       </div>
 
-      <div class="top-actions" aria-label="Language selection">
+      <div class="language-buttons" aria-label="Language selection">
         <button type="button" class="lang-btn active" data-lang="de">DE</button>
         <button type="button" class="lang-btn" data-lang="en">EN</button>
       </div>
@@ -813,27 +668,26 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
     <div class="shell">
       <div class="hero-card">
         <p class="eyebrow" data-i18n="heroEyebrow">Immobilienvermögensberatung · Modellrechnung</p>
-
-        <h1 data-i18n="heroTitle">Wie entwickelt sich Ihr Immobilienvermögen?</h1>
+        <h1 data-i18n="heroTitle">Wie entwickelt sich der Wert Ihrer Immobilie?</h1>
 
         <p class="hero-copy" data-i18n="heroCopy">
-          Legen Sie Ihre Immobilien an, aktualisieren Sie die rechnerischen Werte und betrachten Sie mögliche Entwicklungen für die kommenden Jahre. Die Berechnung arbeitet ausschließlich mit einer modellhaften Wertsteigerung von 5 % pro Jahr.
+          Berechnen Sie die modellhafte Wertentwicklung einer einzelnen Immobilie. Die Jahresrate kann zwischen 1 % und 10 % eingestellt werden. Die Berechnung erfolgt linear auf Basis des ursprünglichen Kaufpreises und ohne Zinseszinseffekt.
         </p>
 
         <div class="facts">
           <div class="fact">
-            <strong data-i18n="fact1Strong">5 % pro Jahr</strong>
-            <span data-i18n="fact1Text">Festgelegte modellhafte Wertsteigerung</span>
+            <strong data-i18n="fact1Strong">1 % bis 10 % pro Jahr</strong>
+            <span data-i18n="fact1Text">Jahresrate frei einstellbar</span>
           </div>
 
           <div class="fact">
-            <strong data-i18n="fact2Strong">Monatliche Aktualisierung</strong>
-            <span data-i18n="fact2Text">Neue Werte werden per Button berechnet</span>
+            <strong data-i18n="fact2Strong">Lineare Berechnung</strong>
+            <span data-i18n="fact2Text">Ohne Zinseszinseffekt</span>
           </div>
 
           <div class="fact">
-            <strong data-i18n="fact3Strong">Portfolio-Ansicht</strong>
-            <span data-i18n="fact3Text">Eine oder mehrere Immobilien gemeinsam betrachten</span>
+            <strong data-i18n="fact3Strong">Eine Immobilie</strong>
+            <span data-i18n="fact3Text">Klare Einzelberechnung mit Löschfunktion</span>
           </div>
         </div>
       </div>
@@ -846,8 +700,8 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
         <section class="card form-card">
           <div class="section-head">
             <div>
-              <h2 data-i18n="addTitle">Immobilie anlegen</h2>
-              <p data-i18n="addCopy">Erfassen Sie Kaufpreis beziehungsweise Basiswert und Kaufvertragsdatum.</p>
+              <h2 data-i18n="formTitle">Immobilie berechnen</h2>
+              <p data-i18n="formCopy">Erfassen Sie die Daten einer Immobilie. Eine gespeicherte Immobilie kann jederzeit geändert oder gelöscht werden.</p>
             </div>
           </div>
 
@@ -855,86 +709,78 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
             <div class="form-grid">
               <div class="field">
                 <label for="propertyName" data-i18n="labelName">Objektbezeichnung *</label>
-
-                <input
-                  id="propertyName"
-                  name="propertyName"
-                  type="text"
-                  maxlength="90"
-                  required
-                  data-i18n-placeholder="placeholderName"
-                  placeholder="z. B. Wohnung Crailsheim"
-                />
+                <input id="propertyName" type="text" maxlength="90" required data-i18n-placeholder="placeholderName" placeholder="z. B. Eigentumswohnung" />
               </div>
 
               <div class="field">
                 <label for="propertyAddress" data-i18n="labelAddress">Adresse oder Notiz</label>
-
-                <input
-                  id="propertyAddress"
-                  name="propertyAddress"
-                  type="text"
-                  maxlength="140"
-                  data-i18n-placeholder="placeholderAddress"
-                  placeholder="optional"
-                />
+                <input id="propertyAddress" type="text" maxlength="140" data-i18n-placeholder="placeholderAddress" placeholder="optional" />
               </div>
 
               <div class="field">
                 <label for="purchasePrice" data-i18n="labelPrice">Kaufpreis / Basiswert in Euro *</label>
-
-                <input
-                  id="purchasePrice"
-                  name="purchasePrice"
-                  type="number"
-                  min="1"
-                  step="0.01"
-                  inputmode="decimal"
-                  required
-                  placeholder="250000"
-                />
+                <input id="purchasePrice" type="number" min="1" step="0.01" inputmode="decimal" required placeholder="130000" />
               </div>
 
               <div class="field">
                 <label for="purchaseDate" data-i18n="labelDate">Kaufvertragsdatum *</label>
-
-                <input
-                  id="purchaseDate"
-                  name="purchaseDate"
-                  type="date"
-                  required
-                />
+                <input id="purchaseDate" type="date" required />
               </div>
+            </div>
+
+            <div class="rate-panel">
+              <div class="rate-grid">
+                <div>
+                  <label for="annualRate" data-i18n="labelRate">Modellhafte Wertsteigerung pro Jahr</label>
+                  <input id="annualRate" type="range" min="1" max="10" step="0.1" value="5" />
+
+                  <div class="rate-caption">
+                    <span>1 %</span>
+                    <span>10 %</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label for="annualRateNumber" data-i18n="labelRateNumber">Jahresrate in %</label>
+                  <input id="annualRateNumber" type="number" min="1" max="10" step="0.1" inputmode="decimal" value="5" />
+                </div>
+              </div>
+
+              <p class="rate-note" id="rateNote"></p>
             </div>
 
             <div class="btn-row">
               <button class="btn" type="submit">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 5v14M5 12h14"/>
+                  <path d="M12 5v14M5 12h14" />
                 </svg>
+                <span data-i18n="saveButton">Immobilie speichern und berechnen</span>
+              </button>
 
-                <span data-i18n="addButton">Immobilie hinzufügen</span>
+              <button class="btn danger" id="deleteButton" type="button" hidden>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 7h16" />
+                  <path d="M10 11v6M14 11v6" />
+                  <path d="M6 7l1 14h10l1-14" />
+                  <path d="M9 7V4h6v3" />
+                </svg>
+                <span data-i18n="deleteButton">Immobilie löschen</span>
               </button>
             </div>
 
-            <p class="microcopy" data-i18n="localStorageNote">
-              Ihre Eingaben werden ausschließlich lokal in diesem Browser gespeichert.
-            </p>
+            <p class="microcopy" data-i18n="localStorageNote">Ihre Eingaben werden ausschließlich lokal in diesem Browser gespeichert.</p>
           </form>
         </section>
 
-        <section class="card portfolio-card">
+        <section class="card">
           <div class="section-head">
             <div>
-              <h2 data-i18n="portfolioTitle">Ihre Immobilienübersicht</h2>
-
-              <p data-i18n="portfolioCopy">
-                Alle angelegten Objekte mit rechnerischem aktuellem Wert und Zehn-Jahres-Hinweis.
-              </p>
+              <h2 data-i18n="detailsTitle">Objekt-Details</h2>
+              <p data-i18n="detailsCopy">Die Berechnung zeigt den ungefähr aktuellen Wert und die Haltedauer.</p>
             </div>
           </div>
 
-          <div id="portfolioTableWrap"></div>
+          <div id="detailsWrap"></div>
         </section>
       </div>
 
@@ -942,98 +788,27 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
         <section class="card">
           <div class="section-head">
             <div>
-              <h2 data-i18n="summaryTitle">Portfolio heute</h2>
-              <p data-i18n="summaryCopy">Gesamtsicht Ihrer aktuell gespeicherten Immobilien.</p>
+              <h2 data-i18n="resultTitle">Ergebnis heute</h2>
+              <p data-i18n="resultCopy">Einzelberechnung auf Basis des gespeicherten Kaufpreises.</p>
             </div>
           </div>
 
-          <div class="metrics">
-            <div class="metric">
-              <span data-i18n="metricObjects">Objekte</span>
-              <strong id="metricObjects">0</strong>
-            </div>
-
-            <div class="metric">
-              <span data-i18n="metricPaid">Bezahlt</span>
-              <strong id="metricPaid">0 €</strong>
-            </div>
-
-            <div class="metric">
-              <span data-i18n="metricToday">Wert heute</span>
-              <strong id="metricToday">0 €</strong>
-            </div>
-
-            <div class="metric">
-              <span data-i18n="metricGain">Wertzuwachs</span>
-              <strong id="metricGain">0 €</strong>
-            </div>
-          </div>
-
-          <div class="update-line">
-            <div class="last-update">
-              <span data-i18n="lastUpdate">Letzte Aktualisierung:</span>
-              <strong id="lastUpdateValue">–</strong>
-            </div>
-
-            <div class="btn-row" style="margin-top:0">
-              <button class="btn small" id="refreshButton" type="button">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5"/>
-                </svg>
-
-                <span data-i18n="refreshButton">Immobilienwerte aktualisieren</span>
-              </button>
-
-              <button class="btn secondary small" id="printButton" type="button">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/>
-                </svg>
-
-                <span data-i18n="printButton">Drucken</span>
-              </button>
-            </div>
-          </div>
+          <div id="resultWrap"></div>
         </section>
 
         <section class="card">
-          <div class="chart-toolbar">
+          <div class="section-head">
             <div>
-              <strong data-i18n="chartTitle">Wertentwicklung des Gesamtportfolios</strong>
-              <br />
-              <span data-i18n="chartCopy">Modellhafte Prognose ab dem aktualisierten heutigen Wert</span>
+              <h2 data-i18n="chartTitle">Wertentwicklung der Immobilie</h2>
+              <p data-i18n="chartCopy">Lineare Modellrechnung vom Kaufdatum bis 20 Jahre ab heute.</p>
             </div>
           </div>
 
           <div class="chart-wrap">
-            <svg id="valueChart" viewBox="0 0 900 310" role="img" aria-label="Wertentwicklung"></svg>
+            <svg id="valueChart" viewBox="0 0 900 320" role="img" aria-label="Wertentwicklung"></svg>
           </div>
 
-          <div class="projection-grid" id="portfolioProjection"></div>
-        </section>
-
-        <section class="card">
-          <div class="section-head">
-            <div>
-              <h3 data-i18n="detailsTitle">Objekt-Details</h3>
-              <p data-i18n="detailsCopy">Wählen Sie in der Immobilienübersicht ein Objekt aus.</p>
-            </div>
-          </div>
-
-          <div id="detailsWrap"></div>
-        </section>
-
-        <section class="card">
-          <div class="section-head">
-            <div>
-              <h3 data-i18n="scenarioTitle">Modell mit mehreren Wohnungen</h3>
-
-              <p data-i18n="scenarioCopy">
-                Berechnen Sie ein Vergleichsmodell mit mehrfach identischen Objekten.
-              </p>
-            </div>
-          </div>
-
-          <div id="scenarioWrap"></div>
+          <div class="projection-grid" id="projectionWrap"></div>
         </section>
       </div>
     </div>
@@ -1042,41 +817,22 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
       <div class="section-head">
         <div>
           <h2 data-i18n="noticeTitle">Wichtige Hinweise zur Modellrechnung</h2>
-
-          <p data-i18n="noticeCopy">
-            Die Ergebnisse dienen ausschließlich als vereinfachte Orientierung.
-          </p>
+          <p data-i18n="noticeCopy">Die Ergebnisse dienen ausschließlich als vereinfachte Orientierung.</p>
         </div>
       </div>
 
       <ul class="notices">
-        <li data-i18n="notice1">
-          Die Berechnung stellt ausschließlich eine modellhafte Wertentwicklung dar und ersetzt keine individuelle Immobilienbewertung.
-        </li>
-
-        <li data-i18n="notice2">
-          Der Rechner bildet keine zusätzliche steuerliche Betrachtung ab, die sich im Einzelfall positiv auswirken kann.
-        </li>
-
-        <li data-i18n="notice3">
-          Mieteinnahmen, mögliche Mietsteigerungen, Finanzierungskosten, nicht umlegbare Nebenkosten und tatsächlich selbst gezahlte Beträge werden nicht gegengerechnet.
-        </li>
-
-        <li data-i18n="notice4">
-          Bei einer Haltedauer unter zehn Jahren wird lediglich ein Hinweis auf eine mögliche Besteuerung des entstandenen Gewinns nach dem persönlichen Einkommensteuersatz angezeigt. Es erfolgt keine Steuerberechnung.
-        </li>
-
-        <li data-i18n="notice5">
-          Steuerliche und rechtliche Fragen müssen für jedes Objekt individuell mit einer fachkundigen Stelle geprüft werden.
-        </li>
+        <li data-i18n="notice1">Die Berechnung stellt ausschließlich eine modellhafte lineare Wertentwicklung dar und ersetzt keine individuelle Immobilienbewertung.</li>
+        <li data-i18n="notice2">Der Rechner bildet keine zusätzliche steuerliche Betrachtung ab, die sich im Einzelfall positiv auswirken kann.</li>
+        <li data-i18n="notice3">Mieteinnahmen, mögliche Mietsteigerungen, Finanzierungskosten, nicht umlegbare Nebenkosten und tatsächlich selbst gezahlte Beträge werden nicht gegengerechnet.</li>
+        <li data-i18n="notice4">Bei einer Haltedauer unter zehn Jahren wird lediglich ein Hinweis auf eine mögliche Besteuerung des entstandenen Gewinns nach dem persönlichen Einkommensteuersatz angezeigt. Es erfolgt keine Steuerberechnung.</li>
+        <li data-i18n="notice5">Steuerliche und rechtliche Fragen müssen für jedes Objekt individuell mit einer fachkundigen Stelle geprüft werden.</li>
       </ul>
     </section>
   </main>
 
   <footer>
-    <div class="shell" data-i18n="footerText">
-      xxl.immo Immobilienrechner · Modellhafte Berechnung ohne Gewähr
-    </div>
+    <div class="shell" data-i18n="footerText">xxl.immo Immobilienrechner · Modellhafte Berechnung ohne Gewähr</div>
   </footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -1085,235 +841,170 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
     (() => {
       "use strict";
 
-      const STORAGE_KEY = "xxlImmoPortfolioV1";
+      const STORAGE_KEY = "xxlImmoSinglePropertyV2";
+      const OLD_STORAGE_KEY = "xxlImmoPortfolioV1";
       const LANGUAGE_KEY = "xxlImmoLanguageV1";
-      const ANNUAL_RATE = 0.05;
-      const MONTHLY_RATE = Math.pow(1 + ANNUAL_RATE, 1 / 12) - 1;
 
       const dictionary = {
         de: {
-          brandSubtitle: "Modellhafte Wertentwicklung",
+          brandSubtitle: "Lineare Modellrechnung",
           heroEyebrow: "Immobilienvermögensberatung · Modellrechnung",
-          heroTitle: "Wie entwickelt sich Ihr Immobilienvermögen?",
-          heroCopy: "Legen Sie Ihre Immobilien an, aktualisieren Sie die rechnerischen Werte und betrachten Sie mögliche Entwicklungen für die kommenden Jahre. Die Berechnung arbeitet ausschließlich mit einer modellhaften Wertsteigerung von 5 % pro Jahr.",
-          fact1Strong: "5 % pro Jahr",
-          fact1Text: "Festgelegte modellhafte Wertsteigerung",
-          fact2Strong: "Monatliche Aktualisierung",
-          fact2Text: "Neue Werte werden per Button berechnet",
-          fact3Strong: "Portfolio-Ansicht",
-          fact3Text: "Eine oder mehrere Immobilien gemeinsam betrachten",
-          addTitle: "Immobilie anlegen",
-          addCopy: "Erfassen Sie Kaufpreis beziehungsweise Basiswert und Kaufvertragsdatum.",
+          heroTitle: "Wie entwickelt sich der Wert Ihrer Immobilie?",
+          heroCopy: "Berechnen Sie die modellhafte Wertentwicklung einer einzelnen Immobilie. Die Jahresrate kann zwischen 1 % und 10 % eingestellt werden. Die Berechnung erfolgt linear auf Basis des ursprünglichen Kaufpreises und ohne Zinseszinseffekt.",
+          fact1Strong: "1 % bis 10 % pro Jahr",
+          fact1Text: "Jahresrate frei einstellbar",
+          fact2Strong: "Lineare Berechnung",
+          fact2Text: "Ohne Zinseszinseffekt",
+          fact3Strong: "Eine Immobilie",
+          fact3Text: "Klare Einzelberechnung mit Löschfunktion",
+          formTitle: "Immobilie berechnen",
+          formCopy: "Erfassen Sie die Daten einer Immobilie. Eine gespeicherte Immobilie kann jederzeit geändert oder gelöscht werden.",
           labelName: "Objektbezeichnung *",
           labelAddress: "Adresse oder Notiz",
           labelPrice: "Kaufpreis / Basiswert in Euro *",
           labelDate: "Kaufvertragsdatum *",
-          placeholderName: "z. B. Wohnung Crailsheim",
+          placeholderName: "z. B. Eigentumswohnung",
           placeholderAddress: "optional",
-          addButton: "Immobilie hinzufügen",
+          labelRate: "Modellhafte Wertsteigerung pro Jahr",
+          labelRateNumber: "Jahresrate in %",
+          saveButton: "Immobilie speichern und berechnen",
+          deleteButton: "Immobilie löschen",
           localStorageNote: "Ihre Eingaben werden ausschließlich lokal in diesem Browser gespeichert.",
-          portfolioTitle: "Ihre Immobilienübersicht",
-          portfolioCopy: "Alle angelegten Objekte mit rechnerischem aktuellem Wert und Zehn-Jahres-Hinweis.",
-          summaryTitle: "Portfolio heute",
-          summaryCopy: "Gesamtsicht Ihrer aktuell gespeicherten Immobilien.",
-          metricObjects: "Objekte",
-          metricPaid: "Bezahlt",
-          metricToday: "Wert heute",
-          metricGain: "Wertzuwachs",
-          lastUpdate: "Letzte Aktualisierung:",
-          refreshButton: "Immobilienwerte aktualisieren",
-          printButton: "Drucken",
-          chartTitle: "Wertentwicklung des Gesamtportfolios",
-          chartCopy: "Modellhafte Prognose ab dem aktualisierten heutigen Wert",
           detailsTitle: "Objekt-Details",
-          detailsCopy: "Wählen Sie in der Immobilienübersicht ein Objekt aus.",
-          scenarioTitle: "Modell mit mehreren Wohnungen",
-          scenarioCopy: "Berechnen Sie ein Vergleichsmodell mit mehrfach identischen Objekten.",
+          detailsCopy: "Die Berechnung zeigt den ungefähr aktuellen Wert und die Haltedauer.",
+          resultTitle: "Ergebnis heute",
+          resultCopy: "Einzelberechnung auf Basis des gespeicherten Kaufpreises.",
+          chartTitle: "Wertentwicklung der Immobilie",
+          chartCopy: "Lineare Modellrechnung vom Kaufdatum bis 20 Jahre ab heute.",
           noticeTitle: "Wichtige Hinweise zur Modellrechnung",
           noticeCopy: "Die Ergebnisse dienen ausschließlich als vereinfachte Orientierung.",
-          notice1: "Die Berechnung stellt ausschließlich eine modellhafte Wertentwicklung dar und ersetzt keine individuelle Immobilienbewertung.",
+          notice1: "Die Berechnung stellt ausschließlich eine modellhafte lineare Wertentwicklung dar und ersetzt keine individuelle Immobilienbewertung.",
           notice2: "Der Rechner bildet keine zusätzliche steuerliche Betrachtung ab, die sich im Einzelfall positiv auswirken kann.",
           notice3: "Mieteinnahmen, mögliche Mietsteigerungen, Finanzierungskosten, nicht umlegbare Nebenkosten und tatsächlich selbst gezahlte Beträge werden nicht gegengerechnet.",
           notice4: "Bei einer Haltedauer unter zehn Jahren wird lediglich ein Hinweis auf eine mögliche Besteuerung des entstandenen Gewinns nach dem persönlichen Einkommensteuersatz angezeigt. Es erfolgt keine Steuerberechnung.",
           notice5: "Steuerliche und rechtliche Fragen müssen für jedes Objekt individuell mit einer fachkundigen Stelle geprüft werden.",
           footerText: "xxl.immo Immobilienrechner · Modellhafte Berechnung ohne Gewähr",
-          emptyPortfolio: "Noch keine Immobilie angelegt. Erfassen Sie oben Ihr erstes Objekt.",
-          emptyDetails: "Nach dem Anlegen einer Immobilie erscheinen hier die Detailwerte.",
-          emptyScenario: "Legen Sie zuerst mindestens eine Immobilie an.",
-          tableObject: "Objekt",
-          tablePurchaseDate: "Kaufdatum",
-          tablePaid: "Bezahlt",
-          tableHolding: "Haltedauer",
-          tableCurrent: "Wert heute",
-          tableGain: "Wertzuwachs",
-          tableTax: "Zehn-Jahres-Hinweis",
-          tableActions: "Aktionen",
-          select: "Auswählen",
-          remove: "Löschen",
+          emptyResult: "Noch keine Immobilie gespeichert. Erfassen Sie links Ihre Immobilie und starten Sie die Berechnung.",
+          emptyDetails: "Nach dem Speichern erscheinen hier die Detailwerte.",
+          paid: "Damals bezahlt",
+          todayValue: "Ca. Wert heute",
+          gain: "Rechnerischer Wertzuwachs",
+          annualRate: "Jahresrate",
+          monthlyPercent: "Monatliche Rate",
+          monthlyEuro: "Monatlicher Wertzuwachs",
+          holding: "Aktuelle Haltedauer",
+          tenYearDate: "Zehn-Jahres-Zeitpunkt",
+          calculatedOn: "Berechnet am",
+          possibleTaxFree: "Möglicher steuerfreier Gewinn",
+          notTaxFree: "Noch nicht als steuerfrei ausgewiesen",
+          taxReached: "Die rechnerische Haltedauer beträgt mindestens zehn Jahre. Ob der Gewinn im konkreten Einzelfall tatsächlich steuerfrei ist, muss individuell geprüft werden.",
+          taxPending: "Die rechnerische Haltedauer beträgt noch keine zehn Jahre. Auf einen entstandenen Gewinn kann Einkommensteuer nach dem persönlichen Steuersatz anfallen. Der Rechner berechnet keine Steuer.",
+          inYears: "in {years} Jahren",
           yearsShort: "J.",
           monthsShort: "Mon.",
-          tenYearReached: "10 Jahre erreicht · möglichen steuerfreien Gewinn individuell prüfen",
-          tenYearPending: "Unter 10 Jahren · mögliche Einkommensteuer nach persönlichem Steuersatz prüfen",
-          detailPaid: "Damals bezahlt",
-          detailSale: "Ca. Verkaufserlös heute",
-          detailGain: "Rechnerischer Wertzuwachs",
-          detailTaxFree: "Möglicher steuerfreier Gewinn",
-          detailNotTaxFree: "Noch nicht als steuerfrei ausgewiesen",
-          detailTenYearDate: "Zehn-Jahres-Zeitpunkt",
-          detailHolding: "Aktuelle Haltedauer",
-          detailUpdate: "Berechnet am",
-          detailTaxNoteReached: "Die rechnerische Haltedauer beträgt mindestens zehn Jahre. Ob der Gewinn im konkreten Einzelfall tatsächlich steuerfrei ist, muss individuell geprüft werden.",
-          detailTaxNotePending: "Die rechnerische Haltedauer beträgt noch keine zehn Jahre. Auf einen entstandenen Gewinn kann Einkommensteuer nach dem persönlichen Steuersatz anfallen. Der Rechner berechnet keine Steuer.",
-          projectionIn: "in {years} Jahren",
-          scenarioBase: "Basisobjekt",
-          scenarioCount: "Anzahl Wohnungen",
-          scenarioToday: "Gemeinsamer Wert heute",
-          scenarioPaid: "Gemeinsamer Kaufpreis / Basiswert",
-          scenarioGain: "Gemeinsamer Wertzuwachs heute",
-          scenarioFuture: "Gemeinsamer Wert in {years} Jahren",
-          toastAdded: "Immobilie wurde angelegt.",
-          toastUpdated: "Alle Immobilienwerte wurden aktualisiert.",
-          toastRemoved: "Immobilie wurde gelöscht.",
+          rateNote: "Bei {rate} % pro Jahr entspricht die lineare monatliche Rate {monthlyRate} % des ursprünglichen Kaufpreises.",
+          lastUpdate: "Letzte Aktualisierung:",
+          refreshButton: "Wert aktualisieren",
+          printButton: "Drucken",
+          toastSaved: "Die Immobilie wurde gespeichert und neu berechnet.",
+          toastDeleted: "Die Immobilie wurde gelöscht.",
+          toastUpdated: "Der Immobilienwert wurde aktualisiert.",
           toastMissing: "Bitte füllen Sie alle Pflichtfelder vollständig aus.",
           toastFutureDate: "Das Kaufvertragsdatum darf nicht in der Zukunft liegen.",
-          confirmDelete: "Soll dieses Objekt wirklich gelöscht werden?",
-          chartAxisYears: "Jahre",
-          chartNow: "Heute"
+          confirmDelete: "Soll die gespeicherte Immobilie wirklich gelöscht werden?",
+          chartNow: "Heute",
+          chartYears: "Jahre"
         },
-
         en: {
-          brandSubtitle: "Model-based value development",
+          brandSubtitle: "Linear model calculation",
           heroEyebrow: "Real estate asset consulting · model calculation",
-          heroTitle: "How could your real estate assets develop?",
-          heroCopy: "Add your properties, update the calculated values and review potential developments for the coming years. The calculation uses only a model-based annual appreciation rate of 5%.",
-          fact1Strong: "5% per year",
-          fact1Text: "Defined model-based appreciation rate",
-          fact2Strong: "Monthly update",
-          fact2Text: "New values are calculated by button",
-          fact3Strong: "Portfolio view",
-          fact3Text: "Review one or several properties together",
-          addTitle: "Add property",
-          addCopy: "Enter the purchase price or base value and the purchase contract date.",
+          heroTitle: "How could the value of your property develop?",
+          heroCopy: "Calculate the model-based development of a single property. The annual rate can be set between 1% and 10%. The calculation is linear, based on the original purchase price and without compound interest.",
+          fact1Strong: "1% to 10% per year",
+          fact1Text: "Annual rate freely adjustable",
+          fact2Strong: "Linear calculation",
+          fact2Text: "Without compound interest",
+          fact3Strong: "One property",
+          fact3Text: "Clear single-property calculation with delete function",
+          formTitle: "Calculate property",
+          formCopy: "Enter the details of one property. A saved property can be changed or deleted at any time.",
           labelName: "Property name *",
           labelAddress: "Address or note",
           labelPrice: "Purchase price / base value in euros *",
           labelDate: "Purchase contract date *",
-          placeholderName: "e.g. Apartment Crailsheim",
+          placeholderName: "e.g. Apartment",
           placeholderAddress: "optional",
-          addButton: "Add property",
+          labelRate: "Model-based annual appreciation",
+          labelRateNumber: "Annual rate in %",
+          saveButton: "Save and calculate property",
+          deleteButton: "Delete property",
           localStorageNote: "Your entries are stored locally in this browser only.",
-          portfolioTitle: "Your property overview",
-          portfolioCopy: "All saved properties with calculated current value and ten-year notice.",
-          summaryTitle: "Portfolio today",
-          summaryCopy: "Overview of your currently saved properties.",
-          metricObjects: "Properties",
-          metricPaid: "Paid",
-          metricToday: "Value today",
-          metricGain: "Value increase",
-          lastUpdate: "Last update:",
-          refreshButton: "Update property values",
-          printButton: "Print",
-          chartTitle: "Value development of the total portfolio",
-          chartCopy: "Model-based forecast based on the updated current value",
           detailsTitle: "Property details",
-          detailsCopy: "Select a property in the overview.",
-          scenarioTitle: "Model with several apartments",
-          scenarioCopy: "Calculate a comparison model with multiple identical properties.",
+          detailsCopy: "The calculation shows the approximate current value and holding period.",
+          resultTitle: "Result today",
+          resultCopy: "Single-property calculation based on the saved purchase price.",
+          chartTitle: "Value development of the property",
+          chartCopy: "Linear model calculation from the purchase date to 20 years from today.",
           noticeTitle: "Important information about this model calculation",
           noticeCopy: "The results are intended as a simplified orientation only.",
-          notice1: "The calculation shows a model-based value development only and does not replace an individual property valuation.",
+          notice1: "The calculation shows a model-based linear value development only and does not replace an individual property valuation.",
           notice2: "The calculator does not include additional tax considerations that may have a positive effect in an individual case.",
           notice3: "Rental income, possible rent increases, financing costs, non-recoverable ancillary costs and amounts actually paid by the owner are not offset against each other.",
           notice4: "For a holding period below ten years, the calculator only displays a notice that a profit may be subject to income tax at the personal tax rate. No tax is calculated.",
           notice5: "Tax and legal questions must be reviewed individually for each property with a qualified professional.",
           footerText: "xxl.immo property calculator · Model calculation without warranty",
-          emptyPortfolio: "No property has been added yet. Enter your first property above.",
-          emptyDetails: "After adding a property, the detailed values will appear here.",
-          emptyScenario: "Please add at least one property first.",
-          tableObject: "Property",
-          tablePurchaseDate: "Purchase date",
-          tablePaid: "Paid",
-          tableHolding: "Holding period",
-          tableCurrent: "Value today",
-          tableGain: "Value increase",
-          tableTax: "Ten-year notice",
-          tableActions: "Actions",
-          select: "Select",
-          remove: "Delete",
+          emptyResult: "No property has been saved yet. Enter your property on the left and start the calculation.",
+          emptyDetails: "The detailed values will appear here after saving.",
+          paid: "Originally paid",
+          todayValue: "Approx. value today",
+          gain: "Calculated value increase",
+          annualRate: "Annual rate",
+          monthlyPercent: "Monthly rate",
+          monthlyEuro: "Monthly value increase",
+          holding: "Current holding period",
+          tenYearDate: "Ten-year date",
+          calculatedOn: "Calculated on",
+          possibleTaxFree: "Possible tax-free profit",
+          notTaxFree: "Not shown as tax-free yet",
+          taxReached: "The calculated holding period is at least ten years. Whether the profit is actually tax-free in the individual case must be reviewed separately.",
+          taxPending: "The calculated holding period is still below ten years. A profit may be subject to income tax at the personal tax rate. The calculator does not calculate tax.",
+          inYears: "in {years} years",
           yearsShort: "yrs",
           monthsShort: "mos",
-          tenYearReached: "10 years reached · review possible tax-free profit individually",
-          tenYearPending: "Below 10 years · review possible income tax at personal tax rate",
-          detailPaid: "Originally paid",
-          detailSale: "Approx. sale proceeds today",
-          detailGain: "Calculated value increase",
-          detailTaxFree: "Possible tax-free profit",
-          detailNotTaxFree: "Not shown as tax-free yet",
-          detailTenYearDate: "Ten-year date",
-          detailHolding: "Current holding period",
-          detailUpdate: "Calculated on",
-          detailTaxNoteReached: "The calculated holding period is at least ten years. Whether the profit is actually tax-free in the individual case must be reviewed separately.",
-          detailTaxNotePending: "The calculated holding period is still below ten years. A profit may be subject to income tax at the personal tax rate. The calculator does not calculate tax.",
-          projectionIn: "in {years} years",
-          scenarioBase: "Base property",
-          scenarioCount: "Number of apartments",
-          scenarioToday: "Combined value today",
-          scenarioPaid: "Combined purchase price / base value",
-          scenarioGain: "Combined value increase today",
-          scenarioFuture: "Combined value in {years} years",
-          toastAdded: "Property has been added.",
-          toastUpdated: "All property values have been updated.",
-          toastRemoved: "Property has been deleted.",
+          rateNote: "At {rate}% per year, the linear monthly rate is {monthlyRate}% of the original purchase price.",
+          lastUpdate: "Last update:",
+          refreshButton: "Update value",
+          printButton: "Print",
+          toastSaved: "The property has been saved and recalculated.",
+          toastDeleted: "The property has been deleted.",
+          toastUpdated: "The property value has been updated.",
           toastMissing: "Please complete all required fields.",
           toastFutureDate: "The purchase contract date must not be in the future.",
-          confirmDelete: "Do you really want to delete this property?",
-          chartAxisYears: "Years",
-          chartNow: "Today"
+          confirmDelete: "Do you really want to delete the saved property?",
+          chartNow: "Today",
+          chartYears: "Years"
         }
       };
 
       let lang = localStorage.getItem(LANGUAGE_KEY) || "de";
-      let state = loadState();
+      let property = loadProperty();
 
-      const propertyForm = document.getElementById("propertyForm");
+      const form = document.getElementById("propertyForm");
       const nameInput = document.getElementById("propertyName");
       const addressInput = document.getElementById("propertyAddress");
       const priceInput = document.getElementById("purchasePrice");
       const dateInput = document.getElementById("purchaseDate");
-      const portfolioTableWrap = document.getElementById("portfolioTableWrap");
+      const rateRange = document.getElementById("annualRate");
+      const rateNumber = document.getElementById("annualRateNumber");
+      const rateNote = document.getElementById("rateNote");
+      const deleteButton = document.getElementById("deleteButton");
+      const resultWrap = document.getElementById("resultWrap");
       const detailsWrap = document.getElementById("detailsWrap");
-      const scenarioWrap = document.getElementById("scenarioWrap");
-      const projectionWrap = document.getElementById("portfolioProjection");
+      const projectionWrap = document.getElementById("projectionWrap");
       const chart = document.getElementById("valueChart");
       const toast = document.getElementById("toast");
 
       dateInput.max = isoDate(today());
-
-      function loadState(){
-        try{
-          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-
-          if(saved && Array.isArray(saved.properties)){
-            return{
-              properties:saved.properties,
-              selectedId:saved.selectedId || saved.properties[0]?.id || null,
-              lastPortfolioUpdate:saved.lastPortfolioUpdate || null
-            };
-          }
-        }catch(error){
-          console.warn("Saved xxl.immo data could not be read.",error);
-        }
-
-        return{
-          properties:[],
-          selectedId:null,
-          lastPortfolioUpdate:null
-        };
-      }
-
-      function saveState(){
-        localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
-      }
 
       function t(key,replacements = {}){
         let text = (dictionary[lang] && dictionary[lang][key]) || dictionary.de[key] || key;
@@ -1323,24 +1014,6 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
         });
 
         return text;
-      }
-
-      function applyLanguage(){
-        document.documentElement.lang = lang;
-
-        document.querySelectorAll("[data-i18n]").forEach((element) => {
-          element.textContent = t(element.dataset.i18n);
-        });
-
-        document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
-          element.placeholder = t(element.dataset.i18nPlaceholder);
-        });
-
-        document.querySelectorAll(".lang-btn").forEach((button) => {
-          button.classList.toggle("active",button.dataset.lang === lang);
-        });
-
-        renderAll();
       }
 
       function today(){
@@ -1358,7 +1031,7 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
       }
 
       function parseDate(value){
-        const [year,month,day] = value.split("-").map(Number);
+        const [year,month,day] = String(value).split("-").map(Number);
         return new Date(year,month - 1,day);
       }
 
@@ -1379,6 +1052,15 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
           style:"currency",
           currency:"EUR",
           maximumFractionDigits:0
+        }).format(Number(value) || 0);
+      }
+
+      function formatPercent(value,maximumFractionDigits = 2){
+        const locale = lang === "de" ? "de-DE" : "en-GB";
+
+        return new Intl.NumberFormat(locale,{
+          minimumFractionDigits:0,
+          maximumFractionDigits
         }).format(Number(value) || 0);
       }
 
@@ -1413,54 +1095,150 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
         return Math.max(0,months);
       }
 
-      function calculateCurrentValue(property,asOf = isoDate(today())){
-        const months = fullMonthsBetween(property.purchaseDate,asOf);
+      function clampRate(value){
+        const numericValue = Number(value);
 
-        return Number(property.purchasePrice) * Math.pow(1 + MONTHLY_RATE,months);
+        if(!Number.isFinite(numericValue)){
+          return 5;
+        }
+
+        return Math.min(10,Math.max(1,Math.round(numericValue * 10) / 10));
       }
 
-      function forecast(value,years){
-        return Number(value) * Math.pow(1 + ANNUAL_RATE,years);
+      function linearValue(item,additionalYears = 0){
+        const months = fullMonthsBetween(item.purchaseDate) + additionalYears * 12;
+        const rate = clampRate(item.annualRate) / 100;
+
+        return Number(item.purchasePrice) * (1 + rate * (months / 12));
       }
 
-      function holdingText(property){
-        const months = fullMonthsBetween(property.purchaseDate);
+      function monthlyEuro(item){
+        return Number(item.purchasePrice) * (clampRate(item.annualRate) / 100) / 12;
+      }
+
+      function holdingText(item){
+        const months = fullMonthsBetween(item.purchaseDate);
 
         return `${Math.floor(months / 12)} ${t("yearsShort")} ${months % 12} ${t("monthsShort")}`;
       }
 
-      function tenYearDate(property){
-        const date = parseDate(property.purchaseDate);
+      function tenYearDate(item){
+        const date = parseDate(item.purchaseDate);
         date.setFullYear(date.getFullYear() + 10);
 
         return isoDate(date);
       }
 
-      function reachedTenYears(property){
-        return parseDate(tenYearDate(property)) <= today();
+      function reachedTenYears(item){
+        return parseDate(tenYearDate(item)) <= today();
       }
 
-      function selectedProperty(){
-        return state.properties.find((property) => property.id === state.selectedId) || null;
+      function migrateOldProperty(){
+        try{
+          const oldState = JSON.parse(localStorage.getItem(OLD_STORAGE_KEY));
+
+          if(!oldState || !Array.isArray(oldState.properties) || !oldState.properties.length){
+            return null;
+          }
+
+          const oldProperty = oldState.properties.find((item) => item.id === oldState.selectedId) || oldState.properties[0];
+
+          const migrated = {
+            name:String(oldProperty.name || "Immobilie"),
+            address:String(oldProperty.address || ""),
+            purchasePrice:Number(oldProperty.purchasePrice) || 0,
+            purchaseDate:String(oldProperty.purchaseDate || ""),
+            annualRate:5,
+            lastUpdated:isoDate(today())
+          };
+
+          localStorage.setItem(STORAGE_KEY,JSON.stringify(migrated));
+          localStorage.removeItem(OLD_STORAGE_KEY);
+
+          return migrated;
+        }catch(error){
+          console.warn("Old xxl.immo data could not be migrated.",error);
+          return null;
+        }
       }
 
-      function totals(){
-        return state.properties.reduce((acc,property) => {
-          const paid = Number(property.purchasePrice) || 0;
-          const current = Number(property.currentValue) || calculateCurrentValue(property);
+      function loadProperty(){
+        try{
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
 
-          acc.paid += paid;
-          acc.current += current;
+          if(saved && saved.purchaseDate && Number(saved.purchasePrice) > 0){
+            return {
+              name:String(saved.name || "Immobilie"),
+              address:String(saved.address || ""),
+              purchasePrice:Number(saved.purchasePrice),
+              purchaseDate:String(saved.purchaseDate),
+              annualRate:clampRate(saved.annualRate),
+              lastUpdated:String(saved.lastUpdated || isoDate(today()))
+            };
+          }
+        }catch(error){
+          console.warn("Saved xxl.immo data could not be read.",error);
+        }
 
-          return acc;
-        },{
-          paid:0,
-          current:0
+        return migrateOldProperty();
+      }
+
+      function saveProperty(){
+        if(property){
+          localStorage.setItem(STORAGE_KEY,JSON.stringify(property));
+        }else{
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      }
+
+      function fillForm(){
+        if(!property){
+          form.reset();
+          rateRange.value = "5";
+          rateNumber.value = "5";
+          deleteButton.hidden = true;
+          updateRateNote();
+
+          return;
+        }
+
+        nameInput.value = property.name;
+        addressInput.value = property.address;
+        priceInput.value = String(property.purchasePrice);
+        dateInput.value = property.purchaseDate;
+        rateRange.value = String(property.annualRate);
+        rateNumber.value = String(property.annualRate);
+        deleteButton.hidden = false;
+
+        updateRateNote();
+      }
+
+      function updateRateNote(){
+        const rate = clampRate(rateNumber.value || rateRange.value);
+
+        rateNote.textContent = t("rateNote",{
+          rate:formatPercent(rate,1),
+          monthlyRate:formatPercent(rate / 12,3)
         });
       }
 
-      function makeId(){
-        return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      function applyLanguage(){
+        document.documentElement.lang = lang;
+
+        document.querySelectorAll("[data-i18n]").forEach((element) => {
+          element.textContent = t(element.dataset.i18n);
+        });
+
+        document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+          element.placeholder = t(element.dataset.i18nPlaceholder);
+        });
+
+        document.querySelectorAll(".lang-btn").forEach((button) => {
+          button.classList.toggle("active",button.dataset.lang === lang);
+        });
+
+        updateRateNote();
+        renderAll();
       }
 
       function showToast(message){
@@ -1471,237 +1249,231 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
 
         showToast.timer = window.setTimeout(() => {
           toast.classList.remove("show");
-        },2600);
-      }
-
-      function addProperty(event){
-        event.preventDefault();
-
-        const purchasePrice = Number(priceInput.value);
-        const purchaseDate = dateInput.value;
-
-        if(!nameInput.value.trim() || !purchaseDate || !Number.isFinite(purchasePrice) || purchasePrice <= 0){
-          showToast(t("toastMissing"));
-          return;
-        }
-
-        if(parseDate(purchaseDate) > today()){
-          showToast(t("toastFutureDate"));
-          return;
-        }
-
-        const object = {
-          id:makeId(),
-          name:nameInput.value.trim(),
-          address:addressInput.value.trim(),
-          purchasePrice,
-          purchaseDate,
-          currentValue:0,
-          lastUpdated:isoDate(today())
-        };
-
-        object.currentValue = calculateCurrentValue(object,object.lastUpdated);
-
-        state.properties.unshift(object);
-        state.selectedId = object.id;
-        state.lastPortfolioUpdate = object.lastUpdated;
-
-        saveState();
-
-        propertyForm.reset();
-        dateInput.max = isoDate(today());
-
-        renderAll();
-        showToast(t("toastAdded"));
-      }
-
-      function refreshAll(){
-        const asOf = isoDate(today());
-
-        state.properties = state.properties.map((property) => ({
-          ...property,
-          currentValue:calculateCurrentValue(property,asOf),
-          lastUpdated:asOf
-        }));
-
-        state.lastPortfolioUpdate = asOf;
-
-        saveState();
-        renderAll();
-        showToast(t("toastUpdated"));
-      }
-
-      function removeProperty(id){
-        if(!window.confirm(t("confirmDelete"))){
-          return;
-        }
-
-        state.properties = state.properties.filter((property) => property.id !== id);
-
-        if(state.selectedId === id){
-          state.selectedId = state.properties[0]?.id || null;
-        }
-
-        saveState();
-        renderAll();
-        showToast(t("toastRemoved"));
-      }
-
-      function selectProperty(id){
-        state.selectedId = id;
-
-        saveState();
-        renderDetails();
-        renderScenario();
+        },2500);
       }
 
       function renderAll(){
-        renderMetrics();
-        renderTable();
+        renderResult();
+        renderDetails();
         renderProjection();
         renderChart();
-        renderDetails();
-        renderScenario();
       }
 
-      function renderMetrics(){
-        const sum = totals();
+      function renderResult(){
+        if(!property){
+          resultWrap.innerHTML = `<div class="empty">${escapeHtml(t("emptyResult"))}</div>`;
 
-        document.getElementById("metricObjects").textContent = String(state.properties.length);
-        document.getElementById("metricPaid").textContent = formatMoney(sum.paid);
-        document.getElementById("metricToday").textContent = formatMoney(sum.current);
-        document.getElementById("metricGain").textContent = formatMoney(sum.current - sum.paid);
-        document.getElementById("lastUpdateValue").textContent = formatDate(state.lastPortfolioUpdate);
-      }
-
-      function renderTable(){
-        if(!state.properties.length){
-          portfolioTableWrap.innerHTML = `<div class="empty">${escapeHtml(t("emptyPortfolio"))}</div>`;
           return;
         }
 
-        const body = state.properties.map((property) => {
-          const current = Number(property.currentValue) || calculateCurrentValue(property);
-          const gain = current - Number(property.purchasePrice);
-          const ok = reachedTenYears(property);
+        const current = linearValue(property);
+        const gain = current - property.purchasePrice;
 
-          return `
-            <tr>
-              <td>
-                <span class="object-name">${escapeHtml(property.name)}</span>
-                <span class="object-address">${escapeHtml(property.address || "–")}</span>
-              </td>
+        resultWrap.innerHTML = `
+          <div class="metrics">
+            <div class="metric">
+              <span>${escapeHtml(t("paid"))}</span>
+              <strong>${formatMoney(property.purchasePrice)}</strong>
+            </div>
 
-              <td>${formatDate(property.purchaseDate)}</td>
-              <td>${formatMoney(property.purchasePrice)}</td>
-              <td>${escapeHtml(holdingText(property))}</td>
-              <td><strong>${formatMoney(current)}</strong></td>
-              <td>${formatMoney(gain)}</td>
+            <div class="metric">
+              <span>${escapeHtml(t("todayValue"))}</span>
+              <strong>${formatMoney(current)}</strong>
+            </div>
 
-              <td>
-                <span class="status ${ok ? "ok" : ""}">
-                  ${escapeHtml(ok ? t("tenYearReached") : t("tenYearPending"))}
-                </span>
-              </td>
+            <div class="metric">
+              <span>${escapeHtml(t("gain"))}</span>
+              <strong>${formatMoney(gain)}</strong>
+            </div>
 
-              <td>
-                <div class="table-actions">
-                  <button
-                    class="btn small ${property.id === state.selectedId ? "" : "secondary"}"
-                    type="button"
-                    data-select-id="${escapeHtml(property.id)}"
-                  >
-                    ${escapeHtml(t("select"))}
-                  </button>
+            <div class="metric">
+              <span>${escapeHtml(t("annualRate"))}</span>
+              <strong>${escapeHtml(formatPercent(property.annualRate,1))} %</strong>
+            </div>
+          </div>
 
-                  <button
-                    class="btn danger small"
-                    type="button"
-                    data-remove-id="${escapeHtml(property.id)}"
-                  >
-                    ${escapeHtml(t("remove"))}
-                  </button>
-                </div>
-              </td>
-            </tr>
-          `;
-        }).join("");
+          <div class="result-actions">
+            <div class="last-update">
+              <span>${escapeHtml(t("lastUpdate"))}</span>
+              <strong>${formatDate(property.lastUpdated)}</strong>
+            </div>
 
-        portfolioTableWrap.innerHTML = `
-          <div class="table-shell">
-            <table>
-              <thead>
-                <tr>
-                  <th>${escapeHtml(t("tableObject"))}</th>
-                  <th>${escapeHtml(t("tablePurchaseDate"))}</th>
-                  <th>${escapeHtml(t("tablePaid"))}</th>
-                  <th>${escapeHtml(t("tableHolding"))}</th>
-                  <th>${escapeHtml(t("tableCurrent"))}</th>
-                  <th>${escapeHtml(t("tableGain"))}</th>
-                  <th>${escapeHtml(t("tableTax"))}</th>
-                  <th>${escapeHtml(t("tableActions"))}</th>
-                </tr>
-              </thead>
+            <div class="btn-row" style="margin-top:0">
+              <button class="btn small" id="refreshButton" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5" />
+                </svg>
 
-              <tbody>${body}</tbody>
-            </table>
+                <span>${escapeHtml(t("refreshButton"))}</span>
+              </button>
+
+              <button class="btn secondary small" id="printButton" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z" />
+                </svg>
+
+                <span>${escapeHtml(t("printButton"))}</span>
+              </button>
+            </div>
           </div>
         `;
 
-        portfolioTableWrap.querySelectorAll("[data-select-id]").forEach((button) => {
-          button.addEventListener("click",() => {
-            selectProperty(button.dataset.selectId);
-          });
+        document.getElementById("refreshButton").addEventListener("click",() => {
+          property.lastUpdated = isoDate(today());
+
+          saveProperty();
+          renderAll();
+          showToast(t("toastUpdated"));
         });
 
-        portfolioTableWrap.querySelectorAll("[data-remove-id]").forEach((button) => {
-          button.addEventListener("click",() => {
-            removeProperty(button.dataset.removeId);
-          });
+        document.getElementById("printButton").addEventListener("click",() => {
+          window.print();
         });
       }
 
+      function renderDetails(){
+        if(!property){
+          detailsWrap.innerHTML = `<div class="empty">${escapeHtml(t("emptyDetails"))}</div>`;
+
+          return;
+        }
+
+        const current = linearValue(property);
+        const gain = current - property.purchasePrice;
+        const taxFree = reachedTenYears(property);
+
+        detailsWrap.innerHTML = `
+          <div class="detail-header">
+            <h3>${escapeHtml(property.name)}</h3>
+            <p>${escapeHtml(property.address || "–")}</p>
+          </div>
+
+          <div class="detail-grid">
+            <div class="detail-box">
+              <span>${escapeHtml(t("paid"))}</span>
+              <strong>${formatMoney(property.purchasePrice)}</strong>
+            </div>
+
+            <div class="detail-box">
+              <span>${escapeHtml(t("todayValue"))}</span>
+              <strong>${formatMoney(current)}</strong>
+            </div>
+
+            <div class="detail-box">
+              <span>${escapeHtml(t("gain"))}</span>
+              <strong>${formatMoney(gain)}</strong>
+            </div>
+
+            <div class="detail-box">
+              <span>${escapeHtml(t("possibleTaxFree"))}</span>
+              <strong>${taxFree ? formatMoney(gain) : escapeHtml(t("notTaxFree"))}</strong>
+            </div>
+
+            <div class="detail-box">
+              <span>${escapeHtml(t("monthlyPercent"))}</span>
+              <strong>${escapeHtml(formatPercent(property.annualRate / 12,3))} %</strong>
+            </div>
+
+            <div class="detail-box">
+              <span>${escapeHtml(t("monthlyEuro"))}</span>
+              <strong>${formatMoney(monthlyEuro(property))}</strong>
+            </div>
+
+            <div class="detail-box">
+              <span>${escapeHtml(t("holding"))}</span>
+              <strong>${escapeHtml(holdingText(property))}</strong>
+            </div>
+
+            <div class="detail-box">
+              <span>${escapeHtml(t("tenYearDate"))}</span>
+              <strong>${formatDate(tenYearDate(property))}</strong>
+            </div>
+
+            <div class="detail-box">
+              <span>${escapeHtml(t("calculatedOn"))}</span>
+              <strong>${formatDate(property.lastUpdated)}</strong>
+            </div>
+          </div>
+
+          <p class="detail-note">${escapeHtml(taxFree ? t("taxReached") : t("taxPending"))}</p>
+        `;
+      }
+
       function renderProjection(){
-        const sum = totals();
+        if(!property){
+          projectionWrap.innerHTML = "";
+
+          return;
+        }
 
         projectionWrap.innerHTML = [5,10,15,20].map((years) => `
           <div class="projection">
-            <span>${escapeHtml(t("projectionIn",{years}))}</span>
-            <strong>${formatMoney(forecast(sum.current,years))}</strong>
+            <span>${escapeHtml(t("inYears",{years}))}</span>
+            <strong>${formatMoney(linearValue(property,years))}</strong>
           </div>
         `).join("");
       }
 
       function renderChart(){
-        const sum = totals();
-        const values = Array.from({length:21},(_,years) => forecast(sum.current,years));
-
         const width = 900;
-        const height = 310;
+        const height = 320;
 
         const pad = {
           left:88,
-          right:28,
+          right:30,
           top:26,
-          bottom:50
+          bottom:52
         };
 
         const plotWidth = width - pad.left - pad.right;
         const plotHeight = height - pad.top - pad.bottom;
-        const maxValue = Math.max(...values,1);
-        const minValue = 0;
 
-        const x = (index) => {
-          return pad.left + (index / 20) * plotWidth;
+        if(!property){
+          chart.innerHTML = `
+            <rect x="0" y="0" width="${width}" height="${height}" fill="#fcfcfb" />
+
+            <text
+              x="${width / 2}"
+              y="${height / 2}"
+              text-anchor="middle"
+              font-size="17"
+              fill="#777"
+            >
+              ${escapeHtml(t("emptyResult"))}
+            </text>
+          `;
+
+          return;
+        }
+
+        const elapsedYears = fullMonthsBetween(property.purchaseDate) / 12;
+        const totalYears = Math.ceil(elapsedYears) + 20;
+
+        const pointsData = Array.from({length:totalYears + 1},(_,index) => {
+          const value = property.purchasePrice * (1 + (property.annualRate / 100) * index);
+
+          return {
+            year:index,
+            value
+          };
+        });
+
+        const maxValue = Math.max(...pointsData.map((item) => item.value),1);
+
+        const x = (year) => {
+          return pad.left + (year / totalYears) * plotWidth;
         };
 
         const y = (value) => {
-          return pad.top + plotHeight - ((value - minValue) / (maxValue - minValue || 1)) * plotHeight;
+          return pad.top + plotHeight - (value / maxValue) * plotHeight;
         };
 
-        const points = values.map((value,index) => {
-          return `${x(index)},${y(value)}`;
+        const points = pointsData.map((item) => {
+          return `${x(item.year)},${y(item.value)}`;
         }).join(" ");
+
+        const currentX = x(elapsedYears);
+        const currentY = y(linearValue(property));
 
         const grid = Array.from({length:5},(_,index) => {
           const ratio = index / 4;
@@ -1731,35 +1503,39 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
           `;
         }).join("");
 
-        const markers = [0,5,10,15,20].map((year) => `
-          <circle
-            cx="${x(year)}"
-            cy="${y(values[year])}"
-            r="5"
-            fill="#fff"
-            stroke="#000"
-            stroke-width="3"
-          />
+        const xTicks = [0,elapsedYears,elapsedYears + 5,elapsedYears + 10,elapsedYears + 15,elapsedYears + 20].map((year,index) => {
+          const roundedYear = Math.min(totalYears,year);
 
-          <text
-            x="${x(year)}"
-            y="${height - 19}"
-            text-anchor="middle"
-            font-size="14"
-            fill="#444"
-          >
-            ${year === 0 ? escapeHtml(t("chartNow")) : year}
-          </text>
-        `).join("");
+          const label = index === 0
+            ? formatDate(property.purchaseDate)
+            : index === 1
+              ? t("chartNow")
+              : `+${(index - 1) * 5}`;
+
+          return `
+            <line
+              x1="${x(roundedYear)}"
+              y1="${pad.top + plotHeight}"
+              x2="${x(roundedYear)}"
+              y2="${pad.top + plotHeight + 6}"
+              stroke="#000"
+              stroke-width="1"
+            />
+
+            <text
+              x="${x(roundedYear)}"
+              y="${height - 20}"
+              text-anchor="middle"
+              font-size="13"
+              fill="#555"
+            >
+              ${escapeHtml(label)}
+            </text>
+          `;
+        }).join("");
 
         chart.innerHTML = `
-          <rect
-            x="0"
-            y="0"
-            width="${width}"
-            height="${height}"
-            fill="#fcfcfb"
-          />
+          <rect x="0" y="0" width="${width}" height="${height}" fill="#fcfcfb" />
 
           ${grid}
 
@@ -1781,191 +1557,115 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
             stroke-linejoin="round"
           />
 
-          ${markers}
+          <circle
+            cx="${currentX}"
+            cy="${currentY}"
+            r="6"
+            fill="#fff"
+            stroke="#000"
+            stroke-width="3"
+          />
+
+          <text
+            x="${currentX}"
+            y="${currentY - 13}"
+            text-anchor="middle"
+            font-size="14"
+            font-weight="700"
+            fill="#000"
+          >
+            ${escapeHtml(t("chartNow"))}
+          </text>
+
+          ${xTicks}
 
           <text
             x="${width - pad.right}"
-            y="${height - 19}"
+            y="${height - 20}"
             text-anchor="end"
             font-size="13"
             fill="#666"
           >
-            ${escapeHtml(t("chartAxisYears"))}
+            ${escapeHtml(t("chartYears"))}
           </text>
         `;
       }
 
-      function renderDetails(){
-        const property = selectedProperty();
-
-        if(!property){
-          detailsWrap.innerHTML = `<div class="empty">${escapeHtml(t("emptyDetails"))}</div>`;
+      function syncRate(source){
+        if(source === rateNumber && String(source.value).trim() === ""){
           return;
         }
 
-        const current = Number(property.currentValue) || calculateCurrentValue(property);
-        const gain = current - Number(property.purchasePrice);
-        const ok = reachedTenYears(property);
+        const rate = clampRate(source.value);
 
-        const future = [5,10,15,20].map((years) => `
-          <div class="projection">
-            <span>${escapeHtml(t("projectionIn",{years}))}</span>
-            <strong>${formatMoney(forecast(current,years))}</strong>
-          </div>
-        `).join("");
+        rateRange.value = String(rate);
+        rateNumber.value = String(rate);
 
-        detailsWrap.innerHTML = `
-          <div class="details-layout">
-            <div>
-              <h4 class="detail-title">${escapeHtml(property.name)}</h4>
-              <p class="detail-sub">${escapeHtml(property.address || "–")}</p>
-            </div>
+        updateRateNote();
 
-            <div class="detail-grid">
-              <div class="detail-box">
-                <span>${escapeHtml(t("detailPaid"))}</span>
-                <strong>${formatMoney(property.purchasePrice)}</strong>
-              </div>
+        if(property){
+          property.annualRate = rate;
+          property.lastUpdated = isoDate(today());
 
-              <div class="detail-box">
-                <span>${escapeHtml(t("detailSale"))}</span>
-                <strong>${formatMoney(current)}</strong>
-              </div>
-
-              <div class="detail-box">
-                <span>${escapeHtml(t("detailGain"))}</span>
-                <strong>${formatMoney(gain)}</strong>
-              </div>
-
-              <div class="detail-box">
-                <span>${escapeHtml(t("detailTaxFree"))}</span>
-                <strong>${ok ? formatMoney(gain) : escapeHtml(t("detailNotTaxFree"))}</strong>
-              </div>
-
-              <div class="detail-box">
-                <span>${escapeHtml(t("detailHolding"))}</span>
-                <strong>${escapeHtml(holdingText(property))}</strong>
-              </div>
-
-              <div class="detail-box">
-                <span>${escapeHtml(t("detailTenYearDate"))}</span>
-                <strong>${formatDate(tenYearDate(property))}</strong>
-              </div>
-
-              <div class="detail-box">
-                <span>${escapeHtml(t("detailUpdate"))}</span>
-                <strong>${formatDate(property.lastUpdated)}</strong>
-              </div>
-            </div>
-
-            <p class="detail-note">
-              ${escapeHtml(ok ? t("detailTaxNoteReached") : t("detailTaxNotePending"))}
-            </p>
-
-            <div class="projection-grid">${future}</div>
-          </div>
-        `;
+          saveProperty();
+          renderAll();
+        }
       }
 
-      function renderScenario(){
-        const property = selectedProperty() || state.properties[0];
+      form.addEventListener("submit",(event) => {
+        event.preventDefault();
 
-        if(!property){
-          scenarioWrap.innerHTML = `<div class="empty">${escapeHtml(t("emptyScenario"))}</div>`;
+        const purchasePrice = Number(priceInput.value);
+        const purchaseDate = dateInput.value;
+
+        if(!nameInput.value.trim() || !purchaseDate || !Number.isFinite(purchasePrice) || purchasePrice <= 0){
+          showToast(t("toastMissing"));
+
           return;
         }
 
-        const options = state.properties.map((item) => `
-          <option
-            value="${escapeHtml(item.id)}"
-            ${item.id === property.id ? "selected" : ""}
-          >
-            ${escapeHtml(item.name)}
-          </option>
-        `).join("");
+        if(parseDate(purchaseDate) > today()){
+          showToast(t("toastFutureDate"));
 
-        scenarioWrap.innerHTML = `
-          <div class="scenario-grid">
-            <div>
-              <label for="scenarioProperty">${escapeHtml(t("scenarioBase"))}</label>
-
-              <select id="scenarioProperty">
-                ${options}
-              </select>
-            </div>
-
-            <div>
-              <label for="scenarioCount">${escapeHtml(t("scenarioCount"))}</label>
-
-              <input
-                id="scenarioCount"
-                type="number"
-                min="1"
-                max="500"
-                step="1"
-                value="2"
-              />
-            </div>
-          </div>
-
-          <div id="scenarioSummary" class="scenario-summary"></div>
-        `;
-
-        const scenarioProperty = document.getElementById("scenarioProperty");
-        const scenarioCount = document.getElementById("scenarioCount");
-
-        scenarioProperty.addEventListener("change",updateScenarioSummary);
-        scenarioCount.addEventListener("input",updateScenarioSummary);
-
-        updateScenarioSummary();
-      }
-
-      function updateScenarioSummary(){
-        const propertyId = document.getElementById("scenarioProperty")?.value;
-        const countInput = document.getElementById("scenarioCount");
-        const summary = document.getElementById("scenarioSummary");
-
-        if(!propertyId || !countInput || !summary){
           return;
         }
 
-        const property = state.properties.find((item) => item.id === propertyId);
+        property = {
+          name:nameInput.value.trim(),
+          address:addressInput.value.trim(),
+          purchasePrice,
+          purchaseDate,
+          annualRate:clampRate(rateNumber.value),
+          lastUpdated:isoDate(today())
+        };
 
-        if(!property){
+        saveProperty();
+        fillForm();
+        renderAll();
+        showToast(t("toastSaved"));
+      });
+
+      deleteButton.addEventListener("click",() => {
+        if(!property || !window.confirm(t("confirmDelete"))){
           return;
         }
 
-        const count = Math.max(1,Math.min(500,Math.floor(Number(countInput.value) || 1)));
+        property = null;
 
-        countInput.value = String(count);
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(OLD_STORAGE_KEY);
 
-        const current = (Number(property.currentValue) || calculateCurrentValue(property)) * count;
-        const paid = Number(property.purchasePrice) * count;
+        fillForm();
+        renderAll();
+        showToast(t("toastDeleted"));
+      });
 
-        const rows = [
-          [t("scenarioPaid"),formatMoney(paid)],
-          [t("scenarioToday"),formatMoney(current)],
-          [t("scenarioGain"),formatMoney(current - paid)],
-          ...[5,10,15,20].map((years) => [
-            t("scenarioFuture",{years}),
-            formatMoney(forecast(current,years))
-          ])
-        ];
+      rateRange.addEventListener("input",() => {
+        syncRate(rateRange);
+      });
 
-        summary.innerHTML = rows.map(([label,value]) => `
-          <div class="scenario-row">
-            <span>${escapeHtml(label)}</span>
-            <strong>${escapeHtml(value)}</strong>
-          </div>
-        `).join("");
-      }
-
-      propertyForm.addEventListener("submit",addProperty);
-
-      document.getElementById("refreshButton").addEventListener("click",refreshAll);
-
-      document.getElementById("printButton").addEventListener("click",() => {
-        window.print();
+      rateNumber.addEventListener("input",() => {
+        syncRate(rateNumber);
       });
 
       document.querySelectorAll(".lang-btn").forEach((button) => {
@@ -1978,6 +1678,7 @@ Interne Grundlage: xxl.immo Rechner - Anforderungen.pdf  [oai_citation:0‡xxl.i
         });
       });
 
+      fillForm();
       applyLanguage();
     })();
   </script>
