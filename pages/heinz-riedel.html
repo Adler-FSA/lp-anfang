@@ -1,0 +1,1807 @@
+<!doctype html>
+<!--
+GitHub-Pfad: pages/heinz-riedel.html
+Commit-Message: Complete xxl.immo calculator according to requirements
+Testlink: https://adler-fsa.github.io/lp-anfang/pages/heinz-riedel.html?nocache=202606050001
+Interne Baugrundlage: xxl.immo Rechner - Anforderungen.pdf
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>xxl.immo Immobilienrechner</title>
+  <meta name="description" content="Modellhafte Immobilienwertentwicklung mit Monatswert, Prognose, Mehrwohnungsmodell und Zehn-Jahres-Hinweis." />
+
+  <style>
+    :root{
+      --bg:#f3f3f1;
+      --paper:#ffffff;
+      --ink:#111111;
+      --muted:#666666;
+      --line:#d1d1cd;
+      --soft:#f4f4f1;
+      --black:#000000;
+      --shadow:0 14px 36px rgba(0,0,0,.075);
+      --radius:18px;
+      --radius-small:11px;
+      --max:1420px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:Arial,Helvetica,sans-serif;
+      line-height:1.5;
+    }
+
+    button,input{font:inherit}
+    button{cursor:pointer}
+
+    .shell{
+      width:min(var(--max),calc(100% - 32px));
+      margin:0 auto;
+    }
+
+    .topbar{
+      color:#fff;
+      background:#000;
+    }
+
+    .topbar-inner{
+      min-height:70px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:13px;
+      min-width:0;
+    }
+
+    .brand-mark{
+      width:42px;
+      height:42px;
+      flex:0 0 42px;
+      display:grid;
+      place-items:center;
+      border:1px solid #fff;
+      border-radius:50%;
+    }
+
+    .brand-title{
+      display:block;
+      overflow:hidden;
+      color:#fff;
+      font-size:1.06rem;
+      font-weight:800;
+      letter-spacing:.03em;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .brand-subtitle{
+      display:block;
+      color:#c8c8c8;
+      font-size:.73rem;
+      letter-spacing:.11em;
+      text-transform:uppercase;
+    }
+
+    .language-buttons{
+      display:flex;
+      gap:8px;
+    }
+
+    .lang-btn{
+      min-width:42px;
+      padding:8px 10px;
+      border:1px solid #5f5f5f;
+      border-radius:999px;
+      color:#fff;
+      background:#111;
+      font-size:.76rem;
+      font-weight:800;
+      letter-spacing:.08em;
+    }
+
+    .lang-btn.active{
+      border-color:#fff;
+      color:#000;
+      background:#fff;
+    }
+
+    .hero{padding:40px 0 18px}
+
+    .hero-card{
+      position:relative;
+      overflow:hidden;
+      padding:clamp(24px,4vw,52px);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:#fff;
+      box-shadow:var(--shadow);
+    }
+
+    .hero-card::after{
+      content:"";
+      position:absolute;
+      width:310px;
+      height:310px;
+      top:-165px;
+      right:-155px;
+      border:34px solid #000;
+      border-radius:50%;
+      opacity:.045;
+      pointer-events:none;
+    }
+
+    .eyebrow{
+      margin:0 0 10px;
+      color:#505050;
+      font-size:.76rem;
+      font-weight:800;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+    }
+
+    h1,h2,h3,p{margin-top:0}
+
+    h1{
+      max-width:980px;
+      margin-bottom:14px;
+      font-size:clamp(2rem,5vw,4.5rem);
+      line-height:1.04;
+      letter-spacing:-.065em;
+    }
+
+    .hero-copy{
+      max-width:1000px;
+      margin:0;
+      color:#444;
+      font-size:1.02rem;
+    }
+
+    .facts{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-top:28px;
+    }
+
+    .fact{
+      padding-top:13px;
+      border-top:2px solid #000;
+    }
+
+    .fact strong{display:block}
+
+    .fact span{
+      display:block;
+      margin-top:4px;
+      color:#676767;
+      font-size:.87rem;
+    }
+
+    main{padding:0 0 52px}
+
+    .grid{
+      display:grid;
+      grid-template-columns:minmax(0,.96fr) minmax(360px,1.04fr);
+      gap:18px;
+      margin-top:18px;
+      align-items:start;
+    }
+
+    .card{
+      padding:22px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:#fff;
+      box-shadow:var(--shadow);
+    }
+
+    .card + .card{margin-top:18px}
+
+    .section-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:18px;
+    }
+
+    .section-head h2,
+    .section-head h3{
+      margin-bottom:3px;
+      line-height:1.1;
+      letter-spacing:-.035em;
+    }
+
+    .section-head p{
+      margin:0;
+      color:var(--muted);
+      font-size:.9rem;
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+    }
+
+    label{
+      display:block;
+      margin-bottom:6px;
+      color:#303030;
+      font-size:.82rem;
+      font-weight:800;
+    }
+
+    input{
+      width:100%;
+      min-height:45px;
+      padding:10px 12px;
+      border:1px solid #bebeb9;
+      border-radius:9px;
+      outline:none;
+      color:#111;
+      background:#fff;
+    }
+
+    input:focus{
+      border-color:#000;
+      box-shadow:0 0 0 3px rgba(0,0,0,.08);
+    }
+
+    input[type="range"]{
+      min-height:auto;
+      padding:0;
+      border:0;
+      accent-color:#000;
+      box-shadow:none;
+    }
+
+    .rate-panel{
+      margin-top:16px;
+      padding:15px;
+      border:1px solid #d4d4d0;
+      border-radius:11px;
+      background:#f8f8f6;
+    }
+
+    .rate-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 118px;
+      gap:14px;
+      align-items:end;
+    }
+
+    .rate-caption{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      margin-top:7px;
+      color:#6a6a6a;
+      font-size:.76rem;
+    }
+
+    .rate-note{
+      margin:11px 0 0;
+      color:#505050;
+      font-size:.82rem;
+    }
+
+    .btn-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:16px;
+    }
+
+    .btn{
+      min-height:42px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:10px 16px;
+      border:1px solid #000;
+      border-radius:999px;
+      color:#fff;
+      background:#000;
+      font-size:.88rem;
+      font-weight:800;
+      transition:transform .18s ease,background .18s ease,color .18s ease;
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+
+    .btn.secondary,
+    .btn.danger{
+      color:#000;
+      background:#fff;
+    }
+
+    .btn.small{
+      min-height:36px;
+      padding:8px 12px;
+      font-size:.78rem;
+    }
+
+    .btn[hidden]{display:none}
+
+    .btn svg{
+      width:16px;
+      height:16px;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.8;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .microcopy{
+      margin:13px 0 0;
+      color:#676767;
+      font-size:.8rem;
+    }
+
+    .metrics{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .metric{
+      min-height:112px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      padding:14px;
+      border:1px solid #d5d5d1;
+      border-radius:11px;
+      background:#fafaf8;
+    }
+
+    .metric span{
+      color:#5e5e5e;
+      font-size:.75rem;
+      font-weight:800;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+    }
+
+    .metric strong{
+      display:block;
+      margin-top:11px;
+      font-size:clamp(1.05rem,2vw,1.52rem);
+      line-height:1.04;
+      letter-spacing:-.045em;
+    }
+
+    .result-actions{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+      padding-top:14px;
+      border-top:1px solid #deded9;
+    }
+
+    .last-update{
+      color:#626262;
+      font-size:.82rem;
+    }
+
+    .empty{
+      padding:24px 14px;
+      border:1px dashed #bfbfbb;
+      border-radius:11px;
+      color:#646464;
+      text-align:center;
+      background:#fafaf8;
+      font-size:.9rem;
+    }
+
+    .detail-header{margin-bottom:13px}
+
+    .detail-header h3{
+      margin-bottom:2px;
+      letter-spacing:-.035em;
+    }
+
+    .detail-header p{
+      margin:0;
+      color:#686868;
+      font-size:.84rem;
+    }
+
+    .detail-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:9px;
+    }
+
+    .detail-box{
+      padding:12px;
+      border:1px solid #d8d8d3;
+      border-radius:10px;
+      background:#fafaf8;
+    }
+
+    .detail-box span{
+      display:block;
+      color:#666;
+      font-size:.72rem;
+      font-weight:800;
+      letter-spacing:.055em;
+      text-transform:uppercase;
+    }
+
+    .detail-box strong{
+      display:block;
+      margin-top:7px;
+      font-size:1.08rem;
+      letter-spacing:-.03em;
+    }
+
+    .detail-note{
+      margin:13px 0 0;
+      padding:12px;
+      border-left:3px solid #000;
+      color:#414141;
+      background:#f4f4f2;
+      font-size:.83rem;
+    }
+
+    .projection-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .projection{
+      min-height:82px;
+      padding:12px;
+      border-left:3px solid #000;
+      background:#f5f5f3;
+    }
+
+    .projection span{
+      display:block;
+      color:#666;
+      font-size:.77rem;
+    }
+
+    .projection strong{
+      display:block;
+      margin-top:8px;
+      font-size:1rem;
+      letter-spacing:-.03em;
+    }
+
+    .chart-wrap{
+      overflow:hidden;
+      padding:12px;
+      border:1px solid #d8d8d3;
+      border-radius:11px;
+      background:#fcfcfb;
+    }
+
+    #valueChart{
+      width:100%;
+      min-height:270px;
+      display:block;
+    }
+
+    .month-box{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .month-item{
+      padding:12px;
+      border:1px solid #d8d8d3;
+      border-radius:10px;
+      background:#fafaf8;
+    }
+
+    .month-item span{
+      display:block;
+      color:#666;
+      font-size:.72rem;
+      font-weight:800;
+      letter-spacing:.055em;
+      text-transform:uppercase;
+    }
+
+    .month-item strong{
+      display:block;
+      margin-top:7px;
+      font-size:1rem;
+      letter-spacing:-.03em;
+    }
+
+    .multiple-controls{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 150px;
+      gap:14px;
+      align-items:end;
+    }
+
+    .quick-buttons{
+      display:flex;
+      flex-wrap:wrap;
+      gap:7px;
+      margin-top:10px;
+    }
+
+    .quick-btn{
+      min-width:39px;
+      min-height:34px;
+      padding:6px 10px;
+      border:1px solid #bfbfba;
+      border-radius:999px;
+      color:#000;
+      background:#fff;
+      font-size:.78rem;
+      font-weight:800;
+    }
+
+    .quick-btn.active{
+      border-color:#000;
+      color:#fff;
+      background:#000;
+    }
+
+    .scenario-summary{
+      display:grid;
+      gap:8px;
+      margin-top:15px;
+    }
+
+    .scenario-row{
+      display:flex;
+      justify-content:space-between;
+      gap:18px;
+      padding:9px 0;
+      border-bottom:1px solid #e1e1dd;
+      font-size:.84rem;
+    }
+
+    .scenario-row:last-child{border-bottom:0}
+    .scenario-row strong{text-align:right}
+
+    .notice-card{
+      margin-top:18px;
+      border-color:#000;
+    }
+
+    .notices{
+      display:grid;
+      gap:9px;
+      margin:0;
+      padding:0;
+      list-style:none;
+    }
+
+    .notices li{
+      position:relative;
+      padding-left:22px;
+      color:#454545;
+      font-size:.88rem;
+    }
+
+    .notices li::before{
+      content:"";
+      position:absolute;
+      top:.53em;
+      left:0;
+      width:9px;
+      height:9px;
+      border-radius:50%;
+      background:#000;
+    }
+
+    footer{
+      padding:0 0 28px;
+      color:#666;
+      text-align:center;
+      font-size:.76rem;
+    }
+
+    .toast{
+      position:fixed;
+      right:16px;
+      bottom:16px;
+      z-index:20;
+      max-width:min(420px,calc(100% - 32px));
+      padding:12px 14px;
+      border:1px solid #000;
+      border-radius:10px;
+      color:#fff;
+      background:#000;
+      box-shadow:0 12px 32px rgba(0,0,0,.22);
+      font-size:.86rem;
+      opacity:0;
+      transform:translateY(18px);
+      pointer-events:none;
+      transition:.22s ease;
+    }
+
+    .toast.show{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    @media (max-width:1040px){
+      .grid{grid-template-columns:1fr}
+    }
+
+    @media (max-width:760px){
+      .facts,
+      .projection-grid,
+      .month-box{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+
+      .form-grid{grid-template-columns:1fr}
+      .hero{padding-top:24px}
+      .brand-subtitle{display:none}
+    }
+
+    @media (max-width:520px){
+      .shell{width:min(var(--max),calc(100% - 20px))}
+      .card{padding:16px}
+      .hero-card{padding:22px 18px}
+      .rate-grid,
+      .multiple-controls,
+      .detail-grid,
+      .metrics,
+      .month-box{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media print{
+      body{background:#fff}
+
+      .topbar,
+      .hero,
+      .form-card,
+      .result-actions,
+      .language-buttons,
+      .toast{
+        display:none!important;
+      }
+
+      .shell{
+        width:100%;
+        max-width:none;
+      }
+
+      main{padding:0}
+
+      .grid{
+        display:block;
+        margin:0;
+      }
+
+      .card{
+        margin:0 0 12px!important;
+        border:1px solid #999;
+        border-radius:0;
+        box-shadow:none;
+        break-inside:avoid;
+      }
+
+      #valueChart{max-height:235px}
+      footer{padding-top:12px}
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 20h18" />
+            <path d="M5 20V9l7-5 7 5v11" />
+            <path d="M9 20v-6h6v6" />
+          </svg>
+        </div>
+
+        <div>
+          <span class="brand-title">xxl.immo Immobilienrechner</span>
+          <span class="brand-subtitle" data-i18n="brandSubtitle">Modellhafte Wertentwicklung</span>
+        </div>
+      </div>
+
+      <div class="language-buttons" aria-label="Language selection">
+        <button type="button" class="lang-btn active" data-lang="de">DE</button>
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="shell">
+      <div class="hero-card">
+        <p class="eyebrow" data-i18n="heroEyebrow">Immobilienvermögensberatung · Modellrechnung</p>
+        <h1 data-i18n="heroTitle">Wie entwickelt sich der Wert Ihrer Immobilie?</h1>
+
+        <p class="hero-copy" data-i18n="heroCopy">
+          Erfassen Sie eine Immobilie, aktualisieren Sie den rechnerischen Monatswert und betrachten Sie mögliche Entwicklungen für die kommenden Jahre. Als Standardwert sind 5 % Wertsteigerung pro Jahr hinterlegt. Für Vergleichsrechnungen kann die Jahresrate zwischen 1 % und 10 % angepasst werden.
+        </p>
+
+        <div class="facts">
+          <div class="fact">
+            <strong data-i18n="fact1Strong">5 % Standardwert pro Jahr</strong>
+            <span data-i18n="fact1Text">Monatlich 0,4167 % des ursprünglichen Basiswertes</span>
+          </div>
+
+          <div class="fact">
+            <strong data-i18n="fact2Strong">Monatliche Aktualisierung</strong>
+            <span data-i18n="fact2Text">Aktuellen Wert per Button neu ausweisen</span>
+          </div>
+
+          <div class="fact">
+            <strong data-i18n="fact3Strong">Mehrwohnungsmodell</strong>
+            <span data-i18n="fact3Text">Dieselbe Immobilie mit zwei, drei, vier oder weiteren Wohnungen betrachten</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="shell">
+    <div class="grid">
+      <div>
+        <section class="card form-card">
+          <div class="section-head">
+            <div>
+              <h2 data-i18n="formTitle">Immobilie erfassen</h2>
+              <p data-i18n="formCopy">Die Einzelberechnung arbeitet mit einer gespeicherten Immobilie. Diese kann geändert oder gelöscht werden.</p>
+            </div>
+          </div>
+
+          <form id="propertyForm" novalidate>
+            <div class="form-grid">
+              <div class="field">
+                <label for="propertyName" data-i18n="labelName">Objektbezeichnung *</label>
+                <input id="propertyName" type="text" maxlength="90" required data-i18n-placeholder="placeholderName" placeholder="z. B. Eigentumswohnung" />
+              </div>
+
+              <div class="field">
+                <label for="propertyAddress" data-i18n="labelAddress">Adresse oder Notiz</label>
+                <input id="propertyAddress" type="text" maxlength="140" data-i18n-placeholder="placeholderAddress" placeholder="optional" />
+              </div>
+
+              <div class="field">
+                <label for="purchasePrice" data-i18n="labelPrice">Kaufpreis / Basiswert in Euro *</label>
+                <input id="purchasePrice" type="number" min="1" step="0.01" inputmode="decimal" required placeholder="130000" />
+              </div>
+
+              <div class="field">
+                <label for="purchaseDate" data-i18n="labelDate">Kaufvertragsdatum *</label>
+                <input id="purchaseDate" type="date" required />
+              </div>
+            </div>
+
+            <div class="rate-panel">
+              <div class="rate-grid">
+                <div>
+                  <label for="annualRate" data-i18n="labelRate">Modellhafte Wertsteigerung pro Jahr</label>
+                  <input id="annualRate" type="range" min="1" max="10" step="0.1" value="5" />
+
+                  <div class="rate-caption">
+                    <span>1 %</span>
+                    <span data-i18n="rateStandard">Standard: 5 %</span>
+                    <span>10 %</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label for="annualRateNumber" data-i18n="labelRateNumber">Jahresrate in %</label>
+                  <input id="annualRateNumber" type="number" min="1" max="10" step="0.1" inputmode="decimal" value="5" />
+                </div>
+              </div>
+
+              <p class="rate-note" id="rateNote"></p>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn" type="submit">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                <span data-i18n="saveButton">Immobilie speichern und berechnen</span>
+              </button>
+
+              <button class="btn danger" id="deleteButton" type="button" hidden>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 7h16" />
+                  <path d="M10 11v6M14 11v6" />
+                  <path d="M6 7l1 14h10l1-14" />
+                  <path d="M9 7V4h6v3" />
+                </svg>
+                <span data-i18n="deleteButton">Immobilie löschen</span>
+              </button>
+            </div>
+
+            <p class="microcopy" data-i18n="localStorageNote">Ihre Eingaben werden ausschließlich lokal in diesem Browser gespeichert.</p>
+          </form>
+        </section>
+
+        <section class="card">
+          <div class="section-head">
+            <div>
+              <h2 data-i18n="detailsTitle">Objekt-Details</h2>
+              <p data-i18n="detailsCopy">Die Berechnung zeigt den damaligen Kaufpreis, den ungefähr aktuellen Verkaufswert und die Haltedauer.</p>
+            </div>
+          </div>
+
+          <div id="detailsWrap"></div>
+        </section>
+
+        <section class="card">
+          <div class="section-head">
+            <div>
+              <h2 data-i18n="multipleTitle">Modell mit mehreren Wohnungen</h2>
+              <p data-i18n="multipleCopy">Betrachten Sie das Immobilienvermögensmodell mit zwei, drei, vier oder weiteren gleichwertigen Wohnungen.</p>
+            </div>
+          </div>
+
+          <div id="multipleWrap"></div>
+        </section>
+      </div>
+
+      <div>
+        <section class="card">
+          <div class="section-head">
+            <div>
+              <h2 data-i18n="resultTitle">Ergebnis nach Aktualisierung</h2>
+              <p data-i18n="resultCopy">Einzelberechnung auf Basis des gespeicherten Kaufpreises und der eingestellten Jahresrate.</p>
+            </div>
+          </div>
+
+          <div id="resultWrap"></div>
+        </section>
+
+        <section class="card">
+          <div class="section-head">
+            <div>
+              <h2 data-i18n="chartTitle">Wertentwicklung der Immobilie</h2>
+              <p data-i18n="chartCopy">Monatlich fortgeschriebene Modellrechnung vom Kaufdatum bis 20 Jahre ab heute.</p>
+            </div>
+          </div>
+
+          <div class="chart-wrap">
+            <svg id="valueChart" viewBox="0 0 900 320" role="img" aria-label="Wertentwicklung"></svg>
+          </div>
+
+          <div class="projection-grid" id="projectionWrap"></div>
+        </section>
+      </div>
+    </div>
+
+    <section class="card notice-card">
+      <div class="section-head">
+        <div>
+          <h2 data-i18n="noticeTitle">Wichtige Hinweise zur Modellrechnung</h2>
+          <p data-i18n="noticeCopy">Die Ergebnisse dienen ausschließlich als vereinfachte Orientierung.</p>
+        </div>
+      </div>
+
+      <ul class="notices">
+        <li data-i18n="notice1">Die Berechnung stellt ausschließlich eine modellhafte Wertentwicklung dar und ersetzt keine individuelle Immobilienbewertung.</li>
+        <li data-i18n="notice2">Der Rechner bildet keine zusätzliche steuerliche Betrachtung ab, die sich im Einzelfall zusätzlich positiv auswirken kann.</li>
+        <li data-i18n="notice3">Die über die Jahre tatsächlich selbst eingesetzten Beträge werden nicht betrachtet. Einnahmen aus Mieten und möglichen Steuervorteilen werden nicht den Finanzierungskosten und nicht umlegbaren Nebenkosten gegenübergestellt.</li>
+        <li data-i18n="notice4">Eine mögliche positive Mietentwicklung wird in der Berechnung nicht berücksichtigt.</li>
+        <li data-i18n="notice5">Bei einer Haltedauer unter zehn Jahren wird lediglich ein Hinweis auf eine mögliche Besteuerung des entstandenen Gewinns nach dem persönlichen Einkommensteuersatz angezeigt. Es erfolgt keine Steuerberechnung und es werden keine Steuertabellen hinterlegt.</li>
+        <li data-i18n="notice6">Steuerliche und rechtliche Fragen müssen für jedes Objekt individuell mit einer fachkundigen Stelle geprüft werden.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell" data-i18n="footerText">xxl.immo Immobilienrechner · Modellhafte Berechnung ohne Gewähr</div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const STORAGE_KEY = "xxlImmoSinglePropertyV3";
+      const OLD_SINGLE_KEY = "xxlImmoSinglePropertyV2";
+      const OLD_PORTFOLIO_KEY = "xxlImmoPortfolioV1";
+      const LANGUAGE_KEY = "xxlImmoLanguageV1";
+      const MULTIPLE_KEY = "xxlImmoMultipleCountV1";
+      const DEFAULT_RATE = 5;
+
+      const dictionary = {
+        de: {
+          brandSubtitle: "Modellhafte Wertentwicklung",
+          heroEyebrow: "Immobilienvermögensberatung · Modellrechnung",
+          heroTitle: "Wie entwickelt sich der Wert Ihrer Immobilie?",
+          heroCopy: "Erfassen Sie eine Immobilie, aktualisieren Sie den rechnerischen Monatswert und betrachten Sie mögliche Entwicklungen für die kommenden Jahre. Als Standardwert sind 5 % Wertsteigerung pro Jahr hinterlegt. Für Vergleichsrechnungen kann die Jahresrate zwischen 1 % und 10 % angepasst werden.",
+          fact1Strong: "5 % Standardwert pro Jahr",
+          fact1Text: "Monatlich 0,4167 % des ursprünglichen Basiswertes",
+          fact2Strong: "Monatliche Aktualisierung",
+          fact2Text: "Aktuellen Wert per Button neu ausweisen",
+          fact3Strong: "Mehrwohnungsmodell",
+          fact3Text: "Dieselbe Immobilie mit zwei, drei, vier oder weiteren Wohnungen betrachten",
+          formTitle: "Immobilie erfassen",
+          formCopy: "Die Einzelberechnung arbeitet mit einer gespeicherten Immobilie. Diese kann geändert oder gelöscht werden.",
+          labelName: "Objektbezeichnung *",
+          labelAddress: "Adresse oder Notiz",
+          labelPrice: "Kaufpreis / Basiswert in Euro *",
+          labelDate: "Kaufvertragsdatum *",
+          placeholderName: "z. B. Eigentumswohnung",
+          placeholderAddress: "optional",
+          labelRate: "Modellhafte Wertsteigerung pro Jahr",
+          labelRateNumber: "Jahresrate in %",
+          rateStandard: "Standard: 5 %",
+          rateNote: "Bei {rate} % pro Jahr entspricht die monatliche Fortschreibung {monthlyRate} % des ursprünglichen Kaufpreises. Der Standardwert aus der Bauanleitung beträgt 5 % pro Jahr.",
+          saveButton: "Immobilie speichern und berechnen",
+          deleteButton: "Immobilie löschen",
+          localStorageNote: "Ihre Eingaben werden ausschließlich lokal in diesem Browser gespeichert.",
+          detailsTitle: "Objekt-Details",
+          detailsCopy: "Die Berechnung zeigt den damaligen Kaufpreis, den ungefähr aktuellen Verkaufswert und die Haltedauer.",
+          multipleTitle: "Modell mit mehreren Wohnungen",
+          multipleCopy: "Betrachten Sie das Immobilienvermögensmodell mit zwei, drei, vier oder weiteren gleichwertigen Wohnungen.",
+          resultTitle: "Ergebnis nach Aktualisierung",
+          resultCopy: "Einzelberechnung auf Basis des gespeicherten Kaufpreises und der eingestellten Jahresrate.",
+          chartTitle: "Wertentwicklung der Immobilie",
+          chartCopy: "Monatlich fortgeschriebene Modellrechnung vom Kaufdatum bis 20 Jahre ab heute.",
+          noticeTitle: "Wichtige Hinweise zur Modellrechnung",
+          noticeCopy: "Die Ergebnisse dienen ausschließlich als vereinfachte Orientierung.",
+          notice1: "Die Berechnung stellt ausschließlich eine modellhafte Wertentwicklung dar und ersetzt keine individuelle Immobilienbewertung.",
+          notice2: "Der Rechner bildet keine zusätzliche steuerliche Betrachtung ab, die sich im Einzelfall zusätzlich positiv auswirken kann.",
+          notice3: "Die über die Jahre tatsächlich selbst eingesetzten Beträge werden nicht betrachtet. Einnahmen aus Mieten und möglichen Steuervorteilen werden nicht den Finanzierungskosten und nicht umlegbaren Nebenkosten gegenübergestellt.",
+          notice4: "Eine mögliche positive Mietentwicklung wird in der Berechnung nicht berücksichtigt.",
+          notice5: "Bei einer Haltedauer unter zehn Jahren wird lediglich ein Hinweis auf eine mögliche Besteuerung des entstandenen Gewinns nach dem persönlichen Einkommensteuersatz angezeigt. Es erfolgt keine Steuerberechnung und es werden keine Steuertabellen hinterlegt.",
+          notice6: "Steuerliche und rechtliche Fragen müssen für jedes Objekt individuell mit einer fachkundigen Stelle geprüft werden.",
+          footerText: "xxl.immo Immobilienrechner · Modellhafte Berechnung ohne Gewähr",
+          emptyResult: "Noch keine Immobilie gespeichert. Erfassen Sie links Ihre Immobilie und starten Sie die Berechnung.",
+          emptyDetails: "Nach dem Speichern erscheinen hier die Detailwerte.",
+          emptyMultiple: "Nach dem Speichern einer Immobilie können Sie hier das Modell mit mehreren Wohnungen aufrufen.",
+          paid: "Damals bezahlt",
+          todayValue: "Ca. Verkaufserlös heute",
+          gain: "Rechnerischer Wertzuwachs",
+          annualRate: "Jahresrate",
+          monthlyPercent: "Monatliche Rate",
+          monthlyEuro: "Monatlicher Wertzuwachs",
+          nextUpdate: "Nächster Monatszeitpunkt",
+          nextValue: "Wert am nächsten Monatszeitpunkt",
+          holding: "Aktuelle Haltedauer",
+          tenYearDate: "Zehn-Jahres-Zeitpunkt",
+          calculatedOn: "Berechnet am",
+          possibleTaxFree: "Möglicher steuerfreier Gewinn",
+          notTaxFree: "Noch nicht als steuerfrei ausgewiesen",
+          taxReached: "Die rechnerische Haltedauer beträgt mindestens zehn Jahre. Ob der Gewinn im konkreten Einzelfall tatsächlich steuerfrei ist, muss individuell geprüft werden.",
+          taxPending: "Die rechnerische Haltedauer beträgt noch keine zehn Jahre. Auf den entstandenen Gewinn kann Einkommensteuer nach dem persönlichen Steuersatz anfallen. Der Rechner berechnet keine Steuer.",
+          inYears: "in {years} Jahren",
+          yearsShort: "J.",
+          monthsShort: "Mon.",
+          lastUpdate: "Letzte Aktualisierung:",
+          refreshButton: "Immobilienwert aktualisieren",
+          printButton: "Drucken",
+          multipleLabel: "Anzahl gleichwertiger Wohnungen",
+          multipleHint: "Die Einzelimmobilie bleibt die Berechnungsgrundlage. Hier wird nur das mögliche Gesamtmodell vervielfacht.",
+          multiplePaid: "Gemeinsamer Kaufpreis / Basiswert",
+          multipleToday: "Gemeinsamer Verkaufserlös heute",
+          multipleGain: "Gemeinsamer Wertzuwachs heute",
+          multipleTaxFree: "Möglicher steuerfreier Gewinn gesamt",
+          multipleFuture: "Gemeinsamer Wert in {years} Jahren",
+          toastSaved: "Die Immobilie wurde gespeichert und neu berechnet.",
+          toastDeleted: "Die Immobilie wurde gelöscht.",
+          toastUpdated: "Der Immobilienwert wurde aktualisiert.",
+          toastMissing: "Bitte füllen Sie alle Pflichtfelder vollständig aus.",
+          toastFutureDate: "Das Kaufvertragsdatum darf nicht in der Zukunft liegen.",
+          confirmDelete: "Soll die gespeicherte Immobilie wirklich gelöscht werden?",
+          chartPurchase: "Kauf",
+          chartNow: "Heute",
+          chartYears: "Jahre"
+        },
+        en: {
+          brandSubtitle: "Model-based value development",
+          heroEyebrow: "Real estate asset consulting · model calculation",
+          heroTitle: "How could the value of your property develop?",
+          heroCopy: "Enter one property, update its calculated monthly value and review potential developments for the coming years. The standard appreciation rate is 5% per year. For comparison calculations, the annual rate can be adjusted between 1% and 10%.",
+          fact1Strong: "5% standard rate per year",
+          fact1Text: "Monthly 0.4167% of the original base value",
+          fact2Strong: "Monthly update",
+          fact2Text: "Recalculate the current value by button",
+          fact3Strong: "Multiple-apartment model",
+          fact3Text: "Review the same property with two, three, four or more apartments",
+          formTitle: "Enter property",
+          formCopy: "The single-property calculation uses one saved property. It can be changed or deleted.",
+          labelName: "Property name *",
+          labelAddress: "Address or note",
+          labelPrice: "Purchase price / base value in euros *",
+          labelDate: "Purchase contract date *",
+          placeholderName: "e.g. Apartment",
+          placeholderAddress: "optional",
+          labelRate: "Model-based annual appreciation",
+          labelRateNumber: "Annual rate in %",
+          rateStandard: "Standard: 5%",
+          rateNote: "At {rate}% per year, the monthly progression is {monthlyRate}% of the original purchase price. The standard rate from the requirements is 5% per year.",
+          saveButton: "Save and calculate property",
+          deleteButton: "Delete property",
+          localStorageNote: "Your entries are stored locally in this browser only.",
+          detailsTitle: "Property details",
+          detailsCopy: "The calculation shows the original purchase price, the approximate current sales value and the holding period.",
+          multipleTitle: "Model with several apartments",
+          multipleCopy: "Review the real estate asset model with two, three, four or more equivalent apartments.",
+          resultTitle: "Result after update",
+          resultCopy: "Single-property calculation based on the saved purchase price and the selected annual rate.",
+          chartTitle: "Value development of the property",
+          chartCopy: "Monthly progression from the purchase date to 20 years from today.",
+          noticeTitle: "Important information about this model calculation",
+          noticeCopy: "The results are intended as a simplified orientation only.",
+          notice1: "The calculation shows a model-based value development only and does not replace an individual property valuation.",
+          notice2: "The calculator does not include additional tax considerations that may have a further positive effect in an individual case.",
+          notice3: "Amounts actually paid by the owner over the years are not considered. Rental income and possible tax advantages are not compared with financing costs and non-recoverable ancillary costs.",
+          notice4: "Possible positive rent development is not included in the calculation.",
+          notice5: "For a holding period below ten years, the calculator only displays a notice that a profit may be subject to income tax at the personal tax rate. No tax is calculated and no tax tables are stored.",
+          notice6: "Tax and legal questions must be reviewed individually for each property with a qualified professional.",
+          footerText: "xxl.immo property calculator · Model calculation without warranty",
+          emptyResult: "No property has been saved yet. Enter your property on the left and start the calculation.",
+          emptyDetails: "The detailed values will appear here after saving.",
+          emptyMultiple: "After saving a property, the model with several apartments will appear here.",
+          paid: "Originally paid",
+          todayValue: "Approx. sales proceeds today",
+          gain: "Calculated value increase",
+          annualRate: "Annual rate",
+          monthlyPercent: "Monthly rate",
+          monthlyEuro: "Monthly value increase",
+          nextUpdate: "Next monthly date",
+          nextValue: "Value at next monthly date",
+          holding: "Current holding period",
+          tenYearDate: "Ten-year date",
+          calculatedOn: "Calculated on",
+          possibleTaxFree: "Possible tax-free profit",
+          notTaxFree: "Not shown as tax-free yet",
+          taxReached: "The calculated holding period is at least ten years. Whether the profit is actually tax-free in the individual case must be reviewed separately.",
+          taxPending: "The calculated holding period is still below ten years. A profit may be subject to income tax at the personal tax rate. The calculator does not calculate tax.",
+          inYears: "in {years} years",
+          yearsShort: "yrs",
+          monthsShort: "mos",
+          lastUpdate: "Last update:",
+          refreshButton: "Update property value",
+          printButton: "Print",
+          multipleLabel: "Number of equivalent apartments",
+          multipleHint: "The single property remains the calculation basis. Only the possible total model is multiplied here.",
+          multiplePaid: "Combined purchase price / base value",
+          multipleToday: "Combined sales proceeds today",
+          multipleGain: "Combined value increase today",
+          multipleTaxFree: "Possible combined tax-free profit",
+          multipleFuture: "Combined value in {years} years",
+          toastSaved: "The property has been saved and recalculated.",
+          toastDeleted: "The property has been deleted.",
+          toastUpdated: "The property value has been updated.",
+          toastMissing: "Please complete all required fields.",
+          toastFutureDate: "The purchase contract date must not be in the future.",
+          confirmDelete: "Do you really want to delete the saved property?",
+          chartPurchase: "Purchase",
+          chartNow: "Today",
+          chartYears: "Years"
+        }
+      };
+
+      let lang = localStorage.getItem(LANGUAGE_KEY) || "de";
+      let property = loadProperty();
+      let multipleCount = clampCount(localStorage.getItem(MULTIPLE_KEY) || 2);
+
+      const form = document.getElementById("propertyForm");
+      const nameInput = document.getElementById("propertyName");
+      const addressInput = document.getElementById("propertyAddress");
+      const priceInput = document.getElementById("purchasePrice");
+      const dateInput = document.getElementById("purchaseDate");
+      const rateRange = document.getElementById("annualRate");
+      const rateNumber = document.getElementById("annualRateNumber");
+      const rateNote = document.getElementById("rateNote");
+      const deleteButton = document.getElementById("deleteButton");
+      const detailsWrap = document.getElementById("detailsWrap");
+      const multipleWrap = document.getElementById("multipleWrap");
+      const resultWrap = document.getElementById("resultWrap");
+      const projectionWrap = document.getElementById("projectionWrap");
+      const chart = document.getElementById("valueChart");
+      const toast = document.getElementById("toast");
+
+      dateInput.max = isoDate(today());
+
+      function t(key,replacements = {}){
+        let text = (dictionary[lang] && dictionary[lang][key]) || dictionary.de[key] || key;
+
+        Object.entries(replacements).forEach(([token,value]) => {
+          text = text.replaceAll(`{${token}}`,String(value));
+        });
+
+        return text;
+      }
+
+      function today(){
+        const date = new Date();
+        date.setHours(0,0,0,0);
+        return date;
+      }
+
+      function isoDate(date){
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2,"0");
+        const day = String(date.getDate()).padStart(2,"0");
+        return `${year}-${month}-${day}`;
+      }
+
+      function parseDate(value){
+        const [year,month,day] = String(value).split("-").map(Number);
+        return new Date(year,month - 1,day);
+      }
+
+      function formatDate(value){
+        if(!value){
+          return "–";
+        }
+
+        const locale = lang === "de" ? "de-DE" : "en-GB";
+        return new Intl.DateTimeFormat(locale).format(parseDate(value));
+      }
+
+      function formatMoney(value){
+        const locale = lang === "de" ? "de-DE" : "en-IE";
+        return new Intl.NumberFormat(locale,{
+          style:"currency",
+          currency:"EUR",
+          maximumFractionDigits:0
+        }).format(Number(value) || 0);
+      }
+
+      function formatPercent(value,maximumFractionDigits = 3){
+        const locale = lang === "de" ? "de-DE" : "en-GB";
+        return new Intl.NumberFormat(locale,{
+          minimumFractionDigits:0,
+          maximumFractionDigits
+        }).format(Number(value) || 0);
+      }
+
+      function formatCompactMoney(value){
+        const locale = lang === "de" ? "de-DE" : "en-GB";
+        return new Intl.NumberFormat(locale,{
+          notation:"compact",
+          maximumFractionDigits:1
+        }).format(Number(value) || 0) + " €";
+      }
+
+      function escapeHtml(value){
+        return String(value ?? "")
+          .replaceAll("&","&amp;")
+          .replaceAll("<","&lt;")
+          .replaceAll(">","&gt;")
+          .replaceAll("\"","&quot;")
+          .replaceAll("'","&#039;");
+      }
+
+      function addMonths(dateValue,months){
+        const date = typeof dateValue === "string" ? parseDate(dateValue) : new Date(dateValue);
+        const originalDay = date.getDate();
+        const result = new Date(date.getFullYear(),date.getMonth() + months,1);
+        const lastDay = new Date(result.getFullYear(),result.getMonth() + 1,0).getDate();
+        result.setDate(Math.min(originalDay,lastDay));
+        return result;
+      }
+
+      function fullMonthsBetween(startValue,endValue = isoDate(today())){
+        const start = typeof startValue === "string" ? parseDate(startValue) : startValue;
+        const end = typeof endValue === "string" ? parseDate(endValue) : endValue;
+        let months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+        const milestone = addMonths(start,months);
+
+        if(milestone > end){
+          months -= 1;
+        }
+
+        return Math.max(0,months);
+      }
+
+      function clampRate(value){
+        const numericValue = Number(value);
+
+        if(!Number.isFinite(numericValue)){
+          return DEFAULT_RATE;
+        }
+
+        return Math.min(10,Math.max(1,Math.round(numericValue * 10) / 10));
+      }
+
+      function clampCount(value){
+        const numericValue = Math.floor(Number(value));
+
+        if(!Number.isFinite(numericValue)){
+          return 2;
+        }
+
+        return Math.min(500,Math.max(1,numericValue));
+      }
+
+      function monthlyRate(item){
+        return clampRate(item.annualRate) / 12;
+      }
+
+      function monthlyEuro(item){
+        return Number(item.purchasePrice) * (monthlyRate(item) / 100);
+      }
+
+      function linearValueByMonths(item,months){
+        return Number(item.purchasePrice) + monthlyEuro(item) * months;
+      }
+
+      function currentValue(item){
+        return linearValueByMonths(item,fullMonthsBetween(item.purchaseDate));
+      }
+
+      function futureValue(item,years){
+        return linearValueByMonths(item,fullMonthsBetween(item.purchaseDate) + years * 12);
+      }
+
+      function nextUpdateDate(item){
+        return isoDate(addMonths(item.purchaseDate,fullMonthsBetween(item.purchaseDate) + 1));
+      }
+
+      function nextValue(item){
+        return linearValueByMonths(item,fullMonthsBetween(item.purchaseDate) + 1);
+      }
+
+      function holdingText(item){
+        const months = fullMonthsBetween(item.purchaseDate);
+        return `${Math.floor(months / 12)} ${t("yearsShort")} ${months % 12} ${t("monthsShort")}`;
+      }
+
+      function tenYearDate(item){
+        return isoDate(addMonths(item.purchaseDate,120));
+      }
+
+      function reachedTenYears(item){
+        return parseDate(tenYearDate(item)) <= today();
+      }
+
+      function normalizeProperty(saved){
+        if(!saved || !saved.purchaseDate || !(Number(saved.purchasePrice) > 0)){
+          return null;
+        }
+
+        return {
+          name:String(saved.name || "Immobilie"),
+          address:String(saved.address || ""),
+          purchasePrice:Number(saved.purchasePrice),
+          purchaseDate:String(saved.purchaseDate),
+          annualRate:clampRate(saved.annualRate),
+          lastUpdated:String(saved.lastUpdated || isoDate(today()))
+        };
+      }
+
+      function loadProperty(){
+        try{
+          const direct = normalizeProperty(JSON.parse(localStorage.getItem(STORAGE_KEY)));
+
+          if(direct){
+            return direct;
+          }
+        }catch(error){
+          console.warn("Saved xxl.immo data could not be read.",error);
+        }
+
+        try{
+          const oldSingle = normalizeProperty(JSON.parse(localStorage.getItem(OLD_SINGLE_KEY)));
+
+          if(oldSingle){
+            localStorage.setItem(STORAGE_KEY,JSON.stringify(oldSingle));
+            localStorage.removeItem(OLD_SINGLE_KEY);
+            return oldSingle;
+          }
+        }catch(error){
+          console.warn("Previous single-property data could not be migrated.",error);
+        }
+
+        try{
+          const oldPortfolio = JSON.parse(localStorage.getItem(OLD_PORTFOLIO_KEY));
+
+          if(oldPortfolio && Array.isArray(oldPortfolio.properties) && oldPortfolio.properties.length){
+            const oldItem = oldPortfolio.properties.find((item) => item.id === oldPortfolio.selectedId) || oldPortfolio.properties[0];
+            const migrated = normalizeProperty({...oldItem,annualRate:DEFAULT_RATE,lastUpdated:isoDate(today())});
+
+            if(migrated){
+              localStorage.setItem(STORAGE_KEY,JSON.stringify(migrated));
+              localStorage.removeItem(OLD_PORTFOLIO_KEY);
+              return migrated;
+            }
+          }
+        }catch(error){
+          console.warn("Previous portfolio data could not be migrated.",error);
+        }
+
+        return null;
+      }
+
+      function saveProperty(){
+        if(property){
+          localStorage.setItem(STORAGE_KEY,JSON.stringify(property));
+        }else{
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      }
+
+      function fillForm(){
+        if(!property){
+          form.reset();
+          rateRange.value = String(DEFAULT_RATE);
+          rateNumber.value = String(DEFAULT_RATE);
+          deleteButton.hidden = true;
+          updateRateNote();
+          return;
+        }
+
+        nameInput.value = property.name;
+        addressInput.value = property.address;
+        priceInput.value = String(property.purchasePrice);
+        dateInput.value = property.purchaseDate;
+        rateRange.value = String(property.annualRate);
+        rateNumber.value = String(property.annualRate);
+        deleteButton.hidden = false;
+        updateRateNote();
+      }
+
+      function updateRateNote(){
+        const rate = clampRate(rateNumber.value || rateRange.value);
+        rateNote.textContent = t("rateNote",{
+          rate:formatPercent(rate,1),
+          monthlyRate:formatPercent(rate / 12,4)
+        });
+      }
+
+      function applyLanguage(){
+        document.documentElement.lang = lang;
+
+        document.querySelectorAll("[data-i18n]").forEach((element) => {
+          element.textContent = t(element.dataset.i18n);
+        });
+
+        document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+          element.placeholder = t(element.dataset.i18nPlaceholder);
+        });
+
+        document.querySelectorAll(".lang-btn").forEach((button) => {
+          button.classList.toggle("active",button.dataset.lang === lang);
+        });
+
+        updateRateNote();
+        renderAll();
+      }
+
+      function showToast(message){
+        toast.textContent = message;
+        toast.classList.add("show");
+        window.clearTimeout(showToast.timer);
+        showToast.timer = window.setTimeout(() => toast.classList.remove("show"),2500);
+      }
+
+      function renderAll(){
+        renderResult();
+        renderDetails();
+        renderProjection();
+        renderMultiple();
+        renderChart();
+      }
+
+      function renderResult(){
+        if(!property){
+          resultWrap.innerHTML = `<div class="empty">${escapeHtml(t("emptyResult"))}</div>`;
+          return;
+        }
+
+        const valueToday = currentValue(property);
+        const gain = valueToday - property.purchasePrice;
+
+        resultWrap.innerHTML = `
+          <div class="metrics">
+            <div class="metric">
+              <span>${escapeHtml(t("paid"))}</span>
+              <strong>${formatMoney(property.purchasePrice)}</strong>
+            </div>
+
+            <div class="metric">
+              <span>${escapeHtml(t("todayValue"))}</span>
+              <strong>${formatMoney(valueToday)}</strong>
+            </div>
+
+            <div class="metric">
+              <span>${escapeHtml(t("gain"))}</span>
+              <strong>${formatMoney(gain)}</strong>
+            </div>
+
+            <div class="metric">
+              <span>${escapeHtml(t("possibleTaxFree"))}</span>
+              <strong>${reachedTenYears(property) ? formatMoney(gain) : escapeHtml(t("notTaxFree"))}</strong>
+            </div>
+          </div>
+
+          <div class="month-box">
+            <div class="month-item">
+              <span>${escapeHtml(t("monthlyPercent"))}</span>
+              <strong>${escapeHtml(formatPercent(monthlyRate(property),4))} %</strong>
+            </div>
+
+            <div class="month-item">
+              <span>${escapeHtml(t("monthlyEuro"))}</span>
+              <strong>${formatMoney(monthlyEuro(property))}</strong>
+            </div>
+
+            <div class="month-item">
+              <span>${escapeHtml(t("nextUpdate"))}</span>
+              <strong>${formatDate(nextUpdateDate(property))}</strong>
+            </div>
+
+            <div class="month-item">
+              <span>${escapeHtml(t("nextValue"))}</span>
+              <strong>${formatMoney(nextValue(property))}</strong>
+            </div>
+          </div>
+
+          <div class="result-actions">
+            <div class="last-update">
+              <span>${escapeHtml(t("lastUpdate"))}</span>
+              <strong>${formatDate(property.lastUpdated)}</strong>
+            </div>
+
+            <div class="btn-row" style="margin-top:0">
+              <button class="btn small" id="refreshButton" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5" />
+                </svg>
+                <span>${escapeHtml(t("refreshButton"))}</span>
+              </button>
+
+              <button class="btn secondary small" id="printButton" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z" />
+                </svg>
+                <span>${escapeHtml(t("printButton"))}</span>
+              </button>
+            </div>
+          </div>
+        `;
+
+        document.getElementById("refreshButton").addEventListener("click",() => {
+          property.lastUpdated = isoDate(today());
+          saveProperty();
+          renderAll();
+          showToast(t("toastUpdated"));
+        });
+
+        document.getElementById("printButton").addEventListener("click",() => window.print());
+      }
+
+      function renderDetails(){
+        if(!property){
+          detailsWrap.innerHTML = `<div class="empty">${escapeHtml(t("emptyDetails"))}</div>`;
+          return;
+        }
+
+        const valueToday = currentValue(property);
+        const gain = valueToday - property.purchasePrice;
+        const taxFree = reachedTenYears(property);
+
+        detailsWrap.innerHTML = `
+          <div class="detail-header">
+            <h3>${escapeHtml(property.name)}</h3>
+            <p>${escapeHtml(property.address || "–")}</p>
+          </div>
+
+          <div class="detail-grid">
+            <div class="detail-box">
+              <span>${escapeHtml(t("paid"))}</span>
+              <strong>${formatMoney(property.purchasePrice)}</strong>
+            </div>
+
+            <div class="detail-box">
+              <span>${escapeHtml(t("todayValue"))}</span>
+              <strong>${formatMoney(valueToday)}</strong>
+            </div>
+
+            <div class="detail-box">
+              <span>${escapeHtml(t("gain"))}</span>
+              <strong>${formatMoney(gain)}</strong>
+            </div>
+
+            <div class="detail-box">
+              <span>${escapeHtml(t("possibleTaxFree"))}</span>
+              <strong>${taxFree ? formatMoney(gain) : escapeHtml(t("notTaxFree"))}</strong>
+            </div>
+
+            <div class="detail-box">
+              <span>${escapeHtml(t("annualRate"))}</span>
+              <strong>${escapeHtml(formatPercent(property.annualRate,1))} %</strong>
+            </div>
+
+            <div class="detail-box">
+              <span>${escapeHtml(t("monthlyPercent"))}</span>
+              <strong>${escapeHtml(formatPercent(monthlyRate(property),4))} %</strong>
+            </div>
+
+            <div class="detail-box">
+              <span>${escapeHtml(t("monthlyEuro"))}</span>
+              <strong>${formatMoney(monthlyEuro(property))}</strong>
+            </div>
+
+            <div class="detail-box">
+              <span>${escapeHtml(t("holding"))}</span>
+              <strong>${escapeHtml(holdingText(property))}</strong>
+            </div>
+
+            <div class="detail-box">
+              <span>${escapeHtml(t("tenYearDate"))}</span>
+              <strong>${formatDate(tenYearDate(property))}</strong>
+            </div>
+
+            <div class="detail-box">
+              <span>${escapeHtml(t("calculatedOn"))}</span>
+              <strong>${formatDate(property.lastUpdated)}</strong>
+            </div>
+          </div>
+
+          <p class="detail-note">${escapeHtml(taxFree ? t("taxReached") : t("taxPending"))}</p>
+        `;
+      }
+
+      function renderProjection(){
+        if(!property){
+          projectionWrap.innerHTML = "";
+          return;
+        }
+
+        projectionWrap.innerHTML = [5,10,15,20].map((years) => `
+          <div class="projection">
+            <span>${escapeHtml(t("inYears",{years}))}</span>
+            <strong>${formatMoney(futureValue(property,years))}</strong>
+          </div>
+        `).join("");
+      }
+
+      function renderMultiple(){
+        if(!property){
+          multipleWrap.innerHTML = `<div class="empty">${escapeHtml(t("emptyMultiple"))}</div>`;
+          return;
+        }
+
+        multipleWrap.innerHTML = `
+          <div class="multiple-controls">
+            <div>
+              <label for="multipleCount">${escapeHtml(t("multipleLabel"))}</label>
+              <p class="microcopy" style="margin:0">${escapeHtml(t("multipleHint"))}</p>
+
+              <div class="quick-buttons">
+                ${[1,2,3,4,5,10].map((count) => `
+                  <button class="quick-btn ${multipleCount === count ? "active" : ""}" type="button" data-count="${count}">${count}</button>
+                `).join("")}
+              </div>
+            </div>
+
+            <div>
+              <label for="multipleCount">${escapeHtml(t("multipleLabel"))}</label>
+              <input id="multipleCount" type="number" min="1" max="500" step="1" value="${multipleCount}" />
+            </div>
+          </div>
+
+          <div id="scenarioSummary" class="scenario-summary"></div>
+        `;
+
+        const countInput = document.getElementById("multipleCount");
+
+        countInput.addEventListener("change",() => {
+          multipleCount = clampCount(countInput.value);
+          localStorage.setItem(MULTIPLE_KEY,String(multipleCount));
+          renderMultiple();
+        });
+
+        multipleWrap.querySelectorAll("[data-count]").forEach((button) => {
+          button.addEventListener("click",() => {
+            multipleCount = clampCount(button.dataset.count);
+            localStorage.setItem(MULTIPLE_KEY,String(multipleCount));
+            renderMultiple();
+          });
+        });
+
+        updateScenarioSummary();
+      }
+
+      function updateScenarioSummary(){
+        const summary = document.getElementById("scenarioSummary");
+
+        if(!property || !summary){
+          return;
+        }
+
+        const count = multipleCount;
+        const paid = property.purchasePrice * count;
+        const valueToday = currentValue(property) * count;
+        const gain = valueToday - paid;
+        const taxFree = reachedTenYears(property);
+
+        const rows = [
+          [t("multiplePaid"),formatMoney(paid)],
+          [t("multipleToday"),formatMoney(valueToday)],
+          [t("multipleGain"),formatMoney(gain)],
+          [t("multipleTaxFree"),taxFree ? formatMoney(gain) : t("notTaxFree")],
+          ...[5,10,15,20].map((years) => [t("multipleFuture",{years}),formatMoney(futureValue(property,years) * count)])
+        ];
+
+        summary.innerHTML = rows.map(([label,value]) => `
+          <div class="scenario-row">
+            <span>${escapeHtml(label)}</span>
+            <strong>${escapeHtml(value)}</strong>
+          </div>
+        `).join("");
+      }
+
+      function renderChart(){
+        const width = 900;
+        const height = 320;
+        const pad = {left:88,right:30,top:26,bottom:54};
+        const plotWidth = width - pad.left - pad.right;
+        const plotHeight = height - pad.top - pad.bottom;
+
+        if(!property){
+          chart.innerHTML = `
+            <rect x="0" y="0" width="${width}" height="${height}" fill="#fcfcfb" />
+            <text x="${width / 2}" y="${height / 2}" text-anchor="middle" font-size="17" fill="#777">${escapeHtml(t("emptyResult"))}</text>
+          `;
+          return;
+        }
+
+        const elapsedMonths = fullMonthsBetween(property.purchaseDate);
+        const futureMonths = elapsedMonths + 240;
+        const maxValue = linearValueByMonths(property,futureMonths);
+
+        const x = (months) => pad.left + (months / futureMonths) * plotWidth;
+        const y = (value) => pad.top + plotHeight - (value / maxValue) * plotHeight;
+
+        const linePoints = Array.from({length:futureMonths + 1},(_,months) => `${x(months)},${y(linearValueByMonths(property,months))}`).join(" ");
+
+        const grid = Array.from({length:5},(_,index) => {
+          const ratio = index / 4;
+          const yy = pad.top + ratio * plotHeight;
+          const value = maxValue * (1 - ratio);
+
+          return `
+            <line x1="${pad.left}" y1="${yy}" x2="${width - pad.right}" y2="${yy}" stroke="#d9d9d5" stroke-width="1" stroke-dasharray="5 7" />
+            <text x="${pad.left - 12}" y="${yy + 4}" text-anchor="end" font-size="14" fill="#666">${escapeHtml(formatCompactMoney(value))}</text>
+          `;
+        }).join("");
+
+        const tickData = [
+          {months:0,label:t("chartPurchase")},
+          {months:elapsedMonths,label:t("chartNow")},
+          {months:elapsedMonths + 60,label:"+5"},
+          {months:elapsedMonths + 120,label:"+10"},
+          {months:elapsedMonths + 180,label:"+15"},
+          {months:elapsedMonths + 240,label:"+20"}
+        ];
+
+        const ticks = tickData.map((item) => `
+          <line x1="${x(item.months)}" y1="${pad.top + plotHeight}" x2="${x(item.months)}" y2="${pad.top + plotHeight + 6}" stroke="#000" stroke-width="1" />
+          <text x="${x(item.months)}" y="${height - 21}" text-anchor="middle" font-size="13" fill="#555">${escapeHtml(item.label)}</text>
+        `).join("");
+
+        const currentX = x(elapsedMonths);
+        const currentY = y(currentValue(property));
+
+        chart.innerHTML = `
+          <rect x="0" y="0" width="${width}" height="${height}" fill="#fcfcfb" />
+          ${grid}
+          <line x1="${pad.left}" y1="${pad.top + plotHeight}" x2="${width - pad.right}" y2="${pad.top + plotHeight}" stroke="#000" stroke-width="1.5" />
+          <polyline points="${linePoints}" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="${currentX}" cy="${currentY}" r="6" fill="#fff" stroke="#000" stroke-width="3" />
+          <text x="${currentX}" y="${currentY - 13}" text-anchor="middle" font-size="14" font-weight="700" fill="#000">${escapeHtml(t("chartNow"))}</text>
+          ${ticks}
+          <text x="${width - pad.right}" y="${height - 21}" text-anchor="end" font-size="13" fill="#666">${escapeHtml(t("chartYears"))}</text>
+        `;
+      }
+
+      function syncRate(source){
+        if(source === rateNumber && String(source.value).trim() === ""){
+          return;
+        }
+
+        const rate = clampRate(source.value);
+        rateRange.value = String(rate);
+        rateNumber.value = String(rate);
+        updateRateNote();
+
+        if(property){
+          property.annualRate = rate;
+          property.lastUpdated = isoDate(today());
+          saveProperty();
+          renderAll();
+        }
+      }
+
+      form.addEventListener("submit",(event) => {
+        event.preventDefault();
+
+        const purchasePrice = Number(priceInput.value);
+        const purchaseDate = dateInput.value;
+
+        if(!nameInput.value.trim() || !purchaseDate || !Number.isFinite(purchasePrice) || purchasePrice <= 0){
+          showToast(t("toastMissing"));
+          return;
+        }
+
+        if(parseDate(purchaseDate) > today()){
+          showToast(t("toastFutureDate"));
+          return;
+        }
+
+        property = {
+          name:nameInput.value.trim(),
+          address:addressInput.value.trim(),
+          purchasePrice,
+          purchaseDate,
+          annualRate:clampRate(rateNumber.value),
+          lastUpdated:isoDate(today())
+        };
+
+        saveProperty();
+        fillForm();
+        renderAll();
+        showToast(t("toastSaved"));
+      });
+
+      deleteButton.addEventListener("click",() => {
+        if(!property || !window.confirm(t("confirmDelete"))){
+          return;
+        }
+
+        property = null;
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(OLD_SINGLE_KEY);
+        localStorage.removeItem(OLD_PORTFOLIO_KEY);
+        fillForm();
+        renderAll();
+        showToast(t("toastDeleted"));
+      });
+
+      rateRange.addEventListener("input",() => syncRate(rateRange));
+      rateNumber.addEventListener("input",() => syncRate(rateNumber));
+
+      document.querySelectorAll(".lang-btn").forEach((button) => {
+        button.addEventListener("click",() => {
+          lang = button.dataset.lang;
+          localStorage.setItem(LANGUAGE_KEY,lang);
+          applyLanguage();
+        });
+      });
+
+      fillForm();
+      applyLanguage();
+    })();
+  </script>
+</body>
+</html>
