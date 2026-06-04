@@ -1382,6 +1382,7 @@
     │   ├── drei-lieder-ein-weg.html
     │   ├── experten-finden.html
     │   ├── gut-zu-wissen.html
+    │   ├── heinz-riedel.html
     │   ├── index.html
     │   ├── jetzt-nach-vorn.html
     │   ├── karrierebooster-simulator.html
@@ -1459,4 +1460,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.06.2026, 19:57)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.06.2026, 21:41)_
