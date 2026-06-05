@@ -1,0 +1,1045 @@
+<!doctype html>
+<!--
+GitHub-Pfad: pages/heinz-riedel-portfolio-rechner.html
+Commit-Message: Add XXL.IMMO portfolio growth calculator with expert refinancing mode
+Testlink: https://adler-fsa.github.io/lp-anfang/pages/heinz-riedel-portfolio-rechner.html?nocache=202606051430
+Nächster Schritt nach Einbau: Berechnung mit realen XXL.IMMO-Beispieldaten prüfen und Standardwerte gemeinsam festlegen.
+Quellenbasis für Look & Feel und Funktionslogik:
+- https://www.xxl.immo/
+- https://www.xxl.immo/konzept
+- https://www.xxl.immo/immo-check
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>XXL.IMMO Portfolio-Wachstumsrechner</title>
+  <meta name="description" content="Portfolio-Wachstumsrechner für mehrere Immobilien mit Standardmodus und Expertenmodus zur optionalen Nutzung freien Beleihungspotenzials." />
+  <style>
+    :root{
+      --blue-950:#062d4c;
+      --blue-900:#083b63;
+      --blue-800:#0b4f7e;
+      --blue-700:#176b9e;
+      --blue-100:#eaf5fb;
+      --green-700:#579218;
+      --green-600:#72ad27;
+      --green-500:#8fc63d;
+      --green-100:#f1f8e7;
+      --ink:#183143;
+      --muted:#5c7280;
+      --line:#d9e4ea;
+      --surface:#ffffff;
+      --soft:#f5f9fb;
+      --warning:#ac6b00;
+      --danger:#a23535;
+      --shadow:0 14px 34px rgba(7,53,87,.12);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--soft);color:var(--ink);font-family:Arial,Helvetica,sans-serif;line-height:1.5}
+    button,input,select{font:inherit}
+    button{cursor:pointer}
+    .topline{background:var(--green-500);color:#173110;text-align:center;padding:8px 14px;font-size:13px;font-weight:700;letter-spacing:.03em}
+    .site-header{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;box-shadow:0 4px 14px rgba(7,53,87,.07)}
+    .header-inner{max-width:1320px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 20px}
+    .brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--blue-900);min-width:max-content}
+    .brand svg{width:42px;height:42px}
+    .brand strong{display:block;font-size:27px;line-height:1;font-weight:900;letter-spacing:-.08em}
+    .brand span{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+    .header-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+    .lang-switch{display:flex;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:3px}
+    .lang-switch button{border:0;background:transparent;color:var(--blue-900);font-size:12px;font-weight:800;padding:7px 10px;border-radius:999px}
+    .lang-switch button.active{background:var(--blue-900);color:white}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:10px;padding:11px 15px;font-weight:800;font-size:14px;text-decoration:none;transition:.2s ease}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--green-500);color:#173110;border-color:var(--green-500)}
+    .btn-blue{background:var(--blue-900);color:white;border-color:var(--blue-900)}
+    .btn-light{background:white;color:var(--blue-900);border-color:var(--line)}
+    .btn-danger{background:#fff4f4;color:var(--danger);border-color:#efd0d0}
+    .btn-small{padding:8px 10px;font-size:12px;border-radius:8px}
+    .hero{background:linear-gradient(125deg,var(--blue-950),var(--blue-800));color:white;padding:54px 20px 46px;position:relative;overflow:hidden}
+    .hero:after{content:"";position:absolute;width:390px;height:390px;border:54px solid rgba(143,198,61,.18);border-radius:50%;right:-140px;top:-165px}
+    .hero-inner{max-width:1320px;margin:0 auto;position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,.6fr);gap:30px;align-items:center}
+    .eyebrow{display:inline-block;color:var(--green-500);font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px}
+    h1{font-size:clamp(32px,5vw,58px);line-height:1.03;margin:0 0 16px;letter-spacing:-.045em;max-width:950px}
+    .hero p{font-size:18px;max-width:840px;margin:0;color:#d8e9f3}
+    .hero-badge{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:18px;backdrop-filter:blur(5px)}
+    .hero-badge strong{display:block;color:var(--green-500);font-size:34px;line-height:1;margin-bottom:7px}
+    .hero-badge span{color:#e6f3f8;font-size:14px}
+    .wrap{max-width:1320px;margin:0 auto;padding:26px 20px 70px}
+    .notice{background:white;border:1px solid var(--line);border-left:5px solid var(--green-500);border-radius:12px;padding:15px 17px;margin-bottom:20px;box-shadow:0 8px 22px rgba(7,53,87,.05);font-size:14px;color:var(--muted)}
+    .section{background:white;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-top:20px;overflow:hidden}
+    .section-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:20px 22px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,#f9fcfd)}
+    .section-head h2{font-size:23px;line-height:1.1;margin:0;color:var(--blue-900);letter-spacing:-.02em}
+    .section-head p{margin:6px 0 0;color:var(--muted);font-size:14px;max-width:850px}
+    .section-body{padding:20px 22px}
+    .grid{display:grid;gap:14px}
+    .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .field label{display:block;color:var(--blue-900);font-size:12px;font-weight:900;letter-spacing:.035em;text-transform:uppercase;margin:0 0 6px}
+    .field input,.field select{width:100%;min-height:43px;padding:9px 11px;background:white;color:var(--ink);border:1px solid #cbdbe3;border-radius:9px;outline:0}
+    .field input:focus,.field select:focus{border-color:var(--blue-700);box-shadow:0 0 0 3px rgba(23,107,158,.12)}
+    .help{display:block;color:var(--muted);font-size:11px;margin-top:5px}
+    .mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .mode-card{position:relative;border:2px solid var(--line);border-radius:14px;padding:16px;background:white;transition:.2s}
+    .mode-card.active{border-color:var(--green-500);background:var(--green-100)}
+    .mode-card input{position:absolute;opacity:0;pointer-events:none}
+    .mode-card strong{display:block;color:var(--blue-900);font-size:17px;margin-bottom:5px}
+    .mode-card span{display:block;color:var(--muted);font-size:13px}
+    .mode-card .mode-mark{position:absolute;right:13px;top:13px;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);background:white}
+    .mode-card.active .mode-mark{border:6px solid var(--green-500)}
+    .expert-panel{display:none;margin-top:16px;border:1px dashed var(--blue-700);border-radius:13px;background:var(--blue-100);padding:15px}
+    .expert-panel.open{display:block}
+    .expert-panel h3{margin:0 0 12px;color:var(--blue-900);font-size:17px}
+    .property-list{display:grid;gap:14px}
+    .property-card{border:1px solid var(--line);border-radius:14px;background:#fbfdfe;overflow:hidden}
+    .property-title{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 15px;background:var(--blue-100);border-bottom:1px solid var(--line)}
+    .property-title strong{color:var(--blue-900)}
+    .property-title small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+    .property-actions{display:flex;gap:6px;flex-wrap:wrap}
+    .property-content{padding:14px 15px}
+    .calculator-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .results{display:none}
+    .results.open{display:block}
+    .comparison-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:18px}
+    .comparison-card{border:2px solid var(--line);border-radius:14px;padding:16px;background:#fbfdfe}
+    .comparison-card.expert{border-color:var(--green-500);background:var(--green-100)}
+    .comparison-card h4{margin:0;color:var(--blue-900);font-size:18px}
+    .comparison-card p{margin:5px 0 12px;color:var(--muted);font-size:12px}
+    .comparison-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .comparison-values div{background:white;border:1px solid var(--line);border-radius:9px;padding:9px}
+    .comparison-values span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;font-weight:800}
+    .comparison-values strong{display:block;color:var(--blue-900);font-size:15px;margin-top:4px}
+    .metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+    .metric{background:white;border:1px solid var(--line);border-radius:13px;padding:15px;min-height:112px}
+    .metric .label{display:block;color:var(--muted);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+    .metric strong{display:block;color:var(--blue-900);font-size:25px;line-height:1.1;margin-top:10px;word-break:break-word}
+    .metric small{display:block;color:var(--muted);font-size:11px;margin-top:7px}
+    .chart-box{background:white;border:1px solid var(--line);border-radius:13px;padding:14px;margin-top:16px}
+    .chart-box h3{margin:0 0 9px;color:var(--blue-900);font-size:17px}
+    canvas{display:block;width:100%;height:300px;border-radius:8px;background:linear-gradient(180deg,#fff,#fbfdfe)}
+    .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:9px;color:var(--muted);font-size:12px}
+    .legend span{display:flex;align-items:center;gap:6px}
+    .dot{display:inline-block;width:12px;height:12px;border-radius:50%}
+    .dot.green{background:var(--green-600)}
+    .dot.blue{background:var(--blue-800)}
+    .dot.gray{background:#879aa5}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:13px;margin-top:16px;background:white}
+    table{width:100%;border-collapse:collapse;min-width:940px}
+    th,td{padding:11px 12px;text-align:right;border-bottom:1px solid var(--line);font-size:13px;white-space:nowrap}
+    th{background:var(--blue-900);color:white;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+    th:first-child,td:first-child{text-align:left}
+    tbody tr:nth-child(even){background:#f8fbfc}
+    tbody tr:last-child td{border-bottom:0}
+    .timeline{display:grid;gap:10px;margin-top:16px}
+    .event{display:grid;grid-template-columns:110px 1fr auto;gap:12px;align-items:center;background:white;border:1px solid var(--line);border-radius:11px;padding:12px 13px}
+    .event time{color:var(--blue-900);font-weight:900;font-size:13px}
+    .event strong{color:var(--blue-900);font-size:14px}
+    .event p{margin:3px 0 0;color:var(--muted);font-size:12px}
+    .tag{display:inline-flex;align-items:center;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+    .tag-buy{background:var(--green-100);color:var(--green-700)}
+    .tag-refi{background:var(--blue-100);color:var(--blue-800)}
+    .tag-info{background:#f2f4f5;color:#61727c}
+    .empty{padding:16px;background:white;border:1px dashed var(--line);border-radius:11px;color:var(--muted);font-size:13px}
+    .footer{background:var(--blue-950);color:#d7e9f2;padding:30px 20px}
+    .footer-inner{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center}
+    .footer strong{display:block;color:white;font-size:18px;margin-bottom:5px}
+    .footer p{margin:0;color:#b7d0dd;font-size:13px}
+    .footer a{color:var(--green-500);font-weight:800;text-decoration:none}
+    .status{margin-top:12px;padding:12px 13px;border-radius:10px;font-size:13px;display:none}
+    .status.open{display:block}
+    .status.ok{background:var(--green-100);color:#315f12;border:1px solid #cfe4ad}
+    .status.warn{background:#fff8e8;color:#7d5204;border:1px solid #eed598}
+    .status.error{background:#fff0f0;color:#8d3030;border:1px solid #e8bcbc}
+    .inline-check{display:flex;align-items:center;gap:8px;color:var(--blue-900);font-weight:800;font-size:13px;margin-top:15px}
+    .inline-check input{width:18px;height:18px;accent-color:var(--green-600)}
+    .tax-panel{display:none;margin-top:14px}
+    .tax-panel.open{display:block}
+    @media (max-width:1080px){.grid-4,.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-inner{grid-template-columns:1fr}.hero-badge{max-width:430px}}
+    @media (max-width:760px){.comparison-grid,.comparison-values{grid-template-columns:1fr}.header-inner{align-items:flex-start}.header-actions{gap:6px}.header-actions .btn{display:none}.hero{padding:38px 16px 34px}.wrap{padding:17px 13px 52px}.section-head,.section-body{padding:16px}.grid-2,.grid-3,.grid-4,.mode-grid,.metric-grid{grid-template-columns:1fr}.event{grid-template-columns:1fr}.event .tag{justify-self:start}.brand strong{font-size:23px}.brand span{font-size:8px}.topline{font-size:11px}}
+    @media print{
+      .site-header,.topline,.calculator-actions,.property-actions,.footer,.notice,.mode-grid,.expert-panel,.input-only{display:none!important}
+      body{background:white}
+      .hero{padding:20px;background:white;color:var(--blue-900);border-bottom:2px solid var(--blue-900)}
+      .hero p{color:var(--muted)}
+      .hero-badge{display:none}
+      .wrap{max-width:none;padding:12px}
+      .section{box-shadow:none;border:1px solid #cbdbe3;break-inside:avoid}
+      .section-head{padding:12px 14px}.section-body{padding:12px 14px}
+      .results{display:block!important}
+      .metric-grid{grid-template-columns:repeat(4,1fr)}
+      .metric{min-height:86px;padding:10px}.metric strong{font-size:18px}
+      canvas{height:220px}
+      th,td{padding:7px;font-size:10px}
+    }
+  </style>
+</head>
+<body>
+  <div class="topline" data-i18n="topline">Seit 1990 für Sie da! · Mehr als 1.000 vermittelte Kapitalanlage-Wohnungen</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#top" aria-label="XXL.IMMO Portfolio-Wachstumsrechner">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M7 31 32 10l25 21" fill="none" stroke="#0b4f7e" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 28v25h32V28" fill="none" stroke="#8fc63d" stroke-width="7" stroke-linejoin="round"/>
+          <path d="M27 53V37h10v16" fill="none" stroke="#0b4f7e" stroke-width="6" stroke-linejoin="round"/>
+        </svg>
+        <div><strong>xxl.immo</strong><span data-i18n="brandSub">Immobilienvermögensberatung</span></div>
+      </a>
+      <div class="header-actions">
+        <div class="lang-switch" aria-label="Sprache auswählen">
+          <button type="button" class="active" data-lang="de">DE</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+        <button type="button" class="btn btn-light" id="saveBtn" data-i18n="save">Speichern</button>
+        <button type="button" class="btn btn-light" id="printBtn" data-i18n="print">Drucken / PDF</button>
+        <button type="button" class="btn btn-primary" id="calculateTopBtn" data-i18n="calculate">Portfolio berechnen</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-inner">
+        <div>
+          <span class="eyebrow" data-i18n="eyebrow">XXL.IMMO Portfolio-Wachstumsrechner</span>
+          <h1 data-i18n="heroTitle">Vom ersten Objekt zum persönlichen Immobilienbestand.</h1>
+          <p data-i18n="heroText">Tragen Sie unterschiedlich teure Immobilien ein. Der Rechner zeigt, wann der nächste Kauf durch freie Liquidität möglich werden kann – und im Expertenmodus zusätzlich, wie vorhandenes Beleihungspotenzial die Entwicklung beeinflusst.</p>
+        </div>
+        <div class="hero-badge">
+          <strong data-i18n="heroBadgeStrong">2 Wege</strong>
+          <span data-i18n="heroBadgeText">Liquider Portfolioaufbau oder zusätzlicher Ausbau durch gezielte Anschlussfinanzierung.</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <div class="notice" data-i18n="disclaimerTop">Diese unverbindliche Modellrechnung basiert ausschließlich auf Ihren Eingaben. Sie ersetzt keine persönliche Finanzierungsprüfung, keine individuelle Objektprüfung und keine steuerliche Beratung.</div>
+
+      <section class="section input-only">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="sectionMode">1. Berechnungsweg festlegen</h2>
+            <p data-i18n="sectionModeText">Wählen Sie eine konservative Standardberechnung oder öffnen Sie die erweiterten Expertenfunktionen.</p>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="mode-grid">
+            <label class="mode-card active" id="modeStandardCard">
+              <input type="radio" name="mode" value="standard" checked />
+              <span class="mode-mark"></span>
+              <strong data-i18n="modeStandard">Standardmodus</strong>
+              <span data-i18n="modeStandardText">Neue Käufe werden nur aus vorhandenem Startkapital, monatlicher Sparleistung und realen Portfolio-Überschüssen finanziert.</span>
+            </label>
+            <label class="mode-card" id="modeExpertCard">
+              <input type="radio" name="mode" value="expert" />
+              <span class="mode-mark"></span>
+              <strong data-i18n="modeExpert">Expertenmodus</strong>
+              <span data-i18n="modeExpertText">Zusätzlich kann freies Beleihungspotenzial bestehender Immobilien für weitere Käufe eingesetzt werden.</span>
+            </label>
+          </div>
+
+          <div class="expert-panel" id="expertPanel">
+            <h3 data-i18n="expertSettings">Experteneinstellungen zur Anschlussfinanzierung</h3>
+            <div class="grid grid-4">
+              <div class="field">
+                <label for="maxLtv" data-i18n="maxLtv">Maximale Beleihungsgrenze</label>
+                <input id="maxLtv" type="number" min="0" max="100" step="0.1" value="70" />
+                <span class="help" data-i18n="maxLtvHelp">Maximale Gesamtverschuldung in % des vorsichtig angesetzten Objektwertes.</span>
+              </div>
+              <div class="field">
+                <label for="bankDiscount" data-i18n="bankDiscount">Bank-Sicherheitsabschlag</label>
+                <input id="bankDiscount" type="number" min="0" max="100" step="0.1" value="90" />
+                <span class="help" data-i18n="bankDiscountHelp">Nur dieser Anteil des Marktwertes wird für das Beleihungspotenzial angesetzt.</span>
+              </div>
+              <div class="field">
+                <label for="refiWaitYears" data-i18n="refiWait">Wartezeit bis Anschlussfinanzierung</label>
+                <input id="refiWaitYears" type="number" min="0" max="30" step="1" value="5" />
+                <span class="help" data-i18n="refiWaitHelp">Frühester Einsatz nach dem Kauf in Jahren.</span>
+              </div>
+              <div class="field">
+                <label for="refiInterest" data-i18n="refiInterest">Zins Anschlussfinanzierung</label>
+                <input id="refiInterest" type="number" min="0" max="20" step="0.1" value="4.0" />
+                <span class="help" data-i18n="refiInterestHelp">Annahme für neu aufgenommenes Kapital.</span>
+              </div>
+              <div class="field">
+                <label for="refiRepayment" data-i18n="refiRepayment">Tilgung Anschlussfinanzierung</label>
+                <input id="refiRepayment" type="number" min="0" max="20" step="0.1" value="2.0" />
+              </div>
+              <div class="field">
+                <label for="maxRefiPerProperty" data-i18n="maxRefiPerProperty">Maximal nutzbares Potenzial je Objekt</label>
+                <input id="maxRefiPerProperty" type="number" min="0" max="100" step="0.1" value="80" />
+                <span class="help" data-i18n="maxRefiPerPropertyHelp">Begrenzt, welcher Anteil des freien Beleihungspotenzials tatsächlich genutzt werden darf.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section input-only">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="sectionBase">2. Persönliche Ausgangslage</h2>
+            <p data-i18n="sectionBaseText">Diese Werte bestimmen, wie schnell neues Eigenkapital für weitere Käufe verfügbar wird.</p>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="grid grid-4">
+            <div class="field">
+              <label for="startCapital" data-i18n="startCapital">Verfügbares Startkapital</label>
+              <input id="startCapital" type="number" min="0" step="100" value="35000" />
+            </div>
+            <div class="field">
+              <label for="monthlySavings" data-i18n="monthlySavings">Monatliche Sparleistung</label>
+              <input id="monthlySavings" type="number" min="0" step="10" value="600" />
+            </div>
+            <div class="field">
+              <label for="cashReserve" data-i18n="cashReserve">Sicherheitsreserve</label>
+              <input id="cashReserve" type="number" min="0" step="100" value="5000" />
+              <span class="help" data-i18n="cashReserveHelp">Dieser Betrag bleibt nach jedem Kauf unangetastet.</span>
+            </div>
+            <div class="field">
+              <label for="maxMonthlyBurden" data-i18n="maxMonthlyBurden">Maximale monatliche Eigenbelastung</label>
+              <input id="maxMonthlyBurden" type="number" min="0" step="10" value="700" />
+              <span class="help" data-i18n="maxMonthlyBurdenHelp">Zulässiger negativer Portfolio-Cashflow nach einem neuen Kauf.</span>
+            </div>
+            <div class="field">
+              <label for="horizonYears" data-i18n="horizonYears">Berechnungszeitraum</label>
+              <select id="horizonYears">
+                <option value="10">10 Jahre</option>
+                <option value="15">15 Jahre</option>
+                <option value="20">20 Jahre</option>
+                <option value="25">25 Jahre</option>
+                <option value="30" selected>30 Jahre</option>
+                <option value="35">35 Jahre</option>
+                <option value="40">40 Jahre</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="purchaseCosts" data-i18n="purchaseCosts">Kaufnebenkosten</label>
+              <input id="purchaseCosts" type="number" min="0" max="30" step="0.1" value="10" />
+              <span class="help" data-i18n="purchaseCostsHelp">Einheitliche Annahme in % des Kaufpreises.</span>
+            </div>
+            <div class="field">
+              <label for="financePurchaseCosts" data-i18n="financePurchaseCosts">Kaufnebenkosten mitfinanzieren</label>
+              <select id="financePurchaseCosts">
+                <option value="no" data-i18n="no">Nein</option>
+                <option value="yes" data-i18n="yes">Ja</option>
+              </select>
+              <span class="help" data-i18n="financePurchaseCostsHelp">Bei „Ja“ werden die Kaufnebenkosten dem Darlehen zugerechnet.</span>
+            </div>
+            <div class="field">
+              <label for="costInflation" data-i18n="costInflation">Kostensteigerung pro Jahr</label>
+              <input id="costInflation" type="number" min="0" max="20" step="0.1" value="1.5" />
+            </div>
+          </div>
+
+          <label class="inline-check">
+            <input id="taxEnabled" type="checkbox" />
+            <span data-i18n="taxToggle">Optionale grobe Steuerbetrachtung aktivieren</span>
+          </label>
+          <div class="tax-panel" id="taxPanel">
+            <div class="grid grid-3">
+              <div class="field">
+                <label for="taxRate" data-i18n="taxRate">Persönlicher Grenzsteuersatz</label>
+                <input id="taxRate" type="number" min="0" max="60" step="0.1" value="35" />
+              </div>
+              <div class="field">
+                <label for="depreciationRate" data-i18n="depreciationRate">Abschreibung Gebäudeanteil</label>
+                <input id="depreciationRate" type="number" min="0" max="10" step="0.1" value="2" />
+              </div>
+              <div class="field">
+                <label for="buildingShare" data-i18n="buildingShare">Gebäudeanteil am Kaufpreis</label>
+                <input id="buildingShare" type="number" min="0" max="100" step="0.1" value="80" />
+              </div>
+            </div>
+            <span class="help" data-i18n="taxHelp">Die Steuerwerte dienen nur einer groben Modellrechnung und stellen keine Steuerberatung dar.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section input-only">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="sectionProperties">3. Immobilienportfolio zusammenstellen</h2>
+            <p data-i18n="sectionPropertiesText">Die Immobilien werden in der angezeigten Reihenfolge gekauft, sobald Eigenkapital, Sicherheitsreserve und Belastungsgrenze dies zulassen.</p>
+          </div>
+          <button type="button" class="btn btn-blue" id="addPropertyBtn" data-i18n="addProperty">+ Immobilie hinzufügen</button>
+        </div>
+        <div class="section-body">
+          <div class="property-list" id="propertyList"></div>
+        </div>
+      </section>
+
+      <section class="section input-only">
+        <div class="section-body">
+          <div class="calculator-actions">
+            <button type="button" class="btn btn-primary" id="calculateBtn" data-i18n="calculate">Portfolio berechnen</button>
+            <button type="button" class="btn btn-blue" id="loadExampleBtn" data-i18n="loadExample">Beispielportfolio laden</button>
+            <button type="button" class="btn btn-light" id="saveBtnBottom" data-i18n="save">Speichern</button>
+            <button type="button" class="btn btn-light" id="resetBtn" data-i18n="reset">Zurücksetzen</button>
+          </div>
+          <div class="status" id="statusBox"></div>
+        </div>
+      </section>
+
+      <section class="section results" id="resultsSection">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="sectionResults">Ihr persönlicher Immobilien-Investitions-Plan</h2>
+            <p id="resultIntro"></p>
+          </div>
+          <div class="calculator-actions">
+            <button type="button" class="btn btn-light" id="csvBtn" data-i18n="csv">CSV exportieren</button>
+            <button type="button" class="btn btn-blue" id="printBtnBottom" data-i18n="print">Drucken / PDF</button>
+          </div>
+        </div>
+        <div class="section-body">
+          <h3 style="color:var(--blue-900);margin:0 0 10px" data-i18n="comparisonTitle">Standard- und Expertenweg im direkten Vergleich</h3>
+          <p style="color:var(--muted);font-size:13px;margin:0 0 13px" data-i18n="comparisonText">Beide Berechnungen laufen parallel. Die Detailansicht darunter folgt dem oben ausgewählten Modus.</p>
+          <div class="comparison-grid" id="comparisonGrid"></div>
+
+          <div class="metric-grid" id="metricGrid"></div>
+
+          <div class="chart-box">
+            <h3 data-i18n="chartTitle">Entwicklung des Immobilienportfolios</h3>
+            <canvas id="portfolioChart" width="1200" height="360"></canvas>
+            <div class="legend">
+              <span><i class="dot green"></i><span data-i18n="portfolioValue">Portfoliowert</span></span>
+              <span><i class="dot blue"></i><span data-i18n="netEquity">Nettovermögen</span></span>
+              <span><i class="dot gray"></i><span data-i18n="debt">Restschuld</span></span>
+            </div>
+          </div>
+
+          <h3 style="color:var(--blue-900);margin:22px 0 0" data-i18n="propertyPlan">Kaufplan nach Immobilien</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th data-i18n="property">Immobilie</th>
+                  <th data-i18n="propertyType">Anlageklasse</th>
+                  <th data-i18n="price">Kaufpreis</th>
+                  <th data-i18n="purchaseTime">Kaufzeitpunkt</th>
+                  <th data-i18n="portfolioValue">Aktueller Modellwert</th>
+                  <th data-i18n="debt">Restschuld</th>
+                  <th data-i18n="netEquity">Nettovermögen</th>
+                  <th data-i18n="monthlyRent">Monatl. Miete</th>
+                  <th data-i18n="monthlyCashflow">Monatl. Cashflow</th>
+                  <th data-i18n="releasedCapital">Genutzte Beleihung</th>
+                </tr>
+              </thead>
+              <tbody id="propertyTableBody"></tbody>
+            </table>
+          </div>
+
+          <h3 style="color:var(--blue-900);margin:22px 0 0" data-i18n="annualDevelopment">Jährliche Entwicklung</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th data-i18n="year">Jahr</th>
+                  <th data-i18n="properties">Immobilien</th>
+                  <th data-i18n="portfolioValue">Portfoliowert</th>
+                  <th data-i18n="debt">Restschuld</th>
+                  <th data-i18n="netEquity">Nettovermögen</th>
+                  <th data-i18n="liquidFunds">Freie Liquidität</th>
+                  <th data-i18n="monthlyRent">Monatl. Miete</th>
+                  <th data-i18n="monthlyCashflow">Monatl. Cashflow</th>
+                  <th data-i18n="releasedCapital">Genutzte Beleihung</th>
+                </tr>
+              </thead>
+              <tbody id="yearTableBody"></tbody>
+            </table>
+          </div>
+
+          <h3 style="color:var(--blue-900);margin:22px 0 0" data-i18n="milestones">Ihre Meilensteine</h3>
+          <div class="timeline" id="timeline"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <strong data-i18n="footerTitle">Persönliche XXL.IMMO Investitions-Analyse</strong>
+        <p data-i18n="footerText">Die Modellrechnung ist ein erster Überblick. Konkrete Immobilien, Finanzierungen und steuerliche Auswirkungen müssen individuell geprüft werden.</p>
+      </div>
+      <a href="https://www.xxl.immo/kontakt" target="_blank" rel="noopener" data-i18n="contact">Jetzt Termin vereinbaren</a>
+    </div>
+  </footer>
+
+  <template id="propertyTemplate">
+    <article class="property-card">
+      <div class="property-title">
+        <div>
+          <strong class="property-heading"></strong>
+          <small class="property-subheading"></small>
+        </div>
+        <div class="property-actions">
+          <button type="button" class="btn btn-small btn-light move-up" title="Nach oben">↑</button>
+          <button type="button" class="btn btn-small btn-light move-down" title="Nach unten">↓</button>
+          <button type="button" class="btn btn-small btn-danger remove-property" data-i18n="remove">Entfernen</button>
+        </div>
+      </div>
+      <div class="property-content">
+        <div class="grid grid-4">
+          <div class="field">
+            <label data-i18n="propertyName">Bezeichnung</label>
+            <input class="p-name" type="text" />
+          </div>
+          <div class="field">
+            <label data-i18n="propertyType">Anlageklasse</label>
+            <select class="p-type">
+              <option value="Bestandsimmobilie" data-i18n="typeExisting">Bestandsimmobilie</option>
+              <option value="Neubauimmobilie" data-i18n="typeNew">Neubauimmobilie</option>
+              <option value="Senioren- / Pflegeimmobilie" data-i18n="typeSenior">Senioren- / Pflegeimmobilie</option>
+              <option value="Denkmalimmobilie" data-i18n="typeHeritage">Denkmalimmobilie</option>
+              <option value="Sonstige Anlageimmobilie" data-i18n="typeOther">Sonstige Anlageimmobilie</option>
+            </select>
+          </div>
+          <div class="field">
+            <label data-i18n="price">Kaufpreis</label>
+            <input class="p-price" type="number" min="0" step="1000" />
+          </div>
+          <div class="field">
+            <label data-i18n="equityShare">Eigenkapitalquote</label>
+            <input class="p-equity" type="number" min="0" max="100" step="0.1" />
+            <span class="help" data-i18n="equityShareHelp">Zusätzlich zu den Kaufnebenkosten.</span>
+          </div>
+          <div class="field">
+            <label data-i18n="rent">Monatliche Kaltmiete</label>
+            <input class="p-rent" type="number" min="0" step="10" />
+          </div>
+          <div class="field">
+            <label data-i18n="costs">Nicht umlagefähige Kosten</label>
+            <input class="p-costs" type="number" min="0" step="5" />
+          </div>
+          <div class="field">
+            <label data-i18n="maintenance">Monatliche Rücklage</label>
+            <input class="p-maintenance" type="number" min="0" step="5" />
+          </div>
+          <div class="field">
+            <label data-i18n="vacancy">Mietausfall / Leerstand</label>
+            <input class="p-vacancy" type="number" min="0" max="100" step="0.1" />
+          </div>
+          <div class="field">
+            <label data-i18n="interest">Sollzins</label>
+            <input class="p-interest" type="number" min="0" max="20" step="0.1" />
+          </div>
+          <div class="field">
+            <label data-i18n="repayment">Anfängliche Tilgung</label>
+            <input class="p-repayment" type="number" min="0" max="20" step="0.1" />
+          </div>
+          <div class="field">
+            <label data-i18n="appreciation">Wertsteigerung pro Jahr</label>
+            <input class="p-appreciation" type="number" min="-20" max="30" step="0.1" />
+          </div>
+          <div class="field">
+            <label data-i18n="rentGrowth">Mietsteigerung pro Jahr</label>
+            <input class="p-rentgrowth" type="number" min="-20" max="30" step="0.1" />
+          </div>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const STORAGE_KEY = 'xxlImmoPortfolioCalculatorV1';
+      let currentLang = 'de';
+      let propertyCounter = 0;
+      let lastResult = null;
+      let lastComparison = null;
+
+      const $ = (id) => document.getElementById(id);
+      const num = (value, fallback = 0) => {
+        const n = Number(String(value).replace(',', '.'));
+        return Number.isFinite(n) ? n : fallback;
+      };
+      const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+      const round = (value) => Math.round((value + Number.EPSILON) * 100) / 100;
+
+      const i18n = {
+        de: {
+          topline:'Seit 1990 für Sie da! · Mehr als 1.000 vermittelte Kapitalanlage-Wohnungen', brandSub:'Immobilienvermögensberatung', save:'Speichern', print:'Drucken / PDF', calculate:'Portfolio berechnen', eyebrow:'XXL.IMMO Portfolio-Wachstumsrechner', heroTitle:'Vom ersten Objekt zum persönlichen Immobilienbestand.', heroText:'Tragen Sie unterschiedlich teure Immobilien ein. Der Rechner zeigt, wann der nächste Kauf durch freie Liquidität möglich werden kann – und im Expertenmodus zusätzlich, wie vorhandenes Beleihungspotenzial die Entwicklung beeinflusst.', heroBadgeStrong:'2 Wege', heroBadgeText:'Liquider Portfolioaufbau oder zusätzlicher Ausbau durch gezielte Anschlussfinanzierung.', disclaimerTop:'Diese unverbindliche Modellrechnung basiert ausschließlich auf Ihren Eingaben. Sie ersetzt keine persönliche Finanzierungsprüfung, keine individuelle Objektprüfung und keine steuerliche Beratung.', sectionMode:'1. Berechnungsweg festlegen', sectionModeText:'Wählen Sie eine konservative Standardberechnung oder öffnen Sie die erweiterten Expertenfunktionen.', modeStandard:'Standardmodus', modeStandardText:'Neue Käufe werden nur aus vorhandenem Startkapital, monatlicher Sparleistung und realen Portfolio-Überschüssen finanziert.', modeExpert:'Expertenmodus', modeExpertText:'Zusätzlich kann freies Beleihungspotenzial bestehender Immobilien für weitere Käufe eingesetzt werden.', expertSettings:'Experteneinstellungen zur Anschlussfinanzierung', maxLtv:'Maximale Beleihungsgrenze', maxLtvHelp:'Maximale Gesamtverschuldung in % des vorsichtig angesetzten Objektwertes.', bankDiscount:'Bank-Sicherheitsabschlag', bankDiscountHelp:'Nur dieser Anteil des Marktwertes wird für das Beleihungspotenzial angesetzt.', refiWait:'Wartezeit bis Anschlussfinanzierung', refiWaitHelp:'Frühester Einsatz nach dem Kauf in Jahren.', refiInterest:'Zins Anschlussfinanzierung', refiInterestHelp:'Annahme für neu aufgenommenes Kapital.', refiRepayment:'Tilgung Anschlussfinanzierung', maxRefiPerProperty:'Maximal nutzbares Potenzial je Objekt', maxRefiPerPropertyHelp:'Begrenzt, welcher Anteil des freien Beleihungspotenzials tatsächlich genutzt werden darf.', sectionBase:'2. Persönliche Ausgangslage', sectionBaseText:'Diese Werte bestimmen, wie schnell neues Eigenkapital für weitere Käufe verfügbar wird.', startCapital:'Verfügbares Startkapital', monthlySavings:'Monatliche Sparleistung', cashReserve:'Sicherheitsreserve', cashReserveHelp:'Dieser Betrag bleibt nach jedem Kauf unangetastet.', maxMonthlyBurden:'Maximale monatliche Eigenbelastung', maxMonthlyBurdenHelp:'Zulässiger negativer Portfolio-Cashflow nach einem neuen Kauf.', horizonYears:'Berechnungszeitraum', purchaseCosts:'Kaufnebenkosten', purchaseCostsHelp:'Einheitliche Annahme in % des Kaufpreises.', financePurchaseCosts:'Kaufnebenkosten mitfinanzieren', financePurchaseCostsHelp:'Bei „Ja“ werden die Kaufnebenkosten dem Darlehen zugerechnet.', costInflation:'Kostensteigerung pro Jahr', taxToggle:'Optionale grobe Steuerbetrachtung aktivieren', taxRate:'Persönlicher Grenzsteuersatz', depreciationRate:'Abschreibung Gebäudeanteil', buildingShare:'Gebäudeanteil am Kaufpreis', taxHelp:'Die Steuerwerte dienen nur einer groben Modellrechnung und stellen keine Steuerberatung dar.', sectionProperties:'3. Immobilienportfolio zusammenstellen', sectionPropertiesText:'Die Immobilien werden in der angezeigten Reihenfolge gekauft, sobald Eigenkapital, Sicherheitsreserve und Belastungsgrenze dies zulassen.', addProperty:'+ Immobilie hinzufügen', loadExample:'Beispielportfolio laden', reset:'Zurücksetzen', sectionResults:'Ihr persönlicher Immobilien-Investitions-Plan', comparisonTitle:'Standard- und Expertenweg im direkten Vergleich', comparisonText:'Beide Berechnungen laufen parallel. Die Detailansicht darunter folgt dem oben ausgewählten Modus.', propertyPlan:'Kaufplan nach Immobilien', purchaseTime:'Kaufzeitpunkt', annualDevelopment:'Jährliche Entwicklung', csv:'CSV exportieren', chartTitle:'Entwicklung des Immobilienportfolios', portfolioValue:'Portfoliowert', netEquity:'Nettovermögen', debt:'Restschuld', year:'Jahr', properties:'Immobilien', liquidFunds:'Freie Liquidität', monthlyRent:'Monatl. Miete', monthlyCashflow:'Monatl. Cashflow', releasedCapital:'Genutzte Beleihung', milestones:'Ihre Meilensteine', footerTitle:'Persönliche XXL.IMMO Investitions-Analyse', footerText:'Die Modellrechnung ist ein erster Überblick. Konkrete Immobilien, Finanzierungen und steuerliche Auswirkungen müssen individuell geprüft werden.', contact:'Jetzt Termin vereinbaren', remove:'Entfernen', propertyName:'Bezeichnung', propertyType:'Anlageklasse', typeExisting:'Bestandsimmobilie', typeNew:'Neubauimmobilie', typeSenior:'Senioren- / Pflegeimmobilie', typeHeritage:'Denkmalimmobilie', typeOther:'Sonstige Anlageimmobilie', price:'Kaufpreis', equityShare:'Eigenkapitalquote', equityShareHelp:'Zusätzlich zu den Kaufnebenkosten.', rent:'Monatliche Kaltmiete', costs:'Nicht umlagefähige Kosten', maintenance:'Monatliche Rücklage', vacancy:'Mietausfall / Leerstand', interest:'Sollzins', repayment:'Anfängliche Tilgung', appreciation:'Wertsteigerung pro Jahr', rentGrowth:'Mietsteigerung pro Jahr', property:'Immobilie', purchaseOrder:'Kaufreihenfolge', saved:'Die Eingaben wurden lokal in diesem Browser gespeichert.', resetDone:'Der Rechner wurde auf das Beispielportfolio zurückgesetzt.', calculateFirst:'Bitte berechnen Sie zuerst das Portfolio.', validation:'Bitte tragen Sie mindestens eine Immobilie mit einem Kaufpreis größer als 0 € ein.', resultModeStandard:'Standardmodus: weitere Käufe ausschließlich aus liquiden Mitteln.', resultModeExpert:'Expertenmodus: weitere Käufe zusätzlich mit gezielter Nutzung freien Beleihungspotenzials.', acquired:'angeschafft', notAcquired:'innerhalb des Zeitraums noch nicht finanzierbar', purchase:'Kauf', refinancing:'Anschlussfinanzierung', noEvents:'Innerhalb des Berechnungszeitraums wurde noch keine Immobilie finanzierbar.', nextProperty:'Nächster möglicher Kauf', allPurchased:'Alle eingetragenen Immobilien wurden berücksichtigt.', notReached:'Im gewählten Zeitraum nicht erreicht', mode:'Modell', count:'Erworbene Immobilien', totalValue:'Portfoliowert', totalDebt:'Restschuld', totalEquity:'Nettovermögen', liquid:'Freie Liquidität', rentTotal:'Monatliche Kaltmiete', cashflowTotal:'Monatlicher Portfolio-Cashflow', refiTotal:'Genutzte Anschlussfinanzierungen', taxEstimate:'Steuerwirkung grob berücksichtigt', yes:'Ja', no:'Nein', immediately:'sofort', month:'Monat', loadLimited:'Die nächste Immobilie wäre liquiditätsseitig möglich, überschreitet jedoch aktuell die eingestellte monatliche Belastungsgrenze.', currency:'€'
+        },
+        en: {
+          topline:'Serving you since 1990 · More than 1,000 investment apartments brokered', brandSub:'Real estate wealth consulting', save:'Save', print:'Print / PDF', calculate:'Calculate portfolio', eyebrow:'XXL.IMMO Portfolio Growth Calculator', heroTitle:'From your first property to your personal real estate portfolio.', heroText:'Enter properties with different purchase prices. The calculator shows when the next acquisition may become possible through available liquidity and, in expert mode, how existing refinancing potential can affect the development.', heroBadgeStrong:'2 paths', heroBadgeText:'Liquidity-based portfolio growth or additional expansion through targeted refinancing.', disclaimerTop:'This non-binding model calculation is based solely on your entries. It does not replace a personal financing review, an individual property review or tax advice.', sectionMode:'1. Select calculation path', sectionModeText:'Choose a conservative standard calculation or open the advanced expert functions.', modeStandard:'Standard mode', modeStandardText:'New purchases are funded only through available starting capital, monthly savings and actual portfolio surpluses.', modeExpert:'Expert mode', modeExpertText:'Available refinancing potential of existing properties can additionally be used for further acquisitions.', expertSettings:'Expert refinancing settings', maxLtv:'Maximum loan-to-value limit', maxLtvHelp:'Maximum total debt as a percentage of the cautiously estimated property value.', bankDiscount:'Bank safety discount', bankDiscountHelp:'Only this share of the market value is included when calculating refinancing potential.', refiWait:'Waiting period until refinancing', refiWaitHelp:'Earliest possible use after purchase in years.', refiInterest:'Refinancing interest rate', refiInterestHelp:'Assumption for newly borrowed capital.', refiRepayment:'Refinancing repayment rate', maxRefiPerProperty:'Maximum usable potential per property', maxRefiPerPropertyHelp:'Limits the share of available refinancing potential that may actually be used.', sectionBase:'2. Personal starting position', sectionBaseText:'These values determine how quickly new equity becomes available for further acquisitions.', startCapital:'Available starting capital', monthlySavings:'Monthly savings contribution', cashReserve:'Safety reserve', cashReserveHelp:'This amount remains untouched after each purchase.', maxMonthlyBurden:'Maximum monthly personal burden', maxMonthlyBurdenHelp:'Permitted negative portfolio cash flow after a new purchase.', horizonYears:'Calculation period', purchaseCosts:'Purchase costs', purchaseCostsHelp:'Uniform assumption as a percentage of the purchase price.', financePurchaseCosts:'Finance purchase costs', financePurchaseCostsHelp:'If “Yes” is selected, purchase costs are added to the loan.', costInflation:'Annual cost increase', taxToggle:'Activate optional rough tax consideration', taxRate:'Personal marginal tax rate', depreciationRate:'Building depreciation rate', buildingShare:'Building share of purchase price', taxHelp:'Tax figures are only used for a rough model calculation and do not constitute tax advice.', sectionProperties:'3. Assemble your real estate portfolio', sectionPropertiesText:'Properties are acquired in the displayed order as soon as equity, the safety reserve and the burden limit allow it.', addProperty:'+ Add property', loadExample:'Load sample portfolio', reset:'Reset', sectionResults:'Your personal real estate investment plan', comparisonTitle:'Direct comparison of standard and expert paths', comparisonText:'Both calculations run in parallel. The detailed view below follows the mode selected above.', propertyPlan:'Acquisition plan by property', purchaseTime:'Acquisition date', annualDevelopment:'Annual development', csv:'Export CSV', chartTitle:'Real estate portfolio development', portfolioValue:'Portfolio value', netEquity:'Net equity', debt:'Remaining debt', year:'Year', properties:'Properties', liquidFunds:'Available liquidity', monthlyRent:'Monthly rent', monthlyCashflow:'Monthly cash flow', releasedCapital:'Used refinancing', milestones:'Your milestones', footerTitle:'Personal XXL.IMMO investment analysis', footerText:'The model calculation is an initial overview. Specific properties, financing arrangements and tax implications must be reviewed individually.', contact:'Book an appointment now', remove:'Remove', propertyName:'Name', propertyType:'Asset class', typeExisting:'Existing property', typeNew:'New-build property', typeSenior:'Senior / care property', typeHeritage:'Listed property', typeOther:'Other investment property', price:'Purchase price', equityShare:'Equity share', equityShareHelp:'In addition to purchase costs.', rent:'Monthly net rent', costs:'Non-recoverable costs', maintenance:'Monthly reserve', vacancy:'Vacancy / rental loss', interest:'Interest rate', repayment:'Initial repayment rate', appreciation:'Annual appreciation', rentGrowth:'Annual rent increase', property:'Property', purchaseOrder:'Purchase order', saved:'The entries have been saved locally in this browser.', resetDone:'The calculator has been reset to the sample portfolio.', calculateFirst:'Please calculate the portfolio first.', validation:'Please enter at least one property with a purchase price above €0.', resultModeStandard:'Standard mode: further purchases exclusively from liquid funds.', resultModeExpert:'Expert mode: further purchases additionally using targeted refinancing potential.', acquired:'acquired', notAcquired:'not yet financeable within the selected period', purchase:'Purchase', refinancing:'Refinancing', noEvents:'No property became financeable during the selected calculation period.', nextProperty:'Next possible purchase', allPurchased:'All entered properties have been included.', notReached:'Not reached within the selected period', mode:'Model', count:'Properties acquired', totalValue:'Portfolio value', totalDebt:'Remaining debt', totalEquity:'Net equity', liquid:'Available liquidity', rentTotal:'Monthly net rent', cashflowTotal:'Monthly portfolio cash flow', refiTotal:'Used refinancings', taxEstimate:'Rough tax effect included', yes:'Yes', no:'No', immediately:'immediately', month:'Month', loadLimited:'The next property would be possible in terms of liquidity but currently exceeds the selected monthly burden limit.', currency:'€'
+        }
+      };
+
+      const t = (key) => i18n[currentLang][key] || i18n.de[key] || key;
+      const formatCurrency = (value, digits = 0) => new Intl.NumberFormat(currentLang === 'de' ? 'de-DE' : 'en-US', {style:'currency',currency:'EUR',minimumFractionDigits:digits,maximumFractionDigits:digits}).format(Number.isFinite(value) ? value : 0);
+      const formatNumber = (value, digits = 0) => new Intl.NumberFormat(currentLang === 'de' ? 'de-DE' : 'en-US', {minimumFractionDigits:digits,maximumFractionDigits:digits}).format(Number.isFinite(value) ? value : 0);
+      const monthLabel = (month) => month === 0 ? t('immediately') : `${t('year')} ${Math.floor(month / 12) + 1}, ${t('month')} ${(month % 12) + 1}`;
+
+      function applyTranslations() {
+        document.documentElement.lang = currentLang;
+        document.querySelectorAll('[data-i18n]').forEach((el) => {
+          const key = el.dataset.i18n;
+          if (i18n[currentLang][key]) el.textContent = i18n[currentLang][key];
+        });
+        document.querySelectorAll('.lang-switch button').forEach((button) => button.classList.toggle('active', button.dataset.lang === currentLang));
+        updatePropertyHeadings();
+        if (lastResult) renderResults(lastResult,lastComparison);
+      }
+
+      function showStatus(message, type = 'ok') {
+        const box = $('statusBox');
+        box.textContent = message;
+        box.className = `status open ${type}`;
+      }
+
+      function getDefaultProperties() {
+        return [
+          {name:'Immobilie 1',type:'Bestandsimmobilie',price:130000,equity:10,rent:560,costs:70,maintenance:30,vacancy:2,interest:3.5,repayment:2,appreciation:1.5,rentGrowth:1.5},
+          {name:'Immobilie 2',type:'Bestandsimmobilie',price:180000,equity:10,rent:780,costs:95,maintenance:40,vacancy:2,interest:3.5,repayment:2,appreciation:1.5,rentGrowth:1.5},
+          {name:'Immobilie 3',type:'Bestandsimmobilie',price:220000,equity:10,rent:960,costs:115,maintenance:50,vacancy:2,interest:3.5,repayment:2,appreciation:1.5,rentGrowth:1.5},
+          {name:'Immobilie 4',type:'Bestandsimmobilie',price:160000,equity:10,rent:710,costs:85,maintenance:35,vacancy:2,interest:3.5,repayment:2,appreciation:1.5,rentGrowth:1.5},
+          {name:'Immobilie 5',type:'Bestandsimmobilie',price:250000,equity:10,rent:1090,costs:130,maintenance:55,vacancy:2,interest:3.5,repayment:2,appreciation:1.5,rentGrowth:1.5}
+        ];
+      }
+
+      function createPropertyCard(data = {}) {
+        propertyCounter += 1;
+        const fragment = $('propertyTemplate').content.cloneNode(true);
+        const card = fragment.querySelector('.property-card');
+        card.dataset.id = String(propertyCounter);
+        const defaults = {name:`${t('property')} ${document.querySelectorAll('.property-card').length + 1}`,type:'Bestandsimmobilie',price:150000,equity:10,rent:650,costs:80,maintenance:35,vacancy:2,interest:3.5,repayment:2,appreciation:1.5,rentGrowth:1.5};
+        const values = {...defaults,...data};
+        card.querySelector('.p-name').value = values.name;
+        card.querySelector('.p-type').value = values.type;
+        card.querySelector('.p-price').value = values.price;
+        card.querySelector('.p-equity').value = values.equity;
+        card.querySelector('.p-rent').value = values.rent;
+        card.querySelector('.p-costs').value = values.costs;
+        card.querySelector('.p-maintenance').value = values.maintenance;
+        card.querySelector('.p-vacancy').value = values.vacancy;
+        card.querySelector('.p-interest').value = values.interest;
+        card.querySelector('.p-repayment').value = values.repayment;
+        card.querySelector('.p-appreciation').value = values.appreciation;
+        card.querySelector('.p-rentgrowth').value = values.rentGrowth;
+        card.querySelector('.remove-property').addEventListener('click', () => { card.remove(); updatePropertyHeadings(); });
+        card.querySelector('.move-up').addEventListener('click', () => { const prev = card.previousElementSibling; if (prev) card.parentNode.insertBefore(card, prev); updatePropertyHeadings(); });
+        card.querySelector('.move-down').addEventListener('click', () => { const next = card.nextElementSibling; if (next) card.parentNode.insertBefore(next, card); updatePropertyHeadings(); });
+        card.querySelector('.p-name').addEventListener('input', updatePropertyHeadings);
+        $('propertyList').appendChild(fragment);
+        applyTranslations();
+        updatePropertyHeadings();
+      }
+
+      function updatePropertyHeadings() {
+        document.querySelectorAll('.property-card').forEach((card, index) => {
+          const name = card.querySelector('.p-name').value.trim() || `${t('property')} ${index + 1}`;
+          card.querySelector('.property-heading').textContent = `${index + 1}. ${name}`;
+          card.querySelector('.property-subheading').textContent = `${t('purchaseOrder')}: ${index + 1}`;
+          card.querySelector('.move-up').disabled = index === 0;
+          card.querySelector('.move-down').disabled = index === document.querySelectorAll('.property-card').length - 1;
+        });
+      }
+
+      function readProperties() {
+        return [...document.querySelectorAll('.property-card')].map((card, index) => ({
+          id:`p${index + 1}`,
+          name:card.querySelector('.p-name').value.trim() || `${t('property')} ${index + 1}`,
+          type:card.querySelector('.p-type').value,
+          price:num(card.querySelector('.p-price').value),
+          equity:clamp(num(card.querySelector('.p-equity').value),0,100),
+          rent:num(card.querySelector('.p-rent').value),
+          costs:num(card.querySelector('.p-costs').value),
+          maintenance:num(card.querySelector('.p-maintenance').value),
+          vacancy:clamp(num(card.querySelector('.p-vacancy').value),0,100),
+          interest:clamp(num(card.querySelector('.p-interest').value),0,20),
+          repayment:clamp(num(card.querySelector('.p-repayment').value),0,20),
+          appreciation:num(card.querySelector('.p-appreciation').value),
+          rentGrowth:num(card.querySelector('.p-rentgrowth').value)
+        })).filter((property) => property.price > 0);
+      }
+
+      function readSettings() {
+        return {
+          mode:document.querySelector('input[name="mode"]:checked').value,
+          startCapital:num($('startCapital').value),
+          monthlySavings:num($('monthlySavings').value),
+          cashReserve:num($('cashReserve').value),
+          maxMonthlyBurden:num($('maxMonthlyBurden').value),
+          horizonYears:num($('horizonYears').value,30),
+          purchaseCosts:clamp(num($('purchaseCosts').value),0,30),
+          financePurchaseCosts:$('financePurchaseCosts').value === 'yes',
+          costInflation:num($('costInflation').value),
+          taxEnabled:$('taxEnabled').checked,
+          taxRate:clamp(num($('taxRate').value),0,60),
+          depreciationRate:clamp(num($('depreciationRate').value),0,10),
+          buildingShare:clamp(num($('buildingShare').value),0,100),
+          maxLtv:clamp(num($('maxLtv').value),0,100),
+          bankDiscount:clamp(num($('bankDiscount').value),0,100),
+          refiWaitYears:Math.max(0,num($('refiWaitYears').value)),
+          refiInterest:clamp(num($('refiInterest').value),0,20),
+          refiRepayment:clamp(num($('refiRepayment').value),0,20),
+          maxRefiPerProperty:clamp(num($('maxRefiPerProperty').value),0,100)
+        };
+      }
+
+      function makeLoan(balance, interestRate, repaymentRate, kind = 'purchase') {
+        const original = Math.max(0,balance);
+        return {kind,balance:original,interestRate,repaymentRate,payment:(original * (interestRate + repaymentRate) / 100) / 12};
+      }
+
+      function cloneActive(active) {
+        return active.map((property) => ({...property,loans:property.loans.map((loan) => ({...loan}))}));
+      }
+
+      function propertyMonthFigures(property, settings, month, advanceLoans = false) {
+        const ageMonths = Math.max(0, month - property.acquiredMonth);
+        const rent = property.base.rent * Math.pow(1 + property.base.rentGrowth / 100, ageMonths / 12);
+        const effectiveRent = rent * (1 - property.base.vacancy / 100);
+        const inflationFactor = Math.pow(1 + settings.costInflation / 100, ageMonths / 12);
+        const runningCosts = (property.base.costs + property.base.maintenance) * inflationFactor;
+        let interest = 0;
+        let repayment = 0;
+        let debtService = 0;
+        property.loans.forEach((loan) => {
+          if (loan.balance <= 0) return;
+          const loanInterest = loan.balance * loan.interestRate / 100 / 12;
+          const loanRepayment = Math.min(loan.balance, Math.max(0, loan.payment - loanInterest));
+          interest += loanInterest;
+          repayment += loanRepayment;
+          debtService += loanInterest + loanRepayment;
+          if (advanceLoans) loan.balance = Math.max(0, loan.balance - loanRepayment);
+        });
+        const depreciation = settings.taxEnabled ? property.base.price * settings.buildingShare / 100 * settings.depreciationRate / 100 / 12 : 0;
+        const taxable = effectiveRent - runningCosts - interest - depreciation;
+        const tax = settings.taxEnabled ? taxable * settings.taxRate / 100 : 0;
+        const cashflow = effectiveRent - runningCosts - debtService - tax;
+        return {rent,effectiveRent,runningCosts,interest,repayment,debtService,depreciation,taxable,tax,cashflow};
+      }
+
+      function updatePropertyValues(active) {
+        active.forEach((property) => {
+          property.value *= Math.pow(1 + property.base.appreciation / 100, 1 / 12);
+        });
+      }
+
+      function propertyDebt(property) {
+        return property.loans.reduce((sum, loan) => sum + loan.balance, 0);
+      }
+
+      function portfolioFigures(active, settings, month, advanceLoans = false) {
+        return active.reduce((sum, property) => {
+          const figures = propertyMonthFigures(property, settings, month, advanceLoans);
+          sum.rent += figures.rent;
+          sum.effectiveRent += figures.effectiveRent;
+          sum.cashflow += figures.cashflow;
+          sum.tax += figures.tax;
+          sum.debtService += figures.debtService;
+          return sum;
+        },{rent:0,effectiveRent:0,cashflow:0,tax:0,debtService:0});
+      }
+
+      function createPurchasedProperty(base, month, settings) {
+        const equityCash = base.price * base.equity / 100;
+        const purchaseCostsTotal = base.price * settings.purchaseCosts / 100;
+        const purchaseCostsCash = settings.financePurchaseCosts ? 0 : purchaseCostsTotal;
+        const purchaseCostsLoan = settings.financePurchaseCosts ? purchaseCostsTotal : 0;
+        const initialLoan = Math.max(0, base.price - equityCash + purchaseCostsLoan);
+        return {
+          base:{...base},
+          acquiredMonth:month,
+          value:base.price,
+          equityCash,
+          purchaseCostsCash,
+          purchaseCostsLoan,
+          loans:[makeLoan(initialLoan,base.interest,base.repayment,'purchase')],
+          releasedCapital:0
+        };
+      }
+
+      function availableRefinancing(property, settings, month) {
+        const ageYears = (month - property.acquiredMonth) / 12;
+        if (ageYears < settings.refiWaitYears) return 0;
+        const cautiousValue = property.value * settings.bankDiscount / 100;
+        const maxDebt = cautiousValue * settings.maxLtv / 100;
+        const freePotential = Math.max(0,maxDebt - propertyDebt(property));
+        return freePotential * settings.maxRefiPerProperty / 100;
+      }
+
+      function releaseRefinancing(active, settings, month, requiredCash) {
+        let remaining = Math.max(0,requiredCash);
+        const releases = [];
+        const eligible = [...active]
+          .map((property) => ({property,available:availableRefinancing(property,settings,month)}))
+          .filter((item) => item.available > 0.01)
+          .sort((a,b) => b.available - a.available);
+        for (const item of eligible) {
+          if (remaining <= 0.01) break;
+          const amount = Math.min(item.available,remaining);
+          item.property.loans.push(makeLoan(amount,settings.refiInterest,settings.refiRepayment,'refinancing'));
+          item.property.releasedCapital += amount;
+          releases.push({property:item.property,amount});
+          remaining -= amount;
+        }
+        return {released:requiredCash - remaining,releases,remaining};
+      }
+
+      function tryPurchase(nextBase, active, cash, settings, month) {
+        const purchase = createPurchasedProperty(nextBase,month,settings);
+        const upfront = purchase.equityCash + purchase.purchaseCostsCash;
+        const draftActive = cloneActive(active);
+        let draftCash = cash;
+        let refi = {released:0,releases:[],remaining:0};
+        const missing = Math.max(0,upfront + settings.cashReserve - draftCash);
+        if (missing > 0.01) {
+          if (settings.mode !== 'expert') return {ok:false,reason:'liquidity'};
+          refi = releaseRefinancing(draftActive,settings,month,missing);
+          draftCash += refi.released;
+          if (refi.remaining > 0.01) return {ok:false,reason:'liquidity'};
+        }
+        const withPurchase = [...draftActive,purchase];
+        const projected = portfolioFigures(withPurchase,settings,month,false);
+        if (projected.cashflow < -settings.maxMonthlyBurden - 0.01) return {ok:false,reason:'burden'};
+        draftCash -= upfront;
+        return {ok:true,active:withPurchase,cash:draftCash,refi,upfront,purchase};
+      }
+
+      function snapshot(active, cash, settings, month, totalReleased) {
+        const figures = portfolioFigures(active,settings,month,false);
+        const portfolioValue = active.reduce((sum,property) => sum + property.value,0);
+        const debt = active.reduce((sum,property) => sum + propertyDebt(property),0);
+        return {month,properties:active.length,portfolioValue,debt,netEquity:portfolioValue - debt,cash,rent:figures.rent,cashflow:figures.cashflow,totalReleased};
+      }
+
+      function simulate(settings, properties) {
+        const horizonMonths = settings.horizonYears * 12;
+        let active = [];
+        let cash = settings.startCapital;
+        let nextIndex = 0;
+        let totalReleased = 0;
+        const events = [];
+        const yearly = [];
+        let lastFailureReason = 'liquidity';
+
+        for (let month = 0; month <= horizonMonths; month += 1) {
+          if (month > 0) {
+            cash += settings.monthlySavings;
+            const currentFigures = portfolioFigures(active,settings,month,true);
+            cash += currentFigures.cashflow;
+            updatePropertyValues(active);
+          }
+
+          let purchasedInLoop = true;
+          while (purchasedInLoop && nextIndex < properties.length) {
+            purchasedInLoop = false;
+            const attempt = tryPurchase(properties[nextIndex],active,cash,settings,month);
+            if (!attempt.ok) {
+              lastFailureReason = attempt.reason;
+              break;
+            }
+            active = attempt.active;
+            cash = attempt.cash;
+            attempt.refi.releases.forEach((release) => {
+              totalReleased += release.amount;
+              events.push({type:'refi',month,name:release.property.base.name,amount:release.amount,detail:`${t('refinancing')}: ${formatCurrency(release.amount)}`});
+            });
+            events.push({type:'buy',month,name:properties[nextIndex].name,amount:properties[nextIndex].price,detail:`${t('purchase')}: ${formatCurrency(properties[nextIndex].price)} · ${formatCurrency(attempt.upfront)} Eigenmittel inkl. Kaufnebenkosten`});
+            nextIndex += 1;
+            purchasedInLoop = true;
+          }
+
+          if (month === 0 || month % 12 === 0 || month === horizonMonths) yearly.push(snapshot(active,cash,settings,month,totalReleased));
+        }
+
+        const final = snapshot(active,cash,settings,horizonMonths,totalReleased);
+        return {settings,properties,active,yearly,events,final,nextIndex,lastFailureReason};
+      }
+
+      function renderResults(result,comparison = lastComparison) {
+        lastResult = result;
+        lastComparison = comparison;
+        $('resultsSection').classList.add('open');
+        $('resultIntro').textContent = result.settings.mode === 'expert' ? t('resultModeExpert') : t('resultModeStandard');
+        const next = result.nextIndex < result.properties.length ? result.properties[result.nextIndex].name : t('allPurchased');
+        const metricData = [
+          [t('mode'),result.settings.mode === 'expert' ? t('modeExpert') : t('modeStandard'),result.settings.taxEnabled ? `${t('taxEstimate')}: ${t('yes')}` : `${t('taxEstimate')}: ${t('no')}`],
+          [t('count'),`${result.final.properties} / ${result.properties.length}`,result.nextIndex < result.properties.length ? `${t('nextProperty')}: ${next}` : t('allPurchased')],
+          [t('totalValue'),formatCurrency(result.final.portfolioValue),`${t('netEquity')}: ${formatCurrency(result.final.netEquity)}`],
+          [t('totalDebt'),formatCurrency(result.final.debt),`${t('releasedCapital')}: ${formatCurrency(result.final.totalReleased)}`],
+          [t('liquid'),formatCurrency(result.final.cash),`${t('cashReserve')}: ${formatCurrency(result.settings.cashReserve)}`],
+          [t('rentTotal'),formatCurrency(result.final.rent),`${result.final.properties} ${t('properties')}`],
+          [t('cashflowTotal'),formatCurrency(result.final.cashflow),`${t('monthlySavings')}: ${formatCurrency(result.settings.monthlySavings)}`],
+          [t('refiTotal'),formatCurrency(result.final.totalReleased),result.settings.mode === 'expert' ? `${t('maxLtv')}: ${formatNumber(result.settings.maxLtv,1)} %` : t('modeStandard')]
+        ];
+        $('metricGrid').innerHTML = metricData.map(([label,value,small]) => `<div class="metric"><span class="label">${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong><small>${escapeHtml(small)}</small></div>`).join('');
+        renderComparison(comparison);
+        const activeById = new Map(result.active.map((property) => [property.base.id,property]));
+        $('propertyTableBody').innerHTML = result.properties.map((base) => {
+          const property = activeById.get(base.id);
+          if (!property) return `<tr><td>${escapeHtml(base.name)}</td><td>${escapeHtml(base.type)}</td><td>${formatCurrency(base.price)}</td><td>${escapeHtml(t('notReached'))}</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>`;
+          const figures = propertyMonthFigures(property,result.settings,result.settings.horizonYears*12,false);
+          const debt = propertyDebt(property);
+          return `<tr><td>${escapeHtml(base.name)}</td><td>${escapeHtml(base.type)}</td><td>${formatCurrency(base.price)}</td><td>${escapeHtml(monthLabel(property.acquiredMonth))}</td><td>${formatCurrency(property.value)}</td><td>${formatCurrency(debt)}</td><td>${formatCurrency(property.value-debt)}</td><td>${formatCurrency(figures.rent)}</td><td>${formatCurrency(figures.cashflow)}</td><td>${formatCurrency(property.releasedCapital)}</td></tr>`;
+        }).join('');
+        $('yearTableBody').innerHTML = result.yearly.map((row) => `<tr><td>${Math.round(row.month/12)}</td><td>${row.properties}</td><td>${formatCurrency(row.portfolioValue)}</td><td>${formatCurrency(row.debt)}</td><td>${formatCurrency(row.netEquity)}</td><td>${formatCurrency(row.cash)}</td><td>${formatCurrency(row.rent)}</td><td>${formatCurrency(row.cashflow)}</td><td>${formatCurrency(row.totalReleased)}</td></tr>`).join('');
+        if (result.events.length) {
+          $('timeline').innerHTML = result.events.map((event) => `<div class="event"><time>${escapeHtml(monthLabel(event.month))}</time><div><strong>${escapeHtml(event.name)}</strong><p>${escapeHtml(event.detail)}</p></div><span class="tag ${event.type === 'buy' ? 'tag-buy' : 'tag-refi'}">${event.type === 'buy' ? escapeHtml(t('purchase')) : escapeHtml(t('refinancing'))}</span></div>`).join('');
+        } else {
+          $('timeline').innerHTML = `<div class="empty">${escapeHtml(t('noEvents'))}</div>`;
+        }
+        if (result.nextIndex < result.properties.length) {
+          const reason = result.lastFailureReason === 'burden' ? t('loadLimited') : `${t('nextProperty')}: ${result.properties[result.nextIndex].name} · ${t('notReached')}`;
+          $('timeline').insertAdjacentHTML('beforeend',`<div class="event"><time>${escapeHtml(t('notReached'))}</time><div><strong>${escapeHtml(result.properties[result.nextIndex].name)}</strong><p>${escapeHtml(reason)}</p></div><span class="tag tag-info">Info</span></div>`);
+        }
+        drawChart(result.yearly);
+        $('resultsSection').scrollIntoView({behavior:'smooth',block:'start'});
+      }
+
+      function renderComparison(comparison) {
+        if (!comparison || !comparison.standard || !comparison.expert) { $('comparisonGrid').innerHTML=''; return; }
+        const card = (result,expert) => `<div class="comparison-card ${expert ? 'expert' : ''}"><h4>${escapeHtml(expert ? t('modeExpert') : t('modeStandard'))}</h4><p>${escapeHtml(expert ? t('resultModeExpert') : t('resultModeStandard'))}</p><div class="comparison-values"><div><span>${escapeHtml(t('count'))}</span><strong>${result.final.properties} / ${result.properties.length}</strong></div><div><span>${escapeHtml(t('totalValue'))}</span><strong>${escapeHtml(formatCurrency(result.final.portfolioValue))}</strong></div><div><span>${escapeHtml(t('totalEquity'))}</span><strong>${escapeHtml(formatCurrency(result.final.netEquity))}</strong></div><div><span>${escapeHtml(t('totalDebt'))}</span><strong>${escapeHtml(formatCurrency(result.final.debt))}</strong></div><div><span>${escapeHtml(t('liquid'))}</span><strong>${escapeHtml(formatCurrency(result.final.cash))}</strong></div><div><span>${escapeHtml(t('refiTotal'))}</span><strong>${escapeHtml(formatCurrency(result.final.totalReleased))}</strong></div></div></div>`;
+        $('comparisonGrid').innerHTML = card(comparison.standard,false) + card(comparison.expert,true);
+      }
+
+      function drawChart(rows) {
+        const canvas = $('portfolioChart');
+        const rect = canvas.getBoundingClientRect();
+        const ratio = window.devicePixelRatio || 1;
+        canvas.width = Math.max(600,Math.floor(rect.width * ratio));
+        canvas.height = Math.floor(300 * ratio);
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+        ctx.clearRect(0,0,width,height);
+        const pad = {left:74*ratio,right:18*ratio,top:20*ratio,bottom:38*ratio};
+        const plotW = width - pad.left - pad.right;
+        const plotH = height - pad.top - pad.bottom;
+        const maxValue = Math.max(1,...rows.flatMap((row) => [row.portfolioValue,row.debt,row.netEquity])) * 1.08;
+        const x = (i) => pad.left + (rows.length <= 1 ? 0 : i/(rows.length-1))*plotW;
+        const y = (value) => pad.top + plotH - (value/maxValue)*plotH;
+        ctx.font = `${11*ratio}px Arial`;
+        ctx.lineWidth = ratio;
+        ctx.strokeStyle = '#d9e4ea';
+        ctx.fillStyle = '#6a7f8a';
+        for (let i=0;i<=4;i+=1) {
+          const value = maxValue * i / 4;
+          const yy = y(value);
+          ctx.beginPath();ctx.moveTo(pad.left,yy);ctx.lineTo(width-pad.right,yy);ctx.stroke();
+          ctx.fillText(`${Math.round(value/1000)}k`,8*ratio,yy+4*ratio);
+        }
+        const maxLabels = 8;
+        const step = Math.max(1,Math.ceil(rows.length/maxLabels));
+        rows.forEach((row,index) => {
+          if (index % step === 0 || index === rows.length - 1) ctx.fillText(String(Math.round(row.month/12)),x(index)-4*ratio,height-12*ratio);
+        });
+        const drawLine = (key,color) => {
+          ctx.strokeStyle=color;ctx.lineWidth=3*ratio;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();
+          rows.forEach((row,index) => { const xx=x(index),yy=y(row[key]); if(index===0)ctx.moveTo(xx,yy);else ctx.lineTo(xx,yy); });
+          ctx.stroke();
+        };
+        drawLine('portfolioValue','#72ad27');
+        drawLine('netEquity','#0b4f7e');
+        drawLine('debt','#879aa5');
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>'"]/g,(char) => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[char]));
+      }
+
+      function calculate() {
+        const settings = readSettings();
+        const properties = readProperties();
+        if (!properties.length) { showStatus(t('validation'),'error'); return; }
+        const standard = simulate({...settings,mode:'standard'},properties);
+        const expert = simulate({...settings,mode:'expert'},properties);
+        renderResults(settings.mode === 'expert' ? expert : standard,{standard,expert});
+      }
+
+      function collectFormState() {
+        return {settings:readSettings(),properties:readProperties(),lang:currentLang};
+      }
+
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY,JSON.stringify(collectFormState()));
+        showStatus(t('saved'),'ok');
+      }
+
+      function setInput(id,value) { if ($(id) && value !== undefined) $(id).value = value; }
+
+      function restoreState(state) {
+        if (!state || !state.settings || !Array.isArray(state.properties)) return false;
+        const s = state.settings;
+        currentLang = state.lang === 'en' ? 'en' : 'de';
+        const modeInput = document.querySelector(`input[name="mode"][value="${s.mode === 'expert' ? 'expert' : 'standard'}"]`);
+        if (modeInput) modeInput.checked = true;
+        ['startCapital','monthlySavings','cashReserve','maxMonthlyBurden','horizonYears','purchaseCosts','costInflation','taxRate','depreciationRate','buildingShare','maxLtv','bankDiscount','refiWaitYears','refiInterest','refiRepayment','maxRefiPerProperty'].forEach((id) => setInput(id,s[id]));
+        setInput('financePurchaseCosts',s.financePurchaseCosts ? 'yes' : 'no');
+        $('taxEnabled').checked = Boolean(s.taxEnabled);
+        $('propertyList').innerHTML = '';
+        state.properties.forEach(createPropertyCard);
+        syncPanels();
+        applyTranslations();
+        return true;
+      }
+
+      function loadExample() {
+        $('propertyList').innerHTML = '';
+        getDefaultProperties().forEach(createPropertyCard);
+        showStatus(t('resetDone'),'ok');
+      }
+
+      function resetAll() {
+        localStorage.removeItem(STORAGE_KEY);
+        document.querySelector('input[name="mode"][value="standard"]').checked = true;
+        setInput('startCapital',35000);setInput('monthlySavings',600);setInput('cashReserve',5000);setInput('maxMonthlyBurden',700);setInput('horizonYears',30);setInput('purchaseCosts',10);setInput('financePurchaseCosts','no');setInput('costInflation',1.5);
+        $('taxEnabled').checked=false;setInput('taxRate',35);setInput('depreciationRate',2);setInput('buildingShare',80);
+        setInput('maxLtv',70);setInput('bankDiscount',90);setInput('refiWaitYears',5);setInput('refiInterest',4);setInput('refiRepayment',2);setInput('maxRefiPerProperty',80);
+        lastResult=null;lastComparison=null;$('resultsSection').classList.remove('open');loadExample();syncPanels();
+      }
+
+      function syncPanels() {
+        const expert = document.querySelector('input[name="mode"]:checked').value === 'expert';
+        $('modeStandardCard').classList.toggle('active',!expert);
+        $('modeExpertCard').classList.toggle('active',expert);
+        $('expertPanel').classList.toggle('open',expert);
+        $('taxPanel').classList.toggle('open',$('taxEnabled').checked);
+      }
+
+      function exportCsv() {
+        if (!lastResult) { showStatus(t('calculateFirst'),'warn'); return; }
+        const rows = [[t('year'),t('properties'),t('portfolioValue'),t('debt'),t('netEquity'),t('liquidFunds'),t('monthlyRent'),t('monthlyCashflow'),t('releasedCapital')]];
+        lastResult.yearly.forEach((row) => rows.push([Math.round(row.month/12),row.properties,round(row.portfolioValue),round(row.debt),round(row.netEquity),round(row.cash),round(row.rent),round(row.cashflow),round(row.totalReleased)]));
+        const csv = '\ufeff' + rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g,'""')}"`).join(';')).join('\n');
+        const blob = new Blob([csv],{type:'text/csv;charset=utf-8'});
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href=url;link.download='xxl-immo-portfolio-investitionsplan.csv';document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);
+      }
+
+      document.querySelectorAll('input[name="mode"]').forEach((input) => input.addEventListener('change',syncPanels));
+      $('taxEnabled').addEventListener('change',syncPanels);
+      $('addPropertyBtn').addEventListener('click',() => createPropertyCard());
+      $('loadExampleBtn').addEventListener('click',loadExample);
+      $('resetBtn').addEventListener('click',resetAll);
+      $('calculateBtn').addEventListener('click',calculate);
+      $('calculateTopBtn').addEventListener('click',calculate);
+      $('saveBtn').addEventListener('click',saveState);
+      $('saveBtnBottom').addEventListener('click',saveState);
+      $('printBtn').addEventListener('click',() => window.print());
+      $('printBtnBottom').addEventListener('click',() => window.print());
+      $('csvBtn').addEventListener('click',exportCsv);
+      document.querySelectorAll('.lang-switch button').forEach((button) => button.addEventListener('click',() => { currentLang=button.dataset.lang; applyTranslations(); }));
+      window.addEventListener('resize',() => { if(lastResult) drawChart(lastResult.yearly); });
+
+      let restored=false;
+      try { restored=restoreState(JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null')); } catch (error) { restored=false; }
+      if (!restored) loadExample();
+      syncPanels();
+      applyTranslations();
+    })();
+  </script>
+</body>
+</html>
