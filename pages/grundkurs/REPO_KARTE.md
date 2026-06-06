@@ -1166,6 +1166,15 @@
     │   │   ├── projektpruefung-rechtsrahmen.html
     │   │   └── rechtsrahmen.html
     │   ├── promotion/
+    │   │   ├── club-Promotion/
+    │   │   │   ├── 01_liquiditybooster-akademie_interessen-abfrage_und_ausgabeblatt.pdf
+    │   │   │   ├── 02_weekend-setup_interessen-abfrage_und_ausgabeblatt.pdf
+    │   │   │   ├── 03_clubleader-aufbauprogramm_interessen-abfrage_und_ausgabeblatt.pdf
+    │   │   │   ├── D5D182A3-3D10-4A45-AE9A-1C7419744438.png
+    │   │   │   ├── club-promotion-wochenauswertung-aktualisiert.pdf
+    │   │   │   ├── club_promotion_merchandise_katalog_24_artikel_aktualisiert.pdf
+    │   │   │   ├── einarbeitung.html
+    │   │   │   └── liquiditybooster_club_promotion_ausbildungsleitfaden_github.pdf
     │   │   ├── 2064DD3A-12F9-485F-8321-BB841DFBF4BC.png
     │   │   ├── 6EDB5088-4228-44BB-A205-08156C170F78.png
     │   │   ├── 788C5F75-2475-4D8F-A06D-EBEAF0DB291F.png
@@ -1461,4 +1470,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.06.2026, 11:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.06.2026, 13:19)_
