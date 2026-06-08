@@ -1188,10 +1188,13 @@
     │   │   ├── club-promotion-aufbauprogramm.html
     │   │   ├── club-promotion-materialshop.html
     │   │   ├── club-promotion-wochenauswertung-v2.pdf
+    │   │   ├── liquiditybooster-online-clubleader-aufbauprogramm-interessen-umfrage.html
     │   │   ├── liquiditybooster-online-interessen-umfrage.html
+    │   │   ├── liquiditybooster-online-weekend-setup-interessen-umfrage.html
     │   │   ├── liquiditybooster_club_promotion_startleitfaden_mit_umfrage.pdf
     │   │   ├── liquiditybooster_umfrage_und_mitgabeblatt_a4.pdf
-    │   │   └── weekend_setup_interessenabfrage_mitgabeblatt_promotion.pdf
+    │   │   ├── weekend_setup_interessenabfrage_mitgabeblatt_promotion.pdf
+    │   │   └── zentrale.html
     │   ├── recht/
     │   │   └── gwg-meldeverordnung-einfach-erklaert.html
     │   ├── schnellstart/
@@ -1470,4 +1473,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.06.2026, 10:25)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.06.2026, 14:44)_
