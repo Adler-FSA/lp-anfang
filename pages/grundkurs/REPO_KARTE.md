@@ -1193,6 +1193,12 @@
     │   │   ├── liquiditybooster-online-weekend-setup-interessen-umfrage.html
     │   │   ├── liquiditybooster_club_promotion_startleitfaden_mit_umfrage.pdf
     │   │   ├── liquiditybooster_umfrage_und_mitgabeblatt_a4.pdf
+    │   │   ├── promotion-aktionstag-banner.jpeg
+    │   │   ├── promotion-aktionstag.html
+    │   │   ├── promotion-basis-schulung-banner.jpeg
+    │   │   ├── promotion-basis-schulung.html
+    │   │   ├── promotion-existenzaufbau-foerderung-banner.jpeg
+    │   │   ├── promotion-existenzaufbau-foerderung.html
     │   │   ├── weekend_setup_interessenabfrage_mitgabeblatt_promotion.pdf
     │   │   └── zentrale.html
     │   ├── recht/
@@ -1473,4 +1479,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.06.2026, 04:59)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.06.2026, 08:33)_
