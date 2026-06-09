@@ -1170,7 +1170,11 @@
     │   │   │   ├── 01_liquiditybooster-akademie_interessen-abfrage_und_ausgabeblatt.pdf
     │   │   │   ├── 02_weekend-setup_interessen-abfrage_und_ausgabeblatt.pdf
     │   │   │   ├── 03_clubleader-aufbauprogramm_interessen-abfrage_und_ausgabeblatt.pdf
+    │   │   │   ├── 1682E234-A7F5-4032-9761-9ED4B6AD2EE1.PNG
+    │   │   │   ├── A0C409EE-6CE4-4ABF-82F0-65BB2ADFBD86.PNG
     │   │   │   ├── D5D182A3-3D10-4A45-AE9A-1C7419744438.png
+    │   │   │   ├── club-promotion>-dein-anfang>-polonaise.mp3
+    │   │   │   ├── club-promotion-hymne.mp3
     │   │   │   ├── club-promotion-wochenauswertung-aktualisiert.pdf
     │   │   │   ├── club_promotion_merchandise_katalog_24_artikel_aktualisiert.pdf
     │   │   │   ├── einarbeitung.html
@@ -1479,4 +1483,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.06.2026, 11:55)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.06.2026, 14:38)_
