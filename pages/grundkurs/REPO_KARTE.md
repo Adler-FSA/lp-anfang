@@ -1186,14 +1186,18 @@
     │   │   ├── 788C5F75-2475-4D8F-A06D-EBEAF0DB291F.png
     │   │   ├── 79B6578F-CD20-4F77-BD20-E4825223BB4D.PNG
     │   │   ├── 918765B6-113C-484A-96DE-44F1D79D67E3.png
+    │   │   ├── 9ABF33FC-7955-450B-BD40-167E618FA889.PNG
     │   │   ├── BDCDF160-660D-44CF-BA54-C3054196B81A.png
     │   │   ├── Bildschirmfoto 2026-05-22 um 09.44.41.jpeg
     │   │   ├── Bildschirmfoto 2026-05-22 um 09.48.22.jpeg
     │   │   ├── D5D182A3-3D10-4A45-AE9A-1C7419744438.png
+    │   │   ├── FAD6E18C-104E-4C72-AB15-8F9AC17E2E21.PNG
     │   │   ├── akquise-strategie-kalkulation.html
     │   │   ├── club-promotion-aufbauprogramm.html
     │   │   ├── club-promotion-businessplan-assistent.html
+    │   │   ├── club-promotion-gruendungsassistent.html
     │   │   ├── club-promotion-materialshop.html
+    │   │   ├── club-promotion-rechnungs-buchhaltungsassistent.html
     │   │   ├── club-promotion-wochenauswertung-v2.pdf
     │   │   ├── liquiditybooster-online-clubleader-aufbauprogramm-interessen-umfrage.html
     │   │   ├── liquiditybooster-online-interessen-umfrage.html
@@ -1486,4 +1490,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.06.2026, 09:47)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.06.2026, 12:50)_
