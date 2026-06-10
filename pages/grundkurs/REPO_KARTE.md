@@ -1181,6 +1181,7 @@
     │   │   │   ├── einarbeitung.html
     │   │   │   └── liquiditybooster_club_promotion_ausbildungsleitfaden_github.pdf
     │   │   ├── 2064DD3A-12F9-485F-8321-BB841DFBF4BC.png
+    │   │   ├── 60A4D096-F9AB-4E35-B75B-C8CE32AAF2CC.PNG
     │   │   ├── 6EDB5088-4228-44BB-A205-08156C170F78.png
     │   │   ├── 788C5F75-2475-4D8F-A06D-EBEAF0DB291F.png
     │   │   ├── 79B6578F-CD20-4F77-BD20-E4825223BB4D.PNG
@@ -1485,4 +1486,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.06.2026, 05:12)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.06.2026, 09:47)_
