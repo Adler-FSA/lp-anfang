@@ -1174,6 +1174,7 @@
     │   │   │   ├── A0C409EE-6CE4-4ABF-82F0-65BB2ADFBD86.PNG
     │   │   │   ├── D5D182A3-3D10-4A45-AE9A-1C7419744438.png
     │   │   │   ├── club-promotion>-dein-anfang>-polonaise.mp3
+    │   │   │   ├── club-promotion-businessplan-assistent.html
     │   │   │   ├── club-promotion-hymne.mp3
     │   │   │   ├── club-promotion-wochenauswertung-aktualisiert.pdf
     │   │   │   ├── club_promotion_merchandise_katalog_24_artikel_aktualisiert.pdf
@@ -1190,6 +1191,7 @@
     │   │   ├── D5D182A3-3D10-4A45-AE9A-1C7419744438.png
     │   │   ├── akquise-strategie-kalkulation.html
     │   │   ├── club-promotion-aufbauprogramm.html
+    │   │   ├── club-promotion-businessplan-assistent.html
     │   │   ├── club-promotion-materialshop.html
     │   │   ├── club-promotion-wochenauswertung-v2.pdf
     │   │   ├── liquiditybooster-online-clubleader-aufbauprogramm-interessen-umfrage.html
@@ -1483,4 +1485,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.06.2026, 20:01)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.06.2026, 00:06)_
