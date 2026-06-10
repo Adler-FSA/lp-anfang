@@ -1182,6 +1182,7 @@
     │   │   │   └── liquiditybooster_club_promotion_ausbildungsleitfaden_github.pdf
     │   │   ├── 2064DD3A-12F9-485F-8321-BB841DFBF4BC.png
     │   │   ├── 60A4D096-F9AB-4E35-B75B-C8CE32AAF2CC.PNG
+    │   │   ├── 670B7FE4-7398-4920-98AA-AD56DE961013.PNG
     │   │   ├── 6EDB5088-4228-44BB-A205-08156C170F78.png
     │   │   ├── 788C5F75-2475-4D8F-A06D-EBEAF0DB291F.png
     │   │   ├── 79B6578F-CD20-4F77-BD20-E4825223BB4D.PNG
@@ -1195,6 +1196,7 @@
     │   │   ├── akquise-strategie-kalkulation.html
     │   │   ├── club-promotion-aufbauprogramm.html
     │   │   ├── club-promotion-businessplan-assistent.html
+    │   │   ├── club-promotion-gruender-startseite.html
     │   │   ├── club-promotion-gruendungsassistent.html
     │   │   ├── club-promotion-materialshop.html
     │   │   ├── club-promotion-rechnungs-buchhaltungsassistent.html
@@ -1490,4 +1492,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.06.2026, 12:50)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.06.2026, 16:30)_
