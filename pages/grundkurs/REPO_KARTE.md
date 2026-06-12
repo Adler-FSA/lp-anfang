@@ -1167,6 +1167,7 @@
     │   │   └── rechtsrahmen.html
     │   ├── promotion/
     │   │   ├── club-Promotion/
+    │   │   │   ├── blog/
     │   │   │   ├── 01_liquiditybooster-akademie_interessen-abfrage_und_ausgabeblatt.pdf
     │   │   │   ├── 02_weekend-setup_interessen-abfrage_und_ausgabeblatt.pdf
     │   │   │   ├── 03_clubleader-aufbauprogramm_interessen-abfrage_und_ausgabeblatt.pdf
@@ -1492,4 +1493,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.06.2026, 02:58)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.06.2026, 07:24)_
