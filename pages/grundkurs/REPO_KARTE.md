@@ -1177,6 +1177,8 @@
     │   │   │   ├── club-promotion>-dein-anfang>-polonaise.mp3
     │   │   │   ├── club-promotion-businessplan-assistent.html
     │   │   │   ├── club-promotion-geschaeftsbasis-kompass.html
+    │   │   │   ├── club-promotion-gruender-absicherung-vorsorge.html
+    │   │   │   ├── club-promotion-gruender-arbeitgeber-kompass.html
     │   │   │   ├── club-promotion-hymne.mp3
     │   │   │   ├── club-promotion-wochenauswertung-aktualisiert.pdf
     │   │   │   ├── club_promotion_merchandise_katalog_24_artikel_aktualisiert.pdf
@@ -1495,4 +1497,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.06.2026, 15:43)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.06.2026, 19:42)_
