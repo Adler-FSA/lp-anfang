@@ -1181,6 +1181,7 @@
     │   │   │   ├── club-promotion-wochenauswertung-aktualisiert.pdf
     │   │   │   ├── club_promotion_merchandise_katalog_24_artikel_aktualisiert.pdf
     │   │   │   ├── einarbeitung.html
+    │   │   │   ├── geschaeftsbasis-kompass-kosten-fachstellen-banner.PNG
     │   │   │   └── liquiditybooster_club_promotion_ausbildungsleitfaden_github.pdf
     │   │   ├── 2064DD3A-12F9-485F-8321-BB841DFBF4BC.png
     │   │   ├── 60A4D096-F9AB-4E35-B75B-C8CE32AAF2CC.PNG
@@ -1494,4 +1495,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.06.2026, 09:56)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.06.2026, 15:43)_
