@@ -1176,6 +1176,7 @@
     │   │   │   ├── D5D182A3-3D10-4A45-AE9A-1C7419744438.png
     │   │   │   ├── club-promotion>-dein-anfang>-polonaise.mp3
     │   │   │   ├── club-promotion-businessplan-assistent.html
+    │   │   │   ├── club-promotion-geschaeftsbasis-kompass.html
     │   │   │   ├── club-promotion-hymne.mp3
     │   │   │   ├── club-promotion-wochenauswertung-aktualisiert.pdf
     │   │   │   ├── club_promotion_merchandise_katalog_24_artikel_aktualisiert.pdf
@@ -1493,4 +1494,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.06.2026, 03:37)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.06.2026, 09:56)_
