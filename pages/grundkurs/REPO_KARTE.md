@@ -1175,10 +1175,15 @@
     │   │   │   ├── A0C409EE-6CE4-4ABF-82F0-65BB2ADFBD86.PNG
     │   │   │   ├── D5D182A3-3D10-4A45-AE9A-1C7419744438.png
     │   │   │   ├── club-promotion>-dein-anfang>-polonaise.mp3
+    │   │   │   ├── club-promotion-absicherung-vorsorge-banner.PNG
+    │   │   │   ├── club-promotion-arbeitgeber-kompass-banner.PNG
     │   │   │   ├── club-promotion-businessplan-assistent.html
+    │   │   │   ├── club-promotion-geschaeftsbasis-kompass-banner.PNG
     │   │   │   ├── club-promotion-geschaeftsbasis-kompass.html
     │   │   │   ├── club-promotion-gruender-absicherung-vorsorge.html
     │   │   │   ├── club-promotion-gruender-arbeitgeber-kompass.html
+    │   │   │   ├── club-promotion-gruender-kompass-serie-banner.PNG
+    │   │   │   ├── club-promotion-gruender-kompass.html
     │   │   │   ├── club-promotion-hymne.mp3
     │   │   │   ├── club-promotion-wochenauswertung-aktualisiert.pdf
     │   │   │   ├── club_promotion_merchandise_katalog_24_artikel_aktualisiert.pdf
@@ -1497,4 +1502,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.06.2026, 06:28)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.06.2026, 12:07)_
