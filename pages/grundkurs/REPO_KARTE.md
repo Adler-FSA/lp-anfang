@@ -1187,6 +1187,7 @@
     │   │   │   ├── club-promotion-hymne.mp3
     │   │   │   ├── club-promotion-wochenauswertung-aktualisiert.pdf
     │   │   │   ├── club_promotion_merchandise_katalog_24_artikel_aktualisiert.pdf
+    │   │   │   ├── club_promotion_story_reel_31_bilder_musik.mp4
     │   │   │   ├── einarbeitung.html
     │   │   │   ├── geschaeftsbasis-kompass-kosten-fachstellen-banner.PNG
     │   │   │   └── liquiditybooster_club_promotion_ausbildungsleitfaden_github.pdf
@@ -1502,4 +1503,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 17.06.2026, 06:05)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 17.06.2026, 11:43)_
