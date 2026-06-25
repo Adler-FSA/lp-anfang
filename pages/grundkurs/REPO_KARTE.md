@@ -651,7 +651,8 @@
     │   ├── blog/
     │   │   ├── 4F1AEA3D-0FDE-4E4E-96F5-59BA94F1E57E.png
     │   │   ├── heute-am-see.html
-    │   │   └── unternehmerschaft.html
+    │   │   ├── unternehmerschaft.html
+    │   │   └── wenn-der-minijob-faellt.html
     │   ├── buch/
     │   │   ├── buch-video-intro.html
     │   │   ├── index.html
@@ -1503,4 +1504,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.06.2026, 08:26)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.06.2026, 11:36)_
