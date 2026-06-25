@@ -650,6 +650,7 @@
     │   │   └── wallet-drailer-link.html
     │   ├── blog/
     │   │   ├── 4F1AEA3D-0FDE-4E4E-96F5-59BA94F1E57E.png
+    │   │   ├── D378BB9A-32E1-4E71-BC14-CC2FCFDC0789.PNG
     │   │   ├── heute-am-see.html
     │   │   ├── unternehmerschaft.html
     │   │   └── wenn-der-minijob-faellt.html
@@ -1504,4 +1505,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.06.2026, 11:36)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.06.2026, 14:13)_
