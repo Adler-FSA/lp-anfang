@@ -1433,6 +1433,7 @@
     │   ├── hotel-gaestedatei-einkommensrechner.html
     │   ├── hotel-gaesteliste-amortisationsrechner.html
     │   ├── hotel-gaesteliste-potenzialrechner.html
+    │   ├── hotel-mitgliedschaft-als-gastgeschenk.html
     │   ├── index.html
     │   ├── jetzt-nach-vorn.html
     │   ├── karrierebooster-simulator.html
@@ -1510,4 +1511,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 30.06.2026, 07:48)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 30.06.2026, 10:52)_
