@@ -839,6 +839,8 @@
     │   │   ├── webinare-buchen-07.html
     │   │   ├── webinare-buchen-08-ticketseite.html
     │   │   └── webinare-buchen.html
+    │   ├── hotels/
+    │   │   └── hotel-gaestedatei-einkommensrechner.html
     │   ├── index/
     │   │   └── page.json
     │   ├── insider/
@@ -1428,6 +1430,9 @@
     │   ├── gut-zu-wissen.html
     │   ├── heinz-riedel-portfolio-rechner.html
     │   ├── heinz-riedel.html
+    │   ├── hotel-gaestedatei-einkommensrechner.html
+    │   ├── hotel-gaesteliste-amortisationsrechner.html
+    │   ├── hotel-gaesteliste-potenzialrechner.html
     │   ├── index.html
     │   ├── jetzt-nach-vorn.html
     │   ├── karrierebooster-simulator.html
@@ -1505,4 +1510,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 30.06.2026, 03:54)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 30.06.2026, 07:48)_
