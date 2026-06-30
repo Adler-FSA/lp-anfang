@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hotel-Gästedatei Einkommensrechner | LiquidityBooster</title>
+  <meta name="description" content="Hotel-Gästedatei Einkommensrechner für Club-Marktplatz, Cashback, 3-Ebenen-Empfehlungslogik und ClubLeader-Provisionssimulation." />
+  <meta name="robots" content="index,follow" />
+  <style>
+    :root{
+      --mint:#00a7ad;
+      --mint-dark:#07878d;
+      --mint-soft:#e6fbfc;
+      --magenta:#c6006f;
+      --magenta-dark:#9f0059;
+      --magenta-soft:#fff0f8;
+      --navy:#132238;
+      --navy-2:#1d314f;
+      --ink:#243248;
+      --muted:#66748a;
+      --line:#d9e6ef;
+      --soft:#f4f8fb;
+      --white:#ffffff;
+      --shadow:0 24px 70px rgba(19,34,56,.12);
+      --shadow-soft:0 14px 35px rgba(19,34,56,.08);
+      --radius:24px;
+      --radius-sm:16px;
+      --max:1180px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(0,167,173,.18), transparent 34rem),
+        radial-gradient(circle at 88% 2%, rgba(198,0,111,.12), transparent 30rem),
+        linear-gradient(180deg,#ffffff 0%,#f4f8fb 42%,#eef5f8 100%);
+      line-height:1.55;
+    }
+    a{color:inherit}
+    button,input,select{font:inherit}
+    .page{min-height:100vh;overflow:hidden}
+    .wrap{width:min(var(--max),calc(100% - 36px));margin:0 auto}
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:30;
+      background:rgba(255,255,255,.88);
+      backdrop-filter:saturate(1.2) blur(14px);
+      border-bottom:1px solid rgba(217,230,239,.74);
+    }
+    .topbar-inner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      min-height:82px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      min-width:0;
+    }
+    .brand img{
+      width:238px;
+      max-width:52vw;
+      height:auto;
+      display:block;
+    }
+    .brand-kicker{
+      display:none;
+      color:var(--muted);
+      font-size:13px;
+      border-left:1px solid var(--line);
+      padding-left:16px;
+      white-space:nowrap;
+    }
+    .actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .lang-switch{
+      display:flex;
+      gap:6px;
+      padding:5px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#fff;
+      box-shadow:0 8px 18px rgba(19,34,56,.05);
+    }
+    .lang-btn{
+      border:0;
+      background:transparent;
+      color:var(--navy);
+      border-radius:999px;
+      padding:8px 12px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:13px;
+      letter-spacing:.03em;
+    }
+    .lang-btn.active{background:var(--navy);color:#fff}
+    .print-btn,.ghost-btn{
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--navy);
+      border-radius:999px;
+      padding:10px 14px;
+      cursor:pointer;
+      font-weight:800;
+      box-shadow:0 8px 18px rgba(19,34,56,.05);
+    }
+    .hero{padding:56px 0 32px;position:relative}
+    .hero-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);gap:30px;align-items:center}
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:9px 13px;
+      border-radius:999px;
+      background:rgba(0,167,173,.11);
+      color:var(--mint-dark);
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+    .dot{width:9px;height:9px;border-radius:99px;background:var(--magenta);box-shadow:0 0 0 6px rgba(198,0,111,.1)}
+    h1{
+      margin:22px 0 14px;
+      color:var(--navy);
+      font-size:clamp(36px,5.1vw,68px);
+      line-height:.96;
+      letter-spacing:-.055em;
+    }
+    .lead{
+      max-width:780px;
+      font-size:clamp(18px,2.1vw,23px);
+      color:#3d4d65;
+      margin:0 0 24px;
+    }
+    .hero-points{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:9px;
+      padding:10px 13px;
+      border-radius:999px;
+      border:1px solid rgba(0,167,173,.22);
+      background:#fff;
+      color:var(--navy);
+      font-weight:800;
+      box-shadow:0 10px 25px rgba(19,34,56,.06);
+      font-size:14px;
+    }
+    .pill svg{width:18px;height:18px;flex:0 0 auto}
+    .hero-card{
+      position:relative;
+      min-height:440px;
+      border-radius:32px;
+      background:linear-gradient(145deg,var(--navy),#1f3b5f 56%,#0e8f96);
+      box-shadow:var(--shadow);
+      padding:28px;
+      color:#fff;
+      overflow:hidden;
+    }
+    .hero-card:before{
+      content:"";
+      position:absolute;
+      inset:-120px -110px auto auto;
+      width:310px;
+      height:310px;
+      background:radial-gradient(circle,rgba(255,255,255,.28),transparent 68%);
+      border-radius:999px;
+    }
+    .hero-card:after{
+      content:"";
+      position:absolute;
+      inset:auto auto -120px -90px;
+      width:280px;
+      height:280px;
+      background:radial-gradient(circle,rgba(198,0,111,.44),transparent 65%);
+      border-radius:999px;
+    }
+    .diagram{position:relative;z-index:2;display:grid;gap:18px}
+    .diagram-title{font-weight:950;font-size:24px;line-height:1.12;margin-bottom:6px;letter-spacing:-.02em}
+    .diagram-sub{color:rgba(255,255,255,.78);font-weight:650;margin:0 0 8px}
+    .flow-line{display:grid;gap:14px}
+    .flow-node{
+      display:grid;
+      grid-template-columns:54px 1fr auto;
+      align-items:center;
+      gap:13px;
+      padding:14px;
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:20px;
+      background:rgba(255,255,255,.11);
+      backdrop-filter:blur(8px);
+    }
+    .node-mark{
+      width:54px;height:54px;border-radius:18px;
+      display:grid;place-items:center;
+      background:rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.2);
+    }
+    .node-mark svg{width:33px;height:33px}
+    .node-label{font-weight:950}
+    .node-text{font-size:13px;color:rgba(255,255,255,.78);margin-top:2px}
+    .node-value{font-size:24px;font-weight:950;color:#fff;white-space:nowrap}
+    .arrow-row{display:flex;align-items:center;justify-content:center;height:20px;color:rgba(255,255,255,.62)}
+    .arrow-row svg{width:26px;height:26px}
+    .section{padding:26px 0}
+    .section-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:20px;
+      margin-bottom:18px;
+    }
+    .section-title{margin:0;color:var(--navy);font-size:clamp(26px,3vw,38px);line-height:1.05;letter-spacing:-.035em}
+    .section-copy{margin:8px 0 0;color:var(--muted);max-width:780px}
+    .panel{
+      border:1px solid rgba(217,230,239,.88);
+      background:rgba(255,255,255,.92);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow-soft);
+      overflow:hidden;
+    }
+    .panel-pad{padding:24px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .calc-grid{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:22px;align-items:start}
+    .inputs{display:grid;gap:14px}
+    .input-card{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:18px;
+      padding:16px;
+    }
+    .input-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
+    .input-title{font-weight:950;color:var(--navy);line-height:1.18}
+    .input-hint{font-size:12px;color:var(--muted);margin-top:3px}
+    .value-wrap{display:flex;align-items:center;gap:8px;justify-content:flex-end;min-width:134px}
+    .value-wrap input[type="number"], .value-wrap select{
+      width:116px;
+      border:1px solid var(--line);
+      border-radius:13px;
+      padding:10px 10px;
+      text-align:right;
+      color:var(--navy);
+      font-weight:900;
+      background:#f9fcfd;
+      outline:none;
+    }
+    .value-wrap select{width:180px;text-align:left}
+    .unit{color:var(--muted);font-weight:850;font-size:13px;white-space:nowrap}
+    input[type="range"]{
+      width:100%;
+      accent-color:var(--mint);
+    }
+    .rate-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .small-field{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px;
+      background:#fbfdfe;
+    }
+    .small-field label{display:block;font-size:12px;color:var(--muted);font-weight:850;margin-bottom:6px}
+    .small-field input,.small-field select{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:9px 10px;
+      background:#fff;
+      color:var(--navy);
+      font-weight:900;
+      outline:none;
+    }
+    .results{display:grid;gap:16px}
+    .kpi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .kpi{
+      border-radius:20px;
+      padding:18px;
+      background:linear-gradient(180deg,#fff,#f8fcfd);
+      border:1px solid var(--line);
+    }
+    .kpi.big{
+      grid-column:1/-1;
+      background:linear-gradient(135deg,var(--navy),#1f3b5f);
+      color:#fff;
+      border-color:transparent;
+      position:relative;
+      overflow:hidden;
+    }
+    .kpi.big:after{
+      content:"";
+      position:absolute;
+      right:-80px;
+      top:-100px;
+      width:220px;height:220px;
+      background:radial-gradient(circle,rgba(0,167,173,.45),transparent 65%);
+      border-radius:999px;
+    }
+    .kpi-label{font-size:13px;color:var(--muted);font-weight:850;position:relative;z-index:1}
+    .kpi.big .kpi-label{color:rgba(255,255,255,.75)}
+    .kpi-value{font-size:clamp(26px,3vw,42px);line-height:1;font-weight:950;color:var(--navy);margin-top:8px;letter-spacing:-.04em;position:relative;z-index:1}
+    .kpi.big .kpi-value{color:#fff}
+    .kpi-sub{font-size:13px;color:var(--muted);margin-top:8px;position:relative;z-index:1}
+    .kpi.big .kpi-sub{color:rgba(255,255,255,.78)}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:18px;background:#fff}
+    table{width:100%;border-collapse:collapse;min-width:720px}
+    th,td{padding:14px 15px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+    th:first-child,td:first-child{text-align:left}
+    th{background:#f7fbfc;color:var(--navy);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+    tr:last-child td{border-bottom:0}
+    .total-row td{font-weight:950;color:var(--navy);background:#fbfdfe}
+    .bars{display:grid;gap:12px;margin-top:16px}
+    .bar-row{display:grid;grid-template-columns:110px 1fr 110px;gap:12px;align-items:center}
+    .bar-name{font-size:13px;font-weight:900;color:var(--navy)}
+    .bar-track{height:12px;background:#edf4f8;border-radius:999px;overflow:hidden}
+    .bar-fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--mint),var(--magenta));transition:width .25s ease}
+    .bar-val{text-align:right;font-weight:950;color:var(--navy);font-size:13px}
+    .note{
+      border-left:5px solid var(--mint);
+      background:var(--mint-soft);
+      border-radius:16px;
+      padding:14px 16px;
+      color:#1d5361;
+      font-weight:650;
+    }
+    .note strong{color:var(--navy)}
+    .warning{
+      border-left-color:var(--magenta);
+      background:var(--magenta-soft);
+      color:#6e244b;
+    }
+    .scenario-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .scenario{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:#fff;
+      padding:18px;
+    }
+    .scenario h3{margin:0;color:var(--navy);font-size:18px}
+    .scenario .meta{margin:5px 0 14px;color:var(--muted);font-size:13px}
+    .scenario-number{font-size:32px;line-height:1;font-weight:950;color:var(--magenta);letter-spacing:-.04em}
+    .scenario-label{font-size:13px;color:var(--muted);margin-top:6px}
+    .club-card{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1fr);gap:18px}
+    .select-card{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:20px;
+      padding:18px;
+    }
+    .select-card h3{margin:0 0 12px;color:var(--navy);font-size:20px;letter-spacing:-.02em}
+    .stack{display:grid;gap:12px}
+    .divider{height:1px;background:var(--line);margin:8px 0}
+    .formula{
+      display:grid;
+      gap:8px;
+      border:1px dashed rgba(0,167,173,.4);
+      border-radius:18px;
+      padding:14px;
+      background:#fbfeff;
+      color:var(--navy);
+      font-weight:750;
+    }
+    .formula span{color:var(--muted);font-weight:650;font-size:13px}
+    .footer{padding:34px 0 54px;color:var(--muted)}
+    .footer-inner{border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}
+    .footer strong{color:var(--navy)}
+    @media (min-width:980px){.brand-kicker{display:block}}
+    @media (max-width:980px){
+      .hero-grid,.calc-grid,.club-card{grid-template-columns:1fr}
+      .hero-card{min-height:auto}
+      .grid-2,.grid-3,.scenario-grid{grid-template-columns:1fr}
+      .section-head{display:block}
+    }
+    @media (max-width:640px){
+      .wrap{width:min(var(--max),calc(100% - 24px))}
+      .topbar-inner{align-items:flex-start;flex-direction:column;padding:14px 0}
+      .brand img{width:210px;max-width:72vw}
+      .actions{width:100%;justify-content:space-between}
+      .hero{padding-top:32px}
+      .hero-card{border-radius:24px;padding:20px}
+      .flow-node{grid-template-columns:48px 1fr}.node-value{grid-column:2;font-size:20px}.node-mark{width:48px;height:48px}
+      .panel-pad{padding:17px}
+      .kpi-grid,.rate-grid{grid-template-columns:1fr}
+      .bar-row{grid-template-columns:82px 1fr 80px}
+      .input-head{display:block}.value-wrap{justify-content:flex-start;margin-top:10px}.value-wrap input[type="number"],.value-wrap select{width:100%}
+    }
+    @media print{
+      .topbar,.actions,.hero-points,.print-btn,.ghost-btn,.lang-switch{display:none!important}
+      body{background:#fff;color:#111}
+      .hero,.section{padding:14px 0}
+      .panel,.hero-card,.kpi,.scenario{box-shadow:none!important}
+      .hero-grid,.calc-grid,.club-card,.grid-2,.grid-3,.scenario-grid{grid-template-columns:1fr!important}
+      .hero-card{background:#132238!important;color:#fff!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+      .wrap{width:100%;max-width:none;padding:0 18px}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="wrap topbar-inner">
+        <div class="brand">
+          <img src="data:image/webp;base64,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" alt="LiquidityBooster Logo" />
+          <div class="brand-kicker" data-i18n="brandKicker">Hotel · Gästedatei · Empfehlungsmodell</div>
+        </div>
+        <div class="actions">
+          <div class="lang-switch" aria-label="Sprache wählen">
+            <button class="lang-btn active" type="button" data-lang="de">DE</button>
+            <button class="lang-btn" type="button" data-lang="en">EN</button>
+          </div>
+          <button class="print-btn" type="button" id="printBtn" data-i18n="printBtn">Drucken / PDF</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div>
+            <div class="eyebrow"><span class="dot"></span><span data-i18n="eyebrow">Potenzial-Rechner für Hotels</span></div>
+            <h1 data-i18n="heroTitle">Hotel-Gästedatei Einkommensrechner</h1>
+            <p class="lead" data-i18n="heroLead">Dieser Rechner zeigt, welches rechnerische Potenzial entstehen kann, wenn ein Hotel seine über Jahre aufgebaute Gästedatei mit Club-Marktplatz, Cashback und einer 3-Ebenen-Empfehlungslogik verbindet.</p>
+            <div class="hero-points">
+              <span class="pill">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18.5V8.8c0-.9.7-1.6 1.6-1.6h12.8c.9 0 1.6.7 1.6 1.6v9.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7.4 7.2V5.8c0-.9.7-1.6 1.6-1.6h6c.9 0 1.6.7 1.6 1.6v1.4M3 18.5h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <span data-i18n="pill1">Gästedatei aktivieren</span>
+              </span>
+              <span class="pill">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7.5a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm12 0a3 3 0 1 0 0 6 3 3 0 0 0 0-6ZM9 11h6M6 13.5v3.2M18 13.5v3.2M4 19h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span data-i18n="pill2">3 Ebenen sichtbar machen</span>
+              </span>
+              <span class="pill">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17.5 9 12l3.2 3.2L20 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 6v6h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span data-i18n="pill3">ClubLeader simulieren</span>
+              </span>
+            </div>
+          </div>
+          <aside class="hero-card" aria-label="3 Ebenen Modell">
+            <div class="diagram">
+              <div>
+                <div class="diagram-title" data-i18n="diagramTitle">Aus Gästebeziehungen wird ein Empfehlungshebel.</div>
+                <p class="diagram-sub" data-i18n="diagramSub">Hotel bringt Gast 1. Gast 1 empfiehlt Gast 2. Gast 2 empfiehlt Gast 3.</p>
+              </div>
+              <div class="flow-line">
+                <div class="flow-node">
+                  <div class="node-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 20V9.2L12 4l7.5 5.2V20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 20v-6h6v6M7.5 11h2m5 0h2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+                  <div><div class="node-label" data-i18n="node1Title">Ebene 1</div><div class="node-text" data-i18n="node1Text">Hotel empfiehlt die Mitgliedschaft direkt.</div></div>
+                  <div class="node-value">20 %</div>
+                </div>
+                <div class="arrow-row"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m0 0 6-6m-6 6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <div class="flow-node">
+                  <div class="node-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 9a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm9-4a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11.5 11.5 14.5 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+                  <div><div class="node-label" data-i18n="node2Title">Ebene 2</div><div class="node-text" data-i18n="node2Text">Gast 1 empfiehlt Gast 2. Hotel bleibt beteiligt.</div></div>
+                  <div class="node-value">15 %</div>
+                </div>
+                <div class="arrow-row"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m0 0 6-6m-6 6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <div class="flow-node">
+                  <div class="node-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7.5a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm10 0a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 13.5V18m10-4.5V18M4 20h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+                  <div><div class="node-label" data-i18n="node3Title">Ebene 3</div><div class="node-text" data-i18n="node3Text">Gast 2 empfiehlt Gast 3. Hotel erhält die 3. Ebene.</div></div>
+                  <div class="node-value">10 %</div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section" id="hotel-rechner">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title" data-i18n="sectionHotelTitle">1. Hotel-Potenzial aus der Gästedatei</h2>
+              <p class="section-copy" data-i18n="sectionHotelCopy">Stelle ein, wie groß die Gästedatei ist, wie viele Gäste die Club-Mitgliedschaft annehmen und wie stark die Weiterempfehlung wirkt.</p>
+            </div>
+          </div>
+
+          <div class="calc-grid">
+            <div class="panel"><div class="panel-pad inputs">
+              <div class="input-card">
+                <div class="input-head">
+                  <div><div class="input-title" data-i18n="guestCountLabel">Gästeadressen im Hotelbestand</div><div class="input-hint" data-i18n="guestCountHint">Von kleiner Liste bis gewachsene Hotel-Datenbank.</div></div>
+                  <div class="value-wrap"><input id="guestCountNumber" type="number" min="10" max="50000" step="10" value="10000" data-sync="guestCount"><span class="unit" data-i18n="unitGuests">Adressen</span></div>
+                </div>
+                <input id="guestCountRange" type="range" min="10" max="50000" step="10" value="10000" data-sync="guestCount">
+              </div>
+
+              <div class="input-card">
+                <div class="input-head">
+                  <div><div class="input-title" data-i18n="activationLabel">Annahmequote Club-Mitgliedschaft</div><div class="input-hint" data-i18n="activationHint">Anteil der Gäste, die das Club-Marktplatz-Angebot annehmen.</div></div>
+                  <div class="value-wrap"><input id="activationRateNumber" type="number" min="0" max="100" step="0.1" value="20" data-sync="activationRate"><span class="unit">%</span></div>
+                </div>
+                <input id="activationRateRange" type="range" min="0" max="100" step="0.1" value="20" data-sync="activationRate">
+              </div>
+
+              <div class="input-card">
+                <div class="input-head">
+                  <div><div class="input-title" data-i18n="membershipLabel">Jährlicher Mitgliedsbeitrag</div><div class="input-hint" data-i18n="membershipHint">Standardwert: 60 € pro Jahr.</div></div>
+                  <div class="value-wrap"><input id="membershipFeeNumber" type="number" min="1" max="1000" step="1" value="60" data-sync="membershipFee"><span class="unit">€</span></div>
+                </div>
+                <input id="membershipFeeRange" type="range" min="1" max="1000" step="1" value="60" data-sync="membershipFee">
+              </div>
+
+              <div class="input-card">
+                <div class="input-title" data-i18n="recommendTitle">Weiterempfehlung der Gäste</div>
+                <div class="input-hint" data-i18n="recommendHint">Damit wird sichtbar, was nach der direkten Hotel-Empfehlung zusätzlich entstehen kann.</div>
+                <div class="rate-grid" style="margin-top:12px">
+                  <div class="small-field"><label for="recRate2" data-i18n="recRate2Label">Aktive Empfehler Ebene 2</label><input id="recRate2" type="number" min="0" max="100" step="0.1" value="20"></div>
+                  <div class="small-field"><label for="recCount2" data-i18n="recCount2Label">Ø Empfehlungen je Gast 1</label><input id="recCount2" type="number" min="0" max="10" step="0.1" value="1"></div>
+                  <div class="small-field"><label for="recRate3" data-i18n="recRate3Label">Aktive Empfehler Ebene 3</label><input id="recRate3" type="number" min="0" max="100" step="0.1" value="20"></div>
+                  <div class="small-field"><label for="recCount3" data-i18n="recCount3Label">Ø Empfehlungen je Gast 2</label><input id="recCount3" type="number" min="0" max="10" step="0.1" value="1"></div>
+                </div>
+              </div>
+
+              <div class="input-card">
+                <div class="input-title" data-i18n="ratesTitle">3-Ebenen-Beteiligung Hotel</div>
+                <div class="input-hint" data-i18n="ratesHint">Standardmodell: 20 % direkt, 15 % zweite Ebene, 10 % dritte Ebene.</div>
+                <div class="rate-grid" style="margin-top:12px">
+                  <div class="small-field"><label for="hotelRate1" data-i18n="hotelRate1Label">Hotel Ebene 1</label><input id="hotelRate1" type="number" min="0" max="100" step="0.1" value="20"></div>
+                  <div class="small-field"><label for="hotelRate2" data-i18n="hotelRate2Label">Hotel Ebene 2</label><input id="hotelRate2" type="number" min="0" max="100" step="0.1" value="15"></div>
+                  <div class="small-field"><label for="hotelRate3" data-i18n="hotelRate3Label">Hotel Ebene 3</label><input id="hotelRate3" type="number" min="0" max="100" step="0.1" value="10"></div>
+                </div>
+              </div>
+            </div></div>
+
+            <div class="results">
+              <div class="kpi-grid">
+                <div class="kpi big"><div class="kpi-label" data-i18n="kpiHotelTotal">Rechnerisches Jahrespotenzial Hotel</div><div class="kpi-value" id="hotelTotal">0 €</div><div class="kpi-sub" id="hotelTotalSub">&nbsp;</div></div>
+                <div class="kpi"><div class="kpi-label" data-i18n="kpiMembers">Club-Mitglieder gesamt</div><div class="kpi-value" id="membersTotal">0</div><div class="kpi-sub" data-i18n="kpiMembersSub">über Ebene 1 bis 3</div></div>
+                <div class="kpi"><div class="kpi-label" data-i18n="kpiVolume">Mitgliedschaftsvolumen</div><div class="kpi-value" id="membershipVolume">0 €</div><div class="kpi-sub" data-i18n="kpiVolumeSub">Jahresvolumen der simulierten Mitglieder</div></div>
+              </div>
+
+              <div class="panel"><div class="panel-pad">
+                <div class="table-wrap">
+                  <table aria-label="Hotel-Ergebnis nach Ebenen">
+                    <thead>
+                      <tr>
+                        <th data-i18n="tableLevel">Ebene</th>
+                        <th data-i18n="tableMembers">Neue Mitglieder</th>
+                        <th data-i18n="tableRate">Hotel-Anteil</th>
+                        <th data-i18n="tableHotelIncome">Hotel-Einnahme</th>
+                        <th data-i18n="tableGuestIncome">Gäste-Empfehlung</th>
+                      </tr>
+                    </thead>
+                    <tbody id="hotelTable"></tbody>
+                  </table>
+                </div>
+                <div class="bars" id="hotelBars"></div>
+              </div></div>
+
+              <div class="note" data-i18n="simulationNote"><strong>Hinweis:</strong> Das ist eine Rechen-Simulation auf Basis frei wählbarer Annahmen. Es handelt sich nicht um ein Einkommens-, Kunden- oder Erfolgsgarantie.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="businessbooster">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title" data-i18n="sectionBoosterTitle">2. BusinessBooster & Amortisation</h2>
+              <p class="section-copy" data-i18n="sectionBoosterCopy">Wähle ein BusinessBooster-Paket und prüfe, ab wie vielen aktivierten Mitgliedschaften die Setupgebühr rechnerisch gedeckt wäre.</p>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="panel"><div class="panel-pad stack">
+              <div class="small-field"><label for="boosterSelect" data-i18n="boosterLabel">BusinessBooster-Paket</label><select id="boosterSelect"><option value="499">Small BusinessBooster · 499 €</option><option value="999" selected>Premium BusinessBooster · 999 €</option><option value="1999">Enterprise BusinessBooster · 1.999 €</option></select></div>
+              <div class="small-field"><label for="monthlyFee" data-i18n="monthlyFeeLabel">Monatliche Gebühr netto, falls vereinbart</label><input id="monthlyFee" type="number" min="0" step="1" value="0"></div>
+              <div class="formula"><span data-i18n="breakEvenFormulaLabel">Berechnungslogik</span><div id="breakEvenFormula">999 € ÷ 12 € = 84 Mitglieder</div></div>
+              <div class="note" data-i18n="boosterNote"><strong>Lesart:</strong> Je mehr aktive Gästekontakte vorhanden sind, desto schneller kann sich der BusinessBooster rechnerisch amortisieren.</div>
+            </div></div>
+            <div class="panel"><div class="panel-pad">
+              <div class="kpi-grid">
+                <div class="kpi big"><div class="kpi-label" data-i18n="kpiBreakEven">Benötigte Direkt-Mitglieder</div><div class="kpi-value" id="breakEvenMembers">0</div><div class="kpi-sub" data-i18n="kpiBreakEvenSub">nur Ebene 1 zur Deckung der Setupgebühr</div></div>
+                <div class="kpi"><div class="kpi-label" data-i18n="kpiBoosterCost">Setupgebühr</div><div class="kpi-value" id="boosterCost">999 €</div><div class="kpi-sub" data-i18n="kpiBoosterCostSub">Netto-Paketwert</div></div>
+                <div class="kpi"><div class="kpi-label" data-i18n="kpiDirectPerMember">Hotel direkt je Mitglied</div><div class="kpi-value" id="directPerMember">12 €</div><div class="kpi-sub" data-i18n="kpiDirectPerMemberSub">bei aktueller Ebene-1-Quote</div></div>
+              </div>
+            </div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="clubleader">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title" data-i18n="sectionLeaderTitle">3. ClubLeader-Einkommenssimulation</h2>
+              <p class="section-copy" data-i18n="sectionLeaderCopy">Hier wird zusätzlich sichtbar, wie sich die Vermittlung von Hotels und BusinessBooster-Umsätzen auf einen ClubLeader auswirken kann.</p>
+            </div>
+          </div>
+          <div class="club-card">
+            <div class="panel"><div class="panel-pad stack">
+              <div class="select-card">
+                <h3 data-i18n="directLeaderTitle">Direkte Vermittlung</h3>
+                <div class="rate-grid">
+                  <div class="small-field"><label for="hotelsPerMonth" data-i18n="hotelsPerMonthLabel">Hotels pro Monat</label><input id="hotelsPerMonth" type="number" min="0" max="999" step="1" value="1"></div>
+                  <div class="small-field"><label for="leaderOwnRate" data-i18n="leaderOwnRateLabel">Provision Eigenumsatz</label><input id="leaderOwnRate" type="number" min="0" max="100" step="0.1" value="20"></div>
+                </div>
+              </div>
+              <div class="select-card">
+                <h3 data-i18n="teamLeaderTitle">Teamleader-Modus</h3>
+                <div class="small-field"><label for="teamMode" data-i18n="teamModeLabel">Berechnungsmodus</label><select id="teamMode"><option value="own" data-i18n-option="teamModeOwn">Stufe nach eigenem Monatsumsatz</option><option value="team" data-i18n-option="teamModeTeam">Stufe nach Teamumsatz</option></select></div>
+                <div class="divider"></div>
+                <div class="rate-grid">
+                  <div class="small-field"><label for="ownMonthlyRevenue" data-i18n="ownMonthlyRevenueLabel">Eigener Monatsumsatz</label><input id="ownMonthlyRevenue" type="number" min="0" step="100" value="4000"></div>
+                  <div class="small-field"><label for="line1Revenue" data-i18n="line1RevenueLabel">Umsatz 1. Linie</label><input id="line1Revenue" type="number" min="0" step="100" value="20000"></div>
+                  <div class="small-field"><label for="line2Revenue" data-i18n="line2RevenueLabel">Umsatz 2. Linie</label><input id="line2Revenue" type="number" min="0" step="100" value="10000"></div>
+                  <div class="small-field"><label for="teamTierRevenue" data-i18n="teamTierRevenueLabel">Teamumsatz für Stufe</label><input id="teamTierRevenue" type="number" min="0" step="100" value="30000"></div>
+                </div>
+              </div>
+            </div></div>
+
+            <div class="results">
+              <div class="kpi-grid">
+                <div class="kpi big"><div class="kpi-label" data-i18n="kpiLeaderTotal">ClubLeader-Gesamtsimulation</div><div class="kpi-value" id="leaderTotal">0 €</div><div class="kpi-sub" id="leaderTotalSub">&nbsp;</div></div>
+                <div class="kpi"><div class="kpi-label" data-i18n="kpiLeaderDirect">Direkte Provision</div><div class="kpi-value" id="leaderDirect">0 €</div><div class="kpi-sub" data-i18n="kpiLeaderDirectSub">aus vermittelten BusinessBoostern</div></div>
+                <div class="kpi"><div class="kpi-label" data-i18n="kpiTeamRates">Aktive Team-Stufe</div><div class="kpi-value" id="teamRates">0 % / 0 %</div><div class="kpi-sub" id="teamRatesSub">&nbsp;</div></div>
+              </div>
+              <div class="panel"><div class="panel-pad">
+                <div class="table-wrap">
+                  <table aria-label="ClubLeader Ergebnis">
+                    <thead><tr><th data-i18n="leaderTableItem">Position</th><th data-i18n="leaderTableBasis">Basis</th><th data-i18n="leaderTableRate">Satz</th><th data-i18n="leaderTableResult">Ergebnis</th></tr></thead>
+                    <tbody id="leaderTable"></tbody>
+                  </table>
+                </div>
+              </div></div>
+              <div class="note warning" data-i18n="leaderNote"><strong>Saubere Darstellung:</strong> Teamleader-Provisionen setzen eine aktive Vertragsbeziehung, eindeutige Zuordnung, bezahlte Netto-Umsätze sowie die Einhaltung der Qualifikations- und Compliance-Vorgaben voraus.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="szenarien">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title" data-i18n="sectionScenarioTitle">4. Drei schnelle Szenarien</h2>
+              <p class="section-copy" data-i18n="sectionScenarioCopy">Die Szenarien nutzen deine aktuelle Gästedatei und zeigen, wie stark die Aktivierungsquote den ersten Hebel verändert.</p>
+            </div>
+          </div>
+          <div class="scenario-grid" id="scenarios"></div>
+        </div>
+      </section>
+
+      <section class="section" id="hinweis">
+        <div class="wrap">
+          <div class="panel"><div class="panel-pad">
+            <h2 class="section-title" style="font-size:28px" data-i18n="legalTitle">Wichtiger Hinweis zur Nutzung</h2>
+            <p class="section-copy" data-i18n="legalCopy">Dieser Rechner ist ein internes Planungs- und Präsentationswerkzeug. Alle Ergebnisse beruhen auf frei wählbaren Annahmen und dienen ausschließlich der Veranschaulichung. Es werden keine bestimmten Einnahmen, Provisionen, Kundenzahlen, Teamgrößen oder wirtschaftlichen Erfolge garantiert.</p>
+          </div></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap footer-inner">
+        <div><strong>LiquidityBooster.de</strong><br><span data-i18n="footerBrand">Eine Marke der ONLY INSIDE Software-Solution GmbH</span></div>
+        <div><span data-i18n="footerTool">Hotel-Gästedatei Einkommensrechner</span></div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const i18n = {
+      de:{
+        brandKicker:"Hotel · Gästedatei · Empfehlungsmodell", printBtn:"Drucken / PDF", eyebrow:"Potenzial-Rechner für Hotels", heroTitle:"Hotel-Gästedatei Einkommensrechner", heroLead:"Dieser Rechner zeigt, welches rechnerische Potenzial entstehen kann, wenn ein Hotel seine über Jahre aufgebaute Gästedatei mit Club-Marktplatz, Cashback und einer 3-Ebenen-Empfehlungslogik verbindet.", pill1:"Gästedatei aktivieren", pill2:"3 Ebenen sichtbar machen", pill3:"ClubLeader simulieren", diagramTitle:"Aus Gästebeziehungen wird ein Empfehlungshebel.", diagramSub:"Hotel bringt Gast 1. Gast 1 empfiehlt Gast 2. Gast 2 empfiehlt Gast 3.", node1Title:"Ebene 1", node1Text:"Hotel empfiehlt die Mitgliedschaft direkt.", node2Title:"Ebene 2", node2Text:"Gast 1 empfiehlt Gast 2. Hotel bleibt beteiligt.", node3Title:"Ebene 3", node3Text:"Gast 2 empfiehlt Gast 3. Hotel erhält die 3. Ebene.", sectionHotelTitle:"1. Hotel-Potenzial aus der Gästedatei", sectionHotelCopy:"Stelle ein, wie groß die Gästedatei ist, wie viele Gäste die Club-Mitgliedschaft annehmen und wie stark die Weiterempfehlung wirkt.", guestCountLabel:"Gästeadressen im Hotelbestand", guestCountHint:"Von kleiner Liste bis gewachsene Hotel-Datenbank.", unitGuests:"Adressen", activationLabel:"Annahmequote Club-Mitgliedschaft", activationHint:"Anteil der Gäste, die das Club-Marktplatz-Angebot annehmen.", membershipLabel:"Jährlicher Mitgliedsbeitrag", membershipHint:"Standardwert: 60 € pro Jahr.", recommendTitle:"Weiterempfehlung der Gäste", recommendHint:"Damit wird sichtbar, was nach der direkten Hotel-Empfehlung zusätzlich entstehen kann.", recRate2Label:"Aktive Empfehler Ebene 2 (%)", recCount2Label:"Ø Empfehlungen je Gast 1", recRate3Label:"Aktive Empfehler Ebene 3 (%)", recCount3Label:"Ø Empfehlungen je Gast 2", ratesTitle:"3-Ebenen-Beteiligung Hotel", ratesHint:"Standardmodell: 20 % direkt, 15 % zweite Ebene, 10 % dritte Ebene.", hotelRate1Label:"Hotel Ebene 1 (%)", hotelRate2Label:"Hotel Ebene 2 (%)", hotelRate3Label:"Hotel Ebene 3 (%)", kpiHotelTotal:"Rechnerisches Jahrespotenzial Hotel", kpiMembers:"Club-Mitglieder gesamt", kpiMembersSub:"über Ebene 1 bis 3", kpiVolume:"Mitgliedschaftsvolumen", kpiVolumeSub:"Jahresvolumen der simulierten Mitglieder", tableLevel:"Ebene", tableMembers:"Neue Mitglieder", tableRate:"Hotel-Anteil", tableHotelIncome:"Hotel-Einnahme", tableGuestIncome:"Gäste-Empfehlung", simulationNote:"<strong>Hinweis:</strong> Das ist eine Rechen-Simulation auf Basis frei wählbarer Annahmen. Es handelt sich nicht um eine Einkommens-, Kunden- oder Erfolgsgarantie.", sectionBoosterTitle:"2. BusinessBooster & Amortisation", sectionBoosterCopy:"Wähle ein BusinessBooster-Paket und prüfe, ab wie vielen aktivierten Mitgliedschaften die Setupgebühr rechnerisch gedeckt wäre.", boosterLabel:"BusinessBooster-Paket", monthlyFeeLabel:"Monatliche Gebühr netto, falls vereinbart", breakEvenFormulaLabel:"Berechnungslogik", boosterNote:"<strong>Lesart:</strong> Je mehr aktive Gästekontakte vorhanden sind, desto schneller kann sich der BusinessBooster rechnerisch amortisieren.", kpiBreakEven:"Benötigte Direkt-Mitglieder", kpiBreakEvenSub:"nur Ebene 1 zur Deckung der Setupgebühr", kpiBoosterCost:"Setupgebühr", kpiBoosterCostSub:"Netto-Paketwert", kpiDirectPerMember:"Hotel direkt je Mitglied", kpiDirectPerMemberSub:"bei aktueller Ebene-1-Quote", sectionLeaderTitle:"3. ClubLeader-Einkommenssimulation", sectionLeaderCopy:"Hier wird zusätzlich sichtbar, wie sich die Vermittlung von Hotels und BusinessBooster-Umsätzen auf einen ClubLeader auswirken kann.", directLeaderTitle:"Direkte Vermittlung", hotelsPerMonthLabel:"Hotels pro Monat", leaderOwnRateLabel:"Provision Eigenumsatz (%)", teamLeaderTitle:"Teamleader-Modus", teamModeLabel:"Berechnungsmodus", teamModeOwn:"Stufe nach eigenem Monatsumsatz", teamModeTeam:"Stufe nach Teamumsatz", ownMonthlyRevenueLabel:"Eigener Monatsumsatz", line1RevenueLabel:"Umsatz 1. Linie", line2RevenueLabel:"Umsatz 2. Linie", teamTierRevenueLabel:"Teamumsatz für Stufe", kpiLeaderTotal:"ClubLeader-Gesamtsimulation", kpiLeaderDirect:"Direkte Provision", kpiLeaderDirectSub:"aus vermittelten BusinessBoostern", kpiTeamRates:"Aktive Team-Stufe", leaderTableItem:"Position", leaderTableBasis:"Basis", leaderTableRate:"Satz", leaderTableResult:"Ergebnis", leaderNote:"<strong>Saubere Darstellung:</strong> Teamleader-Provisionen setzen eine aktive Vertragsbeziehung, eindeutige Zuordnung, bezahlte Netto-Umsätze sowie die Einhaltung der Qualifikations- und Compliance-Vorgaben voraus.", sectionScenarioTitle:"4. Drei schnelle Szenarien", sectionScenarioCopy:"Die Szenarien nutzen deine aktuelle Gästedatei und zeigen, wie stark die Aktivierungsquote den ersten Hebel verändert.", legalTitle:"Wichtiger Hinweis zur Nutzung", legalCopy:"Dieser Rechner ist ein internes Planungs- und Präsentationswerkzeug. Alle Ergebnisse beruhen auf frei wählbaren Annahmen und dienen ausschließlich der Veranschaulichung. Es werden keine bestimmten Einnahmen, Provisionen, Kundenzahlen, Teamgrößen oder wirtschaftlichen Erfolge garantiert.", footerBrand:"Eine Marke der ONLY INSIDE Software-Solution GmbH", footerTool:"Hotel-Gästedatei Einkommensrechner",
+        directMembers:"direkte Mitglieder aus der Gästedatei", allLevels:"über alle 3 Ebenen", level1:"Ebene 1 · Hotel bringt Gast 1", level2:"Ebene 2 · Gast 1 bringt Gast 2", level3:"Ebene 3 · Gast 2 bringt Gast 3", total:"Gesamt", guest1:"Gast 1", guest2:"Gast 2", guestsTotal:"Gäste gesamt", noGuestIncome:"—", hotelBarsTitle:"Hotel", careful:"Vorsichtig", realistic:"Realistisch", strong:"Stark", activation:"Aktivierung", recommendation:"Empfehlung", directOnly:"nur direkte Hotel-Ebene", leaderDirectRow:"Direkte BusinessBooster-Provision", leaderMonthlyRow:"Provision auf Monatsgebühren", line1Row:"Teamprovision 1. Linie", line2Row:"Teamprovision 2. Linie", notCalculated:"nicht berechnet", writtenCheck:"schriftlich prüfen", tierByOwn:"Stufe nach Eigenumsatz", tierByTeam:"Stufe nach Teamumsatz", monthlyView:"Monatsansicht aus den eingestellten Umsätzen", oneTimeView:"Direkt aus vermittelten Setups + Teamumsätzen", members:"Mitglieder", perYear:"pro Jahr"
+      },
+      en:{
+        brandKicker:"Hotel · Guest database · Referral model", printBtn:"Print / PDF", eyebrow:"Potential calculator for hotels", heroTitle:"Hotel Guest Database Income Calculator", heroLead:"This calculator shows the potential that may arise when a hotel connects its long-standing guest database with the Club Marketplace, cashback and a 3-level referral logic.", pill1:"Activate guest database", pill2:"Show 3 levels", pill3:"Simulate ClubLeader", diagramTitle:"Guest relationships become a referral lever.", diagramSub:"Hotel brings Guest 1. Guest 1 refers Guest 2. Guest 2 refers Guest 3.", node1Title:"Level 1", node1Text:"The hotel directly recommends the membership.", node2Title:"Level 2", node2Text:"Guest 1 refers Guest 2. The hotel remains involved.", node3Title:"Level 3", node3Text:"Guest 2 refers Guest 3. The hotel receives the 3rd level.", sectionHotelTitle:"1. Hotel potential from the guest database", sectionHotelCopy:"Set the size of the guest database, how many guests accept the club membership and how strongly referrals develop.", guestCountLabel:"Guest addresses in hotel database", guestCountHint:"From small list to mature hotel database.", unitGuests:"addresses", activationLabel:"Club membership acceptance rate", activationHint:"Share of guests who accept the Club Marketplace offer.", membershipLabel:"Annual membership fee", membershipHint:"Default value: €60 per year.", recommendTitle:"Guest referrals", recommendHint:"This shows what may additionally arise after the direct hotel recommendation.", recRate2Label:"Active referrers level 2 (%)", recCount2Label:"Avg. referrals per Guest 1", recRate3Label:"Active referrers level 3 (%)", recCount3Label:"Avg. referrals per Guest 2", ratesTitle:"3-level hotel participation", ratesHint:"Default model: 20% direct, 15% second level, 10% third level.", hotelRate1Label:"Hotel level 1 (%)", hotelRate2Label:"Hotel level 2 (%)", hotelRate3Label:"Hotel level 3 (%)", kpiHotelTotal:"Calculated annual hotel potential", kpiMembers:"Total club members", kpiMembersSub:"across levels 1 to 3", kpiVolume:"Membership volume", kpiVolumeSub:"annual volume of simulated members", tableLevel:"Level", tableMembers:"New members", tableRate:"Hotel share", tableHotelIncome:"Hotel income", tableGuestIncome:"Guest referral", simulationNote:"<strong>Note:</strong> This is a calculation simulation based on freely adjustable assumptions. It is not an income, customer or success guarantee.", sectionBoosterTitle:"2. BusinessBooster & amortization", sectionBoosterCopy:"Choose a BusinessBooster package and see how many activated memberships would mathematically cover the setup fee.", boosterLabel:"BusinessBooster package", monthlyFeeLabel:"Monthly net fee, if agreed", breakEvenFormulaLabel:"Calculation logic", boosterNote:"<strong>How to read this:</strong> The more active guest contacts exist, the faster the BusinessBooster may mathematically amortize.", kpiBreakEven:"Required direct members", kpiBreakEvenSub:"level 1 only to cover the setup fee", kpiBoosterCost:"Setup fee", kpiBoosterCostSub:"net package value", kpiDirectPerMember:"Hotel direct per member", kpiDirectPerMemberSub:"at current level-1 rate", sectionLeaderTitle:"3. ClubLeader income simulation", sectionLeaderCopy:"This additionally shows how hotel and BusinessBooster referrals may affect a ClubLeader.", directLeaderTitle:"Direct referral", hotelsPerMonthLabel:"Hotels per month", leaderOwnRateLabel:"Own sales commission (%)", teamLeaderTitle:"Teamleader mode", teamModeLabel:"Calculation mode", teamModeOwn:"Tier by own monthly sales", teamModeTeam:"Tier by team sales", ownMonthlyRevenueLabel:"Own monthly sales", line1RevenueLabel:"1st line sales", line2RevenueLabel:"2nd line sales", teamTierRevenueLabel:"Team sales for tier", kpiLeaderTotal:"ClubLeader total simulation", kpiLeaderDirect:"Direct commission", kpiLeaderDirectSub:"from referred BusinessBoosters", kpiTeamRates:"Active team tier", leaderTableItem:"Item", leaderTableBasis:"Basis", leaderTableRate:"Rate", leaderTableResult:"Result", leaderNote:"<strong>Clean presentation:</strong> Teamleader commissions require an active contractual relationship, clear assignment, paid net sales and compliance with qualification and compliance rules.", sectionScenarioTitle:"4. Three quick scenarios", sectionScenarioCopy:"The scenarios use your current guest database and show how strongly the acceptance rate changes the first lever.", legalTitle:"Important usage note", legalCopy:"This calculator is an internal planning and presentation tool. All results are based on freely adjustable assumptions and are for illustration only. No specific income, commissions, customer numbers, team sizes or economic results are guaranteed.", footerBrand:"A brand of ONLY INSIDE Software-Solution GmbH", footerTool:"Hotel Guest Database Income Calculator",
+        directMembers:"direct members from the guest database", allLevels:"across all 3 levels", level1:"Level 1 · Hotel brings Guest 1", level2:"Level 2 · Guest 1 brings Guest 2", level3:"Level 3 · Guest 2 brings Guest 3", total:"Total", guest1:"Guest 1", guest2:"Guest 2", guestsTotal:"Guests total", noGuestIncome:"—", hotelBarsTitle:"Hotel", careful:"Careful", realistic:"Realistic", strong:"Strong", activation:"Acceptance", recommendation:"Referral", directOnly:"direct hotel level only", leaderDirectRow:"Direct BusinessBooster commission", leaderMonthlyRow:"Commission on monthly fees", line1Row:"Team commission 1st line", line2Row:"Team commission 2nd line", notCalculated:"not calculated", writtenCheck:"check in writing", tierByOwn:"Tier by own sales", tierByTeam:"Tier by team sales", monthlyView:"monthly view based on the entered sales", oneTimeView:"from referred setups + team sales", members:"members", perYear:"per year"
+      }
+    };
+
+    let lang = "de";
+    const euro = value => new Intl.NumberFormat(lang === "de" ? "de-DE" : "en-US", {style:"currency", currency:"EUR", maximumFractionDigits:0}).format(isFinite(value) ? value : 0);
+    const number = value => new Intl.NumberFormat(lang === "de" ? "de-DE" : "en-US", {maximumFractionDigits:0}).format(isFinite(value) ? value : 0);
+    const percent = value => `${new Intl.NumberFormat(lang === "de" ? "de-DE" : "en-US", {maximumFractionDigits:2}).format(isFinite(value) ? value : 0)} %`;
+    const txt = key => (i18n[lang] && i18n[lang][key]) || i18n.de[key] || key;
+    const el = id => document.getElementById(id);
+    const val = id => parseFloat(el(id).value || 0);
+    const clamp = (v,min,max) => Math.min(Math.max(v,min),max);
+
+    function applyLanguage(next){
+      lang = next;
+      document.documentElement.lang = next;
+      document.querySelectorAll("[data-i18n]").forEach(node => {
+        const key = node.getAttribute("data-i18n");
+        const content = txt(key);
+        if(content.includes("<")) node.innerHTML = content; else node.textContent = content;
+      });
+      document.querySelectorAll("[data-i18n-option]").forEach(node => {
+        node.textContent = txt(node.getAttribute("data-i18n-option"));
+      });
+      document.querySelectorAll(".lang-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.lang === next));
+      calculate();
+    }
+
+    document.querySelectorAll(".lang-btn").forEach(btn => btn.addEventListener("click", () => applyLanguage(btn.dataset.lang)));
+    el("printBtn").addEventListener("click", () => window.print());
+
+    document.querySelectorAll("input,select").forEach(input => input.addEventListener("input", () => {
+      const sync = input.dataset.sync;
+      if(sync){
+        document.querySelectorAll(`[data-sync="${sync}"]`).forEach(peer => { if(peer !== input) peer.value = input.value; });
+      }
+      calculate();
+    }));
+
+    function tierByOwnRevenue(own){
+      if(own >= 4000) return {line1:15, line2:10, label:"ab 4.000 €"};
+      if(own >= 3000) return {line1:11.25, line2:7.5, label:"3.000–3.999 €"};
+      if(own >= 2000) return {line1:7.5, line2:5, label:"2.000–2.999 €"};
+      if(own >= 1000) return {line1:3.75, line2:2.5, label:"1.000–1.999 €"};
+      return {line1:0, line2:0, label:"unter 1.000 €"};
+    }
+    function tierByTeamRevenue(team){
+      if(team >= 100000) return {line1:15, line2:null, label:"ab 100.000 €"};
+      if(team >= 60000) return {line1:12.5, line2:8.5, label:"ab 60.000 €"};
+      if(team >= 40000) return {line1:10, line2:7.5, label:"ab 40.000 €"};
+      if(team >= 20000) return {line1:7.5, line2:5, label:"ab 20.000 €"};
+      return {line1:5, line2:2.5, label:"unter 20.000 €"};
+    }
+
+    function hotelModel(activationRateOverride, recRateOverride){
+      const guestCount = val("guestCountNumber");
+      const activationRate = activationRateOverride ?? val("activationRateNumber");
+      const fee = val("membershipFeeNumber");
+      const recRate2 = recRateOverride ?? val("recRate2");
+      const recCount2 = val("recCount2");
+      const recRate3 = recRateOverride ?? val("recRate3");
+      const recCount3 = val("recCount3");
+      const h1 = val("hotelRate1") / 100;
+      const h2 = val("hotelRate2") / 100;
+      const h3 = val("hotelRate3") / 100;
+      const directGuestRate = 0.20;
+      const upline1Rate = 0.15;
+      const l1Members = guestCount * activationRate / 100;
+      const l2Members = l1Members * recRate2 / 100 * recCount2;
+      const l3Members = l2Members * recRate3 / 100 * recCount3;
+      const l1Hotel = l1Members * fee * h1;
+      const l2Hotel = l2Members * fee * h2;
+      const l3Hotel = l3Members * fee * h3;
+      const l2Guests = l2Members * fee * directGuestRate;
+      const l3Guests = l3Members * fee * (directGuestRate + upline1Rate);
+      const totalMembers = l1Members + l2Members + l3Members;
+      const totalHotel = l1Hotel + l2Hotel + l3Hotel;
+      const totalGuests = l2Guests + l3Guests;
+      const volume = totalMembers * fee;
+      return {guestCount, activationRate, fee, l1Members, l2Members, l3Members, l1Hotel, l2Hotel, l3Hotel, l2Guests, l3Guests, totalMembers, totalHotel, totalGuests, volume};
+    }
+
+    function renderHotel(){
+      const m = hotelModel();
+      el("hotelTotal").textContent = euro(m.totalHotel);
+      el("hotelTotalSub").textContent = `${number(m.l1Members)} ${txt("directMembers")} · ${number(m.totalMembers)} ${txt("allLevels")}`;
+      el("membersTotal").textContent = number(m.totalMembers);
+      el("membershipVolume").textContent = euro(m.volume);
+      const rows = [
+        [txt("level1"), m.l1Members, percent(val("hotelRate1")), m.l1Hotel, txt("noGuestIncome")],
+        [txt("level2"), m.l2Members, percent(val("hotelRate2")), m.l2Hotel, euro(m.l2Guests)],
+        [txt("level3"), m.l3Members, percent(val("hotelRate3")), m.l3Hotel, euro(m.l3Guests)],
+      ];
+      const totalRow = `<tr class="total-row"><td>${txt("total")}</td><td>${number(m.totalMembers)}</td><td></td><td>${euro(m.totalHotel)}</td><td>${euro(m.totalGuests)}</td></tr>`;
+      el("hotelTable").innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${number(r[1])}</td><td>${r[2]}</td><td>${euro(r[3])}</td><td>${r[4]}</td></tr>`).join("") + totalRow;
+      const max = Math.max(m.l1Hotel, m.l2Hotel, m.l3Hotel, 1);
+      el("hotelBars").innerHTML = [
+        ["Ebene 1", m.l1Hotel], ["Ebene 2", m.l2Hotel], ["Ebene 3", m.l3Hotel]
+      ].map(([name,value]) => `<div class="bar-row"><div class="bar-name">${name}</div><div class="bar-track"><div class="bar-fill" style="width:${clamp(value/max*100,0,100)}%"></div></div><div class="bar-val">${euro(value)}</div></div>`).join("");
+      return m;
+    }
+
+    function renderBooster(m){
+      const booster = val("boosterSelect");
+      const directPerMember = m.fee * (val("hotelRate1") / 100);
+      const breakEven = directPerMember > 0 ? Math.ceil(booster / directPerMember) : 0;
+      el("breakEvenMembers").textContent = number(breakEven);
+      el("boosterCost").textContent = euro(booster);
+      el("directPerMember").textContent = euro(directPerMember);
+      el("breakEvenFormula").textContent = `${euro(booster)} ÷ ${euro(directPerMember)} = ${number(breakEven)} ${txt("members")}`;
+    }
+
+    function renderLeader(){
+      const booster = val("boosterSelect");
+      const hotels = val("hotelsPerMonth");
+      const monthlyFee = val("monthlyFee");
+      const ownRate = val("leaderOwnRate") / 100;
+      const directSetupBasis = hotels * booster;
+      const directMonthlyBasis = hotels * monthlyFee;
+      const directSetupCommission = directSetupBasis * ownRate;
+      const directMonthlyCommission = directMonthlyBasis * ownRate;
+      const mode = el("teamMode").value;
+      const line1 = val("line1Revenue");
+      const line2 = val("line2Revenue");
+      const tier = mode === "own" ? tierByOwnRevenue(val("ownMonthlyRevenue")) : tierByTeamRevenue(val("teamTierRevenue"));
+      const line1Commission = line1 * tier.line1 / 100;
+      const line2Commission = tier.line2 === null ? 0 : line2 * tier.line2 / 100;
+      const total = directSetupCommission + directMonthlyCommission + line1Commission + line2Commission;
+      el("leaderDirect").textContent = euro(directSetupCommission + directMonthlyCommission);
+      el("leaderTotal").textContent = euro(total);
+      el("leaderTotalSub").textContent = mode === "own" ? txt("monthlyView") : txt("oneTimeView");
+      el("teamRates").textContent = tier.line2 === null ? `${percent(tier.line1)} / ${txt("writtenCheck")}` : `${percent(tier.line1)} / ${percent(tier.line2)}`;
+      el("teamRatesSub").textContent = `${mode === "own" ? txt("tierByOwn") : txt("tierByTeam")} · ${tier.label}`;
+      const rows = [
+        [txt("leaderDirectRow"), euro(directSetupBasis), percent(val("leaderOwnRate")), euro(directSetupCommission)],
+        [txt("leaderMonthlyRow"), euro(directMonthlyBasis), percent(val("leaderOwnRate")), euro(directMonthlyCommission)],
+        [txt("line1Row"), euro(line1), percent(tier.line1), euro(line1Commission)],
+        [txt("line2Row"), euro(line2), tier.line2 === null ? txt("writtenCheck") : percent(tier.line2), tier.line2 === null ? txt("notCalculated") : euro(line2Commission)],
+      ];
+      el("leaderTable").innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("") + `<tr class="total-row"><td>${txt("total")}</td><td></td><td></td><td>${euro(total)}</td></tr>`;
+    }
+
+    function renderScenarios(){
+      const scenarios = [
+        {name:txt("careful"), activation:10, rec:10},
+        {name:txt("realistic"), activation:20, rec:20},
+        {name:txt("strong"), activation:30, rec:30},
+      ];
+      el("scenarios").innerHTML = scenarios.map(s => {
+        const m = hotelModel(s.activation, s.rec);
+        return `<article class="scenario"><h3>${s.name}</h3><div class="meta">${txt("activation")}: ${percent(s.activation)} · ${txt("recommendation")}: ${percent(s.rec)}</div><div class="scenario-number">${euro(m.totalHotel)}</div><div class="scenario-label">${txt("perYear")} · ${number(m.totalMembers)} ${txt("members")}</div></article>`;
+      }).join("");
+    }
+
+    function calculate(){
+      const m = renderHotel();
+      renderBooster(m);
+      renderLeader();
+      renderScenarios();
+    }
+
+    applyLanguage("de");
+  </script>
+</body>
+</html>
