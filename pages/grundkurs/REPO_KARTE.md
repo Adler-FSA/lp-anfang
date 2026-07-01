@@ -650,8 +650,10 @@
     │   │   └── wallet-drailer-link.html
     │   ├── blog/
     │   │   ├── 4F1AEA3D-0FDE-4E4E-96F5-59BA94F1E57E.png
+    │   │   ├── 72D113F0-B399-49B8-8828-61CFB8EF5A14.png
     │   │   ├── D378BB9A-32E1-4E71-BC14-CC2FCFDC0789.PNG
     │   │   ├── heute-am-see.html
+    │   │   ├── mica-usdt-und-der-digitale-euro.html
     │   │   ├── unternehmerschaft.html
     │   │   └── wenn-der-minijob-faellt.html
     │   ├── buch/
@@ -1511,4 +1513,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.07.2026, 05:18)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.07.2026, 09:36)_
