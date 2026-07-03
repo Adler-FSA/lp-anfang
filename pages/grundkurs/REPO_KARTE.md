@@ -759,6 +759,17 @@
     │   │   ├── tragfaehigkeits-rechner-01.html
     │   │   ├── tragfaehigkeits-rechner-unternehmer.html
     │   │   └── tragfaehigkeits-rechner.html
+    │   ├── club-promotion/
+    │   │   └── mission-dorade/
+    │   │       ├── README-upload.md
+    │   │       ├── index.html
+    │   │       ├── leitfaden-01-erstkontakt.html
+    │   │       ├── leitfaden-02-bedarf-interesse.html
+    │   │       ├── leitfaden-03-clubtreffen-einladung.html
+    │   │       ├── leitfaden-04-nachfassen.html
+    │   │       ├── leitfaden-05-mitgliedschaft.html
+    │   │       ├── leitfaden-06-aufbauwege.html
+    │   │       └── only-inside-kms-beispiel.csv
     │   ├── club-vertrieb/
     │   │   └── leitfaeden/
     │   │       ├── index.html
@@ -1415,6 +1426,7 @@
     │   │   ├── wefi-proof-kurs.html
     │   │   ├── wefi-video.html
     │   │   └── wefi-zoom.html
+    │   ├── README-upload.md
     │   ├── admin-config.json
     │   ├── affiliate-magazin.html
     │   ├── album-liquiditybooster.html
@@ -1441,6 +1453,12 @@
     │   ├── index.html
     │   ├── jetzt-nach-vorn.html
     │   ├── karrierebooster-simulator.html
+    │   ├── leitfaden-01-erstkontakt.html
+    │   ├── leitfaden-02-bedarf-interesse.html
+    │   ├── leitfaden-03-clubtreffen-einladung.html
+    │   ├── leitfaden-04-nachfassen.html
+    │   ├── leitfaden-05-mitgliedschaft.html
+    │   ├── leitfaden-06-aufbauwege.html
     │   ├── lesespuren-und-vertiefung.html
     │   ├── mentoren.html
     │   ├── mica-travel-rule.html
@@ -1454,6 +1472,7 @@
     │   ├── office-network.html
     │   ├── office-tools.html
     │   ├── office.html
+    │   ├── only-inside-kms-beispiel.csv
     │   ├── presse.html
     │   ├── profi-nachweis.html
     │   ├── so-erklaerst-du-den-weg.html
@@ -1515,4 +1534,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.07.2026, 10:29)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.07.2026, 12:52)_
