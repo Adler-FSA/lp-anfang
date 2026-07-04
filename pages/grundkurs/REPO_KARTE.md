@@ -1246,6 +1246,7 @@
     │   │   └── zentrale.html
     │   ├── recht/
     │   │   └── gwg-meldeverordnung-einfach-erklaert.html
+    │   ├── reels/
     │   ├── schnellstart/
     │   │   ├── glossar.html
     │   │   ├── index.html
@@ -1534,4 +1535,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.07.2026, 13:11)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.07.2026, 15:01)_
