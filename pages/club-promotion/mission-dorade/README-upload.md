@@ -1,0 +1,1 @@
+Mission Dorade v18 Upload: alle Dateien in pages/club-promotion/mission-dorade/ ersetzen. Testlink: https://adler-fsa.github.io/lp-anfang/pages/club-promotion/mission-dorade/index.html?nocache=202607052115
