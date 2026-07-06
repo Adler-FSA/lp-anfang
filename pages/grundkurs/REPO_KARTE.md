@@ -760,6 +760,20 @@
     │   │   ├── tragfaehigkeits-rechner-unternehmer.html
     │   │   └── tragfaehigkeits-rechner.html
     │   ├── club-promotion/
+    │   │   ├── mission-dorade/
+    │   │   │   ├── README-upload.md
+    │   │   │   ├── index.html
+    │   │   │   ├── leitfaden-01-erstkontakt.html
+    │   │   │   ├── leitfaden-02-bedarf-interesse.html
+    │   │   │   ├── leitfaden-03-clubtreffen-einladung.html
+    │   │   │   ├── leitfaden-04-nachfassen.html
+    │   │   │   ├── leitfaden-05-mitgliedschaft.html
+    │   │   │   ├── leitfaden-06-aufbauwege.html
+    │   │   │   └── only-inside-kms-beispiel.csv
+    │   │   ├── mission-dorade-direkt/
+    │   │   │   ├── README-upload.md
+    │   │   │   ├── index.html
+    │   │   │   └── mission-dorade-direkt-beispielkontakte.csv
     │   │   └── mission-dorade-light/
     │   │       ├── README-upload.md
     │   │       ├── index.html
@@ -1529,4 +1543,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.07.2026, 19:47)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.07.2026, 21:24)_
