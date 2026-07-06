@@ -761,8 +761,10 @@
     │   │   └── tragfaehigkeits-rechner.html
     │   ├── club-promotion/
     │   │   └── mission-dorade/
+    │   │       ├── 03DB2352-6607-4451-97B6-0430CB5E061E.png
     │   │       ├── README-upload.md
     │   │       ├── index.html
+    │   │       ├── jetzt-geht-es-los.mp3
     │   │       ├── leitfaden-01-erstkontakt.html
     │   │       ├── leitfaden-02-bedarf-interesse.html
     │   │       ├── leitfaden-03-clubtreffen-einladung.html
@@ -1535,4 +1537,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.07.2026, 05:05)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.07.2026, 10:05)_
