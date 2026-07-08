@@ -787,7 +787,9 @@
     │   │   │   ├── index.html
     │   │   │   └── mission-dorade-fokus-beispielkontakte.csv
     │   │   ├── mission-dorade-fokus-v10/
+    │   │   │   ├── 854C7E2D-E25C-4343-9ACD-07C1989CEF6D.png
     │   │   │   ├── README-upload.md
+    │   │   │   ├── dorade-belohnung-guten-appetit.png
     │   │   │   ├── index.html
     │   │   │   ├── jetzt-geht-es-los-cover.png
     │   │   │   └── jetzt-geht-es-los.mp3
@@ -1566,4 +1568,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.07.2026, 08:16)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.07.2026, 10:58)_
