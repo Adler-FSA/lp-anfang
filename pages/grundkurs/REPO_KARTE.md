@@ -786,6 +786,11 @@
     │   │   │   ├── README-upload.md
     │   │   │   ├── index.html
     │   │   │   └── mission-dorade-fokus-beispielkontakte.csv
+    │   │   ├── mission-dorade-fokus-v10/
+    │   │   │   ├── README-upload.md
+    │   │   │   ├── index.html
+    │   │   │   ├── jetzt-geht-es-los-cover.png
+    │   │   │   └── jetzt-geht-es-los.mp3
     │   │   ├── mission-dorade-light/
     │   │   │   ├── README-upload.md
     │   │   │   ├── index.html
@@ -1561,4 +1566,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.07.2026, 05:45)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.07.2026, 08:16)_
