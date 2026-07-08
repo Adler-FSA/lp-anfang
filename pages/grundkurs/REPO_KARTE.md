@@ -782,13 +782,20 @@
     │   │   │   ├── jetzt-geht-es-los-cover.png
     │   │   │   ├── jetzt-geht-es-los.mp3
     │   │   │   └── mission-dorade-fokus-beispielkontakte.csv
+    │   │   ├── mission-dorade-fokus-barometer/
+    │   │   │   ├── README-upload.md
+    │   │   │   ├── index.html
+    │   │   │   └── mission-dorade-fokus-beispielkontakte.csv
     │   │   ├── mission-dorade-light/
     │   │   │   ├── README-upload.md
     │   │   │   ├── index.html
     │   │   │   └── mission-dorade-light-beispielkontakte.csv
-    │   │   └── mission-dorade-start/
-    │   │       ├── README-upload.md
-    │   │       └── index.html
+    │   │   ├── mission-dorade-start/
+    │   │   │   ├── README-upload.md
+    │   │   │   └── index.html
+    │   │   ├── README-upload.md
+    │   │   ├── index.html
+    │   │   └── mission-dorade-fokus-beispielkontakte.csv
     │   ├── club-vertrieb/
     │   │   └── leitfaeden/
     │   │       ├── index.html
@@ -1554,4 +1561,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 07.07.2026, 23:53)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.07.2026, 02:07)_
