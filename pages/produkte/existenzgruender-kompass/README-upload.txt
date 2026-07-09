@@ -1,23 +1,13 @@
-Existenzgründer-Kompass v2 – GitHub Upload
+Existenzgründer-Kompass v2.1 – GitHub Upload
 
-Zielpfad:
+Pfad:
 pages/produkte/existenzgruender-kompass/
+
+Diese ZIP enthält alle Seiten des neutralen Akademie-Arbeitsraums.
+Neu in v2.1: direkte Recherche-Buttons zu offiziellen Quellen in den Gründungsmodulen, damit Anfänger zuerst Ansprechpartner und zuständige Stellen finden, bevor sie eigene Daten eintragen.
 
 Upload:
 1. ZIP entpacken.
-2. Den Ordnerinhalt in GitHub in denselben Zielordner hochladen.
-3. Vorhandene Dateien mit gleichem Namen ersetzen.
-4. Alte V1-Dateien nur löschen, wenn sie nicht in dieser Liste vorkommen.
-
-Enthaltene Seiten:
-- index.html
-- start.html
-- geschaeftsbasis-kompass.html
-- gruendungsassistent.html
-- businessplan-assistent.html
-- preis-kalkulator.html
-- rechnungs-buchhaltungsassistent.html
-- arbeitgeber-kompass.html
-
-Hinweis:
-Die Seiten sind neutral, ohne Logo, ohne Altprojekt-Bezug und mit weißem Hintergrund sowie Mint/Magenta-Akzenten aufgebaut.
+2. Inhalt in den Ordner pages/produkte/existenzgruender-kompass/ hochladen.
+3. Vorhandene Dateien überschreiben.
+4. Testlink mit ?nocache verwenden.
