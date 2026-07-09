@@ -1,13 +1,12 @@
-Existenzgründer-Kompass v2.4
+Existenzgründer-Kompass v2.5
 
 Upload-Ziel:
 pages/produkte/existenzgruender-kompass/
 
 Diese Version ergänzt:
-- gemeinsamen lokalen Datenraum für Stammdaten, Kontakte, Leistungen und Finanzdaten
-- Datenübernahme zwischen Modulen
-- professionelle PDF-/Druck-Arbeitsmappe über den Button PDF-Arbeitsmappe
-- Businessplan-Szenarien untereinander statt nebeneinander
-- stärkere Erklärung zur lokalen Speicherung und JSON-Gesamtsicherung
+- nutzerfreundliche Texte statt interner Entwicklungshinweise
+- einheitliche PDF-/Drucktitel je Arbeitsbereich
+- browserfreundliche Dateinamen über den Seitentitel beim PDF-Druck
+- weiterhin gemeinsame lokale Datensicherung und Modulübernahme
 
 Vorhandene Dateien im GitHub-Ordner überschreiben. Nicht vorher löschen.
