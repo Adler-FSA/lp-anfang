@@ -1,22 +1,23 @@
-Existenzgründer-Kompass – GitHub Upload
+Existenzgründer-Kompass v2 – GitHub Upload
 
-Zielordner:
+Zielpfad:
 pages/produkte/existenzgruender-kompass/
 
-Enthaltene Dateien:
+Upload:
+1. ZIP entpacken.
+2. Den Ordnerinhalt in GitHub in denselben Zielordner hochladen.
+3. Vorhandene Dateien mit gleichem Namen ersetzen.
+4. Alte V1-Dateien nur löschen, wenn sie nicht in dieser Liste vorkommen.
+
+Enthaltene Seiten:
 - index.html
 - start.html
+- geschaeftsbasis-kompass.html
 - gruendungsassistent.html
 - businessplan-assistent.html
 - preis-kalkulator.html
 - rechnungs-buchhaltungsassistent.html
+- arbeitgeber-kompass.html
 
-Haupt-Testlink nach Upload:
-https://adler-fsa.github.io/lp-anfang/pages/produkte/existenzgruender-kompass/?nocache=202607091115
-
-Einzelseiten:
-https://adler-fsa.github.io/lp-anfang/pages/produkte/existenzgruender-kompass/start.html?nocache=202607091115
-https://adler-fsa.github.io/lp-anfang/pages/produkte/existenzgruender-kompass/gruendungsassistent.html?nocache=202607091115
-https://adler-fsa.github.io/lp-anfang/pages/produkte/existenzgruender-kompass/businessplan-assistent.html?nocache=202607091115
-https://adler-fsa.github.io/lp-anfang/pages/produkte/existenzgruender-kompass/preis-kalkulator.html?nocache=202607091115
-https://adler-fsa.github.io/lp-anfang/pages/produkte/existenzgruender-kompass/rechnungs-buchhaltungsassistent.html?nocache=202607091115
+Hinweis:
+Die Seiten sind neutral, ohne Logo, ohne Altprojekt-Bezug und mit weißem Hintergrund sowie Mint/Magenta-Akzenten aufgebaut.
