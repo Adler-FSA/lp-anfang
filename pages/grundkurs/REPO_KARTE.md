@@ -1169,6 +1169,16 @@
     │   │   ├── module-11.html
     │   │   └── module-12.html
     │   ├── produkte/
+    │   │   ├── existenzgruender-kompass/
+    │   │   │   ├── README-upload.txt
+    │   │   │   ├── arbeitgeber-kompass.html
+    │   │   │   ├── businessplan-assistent.html
+    │   │   │   ├── geschaeftsbasis-kompass.html
+    │   │   │   ├── gruendungsassistent.html
+    │   │   │   ├── index.html
+    │   │   │   ├── preis-kalkulator.html
+    │   │   │   ├── rechnungs-buchhaltungsassistent.html
+    │   │   │   └── start.html
     │   │   ├── demo-hoersaal-starter-01-settings.html
     │   │   ├── demo-hoersaal-starter-02-vorschau-hub.html
     │   │   ├── demo-hoersaal-starter-03-hoersaal-hauptseite.html
@@ -1568,4 +1578,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.07.2026, 08:22)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.07.2026, 11:51)_
