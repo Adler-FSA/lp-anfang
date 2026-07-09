@@ -120,5 +120,109 @@ $('#printBtn')?.addEventListener('click',()=>{
 });
 </script>
 
+
+<script id="egk-v24-komfort">
+(function(){
+  'use strict';
+  const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+  const KEYS={profile:'egk_global_profile_v1',contacts:'egk_kontakte_archiv_v1',services:'egk_global_services_v1',finance:'egk_global_finance_v1',backup:'egk_gesamtsicherung_v1'};
+  const pagePath=(location.pathname.split('/').pop()||'index.html');
+  const isWorkPage=!['index.html','start.html'].includes(pagePath);
+  function safeGet(k,def){try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(def))}catch(e){return def}}
+  function safeSet(k,v){localStorage.setItem(k,JSON.stringify(v));}
+  function keyOf(el){return el.id || el.getAttribute('data-save') || el.name || ''}
+  const profileKeys=['fullName','name','firstName','lastName','address','street','zip','city','email','phone','startDate','businessDescription','activityFinal','legalForm','startType','taxNumber','vatId','bankName','iban'];
+  const financeKeys=['accountCost','costBetriebshaftpflicht','costBerufshaftpflicht','costInhalt','costOtherInsurance','costHealth','costCare','costPension','costLeasing','leasingMonths'];
+  function collectMatching(keys){const out={}; $$('input,select,textarea').forEach(el=>{const k=keyOf(el); if(!k||!keys.includes(k))return; out[k]=el.type==='checkbox'?el.checked:el.value;}); return out;}
+  function saveProfile(){const old=safeGet(KEYS.profile,{}); safeSet(KEYS.profile,Object.assign(old,collectMatching(profileKeys))); flash('Stammdaten global gesichert.');}
+  function applyProfile(){const p=safeGet(KEYS.profile,{}); let n=0; $$('input,select,textarea').forEach(el=>{const k=keyOf(el); if(!k || !(k in p))return; if(el.type==='checkbox')el.checked=!!p[k]; else if(!String(el.value||'').trim()) el.value=p[k]||''; n++; el.dispatchEvent(new Event('input',{bubbles:true}));}); flash(n?('Stammdaten übernommen: '+n+' Felder.'): 'Keine passenden Stammdaten gefunden.');}
+  function publishFinance(){const old=safeGet(KEYS.finance,{}); const next=Object.assign(old,collectMatching(financeKeys)); safeSet(KEYS.finance,next); flash('Finanzdaten global bereitgestellt.');}
+  function syncAllFromPage(){saveProfile(); publishFinance(); publishServicesFromKnownPages();}
+  function publishServicesFromKnownPages(){
+    let services=[];
+    const price=safeGet('egk_preise_v2',[]);
+    if(Array.isArray(price) && price.length){services=price.map(o=>({name:o.name||o.title||'',type:o.type||o.category||'',price:o.price||'',vat:o.vat||'19',cost:o.material?String((+o.material||0)+(+o.external||0)+(+o.travel||0)+(+o.fees||0)+(+o.other||0)):o.cost||'',qty:o.qty||'1',source:'Preis-Kalkulator'}));}
+    const bp=safeGet('egk_businessplan_v2',{});
+    if(!services.length && Array.isArray(bp.services)){services=bp.services.map(o=>Object.assign({source:'Businessplan'},o));}
+    if(services.length){safeSet(KEYS.services,services);}
+  }
+  function importFinanceToBusinessplan(){
+    const f=safeGet(KEYS.finance,safeGet('egk_finanz_absicherung_v1',{}));
+    if(!Object.keys(f).length){flash('Keine Finanzdaten gefunden. Erst im Finanz-Kompass speichern.');return;}
+    const bp=safeGet('egk_businessplan_v2',{}); bp.fixedCosts=Array.isArray(bp.fixedCosts)?bp.fixedCosts:[];
+    const autoNames=['Geschäftskonto','Betriebs-/Berufshaftpflicht und weitere Versicherungen','Leasing / Finanzierung'];
+    bp.fixedCosts=bp.fixedCosts.filter(r=>!autoNames.includes(r.name));
+    const insurance=(+f.costBetriebshaftpflicht||0)+(+f.costBerufshaftpflicht||0)+(+f.costInhalt||0)+(+f.costOtherInsurance||0);
+    if(+f.accountCost) bp.fixedCosts.push({name:'Geschäftskonto',amount:String(+f.accountCost),note:'Übernommen aus Finanz- und Absicherungs-Kompass'});
+    if(insurance) bp.fixedCosts.push({name:'Betriebs-/Berufshaftpflicht und weitere Versicherungen',amount:String(insurance),note:'Übernommen aus Finanz- und Absicherungs-Kompass'});
+    if(+f.costLeasing) bp.fixedCosts.push({name:'Leasing / Finanzierung',amount:String(+f.costLeasing),note:'Übernommen aus Finanz- und Absicherungs-Kompass'});
+    bp._fields=bp._fields||{};
+    if((+f.costHealth||0)+(+f.costCare||0)) bp._fields.privHealth=String((+f.costHealth||0)+(+f.costCare||0));
+    if(+f.costPension) bp._fields.privReserve=String(+f.costPension);
+    localStorage.setItem('egk_businessplan_v2',JSON.stringify(bp));
+    flash('Finanzdaten in den Businessplan übernommen. Seite wird neu geladen.'); setTimeout(()=>location.reload(),700);
+  }
+  function importServicesToBusinessplan(){
+    publishServicesFromKnownPages();
+    const services=safeGet(KEYS.services,[]);
+    if(!services.length){flash('Keine globalen Leistungen gefunden. Erst im Preis-Kalkulator oder Businessplan Leistungen anlegen.');return;}
+    const bp=safeGet('egk_businessplan_v2',{}); bp.services=services.map(s=>({name:s.name||'',type:s.type||'',price:s.price||'',vat:s.vat||'19',cost:s.cost||'',qty:s.qty||''}));
+    localStorage.setItem('egk_businessplan_v2',JSON.stringify(bp)); flash('Leistungen in den Businessplan übernommen. Seite wird neu geladen.'); setTimeout(()=>location.reload(),700);
+  }
+  function exportAll(){
+    syncAllFromPage();
+    const payload={createdAt:new Date().toISOString(),product:'Existenzgründer-Kompass',profile:safeGet(KEYS.profile,{}),contacts:safeGet(KEYS.contacts,[]),services:safeGet(KEYS.services,[]),finance:safeGet(KEYS.finance,{}),pages:{businessplan:safeGet('egk_businessplan_v2',{}),prices:safeGet('egk_preise_v2',[]),founding:safeGet('egk_gruendung_v2',{}),invoice:safeGet('egk_rechnung_v2',{}),basis:safeGet('egk_geschaeftsbasis_v2',{}),employer:safeGet('egk_arbeitgeber_v2',{})}};
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));a.download='existenzgruender-kompass-gesamtsicherung.json';a.click();URL.revokeObjectURL(a.href); flash('Gesamtsicherung exportiert.');
+  }
+  function importAll(){
+    const inp=document.createElement('input'); inp.type='file'; inp.accept='application/json'; inp.onchange=async()=>{const file=inp.files&&inp.files[0]; if(!file)return; try{const p=JSON.parse(await file.text()); if(p.profile)safeSet(KEYS.profile,p.profile); if(p.contacts)safeSet(KEYS.contacts,p.contacts); if(p.services)safeSet(KEYS.services,p.services); if(p.finance)safeSet(KEYS.finance,p.finance); if(p.pages){ if(p.pages.businessplan)localStorage.setItem('egk_businessplan_v2',JSON.stringify(p.pages.businessplan)); if(p.pages.prices)localStorage.setItem('egk_preise_v2',JSON.stringify(p.pages.prices)); if(p.pages.founding)localStorage.setItem('egk_gruendung_v2',JSON.stringify(p.pages.founding)); if(p.pages.invoice)localStorage.setItem('egk_rechnung_v2',JSON.stringify(p.pages.invoice)); if(p.pages.basis)localStorage.setItem('egk_geschaeftsbasis_v2',JSON.stringify(p.pages.basis)); if(p.pages.employer)localStorage.setItem('egk_arbeitgeber_v2',JSON.stringify(p.pages.employer)); } flash('Gesamtsicherung importiert. Seite wird neu geladen.'); setTimeout(()=>location.reload(),800);}catch(e){alert('Die Gesamtsicherung konnte nicht gelesen werden.')}}; inp.click();
+  }
+  function flash(msg){let n=$('#egkHubStatus'); if(n){n.textContent=msg; setTimeout(()=>{n.textContent='Bereit';},2600);} else console.log(msg);}
+  function insertHub(){
+    if($('.egk-data-hub'))return;
+    const extra=pagePath==='businessplan-assistent.html'?'<button class="btn small" id="egkImportFinance" type="button">Finanzdaten übernehmen</button><button class="btn small" id="egkImportServices" type="button">Leistungen übernehmen</button>':'';
+    const html='<section class="section egk-data-section no-print"><div class="shell"><div class="panel egk-data-hub"><div><h3>Datenkomfort & Sicherung</h3><p><b>Lokale Speicherung:</b> Deine Eingaben bleiben im Browser dieses Geräts. Für Gerätewechsel oder Sicherung bitte regelmäßig JSON exportieren. Über den gemeinsamen Datenraum können Stammdaten, Kontakte, Leistungen und Finanzdaten zwischen Modulen übernommen werden.</p><div class="egk-hub-actions"><button class="btn small primary" id="egkApplyProfile" type="button">Stammdaten übernehmen</button><button class="btn small" id="egkSyncPage" type="button">Diese Seite synchronisieren</button>'+extra+'<a class="btn small" href="kontakte-archiv.html">Kontaktarchiv öffnen</a><button class="btn small" id="egkExportAll" type="button">Gesamtsicherung exportieren</button><button class="btn small" id="egkImportAll" type="button">Gesamtsicherung importieren</button><button class="btn small" id="egkProfessionalPrint" type="button">PDF-Arbeitsmappe</button><span id="egkHubStatus" class="save-status">Bereit</span></div></div></div></div></section>';
+    const hero=$('.hero'); if(hero) hero.insertAdjacentHTML('afterend',html);
+    $('#egkApplyProfile')?.addEventListener('click',applyProfile); $('#egkSyncPage')?.addEventListener('click',syncAllFromPage); $('#egkExportAll')?.addEventListener('click',exportAll); $('#egkImportAll')?.addEventListener('click',importAll); $('#egkProfessionalPrint')?.addEventListener('click',()=>printReport()); $('#egkImportFinance')?.addEventListener('click',importFinanceToBusinessplan); $('#egkImportServices')?.addEventListener('click',importServicesToBusinessplan);
+  }
+  function staticInputValue(el){ if(!el)return ''; if(el.tagName==='SELECT') return el.options[el.selectedIndex]?.text||el.value; if(el.type==='checkbox') return el.checked?'Ja':'Nein'; return el.value||''; }
+  function tableToPrint(table){
+    const clone=table.cloneNode(true); $$('input,textarea,select,button',clone).forEach(el=>{const span=document.createElement('span'); span.textContent=staticInputValue(el); el.replaceWith(span);});
+    clone.classList.add('print-table'); return clone.outerHTML;
+  }
+  function collectModule(mod){
+    const title=mod.querySelector('summary b')?.textContent?.trim() || mod.querySelector('h3,h2')?.textContent?.trim() || 'Arbeitsmodul';
+    let html='';
+    const sources=[]; $$('.source-card',mod).forEach(c=>{const b=c.querySelector('b')?.textContent?.trim(); const a=c.querySelector('a[href]'); if(b&&a) sources.push({b,href:a.href});});
+    const fieldBlocks=[];
+    $$('.field',mod).forEach(f=>{const lab=f.querySelector('label')?.textContent?.trim(); const el=f.querySelector('input,textarea,select'); const val=staticInputValue(el); if(lab && String(val||'').trim()) fieldBlocks.push('<div class="print-box"><b>'+escapeHtml(lab)+'</b><br>'+escapeHtml(val)+'</div>');});
+    const checks=[]; $$('.checkline',mod).forEach(c=>{const cb=c.querySelector('input[type="checkbox"]'); const txt=c.textContent.trim(); if(txt) checks.push('<li>'+(cb&&cb.checked?'☑ ':'☐ ')+escapeHtml(txt)+'</li>');});
+    if(fieldBlocks.length) html+='<h3>Eigene Angaben</h3><div class="print-grid">'+fieldBlocks.join('')+'</div>';
+    $$('.table-wrap table',mod).forEach(t=>{html+='<h3>Tabellenübersicht</h3>'+tableToPrint(t)});
+    if(checks.length) html+='<h3>Checkliste</h3><ul>'+checks.join('')+'</ul>';
+    if(sources.length) html+='<h3>Quellen und Recherchewege</h3><ul>'+sources.map(s=>'<li><b>'+escapeHtml(s.b)+'</b><br><span>'+escapeHtml(s.href)+'</span></li>').join('')+'</ul>';
+    return {title,html:html||'<p>Keine eigenen Angaben erfasst.</p>'};
+  }
+  function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+  function printReport(){
+    const title=(document.querySelector('h1')?.textContent||document.title||'Arbeitsunterlage').trim();
+    const profile=safeGet(KEYS.profile,{}); const name=profile.fullName||profile.name||document.querySelector('#fullName')?.value||'';
+    const modules=$$('details.module');
+    const sections=modules.length?modules.map(collectModule):[{title:'Seiteninhalt',html:collectModule(document.body).html}];
+    let area=$('#printArea'); if(!area){area=document.createElement('div'); area.id='printArea'; document.body.appendChild(area);}
+    area.innerHTML='<div class="print-page print-cover"><div class="print-kicker">Existenzgründer-Kompass</div><h1>'+escapeHtml(title)+'</h1><p>Professionelle Arbeitsunterlage für den Gründerordner.</p><div class="print-box"><b>Erstellt am</b><br>'+new Date().toLocaleDateString('de-DE')+'</div>'+(name?'<div class="print-box"><b>Name</b><br>'+escapeHtml(name)+'</div>':'')+'<div class="print-box"><b>Hinweis</b><br>Diese Unterlage dient der Orientierung, Vorbereitung und Dokumentation. Sie ersetzt keine Rechts-, Steuer-, Förder-, Versicherungs- oder Unternehmensberatung.</div></div><div class="print-page"><h2>Inhaltsübersicht</h2><ol>'+sections.map(s=>'<li>'+escapeHtml(s.title)+'</li>').join('')+'</ol></div>'+sections.map(s=>'<div class="print-page"><h2>'+escapeHtml(s.title)+'</h2>'+s.html+'</div>').join('');
+    document.body.classList.add('print-report'); window.print(); setTimeout(()=>document.body.classList.remove('print-report'),700);
+  }
+  function injectStyle(){
+    const css='\n.egk-data-section{padding:24px 0!important;background:#fff}.egk-data-hub{border-left:6px solid var(--mint)}.egk-data-hub p{margin:8px 0 0}.egk-hub-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.scenario-stack{display:grid!important;grid-template-columns:1fr!important;gap:22px!important}.scenario-stack .panel{padding:26px}.scenario-stack table{min-width:640px}.scenario-stack .table-wrap{max-width:100%}.comfort-single-column{display:grid!important;grid-template-columns:1fr!important;gap:18px!important}.wide-work-area{max-width:1180px}.print-table{width:100%;border-collapse:collapse;margin:3mm 0}.print-table th,.print-table td{border:1px solid #d9e4e8;padding:2mm;text-align:left;font-size:8.5pt;vertical-align:top}.print-grid{display:grid;grid-template-columns:1fr 1fr;gap:2mm}.print-cover{display:flex;flex-direction:column;justify-content:center;min-height:240mm}@media(max-width:1200px){.scenario-stack table{min-width:720px}}@media print{.egk-data-section{display:none!important}#printArea .print-table{page-break-inside:auto}#printArea .print-table tr{page-break-inside:avoid;page-break-after:auto}#printArea .print-grid{display:block}#printArea .print-box{font-size:9pt}#printArea ul{padding-left:5mm}}';
+    const st=document.createElement('style'); st.id='egk-v24-style'; st.textContent=css; document.head.appendChild(st);
+  }
+  injectStyle(); insertHub();
+  if(isWorkPage){setTimeout(syncAllFromPage,500);}
+  // Override common print buttons with professional report, except single invoice buttons inside invoice sections remain untouched if they have their own handler.
+  ['printBtn','printBottomBtn'].forEach(id=>{const b=document.getElementById(id); if(b){b.addEventListener('click',function(ev){ev.preventDefault(); ev.stopImmediatePropagation(); printReport();},true);}});
+})();
+</script>
+
 </body>
 </html>

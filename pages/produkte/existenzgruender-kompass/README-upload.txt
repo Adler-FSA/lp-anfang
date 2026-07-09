@@ -1,8 +1,13 @@
-Existenzgründer-Kompass
+Existenzgründer-Kompass v2.4
 
 Upload-Ziel:
 pages/produkte/existenzgruender-kompass/
 
-Diese Paketversion enthält alle Produktseiten inklusive Geschäftsbasis, Gründung, Businessplan, Preis-Kalkulator, Rechnung/Buchhaltung, Finanz- und Absicherungs-Kompass, Kontakt-/Telefonarchiv und Arbeitgeber-Kompass.
+Diese Version ergänzt:
+- gemeinsamen lokalen Datenraum für Stammdaten, Kontakte, Leistungen und Finanzdaten
+- Datenübernahme zwischen Modulen
+- professionelle PDF-/Druck-Arbeitsmappe über den Button PDF-Arbeitsmappe
+- Businessplan-Szenarien untereinander statt nebeneinander
+- stärkere Erklärung zur lokalen Speicherung und JSON-Gesamtsicherung
 
-Vorhandene Dateien im Ordner überschreiben. Danach Testlink mit nocache verwenden.
+Vorhandene Dateien im GitHub-Ordner überschreiben. Nicht vorher löschen.
