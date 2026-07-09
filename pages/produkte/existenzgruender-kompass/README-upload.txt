@@ -10,3 +10,6 @@ Diese Version ergänzt:
 - weiterhin gemeinsame lokale Datensicherung und Modulübernahme
 
 Vorhandene Dateien im GitHub-Ordner überschreiben. Nicht vorher löschen.
+
+
+Version v2.6: Businessplan-Assistent mit vollständiger Businessplan-Orientierung, 36-Monats-Liquiditätsvorschau, Liquiditäts-CSV und erweiterter PDF-Arbeitsmappe.
