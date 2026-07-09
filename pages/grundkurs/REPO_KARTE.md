@@ -1173,9 +1173,11 @@
     │   │   │   ├── README-upload.txt
     │   │   │   ├── arbeitgeber-kompass.html
     │   │   │   ├── businessplan-assistent.html
+    │   │   │   ├── finanz-absicherungs-kompass.html
     │   │   │   ├── geschaeftsbasis-kompass.html
     │   │   │   ├── gruendungsassistent.html
     │   │   │   ├── index.html
+    │   │   │   ├── kontakte-archiv.html
     │   │   │   ├── preis-kalkulator.html
     │   │   │   ├── rechnungs-buchhaltungsassistent.html
     │   │   │   └── start.html
@@ -1578,4 +1580,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.07.2026, 11:51)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 09.07.2026, 14:44)_
