@@ -1,12 +1,8 @@
-Existenzgründer-Kompass v2.2
+Existenzgründer-Kompass
 
 Upload-Ziel:
 pages/produkte/existenzgruender-kompass/
 
-Diese Version erweitert v2.1 um themenbezogene Recherche- und Quellenboxen in allen wichtigen Arbeitsmodulen.
+Diese Paketversion enthält alle Produktseiten inklusive Geschäftsbasis, Gründung, Businessplan, Preis-Kalkulator, Rechnung/Buchhaltung, Finanz- und Absicherungs-Kompass, Kontakt-/Telefonarchiv und Arbeitgeber-Kompass.
 
-Grundsatz:
-Erst offizielle Quelle öffnen, Ansprechpartner oder Stelle finden, dann eigene Daten eintragen.
-
-Hauptlink:
-https://adler-fsa.github.io/lp-anfang/pages/produkte/existenzgruender-kompass/?nocache=202607091410
+Vorhandene Dateien im Ordner überschreiben. Danach Testlink mit nocache verwenden.
