@@ -1,9 +1,7 @@
 Mission Dorade – Persönlicher Tagesbegleiter
-
-Wichtig:
-- index.html und alle 12 JPG-Dateien liegen im selben Ordner.
-- Die Monatsbilder werden automatisch anhand des persönlichen Clubmonats gewählt.
-- Die Inhaltskarten sind transparent mit leichtem Schatten.
+Abreißkalender-Aufbau: oben Monatsbild, darunter Tagesinhalt.
 
 GitHub-Zielpfad:
 /pages/mission-dorade-tagesbegleiter/
+
+Alle 12 JPG-Dateien müssen direkt neben der index.html liegen.
