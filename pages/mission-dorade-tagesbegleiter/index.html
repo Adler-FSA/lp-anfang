@@ -125,7 +125,7 @@ blockquote:before{content:"“";position:absolute;left:0;top:-16px;font-family:G
     <label>Eintrittsdatum als Club Partner<input id="joinDate" type="date" required></label>
     <label>Urlaub von<input id="vacationStart" type="date"></label>
     <label>Urlaub bis<input id="vacationEnd" type="date"></label>
-    <button class="btn btn-primary" type="submit">Tagesbegleiter starten</button>
+    <p id="formMessage" style="display:none;margin:0;color:#980055;font-weight:800;line-height:1.45"></p><button class="btn btn-primary" id="startBtn" type="button">Tagesbegleiter starten</button>
   </form>
 </section>
 
@@ -226,8 +226,30 @@ function vacationContent(){
  {"title":"Abschließen – Bewahre einen guten Moment","body":"Halte am Abend einen Gedanken oder einen schönen Moment fest, den du mit zurück in den Alltag nehmen möchtest.","goal":"Einen Moment bewahren"}
  ]};
 }
-function loadProfile(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'null')}catch{return null}}
-function saveProfile(p){localStorage.setItem(STORAGE_KEY,JSON.stringify(p))}
+let memoryProfile=null;
+function safeGet(key){
+  try{return window.localStorage ? localStorage.getItem(key) : null}catch(e){return null}
+}
+function safeSet(key,value){
+  try{
+    if(window.localStorage){localStorage.setItem(key,value);return true}
+  }catch(e){}
+  return false
+}
+function safeRemove(key){
+  try{if(window.localStorage)localStorage.removeItem(key)}catch(e){}
+}
+function loadProfile(){
+  try{
+    const raw=safeGet(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : memoryProfile;
+  }catch(e){return memoryProfile}
+}
+function saveProfile(p){
+  memoryProfile=p;
+  safeSet(STORAGE_KEY,JSON.stringify(p));
+  return true;
+}
 function renderSteps(steps){$('steps').innerHTML=steps.map((s,i)=>`<section class="step"><div class="step-num">${i+1}</div><div><h3>${s.title}</h3><p>${s.body}</p></div><aside class="goal"><small>Dein Ziel heute</small><b>${s.goal}</b></aside></section>`).join('')}
 function showDaily(profile){
  const today=new Date();today.setHours(12,0,0,0);
@@ -244,10 +266,10 @@ function showDaily(profile){
  $('dayNumber').textContent=`Tag ${personalDay(today,profile.joinDate)}`;
  $('scheduleTitle').textContent=info[0];$('scheduleText').textContent=info[1];
  $('saying').textContent=base.saying;$('thought').textContent=base.thought;renderSteps(base.steps);
- const doneKey=DONE_PREFIX+iso(today),done=localStorage.getItem(doneKey)==='1';
+ const doneKey=DONE_PREFIX+iso(today),done=safeGet(doneKey)==='1';
  $('doneBtn').classList.toggle('is-done',done);$('doneBtn').textContent=done?'Mission erfüllt ✓':'Mission erfüllt';
  $('closing').textContent=done?'Morgen wartet eine neue Mission auf dich.':'Bis morgen.';
- $('doneBtn').onclick=()=>{const n=localStorage.getItem(doneKey)!=='1';if(n)localStorage.setItem(doneKey,'1');else localStorage.removeItem(doneKey);$('doneBtn').classList.toggle('is-done',n);$('doneBtn').textContent=n?'Mission erfüllt ✓':'Mission erfüllt';$('closing').textContent=n?'Morgen wartet eine neue Mission auf dich.':'Bis morgen.'};
+ $('doneBtn').onclick=()=>{const n=safeGet(doneKey)!=='1';if(n)safeSet(doneKey,'1');else safeRemove(doneKey);$('doneBtn').classList.toggle('is-done',n);$('doneBtn').textContent=n?'Mission erfüllt ✓':'Mission erfüllt';$('closing').textContent=n?'Morgen wartet eine neue Mission auf dich.':'Bis morgen.'};
  $('shareBtn').onclick=()=>shareSaying(base.saying);
 }
 async function shareSaying(text){
@@ -261,9 +283,54 @@ async function shareSaying(text){
  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});return}}catch(e){if(e&&e.name==='AbortError')return}
  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='tagesspruch.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);
 }
-$('setupForm').addEventListener('submit',e=>{e.preventDefault();const p={firstName:$('firstName').value.trim(),gender:$('gender').value,state:$('state').value,joinDate:$('joinDate').value,vacationStart:$('vacationStart').value,vacationEnd:$('vacationEnd').value};saveProfile(p);showDaily(p)});
-$('resetBtn').addEventListener('click',()=>{const p=loadProfile();if(p){$('firstName').value=p.firstName||'';$('gender').value=p.gender||'';$('state').value=p.state||'';$('joinDate').value=p.joinDate||'';$('vacationStart').value=p.vacationStart||'';$('vacationEnd').value=p.vacationEnd||''}$('dailyCard').classList.remove('active');$('setupCard').classList.remove('hidden');$('smallTools').classList.add('hidden')});
-const profile=loadProfile();if(profile)showDaily(profile);else $('joinDate').value=iso(new Date());
+function startCompanion(event){
+  if(event)event.preventDefault();
+  const message=$('formMessage');
+  const p={
+    firstName:$('firstName').value.trim(),
+    gender:$('gender').value,
+    state:$('state').value,
+    joinDate:$('joinDate').value,
+    vacationStart:$('vacationStart').value || '',
+    vacationEnd:$('vacationEnd').value || ''
+  };
+
+  if(!p.firstName || !p.gender || !p.state || !p.joinDate){
+    message.textContent='Bitte fülle Vorname, Ansprache, Bundesland und Eintrittsdatum aus. Die Urlaubsfelder sind freiwillig.';
+    message.style.display='block';
+    return false;
+  }
+
+  if((p.vacationStart && !p.vacationEnd) || (!p.vacationStart && p.vacationEnd)){
+    message.textContent='Bitte trage entweder beide Urlaubsfelder ein oder lasse beide frei.';
+    message.style.display='block';
+    return false;
+  }
+
+  if(p.vacationStart && p.vacationEnd && dateOnly(p.vacationEnd) < dateOnly(p.vacationStart)){
+    message.textContent='Das Urlaubsende darf nicht vor dem Urlaubsbeginn liegen.';
+    message.style.display='block';
+    return false;
+  }
+
+  message.style.display='none';
+  saveProfile(p);
+  showDaily(p);
+  return false;
+}
+$('setupForm').addEventListener('submit',startCompanion);
+$('startBtn').addEventListener('click',startCompanion);
+$('resetBtn').addEventListener('click',()=>{const p=loadProfile();if(p){$('firstName').value=p.firstName||'';$('gender').value=p.gender||'';$('state').value=p.state||'';$('joinDate').value=p.joinDate||'';$('vacationStart').value=p.vacationStart||'';$('vacationEnd').value=p.vacationEnd||''}$('dailyCard').classList.remove('active');$('setupCard').classList.remove('hidden');$('smallTools').classList.add('hidden');window.scrollTo({top:0,behavior:'smooth'})});
+window.addEventListener('error',function(){
+  const m=$('formMessage');
+  if(m){m.textContent='Die Seite konnte nicht vollständig gestartet werden. Bitte lade sie einmal neu.';m.style.display='block';}
+});
+const profile=loadProfile();
+if(profile && profile.firstName && profile.gender && profile.state && profile.joinDate){
+  showDaily(profile);
+}else{
+  $('joinDate').value=iso(new Date());
+}
 </script>
 </body>
 </html>
