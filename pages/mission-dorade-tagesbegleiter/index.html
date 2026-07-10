@@ -120,7 +120,7 @@ blockquote:before{content:"“";position:absolute;left:0;top:-16px;font-family:G
     <label>Vorname<input id="firstName" required maxlength="40" autocomplete="given-name" placeholder="Dein Vorname"></label>
     <label>Ansprache<select id="gender" required><option value="">Bitte auswählen</option><option value="m">Mann</option><option value="f">Frau</option></select></label>
     <label>Bundesland<select id="state" required>
-      <option value="">Bitte auswählen</option><option value="BW">Baden-Württemberg</option><option value="BY">Bayern</option><option value="BE">Berlin</option><option value="BB">Brandenburg</option><option value="HB">Bremen</option><option value="HH">Hamburg</option><option value="HE">Hessen</option><option value="MV">Mecklenburg-Vorpommern</option><option value="NI">Niedersachsen</option><option value="NW">Nordrhein-Westfalen</option><option value="RP">Rheinland-Pfalz</option><option value="SL">Saarland</option><option value="SN">Sachsen</option><option value="ST">Sachsen-Anhalt</option><option value="SH">Schleswig-Holstein</option><option value="TH">Thüringen</option>
+      <option value="">Bitte auswählen</option><option value="INT">International</option><option value="BW">Baden-Württemberg</option><option value="BY">Bayern</option><option value="BE">Berlin</option><option value="BB">Brandenburg</option><option value="HB">Bremen</option><option value="HH">Hamburg</option><option value="HE">Hessen</option><option value="MV">Mecklenburg-Vorpommern</option><option value="NI">Niedersachsen</option><option value="NW">Nordrhein-Westfalen</option><option value="RP">Rheinland-Pfalz</option><option value="SL">Saarland</option><option value="SN">Sachsen</option><option value="ST">Sachsen-Anhalt</option><option value="SH">Schleswig-Holstein</option><option value="TH">Thüringen</option>
     </select></label>
     <label>Eintrittsdatum als Club Partner<input id="joinDate" type="date" required></label>
     <label>Urlaub von<input id="vacationStart" type="date"></label>
@@ -203,7 +203,7 @@ function easterSunday(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b
 function holidayName(date,state){const y=date.getFullYear(),key=iso(date).slice(5);const fixed={'01-01':'Neujahr','05-01':'Tag der Arbeit','10-03':'Tag der Deutschen Einheit','12-25':'1. Weihnachtstag','12-26':'2. Weihnachtstag'};if(fixed[key])return fixed[key];if(key==='01-06'&&['BW','BY','ST'].includes(state))return'Heilige Drei Könige';if(key==='03-08'&&['BE','MV'].includes(state))return'Internationaler Frauentag';if(key==='08-15'&&['BY','SL'].includes(state))return'Mariä Himmelfahrt';if(key==='09-20'&&state==='TH')return'Weltkindertag';if(key==='10-31'&&['BB','HB','HH','MV','NI','SN','ST','SH','TH'].includes(state))return'Reformationstag';if(key==='11-01'&&['BW','BY','NW','RP','SL'].includes(state))return'Allerheiligen';const easter=easterSunday(y);const move=[[-2,'Karfreitag'],[1,'Ostermontag'],[39,'Christi Himmelfahrt'],[50,'Pfingstmontag']];if(['BW','BY','HE','NW','RP','SL'].includes(state))move.push([60,'Fronleichnam']);for(const [off,name] of move)if(iso(addDays(easter,off))===iso(date))return name;return''}
 function isVacation(today,p){const a=dateOnly(p.vacationStart),b=dateOnly(p.vacationEnd);return!!(a&&b&&today>=a&&today<=b)}
 function personalDay(today,joinDate){const start=dateOnly(joinDate);if(!start)return 1;return Math.max(1,Math.floor((today-start)/86400000)+1)}
-function dailyIndex(today,p){return(personalDay(today,p)-1)%DAILY_CONTENT.length}
+function dailyIndex(today,p){return(personalDay(today,p.joinDate)-1)%DAILY_CONTENT.length}
 function scheduleInfo(today,holiday,vacation){
  if(vacation)return['Urlaubsmodus','Heute macht die normale Mission Pause. Genieße den Tag ohne Arbeitsdruck.'];
  if(holiday)return[holiday,'Heute findet kein regulärer Clubtermin statt. Der Feiertag gehört der Ruhe und den Menschen, die dir wichtig sind.'];
@@ -246,9 +246,9 @@ function loadProfile(){
   }catch(e){return memoryProfile}
 }
 function saveProfile(p){
+  const value=JSON.stringify(p);
   memoryProfile=p;
-  safeSet(STORAGE_KEY,JSON.stringify(p));
-  return true;
+  return safeSet(STORAGE_KEY,value);
 }
 function renderSteps(steps){$('steps').innerHTML=steps.map((s,i)=>`<section class="step"><div class="step-num">${i+1}</div><div><h3>${s.title}</h3><p>${s.body}</p></div><aside class="goal"><small>Dein Ziel heute</small><b>${s.goal}</b></aside></section>`).join('')}
 function showDaily(profile){
@@ -314,20 +314,35 @@ function startCompanion(event){
   }
 
   message.style.display='none';
-  saveProfile(p);
-  showDaily(p);
+  if(!saveProfile(p)){
+    message.textContent='Die persönlichen Daten konnten nicht im lokalen Speicher gesichert werden. Bitte prüfe, ob Safari im privaten Modus läuft oder lokale Website-Daten blockiert sind.';
+    message.style.display='block';
+    return false;
+  }
+  try{
+    showDaily(p);
+  }catch(error){
+    message.textContent='Technischer Fehler beim Start: '+(error && error.message ? error.message : 'unbekannter Fehler');
+    message.style.display='block';
+    return false;
+  }
   return false;
 }
 $('setupForm').addEventListener('submit',startCompanion);
 $('startBtn').addEventListener('click',startCompanion);
 $('resetBtn').addEventListener('click',()=>{const p=loadProfile();if(p){$('firstName').value=p.firstName||'';$('gender').value=p.gender||'';$('state').value=p.state||'';$('joinDate').value=p.joinDate||'';$('vacationStart').value=p.vacationStart||'';$('vacationEnd').value=p.vacationEnd||''}$('dailyCard').classList.remove('active');$('setupCard').classList.remove('hidden');$('smallTools').classList.add('hidden');window.scrollTo({top:0,behavior:'smooth'})});
-window.addEventListener('error',function(){
-  const m=$('formMessage');
-  if(m){m.textContent='Die Seite konnte nicht vollständig gestartet werden. Bitte lade sie einmal neu.';m.style.display='block';}
-});
 const profile=loadProfile();
 if(profile && profile.firstName && profile.gender && profile.state && profile.joinDate){
-  showDaily(profile);
+  try{
+    showDaily(profile);
+  }catch(error){
+    $('setupCard').classList.remove('hidden');
+    $('dailyCard').classList.remove('active');
+    $('smallTools').classList.add('hidden');
+    const m=$('formMessage');
+    m.textContent='Technischer Fehler beim Laden: '+(error && error.message ? error.message : 'unbekannter Fehler');
+    m.style.display='block';
+  }
 }else{
   $('joinDate').value=iso(new Date());
 }
