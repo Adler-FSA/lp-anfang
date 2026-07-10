@@ -1093,7 +1093,20 @@
     │   │   ├── lektion-souveraen.html
     │   │   └── trustyfy-bewusstsein.html
     │   ├── mission-dorade-tagesbegleiter/
-    │   │   └── index.html
+    │   │   ├── README.txt
+    │   │   ├── index.html
+    │   │   ├── monat-01-aufbruch.jpg
+    │   │   ├── monat-02-neue-wege.jpg
+    │   │   ├── monat-03-wachstum.jpg
+    │   │   ├── monat-04-inspiration.jpg
+    │   │   ├── monat-05-entfaltung.jpg
+    │   │   ├── monat-06-leichtigkeit.jpg
+    │   │   ├── monat-07-weite.jpg
+    │   │   ├── monat-08-freiheit.jpg
+    │   │   ├── monat-09-entdeckung.jpg
+    │   │   ├── monat-10-dankbarkeit.jpg
+    │   │   ├── monat-11-orientierung.jpg
+    │   │   └── monat-12-heimkehr.jpg
     │   ├── nachlass/
     │   │   ├── master-nachlass-kurs-struktur.html
     │   │   ├── modul-1-akutfall-erste-schritte.html
@@ -1582,4 +1595,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.07.2026, 16:21)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.07.2026, 18:18)_
