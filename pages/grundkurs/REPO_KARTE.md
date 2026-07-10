@@ -1092,6 +1092,8 @@
     │   ├── mentor/
     │   │   ├── lektion-souveraen.html
     │   │   └── trustyfy-bewusstsein.html
+    │   ├── mission-dorade-tagesbegleiter/
+    │   │   └── index.html
     │   ├── nachlass/
     │   │   ├── master-nachlass-kurs-struktur.html
     │   │   ├── modul-1-akutfall-erste-schritte.html
@@ -1580,4 +1582,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.07.2026, 13:07)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.07.2026, 16:21)_
