@@ -1106,7 +1106,9 @@
     │   │   ├── monat-09-entdeckung.jpg
     │   │   ├── monat-10-dankbarkeit.jpg
     │   │   ├── monat-11-orientierung.jpg
-    │   │   └── monat-12-heimkehr.jpg
+    │   │   ├── monat-12-heimkehr.jpg
+    │   │   ├── tagessprueche-aufgaben.html
+    │   │   └── woche-23.jpg
     │   ├── nachlass/
     │   │   ├── master-nachlass-kurs-struktur.html
     │   │   ├── modul-1-akutfall-erste-schritte.html
@@ -1595,4 +1597,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.07.2026, 18:18)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.07.2026, 20:17)_
