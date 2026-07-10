@@ -1094,6 +1094,15 @@
     │   │   └── trustyfy-bewusstsein.html
     │   ├── mission-dorade-tagesbegleiter/
     │   │   ├── README.txt
+    │   │   ├── bildergalerie.html
+    │   │   ├── clubtreffen-01.jpg
+    │   │   ├── clubtreffen-02.jpg
+    │   │   ├── clubtreffen-03.jpg
+    │   │   ├── clubtreffen-04.jpg
+    │   │   ├── feiertag-01.jpg
+    │   │   ├── feiertag-02.jpg
+    │   │   ├── feiertag-03.jpg
+    │   │   ├── feiertag-04.jpg
     │   │   ├── index.html
     │   │   ├── monat-01-aufbruch.jpg
     │   │   ├── monat-02-neue-wege.jpg
@@ -1107,8 +1116,63 @@
     │   │   ├── monat-10-dankbarkeit.jpg
     │   │   ├── monat-11-orientierung.jpg
     │   │   ├── monat-12-heimkehr.jpg
+    │   │   ├── stammtisch-01.jpg
+    │   │   ├── stammtisch-02.jpg
+    │   │   ├── stammtisch-03.jpg
+    │   │   ├── stammtisch-04.jpg
     │   │   ├── tagessprueche-aufgaben.html
-    │   │   └── woche-23.jpg
+    │   │   ├── woche-01.jpg
+    │   │   ├── woche-02.jpg
+    │   │   ├── woche-03.jpg
+    │   │   ├── woche-04.jpg
+    │   │   ├── woche-05.jpg
+    │   │   ├── woche-06.jpg
+    │   │   ├── woche-07.jpg
+    │   │   ├── woche-08.jpg
+    │   │   ├── woche-09.jpg
+    │   │   ├── woche-10.jpg
+    │   │   ├── woche-11.jpg
+    │   │   ├── woche-12.jpg
+    │   │   ├── woche-13.jpg
+    │   │   ├── woche-14.jpg
+    │   │   ├── woche-15.jpg
+    │   │   ├── woche-16.jpg
+    │   │   ├── woche-17.jpg
+    │   │   ├── woche-18.jpg
+    │   │   ├── woche-19.jpg
+    │   │   ├── woche-20.jpg
+    │   │   ├── woche-21.jpg
+    │   │   ├── woche-22.jpg
+    │   │   ├── woche-23.jpg
+    │   │   ├── woche-24.jpg
+    │   │   ├── woche-25.jpg
+    │   │   ├── woche-26.jpg
+    │   │   ├── woche-27.jpg
+    │   │   ├── woche-28.jpg
+    │   │   ├── woche-29.jpg
+    │   │   ├── woche-30.jpg
+    │   │   ├── woche-31.jpg
+    │   │   ├── woche-32.jpg
+    │   │   ├── woche-33.jpg
+    │   │   ├── woche-34.jpg
+    │   │   ├── woche-35.jpg
+    │   │   ├── woche-36.jpg
+    │   │   ├── woche-37.jpg
+    │   │   ├── woche-38.jpg
+    │   │   ├── woche-39.jpg
+    │   │   ├── woche-40.jpg
+    │   │   ├── woche-41.jpg
+    │   │   ├── woche-42.jpg
+    │   │   ├── woche-43.jpg
+    │   │   ├── woche-44.jpg
+    │   │   ├── woche-45.jpg
+    │   │   ├── woche-46.jpg
+    │   │   ├── woche-47.jpg
+    │   │   ├── woche-48.jpg
+    │   │   ├── woche-49.jpg
+    │   │   ├── woche-50.jpg
+    │   │   ├── woche-51.jpg
+    │   │   └── woche-52.jpg
     │   ├── nachlass/
     │   │   ├── master-nachlass-kurs-struktur.html
     │   │   ├── modul-1-akutfall-erste-schritte.html
@@ -1597,4 +1661,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.07.2026, 20:17)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.07.2026, 21:56)_
