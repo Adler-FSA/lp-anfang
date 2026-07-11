@@ -82,30 +82,121 @@ main{padding:28px 0 44px}
 .visual-stage{position:relative;min-height:770px;margin-top:18px}
 .visual-panel{display:none}.visual-panel.active{display:block}
 
-/* NEUE UNIVERSUMSANSICHT */
+/* NEUE UNIVERSUMSANSICHT: VERSCHACHTELTE UMLAUFBAHNEN */
 .galaxy-wrap{
   position:relative;height:770px;overflow:hidden;border-radius:24px;
   background:
-    radial-gradient(circle at 50% 48%,rgba(243,191,57,.12),transparent 16%),
-    radial-gradient(circle at 22% 22%,rgba(85,230,255,.12),transparent 20%),
-    radial-gradient(circle at 82% 74%,rgba(199,0,111,.13),transparent 22%);
+    radial-gradient(circle at 50% 50%,rgba(243,191,57,.12),transparent 16%),
+    radial-gradient(circle at 20% 18%,rgba(85,230,255,.12),transparent 21%),
+    radial-gradient(circle at 84% 78%,rgba(199,0,111,.14),transparent 24%);
 }
-.galaxy-bg,.connection-svg{position:absolute;inset:0;width:100%;height:100%}
-.connection-svg{z-index:2;pointer-events:none}
-.connection{
-  fill:none;stroke-linecap:round;stroke-width:2.4;opacity:.72;
-  stroke-dasharray:700;stroke-dashoffset:700;
-  animation:drawLine .9s ease forwards
+.galaxy-bg{position:absolute;inset:0;width:100%;height:100%}
+.universe{
+  position:absolute;inset:0;
+  transform-origin:50% 50%;
 }
-.connection.e1{stroke:#55e6ff;filter:drop-shadow(0 0 5px rgba(85,230,255,.75))}
-.connection.e2{stroke:#6d9cff;filter:drop-shadow(0 0 5px rgba(58,114,216,.75))}
-.connection.e3{stroke:#ef65ae;filter:drop-shadow(0 0 5px rgba(199,0,111,.75))}
-@keyframes drawLine{to{stroke-dashoffset:0}}
+.main-orbit-ring{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  border:1px solid rgba(85,230,255,.30);border-radius:50%;
+  box-shadow:0 0 28px rgba(85,230,255,.07),inset 0 0 28px rgba(85,230,255,.04);
+  pointer-events:none;z-index:1
+}
+.main-orbit{
+  position:absolute;left:50%;top:50%;width:0;height:0;z-index:4;
+  animation:spinMain 100s linear infinite
+}
+@keyframes spinMain{to{transform:rotate(360deg)}}
+.e1-anchor{
+  position:absolute;left:0;top:0;
+  transform:rotate(var(--angle)) translateX(var(--main-radius));
+  transform-origin:0 0;
+}
+.e1-upright{
+  position:absolute;left:0;top:0;
+  width:var(--system-size);height:var(--system-size);
+  transform:translate(-50%,-50%) rotate(calc(-1 * var(--angle)));
+  animation:counterMain 100s linear infinite;
+}
+@keyframes counterMain{to{transform:translate(-50%,-50%) rotate(-360deg)}}
 
+.e1-core,.e2-core,.e3-core{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  border-radius:50%;display:grid;place-items:center;text-align:center;color:#fff;font-weight:900;
+  border:3px solid rgba(255,255,255,.72);z-index:7;line-height:1.05
+}
+.e1-core{
+  width:var(--e1-size);height:var(--e1-size);font-size:11px;
+  background:radial-gradient(circle at 30% 25%,#bffeff,#00aeb8 48%,#064c55 100%);
+  box-shadow:0 0 26px rgba(0,174,184,.75)
+}
+.e2-core{
+  width:var(--e2-size);height:var(--e2-size);font-size:9px;
+  background:radial-gradient(circle at 30% 25%,#c7d8ff,#3a72d8 48%,#122f62 100%);
+  box-shadow:0 0 20px rgba(58,114,216,.72)
+}
+.e3-core{
+  width:var(--e3-size);height:var(--e3-size);font-size:7px;
+  background:radial-gradient(circle at 30% 25%,#ffd0e9,#c7006f 48%,#5d0034 100%);
+  box-shadow:0 0 14px rgba(199,0,111,.72)
+}
+.e1-core:after,.e2-core:after,.e3-core:after{
+  content:"";position:absolute;inset:-7px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.18)
+}
+
+.local-orbit-ring{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  border-radius:50%;pointer-events:none;z-index:2
+}
+.local-orbit-ring.e2{border:1px solid rgba(109,156,255,.34)}
+.local-orbit-ring.e3{border:1px solid rgba(239,101,174,.35)}
+
+.e2-orbit{
+  position:absolute;left:50%;top:50%;width:0;height:0;z-index:4;
+  animation:spinLocal var(--local-dur) linear infinite
+}
+@keyframes spinLocal{to{transform:rotate(360deg)}}
+.e2-anchor{
+  position:absolute;left:0;top:0;
+  transform:rotate(var(--child-angle)) translateX(var(--child-radius));
+  transform-origin:0 0
+}
+.e2-upright{
+  position:absolute;left:0;top:0;
+  width:var(--child-system-size);height:var(--child-system-size);
+  transform:translate(-50%,-50%) rotate(calc(-1 * var(--child-angle)));
+  animation:counterLocal var(--local-dur) linear infinite
+}
+@keyframes counterLocal{to{transform:translate(-50%,-50%) rotate(-360deg)}}
+
+.e3-orbit{
+  position:absolute;left:50%;top:50%;width:0;height:0;z-index:4;
+  animation:spinMoon var(--moon-dur) linear infinite reverse
+}
+@keyframes spinMoon{to{transform:rotate(360deg)}}
+.e3-anchor{
+  position:absolute;left:0;top:0;
+  transform:rotate(var(--moon-angle)) translateX(var(--moon-radius));
+  transform-origin:0 0
+}
+.e3-upright{
+  position:absolute;left:0;top:0;
+  transform:translate(-50%,-50%) rotate(calc(-1 * var(--moon-angle)));
+  animation:counterMoon var(--moon-dur) linear infinite reverse
+}
+@keyframes counterMoon{to{transform:translate(-50%,-50%) rotate(-360deg)}}
+
+.planet-name{
+  position:absolute;left:50%;top:calc(50% + var(--name-offset));
+  transform:translateX(-50%);z-index:10;white-space:nowrap;
+  padding:4px 8px;border-radius:999px;background:rgba(4,17,31,.82);
+  border:1px solid rgba(255,255,255,.13);color:#dcecf3;font-size:9px;font-weight:900;
+  backdrop-filter:blur(6px)
+}
 .galaxy-center{
   position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
   width:142px;height:142px;border-radius:50%;display:grid;place-items:center;text-align:center;
-  color:#fff;font-weight:900;z-index:8;
+  color:#fff;font-weight:900;z-index:20;
   background:radial-gradient(circle at 35% 30%,#fff7b0 0,#f3bf39 18%,#d47b00 48%,#69350a 100%);
   box-shadow:0 0 30px rgba(243,191,57,.8),0 0 105px rgba(243,191,57,.38);
   animation:sunPulse 3.6s ease-in-out infinite
@@ -113,63 +204,24 @@ main{padding:28px 0 44px}
 .galaxy-center small{display:block;font-size:12px;color:#3f2500;margin-top:3px}
 @keyframes sunPulse{50%{box-shadow:0 0 42px rgba(243,191,57,.95),0 0 125px rgba(243,191,57,.46)}}
 
-.system-orbit{
-  position:absolute;border:1px solid rgba(255,255,255,.19);border-radius:50%;
-  transform:translate(-50%,-50%);z-index:1;pointer-events:none;
-  animation:orbitGlow 3.8s ease-in-out infinite
-}
-.system-orbit.e1{border-color:rgba(85,230,255,.35)}
-.system-orbit.e2{border-color:rgba(109,156,255,.31)}
-@keyframes orbitGlow{50%{opacity:.55;box-shadow:0 0 18px rgba(85,230,255,.12)}}
-
-.planet{
-  position:absolute;transform:translate(-50%,-50%);border-radius:50%;
-  display:grid;place-items:center;text-align:center;color:#fff;font-weight:900;line-height:1.05;
-  z-index:6;animation:planetIn .62s both cubic-bezier(.2,.8,.2,1);
-  border:3px solid rgba(255,255,255,.64)
-}
-.planet.e1{
-  width:78px;height:78px;font-size:11px;
-  background:radial-gradient(circle at 30% 25%,#bffeff,#00aeb8 48%,#064c55 100%);
-  box-shadow:0 0 25px rgba(0,174,184,.72)
-}
-.planet.e2{
-  width:58px;height:58px;font-size:9px;
-  background:radial-gradient(circle at 30% 25%,#c7d8ff,#3a72d8 48%,#122f62 100%);
-  box-shadow:0 0 20px rgba(58,114,216,.68)
-}
-.planet.e3{
-  width:36px;height:36px;font-size:7px;
-  background:radial-gradient(circle at 30% 25%,#ffd0e9,#c7006f 48%,#5d0034 100%);
-  box-shadow:0 0 15px rgba(199,0,111,.68)
-}
-.planet:after{
-  content:"";position:absolute;inset:-7px;border-radius:50%;
-  border:1px solid rgba(255,255,255,.18)
-}
-@keyframes planetIn{
-  from{opacity:0;transform:translate(-50%,-50%) scale(.2)}
-  to{opacity:1;transform:translate(-50%,-50%) scale(1)}
-}
-
-.system-label{
-  position:absolute;transform:translate(-50%,0);z-index:9;white-space:nowrap;
-  padding:5px 9px;border-radius:999px;background:rgba(5,20,34,.78);
-  border:1px solid rgba(255,255,255,.14);color:#dcecf3;font-size:10px;font-weight:900;
-  backdrop-filter:blur(6px);animation:planetIn .55s both ease-out
-}
 .galaxy-summary{
-  position:absolute;right:18px;bottom:16px;width:min(330px,calc(100% - 36px));z-index:12;
+  position:absolute;right:18px;bottom:16px;width:min(330px,calc(100% - 36px));z-index:30;
   border:1px solid rgba(255,255,255,.13);background:rgba(4,17,31,.82);backdrop-filter:blur(10px);
   border-radius:22px;padding:18px;color:#fff
 }
 .galaxy-summary b{display:block;font-size:34px}.galaxy-summary span{color:#bcd5e2}
 .universe-caption{
-  position:absolute;left:18px;bottom:16px;z-index:12;width:min(470px,calc(100% - 380px));
+  position:absolute;left:18px;bottom:16px;z-index:30;width:min(470px,calc(100% - 380px));
   border:1px solid rgba(255,255,255,.12);background:rgba(4,17,31,.72);
   border-radius:20px;padding:15px 17px;color:#cfe1e8;backdrop-filter:blur(9px)
 }
 .universe-caption strong{display:block;color:#fff;font-size:16px;margin-bottom:4px}
+
+@media(max-width:700px){
+  .galaxy-wrap{height:690px}
+  .universe{transform:scale(.82)}
+  .planet-name{display:none}
+}
 
 /* LEISTUNGSPLATINE UNVERÄNDERT */
 .circuit-wrap{position:relative;height:770px;overflow:hidden}
@@ -236,6 +288,45 @@ main{padding:28px 0 44px}
   body{background:#fff}.card,.hero-card{box-shadow:none}
   .visual-shell{background:#0b1f33!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+.year-simulator{
+  margin-top:18px;border-radius:24px;padding:18px 20px;
+  background:linear-gradient(135deg,#f7ffff,#fff5fa);
+  border:1px solid #bfe8eb
+}
+.year-top{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
+.year-top b{font-size:26px;color:var(--navy)}
+.year-top span{color:var(--muted);font-weight:900}
+.year-slider{width:100%;margin-top:14px;accent-color:var(--magenta)}
+.year-marks{display:flex;justify-content:space-between;margin-top:4px;font-size:10px;color:var(--muted);font-weight:900}
+.auto-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.ticker-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px
+}
+.ticker{
+  border-radius:18px;padding:15px;background:#fff;border:1px solid var(--line);text-align:center
+}
+.ticker small{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;font-weight:900}
+.ticker b{display:block;color:var(--navy);font-size:26px;margin-top:4px}
+.ticker strong{display:block;color:var(--magenta);font-size:14px;margin-top:3px}
+.presentation-note{
+  margin-top:14px;border-radius:18px;padding:14px 16px;background:#fffaf0;border:1px solid #f0d59a;
+  color:#6a4b00;font-weight:900;text-align:center
+}
+.universe-year-badge{
+  position:absolute;left:18px;top:18px;z-index:35;border-radius:999px;padding:9px 13px;
+  background:rgba(4,17,31,.82);border:1px solid rgba(255,255,255,.14);
+  color:#fff;font-weight:900;backdrop-filter:blur(8px)
+}
+.growth-halo{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  border-radius:50%;border:1px solid rgba(255,255,255,.08);pointer-events:none;
+  box-shadow:0 0 30px rgba(85,230,255,.05)
+}
+@media(max-width:900px){
+  .ticker-grid{grid-template-columns:1fr 1fr}
+}
+
 </style>
 </head>
 <body>
@@ -297,6 +388,29 @@ main{padding:28px 0 44px}
         </button>
       </div>
 
+      <div class="year-simulator">
+        <div class="year-top">
+          <b id="yearTitle">Jahr 1</b>
+          <span id="yearText">Die erste Galaxie entsteht.</span>
+        </div>
+        <input class="year-slider" id="yearSlider" type="range" min="1" max="5" step="1" value="1">
+        <div class="year-marks"><span>Jahr 1</span><span>Jahr 2</span><span>Jahr 3</span><span>Jahr 4</span><span>Jahr 5</span></div>
+        <div class="auto-row">
+          <button class="btn mint" id="autoCurrentBtn">Aktuelles Modell automatisch abspielen</button>
+          <button class="btn magenta" id="autoAllBtn">Alle drei Modelle automatisch abspielen</button>
+          <button class="btn" id="stopAutoBtn">Autostart stoppen</button>
+        </div>
+        <div class="ticker-grid">
+          <div class="ticker"><small>Neue Club Partner</small><b id="tickerNewMembers">14</b><strong>im aktuellen Jahr</strong></div>
+          <div class="ticker"><small>Verlängerungen</small><b id="tickerRenewals">0</b><strong>aus den Vorjahren</strong></div>
+          <div class="ticker"><small>Neue Belohnungen</small><b id="tickerNewReward">178,20 €</b><strong>aktuelles Wachstum</strong></div>
+          <div class="ticker"><small>Wiederkehrende Belohnungen</small><b id="tickerRenewReward">0,00 €</b><strong>aktive Verlängerungen</strong></div>
+        </div>
+        <div class="presentation-note" id="presentationNote">
+          Wähle ein Modell oder starte den Präsentationsmodus. Die Zahlen laufen parallel mit dem wachsenden Universum hoch.
+        </div>
+      </div>
+
       <div class="visual-shell">
         <div class="visual-title">
           <div>
@@ -307,7 +421,7 @@ main{padding:28px 0 44px}
 
         <div class="visual-stage">
           <div class="visual-panel active" id="galaxyPanel">
-            <div class="galaxy-wrap" id="galaxyWrap">
+            <div class="galaxy-wrap" id="galaxyWrap"><div class="universe-year-badge" id="universeYearBadge">Jahr 1</div>
               <svg class="galaxy-bg" viewBox="0 0 1200 770" preserveAspectRatio="none" aria-hidden="true">
                 <defs>
                   <radialGradient id="nebulaA"><stop offset="0" stop-color="#55e6ff" stop-opacity=".24"/><stop offset="1" stop-color="#55e6ff" stop-opacity="0"/></radialGradient>
@@ -326,10 +440,8 @@ main{padding:28px 0 44px}
                 </g>
               </svg>
 
-              <svg class="connection-svg" id="connectionSvg" aria-hidden="true"></svg>
-              <div id="systemOrbits"></div>
+              <div class="universe" id="universe"></div>
               <div class="galaxy-center">ANNA<small>Club Partner</small></div>
-              <div id="nodes"></div>
 
               <div class="universe-caption">
                 <strong>Ein verbundenes Universum</strong>
@@ -427,11 +539,25 @@ main{padding:28px 0 44px}
   const viewButtons = [...document.querySelectorAll('.view-btn')];
   const galaxyPanel = document.getElementById('galaxyPanel');
   const circuitPanel = document.getElementById('circuitPanel');
-  const nodes = document.getElementById('nodes');
-  const systemOrbits = document.getElementById('systemOrbits');
-  const connectionSvg = document.getElementById('connectionSvg');
+  const universe = document.getElementById('universe');
+
+  const yearSlider=document.getElementById('yearSlider');
+  const yearTitle=document.getElementById('yearTitle');
+  const yearText=document.getElementById('yearText');
+  const autoCurrentBtn=document.getElementById('autoCurrentBtn');
+  const autoAllBtn=document.getElementById('autoAllBtn');
+  const stopAutoBtn=document.getElementById('stopAutoBtn');
+  const tickerNewMembers=document.getElementById('tickerNewMembers');
+  const tickerRenewals=document.getElementById('tickerRenewals');
+  const tickerNewReward=document.getElementById('tickerNewReward');
+  const tickerRenewReward=document.getElementById('tickerRenewReward');
+  const presentationNote=document.getElementById('presentationNote');
+  const universeYearBadge=document.getElementById('universeYearBadge');
   let size = 2;
   let view = 'galaxy';
+  let year = 1;
+  let autoTimer = null;
+  let autoRunning = false;
   const hours = 6;
 
   const names2 = {
@@ -439,117 +565,206 @@ main{padding:28px 0 44px}
     e2:['Iris','Thomas','Werner','Gaby']
   };
 
-  function line(x1,y1,x2,y2,cls,delay){
-    const ns='http://www.w3.org/2000/svg';
-    const path=document.createElementNS(ns,'path');
-    const mx=(x1+x2)/2;
-    const bend=(y2-y1)*.12;
-    path.setAttribute('d',`M ${x1} ${y1} Q ${mx} ${((y1+y2)/2)-bend} ${x2} ${y2}`);
-    path.setAttribute('class',`connection ${cls}`);
-    path.style.animationDelay=`${delay}s`;
-    connectionSvg.appendChild(path);
+  function el(tag,className){
+    const node=document.createElement(tag);
+    if(className)node.className=className;
+    return node;
   }
 
-  function orbit(x,y,w,h,cls,delay){
-    const el=document.createElement('div');
-    el.className=`system-orbit ${cls}`;
-    el.style.left=`${x}px`;el.style.top=`${y}px`;
-    el.style.width=`${w}px`;el.style.height=`${h}px`;
-    el.style.animationDelay=`${delay}s`;
-    systemOrbits.appendChild(el);
+
+  function animateTextNumber(el,target,formatter){
+    const startValue=Number(String(el.textContent).replace(/[^\d,.-]/g,'').replace('.','').replace(',','.'))||0;
+    const begin=performance.now();
+    const duration=650;
+    function frame(now){
+      const t=Math.min(1,(now-begin)/duration);
+      const eased=1-Math.pow(1-t,3);
+      const value=startValue+(target-startValue)*eased;
+      el.textContent=formatter(value);
+      if(t<1)requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
   }
 
-  function planet(x,y,cls,label,delay){
-    const el=document.createElement('div');
-    el.className=`planet ${cls}`;
-    el.style.left=`${x}px`;el.style.top=`${y}px`;
-    el.style.animationDelay=`${delay}s`;
-    el.innerHTML=label;
-    nodes.appendChild(el);
-    return el;
+  function yearlyData(modelSize,currentYear){
+    const annualNew=modelSize + modelSize**2 + modelSize**3;
+    const annualReward=(modelSize*19.80)+(modelSize**2*14.85)+(modelSize**3*9.90);
+    const renewals=annualNew*Math.max(0,currentYear-1);
+    const recurringReward=annualReward*Math.max(0,currentYear-1);
+    const totalActive=annualNew*currentYear;
+    return {annualNew,annualReward,renewals,recurringReward,totalActive};
   }
 
-  function label(x,y,text,delay){
-    const el=document.createElement('div');
-    el.className='system-label';
-    el.style.left=`${x}px`;el.style.top=`${y}px`;
-    el.style.animationDelay=`${delay}s`;
-    el.textContent=text;
-    nodes.appendChild(el);
+  function updateYearUI(){
+    const data=yearlyData(size,year);
+    yearTitle.textContent=`Jahr ${year}`;
+    universeYearBadge.textContent=`Jahr ${year}`;
+    yearText.textContent=year===1
+      ?'Die erste Galaxie entsteht.'
+      :`Die bestehende Galaxie bleibt aktiv, verlängert sich und wächst im Jahr ${year} weiter.`;
+
+    animateTextNumber(tickerNewMembers,data.annualNew,v=>Math.round(v).toLocaleString('de-DE'));
+    animateTextNumber(tickerRenewals,data.renewals,v=>Math.round(v).toLocaleString('de-DE'));
+    animateTextNumber(tickerNewReward,data.annualReward,v=>euro(v));
+    animateTextNumber(tickerRenewReward,data.recurringReward,v=>euro(v));
+
+    newReward.textContent=euro(data.annualReward);
+    renewReward.textContent=euro(data.recurringReward);
+    activeTotal.textContent=data.totalActive.toLocaleString('de-DE');
+
+    const scale=1+(year-1)*0.08;
+    universe.style.transform=`scale(${scale})`;
+    universe.style.transition='transform .9s cubic-bezier(.2,.8,.2,1)';
+
+    document.querySelectorAll('.growth-halo').forEach(e=>e.remove());
+    for(let i=1;i<year;i++){
+      const halo=document.createElement('div');
+      halo.className='growth-halo';
+      const d=520+i*90;
+      halo.style.width=`${d}px`;
+      halo.style.height=`${d}px`;
+      halo.style.opacity=String(.22-(i*.025));
+      document.getElementById('galaxyWrap').appendChild(halo);
+    }
+
+    galaxyReward.textContent=`Neue Belohnung: ${euro(data.annualReward)} · Wiederkehrend: ${euro(data.recurringReward)}`;
+    presentationNote.textContent=year===1
+      ?'Jahr 1 zeigt den ersten Aufbau.'
+      :`Jahr ${year}: Neue Mitgliedschaften kommen hinzu, bestehende aktive Mitgliedschaften werden verlängert.`;
+  }
+
+  function stopAuto(){
+    if(autoTimer){clearInterval(autoTimer);autoTimer=null}
+    autoRunning=false;
+    autoCurrentBtn.textContent='Aktuelles Modell automatisch abspielen';
+    autoAllBtn.textContent='Alle drei Modelle automatisch abspielen';
   }
 
   function renderUniverse(l1,l2,l3,total,reward){
-    nodes.innerHTML='';
-    systemOrbits.innerHTML='';
-    connectionSvg.innerHTML='';
+    universe.innerHTML='';
 
     const wrap=document.getElementById('galaxyWrap');
     const w=wrap.clientWidth;
     const h=wrap.clientHeight;
-    connectionSvg.setAttribute('viewBox',`0 0 ${w} ${h}`);
-
-    const cx=w/2, cy=h/2;
     const mobile=w<700;
-    const dense=size>=4;
 
-    const primaryRadius = mobile ? Math.min(w*.30,150) : Math.min(w*.26,265);
-    const childRadius = mobile ? 60 : (dense ? 74 : 96);
-    const grandRadius = mobile ? 30 : (dense ? 34 : 46);
+    const mainRadius=mobile ? 190 : (size===4 ? 275 : size===3 ? 285 : 290);
+    const systemSize=mobile ? 190 : (size===4 ? 210 : size===3 ? 235 : 270);
+    const childRadius=mobile ? 58 : (size===4 ? 72 : size===3 ? 82 : 92);
+    const childSystemSize=mobile ? 78 : (size===4 ? 82 : 92);
+    const moonRadius=mobile ? 24 : (size===4 ? 25 : size===3 ? 28 : 31);
 
-    const e1Positions=[];
-    const e2Positions=[];
-    let delay=.08;
+    const e1Size=mobile ? 54 : (size===4 ? 62 : 72);
+    const e2Size=mobile ? 34 : (size===4 ? 36 : 42);
+    const e3Size=mobile ? 18 : (size===4 ? 18 : 22);
 
-    orbit(cx,cy,primaryRadius*2,primaryRadius*2,'e1',0);
+    universe.style.setProperty('--main-radius',`${mainRadius}px`);
+    universe.style.setProperty('--system-size',`${systemSize}px`);
+    universe.style.setProperty('--child-radius',`${childRadius}px`);
+    universe.style.setProperty('--child-system-size',`${childSystemSize}px`);
+    universe.style.setProperty('--moon-radius',`${moonRadius}px`);
+    universe.style.setProperty('--e1-size',`${e1Size}px`);
+    universe.style.setProperty('--e2-size',`${e2Size}px`);
+    universe.style.setProperty('--e3-size',`${e3Size}px`);
+    universe.style.setProperty('--name-offset',`${e1Size/2+12}px`);
 
-    for(let i=0;i<l1;i++){
-      const angle=(-Math.PI/2)+(Math.PI*2*i/l1);
-      const x=cx+Math.cos(angle)*primaryRadius;
-      const y=cy+Math.sin(angle)*primaryRadius;
-      e1Positions.push({x,y,angle});
+    const mainRing=el('div','main-orbit-ring');
+    mainRing.style.width=`${mainRadius*2}px`;
+    mainRing.style.height=`${mainRadius*2}px`;
+    universe.appendChild(mainRing);
 
-      line(cx,cy,x,y,'e1',delay);
-      const name=size===2?names2.e1[i]:`CP ${i+1}`;
-      planet(x,y,'e1',name,delay);
-      if(!mobile) label(x,y+48,name,delay+.08);
-      delay+=.05;
-
-      orbit(x,y,childRadius*2,childRadius*2,'e1',delay);
-    }
+    const mainOrbit=el('div','main-orbit');
+    universe.appendChild(mainOrbit);
 
     let e2Index=0;
-    e1Positions.forEach((parent,pIndex)=>{
-      for(let j=0;j<size;j++){
-        const base=parent.angle;
-        const spread=size===2?0.72:(size===3?1.02:1.28);
-        const childAngle=base-Math.PI/2-spread/2+(spread*(j/(Math.max(1,size-1))));
-        const x=parent.x+Math.cos(childAngle)*childRadius;
-        const y=parent.y+Math.sin(childAngle)*childRadius;
-        e2Positions.push({x,y,angle:childAngle,parent:pIndex});
+    for(let i=0;i<l1;i++){
+      const angle=(-90)+(360*i/l1);
 
-        line(parent.x,parent.y,x,y,'e2',delay);
-        const name=size===2?names2.e2[e2Index]:`CP ${e2Index+1}`;
-        planet(x,y,'e2',name,delay);
-        if(size===2 && !mobile) label(x,y+34,name,delay+.06);
-        delay+=.025;
+      const anchor=el('div','e1-anchor');
+      anchor.style.setProperty('--angle',`${angle}deg`);
+
+      const upright=el('div','e1-upright');
+      upright.style.animationDelay=`-${i*9}s`;
+
+      const e1Core=el('div','e1-core');
+      const e1Name=size===2?names2.e1[i]:`CP ${i+1}`;
+      e1Core.textContent=e1Name;
+      upright.appendChild(e1Core);
+
+      if(!mobile){
+        const name=el('div','planet-name');
+        name.textContent=e1Name;
+        name.style.setProperty('--name-offset',`${e1Size/2+10}px`);
+        upright.appendChild(name);
+      }
+
+      const childRing=el('div','local-orbit-ring e2');
+      childRing.style.width=`${childRadius*2}px`;
+      childRing.style.height=`${childRadius*2}px`;
+      upright.appendChild(childRing);
+
+      const e2Orbit=el('div','e2-orbit');
+      const localDur=22+i*3;
+      e2Orbit.style.setProperty('--local-dur',`${localDur}s`);
+      upright.appendChild(e2Orbit);
+
+      for(let j=0;j<size;j++){
+        const childAngle=(-90)+(360*j/size);
+
+        const cAnchor=el('div','e2-anchor');
+        cAnchor.style.setProperty('--child-angle',`${childAngle}deg`);
+
+        const cUpright=el('div','e2-upright');
+        cUpright.style.setProperty('--local-dur',`${localDur}s`);
+        cUpright.style.animationDelay=`-${j*2.4}s`;
+
+        const e2Core=el('div','e2-core');
+        const e2Name=size===2?names2.e2[e2Index]:`CP ${e2Index+1}`;
+        e2Core.textContent=e2Name;
+        cUpright.appendChild(e2Core);
+
+        if(size===2 && !mobile){
+          const name=el('div','planet-name');
+          name.textContent=e2Name;
+          name.style.setProperty('--name-offset',`${e2Size/2+7}px`);
+          cUpright.appendChild(name);
+        }
+
+        const moonRing=el('div','local-orbit-ring e3');
+        moonRing.style.width=`${moonRadius*2}px`;
+        moonRing.style.height=`${moonRadius*2}px`;
+        cUpright.appendChild(moonRing);
+
+        const e3Orbit=el('div','e3-orbit');
+        const moonDur=8+(j%3)*1.4;
+        e3Orbit.style.setProperty('--moon-dur',`${moonDur}s`);
+        cUpright.appendChild(e3Orbit);
+
+        for(let k=0;k<size;k++){
+          const moonAngle=(-90)+(360*k/size);
+          const mAnchor=el('div','e3-anchor');
+          mAnchor.style.setProperty('--moon-angle',`${moonAngle}deg`);
+
+          const mUpright=el('div','e3-upright');
+          mUpright.style.setProperty('--moon-dur',`${moonDur}s`);
+
+          const moon=el('div','e3-core');
+          moon.textContent='CP';
+          mUpright.appendChild(moon);
+          mAnchor.appendChild(mUpright);
+          e3Orbit.appendChild(mAnchor);
+        }
+
+        cUpright.appendChild(e3Orbit);
+        cAnchor.appendChild(cUpright);
+        e2Orbit.appendChild(cAnchor);
         e2Index++;
       }
-    });
 
-    e2Positions.forEach((parent,pIndex)=>{
-      orbit(parent.x,parent.y,grandRadius*2,grandRadius*2,'e2',delay);
-      for(let j=0;j<size;j++){
-        const spread=size===2?1.05:(size===3?1.45:1.75);
-        const outward=Math.atan2(parent.y-cy,parent.x-cx);
-        const a=outward-spread/2+(spread*(j/(Math.max(1,size-1))));
-        const x=parent.x+Math.cos(a)*grandRadius;
-        const y=parent.y+Math.sin(a)*grandRadius;
-
-        line(parent.x,parent.y,x,y,'e3',delay);
-        planet(x,y,'e3','CP',delay);
-        delay+=.012;
-      }
-    });
+      upright.appendChild(e2Orbit);
+      anchor.appendChild(upright);
+      mainOrbit.appendChild(anchor);
+    }
 
     document.getElementById('galaxyTotal').textContent=total;
     document.getElementById('galaxyReward').textContent=`Neue Belohnung: ${euro(reward)}`;
@@ -571,10 +786,14 @@ main{padding:28px 0 44px}
     powerTotal.textContent=`${(1+total)*hours} Stunden`;
 
     renderUniverse(l1,l2,l3,total,totalReward);
+    updateYearUI();
   }
 
   scenarioButtons.forEach(btn=>btn.addEventListener('click',()=>{
+    stopAuto();
     size=Number(btn.dataset.size);
+    year=1;
+    yearSlider.value=1;
     scenarioButtons.forEach(b=>b.classList.toggle('active',b===btn));
     update();
   }));
@@ -590,6 +809,65 @@ main{padding:28px 0 44px}
       :'Dieselben Partner werden jetzt nicht als Netzwerk, sondern als zusätzliche tägliche Unternehmensleistung sichtbar.';
     if(view==='galaxy')setTimeout(update,20);
   }));
+
+
+  yearSlider.addEventListener('input',()=>{
+    stopAuto();
+    year=Number(yearSlider.value);
+    updateYearUI();
+  });
+
+  autoCurrentBtn.addEventListener('click',()=>{
+    stopAuto();
+    autoRunning=true;
+    autoCurrentBtn.textContent='Autostart läuft …';
+    year=1;
+    yearSlider.value=1;
+    update();
+    autoTimer=setInterval(()=>{
+      year++;
+      if(year>5){
+        stopAuto();
+        return;
+      }
+      yearSlider.value=year;
+      updateYearUI();
+    },1400);
+  });
+
+  autoAllBtn.addEventListener('click',()=>{
+    stopAuto();
+    autoRunning=true;
+    autoAllBtn.textContent='Präsentationsmodus läuft …';
+    let models=[2,3,4];
+    let modelIndex=0;
+    year=1;
+    size=models[modelIndex];
+    yearSlider.value=1;
+    scenarioButtons.forEach(b=>b.classList.toggle('active',Number(b.dataset.size)===size));
+    update();
+
+    autoTimer=setInterval(()=>{
+      year++;
+      if(year>5){
+        modelIndex++;
+        if(modelIndex>=models.length){
+          stopAuto();
+          presentationNote.textContent='Alle drei Modelle wurden vollständig durchlaufen.';
+          return;
+        }
+        size=models[modelIndex];
+        year=1;
+        scenarioButtons.forEach(b=>b.classList.toggle('active',Number(b.dataset.size)===size));
+        update();
+      }else{
+        yearSlider.value=year;
+        updateYearUI();
+      }
+    },1400);
+  });
+
+  stopAutoBtn.addEventListener('click',stopAuto);
 
   let resizeTimer;
   window.addEventListener('resize',()=>{
