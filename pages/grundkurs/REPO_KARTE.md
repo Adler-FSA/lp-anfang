@@ -801,7 +801,16 @@
     │   │   │   ├── README-upload.md
     │   │   │   └── index.html
     │   │   ├── unternehmer-denkwerkstatt/
-    │   │   │   └── index.html
+    │   │   │   ├── drei-ebenen.html
+    │   │   │   ├── eigene-arbeitszeit.html
+    │   │   │   ├── gesetz-der-zahl.html
+    │   │   │   ├── index.html
+    │   │   │   ├── leistungspool.html
+    │   │   │   ├── unternehmer-denken.html
+    │   │   │   ├── unternehmerplan.html
+    │   │   │   ├── was-ist-ein-nein-wert.html
+    │   │   │   ├── wiederkehrende-belohnungen.html
+    │   │   │   └── zusammenfassung.html
     │   │   ├── README-upload.md
     │   │   ├── index.html
     │   │   └── mission-dorade-fokus-beispielkontakte.csv
@@ -1663,4 +1672,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.07.2026, 09:22)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.07.2026, 10:58)_
