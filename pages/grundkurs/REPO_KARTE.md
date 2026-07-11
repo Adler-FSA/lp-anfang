@@ -801,6 +801,7 @@
     │   │   │   ├── README-upload.md
     │   │   │   └── index.html
     │   │   ├── unternehmer-denkwerkstatt/
+    │   │   │   ├── README.txt
     │   │   │   ├── drei-ebenen.html
     │   │   │   ├── eigene-arbeitszeit.html
     │   │   │   ├── gesetz-der-zahl.html
@@ -812,6 +813,7 @@
     │   │   │   ├── wiederkehrende-belohnungen.html
     │   │   │   └── zusammenfassung.html
     │   │   ├── README-upload.md
+    │   │   ├── gesetz-der-zahl.html
     │   │   ├── index.html
     │   │   └── mission-dorade-fokus-beispielkontakte.csv
     │   ├── club-vertrieb/
@@ -1672,4 +1674,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.07.2026, 10:58)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.07.2026, 11:54)_
