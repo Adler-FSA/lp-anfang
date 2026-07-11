@@ -800,6 +800,8 @@
     │   │   ├── mission-dorade-start/
     │   │   │   ├── README-upload.md
     │   │   │   └── index.html
+    │   │   ├── unternehmer-denkwerkstatt/
+    │   │   │   └── index.html
     │   │   ├── README-upload.md
     │   │   ├── index.html
     │   │   └── mission-dorade-fokus-beispielkontakte.csv
@@ -1661,4 +1663,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.07.2026, 07:45)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 11.07.2026, 09:22)_
