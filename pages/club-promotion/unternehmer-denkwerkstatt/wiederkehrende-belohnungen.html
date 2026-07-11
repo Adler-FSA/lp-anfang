@@ -327,6 +327,18 @@ main{padding:28px 0 44px}
   .ticker-grid{grid-template-columns:1fr 1fr}
 }
 
+
+.growth-canvas{
+  position:absolute;inset:0;width:100%;height:100%;z-index:5;
+}
+.universe{display:none!important}
+.galaxy-center{z-index:20}
+.month-counter{
+  position:absolute;left:18px;top:62px;z-index:35;border-radius:999px;padding:8px 12px;
+  background:rgba(4,17,31,.78);border:1px solid rgba(255,255,255,.13);
+  color:#cfe1e8;font-size:12px;font-weight:900;backdrop-filter:blur(8px)
+}
+
 </style>
 </head>
 <body>
@@ -401,13 +413,13 @@ main{padding:28px 0 44px}
           <button class="btn" id="stopAutoBtn">Autostart stoppen</button>
         </div>
         <div class="ticker-grid">
-          <div class="ticker"><small>Neue Club Partner</small><b id="tickerNewMembers">14</b><strong>im aktuellen Jahr</strong></div>
-          <div class="ticker"><small>Verlängerungen</small><b id="tickerRenewals">0</b><strong>aus den Vorjahren</strong></div>
+          <div class="ticker"><small>Neue Club Partner</small><b id="tickerNewMembers">168</b><strong>12 Monats-Galaxien im aktuellen Jahr</strong></div>
+          <div class="ticker"><small>Verlängerungen</small><b id="tickerRenewals">0</b><strong>aktive Galaxien aus den Vorjahren</strong></div>
           <div class="ticker"><small>Neue Belohnungen</small><b id="tickerNewReward">178,20 €</b><strong>aktuelles Wachstum</strong></div>
           <div class="ticker"><small>Wiederkehrende Belohnungen</small><b id="tickerRenewReward">0,00 €</b><strong>aktive Verlängerungen</strong></div>
         </div>
         <div class="presentation-note" id="presentationNote">
-          Wähle ein Modell oder starte den Präsentationsmodus. Die Zahlen laufen parallel mit dem wachsenden Universum hoch.
+          Wähle ein Modell oder starte den Präsentationsmodus. Jeder Monat ergänzt eine neue Galaxie. Die Zahlen laufen parallel mit dem wachsenden Universum hoch.
         </div>
       </div>
 
@@ -440,6 +452,8 @@ main{padding:28px 0 44px}
                 </g>
               </svg>
 
+              <canvas class="growth-canvas" id="growthCanvas"></canvas>
+              <div class="month-counter" id="monthCounter">12 Monats-Galaxien</div>
               <div class="universe" id="universe"></div>
               <div class="galaxy-center">ANNA<small>Club Partner</small></div>
 
@@ -540,6 +554,10 @@ main{padding:28px 0 44px}
   const galaxyPanel = document.getElementById('galaxyPanel');
   const circuitPanel = document.getElementById('circuitPanel');
   const universe = document.getElementById('universe');
+  const growthCanvas=document.getElementById('growthCanvas');
+  const growthCtx=growthCanvas.getContext('2d');
+  const monthCounter=document.getElementById('monthCounter');
+  let animationFrame=null;
 
   const yearSlider=document.getElementById('yearSlider');
   const yearTitle=document.getElementById('yearTitle');
@@ -587,12 +605,15 @@ main{padding:28px 0 44px}
   }
 
   function yearlyData(modelSize,currentYear){
-    const annualNew=modelSize + modelSize**2 + modelSize**3;
-    const annualReward=(modelSize*19.80)+(modelSize**2*14.85)+(modelSize**3*9.90);
+    const monthlyNew=modelSize + modelSize**2 + modelSize**3;
+    const monthlyReward=(modelSize*19.80)+(modelSize**2*14.85)+(modelSize**3*9.90);
+    const months=currentYear*12;
+    const annualNew=monthlyNew*12;
+    const annualReward=monthlyReward*12;
     const renewals=annualNew*Math.max(0,currentYear-1);
     const recurringReward=annualReward*Math.max(0,currentYear-1);
     const totalActive=annualNew*currentYear;
-    return {annualNew,annualReward,renewals,recurringReward,totalActive};
+    return {monthlyNew,monthlyReward,months,annualNew,annualReward,renewals,recurringReward,totalActive};
   }
 
   function updateYearUI(){
@@ -600,8 +621,9 @@ main{padding:28px 0 44px}
     yearTitle.textContent=`Jahr ${year}`;
     universeYearBadge.textContent=`Jahr ${year}`;
     yearText.textContent=year===1
-      ?'Die erste Galaxie entsteht.'
-      :`Die bestehende Galaxie bleibt aktiv, verlängert sich und wächst im Jahr ${year} weiter.`;
+      ?'Zwölf Monats-Galaxien entstehen nacheinander.'
+      :`Die bestehenden Galaxien bleiben aktiv. Weitere zwölf Monats-Galaxien kommen im Jahr ${year} hinzu.`;
+    monthCounter.textContent=`${data.months} Monats-Galaxien sichtbar`;
 
     animateTextNumber(tickerNewMembers,data.annualNew,v=>Math.round(v).toLocaleString('de-DE'));
     animateTextNumber(tickerRenewals,data.renewals,v=>Math.round(v).toLocaleString('de-DE'));
@@ -612,20 +634,7 @@ main{padding:28px 0 44px}
     renewReward.textContent=euro(data.recurringReward);
     activeTotal.textContent=data.totalActive.toLocaleString('de-DE');
 
-    const scale=1+(year-1)*0.08;
-    universe.style.transform=`scale(${scale})`;
-    universe.style.transition='transform .9s cubic-bezier(.2,.8,.2,1)';
-
-    document.querySelectorAll('.growth-halo').forEach(e=>e.remove());
-    for(let i=1;i<year;i++){
-      const halo=document.createElement('div');
-      halo.className='growth-halo';
-      const d=520+i*90;
-      halo.style.width=`${d}px`;
-      halo.style.height=`${d}px`;
-      halo.style.opacity=String(.22-(i*.025));
-      document.getElementById('galaxyWrap').appendChild(halo);
-    }
+    drawGrowingUniverse();
 
     galaxyReward.textContent=`Neue Belohnung: ${euro(data.annualReward)} · Wiederkehrend: ${euro(data.recurringReward)}`;
     presentationNote.textContent=year===1
@@ -770,6 +779,140 @@ main{padding:28px 0 44px}
     document.getElementById('galaxyReward').textContent=`Neue Belohnung: ${euro(reward)}`;
   }
 
+
+  function resizeGrowthCanvas(){
+    const wrap=document.getElementById('galaxyWrap');
+    const dpr=Math.min(window.devicePixelRatio||1,2);
+    const rect=wrap.getBoundingClientRect();
+    growthCanvas.width=Math.max(1,Math.floor(rect.width*dpr));
+    growthCanvas.height=Math.max(1,Math.floor(rect.height*dpr));
+    growthCanvas.style.width=`${rect.width}px`;
+    growthCanvas.style.height=`${rect.height}px`;
+    growthCtx.setTransform(dpr,0,0,dpr,0,0);
+    return {w:rect.width,h:rect.height};
+  }
+
+  function circle(ctx,x,y,r,fill,glow=0){
+    ctx.save();
+    if(glow){
+      ctx.shadowColor=fill;
+      ctx.shadowBlur=glow;
+    }
+    ctx.beginPath();
+    ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle=fill;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawOrbit(ctx,x,y,r,color,alpha=.22){
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.strokeStyle=color;
+    ctx.globalAlpha=alpha;
+    ctx.lineWidth=1;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawMiniGalaxy(ctx,cx,cy,model,scale,phase,monthIndex){
+    const e1R=38*scale;
+    const e2R=15*scale;
+    const e3R=5.5*scale;
+    const branchR=56*scale;
+    const childR=24*scale;
+    const moonR=10*scale;
+
+    drawOrbit(ctx,cx,cy,branchR,'#55e6ff',.20);
+
+    for(let i=0;i<model;i++){
+      const a=phase+(Math.PI*2*i/model);
+      const x1=cx+Math.cos(a)*branchR;
+      const y1=cy+Math.sin(a)*branchR;
+
+      ctx.save();
+      ctx.strokeStyle='rgba(85,230,255,.34)';
+      ctx.lineWidth=1;
+      ctx.beginPath();
+      ctx.moveTo(cx,cy);
+      ctx.lineTo(x1,y1);
+      ctx.stroke();
+      ctx.restore();
+
+      circle(ctx,x1,y1,e1R,'#00aeb8',8*scale);
+      drawOrbit(ctx,x1,y1,childR,'#6d9cff',.24);
+
+      for(let j=0;j<model;j++){
+        const b=-phase*.75+(Math.PI*2*j/model)+(monthIndex*.11);
+        const x2=x1+Math.cos(b)*childR;
+        const y2=y1+Math.sin(b)*childR;
+
+        ctx.save();
+        ctx.strokeStyle='rgba(109,156,255,.30)';
+        ctx.lineWidth=.8;
+        ctx.beginPath();
+        ctx.moveTo(x1,y1);
+        ctx.lineTo(x2,y2);
+        ctx.stroke();
+        ctx.restore();
+
+        circle(ctx,x2,y2,e2R,'#3a72d8',5*scale);
+        drawOrbit(ctx,x2,y2,moonR,'#ef65ae',.22);
+
+        for(let k=0;k<model;k++){
+          const c=phase*1.5+(Math.PI*2*k/model)+(j*.35);
+          const x3=x2+Math.cos(c)*moonR;
+          const y3=y2+Math.sin(c)*moonR;
+          circle(ctx,x3,y3,e3R,'#c7006f',3*scale);
+        }
+      }
+    }
+  }
+
+  function drawGrowingUniverse(){
+    if(animationFrame)cancelAnimationFrame(animationFrame);
+    const dims=resizeGrowthCanvas();
+    const months=year*12;
+    const maxVisible=60;
+    const visibleMonths=Math.min(months,maxVisible);
+    const cx=dims.w/2;
+    const cy=dims.h/2;
+    const baseRadius=Math.min(dims.w,dims.h)*.16;
+    const maxRadius=Math.min(dims.w,dims.h)*.43;
+
+    function frame(t){
+      growthCtx.clearRect(0,0,dims.w,dims.h);
+
+      const stars=110;
+      growthCtx.save();
+      growthCtx.fillStyle='rgba(255,255,255,.72)';
+      for(let i=0;i<stars;i++){
+        const sx=(i*83.17)%dims.w;
+        const sy=(i*47.91)%dims.h;
+        const sr=(i%4===0)?1.2:.7;
+        growthCtx.beginPath();
+        growthCtx.arc(sx,sy,sr,0,Math.PI*2);
+        growthCtx.fill();
+      }
+      growthCtx.restore();
+
+      for(let m=0;m<visibleMonths;m++){
+        const p=visibleMonths===1?0:m/(visibleMonths-1);
+        const angle=m*2.399963229728653 + t*.000035*(1+(m%3)*.18);
+        const radius=baseRadius + p*(maxRadius-baseRadius);
+        const gx=cx+Math.cos(angle)*radius;
+        const gy=cy+Math.sin(angle)*radius*.78;
+        const densityScale=size===2 ? .42 : size===3 ? .34 : .27;
+        const ageScale=.78 + (1-p)*.34;
+        drawMiniGalaxy(growthCtx,gx,gy,size,densityScale*ageScale,-t*.00012+(m*.17),m);
+      }
+
+      animationFrame=requestAnimationFrame(frame);
+    }
+    animationFrame=requestAnimationFrame(frame);
+  }
+
   function update(){
     const l1=size, l2=size*size, l3=size*size*size;
     const total=l1+l2+l3;
@@ -872,7 +1015,7 @@ main{padding:28px 0 44px}
   let resizeTimer;
   window.addEventListener('resize',()=>{
     clearTimeout(resizeTimer);
-    resizeTimer=setTimeout(()=>{if(view==='galaxy')update()},140);
+    resizeTimer=setTimeout(()=>{if(view==='galaxy'){update();drawGrowingUniverse()}},140);
   });
 
   update();
