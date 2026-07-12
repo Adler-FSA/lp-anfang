@@ -1470,6 +1470,18 @@
     │   │   └── zertifikat-krypto-fuehrerschein.html
     │   ├── trustyfy/
     │   │   └── fast-track.html
+    │   ├── unternehmer-lernwerkstatt/
+    │   │   ├── README.txt
+    │   │   ├── app.js
+    │   │   ├── datensicherung.html
+    │   │   ├── index.html
+    │   │   ├── lernheft.html
+    │   │   ├── modul-1-unternehmerdenken.html
+    │   │   ├── modul-2-aktivitaet.html
+    │   │   ├── modul-3-zeit-leistung.html
+    │   │   ├── modul-4-befaehigung.html
+    │   │   ├── modul-5-bestand-plan.html
+    │   │   └── style.css
     │   ├── vertriebsbibliothek/
     │   │   ├── index.html
     │   │   ├── kapitel-01.html
@@ -1567,6 +1579,7 @@
     │   │   ├── wefi-video.html
     │   │   └── wefi-zoom.html
     │   ├── README-upload.md
+    │   ├── README.txt
     │   ├── admin-config.json
     │   ├── affiliate-magazin.html
     │   ├── album-liquiditybooster.html
@@ -1577,6 +1590,7 @@
     │   ├── club-marktplatz.html
     │   ├── community.html
     │   ├── das-was-war-ist-jetzt-vorbei.html
+    │   ├── datensicherung.html
     │   ├── der-naechste-schritt.html
     │   ├── die-rueckeroberung-der-eigenen-souveraenitaet-song.html
     │   ├── die-seele-erwacht.html
@@ -1599,14 +1613,20 @@
     │   ├── leitfaden-04-nachfassen.html
     │   ├── leitfaden-05-mitgliedschaft.html
     │   ├── leitfaden-06-aufbauwege.html
+    │   ├── lernheft.html
     │   ├── lesespuren-und-vertiefung.html
     │   ├── mentoren.html
     │   ├── mica-travel-rule.html
     │   ├── mix-liquiditybooster-songs.html
     │   ├── modul-1-einstieg.html
+    │   ├── modul-1-unternehmerdenken.html
+    │   ├── modul-2-aktivitaet.html
     │   ├── modul-2-ausgangslage.html
     │   ├── modul-3-taetigkeit.html
+    │   ├── modul-3-zeit-leistung.html
     │   ├── modul-4-ausfuellhilfe.html
+    │   ├── modul-4-befaehigung.html
+    │   ├── modul-5-bestand-plan.html
     │   ├── modul-5-druckfassung.html
     │   ├── neutral-zu-100.html
     │   ├── office-network.html
@@ -1674,4 +1694,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.07.2026, 08:07)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.07.2026, 10:21)_
