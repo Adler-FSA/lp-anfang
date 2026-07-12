@@ -1471,7 +1471,10 @@
     │   ├── trustyfy/
     │   │   └── fast-track.html
     │   ├── unternehmer-lernwerkstatt/
+    │   │   ├── 7A7CB8CC-F66A-48C2-8343-E08DB11978CE.png
+    │   │   ├── 8193CA73-6332-4BF7-ADBA-F567414C76B5.png
     │   │   ├── README.txt
+    │   │   ├── anna-unternehmen-big-picture.png
     │   │   ├── app.js
     │   │   ├── datensicherung.html
     │   │   ├── index.html
@@ -1481,7 +1484,9 @@
     │   │   ├── modul-3-zeit-leistung.html
     │   │   ├── modul-4-befaehigung.html
     │   │   ├── modul-5-bestand-plan.html
-    │   │   └── style.css
+    │   │   ├── modul-6-big-picture.html
+    │   │   ├── style.css
+    │   │   └── unternehmer-lernwerkstatt-startbild.png
     │   ├── vertriebsbibliothek/
     │   │   ├── index.html
     │   │   ├── kapitel-01.html
@@ -1694,4 +1699,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.07.2026, 10:21)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.07.2026, 11:54)_
