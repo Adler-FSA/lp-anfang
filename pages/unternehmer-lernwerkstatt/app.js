@@ -5,9 +5,30 @@ function save(d){d.lastSaved=new Date().toISOString();localStorage.setItem(ULW_K
 function getM(id){const d=load();if(!d.modules[id])d.modules[id]={fields:{},quiz:{},status:'nicht begonnen'};return[d,d.modules[id]]}
 function initModule(){const b=document.body;if(!b.dataset.moduleId)return;const id=b.dataset.moduleId;let[d,m]=getM(id);document.querySelectorAll('[data-field]').forEach(el=>{if(m.fields[el.dataset.field]!==undefined)el.value=m.fields[el.dataset.field];el.addEventListener('input',()=>{m.fields[el.dataset.field]=el.value;m.status='in Bearbeitung';d.modules[id]=m;save(d);progress(id)})});document.querySelectorAll('[data-quiz]').forEach(q=>{const qid=q.dataset.quiz;q.querySelectorAll('.quiz-option').forEach(btn=>btn.addEventListener('click',()=>{q.querySelectorAll('.quiz-option').forEach(x=>x.classList.remove('correct','wrong'));const ok=btn.dataset.correct==='true';btn.classList.add(ok?'correct':'wrong');q.querySelector('.quiz-feedback').textContent=ok?btn.dataset.ok:btn.dataset.no;q.querySelector('.quiz-feedback').classList.add('show');m.quiz[qid]={correct:ok};d.modules[id]=m;save(d);progress(id)}))});const c=document.querySelector('[data-complete-module]');if(c)c.addEventListener('click',()=>{const req=[...document.querySelectorAll('[data-field][required]')].every(e=>String(m.fields[e.dataset.field]||'').trim());const qs=[...document.querySelectorAll('[data-quiz]')].every(q=>m.quiz[q.dataset.quiz]?.correct);if(req&&qs){m.status='abgeschlossen';d.modules[id]=m;save(d);c.textContent='Modul abgeschlossen';alert('Modul abgeschlossen.')}else alert('Bitte Pflichtfelder ausfüllen und alle Fragen richtig beantworten.');progress(id)});progress(id)}
 function progress(id){const[,m]=getM(id),rf=[...document.querySelectorAll('[data-field][required]')],q=[...document.querySelectorAll('[data-quiz]')];let n=rf.filter(e=>String(m.fields[e.dataset.field]||'').trim()).length+q.filter(x=>m.quiz[x.dataset.quiz]?.correct).length;let p=(rf.length+q.length)?Math.round(n/(rf.length+q.length)*100):0;document.querySelectorAll('[data-progress-bar]').forEach(e=>e.style.width=p+'%')}
-function initIndex(){const d=load();document.querySelectorAll('[data-module-card]').forEach(c=>{const s=d.modules[c.dataset.moduleCard]?.status||'nicht begonnen';const p=c.querySelector('.status-pill');p.textContent=s;if(s==='abgeschlossen')p.classList.add('done')});const done=['m1','m2','m3','m4','m5'].filter(id=>d.modules[id]?.status==='abgeschlossen').length;document.querySelectorAll('[data-overall-bar]').forEach(e=>e.style.width=(done/5*100)+'%');document.querySelectorAll('[data-overall-text]').forEach(e=>e.textContent=Math.round(done/5*100)+' %')}
+function initIndex(){const d=load();document.querySelectorAll('[data-module-card]').forEach(c=>{const s=d.modules[c.dataset.moduleCard]?.status||'nicht begonnen';const p=c.querySelector('.status-pill');p.textContent=s;if(s==='abgeschlossen')p.classList.add('done')});const done=['m1','m2','m3','m4','m5','m6'].filter(id=>d.modules[id]?.status==='abgeschlossen').length;document.querySelectorAll('[data-overall-bar]').forEach(e=>e.style.width=(done/6*100)+'%');document.querySelectorAll('[data-overall-text]').forEach(e=>e.textContent=Math.round(done/6*100)+' %')}
 function allDone(){const d=load();return['m1','m2','m3','m4','m5'].every(id=>d.modules[id]?.status==='abgeschlossen')}
 function motto(){if(!allDone())return'Dein Leitmotiv entsteht, sobald alle fünf Module abgeschlossen sind.';const d=load(),m2=d.modules.m2?.fields||{},m3=d.modules.m3?.fields||{},m4=d.modules.m4?.fields||{},m5=d.modules.m5?.fields||{};if(Number(m5.verlaengerungsquote)>=70&&String(m4.uebergabe||'').length>50)return'Ich befähige Menschen, pflege meinen Bestand und baue heute die Wirkung auf, die morgen weiterträgt.';if(Number(m2.kontakte)>=40&&Number(m3.unternehmerzeit)>=5)return'Ich arbeite konsequent nach Zahlen, nutze meine Zeit bewusst und setze jeden Tag den nächsten wirksamen Schritt.';return'Ich handle klar, prüfe meine Ergebnisse und baue Schritt für Schritt ein tragfähiges Unternehmenssystem auf.'}
 function exportData(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(load(),null,2)],{type:'application/json'}));a.download='unternehmer-lernwerkstatt-sicherung.json';a.click()}
 function importData(f){const r=new FileReader();r.onload=()=>{try{localStorage.setItem(ULW_KEY,r.result);alert('Importiert.');location.reload()}catch(e){alert('Fehler beim Import.')}};r.readAsText(f)}
-document.addEventListener('DOMContentLoaded',()=>{initModule();initIndex()});
+function initStaticModule(){
+  const b=document.body;
+  if(!b.dataset.staticModule)return;
+  const id=b.dataset.staticModule;
+  const btn=document.querySelector('[data-complete-static]');
+  const d=load();
+  if(d.modules[id]?.status==='abgeschlossen'&&btn){
+    btn.textContent='Modul 6 abgeschlossen';
+    btn.classList.add('mint');
+  }
+  if(btn)btn.addEventListener('click',()=>{
+    const data=load();
+    if(!data.modules[id])data.modules[id]={fields:{},quiz:{},status:'nicht begonnen'};
+    data.modules[id].status='abgeschlossen';
+    data.modules[id].completedAt=new Date().toISOString();
+    save(data);
+    btn.textContent='Modul 6 abgeschlossen';
+    btn.classList.add('mint');
+    alert('Modul 6 wurde abgeschlossen und lokal gespeichert.');
+  });
+}
+document.addEventListener('DOMContentLoaded',()=>{initModule();initIndex();initStaticModule()});

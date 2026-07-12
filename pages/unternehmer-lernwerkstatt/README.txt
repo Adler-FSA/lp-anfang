@@ -1,8 +1,10 @@
 GitHub-Zielpfad:
 /pages/unternehmer-lernwerkstatt/
 
-Startseite:
-/pages/unternehmer-lernwerkstatt/index.html
+Neu:
+- Startbild oben auf der Indexseite
+- Modul 6 mit Big Picture
+- Mission-Dorade-Verdrahtung
+- Fortschritt über sechs Module
 
-Bitte den vollständigen Ordner einschließlich assets hochladen.
-Die bisherige Unternehmer-Denkwerkstatt wird nicht überschrieben.
+Alle Dateien direkt in den vorhandenen Ordner hochladen und vorhandene Dateien ersetzen.
