@@ -1470,6 +1470,10 @@
     │   │   └── zertifikat-krypto-fuehrerschein.html
     │   ├── trustyfy/
     │   │   └── fast-track.html
+    │   ├── unternehmer-kickoff/
+    │   │   ├── anna-erklaert-unternehmer-kickoff.html
+    │   │   ├── unternehmer-kickoff-startbild.png
+    │   │   └── unternehmer-kickoff.html
     │   ├── unternehmer-lernwerkstatt/
     │   │   ├── 7A7CB8CC-F66A-48C2-8343-E08DB11978CE.png
     │   │   ├── 8193CA73-6332-4BF7-ADBA-F567414C76B5.png
@@ -1699,4 +1703,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.07.2026, 11:54)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.07.2026, 13:06)_
