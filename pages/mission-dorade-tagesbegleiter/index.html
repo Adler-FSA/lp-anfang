@@ -149,6 +149,7 @@ blockquote:before{content:"“";position:absolute;left:0;top:-16px;font-family:G
       <option value="">Bitte auswählen</option><option value="INT">International</option><option value="BW">Baden-Württemberg</option><option value="BY">Bayern</option><option value="BE">Berlin</option><option value="BB">Brandenburg</option><option value="HB">Bremen</option><option value="HH">Hamburg</option><option value="HE">Hessen</option><option value="MV">Mecklenburg-Vorpommern</option><option value="NI">Niedersachsen</option><option value="NW">Nordrhein-Westfalen</option><option value="RP">Rheinland-Pfalz</option><option value="SL">Saarland</option><option value="SN">Sachsen</option><option value="ST">Sachsen-Anhalt</option><option value="SH">Schleswig-Holstein</option><option value="TH">Thüringen</option>
     </select></label>
     <label>Eintrittsdatum als Club Partner<input id="joinDate" type="date" required></label>
+    <label>Persönlicher Empfehlungslink<input id="referralLink" type="text" required autocomplete="off"></label>
     <label>Urlaub von<input id="vacationStart" type="date"></label>
     <label>Urlaub bis<input id="vacationEnd" type="date"></label>
     <p id="formMessage" style="display:none;margin:0;color:#980055;font-weight:800;line-height:1.45"></p><button class="btn btn-primary" id="startBtn" type="button">Tagesbegleiter starten</button>
@@ -336,15 +337,29 @@ function showDaily(profile){
  $('doneBtn').classList.toggle('is-done',done);$('doneBtn').textContent=done?'Mission erfüllt ✓':'Mission erfüllt';
  $('closing').textContent=done?'Morgen wartet eine neue Mission auf dich.':'Bis morgen.';
  $('doneBtn').onclick=()=>{const n=safeGet(doneKey)!=='1';if(n)safeSet(doneKey,'1');else safeRemove(doneKey);$('doneBtn').classList.toggle('is-done',n);$('doneBtn').textContent=n?'Mission erfüllt ✓':'Mission erfüllt';$('closing').textContent=n?'Morgen wartet eine neue Mission auf dich.':'Bis morgen.'};
- $('shareBtn').onclick=()=>shareSaying(base.saying);
+ $('shareBtn').onclick=()=>shareSaying(base.saying,profile.referralLink);
 }
-async function shareSaying(text){
+async function shareSaying(text,referralLink){
  const canvas=document.createElement('canvas');canvas.width=1080;canvas.height=1920;const ctx=canvas.getContext('2d');
  const g=ctx.createLinearGradient(0,0,1080,1920);g.addColorStop(0,'#00a7ad');g.addColorStop(.52,'#00a7ad');g.addColorStop(.53,'#c6006f');g.addColorStop(1,'#c6006f');ctx.fillStyle=g;ctx.fillRect(0,0,1080,1920);
  ctx.fillStyle='rgba(255,255,255,.97)';ctx.roundRect(82,230,916,1460,42);ctx.fill();
  ctx.fillStyle='#132238';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='700 76px Georgia';
  const words=('„'+text+'“').split(' '),lines=[];let line='';for(const w of words){const t=line?line+' '+w:w;if(ctx.measureText(t).width>760&&line){lines.push(line);line=w}else line=t}lines.push(line);
- const lh=108,sy=930-((lines.length-1)*lh/2);lines.forEach((l,i)=>ctx.fillText(l,540,sy+i*lh));
+ const lh=108,sy=810-((lines.length-1)*lh/2);lines.forEach((l,i)=>ctx.fillText(l,540,sy+i*lh));
+
+ ctx.fillStyle='#c6006f';ctx.font='900 43px Arial';
+ ctx.fillText('Kennst Du schon Mission Dorade? Frag mich!',540,1420);
+
+ ctx.fillStyle='#132238';ctx.font='700 30px Arial';
+ const linkText=String(referralLink||'').trim();
+ const linkWords=linkText.split(/\s+/),linkLines=[];let linkLine='';
+ for(const word of linkWords){
+   const test=linkLine?linkLine+' '+word:word;
+   if(ctx.measureText(test).width>760&&linkLine){linkLines.push(linkLine);linkLine=word}else{linkLine=test}
+ }
+ if(linkLine)linkLines.push(linkLine);
+ linkLines.slice(0,3).forEach((l,i)=>ctx.fillText(l,540,1500+i*44));
+
  const blob=await new Promise(r=>canvas.toBlob(r,'image/png',1));if(!blob)return;const file=new File([blob],'tagesspruch.png',{type:'image/png'});
  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});return}}catch(e){if(e&&e.name==='AbortError')return}
  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='tagesspruch.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);
@@ -357,12 +372,13 @@ function startCompanion(event){
     gender:$('gender').value,
     state:$('state').value,
     joinDate:$('joinDate').value,
+    referralLink:$('referralLink').value.trim(),
     vacationStart:$('vacationStart').value || '',
     vacationEnd:$('vacationEnd').value || ''
   };
 
-  if(!p.firstName || !p.gender || !p.state || !p.joinDate){
-    message.textContent='Bitte fülle Vorname, Ansprache, Bundesland und Eintrittsdatum aus. Die Urlaubsfelder sind freiwillig.';
+  if(!p.firstName || !p.gender || !p.state || !p.joinDate || !p.referralLink){
+    message.textContent='Bitte fülle Vorname, Ansprache, Bundesland, Eintrittsdatum und persönlichen Empfehlungslink aus. Die Urlaubsfelder sind freiwillig.';
     message.style.display='block';
     return false;
   }
@@ -396,9 +412,9 @@ function startCompanion(event){
 }
 $('setupForm').addEventListener('submit',startCompanion);
 $('startBtn').addEventListener('click',startCompanion);
-$('resetBtn').addEventListener('click',()=>{const p=loadProfile();if(p){$('firstName').value=p.firstName||'';$('gender').value=p.gender||'';$('state').value=p.state||'';$('joinDate').value=p.joinDate||'';$('vacationStart').value=p.vacationStart||'';$('vacationEnd').value=p.vacationEnd||''}$('dailyCard').classList.remove('active');$('setupCard').classList.remove('hidden');$('smallTools').classList.add('hidden');window.scrollTo({top:0,behavior:'smooth'})});
+$('resetBtn').addEventListener('click',()=>{const p=loadProfile();if(p){$('firstName').value=p.firstName||'';$('gender').value=p.gender||'';$('state').value=p.state||'';$('joinDate').value=p.joinDate||'';$('referralLink').value=p.referralLink||'';$('vacationStart').value=p.vacationStart||'';$('vacationEnd').value=p.vacationEnd||''}$('dailyCard').classList.remove('active');$('setupCard').classList.remove('hidden');$('smallTools').classList.add('hidden');window.scrollTo({top:0,behavior:'smooth'})});
 const profile=loadProfile();
-if(profile && profile.firstName && profile.gender && profile.state && profile.joinDate){
+if(profile && profile.firstName && profile.gender && profile.state && profile.joinDate && profile.referralLink){
   try{
     showDaily(profile);
   }catch(error){
@@ -410,9 +426,18 @@ if(profile && profile.firstName && profile.gender && profile.state && profile.jo
     m.style.display='block';
   }
 }else{
-  $('joinDate').value=iso(new Date());
+  if(profile){
+    $('firstName').value=profile.firstName||'';
+    $('gender').value=profile.gender||'';
+    $('state').value=profile.state||'';
+    $('joinDate').value=profile.joinDate||iso(new Date());
+    $('referralLink').value=profile.referralLink||'';
+    $('vacationStart').value=profile.vacationStart||'';
+    $('vacationEnd').value=profile.vacationEnd||'';
+  }else{
+    $('joinDate').value=iso(new Date());
+  }
 }
 </script>
 </body>
 </html>
-
