@@ -1263,7 +1263,8 @@
     │   │   ├── module-11.html
     │   │   └── module-12.html
     │   ├── power-to-the-people-mission-dorade-live/
-    │   │   └── index.html
+    │   │   ├── index.html
+    │   │   └── power-to-the-people-mission-dorade-live-index.html
     │   ├── produkte/
     │   │   ├── existenzgruender-kompass/
     │   │   │   ├── README-upload.txt
@@ -1705,4 +1706,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.07.2026, 06:09)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.07.2026, 10:22)_
