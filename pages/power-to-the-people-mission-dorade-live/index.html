@@ -1,1 +1,621 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Power to the People – Mission Dorade Live</title>
+  <style>
+    :root{
+      --bg:#08111f;
+      --bg-soft:#0d1a2c;
+      --panel:#122238;
+      --panel-2:#172b45;
+      --text:#f7fbff;
+      --muted:#a9bad0;
+      --mint:#00a7ad;
+      --magenta:#c6006f;
+      --line:rgba(255,255,255,.12);
+      --shadow:0 24px 60px rgba(0,0,0,.34);
+      --radius-xl:28px;
+      --radius-lg:20px;
+      --radius-md:14px;
+      --max:1440px;
+    }
 
+    *{box-sizing:border-box}
+    html{height:100%}
+    body{
+      margin:0;
+      min-height:100%;
+      font-family:Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(0,167,173,.16), transparent 30%),
+        radial-gradient(circle at 85% 10%, rgba(198,0,111,.13), transparent 28%),
+        linear-gradient(160deg, var(--bg), #0b1524 58%, #09111d);
+      color:var(--text);
+      overflow-x:hidden;
+    }
+
+    button{font:inherit}
+
+    .app{
+      width:min(100%, var(--max));
+      min-height:100vh;
+      margin:0 auto;
+      padding:24px;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+
+    .topbar{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:18px;
+      align-items:center;
+      padding:16px 18px;
+      border:1px solid var(--line);
+      background:rgba(12,25,43,.84);
+      backdrop-filter:blur(18px);
+      border-radius:var(--radius-lg);
+      box-shadow:var(--shadow);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+
+    .brand-mark{
+      width:46px;
+      height:46px;
+      flex:0 0 46px;
+      display:grid;
+      place-items:center;
+      border-radius:14px;
+      background:linear-gradient(135deg, rgba(0,167,173,.2), rgba(198,0,111,.2));
+      border:1px solid var(--line);
+    }
+
+    .brand-text strong{
+      display:block;
+      font-size:clamp(1rem, 2vw, 1.2rem);
+      letter-spacing:.02em;
+    }
+
+    .brand-text span{
+      display:block;
+      margin-top:3px;
+      color:var(--muted);
+      font-size:.9rem;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .control-btn{
+      min-height:44px;
+      padding:0 14px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      color:var(--text);
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      border-radius:12px;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+
+    .control-btn:hover,
+    .control-btn:focus-visible{
+      transform:translateY(-1px);
+      border-color:rgba(0,167,173,.6);
+      outline:none;
+    }
+
+    .control-btn svg{width:20px;height:20px}
+
+    .stage-nav{
+      display:grid;
+      grid-template-columns:repeat(5, minmax(0,1fr));
+      gap:10px;
+      padding:10px;
+      border:1px solid var(--line);
+      background:rgba(10,22,38,.78);
+      border-radius:var(--radius-lg);
+    }
+
+    .stage{
+      min-height:56px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:10px 12px;
+      color:var(--muted);
+      background:transparent;
+      border:1px solid transparent;
+      border-radius:12px;
+      text-align:center;
+      font-weight:700;
+    }
+
+    .stage.active{
+      color:var(--text);
+      background:linear-gradient(135deg, rgba(0,167,173,.17), rgba(198,0,111,.12));
+      border-color:rgba(0,167,173,.42);
+    }
+
+    .stage-dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:currentColor;
+      opacity:.85;
+      flex:0 0 10px;
+    }
+
+    .screen{
+      flex:1;
+      display:grid;
+      place-items:center;
+      min-height:calc(100vh - 210px);
+      border:1px solid var(--line);
+      border-radius:var(--radius-xl);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.01)),
+        rgba(12,25,43,.82);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .screen::before{
+      content:"";
+      position:absolute;
+      width:460px;
+      height:460px;
+      right:-160px;
+      bottom:-180px;
+      border-radius:50%;
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:
+        0 0 0 70px rgba(0,167,173,.035),
+        0 0 0 140px rgba(198,0,111,.025);
+      pointer-events:none;
+    }
+
+    .slide{
+      width:100%;
+      min-height:100%;
+      padding:clamp(34px, 6vw, 88px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      position:relative;
+      z-index:1;
+    }
+
+    .slide.active{display:flex}
+
+    .hero{
+      max-width:1040px;
+      margin:0 auto;
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:9px;
+      margin-bottom:24px;
+      padding:9px 14px;
+      border:1px solid rgba(0,167,173,.38);
+      background:rgba(0,167,173,.08);
+      border-radius:999px;
+      color:#bffcff;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      font-size:.82rem;
+    }
+
+    h1{
+      margin:0;
+      font-size:clamp(3rem, 8vw, 7.2rem);
+      line-height:.94;
+      letter-spacing:-.055em;
+    }
+
+    h1 .accent{
+      display:block;
+      margin-top:12px;
+      background:linear-gradient(90deg, #ffffff 0%, #9df5f8 46%, #ffafd6 100%);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+
+    .subtitle{
+      max-width:900px;
+      margin:28px auto 0;
+      font-size:clamp(1.25rem, 2.3vw, 2rem);
+      line-height:1.45;
+      color:var(--muted);
+    }
+
+    .principle{
+      margin:34px auto 0;
+      display:flex;
+      justify-content:center;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .principle span{
+      padding:10px 16px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      font-weight:700;
+    }
+
+    .primary-btn{
+      margin-top:42px;
+      min-width:min(100%, 320px);
+      min-height:64px;
+      padding:0 28px;
+      border:0;
+      border-radius:16px;
+      color:#fff;
+      font-weight:800;
+      font-size:1.08rem;
+      cursor:pointer;
+      background:linear-gradient(135deg, var(--mint), var(--magenta));
+      box-shadow:0 18px 34px rgba(0,0,0,.28);
+      transition:.22s ease;
+    }
+
+    .primary-btn:hover,
+    .primary-btn:focus-visible{
+      transform:translateY(-2px) scale(1.01);
+      outline:none;
+    }
+
+    .foundation{
+      max-width:900px;
+    }
+
+    .foundation h2{
+      margin:0 0 18px;
+      font-size:clamp(2.4rem, 6vw, 5rem);
+      line-height:1;
+    }
+
+    .foundation p{
+      margin:0 auto;
+      max-width:760px;
+      color:var(--muted);
+      font-size:clamp(1.15rem, 2vw, 1.6rem);
+      line-height:1.55;
+    }
+
+    .foundation-grid{
+      margin-top:34px;
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:14px;
+    }
+
+    .foundation-card{
+      padding:22px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.035);
+    }
+
+    .foundation-card strong{
+      display:block;
+      margin-bottom:8px;
+      font-size:1.05rem;
+    }
+
+    .foundation-card span{
+      color:var(--muted);
+      font-size:.95rem;
+      line-height:1.45;
+    }
+
+    .bottom-bar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      color:var(--muted);
+      font-size:.88rem;
+      padding:0 4px;
+    }
+
+    .status{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .status-dot{
+      width:9px;
+      height:9px;
+      border-radius:50%;
+      background:var(--mint);
+      box-shadow:0 0 0 5px rgba(0,167,173,.12);
+    }
+
+    .hidden{display:none !important}
+
+    @media (max-width:900px){
+      .app{padding:14px}
+      .topbar{grid-template-columns:1fr}
+      .controls{justify-content:flex-start}
+      .stage-nav{grid-template-columns:1fr 1fr}
+      .stage:last-child{grid-column:1/-1}
+      .screen{min-height:calc(100vh - 300px)}
+      .foundation-grid{grid-template-columns:1fr}
+      .bottom-bar{flex-direction:column;align-items:flex-start}
+    }
+
+    @media (max-width:560px){
+      .brand-text span{display:none}
+      .control-btn .label{display:none}
+      .control-btn{width:46px;padding:0}
+      .stage-nav{display:none}
+      .slide{padding:30px 20px}
+      h1{font-size:clamp(2.7rem, 15vw, 4.6rem)}
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      *{scroll-behavior:auto !important;transition:none !important}
+    }
+  </style>
+</head>
+<body>
+  <main class="app" id="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none">
+            <path d="M9 26.5 18.2 36 39 14.5" stroke="#9DF5F8" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M13 14h14" stroke="#FFAFD6" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <strong>Power to the People</strong>
+          <span data-i18n="brandSub">Mission Dorade Live · Moderationspult</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="control-btn" id="langBtn" type="button" aria-label="Sprache wechseln">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M3 12h18M12 3c2.4 2.5 3.7 5.5 3.7 9S14.4 18.5 12 21M12 3C9.6 5.5 8.3 8.5 8.3 12S9.6 18.5 12 21" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          <span class="label" id="langLabel">EN</span>
+        </button>
+
+        <button class="control-btn" id="fullscreenBtn" type="button" aria-label="Vollbildmodus">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="label" data-i18n="fullscreen">Vollbild</span>
+        </button>
+      </div>
+    </header>
+
+    <nav class="stage-nav" aria-label="Trainingsphasen">
+      <div class="stage active"><span class="stage-dot"></span><span data-i18n="stage1">Orientierung</span></div>
+      <div class="stage"><span class="stage-dot"></span><span data-i18n="stage2">Vorbereitung</span></div>
+      <div class="stage"><span class="stage-dot"></span><span data-i18n="stage3">Telefontraining</span></div>
+      <div class="stage"><span class="stage-dot"></span><span data-i18n="stage4">Auswertung</span></div>
+      <div class="stage"><span class="stage-dot"></span><span data-i18n="stage5">Abschluss</span></div>
+    </nav>
+
+    <section class="screen" aria-live="polite">
+      <article class="slide active" id="slideStart">
+        <div class="hero">
+          <div class="eyebrow" data-i18n="eyebrow">Mission Dorade Live</div>
+          <h1>
+            Power to the People
+            <span class="accent" data-i18n="titleAccent">Menschen befähigen Menschen.</span>
+          </h1>
+          <p class="subtitle" data-i18n="subtitle">
+            Gemeinsam handeln, voneinander lernen und andere dabei unterstützen, selbst sicher zu werden.
+          </p>
+
+          <div class="principle" aria-label="Grundprinzip">
+            <span data-i18n="p1">Vormachen</span>
+            <span data-i18n="p2">Nachmachen</span>
+            <span data-i18n="p3">Selber machen</span>
+            <span data-i18n="p4">Andere befähigen</span>
+          </div>
+
+          <button class="primary-btn" id="startBtn" type="button" data-i18n="start">
+            Training starten
+          </button>
+        </div>
+      </article>
+
+      <article class="slide" id="slideFoundation">
+        <div class="foundation">
+          <div class="eyebrow" data-i18n="foundationTag">Baustein 1</div>
+          <h2 data-i18n="foundationTitle">Das Grundgerüst steht.</h2>
+          <p data-i18n="foundationText">
+            Die Zoom-Oberfläche, Sprachumschaltung, Vollbildfunktion und Phasenstruktur sind technisch vorbereitet.
+          </p>
+
+          <div class="foundation-grid">
+            <div class="foundation-card">
+              <strong data-i18n="card1Title">Zoom-tauglich</strong>
+              <span data-i18n="card1Text">Große Schrift, klare Kontraste und eine Ansicht ohne Scrollzwang.</span>
+            </div>
+            <div class="foundation-card">
+              <strong data-i18n="card2Title">Statisch nutzbar</strong>
+              <span data-i18n="card2Text">Keine externen Ressourcen, kein Tracking und kein Server erforderlich.</span>
+            </div>
+            <div class="foundation-card">
+              <strong data-i18n="card3Title">Erweiterbar</strong>
+              <span data-i18n="card3Text">Die fünf Trainingsphasen sind für die nächsten Bausteine vorbereitet.</span>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <footer class="bottom-bar">
+      <div class="status">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span data-i18n="status">Baustein 1 aktiv · Grundgerüst</span>
+      </div>
+      <span data-i18n="footer">Statische HTML-Anwendung · GitHub Pages geeignet</span>
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const translations = {
+        de: {
+          brandSub: 'Mission Dorade Live · Moderationspult',
+          fullscreen: 'Vollbild',
+          stage1: 'Orientierung',
+          stage2: 'Vorbereitung',
+          stage3: 'Telefontraining',
+          stage4: 'Auswertung',
+          stage5: 'Abschluss',
+          eyebrow: 'Mission Dorade Live',
+          titleAccent: 'Menschen befähigen Menschen.',
+          subtitle: 'Gemeinsam handeln, voneinander lernen und andere dabei unterstützen, selbst sicher zu werden.',
+          p1: 'Vormachen',
+          p2: 'Nachmachen',
+          p3: 'Selber machen',
+          p4: 'Andere befähigen',
+          start: 'Training starten',
+          foundationTag: 'Baustein 1',
+          foundationTitle: 'Das Grundgerüst steht.',
+          foundationText: 'Die Zoom-Oberfläche, Sprachumschaltung, Vollbildfunktion und Phasenstruktur sind technisch vorbereitet.',
+          card1Title: 'Zoom-tauglich',
+          card1Text: 'Große Schrift, klare Kontraste und eine Ansicht ohne Scrollzwang.',
+          card2Title: 'Statisch nutzbar',
+          card2Text: 'Keine externen Ressourcen, kein Tracking und kein Server erforderlich.',
+          card3Title: 'Erweiterbar',
+          card3Text: 'Die fünf Trainingsphasen sind für die nächsten Bausteine vorbereitet.',
+          status: 'Baustein 1 aktiv · Grundgerüst',
+          footer: 'Statische HTML-Anwendung · GitHub Pages geeignet'
+        },
+        en: {
+          brandSub: 'Mission Dorade Live · Moderator Console',
+          fullscreen: 'Fullscreen',
+          stage1: 'Orientation',
+          stage2: 'Preparation',
+          stage3: 'Call Training',
+          stage4: 'Review',
+          stage5: 'Closing',
+          eyebrow: 'Mission Dorade Live',
+          titleAccent: 'People empower people.',
+          subtitle: 'Act together, learn from one another and help others become confident themselves.',
+          p1: 'Demonstrate',
+          p2: 'Imitate',
+          p3: 'Do it yourself',
+          p4: 'Empower others',
+          start: 'Start training',
+          foundationTag: 'Module 1',
+          foundationTitle: 'The foundation is ready.',
+          foundationText: 'The Zoom interface, language switch, fullscreen mode and phase structure are technically prepared.',
+          card1Title: 'Zoom-ready',
+          card1Text: 'Large typography, clear contrast and a view without forced scrolling.',
+          card2Title: 'Static by design',
+          card2Text: 'No external resources, no tracking and no server required.',
+          card3Title: 'Expandable',
+          card3Text: 'The five training phases are prepared for the next modules.',
+          status: 'Module 1 active · Foundation',
+          footer: 'Static HTML application · Ready for GitHub Pages'
+        }
+      };
+
+      const state = {
+        lang: localStorage.getItem('pttp-lang') || 'de',
+        started: false
+      };
+
+      const startBtn = document.getElementById('startBtn');
+      const langBtn = document.getElementById('langBtn');
+      const langLabel = document.getElementById('langLabel');
+      const fullscreenBtn = document.getElementById('fullscreenBtn');
+      const slideStart = document.getElementById('slideStart');
+      const slideFoundation = document.getElementById('slideFoundation');
+
+      function applyLanguage() {
+        document.documentElement.lang = state.lang;
+        document.querySelectorAll('[data-i18n]').forEach((el) => {
+          const key = el.dataset.i18n;
+          const value = translations[state.lang][key];
+          if (typeof value === 'string') el.textContent = value;
+        });
+        langLabel.textContent = state.lang === 'de' ? 'EN' : 'DE';
+        localStorage.setItem('pttp-lang', state.lang);
+      }
+
+      function showFoundation() {
+        state.started = true;
+        slideStart.classList.remove('active');
+        slideFoundation.classList.add('active');
+      }
+
+      async function toggleFullscreen() {
+        try {
+          if (!document.fullscreenElement) {
+            await document.documentElement.requestFullscreen();
+          } else {
+            await document.exitFullscreen();
+          }
+        } catch (error) {
+          console.warn('Vollbildmodus nicht verfügbar:', error);
+        }
+      }
+
+      startBtn.addEventListener('click', showFoundation);
+      langBtn.addEventListener('click', () => {
+        state.lang = state.lang === 'de' ? 'en' : 'de';
+        applyLanguage();
+      });
+      fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+      document.addEventListener('keydown', (event) => {
+        if ((event.key === 'Enter' || event.key === ' ') && !state.started) {
+          event.preventDefault();
+          showFoundation();
+        }
+        if (event.key.toLowerCase() === 'f') {
+          toggleFullscreen();
+        }
+        if (event.key.toLowerCase() === 'l') {
+          state.lang = state.lang === 'de' ? 'en' : 'de';
+          applyLanguage();
+        }
+      });
+
+      applyLanguage();
+    })();
+  </script>
+</body>
+</html>
