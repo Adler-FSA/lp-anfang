@@ -1263,6 +1263,9 @@
     │   │   ├── module-10.html
     │   │   ├── module-11.html
     │   │   └── module-12.html
+    │   ├── power-to-the-people-clubtreffen-live/
+    │   │   ├── index.html
+    │   │   └── power-to-the-people-clubtreffen-live-index.html
     │   ├── power-to-the-people-mission-dorade-live/
     │   │   ├── index.html
     │   │   └── power-to-the-people-mission-dorade-live-index.html
@@ -1707,4 +1710,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.07.2026, 20:08)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.07.2026, 21:50)_
