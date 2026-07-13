@@ -1107,6 +1107,7 @@
     │   │   └── trustyfy-bewusstsein.html
     │   ├── mission-dorade-tagesbegleiter/
     │   │   ├── README.txt
+    │   │   ├── affiliate-link-einbau-tagesbegleiter.html
     │   │   ├── bildergalerie.html
     │   │   ├── clubtreffen-01.jpg
     │   │   ├── clubtreffen-02.jpg
@@ -1706,4 +1707,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.07.2026, 10:22)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 13.07.2026, 13:20)_
