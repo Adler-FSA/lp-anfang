@@ -1264,17 +1264,20 @@
     │   │   ├── module-11.html
     │   │   └── module-12.html
     │   ├── power-to-the-people-clubtreffen-live/
+    │   │   ├── 00-start-filmstreifen.png
+    │   │   ├── 01-willkommen.png
+    │   │   ├── 02-nachdenken.png
+    │   │   ├── 03-traeume.png
+    │   │   ├── 04-begegnung.png
+    │   │   ├── 05-gemeinschaft.png
+    │   │   ├── 06-mission-dorade.png
+    │   │   ├── 07-gemeinsam-lernen.png
+    │   │   ├── 08-die-tuer.png
+    │   │   ├── 09-erster-schritt.png
+    │   │   ├── 10-tuer-fuer-andere.png
+    │   │   ├── 11-leben-geniessen.png
+    │   │   ├── 12-happy-end.png
     │   │   ├── README.txt
-    │   │   ├── folie-01-willkommen.png
-    │   │   ├── folie-02-sorgen.png
-    │   │   ├── folie-03-wunschbild.png
-    │   │   ├── folie-04-akademie.png
-    │   │   ├── folie-05-gemeinschaft.png
-    │   │   ├── folie-06-mission-dorade.png
-    │   │   ├── folie-07-gemeinsam.png
-    │   │   ├── folie-08-tuer.png
-    │   │   ├── folie-09-weg.png
-    │   │   ├── folie-10-power-to-the-people.png
     │   │   └── index.html
     │   ├── power-to-the-people-mission-dorade-live/
     │   │   ├── index.html
@@ -1720,4 +1723,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.07.2026, 13:20)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 14.07.2026, 15:19)_
