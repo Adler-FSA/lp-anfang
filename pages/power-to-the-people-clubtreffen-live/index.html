@@ -8,7 +8,7 @@
 <style>
 :root{--mint:#00a7ad;--mint-soft:#e9fafb;--magenta:#c6006f;--magenta-soft:#fff0f7;--navy:#132238;--ink:#1c2939;--muted:#67778a;--line:#dce6ec;--white:#fff;--shadow:0 24px 60px rgba(19,34,56,.14)}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:#f4f8fa;color:var(--ink)}button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.app{width:100%;height:100vh;height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:10px;padding:12px;overflow:hidden}
+.app{width:100%;height:100vh;height:100dvh;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:10px;padding:12px;overflow:hidden}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 16px;background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 24px rgba(19,34,56,.06)}
 .brand strong{display:block;color:var(--navy);font-size:1.15rem}.brand span{display:block;margin-top:3px;color:var(--muted);font-size:.88rem}
 .top-actions{display:flex;gap:8px}.icon-btn{min-height:42px;padding:0 14px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--navy);font-weight:800}
@@ -34,6 +34,31 @@ body.presentation .app{height:100vh;height:100dvh;display:grid;grid-template-row
 body.presentation .stage{height:100%;border:0;border-radius:0;box-shadow:none}
 body.presentation .controls{display:grid;position:relative;z-index:50;padding:8px max(10px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));background:rgba(255,255,255,.96);border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(19,34,56,.10)}
 body.presentation .nav-btn{min-height:50px}
+
+.host-panel{border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:0 8px 24px rgba(19,34,56,.06);overflow:hidden}
+.host-panel[open]{max-height:min(34vh,310px)}
+.host-panel summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;padding:10px 16px;list-style:none;cursor:pointer;color:var(--navy);font-weight:900}
+.host-panel summary::-webkit-details-marker{display:none}
+.host-panel summary::after{content:"+";display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--mint-soft);color:var(--mint);font-size:1.2rem}
+.host-panel[open] summary::after{content:"–"}
+.host-content{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 14px 14px;max-height:calc(min(34vh,310px) - 50px);overflow:auto}
+.host-card{padding:14px;border-radius:14px;background:linear-gradient(135deg,#fbfeff,var(--mint-soft));border:1px solid #dff1f2}
+.host-card h3{margin:0 0 9px;color:var(--navy);font-size:1rem}
+.host-card p{margin:0;color:var(--muted);font-size:.88rem;line-height:1.42}
+.host-card ul{margin:8px 0 0;padding-left:19px;color:var(--muted);font-size:.86rem;line-height:1.42}
+.host-card li+li{margin-top:4px}
+.reset-btn{border-color:#f2c8df;background:var(--magenta-soft);color:var(--magenta)}
+.scene.image-focus{grid-template-columns:1fr!important;grid-template-rows:1fr!important}
+.scene.image-focus .scene-media{grid-column:1!important;grid-row:1!important;position:absolute;inset:0}
+.scene.image-focus .scene-media::after{background:linear-gradient(0deg,rgba(19,34,56,.62),rgba(19,34,56,.04) 56%,rgba(255,255,255,.04))!important}
+.scene.image-focus .scene-media img{transform:scale(1.02)}
+.scene.image-focus .scene-copy{grid-column:1!important;grid-row:1!important;width:100%!important;z-index:4;background:transparent;padding:clamp(16px,3vw,44px);justify-content:flex-end;pointer-events:none}
+.scene.image-focus .scene-copy>*{display:none!important}
+.scene.image-focus .scene-copy>.scene-place.is-visible{display:block!important;pointer-events:auto;width:min(900px,92%);margin:0 auto;background:rgba(255,255,255,.96);box-shadow:0 18px 50px rgba(19,34,56,.28);border-left-width:7px;padding:clamp(15px,2.2vw,24px)}
+.scene.image-focus .scene-place p{font-size:clamp(1.05rem,min(2vw,2.8vh),1.55rem);line-height:1.35}
+.image-focus-hint{position:absolute;right:18px;top:18px;z-index:6;padding:8px 12px;border-radius:999px;background:rgba(19,34,56,.78);color:#fff;font-size:.78rem;font-weight:800;pointer-events:none}
+body.presentation .host-panel{display:none}
+
 @media(max-width:950px){
   .topbar{padding:8px 12px;border-radius:14px}
   .icon-btn{min-height:40px;padding:0 11px}
@@ -49,6 +74,11 @@ body.presentation .nav-btn{min-height:50px}
   .controls{gap:8px}
   .nav-btn{min-height:46px;padding:0 14px}
   #forwardBtn{min-width:150px}
+}
+@media(max-width:700px){
+  .host-content{grid-template-columns:1fr}
+  .host-panel[open]{max-height:min(42vh,360px)}
+  .host-content{max-height:calc(min(42vh,360px) - 50px)}
 }
 @media(max-width:600px){
   .app{padding:6px;gap:6px}
@@ -110,8 +140,35 @@ body.presentation .nav-btn{min-height:50px}
 </head>
 <body>
 <main class="app">
-<header class="topbar"><div class="brand"><strong>Power to the People</strong><span data-i18n="brand"></span> · <span data-i18n="film"></span></div><div class="top-actions"><button class="icon-btn" id="langBtn" type="button"><span data-i18n="language"></span></button><button class="icon-btn" id="fullscreenBtn" type="button"><span data-i18n="fullscreen"></span></button></div></header>
-<section class="stage" id="stage"><section class="scene layout-image-right is-active" data-scene="0" aria-hidden="false">
+<header class="topbar"><div class="brand"><strong>Power to the People</strong><span data-i18n="brand"></span> · <span data-i18n="film"></span></div><div class="top-actions"><button class="icon-btn reset-btn" id="resetBtn" type="button" data-i18n="reset"></button><button class="icon-btn" id="langBtn" type="button"><span data-i18n="language"></span></button><button class="icon-btn" id="fullscreenBtn" type="button"><span data-i18n="fullscreen"></span></button></div></header>
+
+<details class="host-panel" id="hostPanel" open>
+  <summary data-i18n="hostPanelTitle"></summary>
+  <div class="host-content">
+    <section class="host-card">
+      <h3 data-i18n="warmupTitle"></h3>
+      <ul>
+        <li data-i18n="warmup1"></li>
+        <li data-i18n="warmup2"></li>
+        <li data-i18n="warmup3"></li>
+        <li data-i18n="warmup4"></li>
+        <li data-i18n="warmup5"></li>
+      </ul>
+    </section>
+    <section class="host-card">
+      <h3 data-i18n="complianceTitle"></h3>
+      <p data-i18n="complianceLead"></p>
+      <ul>
+        <li data-i18n="compliance1"></li>
+        <li data-i18n="compliance2"></li>
+        <li data-i18n="compliance3"></li>
+        <li data-i18n="compliance4"></li>
+        <li data-i18n="compliance5"></li>
+      </ul>
+    </section>
+  </div>
+</details>
+<section class="stage" id="stage"><div class="image-focus-hint" id="imageFocusHint" hidden data-i18n="imageFocusHint"></div><section class="scene layout-image-right is-active" data-scene="0" aria-hidden="false">
   <div class="scene-media"><img src="00-start-filmstreifen.png" alt="" loading="eager"></div>
   <div class="scene-copy">
     <div class="scene-phase" data-i18n="s0_phase"></div>
@@ -273,32 +330,130 @@ body.presentation .nav-btn{min-height:50px}
 <script>
 (()=>{
 'use strict';
-const translations={"de": {"s0_eyebrow": "Power to the People", "s0_title": "Welche Geschichte soll Dein Leben erzählen?", "s0_lead": "Mehr Geld. Mehr Freiheit. Mehr vom Leben.", "s0_text": "Jeder Mensch verbindet damit andere Wünsche: Zeit für die Familie, eine Reise, ein eigenes Zuhause, Sicherheit oder die Freiheit, selbst zu entscheiden.", "s0_place": "Welche Szene aus Deinem eigenen Wunschfilm würdest Du am liebsten Wirklichkeit werden lassen?", "s0_community": "Träume werden greifbarer, wenn man beginnt, sie auszusprechen.", "s0_phase": "Ankommen", "s1_eyebrow": "Willkommen", "s1_title": "Schön, dass Du heute da bist.", "s1_lead": "Dieses Clubtreffen beginnt von Mensch zu Mensch.", "s1_text": "Power to the People bringt Menschen zusammen. Neue Gäste dürfen erst einmal ankommen, zuhören und ihre eigenen Fragen mitbringen.", "s1_place": "An dieser Stelle stellen sich alle neuen Gäste kurz vor: Wie heißt Du, woher kommst Du, wer hat Dich eingeladen und was hat Dich neugierig gemacht?", "s1_community": "Ich war am Anfang einfach neugierig. Entscheidend war, dass ich mich sofort willkommen gefühlt habe.", "s1_phase": "Ankommen", "s2_eyebrow": "Deine Gegenwart", "s2_title": "Was beschäftigt Dich aktuell am meisten?", "s2_lead": "Jeder Mensch kommt mit seiner eigenen Geschichte.", "s2_text": "Manche suchen Wissen. Andere mehr Sicherheit, Orientierung, Gemeinschaft oder eine neue Möglichkeit. Zuerst interessiert uns, was für Dich heute wirklich Gewicht hat.", "s2_place": "Welches Thema hat im Moment das größte Gewicht in Deinem Leben – und warum gerade dieses?", "s2_community": "Ich hatte viele Fragen im Kopf. Hier musste ich nicht so tun, als hätte ich schon alle Antworten.", "s2_phase": "Wiedererkennen", "s3_eyebrow": "Deine Wünsche", "s3_title": "Wenn sich Dein Leben verändern würde …", "s3_lead": "Geld, Wissen und Möglichkeiten bekommen durch persönliche Ziele Bedeutung.", "s3_text": "Nicht die Summe steht im Mittelpunkt, sondern das Leben, das Du gestalten möchtest: mehr Sicherheit, mehr Zeit, ein Wunsch für Deine Familie oder etwas Eigenes.", "s3_place": "Wenn Du mehr finanziellen Spielraum und mehr Möglichkeiten hättest: Was würdest Du in Deinem Leben als Erstes verändern?", "s3_community": "Für mich ging es nie nur um Geld. Ich wollte mehr Zeit und weniger Sorgen für meine Familie.", "s3_phase": "Wiedererkennen", "s4_eyebrow": "Warum Akademie?", "s4_title": "Viele wichtige Fragen werden selten verständlich beantwortet.", "s4_lead": "Genau deshalb gibt es unsere Akademie.", "s4_text": "Sie ist entstanden, damit Menschen Zusammenhänge besser verstehen, Wissen aufbauen und ihre eigenen Entscheidungen bewusster treffen können.", "s4_place": "Welche Themen hättest Du gern schon viel früher besser verstanden?", "s4_community": "Das Wissen hat mir nicht vorgeschrieben, was ich tun soll. Es hat mir geholfen, selbst klarer zu entscheiden.", "s4_phase": "Verstehen", "s5_eyebrow": "Warum Club?", "s5_title": "Wissen wird stärker, wenn Menschen es miteinander teilen.", "s5_lead": "Gemeinschaft schafft Orientierung und trägt Entwicklung.", "s5_text": "Im Club begegnen sich Menschen, die gemeinsam lernen, sich austauschen und einander auf ihrem persönlichen Weg begleiten.", "s5_place": "Warum fällt gemeinsames Lernen und Handeln oft leichter als der Weg ganz allein?", "s5_community": "Ich wurde nicht bewertet. Ich wurde angenommen – und genau das hat für mich den Unterschied gemacht.", "s5_phase": "Verstehen", "s6_eyebrow": "Mission Dorade", "s6_title": "Der einfachste Anfang ist der, den Menschen gemeinsam gehen.", "s6_lead": "Vormachen. Nachmachen. Gemeinsam wachsen.", "s6_text": "Im Club gibt es viele Wege. Mission Dorade steht für einen kleinen ersten Schritt, der durch gemeinsames Tun immer sicherer wird.", "s6_place": "Was bedeutet für Dich der Gedanke: Vormachen. Nachmachen. Gemeinsam wachsen?", "s6_community": "Der Anfang war kleiner, als ich dachte. Ich musste nicht perfekt sein – ich musste nur beginnen.", "s6_phase": "Möglichkeit", "s7_eyebrow": "Peer to Peer", "s7_title": "Menschen befähigen Menschen.", "s7_lead": "Du musst Deinen Weg nicht alleine gehen.", "s7_text": "Ein Mensch zeigt dem nächsten, wie es geht. Aus Erfahrung wird Sicherheit. Aus Sicherheit entsteht die Fähigkeit, später selbst andere zu begleiten.", "s7_place": "Denke an einen Menschen, der Dich einmal positiv geprägt hat. Was hat dieser Mensch für Dich getan?", "s7_community": "Ich wollte zunächst nur lernen. Später merkte ich, dass ich auch anderen Menschen Orientierung geben kann.", "s7_phase": "Möglichkeit", "s8_eyebrow": "Die ClubPartnerschaft", "s8_title": "Wir zeigen Dir heute nur die Tür.", "s8_lead": "Das Wissen dahinter bleibt geschützt.", "s8_text": "Mit der ClubPartnerschaft öffnet sich für Dich der Zugang zu einem exklusiven Bildungsraum. Nur ClubPartner können sich dieses Wissen holen und den Weg dahinter entdecken.", "s8_place": "Was bedeutet für Dich lebenslanges Lernen – und welchen Wert hat ein geschützter Raum dafür?", "s8_community": "Die ClubPartnerschaft war für mich der Schlüssel zu Wissen und Menschen, die meinen Weg bereichern.", "s8_phase": "Entscheidung", "s9_eyebrow": "Dein Weg", "s9_title": "Große Veränderungen beginnen mit einem kleinen Schritt.", "s9_lead": "Wie weit Du gehst, entscheidest Du selbst.", "s9_text": "Der eine möchte zunächst lernen. Der andere möchte sich ein paar hundert Euro im Monat dazuverdienen oder später Schritt für Schritt ein tragfähiges Einkommen aufbauen. Beides ist möglich – ohne Garantie und ohne Automatismus.", "s9_place": "Was wäre für Dich heute ein realistischer erster Schritt?", "s9_community": "Ein kleiner Schritt hat mein Denken verändert. Danach konnte ich meinen Weg klarer sehen.", "s9_phase": "Entscheidung", "s10_eyebrow": "Power to the People", "s10_title": "Jeder Mensch kann etwas bewegen.", "s10_lead": "Eine Gemeinschaft lebt von Menschen, die Türen öffnen.", "s10_text": "Vielleicht bist Du heute als Gast gekommen. Vielleicht begleitest Du eines Tages selbst einen neuen Menschen und zeigst ihm genau diese Tür.", "s10_place": "Welche Person könnte von einer Einladung zu einem solchen Clubtreffen profitieren?", "s10_community": "Heute darf ich selbst andere begleiten. Das hätte ich mir bei meinem ersten Clubtreffen noch nicht vorstellen können.", "s10_phase": "Entscheidung", "s11_eyebrow": "Mehr vom Leben", "s11_title": "Deine Wünsche dürfen einen Platz bekommen.", "s11_lead": "Geld ist kein Selbstzweck. Es schafft Möglichkeiten.", "s11_text": "Mehr Freiheit kann bedeuten: Zeit, Sicherheit, Reisen, ein Zuhause, Ruhe oder die Fähigkeit, anderen Menschen etwas zu ermöglichen.", "s11_place": "Wofür möchtest Du in Deinem Leben mehr Möglichkeiten schaffen?", "s11_community": "Als mein Ziel einen echten Sinn bekam, wurde auch mein nächster Schritt klarer.", "s11_phase": "Entscheidung", "s12_eyebrow": "Das Big Picture", "s12_title": "Möchtest Du Mission Dorade zu Deiner eigenen Mission machen?", "s12_lead": "Menschen befähigen Menschen.", "s12_text": "Mit Deiner ClubPartnerschaft beginnt Dein eigener Weg. Du entscheidest, wie intensiv Du lernst, wie aktiv Du wirst und wie viele Menschen Du später selbst begleiten möchtest.", "s12_place": "Treffe Deine Entscheidung in Ruhe. Der Mensch, der Dich heute eingeladen hat, begleitet Dich beim nächsten Schritt.", "s12_community": "Jede große Geschichte beginnt mit einer Entscheidung.", "s12_phase": "Abschluss", "brand": "Clubtreffen Live", "film": "Eine Reise vom Wunsch zur Entscheidung", "reveal": "Aufdecken", "next": "Gemeinsam weiter", "back": "Zurück", "yes": "Ja, ich möchte Mission Dorade zu meiner Mission machen.", "learn": "Ich möchte den Club zunächst weiter kennenlernen.", "communityLabel": "Erkenntnisse aus der Community", "placeLabel": "An dieser Stelle …", "fullscreen": "Vollbild", "language": "EN"}, "en": {"s0_eyebrow": "Power to the People", "s0_title": "What story should your life tell?", "s0_lead": "More money. More freedom. More life.", "s0_text": "Everyone connects different wishes with this: time for family, a journey, a home of their own, security or the freedom to decide for themselves.", "s0_place": "Which scene from your own dream film would you most like to make real?", "s0_community": "Dreams become more tangible when we begin to speak them aloud.", "s0_phase": "Arrival", "s1_eyebrow": "Welcome", "s1_title": "It is great to have you here today.", "s1_lead": "This club meeting begins person to person.", "s1_text": "Power to the People brings people together. New guests may first arrive, listen and bring their own questions.", "s1_place": "At this point, all new guests briefly introduce themselves: What is your name, where are you from, who invited you and what made you curious?", "s1_community": "At first I was simply curious. What mattered was feeling welcome immediately.", "s1_phase": "Arrival", "s2_eyebrow": "Your present", "s2_title": "What is currently on your mind most?", "s2_lead": "Every person arrives with their own story.", "s2_text": "Some seek knowledge. Others seek greater security, orientation, community or a new opportunity. First, we care about what carries the most weight for you today.", "s2_place": "Which topic currently carries the most weight in your life – and why this one?", "s2_community": "I had many questions in my head. Here I did not have to pretend I already had all the answers.", "s2_phase": "Recognition", "s3_eyebrow": "Your wishes", "s3_title": "If your life were to change …", "s3_lead": "Money, knowledge and opportunities gain meaning through personal goals.", "s3_text": "The amount is not the focus, but the life you want to shape: greater security, more time, a wish for your family or something of your own.", "s3_place": "If you had more financial room and more possibilities, what would you change first in your life?", "s3_community": "For me it was never only about money. I wanted more time and fewer worries for my family.", "s3_phase": "Recognition", "s4_eyebrow": "Why an academy?", "s4_title": "Many important questions are rarely answered clearly.", "s4_lead": "That is exactly why our academy exists.", "s4_text": "It was created so people can understand connections better, build knowledge and make their own decisions more consciously.", "s4_place": "Which topics do you wish you had understood much earlier?", "s4_community": "The knowledge did not tell me what to do. It helped me decide more clearly for myself.", "s4_phase": "Understanding", "s5_eyebrow": "Why a club?", "s5_title": "Knowledge becomes stronger when people share it.", "s5_lead": "Community provides orientation and supports development.", "s5_text": "In the club, people meet to learn together, exchange ideas and accompany one another on their personal paths.", "s5_place": "Why is learning and acting together often easier than walking the path alone?", "s5_community": "I was not judged. I was accepted – and that made the difference for me.", "s5_phase": "Understanding", "s6_eyebrow": "Mission Dorade", "s6_title": "The easiest beginning is one people take together.", "s6_lead": "Demonstrate. Imitate. Grow together.", "s6_text": "There are many paths in the club. Mission Dorade represents a small first step that becomes safer through shared action.", "s6_place": "What does this idea mean to you: Demonstrate. Imitate. Grow together?", "s6_community": "The beginning was smaller than I expected. I did not have to be perfect – I only had to begin.", "s6_phase": "Opportunity", "s7_eyebrow": "Peer to peer", "s7_title": "People empower people.", "s7_lead": "You do not have to walk your path alone.", "s7_text": "One person shows the next how it works. Experience becomes confidence. Confidence creates the ability to accompany others later.", "s7_place": "Think of someone who positively shaped you. What did that person do for you?", "s7_community": "At first I only wanted to learn. Later I realized that I could also give orientation to others.", "s7_phase": "Opportunity", "s8_eyebrow": "The Club Partnership", "s8_title": "Today we only show you the door.", "s8_lead": "The knowledge behind it remains protected.", "s8_text": "With the Club Partnership, you gain access to an exclusive educational space. Only Club Partners can access this knowledge and discover the path behind it.", "s8_place": "What does lifelong learning mean to you – and what value does a protected space have for it?", "s8_community": "The Club Partnership was my key to knowledge and people who enrich my path.", "s8_phase": "Decision", "s9_eyebrow": "Your path", "s9_title": "Big changes begin with a small step.", "s9_lead": "How far you go is your decision.", "s9_text": "One person may first want to learn. Another may want to earn a few hundred euros a month or later build a sustainable income step by step. Both are possible – without guarantee or automatic results.", "s9_place": "What would be a realistic first step for you today?", "s9_community": "A small step changed my thinking. After that, I could see my path more clearly.", "s9_phase": "Decision", "s10_eyebrow": "Power to the People", "s10_title": "Every person can make a difference.", "s10_lead": "A community lives through people who open doors.", "s10_text": "Perhaps you arrived today as a guest. Perhaps one day you will accompany a new person yourself and show them this same door.", "s10_place": "Who could benefit from an invitation to a club meeting like this?", "s10_community": "Today I am allowed to accompany others myself. At my first club meeting, I could not have imagined that.", "s10_phase": "Decision", "s11_eyebrow": "More from life", "s11_title": "Your wishes deserve a place.", "s11_lead": "Money is not an end in itself. It creates possibilities.", "s11_text": "More freedom can mean time, security, travel, a home, peace of mind or the ability to make something possible for others.", "s11_place": "What would you like to create more possibilities for in your life?", "s11_community": "When my goal gained real meaning, my next step became clearer too.", "s11_phase": "Decision", "s12_eyebrow": "The Big Picture", "s12_title": "Would you like to make Mission Dorade your own mission?", "s12_lead": "People empower people.", "s12_text": "With your Club Partnership, your own path begins. You decide how intensively you learn, how active you become and how many people you may later accompany yourself.", "s12_place": "Make your decision calmly. The person who invited you today will accompany you through the next step.", "s12_community": "Every great story begins with a decision.", "s12_phase": "Closing", "brand": "Club Meeting Live", "film": "A journey from desire to decision", "reveal": "Reveal", "next": "Continue together", "back": "Back", "yes": "Yes, I want to make Mission Dorade my mission.", "learn": "I would first like to get to know the club better.", "communityLabel": "Insights from the community", "placeLabel": "At this point …", "fullscreen": "Fullscreen", "language": "DE"}};
+const translations={"de": {"s0_eyebrow": "Power to the People", "s0_title": "Welche Geschichte soll Dein Leben erzählen?", "s0_lead": "Mehr Geld. Mehr Freiheit. Mehr vom Leben.", "s0_text": "Jeder Mensch verbindet damit andere Wünsche: Zeit für die Familie, eine Reise, ein eigenes Zuhause, Sicherheit oder die Freiheit, selbst zu entscheiden.", "s0_place": "Welche Szene aus Deinem eigenen Wunschfilm würdest Du am liebsten Wirklichkeit werden lassen?", "s0_community": "Träume werden greifbarer, wenn man beginnt, sie auszusprechen.", "s0_phase": "Ankommen", "s1_eyebrow": "Willkommen", "s1_title": "Schön, dass Du heute da bist.", "s1_lead": "Dieses Clubtreffen beginnt von Mensch zu Mensch.", "s1_text": "Power to the People bringt Menschen zusammen. Neue Gäste dürfen erst einmal ankommen, zuhören und ihre eigenen Fragen mitbringen.", "s1_place": "An dieser Stelle stellen sich alle neuen Gäste kurz vor: Wie heißt Du, woher kommst Du, wer hat Dich eingeladen und was hat Dich neugierig gemacht?", "s1_community": "Ich war am Anfang einfach neugierig. Entscheidend war, dass ich mich sofort willkommen gefühlt habe.", "s1_phase": "Ankommen", "s2_eyebrow": "Deine Gegenwart", "s2_title": "Was beschäftigt Dich aktuell am meisten?", "s2_lead": "Jeder Mensch kommt mit seiner eigenen Geschichte.", "s2_text": "Manche suchen Wissen. Andere mehr Sicherheit, Orientierung, Gemeinschaft oder eine neue Möglichkeit. Zuerst interessiert uns, was für Dich heute wirklich Gewicht hat.", "s2_place": "Welches Thema hat im Moment das größte Gewicht in Deinem Leben – und warum gerade dieses?", "s2_community": "Ich hatte viele Fragen im Kopf. Hier musste ich nicht so tun, als hätte ich schon alle Antworten.", "s2_phase": "Wiedererkennen", "s3_eyebrow": "Deine Wünsche", "s3_title": "Wenn sich Dein Leben verändern würde …", "s3_lead": "Geld, Wissen und Möglichkeiten bekommen durch persönliche Ziele Bedeutung.", "s3_text": "Nicht die Summe steht im Mittelpunkt, sondern das Leben, das Du gestalten möchtest: mehr Sicherheit, mehr Zeit, ein Wunsch für Deine Familie oder etwas Eigenes.", "s3_place": "Wenn Du mehr finanziellen Spielraum und mehr Möglichkeiten hättest: Was würdest Du in Deinem Leben als Erstes verändern?", "s3_community": "Für mich ging es nie nur um Geld. Ich wollte mehr Zeit und weniger Sorgen für meine Familie.", "s3_phase": "Wiedererkennen", "s4_eyebrow": "Warum Akademie?", "s4_title": "Viele wichtige Fragen werden selten verständlich beantwortet.", "s4_lead": "Genau deshalb gibt es unsere Akademie.", "s4_text": "Sie ist entstanden, damit Menschen Zusammenhänge besser verstehen, Wissen aufbauen und ihre eigenen Entscheidungen bewusster treffen können.", "s4_place": "Welche Themen hättest Du gern schon viel früher besser verstanden?", "s4_community": "Das Wissen hat mir nicht vorgeschrieben, was ich tun soll. Es hat mir geholfen, selbst klarer zu entscheiden.", "s4_phase": "Verstehen", "s5_eyebrow": "Warum Club?", "s5_title": "Wissen wird stärker, wenn Menschen es miteinander teilen.", "s5_lead": "Gemeinschaft schafft Orientierung und trägt Entwicklung.", "s5_text": "Im Club begegnen sich Menschen, die gemeinsam lernen, sich austauschen und einander auf ihrem persönlichen Weg begleiten.", "s5_place": "Warum fällt gemeinsames Lernen und Handeln oft leichter als der Weg ganz allein?", "s5_community": "Ich wurde nicht bewertet. Ich wurde angenommen – und genau das hat für mich den Unterschied gemacht.", "s5_phase": "Verstehen", "s6_eyebrow": "Mission Dorade", "s6_title": "Der einfachste Anfang ist der, den Menschen gemeinsam gehen.", "s6_lead": "Vormachen. Nachmachen. Gemeinsam wachsen.", "s6_text": "Im Club gibt es viele Wege. Mission Dorade steht für einen kleinen ersten Schritt, der durch gemeinsames Tun immer sicherer wird.", "s6_place": "Was bedeutet für Dich der Gedanke: Vormachen. Nachmachen. Gemeinsam wachsen?", "s6_community": "Der Anfang war kleiner, als ich dachte. Ich musste nicht perfekt sein – ich musste nur beginnen.", "s6_phase": "Möglichkeit", "s7_eyebrow": "Peer to Peer", "s7_title": "Menschen befähigen Menschen.", "s7_lead": "Du musst Deinen Weg nicht alleine gehen.", "s7_text": "Ein Mensch zeigt dem nächsten, wie es geht. Aus Erfahrung wird Sicherheit. Aus Sicherheit entsteht die Fähigkeit, später selbst andere zu begleiten.", "s7_place": "Denke an einen Menschen, der Dich einmal positiv geprägt hat. Was hat dieser Mensch für Dich getan?", "s7_community": "Ich wollte zunächst nur lernen. Später merkte ich, dass ich auch anderen Menschen Orientierung geben kann.", "s7_phase": "Möglichkeit", "s8_eyebrow": "Die ClubPartnerschaft", "s8_title": "Wir zeigen Dir heute nur die Tür.", "s8_lead": "Das Wissen dahinter bleibt geschützt.", "s8_text": "Mit der ClubPartnerschaft öffnet sich für Dich der Zugang zu einem exklusiven Bildungsraum. Nur ClubPartner können sich dieses Wissen holen und den Weg dahinter entdecken.", "s8_place": "Was bedeutet für Dich lebenslanges Lernen – und welchen Wert hat ein geschützter Raum dafür?", "s8_community": "Die ClubPartnerschaft war für mich der Schlüssel zu Wissen und Menschen, die meinen Weg bereichern.", "s8_phase": "Entscheidung", "s9_eyebrow": "Dein Weg", "s9_title": "Große Veränderungen beginnen mit einem kleinen Schritt.", "s9_lead": "Wie weit Du gehst, entscheidest Du selbst.", "s9_text": "Der eine möchte zunächst lernen. Der andere möchte sich ein paar hundert Euro im Monat dazuverdienen oder später Schritt für Schritt ein tragfähiges Einkommen aufbauen. Beides ist möglich – ohne Garantie und ohne Automatismus.", "s9_place": "Was wäre für Dich heute ein realistischer erster Schritt?", "s9_community": "Ein kleiner Schritt hat mein Denken verändert. Danach konnte ich meinen Weg klarer sehen.", "s9_phase": "Entscheidung", "s10_eyebrow": "Power to the People", "s10_title": "Jeder Mensch kann etwas bewegen.", "s10_lead": "Eine Gemeinschaft lebt von Menschen, die Türen öffnen.", "s10_text": "Vielleicht bist Du heute als Gast gekommen. Vielleicht begleitest Du eines Tages selbst einen neuen Menschen und zeigst ihm genau diese Tür.", "s10_place": "Welche Person könnte von einer Einladung zu einem solchen Clubtreffen profitieren?", "s10_community": "Heute darf ich selbst andere begleiten. Das hätte ich mir bei meinem ersten Clubtreffen noch nicht vorstellen können.", "s10_phase": "Entscheidung", "s11_eyebrow": "Mehr vom Leben", "s11_title": "Deine Wünsche dürfen einen Platz bekommen.", "s11_lead": "Geld ist kein Selbstzweck. Es schafft Möglichkeiten.", "s11_text": "Mehr Freiheit kann bedeuten: Zeit, Sicherheit, Reisen, ein Zuhause, Ruhe oder die Fähigkeit, anderen Menschen etwas zu ermöglichen.", "s11_place": "Wofür möchtest Du in Deinem Leben mehr Möglichkeiten schaffen?", "s11_community": "Als mein Ziel einen echten Sinn bekam, wurde auch mein nächster Schritt klarer.", "s11_phase": "Entscheidung", "s12_eyebrow": "Das Big Picture", "s12_title": "Möchtest Du Mission Dorade zu Deiner eigenen Mission machen?", "s12_lead": "Menschen befähigen Menschen.", "s12_text": "Mit Deiner ClubPartnerschaft beginnt Dein eigener Weg. Du entscheidest, wie intensiv Du lernst, wie aktiv Du wirst und wie viele Menschen Du später selbst begleiten möchtest.", "s12_place": "Treffe Deine Entscheidung in Ruhe. Der Mensch, der Dich heute eingeladen hat, begleitet Dich beim nächsten Schritt.", "s12_community": "Jede große Geschichte beginnt mit einer Entscheidung.", "s12_phase": "Abschluss", "brand": "Clubtreffen Live", "film": "Eine Reise vom Wunsch zur Entscheidung", "reveal": "Aufdecken", "next": "Gemeinsam weiter", "back": "Zurück", "yes": "Ja, ich möchte Mission Dorade zu meiner Mission machen.", "learn": "Ich möchte den Club zunächst weiter kennenlernen.", "communityLabel": "Erkenntnisse aus der Community", "placeLabel": "An dieser Stelle …", "fullscreen": "Vollbild", "language": "EN",
+"reset":"Neues Clubtreffen",
+"resetConfirm":"Aktuellen Fortschritt löschen und ein neues Clubtreffen beginnen?",
+"hostPanelTitle":"Vorbereitung & Compliance für Gastgeber",
+"warmupTitle":"Warm-up und Bedienung",
+"warmup1":"Zoom-Raum öffnen, Gast begrüßen und Bildschirmfreigabe starten.",
+"warmup2":"Seite und Ton kurz prüfen; alle Inhalte müssen gut sichtbar sein.",
+"warmup3":"Ruhig durch die Szenen führen und Antworten bewusst zulassen.",
+"warmup4":"Mit „Aufdecken“ wird die Vorbereitung automatisch geschlossen.",
+"warmup5":"„Neues Clubtreffen“ setzt die gesamte Reise für den nächsten Gast zurück.",
+"complianceTitle":"Compliance & Club-Ethik",
+"complianceLead":"Wir versprechen nichts, was wir nicht halten können. Wir erklären klar, was ist – und was nicht ist.",
+"compliance1":"Keine Einkommensgarantien, keine Automatismen und keinen künstlichen Zeitdruck.",
+"compliance2":"Preis, Leistung und ClubPartnerschaft transparent und nachvollziehbar einordnen.",
+"compliance3":"Fragen ehrlich beantworten; Unklarheiten später sauber klären statt etwas zu erfinden.",
+"compliance4":"Die persönliche Entscheidung des Gastes respektieren.",
+"compliance5":"Interne Clubhaus-Inhalte bleiben ausschließlich ClubPartnern vorbehalten.",
+"imageFocusHint":"Nächster Klick: zurück zur Gesprächsansicht"}, "en": {"s0_eyebrow": "Power to the People", "s0_title": "What story should your life tell?", "s0_lead": "More money. More freedom. More life.", "s0_text": "Everyone connects different wishes with this: time for family, a journey, a home of their own, security or the freedom to decide for themselves.", "s0_place": "Which scene from your own dream film would you most like to make real?", "s0_community": "Dreams become more tangible when we begin to speak them aloud.", "s0_phase": "Arrival", "s1_eyebrow": "Welcome", "s1_title": "It is great to have you here today.", "s1_lead": "This club meeting begins person to person.", "s1_text": "Power to the People brings people together. New guests may first arrive, listen and bring their own questions.", "s1_place": "At this point, all new guests briefly introduce themselves: What is your name, where are you from, who invited you and what made you curious?", "s1_community": "At first I was simply curious. What mattered was feeling welcome immediately.", "s1_phase": "Arrival", "s2_eyebrow": "Your present", "s2_title": "What is currently on your mind most?", "s2_lead": "Every person arrives with their own story.", "s2_text": "Some seek knowledge. Others seek greater security, orientation, community or a new opportunity. First, we care about what carries the most weight for you today.", "s2_place": "Which topic currently carries the most weight in your life – and why this one?", "s2_community": "I had many questions in my head. Here I did not have to pretend I already had all the answers.", "s2_phase": "Recognition", "s3_eyebrow": "Your wishes", "s3_title": "If your life were to change …", "s3_lead": "Money, knowledge and opportunities gain meaning through personal goals.", "s3_text": "The amount is not the focus, but the life you want to shape: greater security, more time, a wish for your family or something of your own.", "s3_place": "If you had more financial room and more possibilities, what would you change first in your life?", "s3_community": "For me it was never only about money. I wanted more time and fewer worries for my family.", "s3_phase": "Recognition", "s4_eyebrow": "Why an academy?", "s4_title": "Many important questions are rarely answered clearly.", "s4_lead": "That is exactly why our academy exists.", "s4_text": "It was created so people can understand connections better, build knowledge and make their own decisions more consciously.", "s4_place": "Which topics do you wish you had understood much earlier?", "s4_community": "The knowledge did not tell me what to do. It helped me decide more clearly for myself.", "s4_phase": "Understanding", "s5_eyebrow": "Why a club?", "s5_title": "Knowledge becomes stronger when people share it.", "s5_lead": "Community provides orientation and supports development.", "s5_text": "In the club, people meet to learn together, exchange ideas and accompany one another on their personal paths.", "s5_place": "Why is learning and acting together often easier than walking the path alone?", "s5_community": "I was not judged. I was accepted – and that made the difference for me.", "s5_phase": "Understanding", "s6_eyebrow": "Mission Dorade", "s6_title": "The easiest beginning is one people take together.", "s6_lead": "Demonstrate. Imitate. Grow together.", "s6_text": "There are many paths in the club. Mission Dorade represents a small first step that becomes safer through shared action.", "s6_place": "What does this idea mean to you: Demonstrate. Imitate. Grow together?", "s6_community": "The beginning was smaller than I expected. I did not have to be perfect – I only had to begin.", "s6_phase": "Opportunity", "s7_eyebrow": "Peer to peer", "s7_title": "People empower people.", "s7_lead": "You do not have to walk your path alone.", "s7_text": "One person shows the next how it works. Experience becomes confidence. Confidence creates the ability to accompany others later.", "s7_place": "Think of someone who positively shaped you. What did that person do for you?", "s7_community": "At first I only wanted to learn. Later I realized that I could also give orientation to others.", "s7_phase": "Opportunity", "s8_eyebrow": "The Club Partnership", "s8_title": "Today we only show you the door.", "s8_lead": "The knowledge behind it remains protected.", "s8_text": "With the Club Partnership, you gain access to an exclusive educational space. Only Club Partners can access this knowledge and discover the path behind it.", "s8_place": "What does lifelong learning mean to you – and what value does a protected space have for it?", "s8_community": "The Club Partnership was my key to knowledge and people who enrich my path.", "s8_phase": "Decision", "s9_eyebrow": "Your path", "s9_title": "Big changes begin with a small step.", "s9_lead": "How far you go is your decision.", "s9_text": "One person may first want to learn. Another may want to earn a few hundred euros a month or later build a sustainable income step by step. Both are possible – without guarantee or automatic results.", "s9_place": "What would be a realistic first step for you today?", "s9_community": "A small step changed my thinking. After that, I could see my path more clearly.", "s9_phase": "Decision", "s10_eyebrow": "Power to the People", "s10_title": "Every person can make a difference.", "s10_lead": "A community lives through people who open doors.", "s10_text": "Perhaps you arrived today as a guest. Perhaps one day you will accompany a new person yourself and show them this same door.", "s10_place": "Who could benefit from an invitation to a club meeting like this?", "s10_community": "Today I am allowed to accompany others myself. At my first club meeting, I could not have imagined that.", "s10_phase": "Decision", "s11_eyebrow": "More from life", "s11_title": "Your wishes deserve a place.", "s11_lead": "Money is not an end in itself. It creates possibilities.", "s11_text": "More freedom can mean time, security, travel, a home, peace of mind or the ability to make something possible for others.", "s11_place": "What would you like to create more possibilities for in your life?", "s11_community": "When my goal gained real meaning, my next step became clearer too.", "s11_phase": "Decision", "s12_eyebrow": "The Big Picture", "s12_title": "Would you like to make Mission Dorade your own mission?", "s12_lead": "People empower people.", "s12_text": "With your Club Partnership, your own path begins. You decide how intensively you learn, how active you become and how many people you may later accompany yourself.", "s12_place": "Make your decision calmly. The person who invited you today will accompany you through the next step.", "s12_community": "Every great story begins with a decision.", "s12_phase": "Closing", "brand": "Club Meeting Live", "film": "A journey from desire to decision", "reveal": "Reveal", "next": "Continue together", "back": "Back", "yes": "Yes, I want to make Mission Dorade my mission.", "learn": "I would first like to get to know the club better.", "communityLabel": "Insights from the community", "placeLabel": "At this point …", "fullscreen": "Fullscreen", "language": "DE",
+"reset":"New club meeting",
+"resetConfirm":"Delete the current progress and begin a new club meeting?",
+"hostPanelTitle":"Host preparation & compliance",
+"warmupTitle":"Warm-up and operation",
+"warmup1":"Open the Zoom room, welcome the guest and start screen sharing.",
+"warmup2":"Briefly check the page and audio; all content must be clearly visible.",
+"warmup3":"Guide calmly through the scenes and consciously allow answers.",
+"warmup4":"The preparation panel closes automatically with the first reveal.",
+"warmup5":"“New club meeting” resets the complete journey for the next guest.",
+"complianceTitle":"Compliance & club ethics",
+"complianceLead":"We promise nothing we cannot keep. We clearly explain what is – and what is not.",
+"compliance1":"No income guarantees, no automatic results and no artificial time pressure.",
+"compliance2":"Explain price, benefits and Club Partnership transparently.",
+"compliance3":"Answer honestly; clarify uncertainties later instead of inventing an answer.",
+"compliance4":"Respect the guest’s personal decision.",
+"compliance5":"Internal clubhouse content remains exclusively available to Club Partners.",
+"imageFocusHint":"Next click: return to conversation view"}};
 const scenes=[...document.querySelectorAll('.scene')];
 const backBtn=document.getElementById('backBtn');
 const forwardBtn=document.getElementById('forwardBtn');
 const progressBar=document.getElementById('progressBar');
 const langBtn=document.getElementById('langBtn');
 const fullscreenBtn=document.getElementById('fullscreenBtn');
+const resetBtn=document.getElementById('resetBtn');
+const hostPanel=document.getElementById('hostPanel');
+const imageFocusHint=document.getElementById('imageFocusHint');
 let current=0;
 let lang=localStorage.getItem('pttp-club-lang')||'de';
 let revealed=Number(localStorage.getItem('pttp-club-revealed')||0);
+let imageFocus=false;
 const savedScene=Number(localStorage.getItem('pttp-club-scene')||0);
 if(Number.isInteger(savedScene)&&savedScene>=0&&savedScene<scenes.length) current=savedScene;
 function steps(){return [...scenes[current].querySelectorAll('[data-step]')]}
 function applyLanguage(){document.documentElement.lang=lang;document.querySelectorAll('[data-i18n]').forEach(el=>{const v=translations[lang][el.dataset.i18n];if(typeof v==='string')el.textContent=v});localStorage.setItem('pttp-club-lang',lang);render()}
 function render(){
- scenes.forEach((scene,i)=>{const active=i===current;scene.classList.toggle('is-active',active);scene.setAttribute('aria-hidden',String(!active))});
- const list=steps();list.forEach((el,i)=>el.classList.toggle('is-visible',i<revealed));
- backBtn.disabled=current===0&&revealed===0;
+ scenes.forEach((scene,i)=>{
+   const active=i===current;
+   scene.classList.toggle('is-active',active);
+   scene.classList.toggle('image-focus',active&&imageFocus);
+   scene.setAttribute('aria-hidden',String(!active));
+ });
+ const list=steps();
+ list.forEach((el,i)=>el.classList.toggle('is-visible',i<revealed));
+ backBtn.disabled=current===0&&revealed===0&&!imageFocus;
  const hasHidden=revealed<list.length;
- forwardBtn.textContent=translations[lang][hasHidden?'reveal':'next'];
+ forwardBtn.textContent=imageFocus
+   ? translations[lang].next
+   : translations[lang][hasHidden?'reveal':'next'];
+ imageFocusHint.hidden=!imageFocus;
  progressBar.style.width=(((current+(list.length?revealed/list.length:1))/scenes.length)*100)+'%';
- localStorage.setItem('pttp-club-scene',String(current));localStorage.setItem('pttp-club-revealed',String(revealed));
+ localStorage.setItem('pttp-club-scene',String(current));
+ localStorage.setItem('pttp-club-revealed',String(revealed));
 }
-function advance(){const list=steps();if(revealed<list.length){revealed++;render();return}if(current<scenes.length-1){current++;revealed=0;render()}}
-function back(){if(revealed>0){revealed--;render();return}if(current>0){current--;revealed=steps().length;render()}}
-forwardBtn.addEventListener('click',advance);backBtn.addEventListener('click',back);
+function advance(){
+ if(hostPanel.open) hostPanel.open=false;
+ if(imageFocus){
+   imageFocus=false;
+   render();
+   return;
+ }
+ const list=steps();
+ if(revealed<list.length){
+   const nextElement=list[revealed];
+   revealed++;
+   if(nextElement.classList.contains('scene-place')) imageFocus=true;
+   render();
+   return;
+ }
+ if(current<scenes.length-1){
+   current++;
+   revealed=0;
+   imageFocus=false;
+   render();
+ }
+}
+function back(){
+ if(imageFocus){
+   imageFocus=false;
+   render();
+   return;
+ }
+ if(revealed>0){
+   revealed--;
+   render();
+   return;
+ }
+ if(current>0){
+   current--;
+   revealed=steps().length;
+   imageFocus=false;
+   render();
+ }
+}
+forwardBtn.addEventListener('click',advance);
+backBtn.addEventListener('click',back);
+resetBtn.addEventListener('click',()=>{
+  if(!window.confirm(translations[lang].resetConfirm)) return;
+  current=0;
+  revealed=0;
+  imageFocus=false;
+  localStorage.removeItem('pttp-club-scene');
+  localStorage.removeItem('pttp-club-revealed');
+  hostPanel.open=true;
+  document.body.classList.remove('presentation');
+  render();
+});
 langBtn.addEventListener('click',()=>{lang=lang==='de'?'en':'de';applyLanguage()});
 fullscreenBtn.addEventListener('click',async()=>{
   const entering=!document.body.classList.contains('presentation');
