@@ -1105,6 +1105,19 @@
     │   ├── mentor/
     │   │   ├── lektion-souveraen.html
     │   │   └── trustyfy-bewusstsein.html
+    │   ├── mission-dorade-live/
+    │   │   ├── 00-start-dorade.png
+    │   │   ├── 01-neue-perspektiven.png
+    │   │   ├── 02-warum-club.png
+    │   │   ├── 03-bildungsauftrag.png
+    │   │   ├── 04-orientierung.png
+    │   │   ├── 05-mission-dorade.png
+    │   │   ├── 06-clubpartnerschaft.png
+    │   │   ├── 07-unternehmensleistung.png
+    │   │   ├── 08-big-picture.png
+    │   │   ├── 09-gemeinsam-dorade.png
+    │   │   ├── README.txt
+    │   │   └── index.html
     │   ├── mission-dorade-tagesbegleiter/
     │   │   ├── README.txt
     │   │   ├── affiliate-link-einbau-tagesbegleiter.html
@@ -1723,4 +1736,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.07.2026, 07:10)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.07.2026, 09:56)_
