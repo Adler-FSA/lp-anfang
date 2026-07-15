@@ -1677,6 +1677,7 @@
     │   ├── only-inside-kms-beispiel.csv
     │   ├── presse.html
     │   ├── profi-nachweis.html
+    │   ├── schnellstart-mission-dorade-simulator.html
     │   ├── so-erklaerst-du-den-weg.html
     │   ├── social.html
     │   ├── souveraenitaet.html
@@ -1736,4 +1737,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.07.2026, 21:53)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 15.07.2026, 22:53)_
