@@ -626,9 +626,6 @@ function goToStartScreen(){
   sceneIndex=0;
   phase=0;
   document.body.classList.remove('started','present');
-  if(document.fullscreenElement&&document.exitFullscreen){
-    document.exitFullscreen().catch(()=>{});
-  }
   render();
 }
 
@@ -642,17 +639,11 @@ function jumpToCredits(){
   filmTimer=setTimeout(startDoradeFinale,78500);
 }
 
-async function toggleFullscreen(){
-  const entering=!document.fullscreenElement;
-  try{
-    if(entering&&document.documentElement.requestFullscreen){
-      await document.documentElement.requestFullscreen();
-    }else if(!entering&&document.exitFullscreen){
-      await document.exitFullscreen();
-    }
-  }catch(error){}
-  document.body.classList.toggle('present',!!document.fullscreenElement);
-  fullscreenControlText.textContent=document.fullscreenElement?'Vollbild verlassen':'Vollbild';
+function toggleFullscreen(){
+  const entering=!document.body.classList.contains('present');
+  document.body.classList.toggle('present',entering);
+  fullscreenControlText.textContent=entering?'Vollbild verlassen':'Vollbild';
+  document.getElementById('fullBtn').textContent=entering?'Vollbild verlassen':'Vollbild';
 }
 
 function clearAutoTimer(){if(autoTimer){clearTimeout(autoTimer);autoTimer=null}autoDeadline=0}
@@ -711,10 +702,6 @@ nextBtn.addEventListener('click',next); backBtn.addEventListener('click',back); 
 document.getElementById('resetBtn').addEventListener('click',()=>resetAll(true)); document.getElementById('restartBtn').addEventListener('click',()=>resetAll(false));
 document.getElementById('fullBtn').addEventListener('click',toggleFullscreen);
 fullscreenControlBtn.addEventListener('click',toggleFullscreen);
-document.addEventListener('fullscreenchange',()=>{
-  document.body.classList.toggle('present',!!document.fullscreenElement);
-  fullscreenControlText.textContent=document.fullscreenElement?'Vollbild verlassen':'Vollbild';
-});
 if(!Number.isInteger(sceneIndex)||sceneIndex<0||sceneIndex>=scenes.length)sceneIndex=0;
 if(!Number.isInteger(phase)||phase<0||phase>9)phase=0;
 if(!['start','presentation','credits','finale'].includes(mode))mode='start';
