@@ -1426,6 +1426,9 @@
     │   │   ├── modul-2-wallet.html
     │   │   ├── modul-3-boerse.html
     │   │   └── modul-4-transfer.html
+    │   ├── schnellstart-mission-dorade-simulator/
+    │   │   ├── index.html
+    │   │   └── intro-riff.PNG
     │   ├── sehnsucht/
     │   │   ├── aufbruch-vision.html
     │   │   └── aufbruch.html
@@ -1737,4 +1740,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.07.2026, 05:34)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.07.2026, 08:02)_
