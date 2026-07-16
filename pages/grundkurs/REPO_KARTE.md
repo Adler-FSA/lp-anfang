@@ -1117,7 +1117,8 @@
     │   │   ├── 08-big-picture.png
     │   │   ├── 09-gemeinsam-dorade.png
     │   │   ├── README.txt
-    │   │   └── index.html
+    │   │   ├── index.html
+    │   │   └── vom-ich-zum-wir.mp3
     │   ├── mission-dorade-tagesbegleiter/
     │   │   ├── README.txt
     │   │   ├── affiliate-link-einbau-tagesbegleiter.html
@@ -1740,4 +1741,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.07.2026, 08:02)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.07.2026, 10:53)_
