@@ -135,6 +135,24 @@ body.present .controls{padding:8px 10px;background:#fff}
  .finale-words{padding:20px 16px}
  .finale-restart{bottom:3%;width:min(88%,360px)}
 }
+
+.welcome{position:absolute;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;background:#061526}
+.welcome.hidden{display:none}
+.welcome-cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.welcome-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,14,28,.08),rgba(4,14,28,.18) 55%,rgba(4,14,28,.78))}
+.welcome-actions{position:absolute;left:50%;bottom:clamp(24px,5vh,54px);transform:translateX(-50%);width:min(760px,92%);display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+.welcome-btn{min-height:58px;padding:0 24px;border:2px solid rgba(255,255,255,.9);border-radius:16px;background:rgba(19,34,56,.84);color:#fff;font-weight:900;font-size:1.05rem;box-shadow:0 16px 42px rgba(0,0,0,.3);backdrop-filter:blur(8px)}
+.welcome-btn.primary{border:0;background:linear-gradient(135deg,var(--mint),var(--magenta))}
+.welcome-btn svg,.song-close svg{width:20px;height:20px;fill:currentColor;vertical-align:-4px;margin-right:8px}
+.song-panel{position:absolute;inset:0;z-index:90;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(3,11,22,.88);backdrop-filter:blur(10px)}
+.song-panel.active{display:flex}
+.song-card{position:relative;width:min(900px,96vw);max-height:94%;overflow:auto;border:1px solid rgba(255,255,255,.2);border-radius:24px;background:#0d1e31;box-shadow:0 28px 80px rgba(0,0,0,.5);padding:18px}
+.song-card img{width:100%;max-height:64vh;object-fit:contain;display:block;border-radius:16px;background:#061526}
+.song-card audio{width:100%;margin-top:16px}
+.song-close{position:absolute;top:28px;right:28px;z-index:2;min-height:44px;padding:0 14px;border:1px solid rgba(255,255,255,.65);border-radius:12px;background:rgba(19,34,56,.86);color:#fff;font-weight:900}
+.song-close svg{margin-right:0}
+@media(max-width:700px){.welcome-actions{bottom:18px;gap:9px}.welcome-btn{min-height:50px;padding:0 16px;font-size:.92rem}.song-card{padding:10px}.song-close{top:18px;right:18px}}
+
 </style>
 </head>
 <body>
@@ -145,6 +163,25 @@ body.present .controls{padding:8px 10px;background:#fff}
 </header>
 
 <section class="stage" id="stage">
+
+<div class="welcome" id="welcome">
+  <img class="welcome-cover" src="mission-dorade-praesentation-cover.jpeg" alt="Mission Dorade – Die Reise">
+  <div class="welcome-shade"></div>
+  <div class="welcome-actions">
+    <button class="welcome-btn primary" id="startExperienceBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Präsentation starten</button>
+    <button class="welcome-btn" id="openSongBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h5V3z"/></svg>Song anhören</button>
+  </div>
+</div>
+<div class="song-panel" id="songPanel" aria-hidden="true">
+  <div class="song-card">
+    <button class="song-close" id="closeSongBtn" type="button" aria-label="Song schließen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3 6.3-6.3z"/></svg></button>
+    <img src="mission-dorade-song-cover.jpeg" alt="Cover des Songs Mission Dorade – Die Reise">
+    <audio id="missionSong" controls preload="metadata">
+      <source src="vom-ich-zum-wir-(remastered).mp3" type="audio/mpeg">
+    </audio>
+  </div>
+</div>
+
 
 <section class="scene" data-index="0">
   <div class="normal-view">
@@ -420,6 +457,9 @@ const autoBtn=document.getElementById('autoBtn');
 const pauseBtn=document.getElementById('pauseBtn');
 const manualBtn=document.getElementById('manualBtn');
 const modeStatus=document.getElementById('modeStatus');
+const welcome=document.getElementById('welcome');
+const songPanel=document.getElementById('songPanel');
+const missionSong=document.getElementById('missionSong');
 let sceneIndex=Number(localStorage.getItem('md-final-scene')||0);
 let phase=Number(localStorage.getItem('md-final-phase')||0);
 let mode=localStorage.getItem('md-final-mode')||'presentation';
@@ -444,13 +484,13 @@ function render(){
     backBtn.disabled=sceneIndex===0&&phase===0;
     progressBar.style.width=(((sceneIndex*10)+Math.min(phase,10))/(scenes.length*10+1)*100)+'%';
   }
-  controls.style.display=(mode==='credits'||mode==='finale')?'none':'grid';
+  controls.style.display=(mode==='credits'||mode==='finale'||!welcome.classList.contains('hidden'))?'none':'grid';
   autoBtn.classList.toggle('active',playMode==='auto'); pauseBtn.classList.toggle('active',playMode==='paused'); manualBtn.classList.toggle('active',playMode==='manual');
   pauseBtn.disabled=playMode==='manual'; modeStatus.className='mode-status';
   if(playMode==='auto'){modeStatus.textContent='Automatik';modeStatus.classList.add('auto')}else if(playMode==='paused'){modeStatus.textContent='Pausiert';modeStatus.classList.add('paused')}else modeStatus.textContent='Manuell';
   localStorage.setItem('md-final-scene',sceneIndex); localStorage.setItem('md-final-phase',phase); localStorage.setItem('md-final-mode',mode); localStorage.setItem('md-play-mode',playMode);
 }
-function startPresentation(){document.body.classList.add('started')}
+function startPresentation(){welcome.classList.add('hidden');document.body.classList.add('started')}
 function clearAutoTimer(){if(autoTimer){clearTimeout(autoTimer);autoTimer=null}autoDeadline=0}
 function scheduleAutomatic(delay=AUTO_DELAYS[phase]||2000){clearAutoTimer();if(playMode!=='auto'||mode!=='presentation')return;remainingDelay=delay;autoDeadline=Date.now()+delay;autoTimer=setTimeout(()=>{autoTimer=null;autoDeadline=0;automaticStep()},delay)}
 function automaticStep(){if(playMode!=='auto'||mode!=='presentation')return;advancePresentation();if(mode==='presentation'&&playMode==='auto')scheduleAutomatic(AUTO_DELAYS[phase]||2000)}
@@ -462,11 +502,17 @@ function pauseAutomatic(){if(playMode==='manual')return;if(playMode==='auto'){re
 function switchToManual(){clearAutoTimer();remainingDelay=0;playMode='manual';render()}
 function startCredits(){clearAutoTimer();mode='credits';render();filmTimer=setTimeout(startDoradeFinale,78500)}
 function startDoradeFinale(){mode='finale';render();doradeFinale.classList.remove('words-visible','button-visible');filmTimer=setTimeout(()=>{doradeFinale.classList.add('words-visible');filmTimer=setTimeout(()=>doradeFinale.classList.add('button-visible'),6500)},1200)}
-function resetAll(confirmFirst=true){if(confirmFirst&&!confirm('Aktuellen Fortschritt löschen und neu beginnen?'))return;clearTimeout(filmTimer);clearAutoTimer();sceneIndex=0;phase=0;mode='presentation';playMode='manual';remainingDelay=0;['md-final-scene','md-final-phase','md-final-mode','md-play-mode'].forEach(k=>localStorage.removeItem(k));document.body.classList.remove('started','present');cinema.classList.remove('active');creditsStage.classList.remove('active');doradeFinale.classList.remove('active','words-visible','button-visible');render()}
+function resetAll(confirmFirst=true){if(confirmFirst&&!confirm('Aktuellen Fortschritt löschen und neu beginnen?'))return;clearTimeout(filmTimer);clearAutoTimer();sceneIndex=0;phase=0;mode='presentation';playMode='manual';remainingDelay=0;['md-final-scene','md-final-phase','md-final-mode','md-play-mode'].forEach(k=>localStorage.removeItem(k));document.body.classList.remove('started','present');welcome.classList.remove('hidden');songPanel.classList.remove('active');songPanel.setAttribute('aria-hidden','true');missionSong.pause();missionSong.currentTime=0;cinema.classList.remove('active');creditsStage.classList.remove('active');doradeFinale.classList.remove('active','words-visible','button-visible');render()}
+
+document.getElementById('startExperienceBtn').addEventListener('click',()=>{missionSong.pause();songPanel.classList.remove('active');songPanel.setAttribute('aria-hidden','true');startPresentation();render()});
+document.getElementById('openSongBtn').addEventListener('click',()=>{songPanel.classList.add('active');songPanel.setAttribute('aria-hidden','false')});
+document.getElementById('closeSongBtn').addEventListener('click',()=>{missionSong.pause();songPanel.classList.remove('active');songPanel.setAttribute('aria-hidden','true')});
+songPanel.addEventListener('click',event=>{if(event.target===songPanel){missionSong.pause();songPanel.classList.remove('active');songPanel.setAttribute('aria-hidden','true')}});
+
 nextBtn.addEventListener('click',next); backBtn.addEventListener('click',back); autoBtn.addEventListener('click',startAutomatic); pauseBtn.addEventListener('click',pauseAutomatic); manualBtn.addEventListener('click',switchToManual);
 document.getElementById('resetBtn').addEventListener('click',()=>resetAll(true)); document.getElementById('restartBtn').addEventListener('click',()=>resetAll(false));
 document.getElementById('fullBtn').addEventListener('click',async()=>{const entering=!document.body.classList.contains('present');document.body.classList.toggle('present',entering);try{if(entering&&document.documentElement.requestFullscreen&&!document.fullscreenElement)await document.documentElement.requestFullscreen();else if(!entering&&document.fullscreenElement&&document.exitFullscreen)await document.exitFullscreen()}catch(e){}});
-if(sceneIndex>0||phase>0||mode!=='presentation')document.body.classList.add('started'); if(mode==='credits'||mode==='finale')mode='presentation'; if(playMode==='paused')playMode='manual'; render(); if(playMode==='auto')scheduleAutomatic(AUTO_DELAYS[phase]||2000);
+if(sceneIndex>0||phase>0||mode!=='presentation'){document.body.classList.add('started');welcome.classList.add('hidden')}else{welcome.classList.remove('hidden')} if(mode==='credits'||mode==='finale')mode='presentation'; if(playMode==='paused')playMode='manual'; render(); if(playMode==='auto')scheduleAutomatic(AUTO_DELAYS[phase]||2000);
 </script>
 </body>
 </html>
