@@ -1,1 +1,361 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Mission Dorade – Spielregeln, Simulator & Jackpot</title>
+<style>
+:root{
+  --mint:#00a7ad;--mint2:#32d3c8;--mint-soft:#e9fafb;
+  --magenta:#c6006f;--magenta2:#ff3da1;--magenta-soft:#fff0f7;
+  --navy:#132238;--navy2:#081525;--ink:#1c2939;--muted:#6b7b8d;
+  --line:#dce6ec;--white:#fff;--gold:#f5b928;--silver:#b9c5d3;
+  --shadow:0 28px 80px rgba(19,34,56,.16)
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:#eef5f7;color:var(--ink)}
+button,input,select{font:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.app{width:100%;height:100vh;height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:10px;padding:12px;overflow:hidden}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 16px;background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 24px rgba(19,34,56,.06)}
+.brand strong{display:block;color:var(--navy);font-size:1.15rem}.brand span{display:block;margin-top:3px;color:var(--muted);font-size:.88rem}
+.top-actions{display:flex;gap:8px}.icon-btn{min-height:42px;padding:0 14px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--navy);font-weight:900}
+.stage{position:relative;width:100%;height:100%;min-width:0;min-height:0;overflow:hidden;background:#fff;border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+.scene{position:absolute;inset:0;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .5s ease,visibility .5s ease;overflow:hidden}
+.scene.is-active{opacity:1;visibility:visible;pointer-events:auto}
+.scene-art{position:absolute;inset:0;overflow:hidden}
+.scene-art svg{width:100%;height:100%;display:block}
+.scene-content{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:center;padding:clamp(28px,5vw,82px)}
+.kicker{display:inline-flex;align-self:flex-start;padding:8px 13px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:.78rem;font-weight:900;letter-spacing:.11em;text-transform:uppercase;backdrop-filter:blur(8px)}
+h1{margin:18px 0 0;color:#fff;font-size:clamp(2.2rem,min(5.2vw,7.2vh),5.6rem);line-height:.94;letter-spacing:-.055em;max-width:980px}
+.lead{margin:18px 0 0;max-width:920px;color:rgba(255,255,255,.9);font-size:clamp(1rem,min(1.7vw,2.25vh),1.55rem);line-height:1.38}
+.rule-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px;max-width:1180px}
+.rule-card{min-height:150px;padding:20px;border:1px solid rgba(255,255,255,.22);border-radius:20px;background:rgba(255,255,255,.12);backdrop-filter:blur(12px);box-shadow:0 12px 28px rgba(0,0,0,.12)}
+.rule-num{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--mint2),var(--magenta2));color:#fff;font-size:1.05rem;font-weight:900}
+.rule-card h3{margin:14px 0 7px;color:#fff;font-size:1.16rem}.rule-card p{margin:0;color:rgba(255,255,255,.83);line-height:1.4;font-size:.96rem}
+.mantra{margin-top:24px;display:inline-flex;align-self:flex-start;padding:13px 18px;border-radius:14px;background:#fff;color:var(--navy);font-weight:900;font-size:clamp(.96rem,1.5vw,1.3rem);box-shadow:0 18px 40px rgba(0,0,0,.18)}
 
+
+/* Intro */
+.intro-scene{background:#03101e;perspective:1100px}
+.intro-ocean{position:absolute;inset:0;overflow:hidden;background-image:linear-gradient(180deg,rgba(1,18,33,.34) 0%,rgba(2,42,60,.20) 48%,rgba(1,45,57,.34) 75%,rgba(0,18,28,.72) 100%),url('intro-riff.PNG');background-size:cover;background-position:center 48%;background-repeat:no-repeat}
+.intro-ocean::before{content:"";position:absolute;inset:-12% -8% 28%;background:repeating-linear-gradient(104deg,transparent 0 7%,rgba(156,255,246,.12) 8% 10%,transparent 12% 19%);filter:blur(10px);transform-origin:50% 0;animation:rays 9s ease-in-out infinite alternate}
+.intro-ocean::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 43%,transparent 18%,rgba(0,8,17,.14) 58%,rgba(0,4,10,.65) 100%);pointer-events:none}
+@keyframes rays{from{transform:skewX(-6deg) translateX(-3%);opacity:.55}to{transform:skewX(7deg) translateX(4%);opacity:.92}}
+.seafloor{display:none;position:absolute;left:-4%;right:-4%;bottom:-8%;height:39%;background:radial-gradient(ellipse at 22% 25%,#a77c49 0 4%,transparent 5%),radial-gradient(ellipse at 66% 18%,#81633f 0 5%,transparent 6%),linear-gradient(180deg,#4b4937 0%,#272e28 55%,#121d1c 100%);clip-path:polygon(0 38%,12% 25%,24% 34%,38% 16%,50% 32%,64% 18%,78% 30%,91% 13%,100% 27%,100% 100%,0 100%)}
+.coral{display:none;position:absolute;bottom:6%;width:9px;height:112px;border-radius:12px;background:linear-gradient(#ff6eb6,#9b145e);transform-origin:bottom;filter:drop-shadow(0 6px 8px rgba(0,0,0,.28))}
+.coral::before,.coral::after{content:"";position:absolute;width:8px;height:64px;border-radius:10px;background:inherit;bottom:27px;transform-origin:bottom}.coral::before{left:-22px;transform:rotate(-35deg)}.coral::after{right:-22px;transform:rotate(38deg)}
+.c1{left:8%;height:135px;transform:rotate(-4deg)}.c2{left:18%;height:86px;background:linear-gradient(#43e0ca,#087c78);transform:rotate(8deg)}.c3{right:12%;height:148px;background:linear-gradient(#ffca50,#dc681a);transform:rotate(3deg)}.c4{right:24%;height:92px;background:linear-gradient(#a68cff,#4c3198);transform:rotate(-7deg)}
+.bubble{position:absolute;bottom:-30px;width:7px;height:7px;border:1px solid rgba(210,255,252,.75);border-radius:50%;animation:bubbleUp var(--dur,9s) linear infinite;animation-delay:var(--delay,0s);opacity:.7}
+@keyframes bubbleUp{0%{transform:translateY(0) translateX(0) scale(.6);opacity:0}12%{opacity:.7}100%{transform:translateY(-105vh) translateX(35px) scale(1.3);opacity:0}}
+.fish{position:absolute;width:var(--size,190px);z-index:2;filter:drop-shadow(0 14px 16px rgba(0,0,0,.28));opacity:var(--op,.96);will-change:transform}
+.fish svg{display:block;width:100%;height:auto;overflow:visible}.fish .tail{transform-origin:24px 60px;animation:tailWave .72s ease-in-out infinite alternate}.fish .fin{transform-origin:92px 69px;animation:finWave 1s ease-in-out infinite alternate}
+@keyframes tailWave{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}@keyframes finWave{from{transform:rotate(-4deg)}to{transform:rotate(10deg)}}
+.fish-right{left:-28%;animation:swimRight var(--speed,15s) linear infinite;animation-delay:var(--delay,0s)}
+.fish-left{right:-28%;animation:swimLeft var(--speed,17s) linear infinite;animation-delay:var(--delay,0s)}
+.fish-left svg{transform:scaleX(-1)}
+@keyframes swimRight{0%{transform:translate3d(0,0,var(--z,0)) rotateY(-4deg) rotateZ(-1deg)}48%{transform:translate3d(72vw,-18px,var(--z,0)) rotateY(3deg) rotateZ(2deg)}100%{transform:translate3d(145vw,8px,var(--z,0)) rotateY(-4deg) rotateZ(-1deg)}}
+@keyframes swimLeft{0%{transform:translate3d(0,0,var(--z,0)) rotateY(4deg) rotateZ(1deg)}52%{transform:translate3d(-76vw,16px,var(--z,0)) rotateY(-3deg) rotateZ(-2deg)}100%{transform:translate3d(-145vw,-7px,var(--z,0)) rotateY(4deg) rotateZ(1deg)}}
+.school{position:absolute;inset:10% -15% 28% auto;width:54%;opacity:.32;filter:blur(.7px);animation:schoolDrift 23s linear infinite}.school svg{width:100%;height:100%}@keyframes schoolDrift{from{transform:translateX(18vw) translateY(0) scale(.72)}50%{transform:translateX(-36vw) translateY(25px) scale(.83)}to{transform:translateX(-92vw) translateY(-4px) scale(.72)}}
+.intro-copy{position:absolute;z-index:8;left:50%;bottom:12%;width:min(980px,88%);transform:translateX(-50%);text-align:center;color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.68)}
+.intro-title{margin:0;font-size:clamp(2.8rem,7vw,7.4rem);line-height:.92;letter-spacing:-.06em;animation:riseFromFloor 2.2s cubic-bezier(.18,.78,.2,1) both}
+.intro-line{margin:18px auto 0;max-width:920px;font-size:clamp(1.05rem,2.1vw,2rem);line-height:1.3;font-weight:800;animation:riseFromFloor 2.2s .75s cubic-bezier(.18,.78,.2,1) both}
+.intro-start{margin-top:24px;min-height:52px;padding:0 28px;border:1px solid rgba(255,255,255,.5);border-radius:999px;background:linear-gradient(135deg,var(--mint),var(--magenta));color:#fff;font-weight:900;box-shadow:0 18px 46px rgba(0,0,0,.34)}
+@keyframes riseFromFloor{from{opacity:0;transform:translateY(150px) scale(.92);filter:blur(8px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+.field select{width:100%;min-height:44px;padding:10px 38px 10px 12px;border:1px solid #cfdce4;border-radius:12px;background:#fff;color:var(--navy);font-weight:800;outline:none}.field select:focus{border-color:var(--mint);box-shadow:0 0 0 3px rgba(0,167,173,.13)}
+.model-truth{padding:10px 12px;border-radius:12px;background:#edf9fa;color:var(--navy);font-size:.76rem;line-height:1.4;border:1px solid #ccebed;font-weight:800}
+
+/* Simulator */
+.sim-scene{background:linear-gradient(135deg,#f7fbfc 0%,#eef9fa 54%,#fff3f9 100%)}
+.sim-wrap{height:100%;display:grid;grid-template-columns:minmax(300px,34%) minmax(0,66%);gap:18px;padding:clamp(18px,2.3vw,34px)}
+.sim-panel,.result-panel{min-width:0;min-height:0;border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.94);box-shadow:0 18px 48px rgba(19,34,56,.10)}
+.sim-panel{padding:22px;display:flex;flex-direction:column;overflow:auto}
+.sim-kicker{color:var(--mint);font-size:.75rem;font-weight:900;letter-spacing:.11em;text-transform:uppercase}
+.sim-panel h2{margin:7px 0 4px;color:var(--navy);font-size:clamp(1.45rem,2.2vw,2.25rem);letter-spacing:-.035em}.sim-intro{margin:0 0 16px;color:var(--muted);font-size:.92rem;line-height:1.42}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.field.full{grid-column:1/-1}.field label{display:block;margin-bottom:6px;color:var(--navy);font-size:.78rem;font-weight:900}.field input{width:100%;min-height:44px;padding:10px 12px;border:1px solid #cfdce4;border-radius:12px;background:#fff;color:var(--navy);font-weight:800;outline:none}.field input:focus{border-color:var(--mint);box-shadow:0 0 0 3px rgba(0,167,173,.13)}
+.month-box{margin-top:14px;padding:15px;border-radius:16px;background:linear-gradient(135deg,var(--navy),#1b3655);color:#fff}.month-top{display:flex;align-items:end;justify-content:space-between;gap:12px}.month-top span{font-size:.8rem;color:#cbd7e3;font-weight:800}.month-top strong{font-size:1.7rem}.month-box input[type=range]{width:100%;margin-top:14px;accent-color:var(--magenta2)}
+.active-card{margin-top:12px;padding:13px 14px;border-radius:14px;background:var(--mint-soft);border:1px solid #cfeff1}.active-card strong{display:block;color:var(--mint);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase}.active-card span{display:block;margin-top:4px;color:var(--navy);font-weight:900}
+.names-preview{margin-top:auto;padding-top:14px;color:var(--muted);font-size:.82rem;line-height:1.42}.names-preview b{color:var(--navy)}
+.result-panel{position:relative;padding:20px;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:14px;overflow:hidden}
+.result-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.result-head h2{margin:0;color:var(--navy);font-size:clamp(1.35rem,2.1vw,2.15rem);letter-spacing:-.035em}.result-head p{margin:5px 0 0;color:var(--muted);font-size:.86rem}.date-pill{padding:9px 12px;border-radius:12px;background:var(--navy);color:#fff;font-weight:900;white-space:nowrap}
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.level{padding:15px;border-radius:17px;border:1px solid var(--line);background:#fff}.level:nth-child(1){box-shadow:inset 0 4px 0 var(--mint)}.level:nth-child(2){box-shadow:inset 0 4px 0 var(--magenta)}.level:nth-child(3){box-shadow:inset 0 4px 0 var(--navy)}.level small{display:block;color:var(--muted);font-weight:900}.level strong{display:block;margin-top:7px;color:var(--navy);font-size:clamp(1.45rem,2.6vw,2.8rem);letter-spacing:-.04em}.level span{display:block;margin-top:3px;color:var(--muted);font-size:.78rem}
+.money-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:13px;min-height:0}.income-card,.jackpot-card{border-radius:20px;overflow:hidden;position:relative}.income-card{padding:18px;background:linear-gradient(135deg,var(--navy),#234668);color:#fff}.income-card small,.jackpot-card small{display:block;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.income-card small{color:#aadfe1}.income-total{margin-top:8px;font-size:clamp(2rem,4.3vw,4.8rem);line-height:.95;font-weight:900;letter-spacing:-.055em}.income-lines{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:16px}.income-line{padding:10px;border-radius:12px;background:rgba(255,255,255,.10)}.income-line b{display:block;font-size:.82rem}.income-line span{display:block;margin-top:4px;color:#d6e5ed;font-size:.82rem}
+.jackpot-card{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:18px;background:radial-gradient(circle at 50% 26%,#fff6bf 0%,#ffd850 28%,#ef9c14 62%,#a84f08 100%);color:#3a2103;box-shadow:inset 0 0 0 1px rgba(255,255,255,.45)}.jackpot-card::before{content:"";position:absolute;inset:-35%;background:conic-gradient(from 0deg,transparent,rgba(255,255,255,.55),transparent 18%,transparent 52%,rgba(255,255,255,.35),transparent 68%);animation:spin 8s linear infinite}.jackpot-card>*{position:relative;z-index:1}.jackpot-card small{color:#684007}.jackpot-month{margin-top:6px;font-weight:900}.jackpot-total{margin-top:8px;font-size:clamp(2.1rem,4.4vw,4.7rem);line-height:.94;font-weight:900;letter-spacing:-.05em}.jackpot-note{margin-top:9px;font-size:.78rem;font-weight:800;max-width:240px}
+.entrepreneur-card{display:grid;grid-template-columns:1.25fr repeat(3,1fr);gap:10px;align-items:stretch;padding:11px;border:1px solid #ccebed;border-radius:17px;background:linear-gradient(135deg,#edfafa,#fff5fa)}.entrepreneur-intro{display:flex;flex-direction:column;justify-content:center;padding:4px 8px}.entrepreneur-intro small{color:var(--mint);font-weight:900;letter-spacing:.08em;text-transform:uppercase}.entrepreneur-intro strong{margin-top:5px;color:var(--navy);font-size:1rem;line-height:1.25}.entrepreneur-stat{padding:10px 11px;border-radius:13px;background:#fff;border:1px solid var(--line)}.entrepreneur-stat small{display:block;color:var(--muted);font-size:.7rem;font-weight:900}.entrepreneur-stat strong{display:block;margin-top:5px;color:var(--navy);font-size:clamp(1.15rem,2vw,1.9rem);letter-spacing:-.035em}.entrepreneur-stat span{display:block;margin-top:2px;color:var(--muted);font-size:.7rem}.disclaimer{padding:9px 12px;border-radius:12px;background:#f6f8fa;color:var(--muted);font-size:.74rem;line-height:1.35;border:1px solid var(--line)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Jackpot slide */
+.jack-scene{background:linear-gradient(135deg,#071321,#152a43 55%,#3b1040 100%)}
+.jack-content{height:100%;display:grid;grid-template-columns:1.05fr .95fr;gap:30px;align-items:center;padding:clamp(30px,5vw,80px);position:relative;z-index:2}
+.jack-title h1{max-width:780px}.jack-title .lead{max-width:760px}.jack-rule{margin-top:24px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:820px}.prize{padding:18px;border-radius:18px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.09);backdrop-filter:blur(12px)}.prize.gold{box-shadow:inset 0 4px 0 var(--gold)}.prize.silver{box-shadow:inset 0 4px 0 var(--silver)}.prize small{color:#becadd;font-weight:900}.prize strong{display:block;margin-top:7px;color:#fff;font-size:clamp(1.55rem,2.5vw,2.8rem)}.prize span{display:block;margin-top:5px;color:#d4deea;font-size:.92rem;line-height:1.35}
+.hall{position:relative;min-height:430px;display:grid;place-items:center}.hall-ring{position:absolute;width:min(39vw,520px);aspect-ratio:1;border-radius:50%;border:1px solid rgba(255,255,255,.14);box-shadow:0 0 0 36px rgba(0,167,173,.05),0 0 0 74px rgba(198,0,111,.04)}.hall-card{position:relative;width:min(430px,88%);padding:28px;border-radius:26px;background:linear-gradient(145deg,rgba(255,255,255,.97),rgba(237,250,251,.95));box-shadow:0 30px 80px rgba(0,0,0,.34);text-align:center}.hall-badges{display:flex;justify-content:center;gap:20px}.badge{width:112px;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;position:relative;font-size:2rem;font-weight:900}.badge::after{content:"";position:absolute;inset:8px;border-radius:50%;border:2px dashed rgba(255,255,255,.76)}.badge.gold{background:linear-gradient(135deg,#fff1a5,#e99a08);color:#5f3700}.badge.silver{background:linear-gradient(135deg,#f8fbff,#8798ab);color:#243447}.hall-card h3{margin:20px 0 7px;color:var(--navy);font-size:1.55rem}.hall-card p{margin:0;color:var(--muted);line-height:1.45}.monthly{margin-top:18px;padding:12px;border-radius:13px;background:linear-gradient(135deg,var(--mint),var(--magenta));color:#fff;font-weight:900}
+
+.controls{display:grid;grid-template-columns:auto minmax(160px,1fr) auto;align-items:center;gap:12px;padding:0 4px}.nav-btn{min-height:48px;padding:0 20px;border-radius:12px;font-weight:900}.nav-btn:disabled{opacity:.45;cursor:not-allowed}#backBtn{border:1px solid var(--line);background:#fff;color:var(--navy)}#nextBtn{min-width:180px;border:0;background:linear-gradient(135deg,var(--mint),var(--magenta));color:#fff}.progress{height:8px;overflow:hidden;border-radius:999px;background:#dfe7ed}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--mint),var(--magenta));transition:width .35s ease}
+body.presentation .topbar{display:none}body.presentation .app{height:100vh;height:100dvh;grid-template-rows:minmax(0,1fr) auto;gap:0;padding:0}body.presentation .stage{height:100%;border:0;border-radius:0;box-shadow:none}body.presentation .controls{position:relative;z-index:50;padding:8px max(10px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));background:rgba(255,255,255,.97);border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(19,34,56,.10)}
+@media(max-width:980px){
+  .rule-grid{grid-template-columns:1fr;gap:10px}.rule-card{min-height:0}.scene-content{padding:26px}
+  .sim-wrap{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);overflow:auto}.sim-panel{overflow:visible}.result-panel{min-height:620px}.jack-content{grid-template-columns:1fr;overflow:auto}.hall{min-height:360px}.hall-ring{width:340px}
+}
+@media(max-width:680px){
+  .app{padding:6px;gap:6px}.brand strong{font-size:1rem}.brand span{display:none}.icon-btn{padding:0 10px}
+  .scene-content{justify-content:flex-start;overflow:auto;padding:22px 18px}.rule-grid{margin-top:18px}.rule-card{padding:15px}.mantra{margin-bottom:20px}
+  .sim-wrap{padding:8px;gap:8px}.sim-panel,.result-panel{border-radius:16px}.field-grid,.levels,.income-lines,.money-grid,.jack-rule,.entrepreneur-card{grid-template-columns:1fr}.result-panel{min-height:980px}.result-head{flex-direction:column}.date-pill{align-self:flex-start}.jack-content{padding:26px 18px}.hall-card{padding:22px}.hall-badges{gap:12px}.badge{width:92px}
+  .controls{gap:7px}.nav-btn{padding:0 13px;min-height:45px}#nextBtn{min-width:0}
+}
+@media(max-height:620px) and (min-width:800px){
+  .topbar{display:none}.app{grid-template-rows:minmax(0,1fr) auto;padding:4px}.scene-content{padding:22px 34px}.rule-grid{margin-top:15px}.rule-card{min-height:120px;padding:14px}.mantra{margin-top:14px}.sim-wrap{padding:8px}.sim-panel{padding:14px}.result-panel{padding:13px;gap:8px}.levels{gap:8px}.level{padding:10px}.money-grid{gap:8px}.income-card,.jackpot-card{padding:12px}.jack-content{padding:22px 34px}.hall{min-height:320px}.hall-card{padding:20px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main class="app">
+  <header class="topbar">
+    <div class="brand"><strong>Mission Dorade</strong><span data-i18n="brandSub">Spielregeln · Simulator · Jackpot</span></div>
+    <div class="top-actions">
+      <button class="icon-btn" id="langBtn" type="button"><span id="langLabel">EN</span></button>
+      <button class="icon-btn" id="fullscreenBtn" type="button" data-i18n="fullscreen">Vollbild</button>
+    </div>
+  </header>
+
+  <section class="stage" id="stage">
+    <section class="scene intro-scene is-active" data-scene="0" aria-hidden="false">
+      <div class="intro-ocean" aria-hidden="true">
+        <div class="seafloor"></div><span class="coral c1"></span><span class="coral c2"></span><span class="coral c3"></span><span class="coral c4"></span>
+        <span class="bubble" style="left:13%;--dur:10s;--delay:-2s"></span><span class="bubble" style="left:25%;--dur:8s;--delay:-5s"></span><span class="bubble" style="left:72%;--dur:11s;--delay:-7s"></span><span class="bubble" style="left:86%;--dur:9s;--delay:-4s"></span>
+        <div class="school"><svg viewBox="0 0 900 430"><g fill="#d6f7ee"><path d="M0 0c24-18 58-16 78 0-20 17-54 20-78 0Zm78 0 22-15v30Z" transform="translate(40 80) scale(0.8)"/><path d="M0 0c24-18 58-16 78 0-20 17-54 20-78 0Zm78 0 22-15v30Z" transform="translate(145 45) scale(0.55)"/><path d="M0 0c24-18 58-16 78 0-20 17-54 20-78 0Zm78 0 22-15v30Z" transform="translate(210 120) scale(0.7)"/><path d="M0 0c24-18 58-16 78 0-20 17-54 20-78 0Zm78 0 22-15v30Z" transform="translate(320 70) scale(0.48)"/><path d="M0 0c24-18 58-16 78 0-20 17-54 20-78 0Zm78 0 22-15v30Z" transform="translate(410 155) scale(0.64)"/><path d="M0 0c24-18 58-16 78 0-20 17-54 20-78 0Zm78 0 22-15v30Z" transform="translate(520 95) scale(0.52)"/><path d="M0 0c24-18 58-16 78 0-20 17-54 20-78 0Zm78 0 22-15v30Z" transform="translate(625 175) scale(0.74)"/><path d="M0 0c24-18 58-16 78 0-20 17-54 20-78 0Zm78 0 22-15v30Z" transform="translate(735 105) scale(0.47)"/><path d="M0 0c24-18 58-16 78 0-20 17-54 20-78 0Zm78 0 22-15v30Z" transform="translate(90 220) scale(0.58)"/><path d="M0 0c24-18 58-16 78 0-20 17-54 20-78 0Zm78 0 22-15v30Z" transform="translate(250 255) scale(0.48)"/><path d="M0 0c24-18 58-16 78 0-20 17-54 20-78 0Zm78 0 22-15v30Z" transform="translate(390 235) scale(0.72)"/><path d="M0 0c24-18 58-16 78 0-20 17-54 20-78 0Zm78 0 22-15v30Z" transform="translate(560 280) scale(0.5)"/><path d="M0 0c24-18 58-16 78 0-20 17-54 20-78 0Zm78 0 22-15v30Z" transform="translate(715 250) scale(0.63)"/></g></svg></div>
+        <div class="fish fish-right" style="top:18%;--size:210px;--speed:14s;--delay:-3s;--z:70px"><svg viewBox="0 0 230 120" aria-hidden="true"><defs><linearGradient id="fishGold" x1="0" x2="1"><stop stop-color="#ffd86a"/><stop offset=".52" stop-color="#f4a31f"/><stop offset="1" stop-color="#d87318"/></linearGradient><radialGradient id="fishSilver"><stop stop-color="#f8ffff"/><stop offset=".7" stop-color="#a9d5d8"/><stop offset="1" stop-color="#4c8e97"/></radialGradient></defs><g><path class="tail" d="M48 59 5 24l9 35-9 37 43-31Z" fill="#ec8d24"/><path d="M40 61C72 15 158 8 211 53c8 7 8 13 0 20-54 44-139 37-171-12Z" fill="url(#fishGold)" stroke="#fff4bd" stroke-width="3"/><path d="M102 28c18-18 42-22 62-14l-27 21Z" fill="#ffca43"/><path class="fin" d="M106 69c16 7 30 20 35 36-22-5-39-15-50-30Z" fill="#d96c16" opacity=".9"/><path d="M185 44c16 6 27 16 30 28-14-2-27-8-38-18Z" fill="#ffdc72"/><circle cx="184" cy="48" r="6" fill="#071b26"/><circle cx="186" cy="46" r="2" fill="#fff"/><path d="M211 59q12 5 0 11" fill="none" stroke="#7d4210" stroke-width="3" stroke-linecap="round"/><path d="M65 45c26 11 66 14 104 6M61 68c29 14 70 17 108 8" fill="none" stroke="#fff2b0" stroke-opacity=".34" stroke-width="3"/></g></svg></div>
+        <div class="fish fish-left" style="top:43%;--size:155px;--speed:18s;--delay:-10s;--op:.82;--z:-40px"><svg viewBox="0 0 230 120" aria-hidden="true"><defs><linearGradient id="fishGold" x1="0" x2="1"><stop stop-color="#ffd86a"/><stop offset=".52" stop-color="#f4a31f"/><stop offset="1" stop-color="#d87318"/></linearGradient><radialGradient id="fishSilver"><stop stop-color="#f8ffff"/><stop offset=".7" stop-color="#a9d5d8"/><stop offset="1" stop-color="#4c8e97"/></radialGradient></defs><g><path class="tail" d="M48 59 5 24l9 35-9 37 43-31Z" fill="#ec8d24"/><path d="M40 61C72 15 158 8 211 53c8 7 8 13 0 20-54 44-139 37-171-12Z" fill="url(#fishGold)" stroke="#fff4bd" stroke-width="3"/><path d="M102 28c18-18 42-22 62-14l-27 21Z" fill="#ffca43"/><path class="fin" d="M106 69c16 7 30 20 35 36-22-5-39-15-50-30Z" fill="#d96c16" opacity=".9"/><path d="M185 44c16 6 27 16 30 28-14-2-27-8-38-18Z" fill="#ffdc72"/><circle cx="184" cy="48" r="6" fill="#071b26"/><circle cx="186" cy="46" r="2" fill="#fff"/><path d="M211 59q12 5 0 11" fill="none" stroke="#7d4210" stroke-width="3" stroke-linecap="round"/><path d="M65 45c26 11 66 14 104 6M61 68c29 14 70 17 108 8" fill="none" stroke="#fff2b0" stroke-opacity=".34" stroke-width="3"/></g></svg></div>
+        <div class="fish fish-right" style="top:63%;--size:118px;--speed:21s;--delay:-15s;--op:.7;--z:-90px"><svg viewBox="0 0 230 120" aria-hidden="true"><defs><linearGradient id="fishGold" x1="0" x2="1"><stop stop-color="#ffd86a"/><stop offset=".52" stop-color="#f4a31f"/><stop offset="1" stop-color="#d87318"/></linearGradient><radialGradient id="fishSilver"><stop stop-color="#f8ffff"/><stop offset=".7" stop-color="#a9d5d8"/><stop offset="1" stop-color="#4c8e97"/></radialGradient></defs><g><path class="tail" d="M48 59 5 24l9 35-9 37 43-31Z" fill="#ec8d24"/><path d="M40 61C72 15 158 8 211 53c8 7 8 13 0 20-54 44-139 37-171-12Z" fill="url(#fishGold)" stroke="#fff4bd" stroke-width="3"/><path d="M102 28c18-18 42-22 62-14l-27 21Z" fill="#ffca43"/><path class="fin" d="M106 69c16 7 30 20 35 36-22-5-39-15-50-30Z" fill="#d96c16" opacity=".9"/><path d="M185 44c16 6 27 16 30 28-14-2-27-8-38-18Z" fill="#ffdc72"/><circle cx="184" cy="48" r="6" fill="#071b26"/><circle cx="186" cy="46" r="2" fill="#fff"/><path d="M211 59q12 5 0 11" fill="none" stroke="#7d4210" stroke-width="3" stroke-linecap="round"/><path d="M65 45c26 11 66 14 104 6M61 68c29 14 70 17 108 8" fill="none" stroke="#fff2b0" stroke-opacity=".34" stroke-width="3"/></g></svg></div>
+      </div>
+<div class="intro-copy">
+        <h1 class="intro-title" data-i18n="introTitle">Vom Ich zum Wir</h1>
+        <p class="intro-line" data-i18n="introLine">Aus dem Wir wird eine Gemeinschaft, die das hier möglich macht.</p>
+        <button class="intro-start" id="introStartBtn" type="button" data-i18n="introStart">Mission starten</button>
+      </div>
+    </section>
+
+    <section class="scene" data-scene="1" aria-hidden="true">
+      <div class="scene-art" aria-hidden="true">
+        <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="ocean" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#061425"/><stop offset=".55" stop-color="#093d52"/><stop offset="1" stop-color="#7b0d55"/></linearGradient>
+            <radialGradient id="glow" cx="72%" cy="36%" r="48%"><stop stop-color="#42e8d8" stop-opacity=".62"/><stop offset="1" stop-color="#42e8d8" stop-opacity="0"/></radialGradient>
+            <filter id="blur"><feGaussianBlur stdDeviation="14"/></filter>
+          </defs>
+          <rect width="1600" height="900" fill="url(#ocean)"/><rect width="1600" height="900" fill="url(#glow)"/>
+          <g opacity=".28" filter="url(#blur)"><circle cx="1280" cy="200" r="130" fill="#00d9d5"/><circle cx="1430" cy="650" r="160" fill="#ff3da1"/></g>
+          <g fill="none" stroke="#8ef4ec" stroke-opacity=".24" stroke-width="3">
+            <path d="M1010 160 C1190 210 1180 430 1390 470"/><path d="M920 280 C1110 330 1090 560 1320 620"/><path d="M1120 110 C1330 120 1390 270 1510 360"/>
+          </g>
+          <g fill="#fff" opacity=".88">
+            <g transform="translate(1110 250) scale(1.15)"><path d="M0 0c54-44 128-36 170 0-42 36-116 44-170 0Z"/><path d="M170 0l50-34v68Z" fill="#7ee8df"/><circle cx="45" cy="-8" r="5" fill="#132238"/></g>
+            <g transform="translate(1260 440) scale(.86)"><path d="M0 0c54-44 128-36 170 0-42 36-116 44-170 0Z"/><path d="M170 0l50-34v68Z" fill="#ff64b1"/><circle cx="45" cy="-8" r="5" fill="#132238"/></g>
+            <g transform="translate(1050 610) scale(.64)"><path d="M0 0c54-44 128-36 170 0-42 36-116 44-170 0Z"/><path d="M170 0l50-34v68Z" fill="#7ee8df"/><circle cx="45" cy="-8" r="5" fill="#132238"/></g>
+          </g>
+          <g fill="#fff" opacity=".55"><circle cx="1030" cy="180" r="4"/><circle cx="1210" cy="145" r="7"/><circle cx="1380" cy="310" r="5"/><circle cx="1470" cy="510" r="8"/><circle cx="1160" cy="700" r="5"/></g>
+        </svg>
+      </div>
+      <div class="scene-content">
+        <span class="kicker" data-i18n="rulesKicker">Mission Dorade</span>
+        <h1 data-i18n="rulesTitle">Die Spielregeln</h1>
+        <p class="lead" data-i18n="rulesLead">Alle starten mit derselben Aufgabe. Persönlicher Aufbau, gegenseitige Hilfe und Verantwortung lassen die 3-Ebenen-Logik in die Breite wachsen.</p>
+        <div class="rule-grid">
+          <article class="rule-card"><span class="rule-num">1</span><h3 data-i18n="r1t">Zwei persönlich gewinnen</h3><p data-i18n="r1p">Jeder Club Partner gewinnt im Monat mindestens zwei neue Club Partner in seiner persönlichen ersten Linie.</p></article>
+          <article class="rule-card"><span class="rule-num">2</span><h3 data-i18n="r2t">Beide befähigen</h3><p data-i18n="r2p">Du hilfst Deinen beiden neuen Club Partnern dabei, ebenfalls ihre eigenen zwei Club Partner aufzubauen.</p></article>
+          <article class="rule-card"><span class="rule-num">3</span><h3 data-i18n="r3t">Linien stabil halten</h3><p data-i18n="r3p">Fällt jemand aus oder erfüllt seine Aufgabe nicht, wird die Linie wieder ergänzt. Für alle gelten dieselben Regeln.</p></article>
+        </div>
+        <div class="mantra" data-i18n="mantra">Zwei gewinnen. Beide befähigen. Gemeinsam weiter aufbauen.</div>
+      </div>
+    </section>
+
+    <section class="scene sim-scene" data-scene="2" aria-hidden="true">
+      <div class="sim-wrap">
+        <aside class="sim-panel">
+          <span class="sim-kicker" data-i18n="simKicker">Persönliche Modellrechnung</span>
+          <h2 data-i18n="simTitle">Was entsteht, wenn alle mitziehen?</h2>
+          <p class="sim-intro" data-i18n="simIntro">Die 2er-Matrix ist die Mindestleistung für den Aktivstatus. Die 3-Ebenen-Logik berechnet die mögliche Vergütung.</p>
+          <div class="field-grid">
+            <div class="field full"><label for="userName" data-i18n="yourName">Dein Vorname</label><input id="userName" type="text" value="Anna" maxlength="24"></div>
+            <div class="field"><label for="startDate" data-i18n="startDate">Startdatum</label><input id="startDate" type="date" value="2026-07-01"></div>
+            <div class="field"><label for="firstPartner" data-i18n="firstPartner">Erster Name</label><input id="firstPartner" type="text" value="Klaus" maxlength="24"></div>
+            <div class="field full"><label for="secondPartner" data-i18n="secondPartner">Zweiter Name</label><input id="secondPartner" type="text" value="Helga" maxlength="24"></div>
+            <div class="field full"><label for="partnersPerMonth" data-i18n="partnersPerMonth">Club Partner pro Monat</label><select id="partnersPerMonth"><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>
+            <div class="field full"><label for="hoursPerDay" data-i18n="hoursPerDay">Arbeitsstunden je Unternehmer und Tag</label><select id="hoursPerDay"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6" selected>6</option><option value="7">7</option><option value="8">8</option></select></div>
+          </div>
+          <div class="month-box">
+            <div class="month-top"><div><span data-i18n="simulationMonth">Simulationsmonat</span><strong id="monthLabel">10</strong></div><strong id="monthDate">April 2027</strong></div>
+            <input id="monthRange" type="range" min="1" max="12" step="1" value="10" aria-label="Simulationsmonat">
+          </div>
+          <div class="active-card"><strong data-i18n="activeStatus">Aktivstatus</strong><span id="activeText">Erfüllt · mindestens 2 persönlich gewonnen</span></div>
+          <p class="names-preview" id="namesPreview"><b>Anna</b> startet mit <b>Klaus</b> und <b>Helga</b>. Beide bauen anschließend nach derselben Regel weiter.</p>
+        </aside>
+
+        <section class="result-panel">
+          <header class="result-head"><div><h2 id="resultTitle">Annas Aufbau nach 10 Monaten</h2><p data-i18n="resultLead">Vollständige Umsetzung der 2er-Matrix über drei vergütete Ebenen.</p></div><div class="date-pill" id="datePill">01.04.2027</div></header>
+          <div class="levels">
+            <article class="level"><small data-i18n="level1">Ebene 1 · 20 %</small><strong id="l1">20</strong><span data-i18n="clubPartners">Club Partner</span></article>
+            <article class="level"><small data-i18n="level2">Ebene 2 · 15 %</small><strong id="l2">180</strong><span data-i18n="clubPartners">Club Partner</span></article>
+            <article class="level"><small data-i18n="level3">Ebene 3 · 10 %</small><strong id="l3">960</strong><span data-i18n="clubPartners">Club Partner</span></article>
+          </div>
+          <div class="money-grid">
+            <article class="income-card">
+              <small data-i18n="possibleIncome">Mögliche Vergütung bis zu diesem Monat</small>
+              <div class="income-total" id="incomeTotal">15.840,00 €</div>
+              <div class="income-lines">
+                <div class="income-line"><b data-i18n="level1short">Ebene 1</b><span id="income1">396,00 €</span></div>
+                <div class="income-line"><b data-i18n="level2short">Ebene 2</b><span id="income2">2.673,00 €</span></div>
+                <div class="income-line"><b data-i18n="level3short">Ebene 3</b><span id="income3">12.771,00 €</span></div>
+              </div>
+            </article>
+            <article class="jackpot-card">
+              <small data-i18n="jackpotLabel">Mission-Dorade-Jackpot</small>
+              <div class="jackpot-month"><span data-i18n="monthWord">Monat</span> <span id="jackMonth">10</span></div>
+              <div class="jackpot-total" id="jackpotTotal">3.260 €</div>
+              <div class="jackpot-note" data-i18n="jackpotNote">Der Monatswert wächst mit jeder neu entstehenden Club-Partner-Mitgliedschaft.</div>
+            </article>
+          </div>
+          <div class="entrepreneur-card">
+            <div class="entrepreneur-intro"><small data-i18n="entrepreneurPower">Unternehmerleistung</small><strong data-i18n="entrepreneurLead">Aus einer Arbeitskraft wird gemeinsame Leistung.</strong></div>
+            <div class="entrepreneur-stat"><small data-i18n="entrepreneursModel">Unternehmer im Modell</small><strong id="entrepreneursTotal">1.161</strong><span data-i18n="includingStarter">inklusive Starter</span></div>
+            <div class="entrepreneur-stat"><small data-i18n="hoursDaily">Gemeinsame Stunden pro Tag</small><strong id="hoursDaily">6.966</strong><span id="hoursPerPersonText">6 Stunden je Unternehmer</span></div>
+            <div class="entrepreneur-stat"><small data-i18n="hoursMonthly">Gemeinsame Stunden in 30 Tagen</small><strong id="hoursMonthly">208.980</strong><span data-i18n="modelPeriod">im aktuellen Modellstand</span></div>
+          </div>
+          <div class="model-truth" data-i18n="modelTruth">Der Rechner zeigt nicht, was garantiert passieren wird. Er zeigt, was mathematisch möglich wird, wenn viele Menschen dieselben einfachen Spielregeln konsequent umsetzen.</div>
+          <div class="disclaimer" data-i18n="disclaimer">Modellrechnung bei vollständiger Umsetzung durch alle Beteiligten. Grundlage: 99 € netto pro Club-Partner-Mitgliedschaft und Jahr. Keine Garantie und kein Einkommensversprechen.</div>
+        </section>
+      </div>
+    </section>
+
+    <section class="scene jack-scene" data-scene="3" aria-hidden="true">
+      <div class="scene-art" aria-hidden="true">
+        <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+          <defs><radialGradient id="jg" cx="73%" cy="45%" r="45%"><stop stop-color="#ffca35" stop-opacity=".24"/><stop offset="1" stop-color="#ffca35" stop-opacity="0"/></radialGradient></defs>
+          <rect width="1600" height="900" fill="url(#jg)"/><g fill="#fff" opacity=".14"><circle cx="1220" cy="150" r="5"/><circle cx="1420" cy="250" r="9"/><circle cx="1100" cy="560" r="7"/><circle cx="1360" cy="700" r="4"/></g>
+          <g fill="none" stroke="#54eee1" stroke-opacity=".16" stroke-width="2"><circle cx="1240" cy="440" r="250"/><circle cx="1240" cy="440" r="330"/><circle cx="1240" cy="440" r="410"/></g>
+        </svg>
+      </div>
+      <div class="jack-content">
+        <div class="jack-title">
+          <span class="kicker" data-i18n="jackKicker">Extra obendrauf</span>
+          <h1 data-i18n="jackTitle">Mission-Dorade-Jackpot</h1>
+          <p class="lead" data-i18n="jackLead">Der erfüllte Aktivstatus öffnet die Tür zur monatlichen Club-internen Battle. Entscheidend ist der persönliche Aufbau in der ersten Linie.</p>
+          <div class="jack-rule">
+            <article class="prize gold"><small data-i18n="goldBadge">Gold-Dorade</small><strong data-i18n="firstPlace">1. Platz · 66 %</strong><span data-i18n="goldText">Für den stärksten persönlichen Club-Partner-Aufbau des Monats.</span></article>
+            <article class="prize silver"><small data-i18n="silverBadge">Silber-Dorade</small><strong data-i18n="secondPlace">2. Platz · 34 %</strong><span data-i18n="silverText">Für den zweitstärksten persönlichen Club-Partner-Aufbau des Monats.</span></article>
+          </div>
+          <div class="mantra" data-i18n="newChance">Gemeinsam aufbauen. Aktiv bleiben. Monatlich neu antreten.</div>
+        </div>
+        <div class="hall">
+          <div class="hall-ring"></div>
+          <article class="hall-card">
+            <div class="hall-badges"><div class="badge gold">1</div><div class="badge silver">2</div></div>
+            <h3 data-i18n="hallTitle">Mission-Dorade-Hall-of-Fame</h3>
+            <p data-i18n="hallText">Gold-Dorade und Silber-Dorade werden öffentlich geehrt, erhalten ihr dauerhaftes Abzeichen und schreiben Clubgeschichte.</p>
+            <div class="monthly" data-i18n="monthlyReset">Jeden Monat beginnt eine neue Chance.</div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <footer class="controls">
+    <button class="nav-btn" id="backBtn" type="button" data-i18n="back">Zurück</button>
+    <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+    <button class="nav-btn" id="nextBtn" type="button" data-i18n="next">Weiter</button>
+  </footer>
+</main>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const scenes=[...document.querySelectorAll('[data-scene]')];
+const t={
+ de:{introTitle:'Vom Ich zum Wir',introLine:'Aus dem Wir wird eine Gemeinschaft, die das hier möglich macht.',introStart:'Mission starten',partnersPerMonth:'Club Partner pro Monat',hoursPerDay:'Arbeitsstunden je Unternehmer und Tag',entrepreneurPower:'Unternehmerleistung',entrepreneurLead:'Aus einer Arbeitskraft wird gemeinsame Leistung.',entrepreneursModel:'Unternehmer im Modell',includingStarter:'inklusive Starter',hoursDaily:'Gemeinsame Stunden pro Tag',hoursMonthly:'Gemeinsame Stunden in 30 Tagen',hoursPerPerson:'{hours} Stunden je Unternehmer',modelPeriod:'im aktuellen Modellstand',modelTruth:'Der Rechner zeigt nicht, was garantiert passieren wird. Er zeigt, was mathematisch möglich wird, wenn viele Menschen dieselben einfachen Spielregeln konsequent umsetzen.',brandSub:'Spielregeln · Simulator · Jackpot',fullscreen:'Vollbild',rulesKicker:'Mission Dorade',rulesTitle:'Die Spielregeln',rulesLead:'Alle starten mit derselben Aufgabe. Persönlicher Aufbau, gegenseitige Hilfe und Verantwortung lassen die 3-Ebenen-Logik in die Breite wachsen.',r1t:'Zwei persönlich gewinnen',r1p:'Jeder Club Partner gewinnt im Monat mindestens zwei neue Club Partner in seiner persönlichen ersten Linie.',r2t:'Beide befähigen',r2p:'Du hilfst Deinen beiden neuen Club Partnern dabei, ebenfalls ihre eigenen zwei Club Partner aufzubauen.',r3t:'Linien stabil halten',r3p:'Fällt jemand aus oder erfüllt seine Aufgabe nicht, wird die Linie wieder ergänzt. Für alle gelten dieselben Regeln.',mantra:'Zwei gewinnen. Beide befähigen. Gemeinsam weiter aufbauen.',simKicker:'Persönliche Modellrechnung',simTitle:'Was entsteht, wenn alle mitziehen?',simIntro:'Die 2er-Matrix ist die Mindestleistung für den Aktivstatus. Die 3-Ebenen-Logik berechnet die mögliche Vergütung.',yourName:'Dein Vorname',startDate:'Startdatum',firstPartner:'Erster Name',secondPartner:'Zweiter Name',simulationMonth:'Simulationsmonat',activeStatus:'Aktivstatus',activeText:'Erfüllt · mindestens 2 persönlich gewonnen',namesPreview:'{user} startet mit {first} und {second}. Beide bauen anschließend nach derselben Regel weiter.',resultTitle:'{user}s Aufbau nach {month} Monaten',resultLead:'Vollständige Umsetzung der 2er-Matrix über drei vergütete Ebenen.',level1:'Ebene 1 · 20 %',level2:'Ebene 2 · 15 %',level3:'Ebene 3 · 10 %',clubPartners:'Club Partner',possibleIncome:'Mögliche Vergütung bis zu diesem Monat',level1short:'Ebene 1',level2short:'Ebene 2',level3short:'Ebene 3',jackpotLabel:'Mission-Dorade-Jackpot',monthWord:'Monat',jackpotNote:'Der Monatswert wächst mit jeder neu entstehenden Club-Partner-Mitgliedschaft.',disclaimer:'Modellrechnung bei vollständiger Umsetzung durch alle Beteiligten. Grundlage: 99 € netto pro Club-Partner-Mitgliedschaft und Jahr. Keine Garantie und kein Einkommensversprechen.',jackKicker:'Extra obendrauf',jackTitle:'Mission-Dorade-Jackpot',jackLead:'Der erfüllte Aktivstatus öffnet die Tür zur monatlichen Club-internen Battle. Entscheidend ist der persönliche Aufbau in der ersten Linie.',goldBadge:'Gold-Dorade',firstPlace:'1. Platz · 66 %',goldText:'Für den stärksten persönlichen Club-Partner-Aufbau des Monats.',silverBadge:'Silber-Dorade',secondPlace:'2. Platz · 34 %',silverText:'Für den zweitstärksten persönlichen Club-Partner-Aufbau des Monats.',newChance:'Gemeinsam aufbauen. Aktiv bleiben. Monatlich neu antreten.',hallTitle:'Mission-Dorade-Hall-of-Fame',hallText:'Gold-Dorade und Silber-Dorade werden öffentlich geehrt, erhalten ihr dauerhaftes Abzeichen und schreiben Clubgeschichte.',monthlyReset:'Jeden Monat beginnt eine neue Chance.',back:'Zurück',next:'Weiter',finish:'Ende'},
+ en:{introTitle:'From I to We',introLine:'From the we grows a community that makes this possible.',introStart:'Start mission',partnersPerMonth:'Club Partners per month',hoursPerDay:'Working hours per entrepreneur and day',entrepreneurPower:'Entrepreneurial capacity',entrepreneurLead:'One person’s work becomes shared capacity.',entrepreneursModel:'Entrepreneurs in the model',includingStarter:'including the starter',hoursDaily:'Combined hours per day',hoursMonthly:'Combined hours in 30 days',hoursPerPerson:'{hours} hours per entrepreneur',modelPeriod:'at the current model stage',modelTruth:'The calculator does not show what is guaranteed to happen. It shows what becomes mathematically possible when many people consistently follow the same simple rules.',brandSub:'Rules · Simulator · Jackpot',fullscreen:'Fullscreen',rulesKicker:'Mission Dorade',rulesTitle:'The rules of the game',rulesLead:'Everyone starts with the same task. Personal growth, mutual support and responsibility make the three-level logic grow in breadth.',r1t:'Win two personally',r1p:'Every Club Partner personally wins at least two new Club Partners in their first level each month.',r2t:'Empower both',r2p:'You help both new Club Partners build their own two personal Club Partners as well.',r3t:'Keep lines stable',r3p:'If someone leaves or does not fulfil the task, the line is completed again. The same rules apply to everyone.',mantra:'Win two. Empower both. Keep building together.',simKicker:'Personal model calculation',simTitle:'What happens when everyone follows through?',simIntro:'The two-person matrix is the minimum performance for active status. The three-level logic calculates potential compensation.',yourName:'Your first name',startDate:'Start date',firstPartner:'First name',secondPartner:'Second name',simulationMonth:'Simulation month',activeStatus:'Active status',activeText:'Fulfilled · at least 2 personally won',namesPreview:'{user} starts with {first} and {second}. Both then continue building by the same rule.',resultTitle:'{user}’s growth after {month} months',resultLead:'Complete implementation of the two-person matrix across three compensated levels.',level1:'Level 1 · 20%',level2:'Level 2 · 15%',level3:'Level 3 · 10%',clubPartners:'Club Partners',possibleIncome:'Potential compensation up to this month',level1short:'Level 1',level2short:'Level 2',level3short:'Level 3',jackpotLabel:'Mission Dorade Jackpot',monthWord:'Month',jackpotNote:'The monthly value grows with every new Club Partner membership created.',disclaimer:'Model calculation assuming complete implementation by everyone involved. Basis: €99 net per Club Partner membership and year. No guarantee or income promise.',jackKicker:'Extra on top',jackTitle:'Mission Dorade Jackpot',jackLead:'Fulfilled active status opens the door to the monthly internal club battle. Personal first-level growth decides the result.',goldBadge:'Gold Dorade',firstPlace:'1st place · 66%',goldText:'For the strongest personal Club Partner growth of the month.',silverBadge:'Silver Dorade',secondPlace:'2nd place · 34%',silverText:'For the second-strongest personal Club Partner growth of the month.',newChance:'Build together. Stay active. Compete again every month.',hallTitle:'Mission Dorade Hall of Fame',hallText:'Gold Dorade and Silver Dorade are publicly honoured, receive their permanent badge and write club history.',monthlyReset:'Every month brings a new chance.',back:'Back',next:'Next',finish:'Finish'}
+};
+let current=0,lang=localStorage.getItem('mission-dorade-p3-lang')||'de';
+let animFrame=0,shown={l1:0,l2:0,l3:0,i1:0,i2:0,i3:0,total:0,jack:0,entrepreneurs:0,hoursDaily:0,hoursMonthly:0};
+const euro=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR',minimumFractionDigits:2});
+const euro0=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR',maximumFractionDigits:0});
+function fmtEuro(v){return (lang==='de'?euro:new Intl.NumberFormat('en-GB',{style:'currency',currency:'EUR',minimumFractionDigits:2})).format(v)}
+function fmtEuro0(v){return (lang==='de'?euro0:new Intl.NumberFormat('en-GB',{style:'currency',currency:'EUR',maximumFractionDigits:0})).format(v)}
+function formatDate(d,long=false){return new Intl.DateTimeFormat(lang==='de'?'de-DE':'en-GB',long?{month:'long',year:'numeric'}:{day:'2-digit',month:'2-digit',year:'numeric'}).format(d)}
+function safeName(v,fallback){return (v||'').trim()||fallback}
+function targetValues(){
+ const m=+$('monthRange').value;
+ const p=+$('partnersPerMonth').value;
+ const h=+$('hoursPerDay').value;
+ const l1=p*m;
+ const l2=(p*p/2)*m*(m-1);
+ const l3=(p*p*p/6)*m*(m-1)*(m-2);
+ const i1=l1*99*.20;
+ const i2=l2*99*.15;
+ const i3=l3*99*.10;
+ const newL1=p;
+ const newL2=p*p*(m-1);
+ const newL3=(p*p*p/2)*(m-1)*(m-2);
+ const jack=(newL1+newL2+newL3)*10;
+ const entrepreneurs=1+l1+l2+l3;
+ const hoursDaily=entrepreneurs*h;
+ const hoursMonthly=hoursDaily*30;
+ return {m,l1, l2:Math.round(l2), l3:Math.round(l3), i1,i2,i3,total:i1+i2+i3,jack,entrepreneurs,hoursDaily,hoursMonthly};
+}
+function animateTo(target){
+ cancelAnimationFrame(animFrame);
+ const start={...shown};const started=performance.now();const duration=950;
+ const ease=x=>1-Math.pow(1-x,3);
+ function tick(now){
+   const p=Math.min(1,(now-started)/duration),e=ease(p);
+   for(const k of Object.keys(shown)) shown[k]=start[k]+(target[k]-start[k])*e;
+   paintNumbers();
+   if(p<1)animFrame=requestAnimationFrame(tick);else{shown={...target};paintNumbers()}
+ }
+ animFrame=requestAnimationFrame(tick);
+}
+function paintNumbers(){
+ $('l1').textContent=Math.round(shown.l1).toLocaleString(lang==='de'?'de-DE':'en-GB');
+ $('l2').textContent=Math.round(shown.l2).toLocaleString(lang==='de'?'de-DE':'en-GB');
+ $('l3').textContent=Math.round(shown.l3).toLocaleString(lang==='de'?'de-DE':'en-GB');
+ $('income1').textContent=fmtEuro(shown.i1);$('income2').textContent=fmtEuro(shown.i2);$('income3').textContent=fmtEuro(shown.i3);$('incomeTotal').textContent=fmtEuro(shown.total);$('jackpotTotal').textContent=fmtEuro0(shown.jack);
+ $('entrepreneursTotal').textContent=Math.round(shown.entrepreneurs).toLocaleString(lang==='de'?'de-DE':'en-GB');
+ $('hoursDaily').textContent=Math.round(shown.hoursDaily).toLocaleString(lang==='de'?'de-DE':'en-GB');
+ $('hoursMonthly').textContent=Math.round(shown.hoursMonthly).toLocaleString(lang==='de'?'de-DE':'en-GB');
+}
+function updateSimulator(animate=true){
+ const values=targetValues(),m=values.m;
+ const user=safeName($('userName').value,lang==='de'?'Du':'You');
+ const first=safeName($('firstPartner').value,lang==='de'?'Club Partner 1':'Club Partner 1');
+ const second=safeName($('secondPartner').value,lang==='de'?'Club Partner 2':'Club Partner 2');
+ const d=new Date(($('startDate').value||'2026-07-01')+'T12:00:00');d.setMonth(d.getMonth()+m-1);
+ $('monthLabel').textContent=m;$('monthDate').textContent=formatDate(d,true);$('datePill').textContent=formatDate(d,false);$('jackMonth').textContent=m;
+ $('activeText').textContent=t[lang].activeText;
+ $('hoursPerPersonText').textContent=t[lang].hoursPerPerson.replace('{hours}',$('hoursPerDay').value);
+ $('namesPreview').innerHTML=t[lang].namesPreview.replace('{user}',`<b>${escapeHtml(user)}</b>`).replace('{first}',`<b>${escapeHtml(first)}</b>`).replace('{second}',`<b>${escapeHtml(second)}</b>`);
+ $('resultTitle').textContent=t[lang].resultTitle.replace('{user}',user).replace('{month}',m);
+ if(animate)animateTo(values);else{shown={...values};paintNumbers()}
+ localStorage.setItem('mission-dorade-p3-inputs',JSON.stringify({user:$('userName').value,start:$('startDate').value,first:$('firstPartner').value,second:$('secondPartner').value,month:m,partners:+$('partnersPerMonth').value,hours:+$('hoursPerDay').value}));
+}
+function escapeHtml(s){return s.replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function render(){
+ scenes.forEach((s,i)=>{s.classList.toggle('is-active',i===current);s.setAttribute('aria-hidden',String(i!==current))});
+ $('backBtn').disabled=current===0;$('nextBtn').disabled=false;$('nextBtn').textContent=current===scenes.length-1?t[lang].finish:t[lang].next;
+ $('progressBar').style.width=((current+1)/scenes.length*100)+'%';localStorage.setItem('mission-dorade-p3-scene',String(current));
+ if(current===2)updateSimulator(true);
+}
+function applyLang(){
+ document.documentElement.lang=lang;document.querySelectorAll('[data-i18n]').forEach(el=>{const v=t[lang][el.dataset.i18n];if(typeof v==='string')el.textContent=v});$('langLabel').textContent=lang==='de'?'EN':'DE';localStorage.setItem('mission-dorade-p3-lang',lang);updateSimulator(false);render();
+}
+['userName','startDate','firstPartner','secondPartner','partnersPerMonth','hoursPerDay'].forEach(id=>$(id).addEventListener('input',()=>updateSimulator(true)));$('monthRange').addEventListener('input',()=>updateSimulator(true));
+$('introStartBtn').addEventListener('click',()=>{current=1;render()});
+$('backBtn').addEventListener('click',()=>{if(current>0){current--;render()}});$('nextBtn').addEventListener('click',()=>{if(current<scenes.length-1){current++;render()}else{current=0;render()}});
+$('langBtn').addEventListener('click',()=>{lang=lang==='de'?'en':'de';applyLang()});
+$('fullscreenBtn').addEventListener('click',async()=>{const entering=!document.body.classList.contains('presentation');document.body.classList.toggle('presentation',entering);try{if(entering&&document.documentElement.requestFullscreen&&!document.fullscreenElement)await document.documentElement.requestFullscreen();else if(!entering&&document.fullscreenElement&&document.exitFullscreen)await document.exitFullscreen()}catch(e){}});
+document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName))return;if(e.key==='ArrowRight'||e.key===' '||e.key==='Enter'){e.preventDefault();$('nextBtn').click()}else if(e.key==='ArrowLeft'){e.preventDefault();$('backBtn').click()}else if(e.key.toLowerCase()==='f')$('fullscreenBtn').click();else if(e.key.toLowerCase()==='l')$('langBtn').click()});
+try{const saved=JSON.parse(localStorage.getItem('mission-dorade-p3-inputs')||'null');if(saved){$('userName').value=saved.user||'Anna';$('startDate').value=saved.start||'2026-07-01';$('firstPartner').value=saved.first||'Klaus';$('secondPartner').value=saved.second||'Helga';$('monthRange').value=saved.month||10;$('partnersPerMonth').value=saved.partners||2;$('hoursPerDay').value=saved.hours||6}}catch(e){}
+current=0;
+applyLang();
+})();
+</script>
+</body>
+</html>
