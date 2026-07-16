@@ -1118,6 +1118,8 @@
     │   │   ├── 09-gemeinsam-dorade.png
     │   │   ├── README.txt
     │   │   ├── index.html
+    │   │   ├── mission-dorade-praesentation-cover.jpeg
+    │   │   ├── mission-dorade-song-cover.jpeg
     │   │   └── vom-ich-zum-wir-(remastered).mp3
     │   ├── mission-dorade-tagesbegleiter/
     │   │   ├── README.txt
@@ -1741,4 +1743,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.07.2026, 18:01)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 16.07.2026, 19:58)_
