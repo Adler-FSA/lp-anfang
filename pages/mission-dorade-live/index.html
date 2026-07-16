@@ -43,7 +43,16 @@ h2{margin:16px 0 0;color:var(--magenta);font-size:clamp(1.25rem,min(2.2vw,3vh),2
 .overlay strong{font-size:clamp(1.2rem,min(2.2vw,3vh),1.7rem);line-height:1.38}
 @keyframes overlayIn{from{opacity:0;transform:translate3d(-50%,34px,0)}to{opacity:1;transform:translate3d(-50%,0,0)}}
 @keyframes overlayOut{from{opacity:1;transform:translate3d(-50%,0,0)}to{opacity:0;transform:translate3d(-50%,34px,0)}}
-.controls{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px}
+.controls{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px}
+.control-center{min-width:0;display:grid;gap:8px}
+.mode-controls{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0}
+.mode-btn{min-height:38px;padding:0 11px;display:inline-flex;align-items:center;gap:7px;font-size:.88rem}
+.mode-btn svg{width:17px;height:17px;display:block;fill:currentColor;flex:0 0 auto}
+.mode-btn.active{color:#fff;border-color:transparent;background:linear-gradient(135deg,var(--mint),var(--magenta));box-shadow:0 8px 20px rgba(19,34,56,.16)}
+.mode-btn:disabled{opacity:.42;cursor:not-allowed}
+.mode-status{min-width:88px;padding:7px 10px;border-radius:999px;background:#edf3f6;color:var(--muted);font-size:.78rem;font-weight:900;text-align:center}
+.mode-status.auto{background:#e5f8f8;color:#087d82}
+.mode-status.paused{background:#fff4dc;color:#9a6500}
 .progress{height:8px;border-radius:999px;background:#dfe8ed;overflow:hidden}
 .progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--mint),var(--magenta));transition:width .25s ease}
 body.started .top{display:none}
@@ -115,6 +124,12 @@ body.present .controls{padding:8px 10px;background:#fff}
  .normal-view{grid-template-rows:30% 70%}.copy{padding:14px 16px}
  h1{font-size:clamp(2rem,8vw,3rem)}h2{font-size:clamp(1.1rem,4.5vw,1.4rem)}.text{font-size:clamp(.95rem,3.8vw,1.15rem)}
  .overlay{width:94%;bottom:16px}
+ .controls{grid-template-columns:auto minmax(0,1fr) auto;gap:7px}
+ .controls>.btn{min-height:42px;padding:0 10px}
+ .mode-controls{gap:5px}
+ .mode-btn{min-height:36px;padding:0 9px}
+ .mode-btn span{display:none}
+ .mode-status{min-width:74px;font-size:.72rem;padding:6px 8px}
  .credits-roll{width:90vw}
  .credits-stage.active .credits-roll{animation-duration:84s}
  .finale-words{padding:20px 16px}
@@ -379,7 +394,15 @@ body.present .controls{padding:8px 10px;background:#fff}
 
 <footer class="controls" id="controls">
   <button class="btn" id="backBtn">Zurück</button>
-  <div class="progress"><div id="progressBar"></div></div>
+  <div class="control-center">
+    <div class="mode-controls" aria-label="Präsentationssteuerung">
+      <button class="btn mode-btn" id="autoBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><span>Automatik</span></button>
+      <button class="btn mode-btn" id="pauseBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg><span>Pause</span></button>
+      <button class="btn mode-btn active" id="manualBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 11V5.5a1.5 1.5 0 0 1 3 0V10h.5V4.5a1.5 1.5 0 0 1 3 0V10h.5V6a1.5 1.5 0 0 1 3 0v7.2c0 4.3-2.7 7.8-7.4 7.8H11c-2.1 0-3.5-.9-4.7-2.5L3.7 15a1.6 1.6 0 0 1 2.5-2l1.8 2.1V8a1.5 1.5 0 0 1 3 0v3z"/></svg><span>Manuell</span></button>
+      <span class="mode-status" id="modeStatus" aria-live="polite">Manuell</span>
+    </div>
+    <div class="progress"><div id="progressBar"></div></div>
+  </div>
   <button class="btn primary" id="nextBtn">Aufdecken</button>
 </footer>
 </main>
@@ -393,150 +416,57 @@ const cinema=document.getElementById('cinema');
 const creditsStage=document.getElementById('creditsStage');
 const doradeFinale=document.getElementById('doradeFinale');
 const controls=document.getElementById('controls');
+const autoBtn=document.getElementById('autoBtn');
+const pauseBtn=document.getElementById('pauseBtn');
+const manualBtn=document.getElementById('manualBtn');
+const modeStatus=document.getElementById('modeStatus');
 let sceneIndex=Number(localStorage.getItem('md-final-scene')||0);
 let phase=Number(localStorage.getItem('md-final-phase')||0);
 let mode=localStorage.getItem('md-final-mode')||'presentation';
-let filmTimer=null;
-
-/*
-Phasen je Szene:
-0 leer
-1 Eyebrow
-2 Titel
-3 Unterzeile
-4 Text
-5 Vollbild
-6 Frage ein
-7 Frage aus
-8 Kernaussage ein
-9 Kernaussage aus
-10 direkt nächste Szene
-*/
+let playMode=localStorage.getItem('md-play-mode')||'manual';
+let filmTimer=null,autoTimer=null,autoDeadline=0,remainingDelay=0;
+const AUTO_DELAYS={0:1200,1:2200,2:3000,3:4500,4:2500,5:1000,6:3000,7:600,8:3000,9:2400};
 
 function render(){
   scenes.forEach((scene,index)=>scene.classList.toggle('active',mode==='presentation'&&index===sceneIndex));
   cinema.classList.toggle('active',mode==='credits'||mode==='finale');
   creditsStage.classList.toggle('active',mode==='credits');
   doradeFinale.classList.toggle('active',mode==='finale');
-
   if(mode==='presentation'){
-    const scene=scenes[sceneIndex];
-    const reveals=[...scene.querySelectorAll('.reveal')];
-    const focus=scene.querySelector('.focus-view');
-    const question=scene.querySelector('.question');
-    const message=scene.querySelector('.message');
-
+    const scene=scenes[sceneIndex],reveals=[...scene.querySelectorAll('.reveal')],focus=scene.querySelector('.focus-view'),question=scene.querySelector('.question'),message=scene.querySelector('.message');
     reveals.forEach((el,index)=>el.classList.toggle('visible',phase>=index+1));
     focus.classList.toggle('active',phase>=5&&phase<=9);
-    question.className='overlay question';
-    message.className='overlay message';
-    if(phase===6)question.classList.add('show');
-    if(phase===7)question.classList.add('hide');
-    if(phase===8)message.classList.add('show');
-    if(phase===9)message.classList.add('hide');
-
-    const labels={
-      0:'Aufdecken',1:'Aufdecken',2:'Aufdecken',3:'Aufdecken',4:'Bild zeigen',
-      5:'Frage zeigen',6:'Frage ausblenden',7:'Kernaussage zeigen',
-      8:'Kernaussage ausblenden',9:(sceneIndex===scenes.length-1?'Zusammenfassung':'Nächste Folie')
-    };
+    question.className='overlay question'; message.className='overlay message';
+    if(phase===6)question.classList.add('show'); if(phase===7)question.classList.add('hide');
+    if(phase===8)message.classList.add('show'); if(phase===9)message.classList.add('hide');
+    const labels={0:'Aufdecken',1:'Aufdecken',2:'Aufdecken',3:'Aufdecken',4:'Bild zeigen',5:'Frage zeigen',6:'Frage ausblenden',7:'Kernaussage zeigen',8:'Kernaussage ausblenden',9:(sceneIndex===scenes.length-1?'Zusammenfassung':'Nächste Folie')};
     nextBtn.textContent=labels[phase]||'Weiter';
     backBtn.disabled=sceneIndex===0&&phase===0;
     progressBar.style.width=(((sceneIndex*10)+Math.min(phase,10))/(scenes.length*10+1)*100)+'%';
   }
-
   controls.style.display=(mode==='credits'||mode==='finale')?'none':'grid';
-  localStorage.setItem('md-final-scene',sceneIndex);
-  localStorage.setItem('md-final-phase',phase);
-  localStorage.setItem('md-final-mode',mode);
+  autoBtn.classList.toggle('active',playMode==='auto'); pauseBtn.classList.toggle('active',playMode==='paused'); manualBtn.classList.toggle('active',playMode==='manual');
+  pauseBtn.disabled=playMode==='manual'; modeStatus.className='mode-status';
+  if(playMode==='auto'){modeStatus.textContent='Automatik';modeStatus.classList.add('auto')}else if(playMode==='paused'){modeStatus.textContent='Pausiert';modeStatus.classList.add('paused')}else modeStatus.textContent='Manuell';
+  localStorage.setItem('md-final-scene',sceneIndex); localStorage.setItem('md-final-phase',phase); localStorage.setItem('md-final-mode',mode); localStorage.setItem('md-play-mode',playMode);
 }
-
-function startPresentation(){
-  document.body.classList.add('started');
-}
-
-function next(){
-  startPresentation();
-  if(mode!=='presentation')return;
-
-  if(phase<9){
-    phase++;
-    render();
-    return;
-  }
-
-  if(sceneIndex<scenes.length-1){
-    sceneIndex++;
-    phase=0;
-    render();
-    return;
-  }
-
-  startCredits();
-}
-
-function back(){
-  if(mode!=='presentation')return;
-  if(phase>0){
-    phase--;
-  }else if(sceneIndex>0){
-    sceneIndex--;
-    phase=9;
-  }
-  render();
-}
-
-function startCredits(){
-  mode='credits';
-  render();
-  filmTimer=setTimeout(startDoradeFinale,78500);
-}
-
-function startDoradeFinale(){
-  mode='finale';
-  render();
-  doradeFinale.classList.remove('words-visible','button-visible');
-
-  filmTimer=setTimeout(()=>{
-    doradeFinale.classList.add('words-visible');
-
-    filmTimer=setTimeout(()=>{
-      doradeFinale.classList.add('button-visible');
-    },6500);
-  },1200);
-}
-
-function resetAll(confirmFirst=true){
-  if(confirmFirst&&!confirm('Aktuellen Fortschritt löschen und neu beginnen?'))return;
-  clearTimeout(filmTimer);
-  sceneIndex=0;
-  phase=0;
-  mode='presentation';
-  localStorage.removeItem('md-final-scene');
-  localStorage.removeItem('md-final-phase');
-  localStorage.removeItem('md-final-mode');
-  document.body.classList.remove('started','present');
-  cinema.classList.remove('active');
-  creditsStage.classList.remove('active');
-  doradeFinale.classList.remove('active','words-visible','button-visible');
-  render();
-}
-
-nextBtn.addEventListener('click',next);
-backBtn.addEventListener('click',back);
-document.getElementById('resetBtn').addEventListener('click',()=>resetAll(true));
-document.getElementById('restartBtn').addEventListener('click',()=>resetAll(false));
-document.getElementById('fullBtn').addEventListener('click',async()=>{
-  const entering=!document.body.classList.contains('present');
-  document.body.classList.toggle('present',entering);
-  try{
-    if(entering&&document.documentElement.requestFullscreen&&!document.fullscreenElement)await document.documentElement.requestFullscreen();
-    else if(!entering&&document.fullscreenElement&&document.exitFullscreen)await document.exitFullscreen();
-  }catch(e){}
-});
-if(sceneIndex>0||phase>0||mode!=='presentation')document.body.classList.add('started');
-if(mode==='credits'||mode==='finale')mode='presentation';
-render();
+function startPresentation(){document.body.classList.add('started')}
+function clearAutoTimer(){if(autoTimer){clearTimeout(autoTimer);autoTimer=null}autoDeadline=0}
+function scheduleAutomatic(delay=AUTO_DELAYS[phase]||2000){clearAutoTimer();if(playMode!=='auto'||mode!=='presentation')return;remainingDelay=delay;autoDeadline=Date.now()+delay;autoTimer=setTimeout(()=>{autoTimer=null;autoDeadline=0;automaticStep()},delay)}
+function automaticStep(){if(playMode!=='auto'||mode!=='presentation')return;advancePresentation();if(mode==='presentation'&&playMode==='auto')scheduleAutomatic(AUTO_DELAYS[phase]||2000)}
+function advancePresentation(){startPresentation();if(phase<9){phase++;render();return}if(sceneIndex<scenes.length-1){sceneIndex++;phase=0;render();return}clearAutoTimer();startCredits()}
+function next(){if(mode!=='presentation')return;advancePresentation();if(playMode==='auto')scheduleAutomatic(AUTO_DELAYS[phase]||2000)}
+function back(){if(mode!=='presentation')return;if(phase>0)phase--;else if(sceneIndex>0){sceneIndex--;phase=9}render();if(playMode==='auto')scheduleAutomatic(AUTO_DELAYS[phase]||2000)}
+function startAutomatic(){if(mode!=='presentation')return;startPresentation();playMode='auto';remainingDelay=AUTO_DELAYS[phase]||2000;render();scheduleAutomatic(remainingDelay)}
+function pauseAutomatic(){if(playMode==='manual')return;if(playMode==='auto'){remainingDelay=Math.max(250,autoDeadline-Date.now());clearAutoTimer();playMode='paused';render();return}playMode='auto';render();scheduleAutomatic(remainingDelay||AUTO_DELAYS[phase]||2000)}
+function switchToManual(){clearAutoTimer();remainingDelay=0;playMode='manual';render()}
+function startCredits(){clearAutoTimer();mode='credits';render();filmTimer=setTimeout(startDoradeFinale,78500)}
+function startDoradeFinale(){mode='finale';render();doradeFinale.classList.remove('words-visible','button-visible');filmTimer=setTimeout(()=>{doradeFinale.classList.add('words-visible');filmTimer=setTimeout(()=>doradeFinale.classList.add('button-visible'),6500)},1200)}
+function resetAll(confirmFirst=true){if(confirmFirst&&!confirm('Aktuellen Fortschritt löschen und neu beginnen?'))return;clearTimeout(filmTimer);clearAutoTimer();sceneIndex=0;phase=0;mode='presentation';playMode='manual';remainingDelay=0;['md-final-scene','md-final-phase','md-final-mode','md-play-mode'].forEach(k=>localStorage.removeItem(k));document.body.classList.remove('started','present');cinema.classList.remove('active');creditsStage.classList.remove('active');doradeFinale.classList.remove('active','words-visible','button-visible');render()}
+nextBtn.addEventListener('click',next); backBtn.addEventListener('click',back); autoBtn.addEventListener('click',startAutomatic); pauseBtn.addEventListener('click',pauseAutomatic); manualBtn.addEventListener('click',switchToManual);
+document.getElementById('resetBtn').addEventListener('click',()=>resetAll(true)); document.getElementById('restartBtn').addEventListener('click',()=>resetAll(false));
+document.getElementById('fullBtn').addEventListener('click',async()=>{const entering=!document.body.classList.contains('present');document.body.classList.toggle('present',entering);try{if(entering&&document.documentElement.requestFullscreen&&!document.fullscreenElement)await document.documentElement.requestFullscreen();else if(!entering&&document.fullscreenElement&&document.exitFullscreen)await document.exitFullscreen()}catch(e){}});
+if(sceneIndex>0||phase>0||mode!=='presentation')document.body.classList.add('started'); if(mode==='credits'||mode==='finale')mode='presentation'; if(playMode==='paused')playMode='manual'; render(); if(playMode==='auto')scheduleAutomatic(AUTO_DELAYS[phase]||2000);
 </script>
 </body>
 </html>
