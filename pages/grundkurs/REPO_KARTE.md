@@ -655,6 +655,7 @@
     │   │   ├── D378BB9A-32E1-4E71-BC14-CC2FCFDC0789.PNG
     │   │   ├── existenzgruendungen-in-deutschland.html
     │   │   ├── heute-am-see.html
+    │   │   ├── leitartikel-vom-ich-zum-wir.html
     │   │   ├── mica-usdt-und-der-digitale-euro.html
     │   │   ├── unternehmerschaft.html
     │   │   └── wenn-der-minijob-faellt.html
@@ -1789,4 +1790,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 17.07.2026, 20:47)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 17.07.2026, 21:45)_
