@@ -1135,6 +1135,9 @@
     │   ├── mentor/
     │   │   ├── lektion-souveraen.html
     │   │   └── trustyfy-bewusstsein.html
+    │   ├── mission-dorade-interview/
+    │   │   ├── index.html
+    │   │   └── mission-dorade-logo.jpeg
     │   ├── mission-dorade-live/
     │   │   ├── 00-start-dorade.png
     │   │   ├── 01-neue-perspektiven.png
@@ -1790,4 +1793,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 17.07.2026, 21:45)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 17.07.2026, 22:42)_
