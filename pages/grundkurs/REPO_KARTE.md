@@ -1153,6 +1153,7 @@
     │   ├── mission-dorade-shop-v1/
     │   │   ├── cap.jpg
     │   │   ├── hoodie.jpg
+    │   │   ├── index 3.html
     │   │   ├── index.html
     │   │   ├── kugelschreiber.jpg
     │   │   ├── mission-dorade-kollektionen.png
@@ -1788,4 +1789,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 17.07.2026, 12:04)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 17.07.2026, 14:27)_
