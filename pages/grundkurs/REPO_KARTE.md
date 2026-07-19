@@ -1138,6 +1138,18 @@
     │   ├── mission-dorade-interview/
     │   │   ├── index.html
     │   │   └── mission-dorade-logo.jpeg
+    │   ├── mission-dorade-karriere/
+    │   │   ├── captain-collection.jpeg
+    │   │   ├── captain-collection.png
+    │   │   ├── explorer-collection.jpeg
+    │   │   ├── explorer-collection.png
+    │   │   ├── founder-collection.jpeg
+    │   │   ├── founder-collection.png
+    │   │   ├── index.html
+    │   │   ├── mission-dorade-die-reise.jpeg
+    │   │   ├── mission-dorade-shop-banner.jpeg
+    │   │   ├── ocean-collection.jpeg
+    │   │   └── ocean-collection.png
     │   ├── mission-dorade-live/
     │   │   ├── 00-start-dorade.png
     │   │   ├── 01-neue-perspektiven.png
@@ -1793,4 +1805,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.07.2026, 05:45)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.07.2026, 08:06)_
