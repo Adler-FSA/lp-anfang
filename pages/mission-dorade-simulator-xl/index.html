@@ -47,10 +47,10 @@
     .split-gb{background:linear-gradient(90deg,var(--gold) 50%,var(--blue) 50%)}
     .legend-row strong{font-size:13px}.legend-row span{display:block;color:var(--muted);font-size:12px;line-height:1.3}
     .rule{margin-top:14px;padding:12px;border-radius:14px;background:#fff7fa;border:1px solid #f4c4dd;font-size:13px;line-height:1.45}
-    .stage{background:white;border:1px solid var(--line);border-radius:18px;padding:14px;min-height:620px;overflow:hidden}
+    .stage{background:white;border:1px solid var(--line);border-radius:18px;padding:14px;min-height:980px;overflow:hidden}
     .stage-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}
     .badge{display:inline-flex;align-items:center;border-radius:999px;background:#f2f4f7;padding:7px 11px;font-weight:800;font-size:13px}
-    canvas{display:block;width:100%;height:560px;border-radius:14px;background:radial-gradient(circle at top,#fff,#fbfcff)}
+    canvas{display:block;width:100%;height:900px;border-radius:14px;background:radial-gradient(circle at top,#fff,#fbfcff)}
     .levelcards{display:grid;gap:10px}
     .level{border-radius:14px;padding:12px;border:1px solid var(--line);background:white}
     .level .top{display:flex;justify-content:space-between;gap:8px;align-items:center}
@@ -67,7 +67,7 @@
     tr.active-row td{background:#fff4f9;font-weight:800}
     .foot{margin:18px 0 4px;color:var(--muted);font-size:12px;text-align:center}
     @media (max-width:1050px){.layout{grid-template-columns:1fr}.controls{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.stage{order:1}.legend{order:2}.side{order:3}}
-    @media (max-width:650px){.head{grid-template-columns:1fr}.startbox{border-left:0;border-top:1px solid #e9bd49;padding:14px 0 0}.control-grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}.monthticks{display:none}canvas{height:460px}}
+    @media (max-width:650px){.head{grid-template-columns:1fr}.startbox{border-left:0;border-top:1px solid #e9bd49;padding:14px 0 0}.control-grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}.monthticks{display:none}.stage{min-height:900px}canvas{height:820px}}
   </style>
 </head>
 <body>
@@ -127,7 +127,7 @@
 
       <section class="stage">
         <div class="stage-head"><div><strong>Big Picture des Aufbaus</strong><div style="font-size:13px;color:var(--muted)">Jeder Punkt steht für einen Menschen. Bei sehr großen Mengen wird automatisch verdichtet.</div></div><span class="badge" id="densityBadge">Einzelpunkte</span></div>
-        <canvas id="network" width="1000" height="560" aria-label="Visualisierung der drei Ebenen"></canvas>
+        <canvas id="network" width="1000" height="900" aria-label="Visualisierung der drei Ebenen"></canvas>
       </section>
 
       <aside class="panel side">
@@ -184,25 +184,64 @@
     c.width=Math.max(640,Math.floor(rect.width*ratio)); c.height=Math.floor(rect.height*ratio);
     const ctx=c.getContext('2d'); ctx.scale(ratio,ratio); const W=rect.width,H=rect.height; ctx.clearRect(0,0,W,H);
     ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
-    // Head
-    drawSolid(ctx,W/2,35,19,colors.magenta); ctx.fillStyle=colors.ink;ctx.font='700 14px system-ui';ctx.textAlign='center';ctx.fillText('ANNA',W/2,70);
+
+    // Anna als Ausgangspunkt
+    drawSolid(ctx,W/2,34,19,colors.magenta);
+    ctx.fillStyle=colors.ink;ctx.font='700 14px system-ui';ctx.textAlign='center';ctx.fillText('ANNA',W/2,69);
+
+    const topGap=105;
+    const bottomPad=24;
+    const bandGap=18;
+    const bandHeight=(H-topGap-bottomPad-bandGap*2)/3;
     const levels=[
-      {count:d.e1,newCount:d.n1,y:145,base:colors.magenta,next:colors.mint,label:'Ebene 1'},
-      {count:d.e2,newCount:d.n2,y:290,base:colors.mint,next:colors.gold,label:'Ebene 2'},
-      {count:d.e3,newCount:d.n3,y:435,base:colors.gold,next:colors.blue,label:'Ebene 3'}
+      {count:d.e1,newCount:d.n1,base:colors.magenta,next:colors.mint,label:'Ebene 1'},
+      {count:d.e2,newCount:d.n2,base:colors.mint,next:colors.gold,label:'Ebene 2'},
+      {count:d.e3,newCount:d.n3,base:colors.gold,next:colors.blue,label:'Ebene 3'}
     ];
-    ctx.strokeStyle=colors.line;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(W/2,82);ctx.lineTo(W/2,110);ctx.stroke();
+
+    ctx.strokeStyle=colors.line;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(W/2,82);ctx.lineTo(W/2,topGap-14);ctx.stroke();
+
     levels.forEach((L,idx)=>{
-      ctx.fillStyle=colors.ink;ctx.font='700 14px system-ui';ctx.textAlign='left';ctx.fillText(`${L.label}: ${fmt(L.count)} Menschen`,16,L.y-50);
-      const maxDots=Math.max(40,Math.floor((W-32)/10)*9); const exact=L.count<=maxDots; const shown=exact?L.count:Math.min(maxDots,Math.ceil(Math.sqrt(L.count)*10));
-      const cols=Math.max(10,Math.floor((W-34)/15)), rows=Math.max(1,Math.ceil(shown/cols)); const rr=Math.max(2.2,Math.min(5.2,(W-34)/(cols*3.1)));
-      const activeCount=Math.max(0,L.count-L.newCount); const activeShown=shown===0?0:Math.round(shown*(activeCount/L.count));
+      const bandTop=topGap+idx*(bandHeight+bandGap);
+      const labelY=bandTop+18;
+      const dotsTop=bandTop+48;
+      const availableHeight=bandHeight-60;
+      const cols=Math.max(12,Math.floor((W-40)/15));
+      const maxRows=Math.max(3,Math.floor(availableHeight/14));
+      const capacity=cols*maxRows;
+      const exact=L.count<=capacity;
+      const compressedTarget=Math.ceil(Math.sqrt(Math.max(0,L.count))*10);
+      const shown=exact?L.count:Math.min(capacity,Math.max(cols,compressedTarget));
+      const rows=Math.max(1,Math.ceil(shown/cols));
+      const rr=Math.max(2.3,Math.min(5.1,(W-40)/(cols*3.05)));
+      const activeCount=Math.max(0,L.count-L.newCount);
+      const activeShown=L.count===0?0:Math.round(shown*(activeCount/L.count));
+
+      // klare Ebenen-Bänder, damit Überschrift und Punkte nie ineinanderlaufen
+      if(idx>0){
+        ctx.strokeStyle='#e5e9f1';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(14,bandTop-bandGap/2);ctx.lineTo(W-14,bandTop-bandGap/2);ctx.stroke();
+      }
+      ctx.fillStyle=colors.ink;ctx.font='700 15px system-ui';ctx.textAlign='left';
+      ctx.fillText(`${L.label}: ${fmt(L.count)} Menschen`,16,labelY);
+      if(!exact){
+        ctx.textAlign='right';ctx.font='700 12px system-ui';ctx.fillStyle='#667085';
+        ctx.fillText(`Verdichtete Darstellung · ${fmt(L.count)} Personen`,W-18,labelY);
+      }
+
       for(let i=0;i<shown;i++){
-        const row=Math.floor(i/cols), col=i%cols; const used=Math.min(cols,shown-row*cols); const gap=(W-36)/(used||1); const x=18+gap*(col+.5); const y=L.y+row*14;
+        const row=Math.floor(i/cols), col=i%cols;
+        const used=Math.min(cols,shown-row*cols);
+        const gap=(W-36)/(used||1);
+        const x=18+gap*(col+.5);
+        const y=dotsTop+row*14;
         if(i<activeShown) drawSplit(ctx,x,y,rr,L.base,L.next); else drawSolid(ctx,x,y,rr,L.base);
       }
-      if(!exact){ctx.textAlign='right';ctx.font='700 12px system-ui';ctx.fillStyle='#667085';ctx.fillText(`Verdichtete Darstellung · ${fmt(L.count)} Personen`,W-18,L.y-50);}
-      if(idx<levels.length-1){ctx.strokeStyle=colors.line;ctx.beginPath();ctx.moveTo(W/2,L.y+rows*14+5);ctx.lineTo(W/2,levels[idx+1].y-68);ctx.stroke();}
+
+      if(idx<levels.length-1){
+        const lineStart=Math.min(bandTop+bandHeight-20,dotsTop+rows*14+8);
+        const nextTop=topGap+(idx+1)*(bandHeight+bandGap);
+        ctx.strokeStyle=colors.line;ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(W/2,lineStart);ctx.lineTo(W/2,nextTop-14);ctx.stroke();
+      }
     });
     document.getElementById('densityBadge').textContent=(d.e1+d.e2+d.e3>900)?'Verdichtete Punktansicht':'Ein Punkt = ein Mensch';
   }
