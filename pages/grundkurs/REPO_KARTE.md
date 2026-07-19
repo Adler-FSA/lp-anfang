@@ -1183,6 +1183,9 @@
     │   │   ├── tasse.jpg
     │   │   ├── tragetasche.jpg
     │   │   └── trinkflasche.jpg
+    │   ├── mission-dorade-simulator-xl/
+    │   │   ├── Mission-Dorade-Simulator-XL.html
+    │   │   └── index.html
     │   ├── mission-dorade-tagesbegleiter/
     │   │   ├── README.txt
     │   │   ├── affiliate-link-einbau-tagesbegleiter.html
@@ -1805,4 +1808,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.07.2026, 16:51)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 19.07.2026, 17:53)_
