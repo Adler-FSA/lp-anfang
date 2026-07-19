@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Mission Dorade – Simulator XL</title>
+  <style>
+    :root{
+      --navy:#071a2b; --navy2:#0d2942; --paper:#fffaf1; --card:#ffffff;
+      --magenta:#d9157f; --mint:#36c6a3; --gold:#f0b323; --blue:#3278b7;
+      --ink:#122033; --muted:#667085; --line:#d9dfeb; --soft:#f5f7fb;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(180deg,#fffdf8,#f6f8fb);color:var(--ink)}
+    button,input{font:inherit}
+    .app{min-height:100vh}
+    header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:white;padding:22px clamp(16px,4vw,48px)}
+    .head{max-width:1500px;margin:auto;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center}
+    .brand{display:flex;gap:18px;align-items:center}
+    .fish{width:58px;height:38px;border:5px solid #f4c24d;border-right:0;border-radius:60% 0 0 60%;position:relative;transform:skewX(-12deg)}
+    .fish:after{content:"";position:absolute;right:-22px;top:4px;border-top:12px solid transparent;border-bottom:12px solid transparent;border-left:20px solid #f4c24d}
+    h1{font-size:clamp(25px,4vw,48px);line-height:1.05;margin:0}
+    .sub{margin-top:8px;font-size:clamp(13px,1.8vw,20px);opacity:.92}
+    .startbox{border-left:1px solid #e9bd49;padding-left:24px;min-width:240px}
+    .startbox label{display:block;font-size:13px;color:#f5c14d;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+    .startbox input{margin-top:8px;width:100%;padding:10px;border-radius:10px;border:0}
+    main{max-width:1500px;margin:0 auto;padding:18px}
+    .controls{display:grid;grid-template-columns:1.5fr .7fr;gap:16px;margin-bottom:16px}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(20,36,60,.05)}
+    .control-grid{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:end}
+    .range-label{display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;font-weight:800}
+    input[type=range]{width:100%;accent-color:var(--magenta)}
+    .monthticks{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;font-size:11px;color:var(--muted);margin-top:8px;text-align:center}
+    .seg{display:flex;gap:8px;flex-wrap:wrap}
+    .seg button{border:1px solid var(--line);background:#fff;padding:10px 14px;border-radius:999px;cursor:pointer;font-weight:800}
+    .seg button.active{background:var(--navy);color:white;border-color:var(--navy)}
+    .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+    .metric{background:white;border:1px solid var(--line);border-radius:16px;padding:14px}
+    .metric b{display:block;font-size:clamp(23px,3vw,38px);margin-top:4px}
+    .metric small{color:var(--muted)}
+    .layout{display:grid;grid-template-columns:270px minmax(0,1fr) 300px;gap:16px;align-items:start}
+    .legend-row{display:grid;grid-template-columns:38px 1fr;gap:10px;align-items:center;margin:12px 0}
+    .dot{width:30px;height:30px;border-radius:50%;border:1px solid rgba(0,0,0,.12)}
+    .solid-magenta{background:var(--magenta)} .solid-mint{background:var(--mint)} .solid-gold{background:var(--gold)} .solid-blue{background:var(--blue)}
+    .split-mm{background:linear-gradient(90deg,var(--magenta) 50%,var(--mint) 50%)}
+    .split-mg{background:linear-gradient(90deg,var(--mint) 50%,var(--gold) 50%)}
+    .split-gb{background:linear-gradient(90deg,var(--gold) 50%,var(--blue) 50%)}
+    .legend-row strong{font-size:13px}.legend-row span{display:block;color:var(--muted);font-size:12px;line-height:1.3}
+    .rule{margin-top:14px;padding:12px;border-radius:14px;background:#fff7fa;border:1px solid #f4c4dd;font-size:13px;line-height:1.45}
+    .stage{background:white;border:1px solid var(--line);border-radius:18px;padding:14px;min-height:620px;overflow:hidden}
+    .stage-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}
+    .badge{display:inline-flex;align-items:center;border-radius:999px;background:#f2f4f7;padding:7px 11px;font-weight:800;font-size:13px}
+    canvas{display:block;width:100%;height:560px;border-radius:14px;background:radial-gradient(circle at top,#fff,#fbfcff)}
+    .levelcards{display:grid;gap:10px}
+    .level{border-radius:14px;padding:12px;border:1px solid var(--line);background:white}
+    .level .top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+    .level .num{font-size:25px;font-weight:900;margin-top:6px}
+    .level.mag{border-left:8px solid var(--magenta)} .level.min{border-left:8px solid var(--mint)} .level.gol{border-left:8px solid var(--gold)}
+    .moneybox{margin-top:12px;background:var(--navy);color:white;border-radius:16px;padding:14px}
+    .moneybox .big{font-size:30px;font-weight:900;color:#f4c24d;margin-top:4px}
+    .explain{margin-top:12px;font-size:13px;line-height:1.5;color:var(--muted)}
+    .tablewrap{margin-top:16px;overflow:auto;border:1px solid var(--line);border-radius:16px;background:white}
+    table{width:100%;border-collapse:collapse;min-width:860px}
+    th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:right;font-size:13px}
+    th:first-child,td:first-child{text-align:left}
+    th{background:#f7f9fc;position:sticky;top:0}
+    tr.active-row td{background:#fff4f9;font-weight:800}
+    .foot{margin:18px 0 4px;color:var(--muted);font-size:12px;text-align:center}
+    @media (max-width:1050px){.layout{grid-template-columns:1fr}.controls{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.stage{order:1}.legend{order:2}.side{order:3}}
+    @media (max-width:650px){.head{grid-template-columns:1fr}.startbox{border-left:0;border-top:1px solid #e9bd49;padding:14px 0 0}.control-grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}.monthticks{display:none}canvas{height:460px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="head">
+      <div class="brand"><div class="fish" aria-hidden="true"></div><div><h1>Mission Dorade – Simulator XL</h1><div class="sub">Jeder ist Anna. Jeder baut seine eigene erste Linie auf und hilft zwei Menschen, es nachzumachen.</div></div></div>
+      <div class="startbox"><label for="startDate">Mein Startdatum</label><input id="startDate" type="date" value="2027-01-01"></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="controls">
+      <div class="panel">
+        <div class="control-grid">
+          <div>
+            <div class="range-label"><span>Monatsregler</span><span id="monthLabel">Monat 1</span></div>
+            <input id="monthRange" type="range" min="1" max="12" value="1" step="1">
+            <div class="monthticks" id="monthTicks"></div>
+          </div>
+          <div>
+            <div style="font-weight:800;margin-bottom:8px">Eigene Mindestleistung</div>
+            <div class="seg" id="performanceButtons">
+              <button type="button" data-k="2" class="active">2 / Monat</button>
+              <button type="button" data-k="3">3 / Monat</button>
+              <button type="button" data-k="4">4 / Monat</button>
+              <button type="button" data-k="5">5 / Monat</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <strong>Aktueller Simulationspunkt</strong>
+        <div id="dateLabel" style="font-size:24px;font-weight:900;margin-top:8px">Januar 2027</div>
+        <div id="clubMonthLabel" style="color:var(--muted);margin-top:4px">Annas persönlicher Clubmonat 1</div>
+      </div>
+    </section>
+
+    <section class="metrics">
+      <div class="metric"><small>Menschen in 3 Ebenen</small><b id="peopleTotal">2</b><small>ohne Anna</small></div>
+      <div class="metric"><small>Vergütung in diesem Monat</small><b id="monthIncome">39,60 €</b><small>aus neuen Mitgliedschaften</small></div>
+      <div class="metric"><small>Vergütung bis heute</small><b id="ytdIncome">39,60 €</b><small>im persönlichen Clubjahr</small></div>
+      <div class="metric"><small>Jahresergebnis Monat 12</small><b id="yearIncome">21.819,60 €</b><small>bei gleicher Leistung</small></div>
+    </section>
+
+    <section class="layout">
+      <aside class="panel legend">
+        <h2 style="margin:0 0 6px;font-size:18px">Farblogik</h2>
+        <div class="legend-row"><div class="dot solid-magenta"></div><div><strong>Magenta</strong><span>In Annas 1. Ebene, noch ohne eigenen Aufbau.</span></div></div>
+        <div class="legend-row"><div class="dot split-mm"></div><div><strong>Magenta / Mint</strong><span>In Annas 1. Ebene und selbst aktiv.</span></div></div>
+        <div class="legend-row"><div class="dot solid-mint"></div><div><strong>Mint</strong><span>In Annas 2. Ebene, noch ohne eigenen Aufbau.</span></div></div>
+        <div class="legend-row"><div class="dot split-mg"></div><div><strong>Mint / Gold</strong><span>In Annas 2. Ebene und selbst aktiv.</span></div></div>
+        <div class="legend-row"><div class="dot solid-gold"></div><div><strong>Gold</strong><span>In Annas 3. Ebene, noch ohne eigenen Aufbau.</span></div></div>
+        <div class="legend-row"><div class="dot split-gb"></div><div><strong>Gold / Blau</strong><span>In Annas 3. Ebene und baut weiter.</span></div></div>
+        <div class="rule"><b>Grundregel für alle:</b><br>Eigene Partner gewinnen, einarbeiten, beim Aufbau helfen und im nächsten Monat erneut die gewählte Zahl aufbauen.</div>
+      </aside>
+
+      <section class="stage">
+        <div class="stage-head"><div><strong>Big Picture des Aufbaus</strong><div style="font-size:13px;color:var(--muted)">Jeder Punkt steht für einen Menschen. Bei sehr großen Mengen wird automatisch verdichtet.</div></div><span class="badge" id="densityBadge">Einzelpunkte</span></div>
+        <canvas id="network" width="1000" height="560" aria-label="Visualisierung der drei Ebenen"></canvas>
+      </section>
+
+      <aside class="panel side">
+        <h2 style="margin:0 0 10px;font-size:18px">Ebenen aus Annas Sicht</h2>
+        <div class="levelcards">
+          <div class="level mag"><div class="top"><strong>1. Ebene · 20 %</strong><span>eigene Leistung</span></div><div class="num" id="e1Count">2</div><small id="e1Income">39,60 €</small></div>
+          <div class="level min"><div class="top"><strong>2. Ebene · 15 %</strong><span>von Partnern</span></div><div class="num" id="e2Count">0</div><small id="e2Income">0,00 €</small></div>
+          <div class="level gol"><div class="top"><strong>3. Ebene · 10 %</strong><span>von Partnern</span></div><div class="num" id="e3Count">0</div><small id="e3Income">0,00 €</small></div>
+        </div>
+        <div class="moneybox"><small>Gesamtvergütung bis zum gewählten Monat</small><div class="big" id="totalIncomeSide">39,60 €</div><div style="font-size:12px;opacity:.8">99 € Club-Partner-Mitgliedschaft · nur 1. Clubjahr</div></div>
+        <div class="explain" id="explainText"></div>
+      </aside>
+    </section>
+
+    <section class="tablewrap">
+      <table>
+        <thead><tr><th>Monat</th><th>Neu E1</th><th>Neu E2</th><th>Neu E3</th><th>Bestand E1</th><th>Bestand E2</th><th>Bestand E3</th><th>Monatsvergütung</th><th>Vergütung bis Monat</th></tr></thead>
+        <tbody id="monthTable"></tbody>
+      </table>
+    </section>
+    <div class="foot">Mathematische Simulation bei konsequenter Umsetzung. Keine Einkommensgarantie und keine Abrechnung von LiquidityBooster.</div>
+  </main>
+</div>
+<script>
+(() => {
+  const PRICE=99, RATES=[0.20,0.15,0.10];
+  const colors={magenta:'#d9157f',mint:'#36c6a3',gold:'#f0b323',blue:'#3278b7',line:'#d4d9e4',ink:'#122033'};
+  const range=document.getElementById('monthRange'), start=document.getElementById('startDate');
+  let k=2;
+  const euro=v=>v.toLocaleString('de-DE',{style:'currency',currency:'EUR'});
+  const fmt=v=>v.toLocaleString('de-DE');
+  const choose=(n,r)=>{ if(r<0||n<r) return 0; if(r===0) return 1; let x=1; for(let i=1;i<=r;i++) x=x*(n-r+i)/i; return Math.round(x); };
+  const dataFor=m=>{
+    const e1=k*m;
+    const e2=k*k*choose(m,2);
+    const e3=k*k*k*choose(m,3);
+    const n1=k;
+    const n2=k*k*(m-1);
+    const n3=k*k*k*choose(m-1,2);
+    const monthIncome=PRICE*(n1*RATES[0]+n2*RATES[1]+n3*RATES[2]);
+    const totalIncome=PRICE*(e1*RATES[0]+e2*RATES[1]+e3*RATES[2]);
+    return {m,e1,e2,e3,n1,n2,n3,monthIncome,totalIncome};
+  };
+  const monthDate=m=>{const d=new Date(start.value+'T12:00:00'); d.setMonth(d.getMonth()+m-1); return d;};
+  const monthName=d=>d.toLocaleDateString('de-DE',{month:'long',year:'numeric'});
+  function drawSplit(ctx,x,y,r,a,b){
+    ctx.save(); ctx.beginPath();ctx.arc(x,y,r,Math.PI/2,Math.PI*1.5);ctx.closePath();ctx.fillStyle=a;ctx.fill();
+    ctx.beginPath();ctx.arc(x,y,r,-Math.PI/2,Math.PI/2);ctx.closePath();ctx.fillStyle=b;ctx.fill();
+    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.strokeStyle='rgba(0,0,0,.18)';ctx.lineWidth=.8;ctx.stroke();ctx.restore();
+  }
+  function drawSolid(ctx,x,y,r,c){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=c;ctx.fill();ctx.strokeStyle='rgba(0,0,0,.16)';ctx.stroke();}
+  function renderCanvas(d){
+    const c=document.getElementById('network'), rect=c.getBoundingClientRect(), ratio=window.devicePixelRatio||1;
+    c.width=Math.max(640,Math.floor(rect.width*ratio)); c.height=Math.floor(rect.height*ratio);
+    const ctx=c.getContext('2d'); ctx.scale(ratio,ratio); const W=rect.width,H=rect.height; ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+    // Head
+    drawSolid(ctx,W/2,35,19,colors.magenta); ctx.fillStyle=colors.ink;ctx.font='700 14px system-ui';ctx.textAlign='center';ctx.fillText('ANNA',W/2,70);
+    const levels=[
+      {count:d.e1,newCount:d.n1,y:145,base:colors.magenta,next:colors.mint,label:'Ebene 1'},
+      {count:d.e2,newCount:d.n2,y:290,base:colors.mint,next:colors.gold,label:'Ebene 2'},
+      {count:d.e3,newCount:d.n3,y:435,base:colors.gold,next:colors.blue,label:'Ebene 3'}
+    ];
+    ctx.strokeStyle=colors.line;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(W/2,82);ctx.lineTo(W/2,110);ctx.stroke();
+    levels.forEach((L,idx)=>{
+      ctx.fillStyle=colors.ink;ctx.font='700 14px system-ui';ctx.textAlign='left';ctx.fillText(`${L.label}: ${fmt(L.count)} Menschen`,16,L.y-50);
+      const maxDots=Math.max(40,Math.floor((W-32)/10)*9); const exact=L.count<=maxDots; const shown=exact?L.count:Math.min(maxDots,Math.ceil(Math.sqrt(L.count)*10));
+      const cols=Math.max(10,Math.floor((W-34)/15)), rows=Math.max(1,Math.ceil(shown/cols)); const rr=Math.max(2.2,Math.min(5.2,(W-34)/(cols*3.1)));
+      const activeCount=Math.max(0,L.count-L.newCount); const activeShown=shown===0?0:Math.round(shown*(activeCount/L.count));
+      for(let i=0;i<shown;i++){
+        const row=Math.floor(i/cols), col=i%cols; const used=Math.min(cols,shown-row*cols); const gap=(W-36)/(used||1); const x=18+gap*(col+.5); const y=L.y+row*14;
+        if(i<activeShown) drawSplit(ctx,x,y,rr,L.base,L.next); else drawSolid(ctx,x,y,rr,L.base);
+      }
+      if(!exact){ctx.textAlign='right';ctx.font='700 12px system-ui';ctx.fillStyle='#667085';ctx.fillText(`Verdichtete Darstellung · ${fmt(L.count)} Personen`,W-18,L.y-50);}
+      if(idx<levels.length-1){ctx.strokeStyle=colors.line;ctx.beginPath();ctx.moveTo(W/2,L.y+rows*14+5);ctx.lineTo(W/2,levels[idx+1].y-68);ctx.stroke();}
+    });
+    document.getElementById('densityBadge').textContent=(d.e1+d.e2+d.e3>900)?'Verdichtete Punktansicht':'Ein Punkt = ein Mensch';
+  }
+  function renderTable(selected){
+    const body=document.getElementById('monthTable'); body.innerHTML='';
+    for(let m=1;m<=12;m++){
+      const d=dataFor(m), tr=document.createElement('tr'); if(m===selected) tr.className='active-row';
+      tr.innerHTML=`<td>Monat ${m}<br><small>${monthName(monthDate(m))}</small></td><td>${fmt(d.n1)}</td><td>${fmt(d.n2)}</td><td>${fmt(d.n3)}</td><td>${fmt(d.e1)}</td><td>${fmt(d.e2)}</td><td>${fmt(d.e3)}</td><td>${euro(d.monthIncome)}</td><td>${euro(d.totalIncome)}</td>`;
+      body.appendChild(tr);
+    }
+  }
+  function renderTicks(){const el=document.getElementById('monthTicks');el.innerHTML='';for(let m=1;m<=12;m++){const s=document.createElement('span');s.textContent=m;el.appendChild(s)}}
+  function update(){
+    const m=+range.value,d=dataFor(m),year=dataFor(12);
+    document.getElementById('monthLabel').textContent=`Monat ${m}`;
+    document.getElementById('dateLabel').textContent=monthName(monthDate(m));
+    document.getElementById('clubMonthLabel').textContent=`Annas persönlicher Clubmonat ${m}`;
+    document.getElementById('peopleTotal').textContent=fmt(d.e1+d.e2+d.e3);
+    document.getElementById('monthIncome').textContent=euro(d.monthIncome);
+    document.getElementById('ytdIncome').textContent=euro(d.totalIncome);
+    document.getElementById('yearIncome').textContent=euro(year.totalIncome);
+    document.getElementById('e1Count').textContent=fmt(d.e1); document.getElementById('e2Count').textContent=fmt(d.e2); document.getElementById('e3Count').textContent=fmt(d.e3);
+    document.getElementById('e1Income').textContent=euro(d.e1*PRICE*RATES[0]); document.getElementById('e2Income').textContent=euro(d.e2*PRICE*RATES[1]); document.getElementById('e3Income').textContent=euro(d.e3*PRICE*RATES[2]);
+    document.getElementById('totalIncomeSide').textContent=euro(d.totalIncome);
+    document.getElementById('explainText').innerHTML=`Anna baut in Monat ${m} erneut <b>${k}</b> persönliche Club Partner auf. Ihre aktive erste Ebene kopiert dieselbe Vorgehensweise. So entstehen bis zu diesem Zeitpunkt <b>${fmt(d.e2)}</b> Menschen in Ebene 2 und <b>${fmt(d.e3)}</b> Menschen in Ebene 3 – zusätzlich zu Annas eigener Leistung.`;
+    renderCanvas(d); renderTable(m);
+  }
+  document.getElementById('performanceButtons').addEventListener('click',e=>{const b=e.target.closest('button[data-k]');if(!b)return;k=+b.dataset.k;document.querySelectorAll('#performanceButtons button').forEach(x=>x.classList.toggle('active',x===b));update()});
+  range.addEventListener('input',update); start.addEventListener('change',update); window.addEventListener('resize',()=>renderCanvas(dataFor(+range.value)));
+  renderTicks(); update();
+})();
+</script>
+</body>
+</html>
