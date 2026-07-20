@@ -1,0 +1,82 @@
+name: Mission Dorade ProShop direkt reparieren
+
+on:
+  push:
+    paths:
+      - '.github/workflows/mission-dorade-proshop-direkt-fix.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Vollständige Arbeitsseite direkt herstellen
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import base64, gzip, re, subprocess
+          from pathlib import Path
+
+          repo_file = 'pages/mission-dorade/projekt-shop-bilder-logos-pdf.html'
+          source_commit = '8b1f047f66443a48f573d458856f8ec5a5aade13'
+
+          shell = subprocess.check_output(
+              ['git', 'show', f'{source_commit}:{repo_file}'],
+              text=True
+          )
+          match = re.search(r'const b64="([A-Za-z0-9+/=]+)"', shell)
+          if not match:
+              raise SystemExit('Komprimierte Arbeitsseite wurde im Quell-Commit nicht gefunden.')
+
+          page = gzip.decompress(base64.b64decode(match.group(1))).decode('utf-8')
+
+          collage_names = {
+              'standard-collection-md-md001-md010.png': 'standard-collection.png',
+              'ocean-collection-md-md011-md020.png': 'ocean-collection.png',
+              'explorer-collection-md-md021-md030.png': 'explorer-collection.png',
+              'founder-collection-md-md031-md040.png': 'founder-collection.png',
+              'captain-collection-md-md041-md050.png': 'captain-collection.png',
+          }
+
+          pattern = re.compile(
+              r'assets/proshop(?:-produkte)?/'
+              r'(?:collagen|produktbilder/(?:standard|ocean|explorer|founder|captain)|downloads)/'
+              r'([^"\'<>?#]+)'
+          )
+          page = pattern.sub(lambda m: collage_names.get(m.group(1), m.group(1)), page)
+
+          required = [
+              'standard-collection.png', 'ocean-collection.png',
+              'explorer-collection.png', 'founder-collection.png',
+              'captain-collection.png', 'MD001_Standard_T-Shirt.png',
+              'MD050_Captain_Leder-Organizer.png',
+              'Mission-Dorade-ZIP-05_MD041-MD050_Captain.zip'
+          ]
+          missing = [name for name in required if name not in page]
+          if missing:
+              raise SystemExit('Pfadprüfung fehlgeschlagen: ' + ', '.join(missing))
+
+          Path(repo_file).write_text(page, encoding='utf-8')
+          print(f'{repo_file} direkt geschrieben: {len(page)} Zeichen')
+          PY
+
+      - name: Änderung committen
+        shell: bash
+        run: |
+          git config user.name "Adler-FSA Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add pages/mission-dorade/projekt-shop-bilder-logos-pdf.html
+          if git diff --cached --quiet; then
+            echo "Keine Änderung notwendig."
+          else
+            git commit -m "Mission Dorade ProShop: 5 Collagen und 50 Produktbilder direkt einbauen"
+            git push
+          fi
