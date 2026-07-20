@@ -1,0 +1,181 @@
+name: Mission Dorade ProShop professionell aufräumen
+
+on:
+  push:
+    paths:
+      - '.github/workflows/mission-dorade-proshop-aufräumen.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Arbeitsseite auf echte Produktbilder umstellen
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('pages/mission-dorade/projekt-shop-bilder-logos-pdf.html')
+          page = path.read_text(encoding='utf-8')
+
+          marker = '<!-- MISSION-DORADE-PROSHOP-CLEANUP-V1 -->'
+          if marker in page:
+              page = page.split(marker)[0].rstrip() + '\n'
+
+          patch = r'''
+<!-- MISSION-DORADE-PROSHOP-CLEANUP-V1 -->
+<style id="mission-dorade-proshop-cleanup">
+  .complete-phase,
+  .mockup-collection,
+  #vollstaendige-mockups { display:none !important; }
+
+  #chantal-produktbilder {
+    scroll-margin-top:90px;
+    margin-top:34px !important;
+    border:2px solid #d7a23b !important;
+    box-shadow:0 22px 55px rgba(6,26,46,.12) !important;
+  }
+
+  .chantal-collection {
+    scroll-margin-top:90px;
+    margin:28px 0 !important;
+  }
+
+  .chantal-collage {
+    width:100% !important;
+    max-height:none !important;
+    object-fit:contain !important;
+    background:#fff !important;
+  }
+
+  .chantal-product-grid {
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  }
+
+  .chantal-product-card img {
+    width:100% !important;
+    height:auto !important;
+    aspect-ratio:auto !important;
+    object-fit:contain !important;
+    background:#fff !important;
+  }
+
+  .proshop-real-banner {
+    width:min(1180px,calc(100% - 32px));
+    margin:32px auto 0;
+    padding:26px;
+    border-radius:24px;
+    background:linear-gradient(135deg,#061a2e,#0b2943);
+    color:#fff;
+    box-shadow:0 22px 55px rgba(6,26,46,.18);
+  }
+  .proshop-real-banner strong{color:#f0bd52;letter-spacing:.14em;text-transform:uppercase;font-size:.78rem}
+  .proshop-real-banner h2{margin:.45rem 0 .65rem;color:#fff}
+  .proshop-real-banner p{margin:0;color:#d9e6ef;line-height:1.65}
+
+  @media(max-width:1050px){.chantal-product-grid{grid-template-columns:repeat(3,minmax(0,1fr)) !important}}
+  @media(max-width:720px){.chantal-product-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important}}
+  @media(max-width:480px){.chantal-product-grid{grid-template-columns:1fr !important}}
+</style>
+<script>
+(function(){
+  function sectionContaining(text){
+    return [...document.querySelectorAll('section')].find(s => (s.textContent||'').includes(text));
+  }
+
+  function removePlanningRange(){
+    const start = sectionContaining('Direkte VistaPrint-Produkte mit Logo-Zuordnung');
+    const end = sectionContaining('Vorbereitete GitHub-Pfade');
+    if(start){
+      let node = start;
+      while(node){
+        const next = node.nextElementSibling;
+        node.remove();
+        if(node === end) break;
+        if(next && (next.id === 'chantal-produktbilder' || next.matches('.chantal-collection'))) break;
+        node = next;
+      }
+    } else if(end){
+      end.remove();
+    }
+
+    document.querySelectorAll('.complete-phase,.mockup-collection,#vollstaendige-mockups').forEach(el=>el.remove());
+    document.querySelectorAll('section').forEach(section=>{
+      const t=(section.textContent||'').trim();
+      if(t.includes('Produkt-Mockup wird ergänzt') || t.includes('Konzept-Mockup auf der Seite')){
+        section.remove();
+      }
+    });
+  }
+
+  function moveRealProductsForward(){
+    const master=document.getElementById('chantal-produktbilder');
+    if(!master) return;
+
+    const realSections=[master,...document.querySelectorAll('.chantal-collection')];
+    const anchor=document.getElementById('produktstruktur') || document.getElementById('produkte');
+    const parent=(anchor&&anchor.parentNode) || master.parentNode;
+    let insertAfter=anchor;
+
+    const banner=document.createElement('section');
+    banner.className='proshop-real-banner';
+    banner.id='echte-produktbilder';
+    banner.innerHTML='<strong>Fertige Arbeitsgrundlage für Chantal</strong><h2>5 Collections · 50 echte Produktbilder</h2><p>Alle Produkte sind mit MD-Nummer, Collection-Zuordnung und fertiger Gestaltung sichtbar. Die Collagen geben den Gesamtüberblick; jedes Einzelbild und jede Collection-ZIP steht direkt zum Öffnen und Herunterladen bereit.</p>';
+
+    if(insertAfter){
+      insertAfter.insertAdjacentElement('afterend',banner);
+    }else{
+      parent.insertBefore(banner,parent.firstChild);
+    }
+    insertAfter=banner;
+
+    realSections.forEach(section=>{
+      insertAfter.insertAdjacentElement('afterend',section);
+      insertAfter=section;
+    });
+  }
+
+  function cleanNavigation(){
+    document.querySelectorAll('.nav a, nav a').forEach(a=>{
+      const t=(a.textContent||'').trim();
+      if(t==='VistaPrint-Produkte' || t==='Mockups') a.remove();
+    });
+    const nav=document.querySelector('.nav-inner') || document.querySelector('nav');
+    if(nav && !nav.querySelector('a[href="#echte-produktbilder"]')){
+      const a=document.createElement('a');
+      a.href='#echte-produktbilder';
+      a.textContent='Produktbilder';
+      nav.appendChild(a);
+    }
+  }
+
+  function run(){
+    removePlanningRange();
+    moveRealProductsForward();
+    cleanNavigation();
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run);
+  else run();
+})();
+</script>
+'''
+
+          page = page.replace('</body>', patch + '\n</body>')
+          path.write_text(page, encoding='utf-8')
+          PY
+
+      - name: Änderung committen
+        shell: bash
+        run: |
+          git config user.name "Adler-FSA Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add pages/mission-dorade/projekt-shop-bilder-logos-pdf.html
+          git commit -m "Mission Dorade ProShop: Planungsbereiche entfernen und 50 Produktbilder nach vorne holen" || exit 0
+          git push
