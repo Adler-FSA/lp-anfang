@@ -1,0 +1,49 @@
+name: Iframe Rechner Cleanup
+
+on:
+  push:
+    paths:
+      - '.github/iframe-rechner-cleanup-trigger.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rechner auf reine Iframe-Ansicht reduzieren
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('pages/heinz-riedel-portfolio-rechner.html')
+          text = path.read_text(encoding='utf-8')
+          marker = '    @media print{'
+          css = '''    /* IFRAME-EINBAU: Nur der eigentliche Rechner bleibt sichtbar. */
+    .topline,
+    .site-header,
+    .hero,
+    .footer,
+    .wrap > .notice,
+    .wrap > .section.input-only:first-of-type{display:none!important}
+    body{background:#fff}
+    .wrap{max-width:none;margin:0;padding:0 14px 36px}
+    .wrap > .section{margin-top:14px;box-shadow:none}
+'''
+          if 'IFRAME-EINBAU: Nur der eigentliche Rechner bleibt sichtbar.' not in text:
+              if marker not in text:
+                  raise SystemExit('CSS marker not found')
+              text = text.replace(marker, css + marker, 1)
+          text = text.replace('Commit-Message: Fix PDF blank pages while preserving original XXL.IMMO calculator URL', 'Commit-Message: Iframe-Version – nur Rechner, Kopfbereich, Einführung und Footer entfernt', 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+      - name: Änderung committen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pages/heinz-riedel-portfolio-rechner.html
+          git diff --cached --quiet || git commit -m "XXL Immobilienrechner für Iframe bereinigen"
+          git push
