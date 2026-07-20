@@ -1,0 +1,45 @@
+name: Restore Portfolio-Rechner controls
+
+on:
+  push:
+    paths:
+      - '.github/workflows/restore-portfolio-rechner-controls.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore control bar and reset button
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('pages/heinz-riedel-portfolio-rechner.html')
+          s = p.read_text(encoding='utf-8')
+
+          s = s.replace('Commit-Message: iFrame-Version – nur Rechner, Kopfbereich, Hero und Footer entfernt', 'Commit-Message: iFrame-Version – Rechner mit Funktionsleiste ohne Logo, Werbetext, Hero und Footer')
+
+          if '.header-inner{max-width:1320px;margin:0 auto;display:flex;align-items:center;justify-content:flex-end;' not in s:
+              s = s.replace('.header-inner{max-width:1320px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;', '.header-inner{max-width:1320px;margin:0 auto;display:flex;align-items:center;justify-content:flex-end;')
+
+          marker = '<body>\n  <main id="top">'
+          header = '''<body>\n  <header class="site-header">\n    <div class="header-inner">\n      <div class="header-actions">\n        <div class="lang-switch" aria-label="Sprache auswählen">\n          <button type="button" class="active" data-lang="de">DE</button>\n          <button type="button" data-lang="en">EN</button>\n        </div>\n        <button type="button" class="btn btn-light" id="saveBtn" data-i18n="save">Speichern</button>\n        <button type="button" class="btn btn-light" id="printBtn" data-i18n="print">Drucken / PDF</button>\n        <button type="button" class="btn btn-light" id="resetBtnTop" data-i18n="reset">Zurücksetzen</button>\n        <button type="button" class="btn btn-primary" id="calculateTopBtn" data-i18n="calculate">Portfolio berechnen</button>\n      </div>\n    </div>\n  </header>\n\n  <main id="top">'''
+          if marker in s:
+              s = s.replace(marker, header, 1)
+
+          listener_marker = "$('resetBtn').addEventListener('click',resetAll);"
+          if "$('resetBtnTop').addEventListener('click',resetAll);" not in s:
+              s = s.replace(listener_marker, listener_marker + "\n      $('resetBtnTop').addEventListener('click',resetAll);")
+
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pages/heinz-riedel-portfolio-rechner.html
+          git diff --cached --quiet || git commit -m "Portfolio-Rechner: Funktionsleiste und Reset wiederherstellen"
+          git push
