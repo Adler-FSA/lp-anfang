@@ -1,0 +1,71 @@
+name: Mission Dorade ProShop Cleanup
+
+on:
+  push:
+    paths:
+      - '.github/workflows/mission-dorade-proshop-cleanup.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cleanup page
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('pages/mission-dorade/projekt-shop-bilder-logos-pdf.html')
+          s=p.read_text(encoding='utf-8')
+          marker='<!-- MISSION-DORADE-PROSHOP-CLEANUP-V2 -->'
+          if marker in s:
+              s=s.split(marker)[0].rstrip()+'\n'
+          patch=r'''
+<!-- MISSION-DORADE-PROSHOP-CLEANUP-V2 -->
+<style>
+.complete-phase,.mockup-collection,#vollstaendige-mockups{display:none!important}
+#chantal-produktbilder{border:2px solid #d7a23b!important;box-shadow:0 22px 55px rgba(6,26,46,.12)!important;scroll-margin-top:90px}
+.chantal-collage{width:100%!important;height:auto!important;object-fit:contain!important;background:#fff!important}
+.chantal-product-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+.chantal-product-card img{width:100%!important;height:auto!important;aspect-ratio:auto!important;object-fit:contain!important;background:#fff!important}
+.proshop-real-banner{padding:26px;border-radius:24px;background:linear-gradient(135deg,#061a2e,#0b2943);color:#fff;box-shadow:0 22px 55px rgba(6,26,46,.18);margin-top:34px}
+.proshop-real-banner strong{color:#f0bd52;letter-spacing:.14em;text-transform:uppercase;font-size:.78rem}.proshop-real-banner h2{color:#fff;margin:.45rem 0 .65rem}.proshop-real-banner p{color:#d9e6ef;line-height:1.65;margin:0}
+@media(max-width:1050px){.chantal-product-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}@media(max-width:720px){.chantal-product-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}@media(max-width:480px){.chantal-product-grid{grid-template-columns:1fr!important}}
+</style>
+<script>
+(function(){
+function sec(t){return[...document.querySelectorAll('section')].find(x=>(x.textContent||'').includes(t))}
+function run(){
+ const start=sec('Direkte VistaPrint-Produkte mit Logo-Zuordnung');
+ const end=sec('Vorbereitete GitHub-Pfade');
+ if(start){let n=start;while(n){const nx=n.nextElementSibling;const stop=n===end;n.remove();if(stop||!nx||nx.id==='chantal-produktbilder'||nx.matches('.chantal-collection'))break;n=nx}}
+ else if(end)end.remove();
+ document.querySelectorAll('.complete-phase,.mockup-collection,#vollstaendige-mockups').forEach(x=>x.remove());
+ const master=document.getElementById('chantal-produktbilder');
+ if(master){
+   const real=[master,...document.querySelectorAll('.chantal-collection')];
+   const anchor=document.getElementById('produktstruktur')||document.getElementById('produkte');
+   const banner=document.createElement('section');banner.className='panel proshop-real-banner';banner.id='echte-produktbilder';banner.innerHTML='<strong>Fertige Arbeitsgrundlage für Chantal</strong><h2>5 Collections · 50 echte Produktbilder</h2><p>Alle Produkte sind mit MD-Nummer, Collection und fertiger Gestaltung sichtbar. Jede Collage, jedes Einzelbild und jede Collection-ZIP steht direkt bereit.</p>';
+   (anchor||master).insertAdjacentElement('afterend',banner);let pos=banner;real.forEach(x=>{pos.insertAdjacentElement('afterend',x);pos=x});
+ }
+ document.querySelectorAll('.nav a,nav a').forEach(a=>{const t=(a.textContent||'').trim();if(t==='VistaPrint-Produkte'||t==='Mockups')a.remove()});
+ const nav=document.querySelector('.nav-inner')||document.querySelector('nav');if(nav&&!nav.querySelector('a[href="#echte-produktbilder"]')){const a=document.createElement('a');a.href='#echte-produktbilder';a.textContent='Produktbilder';nav.appendChild(a)}
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
+})();
+</script>
+'''
+          s=s.replace('</body>',patch+'\n</body>')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Adler-FSA Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add pages/mission-dorade/projekt-shop-bilder-logos-pdf.html
+          git commit -m "Mission Dorade ProShop: echte Produktbilder nach vorne, Planungsbereiche raus" || exit 0
+          git push
