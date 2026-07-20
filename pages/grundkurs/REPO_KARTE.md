@@ -1135,6 +1135,42 @@
     │   ├── mentor/
     │   │   ├── lektion-souveraen.html
     │   │   └── trustyfy-bewusstsein.html
+    │   ├── mission-dorade/
+    │   │   ├── Mission-Dorade-01-Shopbilder-und-Collections.zip
+    │   │   ├── Mission-Dorade-02-Markenlogos.zip
+    │   │   ├── Mission-Dorade-03-Copyright-Logos.zip
+    │   │   ├── Mission-Dorade-04-Weitere-Logo-Varianten.zip
+    │   │   ├── Mission-Dorade-Dorade-Icon-Copyright.png
+    │   │   ├── Mission-Dorade-Dorade-Icon.png
+    │   │   ├── Mission-Dorade-Dorade-im-Kreis-Copyright.png
+    │   │   ├── Mission-Dorade-Dorade-im-Kreis.png
+    │   │   ├── Mission-Dorade-Hauptlogo-Horizontal-Copyright.png
+    │   │   ├── Mission-Dorade-Hauptlogo-Horizontal.png
+    │   │   ├── Mission-Dorade-Hauptlogo-Vertikal-Copyright.png
+    │   │   ├── Mission-Dorade-Hauptlogo-Vertikal.png
+    │   │   ├── Mission-Dorade-Mission-Siegel-Copyright.png
+    │   │   ├── Mission-Dorade-Mission-Siegel.png
+    │   │   ├── Mission-Dorade-Monogramm-MD-Copyright.png
+    │   │   ├── Mission-Dorade-Monogramm-MD.png
+    │   │   ├── Mission-Dorade-Premium-Logo-Copyright.png
+    │   │   ├── Mission-Dorade-Premium-Logo.png
+    │   │   ├── mission-dorade-captain-collection.jpeg
+    │   │   ├── mission-dorade-die-reise.jpeg
+    │   │   ├── mission-dorade-explorer-collection.jpeg
+    │   │   ├── mission-dorade-founder-collection.jpeg
+    │   │   ├── mission-dorade-korallenriff-hintergrund.jpeg
+    │   │   ├── mission-dorade-logo-variante-01.png
+    │   │   ├── mission-dorade-logo-variante-02.png
+    │   │   ├── mission-dorade-logo-variante-03.png
+    │   │   ├── mission-dorade-logo-variante-04.png
+    │   │   ├── mission-dorade-logo-variante-05.png
+    │   │   ├── mission-dorade-logo-variante-06.png
+    │   │   ├── mission-dorade-logo-variante-07.png
+    │   │   ├── mission-dorade-ocean-collection.jpeg
+    │   │   ├── mission-dorade-shop-banner-01.jpeg
+    │   │   ├── mission-dorade-shop-banner-02.jpeg
+    │   │   ├── mission-dorade-shop-startbild.png
+    │   │   └── projekt-shop-bilder-logos-pdf.html
     │   ├── mission-dorade-interview/
     │   │   ├── index.html
     │   │   └── mission-dorade-logo.jpeg
@@ -1808,4 +1844,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.07.2026, 02:28)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.07.2026, 06:11)_
