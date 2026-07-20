@@ -1,0 +1,140 @@
+name: Mission Dorade Finalseite und Mustershop
+
+on:
+  push:
+    paths:
+      - '.github/workflows/mission-dorade-final-und-mustershop.yml'
+      - '.github/mission-dorade-final-trigger.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Arbeitsseite aufräumen und Mustershop bauen
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          base = Path('pages/mission-dorade')
+          source = base / 'projekt-shop-bilder-logos-pdf.html'
+          page = source.read_text(encoding='utf-8')
+
+          # Frühere dynamische Aufräum-Patches entfernen.
+          page = re.sub(r'<!-- MISSION-DORADE-PROSHOP-CLEANUP-V1 -->.*?(?=</body>)', '', page, flags=re.S)
+
+          # Alte Planungs-, Platzhalter- und Konzeptbereiche vollständig entfernen.
+          removal_patterns = [
+              r'<section[^>]*>.*?Direkte VistaPrint-Produkte mit Logo-Zuordnung.*?</section>',
+              r'<section[^>]*>.*?Vorbereitete GitHub-Pfade.*?</section>',
+              r'<section[^>]*class="[^"]*(?:complete-phase|mockup-collection)[^"]*"[^>]*>.*?</section>',
+              r'<section[^>]*id="vollstaendige-mockups"[^>]*>.*?</section>',
+          ]
+          for pat in removal_patterns:
+              page = re.sub(pat, '', page, flags=re.S|re.I)
+
+          # Einzelne alte Detailkarten entfernen, wenn sie nur Planung/Platzhalter zeigen.
+          page = re.sub(r'<section[^>]*class="[^"]*(?:large-item|product-detail)[^"]*"[^>]*>.*?(?:Produkt-Mockup wird ergänzt|Direkt zum VistaPrint-Produkt).*?</section>', '', page, flags=re.S|re.I)
+
+          # Navigation bereinigen.
+          page = re.sub(r'<a[^>]*href="#(?:vistaprint-produkte|mockups)"[^>]*>.*?</a>', '', page, flags=re.S|re.I)
+          if '#produktbilder' not in page:
+              page = page.replace('</div>\n</nav>', '<a href="#produktbilder">Produktbilder</a><a href="mission-dorade-mustershop.html">Mustershop</a></div>\n</nav>', 1)
+
+          # Bestehenden echten Produktbereich markieren und klar beschriften.
+          page = page.replace('id="chantal-produktbilder"', 'id="produktbilder"')
+          page = page.replace('5 Collections · 50 beschriftete Produktbilder', '5 Collections · 50 fertige Produktbilder')
+          page = page.replace('Konzept-Mockup auf der Seite', 'Fertiges Produktbild')
+
+          # Doppelte Collagen entfernen: pro Collection nur die erste sichtbare Collage behalten.
+          for name in ['standard-collection.png','ocean-collection.png','explorer-collection.png','founder-collection.png','captain-collection.png']:
+              first = True
+              def dedupe(m):
+                  nonlocal first
+                  if first:
+                      first = False
+                      return m.group(0)
+                  return ''
+              page = re.sub(r'<a[^>]*href="'+re.escape(name)+r'"[^>]*>\s*<img[^>]*src="'+re.escape(name)+r'"[^>]*>\s*</a>', dedupe, page, flags=re.S|re.I)
+
+          final_css = r'''
+<style id="mission-dorade-final-cleanup">
+  .complete-phase,.mockup-collection,#vollstaendige-mockups{display:none!important}
+  .chantal-master-section{margin-top:32px!important;border:2px solid #d7a23b!important;box-shadow:0 20px 50px rgba(6,26,46,.12)!important}
+  .chantal-collection{margin:32px 0!important;padding:28px!important}
+  .chantal-product-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:24px!important}
+  .chantal-product-card{border-radius:22px!important;overflow:hidden!important;background:#fff!important;box-shadow:0 12px 30px rgba(6,26,46,.08)!important}
+  .chantal-product-card img{width:100%!important;height:auto!important;aspect-ratio:auto!important;object-fit:contain!important;background:#fff!important}
+  .chantal-product-info{padding:18px!important}
+  .chantal-collage{width:100%!important;height:auto!important;object-fit:contain!important;border-radius:22px!important}
+  .chantal-download-overview{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  @media(max-width:760px){.chantal-product-grid,.chantal-download-overview{grid-template-columns:1fr!important}}
+</style>
+'''
+          page = page.replace('</head>', final_css + '\n</head>', 1)
+          source.write_text(page, encoding='utf-8')
+
+          # Mustershop: eigenständige Demo ohne Bestellfunktion.
+          products = []
+          for i in range(1,51):
+              code = f'MD{i:03d}'
+              matches = sorted(base.glob(f'{code}_*.png'))
+              if not matches:
+                  continue
+              fn = matches[0].name
+              label = fn.rsplit('.',1)[0].replace(code+'_','').replace('_',' ').replace('-',' ')
+              if i <= 10: col='Standard'; cls='standard'
+              elif i <= 20: col='Ocean'; cls='ocean'
+              elif i <= 30: col='Explorer'; cls='explorer'
+              elif i <= 40: col='Founder'; cls='founder'
+              else: col='Captain'; cls='captain'
+              products.append((code,label,col,cls,fn))
+
+          grouped = {}
+          for item in products:
+              grouped.setdefault(item[2],[]).append(item)
+
+          collection_texts = {
+              'Standard': ('Für alle, die anfangen.', 'Die ersten Schritte müssen nicht groß sein. Sie müssen nur echt sein. Die Standard Collection begleitet Menschen, die sich auf den Weg machen und Mission Dorade sichtbar nach außen tragen.'),
+              'Ocean': ('Die Reise beginnt.', 'Ocean steht für Bewegung, Mut und den ersten eigenen Aufbau. Wer zwei Menschen gewinnt und ihnen hilft, selbst aktiv zu werden, verlässt das Ufer und beginnt seine Reise.'),
+              'Explorer': ('Neue Horizonte.', 'Explorer wird nicht verliehen, weil jemand lange genug dabei ist. Diese Collection steht für Ausdauer, Orientierung und die Fähigkeit, andere auf ihrem Weg mitzunehmen.'),
+              'Founder': ('Verantwortung wird sichtbar.', 'Founder steht für Menschen, die nicht nur teilnehmen, sondern Strukturen schaffen. Sie bauen mit, übernehmen Verantwortung und geben der Mission ein Gesicht.'),
+              'Captain': ('Führen heißt vorangehen.', 'Captain ist die Collection für Menschen, die Verantwortung tragen, andere stärken und Kurs halten. Nicht Rang macht den Captain, sondern Haltung und verlässliche Führung.'),
+          }
+
+          sections=[]
+          collage_map={'Standard':'standard-collection.png','Ocean':'ocean-collection.png','Explorer':'explorer-collection.png','Founder':'founder-collection.png','Captain':'captain-collection.png'}
+          for col, items in grouped.items():
+              title, text = collection_texts[col]
+              cards=''.join(f'''<article class="product-card"><img src="{fn}" alt="{code} {label}"><div class="product-copy"><div class="code">{code}</div><h3>{label}</h3><p>{col} Collection</p><button disabled>Demoprodukt · noch nicht bestellbar</button></div></article>''' for code,label,_,cls,fn in items)
+              sections.append(f'''<section class="collection-section" id="{col.lower()}"><div class="collection-story"><div><span>{col} Collection</span><h2>{title}</h2><p>{text}</p></div><img src="{collage_map[col]}" alt="{col} Collection Übersicht"></div><div class="shop-grid">{cards}</div></section>''')
+
+          demo = f'''<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mission Dorade – Mustershop</title><style>
+          :root{{--navy:#071a2d;--gold:#d7a23b;--paper:#f6f7f9;--ink:#122033;--line:#dbe2ea}}
+          *{{box-sizing:border-box}}html{{scroll-behavior:smooth}}body{{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--paper);color:var(--ink)}}img{{max-width:100%;display:block}}header{{background:var(--navy);color:#fff}}.hero{{width:min(1240px,calc(100% - 32px));margin:auto;padding:72px 0;display:grid;grid-template-columns:1.05fr .95fr;gap:38px;align-items:center}}.hero h1{{font-size:clamp(2.8rem,6vw,5.8rem);line-height:.95;margin:.5rem 0}}.hero p{{font-size:1.15rem;line-height:1.7;color:#d9e5ef}}.hero img{{border-radius:28px;box-shadow:0 28px 70px rgba(0,0,0,.32)}}nav{{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);overflow:auto}}nav div{{width:min(1240px,calc(100% - 24px));margin:auto;display:flex;gap:10px;padding:10px 0;white-space:nowrap}}nav a{{text-decoration:none;color:var(--ink);padding:10px 14px;border:1px solid var(--line);border-radius:999px}}main{{width:min(1240px,calc(100% - 32px));margin:auto;padding:38px 0 80px}}.story{{background:#fff;border:1px solid var(--line);border-radius:28px;padding:34px;margin-bottom:34px;box-shadow:0 14px 38px rgba(7,26,45,.06)}}.story h2,.collection-story h2{{font-size:clamp(2rem,4vw,3.4rem);margin:.35rem 0}}.story p,.collection-story p{{font-size:1.05rem;line-height:1.8;color:#5d6c7e}}.route{{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}}.route b{{background:var(--navy);color:#fff;padding:10px 14px;border-radius:999px}}.collection-section{{margin:54px 0}}.collection-story{{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:28px;padding:26px}}.collection-story span{{text-transform:uppercase;letter-spacing:.15em;color:#996a12;font-weight:800}}.collection-story img{{border-radius:20px}}.shop-grid{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:24px}}.product-card{{background:#fff;border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:0 12px 32px rgba(7,26,45,.07)}}.product-card img{{width:100%;height:auto;object-fit:contain;background:#fff}}.product-copy{{padding:20px}}.code{{font-weight:900;color:#996a12;letter-spacing:.08em}}.product-copy h3{{font-size:1.3rem;margin:.35rem 0}}.product-copy p{{color:#667488}}button{{width:100%;border:0;border-radius:14px;padding:13px;background:#d9dee5;color:#66717d;font-weight:800;cursor:not-allowed}}footer{{background:var(--navy);color:#d7e2ea;text-align:center;padding:34px}}@media(max-width:800px){{.hero,.collection-story,.shop-grid{{grid-template-columns:1fr}}.hero{{padding:42px 0}}}}
+          </style></head><body><header><div class="hero"><div><div style="color:#d7a23b;font-weight:900;letter-spacing:.15em;text-transform:uppercase">Mission Dorade Mustershop</div><h1>Wir verkaufen keine T-Shirts.</h1><p>Wir erzählen eine Geschichte. Eine Geschichte über Menschen, die anfangen, andere mitnehmen und gemeinsam etwas aufbauen. Jedes Produkt steht für einen Abschnitt dieser Reise.</p></div><img src="mission-dorade-shop-banner-01.jpeg" alt="Mission Dorade"></div></header><nav><div><a href="#geschichte">Geschichte</a><a href="#standard">Standard</a><a href="#ocean">Ocean</a><a href="#explorer">Explorer</a><a href="#founder">Founder</a><a href="#captain">Captain</a></div></nav><main><section class="story" id="geschichte"><span style="text-transform:uppercase;letter-spacing:.15em;color:#996a12;font-weight:900">Die Reise</span><h2>Deine Reise beginnt heute.</h2><p>Mission Dorade beginnt nicht mit einem Rang. Sie beginnt mit einer Entscheidung: mitmachen, Verantwortung übernehmen und zwei Menschen dabei helfen, ebenfalls ihren Weg zu beginnen. Aus vielen kleinen, ehrlichen Schritten entsteht eine Bewegung. Die Collections machen diese Entwicklung sichtbar – nicht als Statussymbol, sondern als Erinnerung an das, was jemand aufgebaut und für andere möglich gemacht hat.</p><div class="route"><b>Mission Dorade</b><b>Die Reise beginnt</b><b>Ocean · 2</b><b>Explorer · 24</b><b>Founder · 48</b><b>Captain · 96</b></div></section>{''.join(sections)}</main><footer>Mission Dorade · Power to the People · Vom Ich zum Wir<br><small>Demonstrationslayout ohne Bestellfunktion</small></footer></body></html>'''
+
+          (base / 'mission-dorade-mustershop.html').write_text(demo, encoding='utf-8')
+          PY
+
+      - name: Änderungen committen
+        shell: bash
+        run: |
+          git config user.name "Adler-FSA Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add pages/mission-dorade/projekt-shop-bilder-logos-pdf.html pages/mission-dorade/mission-dorade-mustershop.html
+          if git diff --cached --quiet; then
+            echo "Keine Änderung notwendig."
+          else
+            git commit -m "Mission Dorade: Arbeitsseite final aufräumen und Mustershop erstellen"
+            git push
+          fi
