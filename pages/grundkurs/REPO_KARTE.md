@@ -1136,6 +1136,56 @@
     │   │   ├── lektion-souveraen.html
     │   │   └── trustyfy-bewusstsein.html
     │   ├── mission-dorade/
+    │   │   ├── MD001_Standard_T-Shirt.png
+    │   │   ├── MD002_Standard_Hoodie.png
+    │   │   ├── MD003_Standard_Polo-Shirt.png
+    │   │   ├── MD004_Standard_Cap.png
+    │   │   ├── MD005_Standard_Tasse.png
+    │   │   ├── MD006_Standard_Baumwolltasche.png
+    │   │   ├── MD007_Standard_Sticker.png
+    │   │   ├── MD008_Standard_Schluesselband.png
+    │   │   ├── MD009_Standard_Kugelschreiber.png
+    │   │   ├── MD010_Standard_Notizblock.png
+    │   │   ├── MD011_Ocean_Edelstahlflasche.png
+    │   │   ├── MD012_Ocean_Drybag.png
+    │   │   ├── MD013_Ocean_Strandtuch.png
+    │   │   ├── MD014_Ocean_Bucket-Hat.png
+    │   │   ├── MD015_Ocean_Sonnenbrille.png
+    │   │   ├── MD016_Ocean_Kuehltasche.png
+    │   │   ├── MD017_Ocean_Picknickdecke.png
+    │   │   ├── MD018_Ocean_Beach-Bag.png
+    │   │   ├── MD019_Ocean_Trinkbecher.png
+    │   │   ├── MD020_Ocean_Outdoor-Set.png
+    │   │   ├── MD021_Explorer_Premium-Rucksack.png
+    │   │   ├── MD022_Explorer_Thermobecher.png
+    │   │   ├── MD023_Explorer_Reisetasche.png
+    │   │   ├── MD024_Explorer_Reise-Organizer.png
+    │   │   ├── MD025_Explorer_Reisepasshuelle.png
+    │   │   ├── MD026_Explorer_Kofferanhaenger.png
+    │   │   ├── MD027_Explorer_Laptop-Huelle.png
+    │   │   ├── MD028_Explorer_Tablet-Huelle.png
+    │   │   ├── MD029_Explorer_Trinkflasche-Premium.png
+    │   │   ├── MD030_Explorer_Reisekissen.png
+    │   │   ├── MD031_Founder_Softshelljacke.png
+    │   │   ├── MD032_Founder_Business-Hemd.png
+    │   │   ├── MD033_Founder_Premium-Polo.png
+    │   │   ├── MD034_Founder_Businessmappe.png
+    │   │   ├── MD035_Founder_Premium-Notizbuch.png
+    │   │   ├── MD036_Founder_Metall-Kugelschreiber.png
+    │   │   ├── MD037_Founder_Mousepad.png
+    │   │   ├── MD038_Founder_Schreibtischunterlage.png
+    │   │   ├── MD039_Founder_Premium-Tasse.png
+    │   │   ├── MD040_Founder_Dokumentenmappe.png
+    │   │   ├── MD041_Captain_Premium-Jacke.png
+    │   │   ├── MD042_Captain_Steppweste.png
+    │   │   ├── MD043_Captain_Weekender-Tasche.png
+    │   │   ├── MD044_Captain_Executive-Portfoliomappe.png
+    │   │   ├── MD045_Captain_Thermoskanne.png
+    │   │   ├── MD046_Captain_Regenschirm.png
+    │   │   ├── MD047_Captain_Powerbank.png
+    │   │   ├── MD048_Captain_Premium-Geschenkbox.png
+    │   │   ├── MD049_Captain_Executive-Becher.png
+    │   │   ├── MD050_Captain_Leder-Organizer.png
     │   │   ├── Mission-Dorade-01-Shopbilder-und-Collections.zip
     │   │   ├── Mission-Dorade-02-Markenlogos.zip
     │   │   ├── Mission-Dorade-03-Copyright-Logos.zip
@@ -1154,6 +1204,15 @@
     │   │   ├── Mission-Dorade-Monogramm-MD.png
     │   │   ├── Mission-Dorade-Premium-Logo-Copyright.png
     │   │   ├── Mission-Dorade-Premium-Logo.png
+    │   │   ├── Mission-Dorade-ZIP-01_MD001-MD010_Standard.zip
+    │   │   ├── Mission-Dorade-ZIP-02_MD011-MD020_Ocean.zip
+    │   │   ├── Mission-Dorade-ZIP-03_MD021-MD030_Explorer.zip
+    │   │   ├── Mission-Dorade-ZIP-04_MD031-MD040_Founder.zip
+    │   │   ├── Mission-Dorade-ZIP-05_MD041-MD050_Captain.zip
+    │   │   ├── README-UPLOAD.txt
+    │   │   ├── captain-collection.png
+    │   │   ├── explorer-collection.png
+    │   │   ├── founder-collection.png
     │   │   ├── mission-dorade-captain-collection.jpeg
     │   │   ├── mission-dorade-die-reise.jpeg
     │   │   ├── mission-dorade-explorer-collection.jpeg
@@ -1170,7 +1229,9 @@
     │   │   ├── mission-dorade-shop-banner-01.jpeg
     │   │   ├── mission-dorade-shop-banner-02.jpeg
     │   │   ├── mission-dorade-shop-startbild.png
-    │   │   └── projekt-shop-bilder-logos-pdf.html
+    │   │   ├── ocean-collection.png
+    │   │   ├── projekt-shop-bilder-logos-pdf.html
+    │   │   └── standard-collection.png
     │   ├── mission-dorade-interview/
     │   │   ├── index.html
     │   │   └── mission-dorade-logo.jpeg
@@ -1747,6 +1808,7 @@
     │   ├── drei-lieder-ein-weg.html
     │   ├── experten-finden.html
     │   ├── gut-zu-wissen.html
+    │   ├── heinz-riedel-portfolio-rechner-fertig.html
     │   ├── heinz-riedel-portfolio-rechner.html
     │   ├── heinz-riedel.html
     │   ├── hotel-gaestedatei-einkommensrechner.html
@@ -1844,4 +1906,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.07.2026, 12:12)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.07.2026, 15:06)_
