@@ -1,0 +1,76 @@
+name: Mission Dorade Produktbilder automatisch zuschneiden
+
+on:
+  push:
+    paths:
+      - '.github/workflows/mission-dorade-auto-crop-trigger.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  crop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Automatische Bildkantenerkennung einbauen
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('pages/mission-dorade/projekt-shop-bilder-logos-pdf.html')
+          t=p.read_text(encoding='utf-8')
+          t=t.replace('.chantal-product-card img{display:block;width:108%;max-width:none;height:auto;aspect-ratio:auto;object-fit:contain;background:#fff;margin-left:-4%;flex:0 0 auto}', '.chantal-product-card img{display:block;width:100%;max-width:100%;height:auto;aspect-ratio:auto;object-fit:contain;background:#fff;margin:0;flex:0 0 auto}')
+          marker='id="mission-dorade-auto-crop"'
+          if marker not in t:
+            script=r'''<script id="mission-dorade-auto-crop">
+(function(){
+  const selector='.chantal-product-card img';
+  const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
+  function scoreColumn(data,w,h,x){
+    let gray=0,total=0,sum=0,sum2=0;
+    const y0=Math.floor(h*.08),y1=Math.floor(h*.94);
+    for(let y=y0;y<y1;y+=2){
+      const i=(y*w+x)*4,r=data[i],g=data[i+1],b=data[i+2];
+      const lum=(r+g+b)/3,spread=Math.max(r,g,b)-Math.min(r,g,b);
+      if(spread<14&&lum>150&&lum<250)gray++;
+      sum+=lum;sum2+=lum*lum;total++;
+    }
+    const mean=sum/total,variance=Math.max(0,sum2/total-mean*mean);
+    return (gray/total)*.78+(1/(1+variance/180))*.22;
+  }
+  function boundary(data,w,h,side){
+    const limit=Math.floor(w*.16);let best={x:side==='left'?0:w-1,score:0};
+    if(side==='left')for(let x=1;x<limit;x++){const s=scoreColumn(data,w,h,x);if(s>best.score)best={x,score:s};}
+    else for(let x=w-limit;x<w-1;x++){const s=scoreColumn(data,w,h,x);if(s>best.score)best={x,score:s};}
+    return best.score>.47?best.x:null;
+  }
+  function crop(img){
+    if(img.dataset.autoCropped==='1')return;img.dataset.autoCropped='1';
+    const c=document.createElement('canvas'),scale=Math.min(1,720/img.naturalWidth);
+    const w=Math.max(1,Math.round(img.naturalWidth*scale)),h=Math.max(1,Math.round(img.naturalHeight*scale));
+    c.width=w;c.height=h;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,0,0,w,h);
+    let data;try{data=ctx.getImageData(0,0,w,h).data}catch(e){return}
+    let l=boundary(data,w,h,'left'),r=boundary(data,w,h,'right');
+    l=l===null?0:clamp(l+2,0,Math.floor(w*.12));r=r===null?w:clamp(r-2,Math.ceil(w*.88),w);
+    if(r-l<w*.78||l<2&&r>w-3)return;
+    const out=document.createElement('canvas'),cw=r-l;out.width=Math.round(cw/scale);out.height=img.naturalHeight;
+    const o=out.getContext('2d');o.fillStyle='#fff';o.fillRect(0,0,out.width,out.height);o.drawImage(img,l/scale,0,cw/scale,img.naturalHeight,0,0,out.width,out.height);
+    img.src=out.toDataURL('image/png');img.classList.add('auto-cropped');
+  }
+  function run(){document.querySelectorAll(selector).forEach(img=>img.complete&&img.naturalWidth?crop(img):img.addEventListener('load',()=>crop(img),{once:true}));}
+  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',run):run();
+})();
+</script>'''
+            t=t.replace('</body>',script+'\n</body>')
+          p.write_text(t,encoding='utf-8')
+          PY
+      - name: Änderung committen
+        shell: bash
+        run: |
+          git config user.name "Adler-FSA Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add pages/mission-dorade/projekt-shop-bilder-logos-pdf.html
+          git commit -m "Mission Dorade ProShop: Produktbilder automatisch an äußeren Bildkanten zuschneiden" || exit 0
+          git push
