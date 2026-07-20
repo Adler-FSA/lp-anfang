@@ -1,0 +1,60 @@
+name: Add bottom Portfolio-Rechner controls
+
+on:
+  push:
+    paths:
+      - '.github/workflows/add-bottom-portfolio-controls.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch calculator controls
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('pages/heinz-riedel-portfolio-rechner.html')
+          s = p.read_text(encoding='utf-8')
+
+          old = '''          <div class="calculator-actions">
+            <button type="button" class="btn btn-primary" id="calculateBtn" data-i18n="calculate">Portfolio berechnen</button>
+            <button type="button" class="btn btn-blue" id="loadExampleBtn" data-i18n="loadExample">Beispielportfolio laden</button>
+            <button type="button" class="btn btn-light" id="saveBtnBottom" data-i18n="save">Speichern</button>
+            <button type="button" class="btn btn-light" id="resetBtn" data-i18n="reset">Zurücksetzen</button>
+          </div>'''
+
+          new = '''          <div class="calculator-actions">
+            <div class="lang-switch" aria-label="Sprache auswählen">
+              <button type="button" class="active" data-lang="de">DE</button>
+              <button type="button" data-lang="en">EN</button>
+            </div>
+            <button type="button" class="btn btn-primary" id="calculateBtn" data-i18n="calculate">Portfolio berechnen</button>
+            <button type="button" class="btn btn-blue" id="loadExampleBtn" data-i18n="loadExample">Beispielportfolio laden</button>
+            <button type="button" class="btn btn-light" id="saveBtnBottom" data-i18n="save">Speichern</button>
+            <button type="button" class="btn btn-light" id="printBtnAction" data-i18n="print">Drucken / PDF</button>
+            <button type="button" class="btn btn-light" id="resetBtn" data-i18n="reset">Zurücksetzen</button>
+          </div>'''
+
+          if old not in s:
+              raise SystemExit('Bottom action block not found')
+          s = s.replace(old, new, 1)
+
+          listener_old = "      $('printBtnBottom').addEventListener('click',handlePrint);"
+          listener_new = "      $('printBtnBottom').addEventListener('click',handlePrint);\n      $('printBtnAction').addEventListener('click',handlePrint);"
+          if listener_old not in s:
+              raise SystemExit('Print listener anchor not found')
+          s = s.replace(listener_old, listener_new, 1)
+
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pages/heinz-riedel-portfolio-rechner.html
+          git commit -m "Portfolio-Rechner: vollständige Funktionen unten ergänzen"
+          git push
