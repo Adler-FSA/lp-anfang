@@ -1,0 +1,78 @@
+name: Mission Dorade Produktbibliothek als Aufklapp-Collections
+
+on:
+  push:
+    paths:
+      - '.github/workflows/mission-dorade-produkte-accordion-trigger.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Collections aufklappbar und Produktbilder einspaltig setzen
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          path=Path('pages/mission-dorade/projekt-shop-bilder-logos-pdf.html')
+          html=path.read_text(encoding='utf-8')
+
+          # Alte automatische Bildanalyse vollständig entfernen.
+          html=re.sub(r'\s*<script id="mission-dorade-auto-crop">.*?</script>\s*','\n',html,flags=re.S)
+
+          # Frühere Accordion-Ergänzung idempotent ersetzen.
+          html=re.sub(r'\s*<style id="mission-dorade-accordion-layout">.*?</style>\s*','\n',html,flags=re.S)
+
+          labels={
+            'chantal-standard':('MD001–MD010','Standard Collection'),
+            'chantal-ocean':('MD011–MD020','Ocean Collection'),
+            'chantal-explorer':('MD021–MD030','Explorer Collection'),
+            'chantal-founder':('MD031–MD040','Founder Collection'),
+            'chantal-captain':('MD041–MD050','Captain Collection'),
+          }
+
+          pattern=re.compile(r'<(?:section|details) class="chantal-collection ([^"]+?)(?: collection-accordion)?">(.*?)</(?:section|details)>',re.S)
+          def repl(m):
+            classes=m.group(1).strip()
+            body=m.group(2)
+            # Falls bereits umgebaut, alten Summary/Body-Rahmen entfernen.
+            body=re.sub(r'^\s*<summary class="collection-summary">.*?</summary>\s*<div class="collection-body">','',body,flags=re.S)
+            body=re.sub(r'</div>\s*$','',body,flags=re.S)
+            key=next((k for k in labels if k in classes),None)
+            md,title=labels.get(key,('Produktbilder','Collection'))
+            return f'''<details class="chantal-collection {classes} collection-accordion">
+<summary class="collection-summary"><span class="collection-summary-copy"><small>{md}</small><strong>{title}</strong></span><span class="collection-summary-action">Collection öffnen</span></summary>
+<div class="collection-body">{body}</div>
+</details>'''
+
+          html,count=pattern.subn(repl,html)
+
+          css='''
+<style id="mission-dorade-accordion-layout">
+.collection-accordion{background:#fff;border:1px solid #dbe4ee;border-radius:26px;margin:28px 0;box-shadow:0 14px 38px rgba(15,39,66,.07);overflow:hidden;scroll-margin-top:90px}
+.collection-summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:22px;padding:24px 28px;cursor:pointer;background:linear-gradient(135deg,#fff,#f6f9fc);border-bottom:1px solid transparent}
+.collection-summary::-webkit-details-marker{display:none}.collection-summary-copy{display:flex;flex-direction:column;gap:4px}.collection-summary-copy small{font-size:.78rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#9c6a0b}.collection-summary-copy strong{font-size:1.45rem;color:#102034}.collection-summary-action{display:inline-flex;align-items:center;justify-content:center;min-width:154px;padding:11px 16px;border-radius:999px;background:#102b48;color:#fff;font-size:.84rem;font-weight:850}.collection-summary-action::after{content:' +';font-size:1.05rem}.collection-accordion[open] .collection-summary{border-bottom-color:#dbe4ee}.collection-accordion[open] .collection-summary-action::after{content:' –'}.collection-accordion[open] .collection-summary-action{background:#0b6f75}.collection-body{padding:28px}.collection-body>.chantal-collection-head{margin-bottom:22px}
+.chantal-product-grid{display:grid!important;grid-template-columns:1fr!important;gap:36px!important;max-width:1040px;margin:32px auto 0!important}.chantal-product-card{width:100%;overflow:hidden;border-radius:22px}.chantal-product-card>a:first-child{display:block!important;min-height:0!important;padding:0!important;overflow:hidden;background:#fff}.chantal-product-card img{display:block!important;width:100%!important;height:auto!important;max-width:none!important;max-height:none!important;object-fit:contain!important;transform:none!important;clip-path:none!important;margin:0!important}.chantal-product-info{padding:18px 22px 22px}.chantal-collage-link{display:block;max-width:1040px;margin:0 auto}.chantal-collage{width:100%;height:auto}.chantal-download-overview{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:900px){.chantal-download-overview{grid-template-columns:repeat(2,minmax(0,1fr))}.collection-summary{padding:20px}.collection-body{padding:20px}}
+@media(max-width:620px){.collection-summary{align-items:flex-start;flex-direction:column}.collection-summary-action{min-width:0}.collection-body{padding:14px}.chantal-download-overview{grid-template-columns:1fr}.chantal-product-grid{gap:24px!important}.chantal-product-info{padding:15px 16px 18px}}
+</style>
+'''
+          html=html.replace('</head>',css+'\n</head>')
+          path.write_text(html,encoding='utf-8')
+          print('Collections umgebaut:',count)
+          PY
+      - name: Änderung committen
+        shell: bash
+        run: |
+          git config user.name "Adler-FSA Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add pages/mission-dorade/projekt-shop-bilder-logos-pdf.html
+          git commit -m "Mission Dorade ProShop: Collections aufklappbar und Produktbilder einzeln untereinander" || exit 0
+          git push
