@@ -1230,6 +1230,7 @@
     │   │   ├── mission-dorade-shop-banner-02.jpeg
     │   │   ├── mission-dorade-shop-startbild.png
     │   │   ├── ocean-collection.png
+    │   │   ├── projekt-shop-bilder-logos-pdf-final.html
     │   │   ├── projekt-shop-bilder-logos-pdf.html
     │   │   └── standard-collection.png
     │   ├── mission-dorade-interview/
@@ -1906,4 +1907,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.07.2026, 15:06)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 20.07.2026, 17:54)_
