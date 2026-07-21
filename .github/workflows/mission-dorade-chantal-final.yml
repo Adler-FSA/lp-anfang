@@ -1,0 +1,90 @@
+name: Mission Dorade Chantal Final
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/mission-dorade-chantal-final.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild-page:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Seite auf Mustershop und Collagen reduzieren
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('pages/mission-dorade/projekt-shop-bilder-logos-pdf.html')
+          html = path.read_text(encoding='utf-8')
+
+          standard_products = [
+              ('MD001','Standard T-Shirt','MD001_Standard_T-Shirt.png'),
+              ('MD002','Standard Hoodie','MD002_Standard_Hoodie.png'),
+              ('MD003','Standard Polo-Shirt','MD003_Standard_Polo-Shirt.png'),
+              ('MD004','Standard Cap','MD004_Standard_Cap.png'),
+              ('MD005','Standard Tasse','MD005_Standard_Tasse.png'),
+              ('MD006','Standard Baumwolltasche','MD006_Standard_Baumwolltasche.png'),
+              ('MD007','Standard Sticker','MD007_Standard_Sticker.png'),
+              ('MD008','Standard Schlüsselband','MD008_Standard_Schluesselband.png'),
+              ('MD009','Standard Kugelschreiber','MD009_Standard_Kugelschreiber.png'),
+              ('MD010','Standard Notizblock','MD010_Standard_Notizblock.png'),
+          ]
+
+          cards = []
+          for code, title, filename in standard_products:
+              cards.append(f'''<article class="chantal-product-card"><a href="{filename}" rel="noopener" target="_blank"><img alt="{code} {title}" loading="lazy" src="{filename}"/></a><div class="chantal-product-info"><strong>{code}</strong><span>{title}</span><a class="mini-download" download href="{filename}">Einzelbild herunterladen</a></div></article>''')
+
+          collage_sections = [
+              ('chantal-ocean','MD011–MD020','Ocean Collection','ocean-collection.png','Der Beginn der Reise: maritime Produkte für Abenteuer, Freiheit und Meer.'),
+              ('chantal-explorer','MD021–MD030','Explorer Collection','explorer-collection.png','Die Reisekollektion für Entdecker, neue Horizonte und konsequente Entwicklung.'),
+              ('chantal-founder','MD031–MD040','Founder Collection','founder-collection.png','Die hochwertige Businesslinie für Aufbau, Haltung und Unternehmertum.'),
+              ('chantal-captain','MD041–MD050','Captain Collection','captain-collection.png','Die repräsentative Premiumlinie für Führung, Verantwortung und Größe.'),
+          ]
+
+          collages = []
+          for cls, code, title, image, text in collage_sections:
+              collages.append(f'''<section class="chantal-collection {cls}"><div class="chantal-collection-head"><div><div class="eyebrow">{code}</div><h3>{title}</h3></div></div><a class="chantal-collage-link" href="{image}" rel="noopener" target="_blank"><img alt="{title} – vollständige Produktübersicht" class="chantal-collage" loading="lazy" src="{image}"/></a><div class="collection-reference-note"><strong>Collection-Vorlage</strong><p>{text}</p><p>Die Collage zeigt die zehn vorgesehenen Produkte, Farben, Aufdrucke und die verbindliche Zuordnung der Collection. Separate Einzelbilder sind in dieser Übergabe bewusst nicht enthalten.</p><a class="button" download href="{image}">Collage herunterladen</a></div></section>''')
+
+          replacement = f'''<section class="panel chantal-master-section" id="chantal-produktbilder"><div class="eyebrow">Arbeitsmaterial für Chantal · VistaPrint ProShop</div><h2>Ein fertiger Mustershop · vier vollständige Collection-Vorlagen</h2><p class="lead">Die Standard Collection ist mit zehn professionellen Einzelbildern vollständig ausgearbeitet und bildet die verbindliche Mustervorlage für Aufbau, Darstellung und Produktpräsentation des ProShops. Ocean, Explorer, Founder und Captain werden jeweils als vollständige Collection-Collage übergeben.</p><div class="handover-model"><div><strong>10 fertige Einzelbilder</strong><span>Standard Collection · MD001–MD010</span></div><div><strong>4 Collection-Collagen</strong><span>Ocean · Explorer · Founder · Captain</span></div></div></section>
+
+          <section class="chantal-collection chantal-standard"><div class="chantal-collection-head"><div><div class="eyebrow">MD001–MD010</div><h3>Standard Collection · fertige Mustershop-Produkte</h3></div><a class="chantal-zip-button" download href="Mission-Dorade-ZIP-01_MD001-MD010_Standard.zip">ZIP mit 10 Produktbildern</a></div><a class="chantal-collage-link" href="standard-collection.png" rel="noopener" target="_blank"><img alt="Standard Collection – Übersicht" class="chantal-collage" loading="lazy" src="standard-collection.png"/></a><div class="chantal-product-grid">{''.join(cards)}</div></section>
+
+          {''.join(collages)}
+          '''
+
+          pattern = re.compile(r'<section class="panel chantal-master-section" id="chantal-produktbilder">.*?(?=<section id="bilder">)', re.S)
+          new_html, count = pattern.subn(replacement, html, count=1)
+          if count != 1:
+              raise SystemExit(f'Produktbereich nicht eindeutig gefunden: {count}')
+
+          style = '''
+          <style id="mission-dorade-handover-final">
+          .handover-model{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:24px}
+          .handover-model>div{padding:20px;border:1px solid #dbe4ee;border-radius:18px;background:#fff;display:flex;flex-direction:column;gap:6px}
+          .handover-model strong{font-size:1.25rem;color:#061a2e}.handover-model span{color:#64748b}
+          .collection-reference-note{margin-top:18px;padding:18px;border:1px solid #dbe4ee;border-radius:16px;background:#f7fafc;color:#526579;line-height:1.55}
+          .collection-reference-note strong{color:#061a2e;font-size:1.08rem}.collection-reference-note p{margin:.55rem 0}
+          .chantal-standard .chantal-product-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:22px!important}
+          .chantal-standard .chantal-product-card{margin:0!important}
+          .chantal-standard .chantal-product-card>a:first-child{display:flex!important;align-items:center!important;justify-content:center!important;padding:14px!important;background:#f7f9fb!important}
+          .chantal-standard .chantal-product-card img{width:100%!important;max-width:100%!important;height:420px!important;object-fit:contain!important;background:#fff!important}
+          @media(max-width:820px){.handover-model,.chantal-standard .chantal-product-grid{grid-template-columns:1fr!important}.chantal-standard .chantal-product-card img{height:auto!important}}
+          </style>
+          '''
+          new_html = new_html.replace('</head>', style + '\n</head>', 1)
+          path.write_text(new_html, encoding='utf-8')
+          PY
+      - name: Änderungen committen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pages/mission-dorade/projekt-shop-bilder-logos-pdf.html
+          git commit -m "Mission Dorade: Standard-Mustershop und vier Collection-Collagen" || exit 0
+          git push
