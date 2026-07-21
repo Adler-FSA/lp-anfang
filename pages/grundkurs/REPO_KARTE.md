@@ -1136,6 +1136,8 @@
     │   │   ├── lektion-souveraen.html
     │   │   └── trustyfy-bewusstsein.html
     │   ├── mission-dorade/
+    │   │   ├── mustershop/
+    │   │   │   └── index.html
     │   │   ├── MD001_Standard_T-Shirt.png
     │   │   ├── MD002_Standard_Hoodie.png
     │   │   ├── MD003_Standard_Polo-Shirt.png
@@ -1209,7 +1211,12 @@
     │   │   ├── Mission-Dorade-ZIP-03_MD021-MD030_Explorer.zip
     │   │   ├── Mission-Dorade-ZIP-04_MD031-MD040_Founder.zip
     │   │   ├── Mission-Dorade-ZIP-05_MD041-MD050_Captain.zip
+    │   │   ├── Mission_Anna_Storybild_02_Ocean_Collection.png
+    │   │   ├── Mission_Anna_Storybild_03_Explorer_Collection.png
+    │   │   ├── Mission_Anna_Storybild_04_Founder_Collection.png
+    │   │   ├── Mission_Anna_Storybild_05_Captain_Collection.png
     │   │   ├── README-UPLOAD.txt
+    │   │   ├── a_cozy_warm_indoor_evening_scene_a_woman_sits_at.png
     │   │   ├── captain-collection.png
     │   │   ├── explorer-collection.png
     │   │   ├── founder-collection.png
@@ -1907,4 +1914,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.07.2026, 11:02)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 21.07.2026, 13:25)_
