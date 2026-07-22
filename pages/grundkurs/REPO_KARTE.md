@@ -1271,6 +1271,8 @@
     │   │   ├── mission-dorade-praesentation-cover.jpeg
     │   │   ├── mission-dorade-song-cover.jpeg
     │   │   └── vom-ich-zum-wir-(remastered).mp3
+    │   ├── mission-dorade-prelaunch/
+    │   │   └── index.html
     │   ├── mission-dorade-shop-v1/
     │   │   ├── cap.jpg
     │   │   ├── hoodie.jpg
@@ -1914,4 +1916,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.07.2026, 08:16)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.07.2026, 11:03)_
