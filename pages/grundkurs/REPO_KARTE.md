@@ -1642,7 +1642,11 @@
     │   │   ├── herbert-erkenntnis.html
     │   │   └── mike-wirbt-mitglieder.html
     │   ├── taegliche-status-meldungen/
-    │   │   └── index.html
+    │   │   ├── data-follow.json
+    │   │   ├── data-invite.json
+    │   │   ├── data-warm.json
+    │   │   ├── index.html
+    │   │   └── patch.js
     │   ├── tagesbeginn/
     │   │   └── index.html
     │   ├── timecells/
@@ -1918,4 +1922,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.07.2026, 19:05)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.07.2026, 20:56)_
