@@ -1641,6 +1641,8 @@
     │   │   ├── frank-gefaengnis.html
     │   │   ├── herbert-erkenntnis.html
     │   │   └── mike-wirbt-mitglieder.html
+    │   ├── taegliche-status-meldungen/
+    │   │   └── index.html
     │   ├── tagesbeginn/
     │   │   └── index.html
     │   ├── timecells/
@@ -1916,4 +1918,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.07.2026, 05:48)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 23.07.2026, 08:20)_
