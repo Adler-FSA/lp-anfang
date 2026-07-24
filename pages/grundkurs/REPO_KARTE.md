@@ -1240,6 +1240,8 @@
     │   │   ├── projekt-shop-bilder-logos-pdf-final.html
     │   │   ├── projekt-shop-bilder-logos-pdf.html
     │   │   └── standard-collection.png
+    │   ├── mission-dorade-cockpit/
+    │   │   └── index.html
     │   ├── mission-dorade-interview/
     │   │   ├── index.html
     │   │   └── mission-dorade-logo.jpeg
@@ -1922,4 +1924,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.07.2026, 05:44)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.07.2026, 08:15)_
