@@ -1806,6 +1806,8 @@
     │   │   ├── wefi-proof-kurs.html
     │   │   ├── wefi-video.html
     │   │   └── wefi-zoom.html
+    │   ├── wissensabfrage-finanzielle-bildung/
+    │   │   └── index.html
     │   ├── README-upload.md
     │   ├── README.txt
     │   ├── admin-config.json
@@ -1924,4 +1926,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.07.2026, 12:19)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.07.2026, 14:49)_
