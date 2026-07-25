@@ -907,6 +907,8 @@
     │   │   └── hotel-gaestedatei-einkommensrechner.html
     │   ├── index/
     │   │   └── page.json
+    │   ├── inflationsrate-rechner-einfach/
+    │   │   └── index.html
     │   ├── insider/
     │   │   ├── akademie-co-pilot-einrichten.html
     │   │   ├── akademie-handling.html
@@ -1243,6 +1245,7 @@
     │   │   ├── projekt-shop-bilder-logos-pdf.html
     │   │   └── standard-collection.png
     │   ├── mission-dorade-cockpit/
+    │   │   ├── external-presentations.js
     │   │   └── index.html
     │   ├── mission-dorade-interview/
     │   │   ├── index.html
@@ -1274,7 +1277,10 @@
     │   │   ├── index.html
     │   │   ├── mission-dorade-praesentation-cover.jpeg
     │   │   ├── mission-dorade-song-cover.jpeg
+    │   │   ├── restore-20260725-2355.txt
     │   │   └── vom-ich-zum-wir-(remastered).mp3
+    │   ├── mission-dorade-live-neuer-tab/
+    │   │   └── index.html
     │   ├── mission-dorade-prelaunch/
     │   │   └── index.html
     │   ├── mission-dorade-shop-v1/
@@ -1605,6 +1611,8 @@
     │   │   ├── modul-2-wallet.html
     │   │   ├── modul-3-boerse.html
     │   │   └── modul-4-transfer.html
+    │   ├── schnellstart-mission-dorade-neuer-tab/
+    │   │   └── index.html
     │   ├── schnellstart-mission-dorade-simulator/
     │   │   ├── index.html
     │   │   └── intro-riff.PNG
@@ -1930,4 +1938,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.07.2026, 20:12)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.07.2026, 23:55)_
