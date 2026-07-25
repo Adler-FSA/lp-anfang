@@ -19,7 +19,11 @@
     event.stopPropagation();
     event.stopImmediatePropagation();
 
-    const opened=window.open(url+'?nocache='+Date.now(),'_blank','noopener');
-    if(!opened) window.location.href=url+'?nocache='+Date.now();
+    const destination=url+'?nocache='+Date.now();
+    try{
+      window.top.location.href=destination;
+    }catch(error){
+      window.location.href=destination;
+    }
   },true);
 })();
