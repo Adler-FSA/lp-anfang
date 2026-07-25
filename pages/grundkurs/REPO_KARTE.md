@@ -1710,6 +1710,8 @@
     │   │   ├── modul-6-big-picture.html
     │   │   ├── style.css
     │   │   └── unternehmer-lernwerkstatt-startbild.png
+    │   ├── vermoegenswert-kaufkraft-simulator/
+    │   │   └── index.html
     │   ├── vertriebsbibliothek/
     │   │   ├── index.html
     │   │   ├── kapitel-01.html
@@ -1926,4 +1928,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.07.2026, 07:57)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.07.2026, 09:47)_
