@@ -627,6 +627,8 @@
     │   │   ├── beta-tester-stellenausschreibung.html
     │   │   ├── fsa-akademie-flyer.html
     │   │   └── verdienst-rechner.html
+    │   ├── akademie-startbanner/
+    │   │   └── index.html
     │   ├── akquise/
     │   │   ├── jobangebote-qr.html
     │   │   └── qr-code.html
@@ -1928,4 +1930,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.07.2026, 18:58)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.07.2026, 20:12)_
