@@ -4,6 +4,39 @@
   const IMAGE_2='/lp-anfang/library/images/zoom-raum-hintergrund.JPG';
   const LOGO_URL='../mission-dorade/Mission-Dorade-Premium-Logo.png';
 
+  function getActiveLanguage(){
+    return document.querySelector('.lang button.active')?.dataset.lang==='en'?'en':'de';
+  }
+
+  function getGreeting(lang){
+    const hour=new Date().getHours();
+    const period=hour<11?'morning':hour<18?'day':'evening';
+    const greetings={
+      de:{
+        morning:'Guten Morgen und herzlich willkommen bei Mission Dorade! ☀️',
+        day:'Guten Tag und herzlich willkommen bei Mission Dorade! ☀️',
+        evening:'Guten Abend und herzlich willkommen bei Mission Dorade! 🌙',
+        text:'Wir freuen uns, dass du heute dabei bist. Starte den Tag gemeinsam mit uns beim Frühstück, tausche dich mit anderen Clubpartnern aus und nutze anschließend dein Cockpit für deine persönliche Mission. Gemeinsam machen wir aus Ideen Wirklichkeit – Vom Ich zum Wir.'
+      },
+      en:{
+        morning:'Good morning and welcome to Mission Dorade! ☀️',
+        day:'Hello and welcome to Mission Dorade! ☀️',
+        evening:'Good evening and welcome to Mission Dorade! 🌙',
+        text:'We are glad you are here today. Start the day with us at breakfast, exchange ideas with other club partners and then use your cockpit for your personal mission. Together, we turn ideas into reality – From Me to We.'
+      }
+    };
+    return {headline:greetings[lang][period],text:greetings[lang].text};
+  }
+
+  function installHeroGreeting(){
+    const heroCopy=document.querySelector('.hero-copy');
+    if(!heroCopy) return;
+    const lang=getActiveLanguage();
+    const greeting=getGreeting(lang);
+    heroCopy.innerHTML='<strong class="md-greeting-headline">'+greeting.headline+'</strong><span class="md-greeting-text">'+greeting.text+'</span>';
+    heroCopy.removeAttribute('data-i18n');
+  }
+
   function installHeroLogo(){
     if(document.getElementById('missionDoradeHeroLogo')) return;
     const langZone=document.querySelector('.lang-zone');
@@ -14,6 +47,8 @@
     logoStyle.id='md-hero-logo-styles';
     logoStyle.textContent=`
       .hero{position:relative!important}
+      .hero-copy .md-greeting-headline{display:block;margin-bottom:10px;font-size:clamp(1.12rem,1.9vw,1.42rem);line-height:1.35;color:#fff;font-weight:900}
+      .hero-copy .md-greeting-text{display:block}
       .md-hero-logo{position:absolute;z-index:3;right:clamp(70px,9vw,135px);top:52%;transform:translateY(-45%);width:clamp(230px,25vw,365px);max-height:72%;object-fit:contain;filter:drop-shadow(0 16px 32px rgba(0,0,0,.28));opacity:.97;animation:mdLogoFloat 9s ease-in-out infinite,mdLogoGlow 24s ease-in-out infinite;pointer-events:none}
       .md-logo-bubble{position:absolute;z-index:2;right:clamp(95px,12vw,170px);bottom:18%;width:8px;height:8px;border-radius:50%;border:1px solid rgba(255,255,255,.66);background:rgba(255,255,255,.14);box-shadow:inset 0 0 5px rgba(255,255,255,.45);animation:mdBubbleRise 12s linear infinite;pointer-events:none}
       .md-logo-bubble.b2{right:clamp(185px,18vw,265px);bottom:10%;width:5px;height:5px;animation-delay:-4s;animation-duration:15s}
@@ -46,6 +81,10 @@
 
   function install(){
     installHeroLogo();
+    installHeroGreeting();
+    document.querySelectorAll('.lang button').forEach(btn=>btn.addEventListener('click',()=>setTimeout(installHeroGreeting,0)));
+    setInterval(installHeroGreeting,60000);
+
     if(document.getElementById('missionBreakfast')) return;
     const shell=document.querySelector('main.shell');
     if(!shell) return;
