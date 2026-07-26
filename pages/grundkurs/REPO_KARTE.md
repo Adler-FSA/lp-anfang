@@ -1138,6 +1138,17 @@
     │   │   ├── versicherungen.html
     │   │   ├── verteilung.html
     │   │   └── vertraege.html
+    │   ├── mein-setup/
+    │   │   ├── README.txt
+    │   │   ├── index.html
+    │   │   ├── modul-1.html
+    │   │   ├── modul-2.html
+    │   │   ├── modul-3.html
+    │   │   ├── modul-4.html
+    │   │   ├── modul-5.html
+    │   │   ├── modul-6.html
+    │   │   ├── modul-7.html
+    │   │   └── sw.js
     │   ├── mentor/
     │   │   ├── lektion-souveraen.html
     │   │   └── trustyfy-bewusstsein.html
@@ -1942,4 +1953,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.07.2026, 19:10)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.07.2026, 20:51)_
