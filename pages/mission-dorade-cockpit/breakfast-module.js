@@ -2,8 +2,50 @@
   const ZOOM_URL='https://zoom.us/j/98106167573?pwd=2MWnNTN9TQDXabd80ev6My6cWADRYB.1';
   const IMAGE_1='../mission-dorade/mission-dorade-die-reise.jpeg';
   const IMAGE_2='/lp-anfang/library/images/zoom-raum-hintergrund.JPG';
+  const LOGO_URL='../mission-dorade/Mission-Dorade-Premium-Logo.png';
+
+  function installHeroLogo(){
+    if(document.getElementById('missionDoradeHeroLogo')) return;
+    const langZone=document.querySelector('.lang-zone');
+    const hero=langZone?.closest('.hero')||document.querySelector('.hero');
+    if(!hero) return;
+
+    const logoStyle=document.createElement('style');
+    logoStyle.id='md-hero-logo-styles';
+    logoStyle.textContent=`
+      .hero{position:relative!important}
+      .md-hero-logo{position:absolute;z-index:3;right:clamp(70px,9vw,135px);top:52%;transform:translateY(-45%);width:clamp(230px,25vw,365px);max-height:72%;object-fit:contain;filter:drop-shadow(0 16px 32px rgba(0,0,0,.28));opacity:.97;animation:mdLogoFloat 9s ease-in-out infinite,mdLogoGlow 24s ease-in-out infinite;pointer-events:none}
+      .md-logo-bubble{position:absolute;z-index:2;right:clamp(95px,12vw,170px);bottom:18%;width:8px;height:8px;border-radius:50%;border:1px solid rgba(255,255,255,.66);background:rgba(255,255,255,.14);box-shadow:inset 0 0 5px rgba(255,255,255,.45);animation:mdBubbleRise 12s linear infinite;pointer-events:none}
+      .md-logo-bubble.b2{right:clamp(185px,18vw,265px);bottom:10%;width:5px;height:5px;animation-delay:-4s;animation-duration:15s}
+      .md-logo-bubble.b3{right:clamp(120px,14vw,210px);bottom:28%;width:11px;height:11px;animation-delay:-8s;animation-duration:18s}
+      .md-logo-bubble.b4{right:clamp(245px,23vw,330px);bottom:16%;width:6px;height:6px;animation-delay:-2s;animation-duration:14s}
+      .hero-inner{padding-right:clamp(390px,34vw,520px)!important}
+      @keyframes mdLogoFloat{0%,100%{transform:translateY(-45%)}50%{transform:translateY(calc(-45% - 7px))}}
+      @keyframes mdLogoGlow{0%,82%,100%{filter:drop-shadow(0 16px 32px rgba(0,0,0,.28)) brightness(1)}88%{filter:drop-shadow(0 16px 34px rgba(216,173,85,.34)) brightness(1.18)}94%{filter:drop-shadow(0 16px 32px rgba(0,0,0,.28)) brightness(1)}}
+      @keyframes mdBubbleRise{0%{transform:translateY(30px) scale(.7);opacity:0}12%{opacity:.72}85%{opacity:.35}100%{transform:translateY(-230px) scale(1.15);opacity:0}}
+      @media(max-width:1050px){.md-hero-logo{right:44px;width:clamp(190px,27vw,290px)}.hero-inner{padding-right:clamp(310px,35vw,390px)!important}}
+      @media(max-width:780px){.md-hero-logo,.md-logo-bubble{display:none}.hero-inner{padding-right:18px!important}}
+      @media(prefers-reduced-motion:reduce){.md-hero-logo,.md-logo-bubble{animation:none}}
+    `;
+    document.head.appendChild(logoStyle);
+
+    const logo=document.createElement('img');
+    logo.id='missionDoradeHeroLogo';
+    logo.className='md-hero-logo';
+    logo.src=LOGO_URL;
+    logo.alt='Mission Dorade';
+    hero.appendChild(logo);
+
+    ['b1','b2','b3','b4'].forEach(cls=>{
+      const bubble=document.createElement('span');
+      bubble.className='md-logo-bubble '+cls;
+      bubble.setAttribute('aria-hidden','true');
+      hero.appendChild(bubble);
+    });
+  }
 
   function install(){
+    installHeroLogo();
     if(document.getElementById('missionBreakfast')) return;
     const shell=document.querySelector('main.shell');
     if(!shell) return;
