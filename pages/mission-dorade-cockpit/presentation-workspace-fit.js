@@ -1,8 +1,6 @@
 (()=>{
-  const PRESENTATION_PARTS=[
-    '/pages/mission-dorade-live/',
-    '/pages/schnellstart-mission-dorade-simulator/'
-  ];
+  const LIVE_PART='/pages/mission-dorade-live/';
+  const QUICKSTART_PART='/pages/schnellstart-mission-dorade-simulator/';
 
   const style=document.createElement('style');
   style.id='md-presentation-workspace-fit';
@@ -10,11 +8,19 @@
     .workspace.presentation-workspace{
       inset:0 auto auto 0!important;
       width:100%!important;
-      height:min(900px,calc(56.25vw + 74px))!important;
-      max-height:min(900px,calc(56.25vw + 74px))!important;
       min-height:0!important;
       grid-template-rows:auto minmax(0,1fr)!important;
       overflow:hidden!important;
+      background:#eef3f6!important;
+      box-shadow:0 0 0 100vmax #eef3f6!important;
+    }
+    .workspace.presentation-workspace.presentation-live{
+      height:min(960px,calc(68vw + 74px))!important;
+      max-height:min(960px,calc(68vw + 74px))!important;
+    }
+    .workspace.presentation-workspace.presentation-quickstart{
+      height:min(1040px,calc(78vw + 74px))!important;
+      max-height:min(1040px,calc(78vw + 74px))!important;
     }
     .workspace.presentation-workspace.special{
       grid-template-rows:auto minmax(0,1fr)!important;
@@ -35,23 +41,32 @@
       grid-row:auto!important;
     }
     @media(max-width:700px){
-      .workspace.presentation-workspace{
-        height:min(820px,calc(75vw + 70px))!important;
-        max-height:min(820px,calc(75vw + 70px))!important;
+      .workspace.presentation-workspace.presentation-live{
+        height:min(900px,calc(92vw + 68px))!important;
+        max-height:min(900px,calc(92vw + 68px))!important;
+      }
+      .workspace.presentation-workspace.presentation-quickstart{
+        height:min(980px,calc(112vw + 68px))!important;
+        max-height:min(980px,calc(112vw + 68px))!important;
       }
     }
   `;
   document.head.appendChild(style);
 
-  function isPresentation(frame){
+  function getMode(frame){
     const src=(frame?.getAttribute('src')||frame?.src||'').toLowerCase();
-    return PRESENTATION_PARTS.some(part=>src.includes(part));
+    if(src.includes(LIVE_PART)) return 'live';
+    if(src.includes(QUICKSTART_PART)) return 'quickstart';
+    return '';
   }
 
   function syncWorkspace(){
     document.querySelectorAll('.workspace').forEach(workspace=>{
       const frame=workspace.querySelector('iframe');
-      workspace.classList.toggle('presentation-workspace',isPresentation(frame));
+      const mode=getMode(frame);
+      workspace.classList.toggle('presentation-workspace',Boolean(mode));
+      workspace.classList.toggle('presentation-live',mode==='live');
+      workspace.classList.toggle('presentation-quickstart',mode==='quickstart');
     });
   }
 
