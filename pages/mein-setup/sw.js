@@ -1,39 +1,40 @@
-const CACHE_BUST='202607262245';
+const VERSION='202607262240';
 self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
+
 self.addEventListener('fetch',event=>{
   const url=new URL(event.request.url);
   if(event.request.mode!=='navigate'||!url.pathname.includes('/pages/mein-setup/modul-')) return;
+
   event.respondWith((async()=>{
     const response=await fetch(event.request,{cache:'no-store'});
     const type=response.headers.get('content-type')||'';
     if(!type.includes('text/html')) return response;
+
     let html=await response.text();
-    const cleanup=`<script>(function(){
-      function clean(){
-        const phrases=[
-          'Dieses Modul gehört zum geschützten Krypto-Setup',
-          'Falls du das Mentor-Passwort noch nicht eingegeben hast',
-          'starte am besten über die Setup-Übersicht'
-        ];
-        document.querySelectorAll('.info-lock,.mentor-lock,.password-hint').forEach(el=>el.remove());
-        document.querySelectorAll('body *').forEach(el=>{
-          if(el.children.length===0){
-            let t=el.textContent||'';
-            if(phrases.some(p=>t.includes(p))){
-              const box=el.closest('.info-lock,.hero-note,.hero-highlight,p,div');
-              if(box) box.remove();
-            }
-          }
-        });
-        document.body.innerHTML=document.body.innerHTML
-          .replace(/Mentor-Impuls:/g,'Praxis-Impuls:')
-          .replace(/Mentor-Hinweis:/g,'Praxis-Impuls:')
-          .replace(/Mentor:/g,'Praxis-Impuls:');
-      }
-      if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',clean);else clean();
-    })();<\/script>`;
-    html=html.replace('</body>',cleanup+'</body>');
-    return new Response(html,{status:response.status,statusText:response.statusText,headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}});
+
+    html=html
+      .replace(/<div\s+class=["']info-lock["'][^>]*>[\s\S]*?Mentor-Passwort[\s\S]*?<\/div>/gi,'')
+      .replace(/<[^>]*>[\s\S]*?Dieses Modul gehört zum geschützten Krypto-Setup[\s\S]*?Setup-Übersicht\.[\s\S]*?<\/[^>]+>/gi,'')
+      .replace(/\.mentor\b/g,'.praxis-impuls')
+      .replace(/class=["']mentor["']/g,'class="praxis-impuls"')
+      .replace(/Mentor-Impuls:/g,'Praxis-Impuls:')
+      .replace(/Mentor-Hinweis:/g,'Praxis-Impuls:')
+      .replace(/💬\s*<b>Mentor:<\/b>/g,'💡 <b>Praxis-Impuls:</b>')
+      .replace(/Modernisierte Kursfassung\s*[·-]\s*ohne Zertifikat/gi,'')
+      .replace(/dieselben sieben vollständigen Originalmodule/gi,'sieben aufeinander aufbauende Module')
+      .replace(/Originalkurs/gi,'Kurs')
+      .replace(/Kein Zertifikat/gi,'')
+      .replace(/\s{2,}/g,' ');
+
+    const headers=new Headers(response.headers);
+    headers.set('content-type','text/html; charset=utf-8');
+    headers.set('cache-control','no-store, no-cache, must-revalidate');
+
+    return new Response(html,{
+      status:response.status,
+      statusText:response.statusText,
+      headers
+    });
   })());
 });
