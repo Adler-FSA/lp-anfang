@@ -1245,8 +1245,10 @@
     │   │   ├── projekt-shop-bilder-logos-pdf.html
     │   │   └── standard-collection.png
     │   ├── mission-dorade-cockpit/
+    │   │   ├── breakfast-module.js
     │   │   ├── external-presentations.js
-    │   │   └── index.html
+    │   │   ├── index.html
+    │   │   └── presentation-workspace-fit.js
     │   ├── mission-dorade-interview/
     │   │   ├── index.html
     │   │   └── mission-dorade-logo.jpeg
@@ -1938,4 +1940,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.07.2026, 02:11)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.07.2026, 05:54)_
