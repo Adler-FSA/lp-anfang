@@ -925,6 +925,8 @@
     │   │   ├── social-media-stellenausschreibung.html
     │   │   └── sprecher-experten-stellenausschreibung.html
     │   ├── krypto/
+    │   │   ├── finanzielles-souveraenitaets-setup-neu/
+    │   │   │   └── index.html
     │   │   ├── krypto-glossar.html
     │   │   ├── krypto-glossary.html
     │   │   ├── krypto-setup-intro-en.html
@@ -1940,4 +1942,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.07.2026, 10:39)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 26.07.2026, 11:58)_
