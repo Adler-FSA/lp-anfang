@@ -1139,6 +1139,14 @@
     │   │   ├── verteilung.html
     │   │   └── vertraege.html
     │   ├── mein-setup/
+    │   │   ├── downloads/
+    │   │   │   ├── Mein-souveraenes-Setup_Bank-und-Kontenuebersicht.pdf
+    │   │   │   ├── Mein-souveraenes-Setup_Jahres-Review.pdf
+    │   │   │   ├── Mein-souveraenes-Setup_Notfall-Checkliste.pdf
+    │   │   │   ├── Mein-souveraenes-Setup_Seed-Sicherungsmappe.pdf
+    │   │   │   ├── Mein-souveraenes-Setup_Wallet-Adressbuch.pdf
+    │   │   │   ├── Mein-souveraenes-Setup_Wiederherstellungs-Testprotokoll.pdf
+    │   │   │   └── UPLOAD-PFAD.txt
     │   │   ├── README.txt
     │   │   ├── finanzuebersicht.html
     │   │   ├── index.html
@@ -1149,8 +1157,10 @@
     │   │   ├── modul-5.html
     │   │   ├── modul-6.html
     │   │   ├── modul-7.html
+    │   │   ├── setup-assistent.html
     │   │   ├── setup-ausgabe.html
     │   │   ├── setup-core.js
+    │   │   ├── setup-phase4.js
     │   │   ├── sw.js
     │   │   └── werkzeugkasten.html
     │   ├── mentor/
@@ -1957,4 +1967,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.07.2026, 10:36)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.07.2026, 13:35)_
