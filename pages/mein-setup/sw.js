@@ -1,4 +1,4 @@
-const VERSION='202607262240';
+const VERSION='202607271330';
 self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 
@@ -27,14 +27,14 @@ self.addEventListener('fetch',event=>{
       .replace(/Kein Zertifikat/gi,'')
       .replace(/\s{2,}/g,' ');
 
+    if(!html.includes('setup-core.js')){
+      html=html.replace('</body>','<script src="setup-core.js?version='+VERSION+'"></script></body>');
+    }
+
     const headers=new Headers(response.headers);
     headers.set('content-type','text/html; charset=utf-8');
     headers.set('cache-control','no-store, no-cache, must-revalidate');
 
-    return new Response(html,{
-      status:response.status,
-      statusText:response.statusText,
-      headers
-    });
+    return new Response(html,{status:response.status,statusText:response.statusText,headers});
   })());
 });
