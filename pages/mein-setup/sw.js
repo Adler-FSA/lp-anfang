@@ -1,4 +1,4 @@
-const VERSION='202607282030';
+const VERSION='202607272340';
 self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',event=>{
@@ -16,6 +16,7 @@ self.addEventListener('fetch',event=>{
   const type=response.headers.get('content-type')||'';
   if(!type.includes('text/html'))return response;
   let html=await response.text();
+  html=html.replace(/<div\s+[^>]*class=["'][^"']*\blang-toggle\b[^"']*["'][^>]*>[\s\S]*?<\/div>/gi,'');
   if(isModule){html=html
    .replace(/<div\s+class=["']info-lock["'][^>]*>[\s\S]*?Mentor-Passwort[\s\S]*?<\/div>/gi,'')
    .replace(/<[^>]*>[\s\S]*?Dieses Modul gehört zum geschützten Krypto-Setup[\s\S]*?Setup-Übersicht\.[\s\S]*?<\/[^>]+>/gi,'')
