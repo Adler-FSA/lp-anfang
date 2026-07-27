@@ -1,4 +1,4 @@
-const VERSION='202607271330';
+const VERSION='202607271700';
 self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 
@@ -12,7 +12,6 @@ self.addEventListener('fetch',event=>{
     if(!type.includes('text/html')) return response;
 
     let html=await response.text();
-
     html=html
       .replace(/<div\s+class=["']info-lock["'][^>]*>[\s\S]*?Mentor-Passwort[\s\S]*?<\/div>/gi,'')
       .replace(/<[^>]*>[\s\S]*?Dieses Modul gehört zum geschützten Krypto-Setup[\s\S]*?Setup-Übersicht\.[\s\S]*?<\/[^>]+>/gi,'')
@@ -25,6 +24,9 @@ self.addEventListener('fetch',event=>{
       .replace(/dieselben sieben vollständigen Originalmodule/gi,'sieben aufeinander aufbauende Module')
       .replace(/Originalkurs/gi,'Kurs')
       .replace(/Kein Zertifikat/gi,'')
+      .replace(/Persönliches Krypto-Setup/gi,'Mein souveränes Setup')
+      .replace(/Dein persönliches Krypto-Setup/gi,'Dein souveränes Setup')
+      .replace(/Krypto-Setup/gi,'souveränes Setup')
       .replace(/\s{2,}/g,' ');
 
     if(!html.includes('setup-core.js')){
@@ -34,7 +36,6 @@ self.addEventListener('fetch',event=>{
     const headers=new Headers(response.headers);
     headers.set('content-type','text/html; charset=utf-8');
     headers.set('cache-control','no-store, no-cache, must-revalidate');
-
     return new Response(html,{status:response.status,statusText:response.statusText,headers});
   })());
 });
