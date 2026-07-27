@@ -1140,6 +1140,7 @@
     │   │   └── vertraege.html
     │   ├── mein-setup/
     │   │   ├── README.txt
+    │   │   ├── finanzuebersicht.html
     │   │   ├── index.html
     │   │   ├── modul-1.html
     │   │   ├── modul-2.html
@@ -1148,7 +1149,10 @@
     │   │   ├── modul-5.html
     │   │   ├── modul-6.html
     │   │   ├── modul-7.html
-    │   │   └── sw.js
+    │   │   ├── setup-ausgabe.html
+    │   │   ├── setup-core.js
+    │   │   ├── sw.js
+    │   │   └── werkzeugkasten.html
     │   ├── mentor/
     │   │   ├── lektion-souveraen.html
     │   │   └── trustyfy-bewusstsein.html
@@ -1953,4 +1957,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.07.2026, 02:29)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.07.2026, 10:36)_
