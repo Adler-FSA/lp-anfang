@@ -1,14 +1,12 @@
-const VERSION='202607281730';
+const VERSION='202607281930';
 self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',event=>{
  const url=new URL(event.request.url);
  const inSetup=url.pathname.includes('/pages/mein-setup/');
  const isModule=/\/pages\/mein-setup\/modul-\d+\.html$/i.test(url.pathname);
- const isIndex=/\/pages\/mein-setup\/(?:index\.html)?$/i.test(url.pathname);
- const isFinance=/\/pages\/mein-setup\/finanzuebersicht\.html$/i.test(url.pathname);
- const isOutput=/\/pages\/mein-setup\/setup-ausgabe\.html$/i.test(url.pathname);
- if(event.request.mode!=='navigate'||!inSetup||(!isModule&&!isIndex&&!isFinance&&!isOutput))return;
+ const isPage=/\/pages\/mein-setup\/(?:index\.html|finanzuebersicht\.html|setup-ausgabe\.html|setup-assistent\.html|werkzeugkasten\.html)?$/i.test(url.pathname);
+ if(event.request.mode!=='navigate'||!inSetup||(!isModule&&!isPage))return;
  event.respondWith((async()=>{
   const response=await fetch(event.request,{cache:'no-store'});
   const type=response.headers.get('content-type')||'';
@@ -30,6 +28,7 @@ self.addEventListener('fetch',event=>{
    else html=html.replace(/setup-core\.js\?version=[^"']+/g,'setup-core.js?version='+VERSION);
   }
   if(!html.includes('setup-phase4.js'))html=html.replace('</body>','<script src="setup-phase4.js?version='+VERSION+'"></script></body>');
+  else html=html.replace(/setup-phase4\.js\?version=[^"']+/g,'setup-phase4.js?version='+VERSION);
   const headers=new Headers(response.headers);headers.set('content-type','text/html; charset=utf-8');headers.set('cache-control','no-store, no-cache, must-revalidate');
   return new Response(html,{status:response.status,statusText:response.statusText,headers});
  })());
