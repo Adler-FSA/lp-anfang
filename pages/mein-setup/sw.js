@@ -1,53 +1,37 @@
-const VERSION='202607272345';
+const VERSION='202607280015';
 self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',event=>{
-  const url=new URL(event.request.url);
-  const inSetup=url.pathname.includes('/pages/mein-setup/');
-  const isModule=/\/pages\/mein-setup\/modul-\d+\.html$/i.test(url.pathname);
-  const isIndex=/\/pages\/mein-setup\/(?:index\.html)?$/i.test(url.pathname);
-  const isOutput=/\/pages\/mein-setup\/setup-ausgabe\.html$/i.test(url.pathname);
-  if(event.request.mode!=='navigate'||!inSetup||(!isModule&&!isIndex&&!isOutput))return;
-  event.respondWith((async()=>{
-    const response=await fetch(event.request,{cache:'no-store'});
-    const type=response.headers.get('content-type')||'';
-    if(!type.includes('text/html'))return response;
-    let html=await response.text();
-    if(isModule){
-      html=html
-        .replace(/<div\s+class=["']info-lock["'][^>]*>[\s\S]*?Mentor-Passwort[\s\S]*?<\/div>/gi,'')
-        .replace(/<[^>]*>[\s\S]*?Dieses Modul gehört zum geschützten Krypto-Setup[\s\S]*?Setup-Übersicht\.[\s\S]*?<\/[^>]+>/gi,'')
-        .replace(/\.mentor\b/g,'.praxis-impuls')
-        .replace(/class=["']mentor["']/g,'class="praxis-impuls"')
-        .replace(/Mentor-Impuls:/g,'Praxis-Impuls:')
-        .replace(/Mentor-Hinweis:/g,'Praxis-Impuls:')
-        .replace(/💬\s*<b>Mentor:<\/b>/g,'💡 <b>Praxis-Impuls:</b>')
-        .replace(/Modernisierte Kursfassung\s*[·-]\s*ohne Zertifikat/gi,'')
-        .replace(/dieselben sieben vollständigen Originalmodule/gi,'sieben aufeinander aufbauende Module')
-        .replace(/Originalkurs/gi,'Kurs').replace(/Kein Zertifikat/gi,'')
-        .replace(/Persönliches Krypto-Setup/gi,'Mein souveränes Setup')
-        .replace(/Dein persönliches Krypto-Setup/gi,'Dein souveränes Setup')
-        .replace(/Krypto-Setup/gi,'souveränes Setup')
-        .replace(/Bestandsaufnahme\s*&amp;\s*Risiko-Profil/gi,'Ausgangslage &amp; Schutzprofil')
-        .replace(/Bestandsaufnahme\s*&\s*Risiko-Profil/gi,'Ausgangslage & Schutzprofil')
-        .replace(/Feinschliff,\s*Wachstum\s*&amp;\s*Jahres-Review/gi,'Feinschliff, Vereinfachung &amp; Jahres-Review')
-        .replace(/Feinschliff,\s*Wachstum\s*&\s*Jahres-Review/gi,'Feinschliff, Vereinfachung & Jahres-Review')
-        .replace(/wo\s+(dein|der)\s+(wichtigste[rn]?\s+)?Seed\s+liegt/gi,'ob deine Seed-Sicherung getrennt und geprüft ist')
-        .replace(/wo\s+deine\s+Schlüssel\s+liegen/gi,'ob deine Schlüssel organisatorisch getrennt und wiederherstellbar sind')
-        .replace(/genauen?\s+(Seed-)?Aufbewahrungsort/gi,'Status der getrennten Sicherung')
-        .replace(/welches\s+Gerät\s+ein\s+Single\s+Point\s+of\s+Failure\s+für\s+dich\s+wäre/gi,'ob ein einzelnes Gerät derzeit ein Ausfallrisiko darstellt')
-        .replace(/Welche drei Rechnungen würden dir als erstes das Genick brechen\?/gi,'Welche drei Zahlungsverpflichtungen würden zuerst zu einem ernsthaften Problem werden?')
-        .replace(/\s{2,}/g,' ');
-      if(!html.includes('setup-core.js'))html=html.replace('</body>','<script src="setup-core.js?version='+VERSION+'"></script></body>');
-      else html=html.replace(/setup-core\.js\?version=[^"']+/g,'setup-core.js?version='+VERSION);
-    }
-    const financeCard='<section class="setup-cta phase3-finance-entry" style="display:flex;justify-content:space-between;gap:22px;align-items:center;background:linear-gradient(135deg,#e8fbfb,#fff4fa);border:1px solid #cde9ea;border-radius:22px;padding:24px 28px;margin-bottom:18px;box-shadow:0 12px 35px rgba(19,34,56,.06)"><div><span style="display:inline-block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:900;color:#00878c;margin-bottom:5px">Phase 3A</span><h2 style="margin:0 0 7px;color:#132238;font-size:25px">Meine strukturierte Finanzübersicht</h2><p style="margin:0;color:#64778b;line-height:1.6">Banken, Konten, Börsen, Zahlungswege und öffentliche Wallet-Adressen als geordnete Datensätze erfassen, prüfen und verwalten.</p></div><a href="finanzuebersicht.html" style="white-space:nowrap;background:#132238;color:#fff;text-decoration:none;padding:14px 18px;border-radius:14px;font-weight:900">Finanzübersicht öffnen</a></section>';
-    if(isIndex&&!html.includes('phase3-finance-entry'))html=html.replace('<div class="modules" id="modules"></div>',financeCard+'<div class="modules" id="modules"></div>');
-    if(isOutput){
-      if(!html.includes('href="finanzuebersicht.html"'))html=html.replace('<a href="index.html">Übersicht</a>','<a href="index.html">Übersicht</a><a href="finanzuebersicht.html">Finanzübersicht</a>');
-      if(!html.includes('phase3-finance-entry'))html=html.replace('<div id="modules"></div>',financeCard+'<div id="modules"></div>');
-    }
-    const headers=new Headers(response.headers);headers.set('content-type','text/html; charset=utf-8');headers.set('cache-control','no-store, no-cache, must-revalidate');
-    return new Response(html,{status:response.status,statusText:response.statusText,headers});
-  })());
+ const url=new URL(event.request.url);const inSetup=url.pathname.includes('/pages/mein-setup/');
+ const isModule=/\/pages\/mein-setup\/modul-\d+\.html$/i.test(url.pathname);
+ const isIndex=/\/pages\/mein-setup\/(?:index\.html)?$/i.test(url.pathname);
+ const isOutput=/\/pages\/mein-setup\/setup-ausgabe\.html$/i.test(url.pathname);
+ if(event.request.mode!=='navigate'||!inSetup||(!isModule&&!isIndex&&!isOutput))return;
+ event.respondWith((async()=>{const response=await fetch(event.request,{cache:'no-store'});const type=response.headers.get('content-type')||'';if(!type.includes('text/html'))return response;let html=await response.text();
+ if(isModule){html=html
+  .replace(/<div\s+class=["']info-lock["'][^>]*>[\s\S]*?Mentor-Passwort[\s\S]*?<\/div>/gi,'')
+  .replace(/<[^>]*>[\s\S]*?Dieses Modul gehört zum geschützten Krypto-Setup[\s\S]*?Setup-Übersicht\.[\s\S]*?<\/[^>]+>/gi,'')
+  .replace(/\.mentor\b/g,'.praxis-impuls').replace(/class=["']mentor["']/g,'class="praxis-impuls"')
+  .replace(/Mentor-Impuls:/g,'Praxis-Impuls:').replace(/Mentor-Hinweis:/g,'Praxis-Impuls:').replace(/💬\s*<b>Mentor:<\/b>/g,'💡 <b>Praxis-Impuls:</b>')
+  .replace(/Modernisierte Kursfassung\s*[·-]\s*ohne Zertifikat/gi,'').replace(/dieselben sieben vollständigen Originalmodule/gi,'sieben aufeinander aufbauende Module')
+  .replace(/Originalkurs/gi,'Kurs').replace(/Kein Zertifikat/gi,'').replace(/Persönliches Krypto-Setup/gi,'Mein souveränes Setup').replace(/Dein persönliches Krypto-Setup/gi,'Dein souveränes Setup').replace(/Krypto-Setup/gi,'souveränes Setup')
+  .replace(/Bestandsaufnahme\s*&amp;\s*Risiko-Profil/gi,'Ausgangslage &amp; Schutzprofil').replace(/Bestandsaufnahme\s*&\s*Risiko-Profil/gi,'Ausgangslage & Schutzprofil')
+  .replace(/Feinschliff,\s*Wachstum\s*&amp;\s*Jahres-Review/gi,'Feinschliff, Vereinfachung &amp; Jahres-Review').replace(/Feinschliff,\s*Wachstum\s*&\s*Jahres-Review/gi,'Feinschliff, Vereinfachung & Jahres-Review')
+  .replace(/wo\s+(dein|der)\s+(wichtigste[rn]?\s+)?Seed\s+liegt/gi,'ob deine Seed-Sicherung getrennt und geprüft ist').replace(/wo\s+deine\s+Schlüssel\s+liegen/gi,'ob deine Schlüssel organisatorisch getrennt und wiederherstellbar sind')
+  .replace(/genauen?\s+(Seed-)?Aufbewahrungsort/gi,'Status der getrennten Sicherung').replace(/welches\s+Gerät\s+ein\s+Single\s+Point\s+of\s+Failure\s+für\s+dich\s+wäre/gi,'ob ein einzelnes Gerät derzeit ein Ausfallrisiko darstellt')
+  .replace(/Welche drei Rechnungen würden dir als erstes das Genick brechen\?/gi,'Welche drei Zahlungsverpflichtungen würden zuerst zu einem ernsthaften Problem werden?').replace(/\s{2,}/g,' ');
+  if(!html.includes('setup-core.js'))html=html.replace('</body>','<script src="setup-core.js?version='+VERSION+'"></script></body>');else html=html.replace(/setup-core\.js\?version=[^"']+/g,'setup-core.js?version='+VERSION);
+ }
+ const financeCard='<section class="setup-cta phase3-finance-entry" style="display:flex;justify-content:space-between;gap:22px;align-items:center;background:linear-gradient(135deg,#e8fbfb,#fff4fa);border:1px solid #cde9ea;border-radius:22px;padding:24px 28px;margin-bottom:18px;box-shadow:0 12px 35px rgba(19,34,56,.06)"><div><span style="display:inline-block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:900;color:#00878c;margin-bottom:5px">Phase 3A</span><h2 style="margin:0 0 7px;color:#132238;font-size:25px">Meine strukturierte Finanzübersicht</h2><p style="margin:0;color:#64778b;line-height:1.6">Banken, Konten, Börsen, Zahlungswege und öffentliche Wallet-Adressen erfassen und mit dem Handbuch verbinden.</p></div><a href="finanzuebersicht.html" style="white-space:nowrap;background:#132238;color:#fff;text-decoration:none;padding:14px 18px;border-radius:14px;font-weight:900">Finanzübersicht öffnen</a></section>';
+ const toolkitCard='<section class="setup-cta phase3-toolkit-entry" style="display:flex;justify-content:space-between;gap:22px;align-items:center;background:linear-gradient(135deg,#fff7e8,#fff4fa);border:1px solid #eadcbc;border-radius:22px;padding:24px 28px;margin-bottom:18px;box-shadow:0 12px 35px rgba(19,34,56,.06)"><div><span style="display:inline-block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:900;color:#9a6500;margin-bottom:5px">Phase 3B</span><h2 style="margin:0 0 7px;color:#132238;font-size:25px">Mein Werkzeugkasten</h2><p style="margin:0;color:#64778b;line-height:1.6">Sechs sichere Druckvorlagen: Seed-Sicherung, Bankblatt, Wallet-Adressblatt, Testprotokoll, Notfallplan und Jahres-Review.</p></div><a href="werkzeugkasten.html" style="white-space:nowrap;background:#132238;color:#fff;text-decoration:none;padding:14px 18px;border-radius:14px;font-weight:900">Werkzeugkasten öffnen</a></section>';
+ if(isIndex){if(!html.includes('phase3-finance-entry'))html=html.replace('<div class="modules" id="modules"></div>',financeCard+toolkitCard+'<div class="modules" id="modules"></div>');else if(!html.includes('phase3-toolkit-entry'))html=html.replace('<div class="modules" id="modules"></div>',toolkitCard+'<div class="modules" id="modules"></div>');}
+ if(isOutput){
+  if(!html.includes('href="finanzuebersicht.html"'))html=html.replace('<a href="index.html">Übersicht</a>','<a href="index.html">Übersicht</a><a href="finanzuebersicht.html">Finanzübersicht</a><a href="werkzeugkasten.html">Werkzeugkasten</a>');
+  else if(!html.includes('href="werkzeugkasten.html"'))html=html.replace('<a href="finanzuebersicht.html">Finanzübersicht</a>','<a href="finanzuebersicht.html">Finanzübersicht</a><a href="werkzeugkasten.html">Werkzeugkasten</a>');
+  const refBox='<section class="module" id="referenceOutput"><div class="module-head"><div><h2>Meine offiziellen Finanzangaben</h2><div>Strukturierte Daten aus Phase 3A · in der Kompaktausgabe maskiert</div></div><a href="finanzuebersicht.html">Angaben bearbeiten</a></div><div id="referenceOutputBody" class="no-data">Noch keine strukturierten Finanzangaben erfasst.</div></section>';
+  if(!html.includes('id="referenceOutput"'))html=html.replace('<div id="modules"></div>',financeCard+toolkitCard+refBox+'<div id="modules"></div>');
+  const runtime=`<script>(()=>{const e=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const mi=v=>{const x=String(v||'').replace(/\\s+/g,'');return x.length>8?x.slice(0,4)+' •••• •••• •••• '+x.slice(-4):x||'–'};const ma=v=>{const x=String(v||'');return x.length>14?x.slice(0,7)+'…'+x.slice(-6):x||'–'};function row(label,value){return '<div class="entry"><div class="label">'+e(label)+'</div><div class="value">'+e(value||'–')+'</div></div>'}function renderRefs(){const box=document.getElementById('referenceOutputBody');if(!box||!window.LBSetup)return;const s=LBSetup.read(),r=s.referenceData||{},full=document.body.dataset.view==='full',parts=[];const active=a=>(a||[]).filter(x=>!x.archived);const banks=active(r.banks),ex=active(r.exchanges),wa=active(r.wallets);if(banks.length)parts.push('<div class="section"><h3>Banken & Konten</h3>'+banks.map(x=>'<div class="context"><strong>'+e(x.label||x.bank||'Bankkonto')+'</strong>'+row('Bank',x.bank)+row('Rolle / Status',(x.role||'–')+' · '+(x.status||'–'))+row('IBAN',full&&x.showFull?x.iban:mi(x.iban))+row('BIC',x.bic)+row('Prüfdatum',x.verifiedAt)+'</div>').join('')+'</div>');if(ex.length)parts.push('<div class="section"><h3>Börsen & Zahlungswege</h3>'+ex.map(x=>'<div class="context"><strong>'+e(x.provider||'Anbieter')+'</strong>'+row('Rolle / Status',(x.role||'–')+' · '+(x.status||'–'))+row('Referenzkonto',x.referenceAccount)+row('2FA / Whitelist',(x.twoFA||'–')+' · '+(x.whitelist||'–'))+row('Prüfdatum',x.verifiedAt)+'</div>').join('')+'</div>');if(wa.length)parts.push('<div class="section"><h3>Wallet-Adressbuch</h3>'+wa.map(x=>'<div class="context"><strong>'+e(x.label||'Wallet')+'</strong>'+row('Asset / Netzwerk',(x.asset||'–')+' · '+(x.network||'–'))+row('Öffentliche Adresse',full&&x.showFull?x.address:ma(x.address))+row('Memo / Tag',x.memo)+row('Test / Prüfdatum',(x.testDone?'Test durchgeführt':'Test offen')+' · '+(x.verifiedAt||'–'))+'</div>').join('')+'</div>');box.className=parts.length?'':'no-data';box.innerHTML=parts.join('')||'Noch keine strukturierten Finanzangaben erfasst.'}document.addEventListener('DOMContentLoaded',()=>setTimeout(renderRefs,80));window.addEventListener('load',()=>setTimeout(renderRefs,80));document.addEventListener('click',ev=>{if(ev.target&&['compactBtn','fullBtn'].includes(ev.target.id))setTimeout(renderRefs,30)});})();</script>`;
+  if(!html.includes('function renderRefs()'))html=html.replace('</body>',runtime+'</body>');
+ }
+ const headers=new Headers(response.headers);headers.set('content-type','text/html; charset=utf-8');headers.set('cache-control','no-store, no-cache, must-revalidate');return new Response(html,{status:response.status,statusText:response.statusText,headers});})());
 });
