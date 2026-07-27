@@ -1,13 +1,13 @@
-const VERSION='202607272000';
+const VERSION='202607272130';
 self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',event=>{
   const url=new URL(event.request.url);
-  if(event.request.mode!=='navigate'||!url.pathname.includes('/pages/mein-setup/modul-')) return;
+  if(event.request.mode!=='navigate'||!url.pathname.includes('/pages/mein-setup/modul-'))return;
   event.respondWith((async()=>{
     const response=await fetch(event.request,{cache:'no-store'});
     const type=response.headers.get('content-type')||'';
-    if(!type.includes('text/html')) return response;
+    if(!type.includes('text/html'))return response;
     let html=await response.text();
     html=html
       .replace(/<div\s+class=["']info-lock["'][^>]*>[\s\S]*?Mentor-Passwort[\s\S]*?<\/div>/gi,'')
@@ -19,8 +19,7 @@ self.addEventListener('fetch',event=>{
       .replace(/💬\s*<b>Mentor:<\/b>/g,'💡 <b>Praxis-Impuls:</b>')
       .replace(/Modernisierte Kursfassung\s*[·-]\s*ohne Zertifikat/gi,'')
       .replace(/dieselben sieben vollständigen Originalmodule/gi,'sieben aufeinander aufbauende Module')
-      .replace(/Originalkurs/gi,'Kurs')
-      .replace(/Kein Zertifikat/gi,'')
+      .replace(/Originalkurs/gi,'Kurs').replace(/Kein Zertifikat/gi,'')
       .replace(/Persönliches Krypto-Setup/gi,'Mein souveränes Setup')
       .replace(/Dein persönliches Krypto-Setup/gi,'Dein souveränes Setup')
       .replace(/Krypto-Setup/gi,'souveränes Setup')
@@ -28,13 +27,15 @@ self.addEventListener('fetch',event=>{
       .replace(/Bestandsaufnahme\s*&\s*Risiko-Profil/gi,'Ausgangslage & Schutzprofil')
       .replace(/Feinschliff,\s*Wachstum\s*&amp;\s*Jahres-Review/gi,'Feinschliff, Vereinfachung &amp; Jahres-Review')
       .replace(/Feinschliff,\s*Wachstum\s*&\s*Jahres-Review/gi,'Feinschliff, Vereinfachung & Jahres-Review')
+      .replace(/wo\s+(dein|der)\s+(wichtigste[rn]?\s+)?Seed\s+liegt/gi,'ob deine Seed-Sicherung getrennt und geprüft ist')
+      .replace(/wo\s+deine\s+Schlüssel\s+liegen/gi,'ob deine Schlüssel organisatorisch getrennt und wiederherstellbar sind')
       .replace(/genauen?\s+(Seed-)?Aufbewahrungsort/gi,'Status der getrennten Sicherung')
+      .replace(/welches\s+Gerät\s+ein\s+Single\s+Point\s+of\s+Failure\s+für\s+dich\s+wäre/gi,'ob ein einzelnes Gerät derzeit ein Ausfallrisiko darstellt')
+      .replace(/Welche drei Rechnungen würden dir als erstes das Genick brechen\?/gi,'Welche drei Zahlungsverpflichtungen würden zuerst zu einem ernsthaften Problem werden?')
       .replace(/\s{2,}/g,' ');
-    if(!html.includes('setup-core.js')) html=html.replace('</body>','<script src="setup-core.js?version='+VERSION+'"></script></body>');
+    if(!html.includes('setup-core.js'))html=html.replace('</body>','<script src="setup-core.js?version='+VERSION+'"></script></body>');
     else html=html.replace(/setup-core\.js\?version=[^"']+/g,'setup-core.js?version='+VERSION);
-    const headers=new Headers(response.headers);
-    headers.set('content-type','text/html; charset=utf-8');
-    headers.set('cache-control','no-store, no-cache, must-revalidate');
+    const headers=new Headers(response.headers);headers.set('content-type','text/html; charset=utf-8');headers.set('cache-control','no-store, no-cache, must-revalidate');
     return new Response(html,{status:response.status,statusText:response.statusText,headers});
   })());
 });
