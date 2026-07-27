@@ -1,16 +1,20 @@
-const VERSION='202607281330';
+const VERSION='202607281730';
 self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',event=>{
  const url=new URL(event.request.url);
+ const inSetup=url.pathname.includes('/pages/mein-setup/');
  const isModule=/\/pages\/mein-setup\/modul-\d+\.html$/i.test(url.pathname);
- if(event.request.mode!=='navigate'||!isModule)return;
+ const isIndex=/\/pages\/mein-setup\/(?:index\.html)?$/i.test(url.pathname);
+ const isFinance=/\/pages\/mein-setup\/finanzuebersicht\.html$/i.test(url.pathname);
+ const isOutput=/\/pages\/mein-setup\/setup-ausgabe\.html$/i.test(url.pathname);
+ if(event.request.mode!=='navigate'||!inSetup||(!isModule&&!isIndex&&!isFinance&&!isOutput))return;
  event.respondWith((async()=>{
   const response=await fetch(event.request,{cache:'no-store'});
   const type=response.headers.get('content-type')||'';
   if(!type.includes('text/html'))return response;
   let html=await response.text();
-  html=html
+  if(isModule){html=html
    .replace(/<div\s+class=["']info-lock["'][^>]*>[\s\S]*?Mentor-Passwort[\s\S]*?<\/div>/gi,'')
    .replace(/<[^>]*>[\s\S]*?Dieses Modul gehört zum geschützten Krypto-Setup[\s\S]*?Setup-Übersicht\.[\s\S]*?<\/[^>]+>/gi,'')
    .replace(/\.mentor\b/g,'.praxis-impuls').replace(/class=["']mentor["']/g,'class="praxis-impuls"')
@@ -22,11 +26,11 @@ self.addEventListener('fetch',event=>{
    .replace(/wo\s+(dein|der)\s+(wichtigste[rn]?\s+)?Seed\s+liegt/gi,'ob deine Seed-Sicherung getrennt und geprüft ist').replace(/wo\s+deine\s+Schlüssel\s+liegen/gi,'ob deine Schlüssel organisatorisch getrennt und wiederherstellbar sind')
    .replace(/genauen?\s+(Seed-)?Aufbewahrungsort/gi,'Status der getrennten Sicherung').replace(/welches\s+Gerät\s+ein\s+Single\s+Point\s+of\s+Failure\s+für\s+dich\s+wäre/gi,'ob ein einzelnes Gerät derzeit ein Ausfallrisiko darstellt')
    .replace(/Welche drei Rechnungen würden dir als erstes das Genick brechen\?/gi,'Welche drei Zahlungsverpflichtungen würden zuerst zu einem ernsthaften Problem werden?').replace(/\s{2,}/g,' ');
-  if(!html.includes('setup-core.js'))html=html.replace('</body>','<script src="setup-core.js?version='+VERSION+'"></script></body>');
-  else html=html.replace(/setup-core\.js\?version=[^"']+/g,'setup-core.js?version='+VERSION);
-  const headers=new Headers(response.headers);
-  headers.set('content-type','text/html; charset=utf-8');
-  headers.set('cache-control','no-store, no-cache, must-revalidate');
+   if(!html.includes('setup-core.js'))html=html.replace('</body>','<script src="setup-core.js?version='+VERSION+'"></script></body>');
+   else html=html.replace(/setup-core\.js\?version=[^"']+/g,'setup-core.js?version='+VERSION);
+  }
+  if(!html.includes('setup-phase4.js'))html=html.replace('</body>','<script src="setup-phase4.js?version='+VERSION+'"></script></body>');
+  const headers=new Headers(response.headers);headers.set('content-type','text/html; charset=utf-8');headers.set('cache-control','no-store, no-cache, must-revalidate');
   return new Response(html,{status:response.status,statusText:response.statusText,headers});
  })());
 });
