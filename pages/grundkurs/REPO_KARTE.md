@@ -1033,6 +1033,8 @@
     │   │   ├── modul-03-sonderfaelle.html
     │   │   ├── modul-04-backoffice.html
     │   │   └── modul-05-steuerberater-ausgabe.html
+    │   ├── krypto-steuer-assistent/
+    │   │   └── index.html
     │   ├── krypto-steuer-ordnung/
     │   │   ├── archiv/
     │   │   │   └── jahresarchiv.html
@@ -1969,4 +1971,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.07.2026, 18:08)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.07.2026, 20:12)_
