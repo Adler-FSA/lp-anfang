@@ -1,4 +1,4 @@
-name: Patch Krypto Datensouveraenitaet
+name: Stabilitaet Krypto Steuer Akademie
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Kapitel 0 gezielt ergänzen
+      - name: Stabilitaets-Patch gezielt anwenden
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -22,73 +22,66 @@ jobs:
           path = Path('pages/krypto-steuer-assistent-v2/index.html')
           s = path.read_text(encoding='utf-8')
 
-          if 'data-panel="sovereignty"' in s:
-              print('Kapitel 0 ist bereits vorhanden.')
-              raise SystemExit(0)
+          # 1) LocalStorage-Fehler abfangen und Änderungen dauerhaft markieren.
+          old_save = "function save(){store.active=active;store.years[active]=data;localStorage.setItem(KEY,JSON.stringify(store));markBackupDirty();render()}"
+          new_save = "function save(){store.active=active;store.years[active]=data;if(!persistStore())return false;markBackupDirty();render();return true}"
+          if old_save in s:
+              s = s.replace(old_save, new_save, 1)
 
-          css = r'''
-          .top-actions{display:flex;gap:9px;align-items:center}.backup-btn{background:var(--mint);color:#fff}.backup-btn.remind30{animation:softPulse 2.2s infinite}.backup-btn.remind45{animation:strongPulse 1.15s infinite}@keyframes softPulse{0%,100%{background:var(--mint);transform:scale(1);box-shadow:none}50%{background:var(--mag);transform:scale(1.025);box-shadow:0 0 0 8px rgba(198,0,111,.12)}}@keyframes strongPulse{0%,100%{background:var(--mint);transform:scale(1)}50%{background:var(--mag);transform:scale(1.06);box-shadow:0 0 0 11px rgba(198,0,111,.2)}}.archive{white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#f3f6f7;border-radius:12px;padding:14px;line-height:1.55}@media(max-width:650px){.top-actions{width:100%;flex-wrap:wrap}}
-          '''
-          s = s.replace('</style>', css + '</style>', 1)
+          # 2) Verknüpfte Daten beim Löschen nicht still verlieren.
+          old_delete = "function bindDelete(){document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{if(!confirm('Diesen Eintrag wirklich löschen?'))return;const l=b.dataset.del,id=b.dataset.id;if(l==='wallets')data.transactions=data.transactions.filter(x=>x.walletId!==id);data[l]=data[l].filter(x=>x.id!==id);checks();save()})}"
+          new_delete = "function bindDelete(){document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{const l=b.dataset.del,id=b.dataset.id;if(l==='exchanges'){const e=data.exchanges.find(x=>x.id===id),r=relations().exchange(e||{id});const msg=`Anbieter ${e?.name||''} löschen? Zugeordnet sind ${r.wallets} Wallet(s), ${r.imports} CSV-Datei(en), ${r.bank} Bankbewegung(en) und ${r.tx} Transaktion(en). Diese Daten bleiben erhalten und werden als ungeklärt markiert.`;if(!confirm(msg))return;data.wallets.forEach(x=>{if(x.exchangeId===id)x.exchangeId=''});data.imports.forEach(x=>{if(x.exchangeId===id)x.exchangeId=''});data.bank.forEach(x=>{if(x.exchangeId===id)x.exchangeId=''});data.transactions.forEach(x=>{if(x.exchangeId===id)x.exchangeId=''});data.exchanges=data.exchanges.filter(x=>x.id!==id)}else if(l==='wallets'){const w=data.wallets.find(x=>x.id===id),n=data.transactions.filter(x=>x.walletId===id).length;if(!confirm(`Wallet ${w?.name||''} löschen? ${n} verknüpfte Transaktion(en) bleiben erhalten und werden als ungeklärt markiert.`))return;data.transactions.forEach(x=>{if(x.walletId===id)x.walletId=''});data.wallets=data.wallets.filter(x=>x.id!==id)}else{if(!confirm('Diesen Eintrag wirklich löschen?'))return;data[l]=data[l].filter(x=>x.id!==id)}checks();save()})}"
+          if old_delete in s:
+              s = s.replace(old_delete, new_delete, 1)
 
-          old_head = '<select id="year"></select></div></header>'
-          new_head = '<div class="top-actions"><button class="btn backup-btn" data-backup>Heute sichern</button><select id="year"></select></div></div></header>'
-          if old_head not in s:
-              raise SystemExit('Kopfzeile nicht gefunden')
-          s = s.replace(old_head, new_head, 1)
+          # 3) Originaldatei-Hinweise direkt an den Uploads ergänzen.
+          s = s.replace('Verwenden Sie möglichst den unveränderten Originalexport der Plattform.</span>', 'Verwenden Sie möglichst den unveränderten Originalexport der Plattform. Das Akademie-Backup speichert nur Struktur und Vorschau – die vollständige Original-CSV muss separat archiviert werden.</span>', 1)
+          s = s.replace('<input id="docFile" type="file"></div>', '<input id="docFile" type="file"><span class="help">Im Akademie-Backup werden Dateiname und Zuordnung gespeichert, nicht der vollständige Dateiinhalt. Bewahren Sie den Beleg zusätzlich im Archivordner auf.</span></div>', 1)
 
-          old_nav = "NAV=[['welcome','Willkommen'],['project','Ihre Steuerakte']"
-          new_nav = "NAV=[['welcome','Willkommen'],['sovereignty','Datensouveränität'],['project','Ihre Steuerakte']"
-          if old_nav not in s:
-              raise SystemExit('Navigation nicht gefunden')
-          s = s.replace(old_nav, new_nav, 1)
+          # 4) Blockchain-Abfrage mit Zeitlimit und verständlicher Diagnose.
+          old_fetch = "const u=`https://api.blockchair.com/${encodeURIComponent(w.chain)}/dashboards/address/${encodeURIComponent(w.address)}?limit=20`,res=await fetch(u,{headers:{Accept:'application/json'}});if(!res.ok)throw Error('Antwort '+res.status);"
+          new_fetch = "const u=`https://api.blockchair.com/${encodeURIComponent(w.chain)}/dashboards/address/${encodeURIComponent(w.address)}?limit=20`,controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);let res;try{res=await fetch(u,{headers:{Accept:'application/json'},signal:controller.signal})}catch(err){if(err.name==='AbortError')throw Error('Die Blockchain-Abfrage hat länger als 15 Sekunden gedauert. Bitte Internetverbindung prüfen und erneut versuchen.');throw Error('Die externe Blockchain-Abfrage ist derzeit nicht erreichbar.')}finally{clearTimeout(timer)}if(!res.ok)throw Error('Blockchain-Dienst antwortet mit Status '+res.status);"
+          if old_fetch in s:
+              s = s.replace(old_fetch, new_fetch, 1)
 
-          marker = '<section class="panel" data-panel="project">'
-          section = '''<section class="panel" data-panel="sovereignty"><div class="lesson"><span class="status info">Kapitel 0</span><h2>Datensouveränität & Archiv</h2><p><strong>Ihre Daten gehören Ihnen.</strong> Die Akademie speichert Ihre Steuerakte lokal in diesem Browser. Deshalb gehört eine tägliche Sicherung fest zur Arbeit – besonders vor dem Schließen, bei Geräte- oder Browserwechsel und bei Nutzung im iFrame.</p></div><div class="grid g2"><div class="card"><span class="status" id="backupLamp">Sicherung wird geprüft</span><h3>Heute sichern</h3><p id="backupText" class="muted"></p><button class="btn backup-btn" data-backup>Vollständiges Tages-Backup</button></div><div class="card"><h3>Neues Gerät oder Browser?</h3><p>Laden Sie Ihre letzte Sicherung hoch und arbeiten Sie genau dort weiter, wo Sie aufgehört haben.</p><button class="btn ghost" id="restoreOpen">Backup wiederherstellen</button></div></div><div class="grid g2" style="margin-top:14px"><div class="card"><h3>Archiv richtig anlegen</h3><p>Bewahren Sie Original-CSV, Backups, Belege und PDF-Ausgaben getrennt nach Steuerjahren auf.</p><button class="btn ghost" id="archiveOpen">Archiv-Anleitung öffnen</button></div><div class="card"><h3>Was wird gesichert?</h3><p>Alle Steuerjahre, Akten, Anbieter, Wallet-Zuordnungen, eingelesene CSV-Strukturen, Transaktionen, Bankbewegungen, Dokumentverweise, Prüfungen und Einstellungen.</p></div></div><div class="notice" style="margin-top:14px"><strong>Tagesregel:</strong> Bevor Sie die Akademie verlassen, laden Sie zuerst ein aktuelles Backup herunter. LocalStorage ist browser- und geräteabhängig und kann im iFrame eingeschränkt sein. Original-CSV-Dateien und Belege bleiben zusätzlich separat im Archiv.</div></section>'''
-          if marker not in s:
-              raise SystemExit('Einfügepunkt für Kapitel 0 nicht gefunden')
-          s = s.replace(marker, section + marker, 1)
-
-          modal_marker = '<div class="toast" id="toast" hidden></div>'
-          modals = '''<div class="overlay" id="restoreModal" hidden><div class="modal"><span class="status info">Wiederherstellung</span><h2>Backup auf diesem Gerät öffnen</h2><p>Wählen Sie Ihre zuletzt gesicherte JSON-Datei. Die vorhandenen lokalen Daten werden erst nach Ihrer Bestätigung ersetzt.</p><input id="restoreFile" type="file" accept="application/json,.json"><div class="notice" style="margin-top:14px"><strong>Wichtig:</strong> Originale CSV-Dateien und Belege werden nicht als Dateiinhalte im Browser gespeichert. Bewahren Sie diese zusätzlich im Archivordner auf.</div><div class="actions" style="margin-top:16px"><button class="btn ghost" data-close="restoreModal">Abbrechen</button><button class="btn primary" id="restoreNow">Backup einspielen</button></div></div></div><div class="overlay" id="archiveModal" hidden><div class="modal"><span class="status info">Archiv-Empfehlung</span><h2>Ihr souveränes Krypto-Steuerarchiv</h2><p>Nutzen Sie möglichst eine externe Festplatte oder einen verschlüsselten Datenträger. Legen Sie für jedes Steuerjahr einen eigenen Ordner an.</p><div class="archive">Krypto-Steuerarchiv/\n├── 2022/\n│   ├── 01_Original-CSV/\n│   ├── 02_Wallet-und-Blockchain/\n│   ├── 03_Bank-und-Belege/\n│   ├── 04_Akademie-Backups/\n│   └── 05_PDF-und-Steuerberatung/\n├── 2023/\n├── 2024/\n├── 2025/\n└── 2026/</div><div class="notice" style="margin-top:14px"><strong>Originaldateien niemals überschreiben:</strong> Bearbeitete CSV-Dateien immer als Arbeitskopie speichern. Die unveränderten Exporte bleiben im Ordner „01_Original-CSV“.</div><div class="actions" style="margin-top:16px"><button class="btn primary" data-close="archiveModal">Verstanden</button></div></div></div>'''
-          if modal_marker not in s:
-              raise SystemExit('Modal-Einfügepunkt nicht gefunden')
-          s = s.replace(modal_marker, modals + modal_marker, 1)
-
-          s = s.replace("function save(){store.active=active;store.years[active]=data;localStorage.setItem(KEY,JSON.stringify(store));render()}", "function save(){store.active=active;store.years[active]=data;localStorage.setItem(KEY,JSON.stringify(store));markBackupDirty();render()}", 1)
-
-          old_export = "function exportData(){const blob=new Blob([JSON.stringify(store,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`krypto-steuerakte-${active}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}"
-          new_export = "function exportData(){downloadBackup()}"
-          if old_export not in s:
-              raise SystemExit('Exportfunktion nicht gefunden')
-          s = s.replace(old_export, new_export, 1)
-
-          safety = r'''
-          const BACKUP_META='kryptoSteuerBackupMeta';let backupDirty=false,backupDirtyAt=0;
+          # 5) Bisherige Sicherungslogik komplett durch dauerhafte Änderungs-/Backup-Zeitpunkte ersetzen.
+          start = s.find("const BACKUP_META='kryptoSteuerBackupMeta';")
+          end = s.find("buildNav();wire();updateExchangeHelp();checks();render();wireSafety();", start)
+          if start != -1 and end != -1:
+              safety = r'''const BACKUP_META='kryptoSteuerBackupMeta';
           function backupMeta(){try{return JSON.parse(localStorage.getItem(BACKUP_META)||'{}')}catch{return{}}}
-          function sameBackupDay(a){return a&&new Date(a).toDateString()===new Date().toDateString()}
-          function markBackupDirty(){if(!backupDirty){backupDirty=true;backupDirtyAt=Date.now()}renderBackupState()}
+          function saveBackupMeta(m){try{localStorage.setItem(BACKUP_META,JSON.stringify(m));return true}catch(e){alert('Der Browser konnte den Sicherungsstatus nicht speichern. Bitte jetzt ein Backup herunterladen.');return false}}
+          function persistStore(){try{localStorage.setItem(KEY,JSON.stringify(store));return true}catch(e){const msg=e?.name==='QuotaExceededError'?'Der lokale Browserspeicher ist voll. Bitte sofort ein Backup herunterladen und nicht mehr benötigte Browserdaten oder sehr große Importvorschauen prüfen.':'Die Daten konnten in diesem Browser nicht gespeichert werden. Bitte sofort ein Backup herunterladen.';alert(msg);return false}}
+          function markBackupDirty(){const m=backupMeta(),now=new Date().toISOString();m.lastChange=now;m.dirtySince=m.dirtySince||now;saveBackupMeta(m);renderBackupState()}
           function backupStamp(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`}
-          function downloadBackup(){store.active=active;store.years[active]=data;const payload={format:'Krypto-Steuer-Akademie-Backup',version:1,createdAt:new Date().toISOString(),data:store};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Krypto-Steuer-Akademie_${backupStamp()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);localStorage.setItem(BACKUP_META,JSON.stringify({lastBackup:new Date().toISOString(),file:a.download}));backupDirty=false;backupDirtyAt=0;renderBackupState();notify('Tages-Backup wurde heruntergeladen. Bitte sicher archivieren.')}
-          function renderBackupState(){const m=backupMeta(),last=m.lastBackup?new Date(m.lastBackup):null,l=$('backupLamp'),t=$('backupText');if(l&&t){if(!last){l.className='status bad';l.textContent='🔴 Noch nie gesichert';t.textContent='Letzte Sicherung: keine Sicherung bekannt'}else if(sameBackupDay(last)){l.className='status ok';l.textContent='🟢 Heute gesichert';t.textContent='Letzte Sicherung: '+last.toLocaleString('de-DE')}else{l.className='status warn';l.textContent='🟡 Tages-Backup fällig';t.textContent='Letzte Sicherung: '+last.toLocaleString('de-DE')}}const mins=backupDirtyAt?(Date.now()-backupDirtyAt)/60000:0;document.querySelectorAll('[data-backup]').forEach(b=>{b.classList.toggle('remind30',backupDirty&&mins>=30&&mins<45);b.classList.toggle('remind45',backupDirty&&mins>=45)})}
+          function isCurrentBackup(m=backupMeta()){return !!(m.lastBackup&&m.lastChange&&new Date(m.lastBackup)>=new Date(m.lastChange))}
+          function downloadBackup(){store.active=active;store.years[active]=data;if(!persistStore())return;const createdAt=new Date().toISOString(),payload={format:'Krypto-Steuer-Akademie-Backup',version:2,createdAt,data:store},blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Krypto-Steuer-Akademie_${backupStamp()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);const m=backupMeta();m.lastBackup=createdAt;m.file=a.download;delete m.dirtySince;saveBackupMeta(m);renderBackupState();notify('Backup-Download wurde gestartet. Bitte die Datei sicher archivieren.')}
+          function renderBackupState(){const m=backupMeta(),last=m.lastBackup?new Date(m.lastBackup):null,changed=m.lastChange?new Date(m.lastChange):null,current=isCurrentBackup(m),l=$('backupLamp'),t=$('backupText');if(l&&t){if(!last){l.className='status bad';l.textContent='🔴 Noch nie gesichert';t.textContent='Letzte Sicherung: keine Sicherung bekannt'}else if(current){l.className='status ok';l.textContent='🟢 Aktueller Stand gesichert';t.textContent='Letzte Sicherung: '+last.toLocaleString('de-DE')}else{l.className='status warn';l.textContent='🟡 Neue Änderungen ungesichert';t.textContent='Letzte Sicherung: '+last.toLocaleString('de-DE')+(changed?' · letzte Änderung: '+changed.toLocaleString('de-DE'):'')}}const mins=m.dirtySince?(Date.now()-new Date(m.dirtySince).getTime())/60000:0;document.querySelectorAll('[data-backup]').forEach(b=>{b.classList.toggle('remind30',!current&&mins>=30&&mins<45);b.classList.toggle('remind45',!current&&mins>=45)})}
           function openSafety(id){$(id).hidden=false}function closeSafety(id){$(id).hidden=true}
-          function wireSafety(){document.querySelectorAll('[data-backup]').forEach(b=>b.onclick=downloadBackup);$('restoreOpen').onclick=()=>openSafety('restoreModal');$('archiveOpen').onclick=()=>openSafety('archiveModal');document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeSafety(b.dataset.close));$('restoreNow').onclick=()=>{const f=$('restoreFile').files[0];if(!f)return alert('Bitte zuerst eine Backup-Datei auswählen.');const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.format==='Krypto-Steuer-Akademie-Backup'?p.data:p;if(!d||typeof d!=='object'||!d.years)throw Error();if(!confirm('Die lokalen Daten dieses Browsers durch das ausgewählte Backup ersetzen?'))return;localStorage.setItem(KEY,JSON.stringify(d));localStorage.setItem(BACKUP_META,JSON.stringify({lastBackup:p.createdAt||new Date().toISOString(),restoredAt:new Date().toISOString(),file:f.name}));location.reload()}catch{alert('Diese Datei ist kein gültiges Backup der Krypto-Steuer-Akademie.')}};r.readAsText(f)};renderBackupState();setInterval(renderBackupState,30000);window.addEventListener('beforeunload',e=>{if(backupDirty&&!sameBackupDay(backupMeta().lastBackup)){e.preventDefault();e.returnValue='Heute wurde noch kein aktuelles Backup erstellt.'}})}
+          function storageDiagnostic(){try{const bytes=new Blob([localStorage.getItem(KEY)||'']).size,kb=Math.round(bytes/1024),el=$('storageInfo');if(el)el.textContent=`Aktuell belegt die Steuerakte ungefähr ${kb.toLocaleString('de-DE')} KB lokalen Browserspeicher.`}catch{}}
+          function wireSafety(){document.querySelectorAll('[data-backup]').forEach(b=>b.onclick=downloadBackup);$('restoreOpen').onclick=()=>openSafety('restoreModal');$('archiveOpen').onclick=()=>openSafety('archiveModal');document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeSafety(b.dataset.close));$('restoreNow').onclick=()=>{const f=$('restoreFile').files[0];if(!f)return alert('Bitte zuerst eine Backup-Datei auswählen.');const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.format==='Krypto-Steuer-Akademie-Backup'?p.data:p;if(!d||typeof d!=='object'||!d.years)throw Error();if(!confirm('Die lokalen Daten dieses Browsers durch das ausgewählte Backup ersetzen?'))return;localStorage.setItem(KEY,JSON.stringify(d));const now=new Date().toISOString();saveBackupMeta({lastBackup:p.createdAt||now,lastChange:p.createdAt||now,restoredAt:now,file:f.name});location.reload()}catch(e){alert(e?.name==='QuotaExceededError'?'Das Backup ist größer als der verfügbare Browserspeicher.':'Diese Datei ist kein gültiges Backup der Krypto-Steuer-Akademie.')}};r.readAsText(f)};renderBackupState();storageDiagnostic();setInterval(()=>{renderBackupState();storageDiagnostic()},30000);window.addEventListener('beforeunload',e=>{if(!isCurrentBackup()){e.preventDefault();e.returnValue='Seit der letzten Sicherung wurden Änderungen vorgenommen.'}});if('serviceWorker'in navigator&&window.top===window.self)navigator.serviceWorker.register('./sw.js').catch(()=>{})}
           '''
-          init_marker = 'buildNav();wire();updateExchangeHelp();checks();render();'
-          if init_marker not in s:
-              raise SystemExit('Initialisierung nicht gefunden')
-          s = s.replace(init_marker, safety + init_marker + 'wireSafety();', 1)
+              s = s[:start] + safety + s[end:]
+
+          # 6) Speicherdiagnose sichtbar in Kapitel 0 ergänzen.
+          marker = '<div class="notice" style="margin-top:14px"><strong>Tagesregel:</strong>'
+          if 'id="storageInfo"' not in s and marker in s:
+              s = s.replace(marker, '<p id="storageInfo" class="help" style="margin-top:14px"></p>'+marker, 1)
 
           path.write_text(s, encoding='utf-8')
+
+          # 7) Konservativer Service Worker: online immer Netzwerk zuerst, offline letzter Stand.
+          sw = Path('pages/krypto-steuer-assistent-v2/sw.js')
+          sw.write_text("""const CACHE='krypto-steuer-akademie-v1';\nself.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.add('./index.html')).catch(()=>{}))});\nself.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});\nself.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==location.origin)return;const u=new URL(e.request.url);u.search='';const key=new Request(u.toString(),{method:'GET',headers:e.request.headers,mode:e.request.mode,credentials:e.request.credentials,redirect:e.request.redirect});e.respondWith(fetch(e.request).then(r=>{if(r&&r.ok){const copy=r.clone();caches.open(CACHE).then(c=>c.put(key,copy))}return r}).catch(()=>caches.match(key).then(r=>r||caches.match('./index.html'))))});\n""",encoding='utf-8')
           PY
-      - name: Änderungen committen
+      - name: Änderungen prüfen und committen
         run: |
-          if git diff --quiet; then
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pages/krypto-steuer-assistent-v2/index.html pages/krypto-steuer-assistent-v2/sw.js
+          if git diff --cached --quiet; then
             echo "Keine Änderungen notwendig."
             exit 0
           fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add pages/krypto-steuer-assistent-v2/index.html
-          git commit -m "Ergänzt Kapitel 0 Datensouveränität ohne bestehende Inhalte zu verändern"
+          git commit -m "Stabilisiert Backup, Datenverknüpfungen, Speicher und Offline-Fallback"
           git push
