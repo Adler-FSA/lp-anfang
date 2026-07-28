@@ -1035,6 +1035,9 @@
     │   │   └── modul-05-steuerberater-ausgabe.html
     │   ├── krypto-steuer-assistent/
     │   │   └── index.html
+    │   ├── krypto-steuer-assistent-v2/
+    │   │   ├── index.html
+    │   │   └── sw.js
     │   ├── krypto-steuer-ordnung/
     │   │   ├── archiv/
     │   │   │   └── jahresarchiv.html
@@ -1971,4 +1974,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.07.2026, 20:12)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.07.2026, 22:58)_
