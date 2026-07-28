@@ -1414,6 +1414,8 @@
     │   │   ├── woche-50.jpg
     │   │   ├── woche-51.jpg
     │   │   └── woche-52.jpg
+    │   ├── musik-box/
+    │   │   └── index.html
     │   ├── nachlass/
     │   │   ├── master-nachlass-kurs-struktur.html
     │   │   ├── modul-1-akutfall-erste-schritte.html
@@ -1967,4 +1969,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.07.2026, 08:23)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 28.07.2026, 11:11)_
