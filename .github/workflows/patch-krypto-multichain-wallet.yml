@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Multi-Chain-Wallet-Erkennung ergänzen
+      - name: Multi-Chain-Transaktionen mit der Steuerakte verbinden
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -23,38 +23,15 @@ jobs:
           path = Path('pages/krypto-steuer-assistent-v2/index.html')
           s = path.read_text(encoding='utf-8')
 
-          if 'MULTICHAIN_WALLET_V1' in s:
-              print('Multi-Chain-Wallet-Scanner ist bereits vorhanden.')
+          if 'MULTICHAIN_TX_SYNC_V2' in s:
+              print('Multi-Chain-Transaktionssync V2 ist bereits vorhanden.')
               raise SystemExit(0)
+          if 'MULTICHAIN_WALLET_V1' not in s:
+              raise SystemExit('Multi-Chain-Wallet-Scanner V1 wurde nicht gefunden.')
 
-          css = r'''
-          /* MULTICHAIN_WALLET_V1 */
-          .chain-scan{margin-top:12px;display:grid;gap:8px}.chain-hit{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#f7f9fa}.chain-hit strong{display:block}.chain-hit.active{border-color:#9bd8c0;background:#edf9f3}.chain-hit.none{opacity:.72}.scan-spinner{display:inline-block;width:16px;height:16px;border:2px solid #cbd7dd;border-top-color:var(--mint);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
-          '''
-          s = s.replace('</style>', css + '</style>', 1)
+          s = s.replace('/* MULTICHAIN_WALLET_V1 */', '/* MULTICHAIN_WALLET_V1 */\n/* MULTICHAIN_TX_SYNC_V2 */', 1)
 
-          old_select = '''<div class="field"><label>Blockchain</label><select id="waChain"><option value="bitcoin">Bitcoin</option><option value="ethereum">Ethereum</option><option value="litecoin">Litecoin</option><option value="bitcoin-cash">Bitcoin Cash</option><option value="dogecoin">Dogecoin</option><option value="dash">Dash</option></select></div>'''
-          new_select = '''<div class="field"><label>Netzwerk-Erkennung</label><select id="waChain"><option value="auto">Automatisch passende Netzwerke prüfen (empfohlen)</option><optgroup label="EVM-Netzwerke"><option value="ethereum">Ethereum</option><option value="bsc">BNB Smart Chain (BSC)</option><option value="polygon">Polygon</option><option value="arbitrum">Arbitrum One</option><option value="optimism">Optimism</option><option value="base">Base</option><option value="avalanche">Avalanche C-Chain</option><option value="fantom">Fantom</option><option value="gnosis">Gnosis Chain</option><option value="linea">Linea</option><option value="zksync">zkSync Era</option><option value="cronos">Cronos</option></optgroup><optgroup label="Weitere Netzwerke"><option value="bitcoin">Bitcoin</option><option value="solana">Solana</option><option value="tron">Tron</option><option value="litecoin">Litecoin</option><option value="bitcoin-cash">Bitcoin Cash</option><option value="dogecoin">Dogecoin</option><option value="dash">Dash</option></optgroup></select><span class="help">Bei einer 0x-Adresse prüft die Akademie automatisch mehrere EVM-Netzwerke. Dieselbe Adresse kann auf mehreren Chains aktiv sein.</span></div>'''
-          if old_select not in s:
-              raise SystemExit('Blockchain-Auswahl nicht gefunden')
-          s = s.replace(old_select, new_select, 1)
-
-          old_button = '<button class="btn primary" id="saveWallet">Speichern und Blockchain lesen</button>'
-          new_button = '<button class="btn primary" id="saveWallet">Wallet erkennen und Netzwerke prüfen</button><div id="chainScanResult" class="chain-scan full"></div>'
-          if old_button not in s:
-              raise SystemExit('Wallet-Button nicht gefunden')
-          s = s.replace(old_button, new_button, 1)
-
-          old_handler_pattern = re.compile(r"\$\('saveWallet'\)\.onclick=\(\)=>\{.*?\};\$\('readCsv'\)\.onclick=", re.S)
-          replacement = r'''$('saveWallet').onclick=async()=>{const name=$('waName').value.trim(),address=$('waAddress').value.trim(),mode=$('waChain').value;if(!name||!address)return alert('Bitte Bezeichnung und öffentliche Wallet-Adresse eingeben.');await scanAndSaveWallet({name,address,mode,ownership:$('waOwner').value,exchangeId:$('waExchange').value})};$('readCsv').onclick='''
-          s, count = old_handler_pattern.subn(replacement, s, count=1)
-          if count != 1:
-              raise SystemExit('Wallet-Speicherfunktion nicht gefunden')
-
-          lookup_pattern = re.compile(r"async function lookup\(w\)\{.*?\}function bindDelete", re.S)
-          new_lookup = r'''
-          const EVM_CHAINS=[
-            {id:'ethereum',name:'Ethereum',symbol:'ETH',rpc:'https://eth.llamarpc.com'},
+          old_chains = """{id:'ethereum',name:'Ethereum',symbol:'ETH',rpc:'https://eth.llamarpc.com'},
             {id:'bsc',name:'BNB Smart Chain',symbol:'BNB',rpc:'https://bsc-dataseed.binance.org'},
             {id:'polygon',name:'Polygon',symbol:'POL',rpc:'https://polygon-rpc.com'},
             {id:'arbitrum',name:'Arbitrum One',symbol:'ETH',rpc:'https://arb1.arbitrum.io/rpc'},
@@ -65,18 +42,54 @@ jobs:
             {id:'gnosis',name:'Gnosis Chain',symbol:'xDAI',rpc:'https://rpc.gnosischain.com'},
             {id:'linea',name:'Linea',symbol:'ETH',rpc:'https://rpc.linea.build'},
             {id:'zksync',name:'zkSync Era',symbol:'ETH',rpc:'https://mainnet.era.zksync.io'},
-            {id:'cronos',name:'Cronos',symbol:'CRO',rpc:'https://evm.cronos.org'}
-          ];
-          function addressKind(a){a=(a||'').trim();if(/^0x[a-fA-F0-9]{40}$/.test(a))return'evm';if(/^(bc1|[13])[a-zA-HJ-NP-Z0-9]{20,}$/i.test(a))return'bitcoin';if(/^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(a))return'tron';if(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(a))return'solana';return'unknown'}
-          async function rpcCall(url,method,params,timeout=12000){const c=new AbortController(),timer=setTimeout(()=>c.abort(),timeout);try{const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params}),signal:c.signal});if(!r.ok)throw Error('HTTP '+r.status);const j=await r.json();if(j.error)throw Error(j.error.message||'RPC-Fehler');return j.result}finally{clearTimeout(timer)}}
-          async function scanEvmChain(chain,address){try{const [nonceHex,balanceHex]=await Promise.all([rpcCall(chain.rpc,'eth_getTransactionCount',[address,'latest']),rpcCall(chain.rpc,'eth_getBalance',[address,'latest'])]);const txCount=parseInt(nonceHex||'0x0',16)||0,balance=BigInt(balanceHex||'0x0'),active=txCount>0||balance>0n;return{...chain,ok:true,active,txCount,balanceWei:balance.toString()}}catch(e){return{...chain,ok:false,active:false,error:String(e.message||e)}}}
-          function renderChainScan(results,kind){const box=$('chainScanResult');if(!box)return;const active=results.filter(x=>x.active);box.innerHTML=`<div class="notice"><strong>Erkennung:</strong> ${kind==='evm'?'EVM-Adresse – mehrere Netzwerke wurden geprüft.':'Adressformat: '+esc(kind)} ${active.length?active.length+' Netzwerk(e) mit Aktivität oder Bestand gefunden.':'Keine eindeutige Aktivität gefunden.'}</div>`+results.map(x=>`<div class="chain-hit ${x.active?'active':x.ok?'none':''}"><div><strong>${esc(x.name)}</strong><span class="help">${x.ok?(x.active?`${x.txCount} ausgehende Transaktion(en) oder nativer Bestand erkannt`:'keine native Aktivität erkannt'):'Abfrage derzeit nicht erreichbar'}</span></div><span class="status ${x.active?'ok':x.ok?'warn':'bad'}">${x.active?'Gefunden':x.ok?'Kein Treffer':'Nicht erreichbar'}</span></div>`).join('')}
-          async function scanAndSaveWallet(input){const kind=addressKind(input.address),box=$('chainScanResult');box.innerHTML='<div class="notice"><span class="scan-spinner"></span> Netzwerke werden geprüft. Bitte diese Seite geöffnet lassen.</div>';if(input.mode==='auto'&&kind==='evm'){const results=await Promise.all(EVM_CHAINS.map(c=>scanEvmChain(c,input.address)));renderChainScan(results,kind);const hits=results.filter(r=>r.active);if(!hits.length){alert('Auf den erreichbaren EVM-Netzwerken wurde keine native Aktivität gefunden. Token-only-Aktivitäten können trotzdem vorhanden sein. Bitte wählen Sie das bekannte Netzwerk manuell aus oder prüfen Sie die Adresse im jeweiligen Explorer.');return}hits.forEach(r=>{if(!data.wallets.some(w=>w.address.toLowerCase()===input.address.toLowerCase()&&w.chain===r.id)){data.wallets.push({id:uid(),name:`${input.name} – ${r.name}`,chain:r.id,chainName:r.name,address:input.address,ownership:input.ownership,exchangeId:input.exchangeId,lookup:{ok:true,at:new Date().toISOString(),txCount:r.txCount,balance:r.balanceWei,method:'multichain-rpc'}})}});$('waName').value=$('waAddress').value='';checks();save();notify(`${hits.length} Netzwerk(e) wurden für diese Wallet übernommen.`);return}const chain=input.mode==='auto'?(kind==='bitcoin'?'bitcoin':kind==='solana'?'solana':kind==='tron'?'tron':'ethereum'):input.mode;const label=EVM_CHAINS.find(x=>x.id===chain)?.name||chain;const w={id:uid(),name:input.name,chain,chainName:label,address:input.address,ownership:input.ownership,exchangeId:input.exchangeId};data.wallets.push(w);$('waName').value=$('waAddress').value='';save();await lookup(w)}
-          async function lookup(w){if(!w)return;const evm=EVM_CHAINS.find(c=>c.id===w.chain);if(evm){w.lookup={loading:true};save();const r=await scanEvmChain(evm,w.address);w.lookup=r.ok?{ok:true,at:new Date().toISOString(),txCount:r.txCount,balance:r.balanceWei,method:'evm-rpc'}:{ok:false,error:r.error,at:new Date().toISOString()};checks();save();notify(r.ok?'Das Netzwerk wurde erneut geprüft.':'Das Netzwerk konnte derzeit nicht geprüft werden.');return}if(w.chain==='solana'){w.lookup={loading:true};save();try{const sigs=await rpcCall('https://api.mainnet-beta.solana.com','getSignaturesForAddress',[w.address,{limit:20}]);w.lookup={ok:true,at:new Date().toISOString(),txCount:Array.isArray(sigs)?sigs.length:0,hashes:(sigs||[]).map(x=>x.signature),method:'solana-rpc'};notify('Solana-Aktivitäten wurden gelesen.')}catch(e){w.lookup={ok:false,error:String(e.message||e),at:new Date().toISOString()};notify('Solana konnte derzeit nicht gelesen werden.')}checks();save();return}w.lookup={loading:true};save();try{const u=`https://api.blockchair.com/${encodeURIComponent(w.chain)}/dashboards/address/${encodeURIComponent(w.address)}?limit=20`,controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);let res;try{res=await fetch(u,{headers:{Accept:'application/json'},signal:controller.signal})}finally{clearTimeout(timer)}if(!res.ok)throw Error('Blockchain-Dienst antwortet mit Status '+res.status);const j=await res.json(),entry=j.data?.[w.address]||Object.values(j.data||{})[0];if(!entry)throw Error('Adresse wurde nicht gefunden');const a=entry.address||{},tx=entry.transactions||[];w.lookup={ok:true,at:new Date().toISOString(),balance:a.balance||0,txCount:a.transaction_count||tx.length,hashes:tx.slice(0,20),method:'blockchair'};data.transactions=data.transactions.filter(t=>!(t.source==='Blockchain'&&t.walletId===w.id));tx.slice(0,20).forEach(h=>data.transactions.push({id:uid(),date:'',type:'Blockchain-Spur',asset:(w.chainName||w.chain).toUpperCase(),amount:'',eur:'',exchangeId:w.exchangeId||'',walletId:w.id,source:'Blockchain',notes:h,auto:true}));notify('Die Blockchain-Daten wurden erfolgreich gelesen.')}catch(e){w.lookup={ok:false,error:String(e.message||e),at:new Date().toISOString()};notify('Die Wallet konnte nicht gelesen werden.')}checks();save()}
-          function bindDelete'''
-          s, count = lookup_pattern.subn(new_lookup, s, count=1)
-          if count != 1:
-              raise SystemExit('Blockchain-Abfragefunktion nicht gefunden')
+            {id:'cronos',name:'Cronos',symbol:'CRO',rpc:'https://evm.cronos.org'}"""
+          new_chains = """{id:'ethereum',name:'Ethereum',symbol:'ETH',rpc:'https://eth.llamarpc.com',explorer:'https://eth.blockscout.com'},
+            {id:'bsc',name:'BNB Smart Chain',symbol:'BNB',rpc:'https://bsc-dataseed.binance.org',explorer:'https://bsc.blockscout.com'},
+            {id:'polygon',name:'Polygon',symbol:'POL',rpc:'https://polygon-rpc.com',explorer:'https://polygon.blockscout.com'},
+            {id:'arbitrum',name:'Arbitrum One',symbol:'ETH',rpc:'https://arb1.arbitrum.io/rpc',explorer:'https://arbitrum.blockscout.com'},
+            {id:'optimism',name:'Optimism',symbol:'ETH',rpc:'https://mainnet.optimism.io',explorer:'https://optimism.blockscout.com'},
+            {id:'base',name:'Base',symbol:'ETH',rpc:'https://mainnet.base.org',explorer:'https://base.blockscout.com'},
+            {id:'avalanche',name:'Avalanche C-Chain',symbol:'AVAX',rpc:'https://api.avax.network/ext/bc/C/rpc',explorer:'https://avalanche.blockscout.com'},
+            {id:'fantom',name:'Fantom',symbol:'FTM',rpc:'https://rpc.ftm.tools'},
+            {id:'gnosis',name:'Gnosis Chain',symbol:'xDAI',rpc:'https://rpc.gnosischain.com',explorer:'https://gnosis.blockscout.com'},
+            {id:'linea',name:'Linea',symbol:'ETH',rpc:'https://rpc.linea.build',explorer:'https://linea.blockscout.com'},
+            {id:'zksync',name:'zkSync Era',symbol:'ETH',rpc:'https://mainnet.era.zksync.io',explorer:'https://zksync.blockscout.com'},
+            {id:'cronos',name:'Cronos',symbol:'CRO',rpc:'https://evm.cronos.org',explorer:'https://cronos.blockscout.com'}"""
+          if old_chains not in s:
+              raise SystemExit('EVM-Chainliste nicht gefunden')
+          s = s.replace(old_chains, new_chains, 1)
+
+          marker = "function renderChainScan(results,kind)"
+          helpers = r'''
+          function lowerAddress(v){return String(v||'').toLowerCase()}
+          function decimalAmount(raw,decimals=18){try{raw=String(raw||'0');decimals=Number(decimals||0);if(!/^\d+$/.test(raw))return raw;const neg=false,p=raw.padStart(decimals+1,'0'),i=p.slice(0,-decimals)||'0',f=decimals?p.slice(-decimals).replace(/0+$/,''):'';return f?i+'.'+f:i}catch{return String(raw||'')}}
+          async function explorerJson(url,timeout=18000){const c=new AbortController(),timer=setTimeout(()=>c.abort(),timeout);try{const r=await fetch(url,{headers:{Accept:'application/json'},signal:c.signal});if(!r.ok)throw Error('HTTP '+r.status);return await r.json()}finally{clearTimeout(timer)}}
+          function upsertBlockchainTx(tx){if(!tx.blockchainKey)return false;const old=data.transactions.find(x=>x.blockchainKey===tx.blockchainKey);if(old){Object.assign(old,tx,{id:old.id});return false}data.transactions.push(tx);return true}
+          function nativeTxFromExplorer(item,chain,wallet){const from=lowerAddress(item.from?.hash||item.from),to=lowerAddress(item.to?.hash||item.to),mine=lowerAddress(wallet.address),out=from===mine,incoming=to===mine;return{id:uid(),date:item.timestamp||'',type:out?'Auszahlung':incoming?'Einzahlung':'Blockchain-Vorgang',asset:chain.symbol,amount:decimalAmount(item.value||'0',18),eur:'',exchangeId:wallet.exchangeId||'',walletId:wallet.id,source:'Blockchain',notes:`${chain.name} · ${item.method||'native Transaktion'} · ${item.hash||''}`,auto:true,chain:chain.id,txHash:item.hash||'',direction:out?'ausgehend':incoming?'eingehend':'unbekannt',status:item.status||'',blockchainKey:`${chain.id}:${item.hash||''}:native`}}
+          function tokenTxFromExplorer(item,chain,wallet){const token=item.token||{},total=item.total||{},from=lowerAddress(item.from?.hash||item.from),to=lowerAddress(item.to?.hash||item.to),mine=lowerAddress(wallet.address),out=from===mine,incoming=to===mine,hash=item.transaction_hash||item.tx_hash||item.hash||'';return{id:uid(),date:item.timestamp||'',type:out?'Auszahlung':incoming?'Einzahlung':'Token-Transfer',asset:token.symbol||token.name||'TOKEN',amount:decimalAmount(total.value||item.value||'0',total.decimals??token.decimals??0),eur:'',exchangeId:wallet.exchangeId||'',walletId:wallet.id,source:'Blockchain',notes:`${chain.name} · Token-Transfer · ${hash}`,auto:true,chain:chain.id,txHash:hash,direction:out?'ausgehend':incoming?'eingehend':'unbekannt',tokenAddress:token.address_hash||token.address||'',blockchainKey:`${chain.id}:${hash}:token:${item.log_index??item.index??token.address_hash??''}`}}
+          async function importEvmHistory(chain,wallet){if(!chain.explorer)return{added:0,total:0,error:'Für dieses Netzwerk ist noch kein öffentlicher Transaktions-Explorer angebunden.'};try{const base=chain.explorer.replace(/\/$/,''),address=encodeURIComponent(wallet.address),[normal,token]=await Promise.allSettled([explorerJson(`${base}/api/v2/addresses/${address}/transactions`),explorerJson(`${base}/api/v2/addresses/${address}/token-transfers`)]);let added=0,total=0;if(normal.status==='fulfilled'){const items=Array.isArray(normal.value?.items)?normal.value.items:[];total+=items.length;items.slice(0,100).forEach(x=>{if(upsertBlockchainTx(nativeTxFromExplorer(x,chain,wallet)))added++})}if(token.status==='fulfilled'){const items=Array.isArray(token.value?.items)?token.value.items:[];total+=items.length;items.slice(0,100).forEach(x=>{if(upsertBlockchainTx(tokenTxFromExplorer(x,chain,wallet)))added++})}if(normal.status==='rejected'&&token.status==='rejected')throw Error('Transaktionshistorie derzeit nicht erreichbar');wallet.lookup=wallet.lookup||{};wallet.lookup.historyAt=new Date().toISOString();wallet.lookup.historyCount=total;wallet.lookup.importedCount=(wallet.lookup.importedCount||0)+added;return{added,total}}catch(e){wallet.lookup=wallet.lookup||{};wallet.lookup.historyError=String(e.message||e);return{added:0,total:0,error:String(e.message||e)}}}
+          async function syncWalletHistory(wallet,quiet=false){const chain=EVM_CHAINS.find(c=>c.id===wallet.chain);if(!chain)return{added:0,total:0,error:'Keine EVM-Chain'};const r=await importEvmHistory(chain,wallet);checks();save();if(!quiet)notify(r.error?`${chain.name}: Aktivität erkannt, Transaktionsliste aber derzeit nicht erreichbar.`:`${chain.name}: ${r.total} Blockchain-Einträge gelesen, ${r.added} neu übernommen.`);return r}
+          '''
+          if marker not in s:
+              raise SystemExit('Einfügepunkt für Transaktionsfunktionen nicht gefunden')
+          s = s.replace(marker, helpers + marker, 1)
+
+          old_scan_save = """hits.forEach(r=>{if(!data.wallets.some(w=>w.address.toLowerCase()===input.address.toLowerCase()&&w.chain===r.id)){data.wallets.push({id:uid(),name:`${input.name} – ${r.name}`,chain:r.id,chainName:r.name,address:input.address,ownership:input.ownership,exchangeId:input.exchangeId,lookup:{ok:true,at:new Date().toISOString(),txCount:r.txCount,balance:r.balanceWei,method:'multichain-rpc'}})}});$('waName').value=$('waAddress').value='';checks();save();notify(`${hits.length} Netzwerk(e) wurden für diese Wallet übernommen.`);return"""
+          new_scan_save = """const wallets=[];hits.forEach(r=>{let w=data.wallets.find(w=>w.address.toLowerCase()===input.address.toLowerCase()&&w.chain===r.id);if(!w){w={id:uid(),name:`${input.name} – ${r.name}`,chain:r.id,chainName:r.name,address:input.address,ownership:input.ownership,exchangeId:input.exchangeId,lookup:{ok:true,at:new Date().toISOString(),txCount:r.txCount,balance:r.balanceWei,method:'multichain-rpc'}};data.wallets.push(w)}wallets.push(w)});$('waName').value=$('waAddress').value='';checks();save();let imported=0,total=0;for(const w of wallets){const r=await syncWalletHistory(w,true);imported+=r.added||0;total+=r.total||0}notify(`${hits.length} Netzwerk(e) übernommen · ${total} Blockchain-Einträge gelesen · ${imported} neu in Ihre Transaktionen eingefügt.`);go('ledger');return"""
+          if old_scan_save not in s:
+              raise SystemExit('Speicherlogik des Multi-Chain-Scanners nicht gefunden')
+          s = s.replace(old_scan_save, new_scan_save, 1)
+
+          old_evm_lookup = """w.lookup=r.ok?{ok:true,at:new Date().toISOString(),txCount:r.txCount,balance:r.balanceWei,method:'evm-rpc'}:{ok:false,error:r.error,at:new Date().toISOString()};checks();save();notify(r.ok?'Das Netzwerk wurde erneut geprüft.':'Das Netzwerk konnte derzeit nicht geprüft werden.');return"""
+          new_evm_lookup = """w.lookup=r.ok?{ok:true,at:new Date().toISOString(),txCount:r.txCount,balance:r.balanceWei,method:'evm-rpc'}:{ok:false,error:r.error,at:new Date().toISOString()};if(r.ok){const h=await syncWalletHistory(w,true);notify(h.error?'Netzwerk erkannt; die Transaktionshistorie ist derzeit nicht erreichbar.':`${h.total} Blockchain-Einträge gelesen, ${h.added} neu übernommen.`)}else{checks();save();notify('Das Netzwerk konnte derzeit nicht geprüft werden.')}return"""
+          if old_evm_lookup not in s:
+              raise SystemExit('EVM-Neupruefung nicht gefunden')
+          s = s.replace(old_evm_lookup, new_evm_lookup, 1)
+
+          old_row = """Transaktionen ${x.tx} · offene Punkte ${x.reviews}</td><td><button class=\"btn ghost\" data-lookup=\"${w.id}\">Erneut lesen</button>"""
+          new_row = """Transaktionen ${x.tx} · offene Punkte ${x.reviews}${w.lookup?.historyError?' · Historie nicht erreichbar':''}</td><td><button class=\"btn ghost\" data-lookup=\"${w.id}\">Neu prüfen & synchronisieren</button>"""
+          if old_row in s:
+              s = s.replace(old_row, new_row, 1)
 
           path.write_text(s, encoding='utf-8')
           PY
@@ -89,5 +102,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add pages/krypto-steuer-assistent-v2/index.html
-          git commit -m "Ergänzt automatische Multi-Chain-Wallet-Erkennung"
+          git commit -m "Verbindet Multi-Chain-Wallets mit der Transaktionsübersicht"
           git push
