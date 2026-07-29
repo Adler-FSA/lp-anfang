@@ -1,0 +1,71 @@
+name: Run Krypto Wallet V5 Rebuild
+
+on:
+  push:
+    paths:
+      - '.github/workflows/run-krypto-wallet-v5-rebuild.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: run-krypto-wallet-v5-rebuild
+  cancel-in-progress: true
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Neuaufbau-Code ausführen
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          source = Path('.github/workflows/rebuild-krypto-wallet-engine-v5.yml')
+          text = source.read_text(encoding='utf-8')
+          marker = "          python3 - <<'PY'\n"
+          start = text.index(marker) + len(marker)
+          end = text.index("\n          PY", start)
+          lines = text[start:end].splitlines()
+          script = "\n".join(line[10:] if line.startswith("          ") else line for line in lines)
+          target = Path('/tmp/rebuild_wallet_v5.py')
+          target.write_text(script, encoding='utf-8')
+          compile(script, str(target), 'exec')
+          exec(compile(script, str(target), 'exec'), {'__name__': '__main__'})
+          PY
+
+      - name: JavaScript-Syntax prüfen
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path('pages/krypto-steuer-assistent-v2/index.html').read_text(encoding='utf-8')
+          if 'WALLET_ENGINE_V5_COMPLETE' not in html:
+              raise SystemExit('V5-Marker fehlt')
+          match = re.search(r'<script>(.*)</script>', html, re.S)
+          if not match:
+              raise SystemExit('JavaScript-Block fehlt')
+          Path('/tmp/krypto-steuer-app.js').write_text(match.group(1), encoding='utf-8')
+          PY
+          node --check /tmp/krypto-steuer-app.js
+
+      - name: Änderungen committen
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo 'Keine Änderungen erforderlich.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pages/krypto-steuer-assistent-v2/index.html pages/krypto-steuer-assistent-v2/sw.js
+          git commit -m 'Baut Wallet- und Transaktionssystem vollständig neu auf'
+          git pull --rebase origin main
+          git push origin HEAD:main
