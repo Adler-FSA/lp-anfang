@@ -1061,6 +1061,7 @@
     │   │   ├── index.html
     │   │   ├── optimierungs-phase-02.html
     │   │   ├── optimierungs-phase-03.html
+    │   │   ├── optimierungs-phase-umbau-v1.html
     │   │   ├── optimierungs-phase-umsetzung-v1.html
     │   │   └── optimierungs-phase.html
     │   ├── krypto-steuer-ordnung/
@@ -1999,4 +2000,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.07.2026, 22:56)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.07.2026, 23:57)_
