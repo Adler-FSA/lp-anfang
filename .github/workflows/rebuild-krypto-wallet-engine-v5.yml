@@ -1,0 +1,85 @@
+name: Rebuild Krypto Wallet Engine V5
+on:
+  push:
+    paths:
+      - '.github/workflows/rebuild-krypto-wallet-engine-v5.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: rebuild-krypto-wallet-engine-v5
+  cancel-in-progress: true
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Wallet-System vollständig neu aufbauen
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('pages/krypto-steuer-assistent-v2/index.html')
+          s=p.read_text(encoding='utf-8')
+          if 'WALLET_ENGINE_V5_COMPLETE' in s:
+              raise SystemExit(0)
+          css='''\n/* WALLET_ENGINE_V5_COMPLETE */\n.data-kind-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.data-kind{padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}.data-kind b{display:block;margin-bottom:4px}.data-kind.complete{border-color:#9bd8c0;background:#edf9f3}.wallet-warning{padding:12px;border-radius:12px;background:#fff8db;border:1px solid #ead886;margin:10px 0}.wallet-import-box input{display:block;width:100%;margin:10px 0}.pipeline-log{margin-top:10px;padding:11px;border-radius:11px;background:#fff;border:1px solid var(--line);font-size:12px;line-height:1.55;white-space:pre-wrap}@media(max-width:900px){.data-kind-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.data-kind-grid{grid-template-columns:1fr}}\n'''
+          s=s.replace('</style>',css+'</style>',1)
+          s=s.replace("transactions:[],bank:[],documents:[],reviews:[]","transactions:[],walletRaw:[],walletImports:[],bank:[],documents:[],reviews:[]")
+          old='''<p class="explorer-note">Manche Explorer verhindern die Darstellung in eingebetteten Fenstern. In diesem Fall nutzen Sie „Im Explorer öffnen“. Dort sehen Sie die Originaldaten und erreichen – je nach Explorer – den CSV- oder Exportbereich.</p><div class="wallet-import-box"><strong>Explorer-CSV dieser Wallet einlesen</strong><span class="help">Laden Sie im Explorer die Transaktions- oder Token-Transfer-CSV herunter. Die Akademie ordnet Datum, Hash, Richtung, Token und Betrag automatisch dieser Wallet und Chain zu.</span><input id="walletCsvFile" type="file" accept=".csv,text/csv"><button class="btn primary" id="walletCsvImport">CSV prüfen und übernehmen</button><div id="walletCsvResult" class="pipeline-log">Noch keine Explorer-CSV eingelesen.</div></div><iframe id="explorerFrame" class="explorer-frame" title="Blockchain-Explorer"></iframe>'''
+          new='''<div class="wallet-warning"><strong>Eine Wallet besteht aus mehreren Datenarten.</strong> Für eine vollständige Auswertung werden normale Transaktionen, interne Transaktionen, Token-Transfers und – falls vorhanden – NFT-Transfers benötigt. Erst danach verbindet die Akademie alle Spuren über den Transaktions-Hash zu wirtschaftlichen Vorgängen.</div><div class="wallet-tools"><button class="btn ghost" data-explorer-view="normal">Normale Transaktionen</button><button class="btn ghost" data-explorer-view="internal">Interne Transaktionen</button><button class="btn ghost" data-explorer-view="token">Token-Transfers</button><button class="btn ghost" data-explorer-view="nft">NFT-Transfers</button></div><div class="data-kind-grid" id="walletDataKinds"></div><div class="wallet-import-box"><strong>Blockchain-CSV-Dateien dieser Wallet einlesen</strong><p class="help">Sie können mehrere Exportdateien gleichzeitig auswählen. Die Akademie erkennt die Datenart automatisch und führt zusammengehörige Spuren über den Transaktions-Hash zusammen.</p><input id="walletCsvFile" type="file" accept=".csv,text/csv" multiple><button class="btn primary" id="walletCsvImport">Dateien prüfen und wirtschaftliche Vorgänge bilden</button><div id="walletCsvResult" class="pipeline-log">Noch keine Blockchain-CSV eingelesen.</div></div><iframe id="explorerFrame" class="explorer-frame" title="Blockchain-Explorer"></iframe>'''
+          if old not in s:
+              raise SystemExit('Explorer-Bereich nicht gefunden')
+          s=s.replace(old,new,1)
+          js=r'''
+function ensureWalletV5(){data.walletRaw=data.walletRaw||[];data.walletImports=data.walletImports||[]}
+function walletV5Stats(w){ensureWalletV5();const raw=data.walletRaw.filter(x=>x.walletId===w.id),k={normal:0,internal:0,token:0,nft:0};raw.forEach(x=>k[x.kind]=(k[x.kind]||0)+1);return{...k,raw:raw.length,economic:data.transactions.filter(x=>x.walletId===w.id&&x.source==='Blockchain-Wallet').length}}
+function v5Norm(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'')}
+function v5Field(row,map,names){for(const n of names){const k=map[v5Norm(n)];if(k!==undefined&&String(row[k]??'').trim()!=='')return String(row[k]).trim()}return''}
+function v5Csv(text){const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(x=>x.trim()),first=lines[0]||'',ds=[',',';','\t','|'],d=ds.sort((a,b)=>first.split(b).length-first.split(a).length)[0],read=l=>{let a=[],c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"'){if(q&&l[i+1]==='"'){c+='"';i++}else q=!q}else if(ch===d&&!q){a.push(c);c=''}else c+=ch}a.push(c);return a},all=lines.slice(0,25001).map(read),headers=all[0]||[],map={};headers.forEach((h,i)=>map[v5Norm(h)]=i);return{headers,rows:all.slice(1),map,truncated:lines.length>25001}}
+function v5Kind(headers,name=''){const h=headers.map(v5Norm),n=String(name).toLowerCase();if(h.some(x=>['tokenid','tokentype','nft'].includes(x))||/nft|erc721|erc1155|bep721|bep1155/.test(n))return'nft';if(h.some(x=>['tokensymbol','tokenname','contractaddress','tokenvalue'].includes(x))||/token|tokentx|bep20|erc20/.test(n))return'token';if(h.some(x=>['parenttxhash','traceid','typecall'].includes(x))||/internal/.test(n))return'internal';return'normal'}
+function v5Date(v){if(!v)return'';if(/^\d{10,13}$/.test(v)){const n=Number(v.length===10?v+'000':v);return new Date(n).toISOString()}const d=new Date(v);return isNaN(d)?v:d.toISOString()}
+function v5Raw(row,map,kind,wallet,fileId){const hash=v5Field(row,map,['Txn Hash','Txhash','Tx Hash','TxHash','Transaction Hash','Hash','Parent Txn Hash','ParentTxHash']);if(!hash)return null;const from=v5Field(row,map,['From','Sender','From Address']),to=v5Field(row,map,['To','Receiver','To Address']),date=v5Date(v5Field(row,map,['DateTime','Date Time (UTC)','Timestamp','UnixTimestamp','Unix Timestamp','Block Timestamp'])),status=v5Field(row,map,['Status','Txn Status','Error']),method=v5Field(row,map,['Method','FunctionName','Function Name','Action']),token=v5Field(row,map,['TokenSymbol','Token Symbol','Symbol','Asset','Token','TokenName','Token Name']),contract=v5Field(row,map,['ContractAddress','Contract Address','Token Contract Address']),tokenId=v5Field(row,map,['TokenId','Token ID']),idx=v5Field(row,map,['LogIndex','Log Index','Index','TraceId','Trace ID']),native=EVM_CHAINS.find(c=>c.id===wallet.chain)?.symbol||wallet.chain.toUpperCase();let asset=kind==='token'?(token||'TOKEN'):kind==='nft'?(token||'NFT'):native,amount='';if(kind==='token')amount=v5Field(row,map,['TokenValue','Token Value','Value','Amount']);else if(kind==='nft')amount=tokenId||'1';else amount=v5Field(row,map,[`Value_OUT(${native})`,`Value_IN(${native})`,'Value_OUT(BNB)','Value_IN(BNB)','Value_OUT(ETH)','Value_IN(ETH)','Value','Amount']);const fee=v5Field(row,map,[`TxnFee(${native})`,'TxnFee(BNB)','TxnFee(ETH)','Txn Fee','Transaction Fee','Fee']);return{id:uid(),walletId:wallet.id,chain:wallet.chain,kind,hash,date,from,to,asset,amount:String(amount||'').replace(/,/g,''),fee:String(fee||'').replace(/,/g,''),method,status,contract,tokenId,idx,fileId,key:`${wallet.chain}:${hash}:${kind}:${idx||contract||asset}:${from}:${to}:${amount}`}}
+function v5Import(file,wallet){return new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=()=>reject(Error('Datei konnte nicht gelesen werden'));r.onload=async()=>{try{ensureWalletV5();const text=String(r.result||''),p=v5Csv(text),kind=v5Kind(p.headers,file.name),hash=await digest(text);if(data.walletImports.some(x=>x.walletId===wallet.id&&x.hash===hash))return resolve({file:file.name,kind,rows:p.rows.length,added:0,dupes:p.rows.length,unclear:0});const fileId=uid();let added=0,dupes=0,unclear=0;for(const row of p.rows){const raw=v5Raw(row,p.map,kind,wallet,fileId);if(!raw){unclear++;continue}if(data.walletRaw.some(x=>x.key===raw.key)){dupes++;continue}data.walletRaw.push(raw);added++}data.walletImports.push({id:fileId,walletId:wallet.id,name:file.name,kind,rows:p.rows.length,added,unclear,hash,at:new Date().toISOString()});resolve({file:file.name,kind,rows:p.rows.length,added,dupes,unclear})}catch(e){reject(e)}};r.readAsText(file)})}
+function v5Move(r,w){const a=String(w.address).toLowerCase();return String(r.from||'').toLowerCase()===a?'out':String(r.to||'').toLowerCase()===a?'in':'other'}
+function rebuildEconomicTransactions(w){ensureWalletV5();data.transactions=data.transactions.filter(t=>!(t.walletId===w.id&&t.source==='Blockchain-Wallet'));const groups=new Map();data.walletRaw.filter(x=>x.walletId===w.id).forEach(r=>{const k=`${r.chain}:${r.hash}`;(groups.get(k)||groups.set(k,[]).get(k)).push(r)});let built=0,unclear=0;for(const [key,rows] of groups){const mv=rows.map(r=>({...r,dir:v5Move(r,w)})),outs=mv.filter(r=>r.dir==='out'&&Number(r.amount||0)!==0),ins=mv.filter(r=>r.dir==='in'&&Number(r.amount||0)!==0),fee=Math.max(0,...rows.map(r=>Number(r.fee||0)).filter(Number.isFinite)),date=rows.find(r=>r.date)?.date||'',hash=rows[0].hash,method=rows.find(r=>r.method)?.method||'',failed=rows.some(r=>/fail|error/i.test(r.status||''));let type='Ungeklärt',asset='–',amount='';if(outs.length&&ins.length){type='Tausch';asset=`${outs.map(x=>x.asset).join('+')} → ${ins.map(x=>x.asset).join('+')}`;amount=`${outs.map(x=>x.amount).join('+')} → ${ins.map(x=>x.amount).join('+')}`}else if(ins.length){type=ins.some(x=>x.kind==='nft')?'NFT-Eingang':'Einzahlung';asset=ins.map(x=>x.asset).join('+');amount=ins.map(x=>x.amount).join('+')}else if(outs.length){type=outs.some(x=>x.kind==='nft')?'NFT-Ausgang':'Auszahlung';asset=outs.map(x=>x.asset).join('+');amount=outs.map(x=>x.amount).join('+')}else if(fee>0||method){type='Contract-Aufruf';asset=EVM_CHAINS.find(c=>c.id===w.chain)?.symbol||w.chain.toUpperCase();amount='0'}else{unclear++;continue}data.transactions.push({id:uid(),date,type,asset,amount,eur:'',exchangeId:w.exchangeId||'',walletId:w.id,source:'Blockchain-Wallet',notes:`${w.chainName||w.chain} · ${method||type} · ${hash}${fee?` · Gasgebühr ${fee}`:''}${failed?' · fehlgeschlagen':''}`,auto:true,chain:w.chain,txHash:hash,fee,failed,rawCount:rows.length,blockchainKey:`economic:${key}`});built++}w.lookup={...(w.lookup||{}),ok:true,historyCount:data.walletRaw.filter(x=>x.walletId===w.id).length,economicCount:built,historyAt:new Date().toISOString(),historyError:''};return{built,unclear,groups:groups.size}}
+function v5ExplorerUrl(w,view='normal'){const x=EXPLORERS[w.chain],a=encodeURIComponent(w.address);if(!x)return'';const base=(x.address?x.address(w.address):'').split('#')[0],suffix={normal:'',internal:'#internaltx',token:'#tokentxns',nft:'#nfttransfers'}[view]||'';return base+suffix}
+function renderV5Kinds(w){const s=walletV5Stats(w),labels=[['normal','Normale Transaktionen'],['internal','Interne Transaktionen'],['token','Token-Transfers'],['nft','NFT-Transfers']];$('walletDataKinds').innerHTML=labels.map(([k,l])=>`<div class="data-kind ${s[k]?'complete':''}"><b>${l}</b><span class="status ${s[k]?'ok':'warn'}">${s[k]?`${s[k]} Zeilen geladen`:'noch nicht geladen'}</span></div>`).join('')}
+const _openExplorerWorkspaceV5=openExplorerWorkspace;openExplorerWorkspace=function(w){_openExplorerWorkspaceV5(w);renderV5Kinds(w);const s=walletV5Stats(w);$('explorerSummary').innerHTML=`<div><span class="help">Netzwerk</span><strong>${esc(w.chainName||w.chain)}</strong></div><div><span class="help">Rohdaten</span><strong>${s.raw}</strong></div><div><span class="help">Wirtschaftliche Vorgänge</span><strong>${s.economic}</strong></div><div><span class="help">Importdateien</span><strong>${data.walletImports.filter(x=>x.walletId===w.id).length}</strong></div>`};
+document.querySelectorAll('[data-explorer-view]').forEach(b=>b.onclick=()=>{if(!explorerWallet)return;const u=v5ExplorerUrl(explorerWallet,b.dataset.explorerView);if(u)window.open(u,'_blank','noopener')});
+$('walletCsvImport').onclick=async()=>{if(!explorerWallet)return;const files=[...($('walletCsvFile').files||[])];if(!files.length)return alert('Bitte mindestens eine CSV-Datei auswählen.');$('walletCsvResult').textContent='Dateien werden geprüft …';try{const results=[];for(const f of files)results.push(await v5Import(f,explorerWallet));const built=rebuildEconomicTransactions(explorerWallet);checks();save();$('walletCsvResult').textContent=results.map(r=>`${r.file}: ${r.kind} · ${r.rows} gelesen · ${r.added} neu · ${r.dupes} Dubletten · ${r.unclear} ungeklärt`).concat([`Ergebnis: ${built.built} wirtschaftliche Vorgänge aus ${built.groups} Transaktions-Hashes gebildet · ${built.unclear} Gruppen ungeklärt.`]).join('\n');$('walletCsvFile').value='';openExplorerWorkspace(explorerWallet);notify(`${built.built} wirtschaftliche Vorgänge wurden gebildet.`)}catch(e){$('walletCsvResult').textContent='Import fehlgeschlagen: '+(e.message||e)}};
+const _renderSourcesV5=renderSources;renderSources=function(){_renderSourcesV5();document.querySelectorAll('[data-explorer]').forEach(b=>b.onclick=()=>openExplorerWorkspace(data.wallets.find(w=>w.id===b.dataset.explorer)))};
+'''
+          anchor='buildNav();wire();updateExchangeHelp();checks();render();wireSafety();if(!data.guided)setTimeout(startGuide,150);'
+          if anchor not in s:
+              raise SystemExit('Startanker fehlt')
+          s=s.replace(anchor,js+'\n'+anchor,1)
+          p.write_text(s,encoding='utf-8')
+          sw=Path('pages/krypto-steuer-assistent-v2/sw.js')
+          if sw.exists():
+              t=sw.read_text(encoding='utf-8')
+              t=re.sub(r'krypto-steuer-akademie-v\d+','krypto-steuer-akademie-v4',t)
+              sw.write_text(t,encoding='utf-8')
+          PY
+      - name: JavaScript prüfen
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('pages/krypto-steuer-assistent-v2/index.html').read_text()
+          m=re.search(r'<script>(.*)</script>',s,re.S)
+          if not m: raise SystemExit('Script fehlt')
+          Path('/tmp/app.js').write_text(m.group(1))
+          PY
+          node --check /tmp/app.js
+      - name: Änderungen committen
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pages/krypto-steuer-assistent-v2/index.html pages/krypto-steuer-assistent-v2/sw.js
+          git commit -m "Baut Wallet- und Transaktionssystem vollständig neu auf"
+          git pull --rebase origin main
+          git push origin HEAD:main
