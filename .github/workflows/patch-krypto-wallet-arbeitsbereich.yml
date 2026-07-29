@@ -18,7 +18,6 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import re
 
           path = Path('pages/krypto-steuer-assistent-v2/index.html')
           s = path.read_text(encoding='utf-8')
@@ -29,7 +28,7 @@ jobs:
 
           css = r'''
           /* WALLET_WORKSPACE_V3 */
-          .wallet-workflow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}.wallet-step{padding:14px;border:1px solid var(--line);border-radius:14px;background:#fff}.wallet-step b{display:block;margin-bottom:5px}.wallet-step.done{border-color:#9bd8c0;background:#edf9f3}.wallet-step.active{border-color:var(--mint);box-shadow:0 0 0 3px rgba(0,167,173,.12)}.wallet-tools{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.explorer-frame{width:100%;height:58vh;border:1px solid var(--line);border-radius:14px;background:#fff}.explorer-note{font-size:12px;color:var(--muted);line-height:1.5}.wallet-tax-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.wallet-tax-grid label{display:flex;gap:7px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:11px;background:#f7f9fa}.wallet-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.wallet-summary div{padding:10px;border-radius:11px;background:#f4f7f9}.wallet-summary strong{display:block;font-size:18px}@media(max-width:900px){.wallet-workflow,.wallet-tax-grid,.wallet-summary{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.wallet-workflow,.wallet-tax-grid,.wallet-summary{grid-template-columns:1fr}.explorer-frame{height:55vh}}
+          .wallet-workflow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}.wallet-step{padding:14px;border:1px solid var(--line);border-radius:14px;background:#fff}.wallet-step b{display:block;margin-bottom:5px}.wallet-step.done{border-color:#9bd8c0;background:#edf9f3}.wallet-step.active{border-color:var(--mint);box-shadow:0 0 0 3px rgba(0,167,173,.12)}.wallet-tools{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.explorer-frame{width:100%;height:58vh;border:1px solid var(--line);border-radius:14px;background:#fff}.explorer-note{font-size:12px;color:var(--muted);line-height:1.5}.wallet-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.wallet-summary div{padding:10px;border-radius:11px;background:#f4f7f9}.wallet-summary strong{display:block;font-size:18px}@media(max-width:900px){.wallet-workflow,.wallet-summary{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.wallet-workflow,.wallet-summary{grid-template-columns:1fr}.explorer-frame{height:55vh}}
           '''
           s = s.replace('</style>', css + '</style>', 1)
 
@@ -40,12 +39,12 @@ jobs:
           s = s.replace(marker, intro, 1)
 
           modal = '''<div class="overlay" id="explorerModal" hidden><div class="modal" style="width:min(1100px,100%)"><div class="section"><div><span class="status info">Originalquelle</span><h2 id="explorerTitle">Wallet im Blockchain-Explorer</h2><p class="mono" id="explorerAddress"></p></div><button class="btn ghost" data-close="explorerModal">Schließen</button></div><div class="wallet-summary" id="explorerSummary"></div><div class="wallet-tools"><button class="btn mint" id="explorerSync">Transaktionen synchronisieren</button><button class="btn ghost" id="explorerOpenExternal">Im Explorer öffnen</button><button class="btn ghost" id="explorerCsv">CSV / Export öffnen</button><button class="btn ghost" id="explorerCopy">Adresse kopieren</button></div><p class="explorer-note">Manche Explorer verhindern die Darstellung in eingebetteten Fenstern. In diesem Fall nutzen Sie „Im Explorer öffnen“. Dort sehen Sie die Originaldaten und erreichen – je nach Explorer – den CSV- oder Exportbereich.</p><iframe id="explorerFrame" class="explorer-frame" title="Blockchain-Explorer"></iframe></div></div>'''
-          s = s.replace('<div class="toast" id="toast" hidden></div>', modal + '<div class="toast" id="toast" hidden></div>', 1)
+          toast = '<div class="toast" id="toast" hidden></div>'
+          if toast not in s:
+              raise SystemExit('Toast-Marker nicht gefunden')
+          s = s.replace(toast, modal + toast, 1)
 
-          # Zusätzliche Buttons pro Wallet-Zeile einfügen
           old = '<button class="btn ghost" data-lookup="${w.id}">Neu prüfen & synchronisieren</button> <button class="btn danger" data-del="wallets" data-id="${w.id}">Löschen</button>'
-          if old not in s:
-              old = '<button class="btn ghost" data-lookup="${w.id}">Erneut lesen</button> <button class="btn danger" data-del="wallets" data-id="${w.id}">Löschen</button>'
           new = '<button class="btn ghost" data-lookup="${w.id}">Neu prüfen & synchronisieren</button> <button class="btn ghost" data-explorer="${w.id}">Explorer & CSV</button> <button class="btn danger" data-del="wallets" data-id="${w.id}">Löschen</button>'
           if old not in s:
               raise SystemExit('Wallet-Aktionsbuttons nicht gefunden')
@@ -81,9 +80,12 @@ jobs:
           $('explorerCsv').onclick=()=>{if(!explorerWallet)return;const u=explorerInfo(explorerWallet).csv(explorerWallet.address);if(u)window.open(u,'_blank','noopener')};
           $('explorerCopy').onclick=async()=>{if(!explorerWallet)return;try{await navigator.clipboard.writeText(explorerWallet.address);notify('Wallet-Adresse wurde kopiert.')}catch{prompt('Wallet-Adresse kopieren:',explorerWallet.address)}};
           $('explorerSync').onclick=async()=>{if(!explorerWallet)return;await lookup(explorerWallet);openExplorerWorkspace(explorerWallet);go('ledger')};
-          const _renderSources=renderSources;renderSources=function(){_renderSources();bindExplorerButtons()};
+          const originalRenderSources=renderSources;
+          renderSources=function(){originalRenderSources();bindExplorerButtons()};
           '''
-          s = s.replace("buildNav();wire();updateExchangeHelp();checks();render();wireSafety();", js + "\nbuildNav();wire();updateExchangeHelp();checks();render();wireSafety();", 1)
+          if '</script>' not in s:
+              raise SystemExit('Script-Ende nicht gefunden')
+          s = s.replace('</script>', js + '\n</script>', 1)
 
           path.write_text(s, encoding='utf-8')
           PY
