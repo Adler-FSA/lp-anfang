@@ -1,0 +1,100 @@
+name: Patch Krypto Wallet Arbeitsbereich
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-krypto-wallet-arbeitsbereich.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wallet-Arbeitsbereich ergänzen
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('pages/krypto-steuer-assistent-v2/index.html')
+          s = path.read_text(encoding='utf-8')
+
+          if 'WALLET_WORKSPACE_V3' in s:
+              print('Wallet-Arbeitsbereich bereits vorhanden.')
+              raise SystemExit(0)
+
+          css = r'''
+          /* WALLET_WORKSPACE_V3 */
+          .wallet-workflow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}.wallet-step{padding:14px;border:1px solid var(--line);border-radius:14px;background:#fff}.wallet-step b{display:block;margin-bottom:5px}.wallet-step.done{border-color:#9bd8c0;background:#edf9f3}.wallet-step.active{border-color:var(--mint);box-shadow:0 0 0 3px rgba(0,167,173,.12)}.wallet-tools{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.explorer-frame{width:100%;height:58vh;border:1px solid var(--line);border-radius:14px;background:#fff}.explorer-note{font-size:12px;color:var(--muted);line-height:1.5}.wallet-tax-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.wallet-tax-grid label{display:flex;gap:7px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:11px;background:#f7f9fa}.wallet-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.wallet-summary div{padding:10px;border-radius:11px;background:#f4f7f9}.wallet-summary strong{display:block;font-size:18px}@media(max-width:900px){.wallet-workflow,.wallet-tax-grid,.wallet-summary{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.wallet-workflow,.wallet-tax-grid,.wallet-summary{grid-template-columns:1fr}.explorer-frame{height:55vh}}
+          '''
+          s = s.replace('</style>', css + '</style>', 1)
+
+          marker = '<div class="card"><h3>Wallet hinzufügen und prüfen</h3>'
+          if marker not in s:
+              raise SystemExit('Wallet-Karte nicht gefunden')
+          intro = '''<div class="card" id="walletWorkspace"><span class="status info">Wallet-Arbeitsbereich</span><h2>Eine Wallet Schritt für Schritt vollständig bearbeiten</h2><p class="muted">Die Akademie führt jede Wallet durch Erkennung, Originalprüfung, Synchronisierung und steuerliche Einordnung.</p><div class="wallet-workflow"><div class="wallet-step active"><b>1. Wallet erkennen</b><span class="help">Adresse prüfen und passende Netzwerke finden.</span></div><div class="wallet-step"><b>2. Blockchain prüfen</b><span class="help">Originalansicht im Explorer vergleichen.</span></div><div class="wallet-step"><b>3. Transaktionen übernehmen</b><span class="help">Vorgänge laden, zuordnen und Dubletten vermeiden.</span></div><div class="wallet-step"><b>4. Steuerlich einordnen</b><span class="help">Swaps, Staking, Bridges, NFTs und offene Punkte markieren.</span></div></div></div><div class="card"><h3>Wallet hinzufügen und prüfen</h3>'''
+          s = s.replace(marker, intro, 1)
+
+          modal = '''<div class="overlay" id="explorerModal" hidden><div class="modal" style="width:min(1100px,100%)"><div class="section"><div><span class="status info">Originalquelle</span><h2 id="explorerTitle">Wallet im Blockchain-Explorer</h2><p class="mono" id="explorerAddress"></p></div><button class="btn ghost" data-close="explorerModal">Schließen</button></div><div class="wallet-summary" id="explorerSummary"></div><div class="wallet-tools"><button class="btn mint" id="explorerSync">Transaktionen synchronisieren</button><button class="btn ghost" id="explorerOpenExternal">Im Explorer öffnen</button><button class="btn ghost" id="explorerCsv">CSV / Export öffnen</button><button class="btn ghost" id="explorerCopy">Adresse kopieren</button></div><p class="explorer-note">Manche Explorer verhindern die Darstellung in eingebetteten Fenstern. In diesem Fall nutzen Sie „Im Explorer öffnen“. Dort sehen Sie die Originaldaten und erreichen – je nach Explorer – den CSV- oder Exportbereich.</p><iframe id="explorerFrame" class="explorer-frame" title="Blockchain-Explorer"></iframe></div></div>'''
+          s = s.replace('<div class="toast" id="toast" hidden></div>', modal + '<div class="toast" id="toast" hidden></div>', 1)
+
+          # Zusätzliche Buttons pro Wallet-Zeile einfügen
+          old = '<button class="btn ghost" data-lookup="${w.id}">Neu prüfen & synchronisieren</button> <button class="btn danger" data-del="wallets" data-id="${w.id}">Löschen</button>'
+          if old not in s:
+              old = '<button class="btn ghost" data-lookup="${w.id}">Erneut lesen</button> <button class="btn danger" data-del="wallets" data-id="${w.id}">Löschen</button>'
+          new = '<button class="btn ghost" data-lookup="${w.id}">Neu prüfen & synchronisieren</button> <button class="btn ghost" data-explorer="${w.id}">Explorer & CSV</button> <button class="btn danger" data-del="wallets" data-id="${w.id}">Löschen</button>'
+          if old not in s:
+              raise SystemExit('Wallet-Aktionsbuttons nicht gefunden')
+          s = s.replace(old, new, 1)
+
+          js = r'''
+          const EXPLORERS={
+            ethereum:{name:'Etherscan',address:a=>`https://etherscan.io/address/${a}`,csv:a=>`https://etherscan.io/exportData?type=address&a=${a}`},
+            bsc:{name:'BscScan',address:a=>`https://bscscan.com/address/${a}`,csv:a=>`https://bscscan.com/exportData?type=address&a=${a}`},
+            polygon:{name:'PolygonScan',address:a=>`https://polygonscan.com/address/${a}`,csv:a=>`https://polygonscan.com/exportData?type=address&a=${a}`},
+            arbitrum:{name:'Arbiscan',address:a=>`https://arbiscan.io/address/${a}`,csv:a=>`https://arbiscan.io/exportData?type=address&a=${a}`},
+            optimism:{name:'Optimistic Etherscan',address:a=>`https://optimistic.etherscan.io/address/${a}`,csv:a=>`https://optimistic.etherscan.io/exportData?type=address&a=${a}`},
+            base:{name:'BaseScan',address:a=>`https://basescan.org/address/${a}`,csv:a=>`https://basescan.org/exportData?type=address&a=${a}`},
+            avalanche:{name:'SnowTrace',address:a=>`https://snowtrace.io/address/${a}`,csv:a=>`https://snowtrace.io/address/${a}`},
+            fantom:{name:'FTMScan',address:a=>`https://ftmscan.com/address/${a}`,csv:a=>`https://ftmscan.com/exportData?type=address&a=${a}`},
+            gnosis:{name:'GnosisScan',address:a=>`https://gnosisscan.io/address/${a}`,csv:a=>`https://gnosisscan.io/exportData?type=address&a=${a}`},
+            linea:{name:'LineaScan',address:a=>`https://lineascan.build/address/${a}`,csv:a=>`https://lineascan.build/exportData?type=address&a=${a}`},
+            zksync:{name:'zkSync Explorer',address:a=>`https://explorer.zksync.io/address/${a}`,csv:a=>`https://explorer.zksync.io/address/${a}`},
+            cronos:{name:'Cronoscan',address:a=>`https://cronoscan.com/address/${a}`,csv:a=>`https://cronoscan.com/exportData?type=address&a=${a}`},
+            solana:{name:'Solana Explorer',address:a=>`https://explorer.solana.com/address/${a}`,csv:a=>`https://explorer.solana.com/address/${a}`},
+            tron:{name:'Tronscan',address:a=>`https://tronscan.org/#/address/${a}`,csv:a=>`https://tronscan.org/#/address/${a}`},
+            bitcoin:{name:'Blockchair',address:a=>`https://blockchair.com/bitcoin/address/${a}`,csv:a=>`https://blockchair.com/bitcoin/address/${a}`},
+            litecoin:{name:'Blockchair',address:a=>`https://blockchair.com/litecoin/address/${a}`,csv:a=>`https://blockchair.com/litecoin/address/${a}`},
+            'bitcoin-cash':{name:'Blockchair',address:a=>`https://blockchair.com/bitcoin-cash/address/${a}`,csv:a=>`https://blockchair.com/bitcoin-cash/address/${a}`},
+            dogecoin:{name:'Blockchair',address:a=>`https://blockchair.com/dogecoin/address/${a}`,csv:a=>`https://blockchair.com/dogecoin/address/${a}`},
+            dash:{name:'Blockchair',address:a=>`https://blockchair.com/dash/address/${a}`,csv:a=>`https://blockchair.com/dash/address/${a}`}
+          };
+          let explorerWallet=null;
+          function explorerInfo(w){return EXPLORERS[w.chain]||{name:w.chainName||w.chain,address:a=>'',csv:a=>''}}
+          function openExplorerWorkspace(w){if(!w)return;explorerWallet=w;const x=explorerInfo(w),url=x.address(w.address);$('explorerTitle').textContent=`${w.name} – ${x.name}`;$('explorerAddress').textContent=w.address;const count=data.transactions.filter(t=>t.walletId===w.id).length,open=data.reviews.filter(r=>r.walletId===w.id&&!r.done).length;$('explorerSummary').innerHTML=`<div><span class="help">Netzwerk</span><strong>${esc(w.chainName||w.chain)}</strong></div><div><span class="help">Erkannt</span><strong>${w.lookup?.txCount||0}</strong></div><div><span class="help">Übernommen</span><strong>${count}</strong></div><div><span class="help">Offene Punkte</span><strong>${open}</strong></div>`;$('explorerFrame').src=url||'about:blank';$('explorerModal').hidden=false}
+          function bindExplorerButtons(){document.querySelectorAll('[data-explorer]').forEach(b=>b.onclick=()=>openExplorerWorkspace(data.wallets.find(w=>w.id===b.dataset.explorer)))}
+          $('explorerOpenExternal').onclick=()=>{if(!explorerWallet)return;const u=explorerInfo(explorerWallet).address(explorerWallet.address);if(u)window.open(u,'_blank','noopener')};
+          $('explorerCsv').onclick=()=>{if(!explorerWallet)return;const u=explorerInfo(explorerWallet).csv(explorerWallet.address);if(u)window.open(u,'_blank','noopener')};
+          $('explorerCopy').onclick=async()=>{if(!explorerWallet)return;try{await navigator.clipboard.writeText(explorerWallet.address);notify('Wallet-Adresse wurde kopiert.')}catch{prompt('Wallet-Adresse kopieren:',explorerWallet.address)}};
+          $('explorerSync').onclick=async()=>{if(!explorerWallet)return;await lookup(explorerWallet);openExplorerWorkspace(explorerWallet);go('ledger')};
+          const _renderSources=renderSources;renderSources=function(){_renderSources();bindExplorerButtons()};
+          '''
+          s = s.replace("buildNav();wire();updateExchangeHelp();checks();render();wireSafety();", js + "\nbuildNav();wire();updateExchangeHelp();checks();render();wireSafety();", 1)
+
+          path.write_text(s, encoding='utf-8')
+          PY
+      - name: Änderungen committen
+        run: |
+          if git diff --quiet; then
+            echo "Keine Änderungen notwendig."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pages/krypto-steuer-assistent-v2/index.html
+          git commit -m "Strukturiert Wallet-Arbeitsbereich und Explorer-Kontrolle"
+          git push
