@@ -1056,7 +1056,13 @@
     │   │   ├── index.html
     │   │   └── sw.js
     │   ├── krypto-steuer-forensik/
-    │   │   └── index.html
+    │   │   ├── forensik-optimierung-v1.css
+    │   │   ├── forensik-optimierung-v1.js
+    │   │   ├── index.html
+    │   │   ├── optimierungs-phase-02.html
+    │   │   ├── optimierungs-phase-03.html
+    │   │   ├── optimierungs-phase-umsetzung-v1.html
+    │   │   └── optimierungs-phase.html
     │   ├── krypto-steuer-ordnung/
     │   │   ├── archiv/
     │   │   │   └── jahresarchiv.html
@@ -1993,4 +1999,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.07.2026, 21:54)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.07.2026, 22:56)_
