@@ -1,0 +1,106 @@
+name: Patch Krypto Explorer Kontrollzentrum
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-krypto-explorer-kontrollzentrum.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Explorer-Kontrollzentrum ergänzen
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('pages/krypto-steuer-assistent-v2/index.html')
+          s = path.read_text(encoding='utf-8')
+
+          if 'EXPLORER_CONTROL_V1' in s:
+              print('Explorer-Kontrollzentrum ist bereits vorhanden.')
+              raise SystemExit(0)
+
+          css = r'''
+          /* EXPLORER_CONTROL_V1 */
+          .explorer-modal{width:min(1180px,100%)}.explorer-frame-wrap{position:relative;min-height:520px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#f6f8fa}.explorer-frame{width:100%;height:68vh;min-height:520px;border:0;background:#fff}.explorer-fallback{padding:12px 14px;background:#fff8db;border:1px solid #ead886;border-radius:12px;margin:12px 0;line-height:1.45}.wallet-actions{display:flex;gap:6px;flex-wrap:wrap}.wallet-actions .btn{padding:8px 10px;font-size:12px}.explorer-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}.explorer-meta>div{padding:11px;border:1px solid var(--line);border-radius:11px;background:#f7f9fa}.explorer-meta strong{display:block;margin-bottom:4px}@media(max-width:760px){.explorer-meta{grid-template-columns:1fr}.explorer-frame,.explorer-frame-wrap{min-height:430px;height:58vh}}
+          '''
+          s = s.replace('</style>', css + '</style>', 1)
+
+          modal = r'''
+          <div class="overlay" id="explorerModal" hidden><div class="modal explorer-modal"><div class="section"><div><span class="status info">Originalquelle</span><h2 id="explorerTitle">Wallet im Blockchain-Explorer</h2></div><button class="btn ghost" data-close="explorerModal">Schließen</button></div><p class="muted">Vergleichen Sie die Angaben der Akademie mit der öffentlichen Originalansicht. Sie können im Explorer navigieren, Transaktionen prüfen und – sofern der Explorer es anbietet – CSV-Daten exportieren.</p><div class="explorer-meta"><div><strong>Netzwerk</strong><span id="explorerChain"></span></div><div><strong>Wallet</strong><span id="explorerWalletName"></span></div><div><strong>Öffentliche Adresse</strong><span id="explorerAddress" class="mono"></span></div></div><div class="actions"><button class="btn mint" id="explorerSync">Neu prüfen & synchronisieren</button><a class="btn primary" id="explorerNewTab" target="_blank" rel="noopener noreferrer">Im Explorer öffnen</a><a class="btn ghost" id="explorerCsv" target="_blank" rel="noopener noreferrer">CSV / Download öffnen</a><button class="btn ghost" id="explorerCopy">Adresse kopieren</button></div><div class="explorer-fallback"><strong>Hinweis:</strong> Manche Blockchain-Explorer verbieten die Anzeige in einem eingebetteten Fenster. Bleibt das Fenster leer oder erscheint eine Sicherheitsmeldung, nutzen Sie „Im Explorer öffnen“. Die Akademie funktioniert trotzdem weiter.</div><div class="explorer-frame-wrap"><iframe id="explorerFrame" class="explorer-frame" title="Blockchain-Explorer" loading="lazy" referrerpolicy="no-referrer"></iframe></div></div></div>
+          '''
+          s = s.replace('<div class="toast" id="toast" hidden></div>', modal + '<div class="toast" id="toast" hidden></div>', 1)
+
+          old_wallet_actions = '''<button class="btn ghost" data-lookup="${w.id}">Erneut lesen</button> <button class="btn danger" data-del="wallets" data-id="${w.id}">Löschen</button>'''
+          new_wallet_actions = '''<div class="wallet-actions"><button class="btn mint" data-lookup="${w.id}">Neu prüfen & synchronisieren</button><button class="btn ghost" data-explorer="${w.id}">Explorer ansehen</button><button class="btn ghost" data-csv="${w.id}">CSV / Download</button><button class="btn ghost" data-copy-wallet="${w.id}">Adresse kopieren</button><button class="btn danger" data-del="wallets" data-id="${w.id}">Löschen</button></div>'''
+          if old_wallet_actions not in s:
+              raise SystemExit('Wallet-Aktionsbereich nicht gefunden')
+          s = s.replace(old_wallet_actions, new_wallet_actions, 1)
+
+          old_bind = "document.querySelectorAll('[data-lookup]').forEach(b=>b.onclick=()=>lookup(data.wallets.find(x=>x.id===b.dataset.lookup)));bindDelete()"
+          new_bind = "document.querySelectorAll('[data-lookup]').forEach(b=>b.onclick=()=>lookup(data.wallets.find(x=>x.id===b.dataset.lookup)));document.querySelectorAll('[data-explorer]').forEach(b=>b.onclick=()=>openExplorerControl(data.wallets.find(x=>x.id===b.dataset.explorer)));document.querySelectorAll('[data-csv]').forEach(b=>b.onclick=()=>openExplorerDownload(data.wallets.find(x=>x.id===b.dataset.csv)));document.querySelectorAll('[data-copy-wallet]').forEach(b=>b.onclick=()=>copyWalletAddress(data.wallets.find(x=>x.id===b.dataset.copyWallet)));bindDelete()"
+          if old_bind not in s:
+              raise SystemExit('Wallet-Ereignisbindung nicht gefunden')
+          s = s.replace(old_bind, new_bind, 1)
+
+          marker = 'function bindDelete()'
+          if marker not in s:
+              raise SystemExit('Einfügemarke bindDelete nicht gefunden')
+
+          js = r'''
+          const EXPLORERS={
+            ethereum:{name:'Ethereum',base:'https://etherscan.io/address/',exportBase:'https://etherscan.io/exportData?type=address&a='},
+            bsc:{name:'BNB Smart Chain',base:'https://bscscan.com/address/',exportBase:'https://bscscan.com/exportData?type=address&a='},
+            polygon:{name:'Polygon',base:'https://polygonscan.com/address/',exportBase:'https://polygonscan.com/exportData?type=address&a='},
+            arbitrum:{name:'Arbitrum One',base:'https://arbiscan.io/address/',exportBase:'https://arbiscan.io/exportData?type=address&a='},
+            optimism:{name:'Optimism',base:'https://optimistic.etherscan.io/address/',exportBase:'https://optimistic.etherscan.io/exportData?type=address&a='},
+            base:{name:'Base',base:'https://basescan.org/address/',exportBase:'https://basescan.org/exportData?type=address&a='},
+            avalanche:{name:'Avalanche C-Chain',base:'https://snowtrace.io/address/',exportBase:'https://snowtrace.io/address/'},
+            fantom:{name:'Fantom',base:'https://ftmscan.com/address/',exportBase:'https://ftmscan.com/exportData?type=address&a='},
+            gnosis:{name:'Gnosis Chain',base:'https://gnosisscan.io/address/',exportBase:'https://gnosisscan.io/exportData?type=address&a='},
+            linea:{name:'Linea',base:'https://lineascan.build/address/',exportBase:'https://lineascan.build/exportData?type=address&a='},
+            zksync:{name:'zkSync Era',base:'https://era.zksync.network/address/',exportBase:'https://era.zksync.network/address/'},
+            cronos:{name:'Cronos',base:'https://cronoscan.com/address/',exportBase:'https://cronoscan.com/exportData?type=address&a='},
+            solana:{name:'Solana',base:'https://explorer.solana.com/address/',suffix:'?cluster=mainnet-beta',exportBase:'https://solscan.io/account/'},
+            tron:{name:'Tron',base:'https://tronscan.org/#/address/',exportBase:'https://tronscan.org/#/address/'},
+            bitcoin:{name:'Bitcoin',base:'https://blockchair.com/bitcoin/address/',exportBase:'https://blockchair.com/bitcoin/address/'},
+            litecoin:{name:'Litecoin',base:'https://blockchair.com/litecoin/address/',exportBase:'https://blockchair.com/litecoin/address/'},
+            'bitcoin-cash':{name:'Bitcoin Cash',base:'https://blockchair.com/bitcoin-cash/address/',exportBase:'https://blockchair.com/bitcoin-cash/address/'},
+            dogecoin:{name:'Dogecoin',base:'https://blockchair.com/dogecoin/address/',exportBase:'https://blockchair.com/dogecoin/address/'},
+            dash:{name:'Dash',base:'https://blockchair.com/dash/address/',exportBase:'https://blockchair.com/dash/address/'}
+          };
+          function explorerInfo(w){const c=EXPLORERS[w?.chain]||{name:w?.chainName||w?.chain||'Blockchain',base:'https://blockchair.com/search?q=',exportBase:'https://blockchair.com/search?q='},a=encodeURIComponent(w?.address||'');return{...c,addressUrl:c.base+a+(c.suffix||''),exportUrl:(c.exportBase||c.base)+a+(c.exportSuffix||c.suffix||'')}}
+          let explorerWalletId='';
+          function openExplorerControl(w){if(!w)return;const e=explorerInfo(w);explorerWalletId=w.id;$('explorerTitle').textContent=(w.name||'Wallet')+' im Blockchain-Explorer';$('explorerChain').textContent=w.chainName||e.name;$('explorerWalletName').textContent=w.name||'–';$('explorerAddress').textContent=w.address||'–';$('explorerNewTab').href=e.addressUrl;$('explorerCsv').href=e.exportUrl;$('explorerFrame').src=e.addressUrl;$('explorerModal').hidden=false}
+          function closeExplorerControl(){$('explorerModal').hidden=true;$('explorerFrame').src='about:blank';explorerWalletId=''}
+          function openExplorerDownload(w){if(!w)return;const e=explorerInfo(w);window.open(e.exportUrl,'_blank','noopener,noreferrer')}
+          async function copyWalletAddress(w){if(!w?.address)return;try{await navigator.clipboard.writeText(w.address);notify('Die öffentliche Wallet-Adresse wurde kopiert.')}catch{const t=document.createElement('textarea');t.value=w.address;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();notify('Die öffentliche Wallet-Adresse wurde kopiert.')}}
+          '''
+          s = s.replace(marker, js + marker, 1)
+
+          init_marker = "buildNav();wire();"
+          init_js = "document.querySelectorAll('[data-close=\"explorerModal\"]').forEach(b=>b.onclick=closeExplorerControl);$('explorerSync').onclick=async()=>{const w=data.wallets.find(x=>x.id===explorerWalletId);if(w){await lookup(w);openExplorerControl(w)}};$('explorerCopy').onclick=()=>copyWalletAddress(data.wallets.find(x=>x.id===explorerWalletId));"
+          if init_marker not in s:
+              raise SystemExit('Initialisierung nicht gefunden')
+          s = s.replace(init_marker, init_js + init_marker, 1)
+
+          path.write_text(s, encoding='utf-8')
+          PY
+      - name: Änderungen committen
+        run: |
+          if git diff --quiet; then
+            echo "Keine Änderungen notwendig."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pages/krypto-steuer-assistent-v2/index.html
+          git commit -m "Ergänzt Explorer-Kontrollzentrum für Wallets"
+          git push
