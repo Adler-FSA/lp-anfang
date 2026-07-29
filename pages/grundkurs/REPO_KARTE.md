@@ -1033,11 +1033,30 @@
     │   │   ├── modul-03-sonderfaelle.html
     │   │   ├── modul-04-backoffice.html
     │   │   └── modul-05-steuerberater-ausgabe.html
+    │   ├── krypto-steuer-akademie/
+    │   │   ├── README_UPLOAD.txt
+    │   │   ├── TESTPLAN.txt
+    │   │   ├── anbieter-wallets.html
+    │   │   ├── app.css
+    │   │   ├── app.js
+    │   │   ├── csv.js
+    │   │   ├── handelsdaten.html
+    │   │   ├── index.html
+    │   │   ├── krypto-steuer-assistent-bisheriger-stand.html
+    │   │   ├── nachweise.html
+    │   │   ├── projektakte.html
+    │   │   ├── pruefung.html
+    │   │   ├── store.js
+    │   │   ├── transaktionen.html
+    │   │   ├── uebergabe.html
+    │   │   └── wallet-import.html
     │   ├── krypto-steuer-assistent/
     │   │   └── index.html
     │   ├── krypto-steuer-assistent-v2/
     │   │   ├── index.html
     │   │   └── sw.js
+    │   ├── krypto-steuer-forensik/
+    │   │   └── index.html
     │   ├── krypto-steuer-ordnung/
     │   │   ├── archiv/
     │   │   │   └── jahresarchiv.html
@@ -1974,4 +1993,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.07.2026, 19:05)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 29.07.2026, 20:47)_
