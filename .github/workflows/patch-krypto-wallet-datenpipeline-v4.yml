@@ -1,0 +1,66 @@
+name: Patch Krypto Wallet Datenpipeline V4
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-krypto-wallet-datenpipeline-v4.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Datenpipeline stabilisieren
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          p=Path('pages/krypto-steuer-assistent-v2/index.html')
+          s=p.read_text(encoding='utf-8')
+          if 'WALLET_DATA_PIPELINE_V4' in s:
+              raise SystemExit(0)
+
+          s=s.replace('</style>', '''
+/* WALLET_DATA_PIPELINE_V4 */
+.wallet-import-box{margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#f7f9fa}.wallet-import-box input{display:block;margin:8px 0}.pipeline-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.pipeline-grid div{padding:10px;border-radius:11px;background:#fff;border:1px solid var(--line)}@media(max-width:700px){.pipeline-grid{grid-template-columns:1fr 1fr}}
+</style>''',1)
+
+          s=s.replace('<p class="explorer-note">Manche Explorer verhindern die Darstellung in eingebetteten Fenstern. In diesem Fall nutzen Sie „Im Explorer öffnen“. Dort sehen Sie die Originaldaten und erreichen – je nach Explorer – den CSV- oder Exportbereich.</p><iframe id="explorerFrame" class="explorer-frame" title="Blockchain-Explorer"></iframe>', '<p class="explorer-note">Manche Explorer verhindern die Darstellung in eingebetteten Fenstern. In diesem Fall nutzen Sie „Im Explorer öffnen“. Dort sehen Sie die Originaldaten und erreichen – je nach Explorer – den CSV- oder Exportbereich.</p><div class="wallet-import-box"><strong>Explorer-CSV dieser Wallet einlesen</strong><span class="help">Laden Sie im Explorer die Transaktions- oder Token-Transfer-CSV herunter und wählen Sie sie hier aus. Die Akademie ordnet die Zeilen automatisch dieser Wallet und Chain zu.</span><input id="walletCsvFile" type="file" accept=".csv,text/csv"><button class="btn primary" id="walletCsvImport">CSV prüfen und übernehmen</button><div id="walletCsvResult" class="help" style="margin-top:8px"></div></div><iframe id="explorerFrame" class="explorer-frame" title="Blockchain-Explorer"></iframe>',1)
+
+          s=s.replace("<span class=\"status ${w.lookup?.ok?'ok':'bad'}\">${w.lookup?.ok?'Blockchain gelesen':'Prüfung offen'}</span>", "<span class=\"status ${w.lookup?.historyCount>0?'ok':w.lookup?.ok?'warn':'bad'}\">${w.lookup?.historyCount>0?'Historie übernommen':w.lookup?.ok?'Netzwerk erkannt':'Prüfung offen'}</span>")
+          s=s.replace("Transaktionen ${x.tx} · offene Punkte ${x.reviews}${w.lookup?.historyError?' · Historie nicht erreichbar':''}", "Erkannt ${w.lookup?.txCount||0} · übernommen ${x.tx} · offene Punkte ${x.reviews}${w.lookup?.historyError?' · Historie nicht erreichbar':''}")
+
+          js=r'''
+function normHeader(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'')}
+function firstField(row,map,names){for(const n of names){const k=map[normHeader(n)];if(k!==undefined&&row[k]!==undefined&&String(row[k]).trim()!=='')return String(row[k]).trim()}return''}
+function parseFlexibleCsv(text){const parsed=parseCsv(text),headers=parsed.headers,map={};headers.forEach((h,i)=>map[normHeader(h)]=i);return{headers,rows:parsed.rows,map}}
+function parseExplorerDate(v){if(!v)return'';if(/^\d{10,13}$/.test(v)){const n=Number(v.length===10?v+'000':v);return new Date(n).toISOString()}const d=new Date(v);return isNaN(d)?v:d.toISOString()}
+function importExplorerCsvForWallet(file,wallet){return new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=()=>reject(Error('Datei konnte nicht gelesen werden'));r.onload=()=>{try{const {rows,map}=parseFlexibleCsv(String(r.result||''));let added=0,dupes=0,unclear=0;for(const row of rows){const hash=firstField(row,map,['Txhash','TxHash','Transaction Hash','Hash']);if(!hash){unclear++;continue}const from=lowerAddress(firstField(row,map,['From','Sender'])),to=lowerAddress(firstField(row,map,['To','Receiver'])),mine=lowerAddress(wallet.address);const symbol=firstField(row,map,['TokenSymbol','Token Symbol','Symbol','Asset'])||EVM_CHAINS.find(c=>c.id===wallet.chain)?.symbol||wallet.chain.toUpperCase();const amount=firstField(row,map,['TokenValue','Token Value','Value_OUT(BNB)','Value_IN(BNB)','Value','Amount']);const date=parseExplorerDate(firstField(row,map,['DateTime','Date Time (UTC)','Timestamp','UnixTimestamp','Unix Timestamp']));const out=from===mine,incoming=to===mine;const key=`${wallet.chain}:${hash}:csv:${symbol}:${firstField(row,map,['LogIndex','Log Index','Index'])}`;if(data.transactions.some(t=>t.blockchainKey===key)){dupes++;continue}data.transactions.push({id:uid(),date,type:out?'Auszahlung':incoming?'Einzahlung':'Blockchain-Vorgang',asset:symbol,amount,eur:'',exchangeId:wallet.exchangeId||'',walletId:wallet.id,source:'Blockchain-CSV',notes:`${wallet.chainName||wallet.chain} · Explorer-CSV · ${hash}`,auto:true,chain:wallet.chain,txHash:hash,direction:out?'ausgehend':incoming?'eingehend':'unbekannt',blockchainKey:key});added++}wallet.lookup=wallet.lookup||{};wallet.lookup.historyCount=(wallet.lookup.historyCount||0)+added;wallet.lookup.historyError='';wallet.lookup.csvImportedAt=new Date().toISOString();checks();save();resolve({added,dupes,unclear,total:rows.length})}catch(e){reject(e)}};r.readAsText(file)})}
+$('walletCsvImport').onclick=async()=>{if(!explorerWallet)return;const f=$('walletCsvFile').files?.[0];if(!f)return alert('Bitte zuerst eine CSV-Datei auswählen.');$('walletCsvResult').textContent='CSV wird geprüft …';try{const x=await importExplorerCsvForWallet(f,explorerWallet);$('walletCsvResult').innerHTML=`Gelesen ${x.total} · neu übernommen ${x.added} · Dubletten ${x.dupes} · ungeklärt ${x.unclear}`;openExplorerWorkspace(explorerWallet);go('ledger')}catch(e){$('walletCsvResult').textContent='CSV konnte nicht verarbeitet werden: '+(e.message||e)}};
+const _oldLookup=lookup;lookup=async function(w){await _oldLookup(w);if(w?.lookup?.historyError){go('sources');notify('Netzwerk erkannt, Historie aber nicht geladen. Bitte Explorer öffnen oder CSV importieren.')}};
+'''
+          anchor="buildNav();wire();updateExchangeHelp();checks();render();wireSafety();"
+          if anchor not in s:
+              raise SystemExit('Startanker nicht gefunden')
+          s=s.replace(anchor,js+'\n'+anchor,1)
+          p.write_text(s,encoding='utf-8')
+
+          sw=Path('pages/krypto-steuer-assistent-v2/sw.js')
+          if sw.exists():
+              t=sw.read_text(encoding='utf-8').replace("krypto-steuer-akademie-v1","krypto-steuer-akademie-v2")
+              t=t.replace("u.search='';const key=new Request(u.toString(),{method:'GET',headers:e.request.headers,mode:e.request.mode,credentials:e.request.credentials,redirect:e.request.redirect});","const key=e.request;")
+              sw.write_text(t,encoding='utf-8')
+          PY
+      - name: Änderungen committen
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pages/krypto-steuer-assistent-v2/index.html pages/krypto-steuer-assistent-v2/sw.js
+          git commit -m "Stabilisiert Wallet-Historie und Explorer-CSV-Import"
+          git push
