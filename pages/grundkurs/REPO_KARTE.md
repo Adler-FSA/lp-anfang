@@ -1064,6 +1064,8 @@
     │   │   ├── optimierungs-phase-umbau-v1.html
     │   │   ├── optimierungs-phase-umsetzung-v1.html
     │   │   └── optimierungs-phase.html
+    │   ├── krypto-steuer-forensik-f2/
+    │   │   └── index.html
     │   ├── krypto-steuer-ordnung/
     │   │   ├── archiv/
     │   │   │   └── jahresarchiv.html
@@ -2000,4 +2002,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 30.07.2026, 05:34)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 30.07.2026, 08:13)_
