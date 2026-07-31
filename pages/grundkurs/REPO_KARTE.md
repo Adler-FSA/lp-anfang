@@ -229,6 +229,7 @@
     │   │   │   └── solar-invest.jpg
     │   │   ├── timecells/
     │   │   │   └── onboarding/
+    │   │   ├── FAF21D1C-2DB2-4BA3-A28A-17804F0C9213.png
     │   │   ├── IMG_2976.jpeg
     │   │   ├── IMG_5924.jpeg
     │   │   ├── IMG_5929.jpeg
@@ -1114,6 +1115,9 @@
     │   │   ├── import-csv-hilfe.html
     │   │   ├── index.html
     │   │   └── sonderfaelle-erfassen.html
+    │   ├── leitartikel-identitaetsdiebstahl/
+    │   │   ├── finanzielle-souveraenitaet-leuchtturm.svg
+    │   │   └── index.html
     │   ├── liquiditybooster/
     │   │   ├── krypto-setup-intro-en.html
     │   │   ├── krypto-setup-intro.html
@@ -2003,4 +2007,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 31.07.2026, 19:15)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 31.07.2026, 20:58)_
