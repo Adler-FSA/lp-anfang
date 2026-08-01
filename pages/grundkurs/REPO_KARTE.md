@@ -7,6 +7,8 @@
     │   ├── music.html
     │   ├── slideshow.html
     │   └── video.html
+    ├── hoersal/
+    │   └── tln-konzept.html
     ├── js/
     │   ├── admin.js
     │   ├── music.js
@@ -1121,6 +1123,8 @@
     │   │   ├── index.html
     │   │   ├── kurs-bauplan-01.html
     │   │   └── kurs-bauplan.html
+    │   ├── leitartikel-quantencomputer-kryptografie/
+    │   │   └── index.html
     │   ├── liquiditybooster/
     │   │   ├── krypto-setup-intro-en.html
     │   │   ├── krypto-setup-intro.html
@@ -2012,4 +2016,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.08.2026, 16:56)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.08.2026, 17:57)_
