@@ -1178,6 +1178,8 @@
     │   │   ├── versicherungen.html
     │   │   ├── verteilung.html
     │   │   └── vertraege.html
+    │   ├── mein-finanzieller-lebensweg/
+    │   │   └── index.html
     │   ├── mein-setup/
     │   │   ├── downloads/
     │   │   │   ├── Mein-souveraenes-Setup_Bank-und-Kontenuebersicht.pdf
@@ -2010,4 +2012,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.08.2026, 11:59)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.08.2026, 13:27)_
