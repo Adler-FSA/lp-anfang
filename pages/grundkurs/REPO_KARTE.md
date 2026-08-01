@@ -1117,7 +1117,10 @@
     │   │   └── sonderfaelle-erfassen.html
     │   ├── leitartikel-identitaetsdiebstahl/
     │   │   ├── finanzielle-souveraenitaet-leuchtturm.svg
-    │   │   └── index.html
+    │   │   ├── gegenmassnahme.html
+    │   │   ├── index.html
+    │   │   ├── kurs-bauplan-01.html
+    │   │   └── kurs-bauplan.html
     │   ├── liquiditybooster/
     │   │   ├── krypto-setup-intro-en.html
     │   │   ├── krypto-setup-intro.html
@@ -2007,4 +2010,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.08.2026, 05:49)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.08.2026, 08:10)_
