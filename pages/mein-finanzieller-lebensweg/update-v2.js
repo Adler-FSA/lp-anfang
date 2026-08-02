@@ -1,1 +1,1 @@
-(()=>{const load=(src)=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src+'?v=202608020955';s.onload=resolve;s.onerror=reject;document.head.appendChild(s)});load('./update-v2-core.js').then(()=>load('./polish-v3.js')).catch(console.error)})();
+(()=>{const load=(src)=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src+'?v=202608021005';s.onload=resolve;s.onerror=reject;document.head.appendChild(s)});load('./update-v2-core.js').then(()=>load('./polish-v3.js')).catch(console.error)})();
