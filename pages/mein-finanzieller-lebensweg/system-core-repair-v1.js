@@ -11,52 +11,16 @@ function cards(){return $$('[data-wish-id],.wish-card,.goal-card').filter(c=>!c.
 function titleOf(c){return norm(c.querySelector('h3,h4,strong')?.textContent||c.getAttribute('data-title')||'Wunsch');}
 function stableCardId(c){let id=c.getAttribute('data-wish-id');if(id)return id;id='wish-'+slug(titleOf(c));c.setAttribute('data-wish-id',id);return id;}
 function selected(c){return c.classList.contains('selected')||c.classList.contains('active')||c.getAttribute('aria-pressed')==='true'||!!c.querySelector('input[type=checkbox]:checked,input[type=radio]:checked');}
-function stableFieldId(el){if(el.id)return 'id:'+el.id;if(el.name)return 'name:'+el.name;const card=el.closest('[data-wish-id],.wish-card,.goal-card');const label=norm(el.closest('label')?.textContent||el.getAttribute('aria-label')||el.placeholder||el.type||el.tagName);return (card?'card:'+stableCardId(card)+':':'field:')+slug(label);}
+function stableFieldId(el){if(el.id)return 'id:'+el.id;if(el.name)return 'name:'+el.name;const card=el.closest('[data-wish-id],.wish-card,.goal-card');const label=norm(el.closest('label')?.textContent||el.getAttribute('aria-label')||el.placeholder||el.type||el.tagName);return(card?'card:'+stableCardId(card)+':':'field:')+slug(label);}
 function fieldValue(el){return el.type==='checkbox'||el.type==='radio'?!!el.checked:el.value;}
-function model(){
- const controls={};$$('input,select,textarea').filter(el=>!el.closest('#ownWishModal,#printBook,.backup-panel')).forEach(el=>{controls[stableFieldId(el)]={value:fieldValue(el),type:el.type||'',tag:el.tagName};});
- const wishes={};cards().forEach(c=>{const id=stableCardId(c),fields={};$$('input,select,textarea',c).forEach(el=>fields[stableFieldId(el)]=fieldValue(el));wishes[id]={id,title:titleOf(c),selected:selected(c),fields};});
- let own=[];try{own=JSON.parse(localStorage.getItem('fsa_finanzlebensweg_eigene_wuensche_v1')||'[]');if(!Array.isArray(own))own=[];}catch{own=[];}
- return{version:1,savedAt:new Date().toISOString(),controls,wishes,own};
-}
+function model(){const controls={};$$('input,select,textarea').filter(el=>!el.closest('#ownWishModal,#printBook,.backup-panel')).forEach(el=>controls[stableFieldId(el)]={value:fieldValue(el),type:el.type||'',tag:el.tagName});const wishes={};cards().forEach(c=>{const id=stableCardId(c),fields={};$$('input,select,textarea',c).forEach(el=>fields[stableFieldId(el)]=fieldValue(el));wishes[id]={id,title:titleOf(c),selected:selected(c),fields};});let own=[];try{own=JSON.parse(localStorage.getItem('fsa_finanzlebensweg_eigene_wuensche_v1')||'[]');if(!Array.isArray(own))own=[];}catch{}return{version:1,savedAt:new Date().toISOString(),controls,wishes,own};}
 function save(){if(applying)return;try{localStorage.setItem(KEY,JSON.stringify(model()));}catch(e){console.warn('Systemkern-Sicherung fehlgeschlagen',e);}}
-function apply(){
- let data;try{data=JSON.parse(localStorage.getItem(KEY)||'null');}catch{return;}if(!data)return;applying=true;
- const map=new Map($$('input,select,textarea').filter(el=>!el.closest('#ownWishModal,#printBook,.backup-panel')).map(el=>[stableFieldId(el),el]));
- Object.entries(data.controls||{}).forEach(([id,d])=>{const el=map.get(id);if(!el)return;if(el.type==='checkbox'||el.type==='radio')el.checked=!!d.value;else el.value=d.value??'';});
- cards().forEach(c=>{const d=data.wishes?.[stableCardId(c)];if(!d)return;c.classList.toggle('selected',!!d.selected);c.classList.toggle('active',!!d.selected);c.setAttribute('aria-pressed',d.selected?'true':'false');});
- applying=false;dispatchAll();
-}
-function calculateButton(){return $$('button,a').find(el=>/meinen lebensweg berechnen|lebensweg berechnen|neu berechnen/i.test(norm(el.textContent)));}
-function dispatchAll(){
- $$('input,select,textarea').filter(el=>!el.closest('#ownWishModal,#printBook,.backup-panel')).forEach(el=>{el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));});
- setTimeout(()=>calculateButton()?.click(),80);
-}
-function ownMonthlyAt(age){
- let own=[];try{own=JSON.parse(localStorage.getItem('fsa_finanzlebensweg_eigene_wuensche_v1')||'[]');}catch{}
- return(Array.isArray(own)?own:[]).reduce((sum,w)=>{const start=Number(w.age)||0;if(age<start)return sum;const a=Number(w.amount)||0;return sum+(w.cadence==='monthly'?a:w.cadence==='yearly'?a/12:0);},0);
-}
+function apply(){let data;try{data=JSON.parse(localStorage.getItem(KEY)||'null');}catch{return;}if(!data)return;applying=true;const map=new Map($$('input,select,textarea').filter(el=>!el.closest('#ownWishModal,#printBook,.backup-panel')).map(el=>[stableFieldId(el),el]));Object.entries(data.controls||{}).forEach(([id,d])=>{const el=map.get(id);if(!el)return;if(el.type==='checkbox'||el.type==='radio')el.checked=!!d.value;else el.value=d.value??'';});cards().forEach(c=>{const d=data.wishes?.[stableCardId(c)];if(!d)return;c.classList.toggle('selected',!!d.selected);c.classList.toggle('active',!!d.selected);c.setAttribute('aria-pressed',d.selected?'true':'false');});applying=false;$$('input,select,textarea').filter(el=>!el.closest('#ownWishModal,#printBook,.backup-panel')).forEach(el=>el.dispatchEvent(new Event('change',{bubbles:true})));}
+function ownMonthlyAt(age){let own=[];try{own=JSON.parse(localStorage.getItem('fsa_finanzlebensweg_eigene_wuensche_v1')||'[]');}catch{}return(Array.isArray(own)?own:[]).reduce((sum,w)=>{const start=Number(w.age)||0;if(age<start)return sum;const a=Number(w.amount)||0;return sum+(w.cadence==='monthly'?a:w.cadence==='yearly'?a/12:0);},0);}
 function currentAge(){const range=$$('input[type=range]').find(r=>r.closest('#resultArea')||/alter/i.test(r.name||r.id||r.getAttribute('aria-label')||''));return Number(range?.value)||0;}
-function valueNodeByLabel(label){
- const root=$('#resultArea')||document;const nodes=$$('div,article,section,li',root).filter(n=>norm(n.textContent).includes(label)).sort((a,b)=>norm(a.textContent).length-norm(b.textContent).length);
- for(const n of nodes){const strong=n.querySelector('strong,b,.value,.metric-value');if(strong)return strong;}return null;
-}
-function patchOwnWishes(){
- if(patching)return;const extra=ownMonthlyAt(currentAge());if(!extra)return;patching=true;
- const need=valueNodeByLabel('Lebensbedarf mit Wünschen');const gap=valueNodeByLabel('Monatliche Deckung / Lücke')||valueNodeByLabel('Monatliche Lücke');
- [need,gap].forEach(n=>{if(n&&!n.dataset.baseValue)n.dataset.baseValue=String(parseNum(n.textContent));});
- if(need)need.textContent=money(Number(need.dataset.baseValue||0)+extra);
- if(gap)gap.textContent=money(Number(gap.dataset.baseValue||0)-extra);
- patching=false;
-}
-function recalc(){clearTimeout(timer);timer=setTimeout(()=>{save();calculateButton()?.click();setTimeout(()=>{patchOwnWishes();document.dispatchEvent(new CustomEvent('fsa-systemkern-updated'));},180);},120);}
-function bind(){
- cards().forEach(stableCardId);
- document.addEventListener('input',e=>{if(e.target.matches('input,select,textarea'))recalc();},true);
- document.addEventListener('change',e=>{if(e.target.matches('input,select,textarea'))recalc();},true);
- document.addEventListener('click',e=>{if(e.target.closest('[data-wish-id],.wish-card,.goal-card,[data-edit],[data-delete],#addOwnWish'))setTimeout(recalc,40);},true);
- const result=$('#resultArea');if(result)new MutationObserver(()=>{clearTimeout(window.__fsaCorePatch);window.__fsaCorePatch=setTimeout(patchOwnWishes,100);}).observe(result,{subtree:true,childList:true,characterData:true});
- setTimeout(()=>{apply();recalc();},900);
-}
+function valueNodeByLabel(label){const root=$('#resultArea')||document;const nodes=$$('div,article,section,li',root).filter(n=>norm(n.textContent).includes(label)).sort((a,b)=>norm(a.textContent).length-norm(b.textContent).length);for(const n of nodes){const strong=n.querySelector('strong,b,.value,.metric-value');if(strong)return strong;}return null;}
+function patchOwnWishes(){if(patching)return;patching=true;const extra=ownMonthlyAt(currentAge());const need=valueNodeByLabel('Lebensbedarf mit Wünschen');const gap=valueNodeByLabel('Monatliche Deckung / Lücke')||valueNodeByLabel('Monatliche Lücke');[need,gap].forEach(n=>{if(n&&!n.dataset.baseValue)n.dataset.baseValue=String(parseNum(n.textContent));});if(need)need.textContent=money(Number(need.dataset.baseValue||0)+extra);if(gap)gap.textContent=money(Number(gap.dataset.baseValue||0)-extra);patching=false;}
+function sync(){clearTimeout(timer);timer=setTimeout(()=>{save();patchOwnWishes();document.dispatchEvent(new CustomEvent('fsa-systemkern-updated'));},140);}
+function bind(){cards().forEach(stableCardId);document.addEventListener('input',e=>{if(e.target.matches('input,select,textarea'))sync();},true);document.addEventListener('change',e=>{if(e.target.matches('input,select,textarea'))sync();},true);document.addEventListener('click',e=>{if(e.target.closest('[data-wish-id],.wish-card,.goal-card,[data-edit],[data-delete],#addOwnWish'))setTimeout(sync,60);},true);setTimeout(()=>{apply();save();patchOwnWishes();},900);}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })();
