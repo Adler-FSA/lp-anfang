@@ -1189,6 +1189,7 @@
     │   │   ├── academy-setup-bridge.css
     │   │   ├── academy-setup-bridge.js
     │   │   ├── base-20260801.html
+    │   │   ├── daniel-muster-content.js
     │   │   ├── final-v4.css
     │   │   ├── final-v4.js
     │   │   ├── index.html
@@ -1199,7 +1200,9 @@
     │   │   ├── update-v2-core.css
     │   │   ├── update-v2-core.js
     │   │   ├── update-v2.css
-    │   │   └── update-v2.js
+    │   │   ├── update-v2.js
+    │   │   ├── wish-story-fields.css
+    │   │   └── wish-story-fields.js
     │   ├── mein-setup/
     │   │   ├── downloads/
     │   │   │   ├── Mein-souveraenes-Setup_Bank-und-Kontenuebersicht.pdf
@@ -2034,4 +2037,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.08.2026, 10:29)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.08.2026, 11:57)_
