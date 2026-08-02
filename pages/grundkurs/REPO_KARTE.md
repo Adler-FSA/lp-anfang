@@ -1183,7 +1183,16 @@
     │   │   ├── verteilung.html
     │   │   └── vertraege.html
     │   ├── mein-finanzieller-lebensweg/
-    │   │   └── index.html
+    │   │   ├── 77BC7C55-B63D-4E28-A882-029C4C11E043.png
+    │   │   ├── base-20260801.html
+    │   │   ├── index.html
+    │   │   ├── polish-v3.css
+    │   │   ├── polish-v3.js
+    │   │   ├── polish-v4.css
+    │   │   ├── update-v2-core.css
+    │   │   ├── update-v2-core.js
+    │   │   ├── update-v2.css
+    │   │   └── update-v2.js
     │   ├── mein-setup/
     │   │   ├── downloads/
     │   │   │   ├── Mein-souveraenes-Setup_Bank-und-Kontenuebersicht.pdf
@@ -2018,4 +2027,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.08.2026, 05:50)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.08.2026, 08:12)_
