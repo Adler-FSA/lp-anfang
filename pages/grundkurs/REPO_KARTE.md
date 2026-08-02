@@ -1198,6 +1198,7 @@
     │   │   ├── polish-v3.js
     │   │   ├── polish-v4.css
     │   │   ├── stabilizer-v5.js
+    │   │   ├── system-core-repair-v1.js
     │   │   ├── update-v2-core.css
     │   │   ├── update-v2-core.js
     │   │   ├── update-v2.css
@@ -2038,4 +2039,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.08.2026, 20:46)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.08.2026, 21:50)_
