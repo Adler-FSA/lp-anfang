@@ -29,19 +29,19 @@ jobs:
           if not old_kind:
               raise SystemExit('v5Kind nicht gefunden')
           new_kind="""function v5Kind(headers,name=''){const h=headers.map(v5Norm),n=String(name).toLowerCase();if(h.some(x=>['tokenid','tokentype','nft'].includes(x))||/nft|erc721|erc1155|bep721|bep1155/.test(n))return'nft';if(h.some(x=>['tokensymbol','tokenname','contractaddress','tokenvalue','token'].includes(x))||/token|tokentx|bep20|erc20/.test(n))return'token';if(h.some(x=>['parenttxhash','traceid','typecall'].includes(x))||/internal/.test(n))return'internal';return'normal'}
-function v5Date"""
+          function v5Date"""
           s=s[:old_kind.start()]+new_kind+s[old_kind.end():]
           old_raw=re.search(r"function v5Raw\(row,map,kind,wallet,fileId\)\{.*?\}\nfunction v5Import",s,re.S)
           if not old_raw:
               raise SystemExit('v5Raw nicht gefunden')
           new_raw="""function v5Raw(row,map,kind,wallet,fileId){const hash=v5Field(row,map,['Transaction Hash','Txn Hash','Txhash','Tx Hash','TxHash','Hash','Parent Txn Hash','ParentTxHash']);if(!hash)return null;const from=v5Field(row,map,['From','Sender','From Address']),to=v5Field(row,map,['To','Receiver','To Address']),date=v5Date(v5Field(row,map,['DateTime (UTC)','DateTime','Date Time (UTC)','Timestamp','UnixTimestamp','Unix Timestamp','Block Timestamp'])),status=v5Field(row,map,['Status','Txn Status','Error']),method=v5Field(row,map,['Method','FunctionName','Function Name','Action']),token=v5Field(row,map,['TokenSymbol','Token Symbol','Symbol','Asset','Token','TokenName','Token Name']),contract=v5Field(row,map,['ContractAddress','Contract Address','Token Contract Address']),tokenId=v5Field(row,map,['TokenId','Token ID']),idx=v5Field(row,map,['LogIndex','Log Index','Index','TraceId','Trace ID']),native=EVM_CHAINS.find(c=>c.id===wallet.chain)?.symbol||wallet.chain.toUpperCase();let asset=kind==='token'?(token||'TOKEN'):kind==='nft'?(token||'NFT'):native,amount='';if(kind==='token')amount=v5Field(row,map,['TokenValue','Token Value','Value','Amount']);else if(kind==='nft')amount=tokenId||'1';else amount=v5Field(row,map,[`Value_OUT(${native})`,`Value_IN(${native})`,'Value_OUT(BNB)','Value_IN(BNB)','Value_OUT(ETH)','Value_IN(ETH)','Value','Amount']);const fee=v5Field(row,map,[`TxnFee(${native})`,'TxnFee(BNB)','TxnFee(ETH)','Txn Fee','Transaction Fee','Fee']);return{id:uid(),walletId:wallet.id,chain:wallet.chain,kind,hash,date,from,to,asset,amount:String(amount||'').replace(/,/g,''),fee:String(fee||'').replace(/,/g,''),method,status,contract,tokenId,idx,fileId,key:`${wallet.chain}:${hash}:${kind}:${idx||contract||asset}:${from}:${to}:${amount}`}}
-function v5Import"""
+          function v5Import"""
           s=s[:old_raw.start()]+new_raw+s[old_raw.end():]
           old_import=re.search(r"function v5Import\(file,wallet\)\{.*?\}\nfunction v5Move",s,re.S)
           if not old_import:
               raise SystemExit('v5Import nicht gefunden')
           new_import="""function v5Import(file,wallet){return new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=()=>reject(Error('Datei konnte nicht gelesen werden'));r.onload=async()=>{try{ensureWalletV5();const text=String(r.result||''),p=v5Csv(text),kind=v5Kind(p.headers,file.name),hash=await digest(text);if(!p.rows.length)return resolve({file:file.name,kind,rows:0,added:0,dupes:0,unclear:0,empty:true,error:'Keine Datenzeilen vorhanden. Bitte den Exportzeitraum erweitern.'});const previous=data.walletImports.find(x=>x.walletId===wallet.id&&x.hash===hash);if(previous&&Number(previous.added||0)>0)return resolve({file:file.name,kind,rows:p.rows.length,added:0,dupes:p.rows.length,unclear:0,duplicate:true});if(previous)data.walletImports=data.walletImports.filter(x=>x!==previous);const fileId=uid();let added=0,dupes=0,unclear=0;for(const row of p.rows){const raw=v5Raw(row,p.map,kind,wallet,fileId);if(!raw){unclear++;continue}if(data.walletRaw.some(x=>x.key===raw.key)){dupes++;continue}data.walletRaw.push(raw);added++}if(added>0)data.walletImports.push({id:fileId,walletId:wallet.id,name:file.name,kind,rows:p.rows.length,added,unclear,hash,at:new Date().toISOString()});resolve({file:file.name,kind,rows:p.rows.length,added,dupes,unclear,error:added===0?'Keine verwertbaren Datenzeilen erkannt.':''})}catch(e){reject(e)}};r.readAsText(file)})}
-function v5Move"""
+          function v5Move"""
           s=s[:old_import.start()]+new_import+s[old_import.end():]
           p.write_text(s,encoding='utf-8')
           PY
