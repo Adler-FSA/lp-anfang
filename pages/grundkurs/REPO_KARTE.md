@@ -1188,6 +1188,7 @@
     │   │   ├── academy-reality-check.js
     │   │   ├── academy-setup-bridge.css
     │   │   ├── academy-setup-bridge.js
+    │   │   ├── age-slider-focus-v1.js
     │   │   ├── base-20260801.html
     │   │   ├── daniel-muster-content.js
     │   │   ├── final-v4.css
@@ -2039,4 +2040,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.08.2026, 21:50)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.08.2026, 22:50)_
