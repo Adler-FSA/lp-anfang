@@ -5,17 +5,22 @@ const norm=s=>String(s||'').replace(/\s+/g,' ').trim();
 const slug=s=>norm(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const sections=['Wohnen','Familie','Beruf und Karriere','Mobilität','Freizeit und Träume','Persönliche Entwicklung','Vermögensaufbau','Gesundheit und Alter'];
 const fire=el=>{el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));};
-function removeOld(){ $$('.wish-story-field').forEach(el=>el.remove()); }
+function removeOld(){ $$('.wish-story-field').forEach(el=>el.remove());document.getElementById('danielMusterNotice')?.remove(); }
+function addIntro(){
+ if(document.getElementById('lifePlanPurpose'))return;
+ const firstHeading=$$('h2,h3').find(h=>/^1[.\s]/.test(norm(h.textContent)));const anchor=firstHeading?.closest('section,details,.section,.card')||firstHeading?.parentElement;if(!anchor)return;
+ const block=document.createElement('section');block.id='lifePlanPurpose';block.className='life-plan-purpose';block.innerHTML=`<span class="life-purpose-kicker">Warum dieser Lebensplan mehr ist als ein Rechner</span><h2>Dein Leben beginnt nicht mit einer Zahl, sondern mit einer bewussten Entscheidung.</h2><p>Ein Wunsch allein verändert noch nichts. Erst wenn aus einem Wunsch ein konkreter Plan entsteht, kann daraus Schritt für Schritt Realität werden. Dieser Lebensplan verbindet deine persönlichen Lebensziele mit ihren finanziellen Auswirkungen und zeigt verständlich, wie beides zusammenhängt.</p><p>Die Akademie bewertet dabei nicht den Menschen. Sie macht den Abstand zwischen der heutigen finanziellen Situation und den selbst gewählten Lebenszielen sichtbar. Daraus entstehen keine Urteile, sondern Orientierung, Prioritäten und neue Handlungsmöglichkeiten.</p><p>Ob du mit 18 Jahren deine Zukunft planst, mit 35 Jahren deine Familie aufbaust, mit 50 Jahren einen Neustart wagst oder deinen Ruhestand vorbereitest: Der Lebensplan kann jederzeit angepasst, ergänzt und neu bewertet werden.</p><blockquote>Ein Wunsch wird erst dann zu einem erreichbaren Ziel, wenn er einen Platz im eigenen Lebensplan bekommt.</blockquote><p class="life-purpose-final"><strong>Finanzielle Bildung bedeutet nicht, dir vorzuschreiben, wie du leben sollst.</strong> Sie zeigt dir, welche Entscheidungen notwendig werden, damit dein gewünschtes Leben dauerhaft finanzierbar wird.</p>`;
+ anchor.insertAdjacentElement('beforebegin',block);
+}
 function findHeading(title){return $$('h2,h3,h4').find(h=>norm(h.textContent)===title);}
 function addSectionField(title){
  const heading=findHeading(title); if(!heading)return;
  const key=slug(title); if(document.querySelector(`[data-life-section="${key}"]`))return;
- const wrap=document.createElement('div');
- wrap.className='life-section-story'; wrap.dataset.lifeSection=key;
+ const wrap=document.createElement('div');wrap.className='life-section-story';wrap.dataset.lifeSection=key;
  wrap.innerHTML=`<label for="lifeSection-${key}"><span class="life-section-kicker">Mein persönlicher Lebensbereich</span><strong>Was wünsche ich mir in diesem Bereich – und warum ist es mir wichtig?</strong><small>Formuliere in deinen eigenen Worten, wie du in diesem Lebensbereich später leben möchtest. Die Auswahlkarten darunter übersetzen deine Gedanken anschließend in Alter, Kosten und Prioritäten.</small></label><textarea id="lifeSection-${key}" name="life_section_${key}" rows="6" data-life-section-input="${key}" placeholder="Beispiel: Ich wünsche mir … Für mein Leben bedeutet das … Besonders wichtig ist mir …"></textarea>`;
  heading.insertAdjacentElement('afterend',wrap);
 }
-function install(){removeOld();sections.forEach(addSectionField);}
+function install(){removeOld();addIntro();sections.forEach(addSectionField);}
 function clearOwn(){ $$('[data-life-section-input]').forEach(el=>{if(el.value){el.value='';fire(el);}}); }
 function ownMode(el){return /eigene angaben|eigene version|selbst ausfüllen|meinen lebensweg planen/i.test(norm(el?.textContent));}
 document.addEventListener('click',e=>{const btn=e.target.closest('button,a');if(ownMode(btn))setTimeout(clearOwn,350);},true);
