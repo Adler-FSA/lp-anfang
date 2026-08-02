@@ -2018,4 +2018,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.08.2026, 02:10)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.08.2026, 05:50)_
