@@ -1193,6 +1193,7 @@
     │   │   ├── final-v4.css
     │   │   ├── final-v4.js
     │   │   ├── index.html
+    │   │   ├── life-section-integration.js
     │   │   ├── polish-v3.css
     │   │   ├── polish-v3.js
     │   │   ├── polish-v4.css
@@ -2037,4 +2038,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.08.2026, 11:57)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.08.2026, 13:20)_
