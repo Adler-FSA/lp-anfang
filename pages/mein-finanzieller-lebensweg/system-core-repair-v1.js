@@ -5,6 +5,7 @@ const KEY='fsa_finanzlebensweg_systemkern_v2';
 let applying=false,timer=0;
 const norm=s=>String(s||'').replace(/\s+/g,' ').trim();
 const slug=s=>norm(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'feld';
+try{localStorage.removeItem('fsa_finanzlebensweg_systemkern_v1');}catch{}
 function cards(){return $$('[data-wish-id],.wish-card,.goal-card').filter(c=>!c.closest('#printBook,#ownWishModal'));}
 function titleOf(c){return norm(c.querySelector('h3,h4,strong')?.textContent||c.getAttribute('data-title')||'Wunsch');}
 function stableCardId(c){let id=c.getAttribute('data-wish-id');if(id)return id;id='wish-'+slug(titleOf(c));c.setAttribute('data-wish-id',id);return id;}
@@ -55,13 +56,28 @@ function apply(){
   applying=false;
   changed.forEach(el=>el.dispatchEvent(new Event('change',{bubbles:true})));
 }
+function repairDanielOnce(){
+  if(sessionStorage.getItem('fsa_daniel_age_repair_v1'))return;
+  const first=($('#firstName')?.value||'').trim();if(!/^Daniel$/i.test(first))return;
+  const ages=cards().filter(selected).map(c=>{
+    const el=$$('input[type="number"]',c).find(x=>/alter/i.test(norm(x.placeholder+' '+(x.closest('label')?.textContent||'')+' '+x.name+' '+x.id)));
+    return el?Number(el.value):NaN;
+  }).filter(Number.isFinite);
+  const wrong=ages.length>=4&&ages.filter(v=>v===30).length>=4;
+  if(!wrong)return;
+  const btn=$$('button,a').find(el=>/musterwerte neu laden|musterwerte|muster-version/i.test(norm(el.textContent)));
+  if(!btn)return;
+  sessionStorage.setItem('fsa_daniel_age_repair_v1','1');
+  try{localStorage.removeItem(KEY);}catch{}
+  btn.click();
+}
 function sync(){clearTimeout(timer);timer=setTimeout(save,180);}
 function bind(){
   cards().forEach(stableCardId);
   document.addEventListener('input',e=>{if(e.target.matches('input,select,textarea')&&persistable(e.target))sync();},true);
   document.addEventListener('change',e=>{if(e.target.matches('input,select,textarea')&&persistable(e.target))sync();},true);
   document.addEventListener('click',e=>{if(e.target.closest('[data-wish-id],.wish-card,.goal-card,[data-edit],[data-delete],#addOwnWish'))setTimeout(sync,80);},true);
-  setTimeout(()=>{apply();setTimeout(save,250);},1200);
+  setTimeout(()=>{repairDanielOnce();apply();setTimeout(save,350);},1400);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })();
