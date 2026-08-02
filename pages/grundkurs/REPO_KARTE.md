@@ -1184,11 +1184,18 @@
     │   │   └── vertraege.html
     │   ├── mein-finanzieller-lebensweg/
     │   │   ├── 77BC7C55-B63D-4E28-A882-029C4C11E043.png
+    │   │   ├── academy-reality-check.css
+    │   │   ├── academy-reality-check.js
+    │   │   ├── academy-setup-bridge.css
+    │   │   ├── academy-setup-bridge.js
     │   │   ├── base-20260801.html
+    │   │   ├── final-v4.css
+    │   │   ├── final-v4.js
     │   │   ├── index.html
     │   │   ├── polish-v3.css
     │   │   ├── polish-v3.js
     │   │   ├── polish-v4.css
+    │   │   ├── stabilizer-v5.js
     │   │   ├── update-v2-core.css
     │   │   ├── update-v2-core.js
     │   │   ├── update-v2.css
@@ -2027,4 +2034,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.08.2026, 08:12)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 02.08.2026, 10:29)_
