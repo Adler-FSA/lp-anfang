@@ -1704,6 +1704,8 @@
     │   ├── recht/
     │   │   └── gwg-meldeverordnung-einfach-erklaert.html
     │   ├── reels/
+    │   ├── safety-check-praevention/
+    │   │   └── index.html
     │   ├── schnellstart/
     │   │   ├── glossar.html
     │   │   ├── index.html
@@ -2040,4 +2042,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.08.2026, 20:22)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.08.2026, 22:02)_
