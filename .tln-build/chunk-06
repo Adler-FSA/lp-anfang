@@ -1,0 +1,157 @@
+isabled = !active;
+        copyExchangeInvitationButton.disabled = !active;
+        editExchangeButton.disabled = !active;
+        deleteExchangeButton.disabled = !active;
+        if (!entry) return;
+        selectedProviderName.textContent = `${entry.name} · ${entry.category}`;
+        selectedProviderUrl.textContent = entry.url;
+      };
+
+      const renderArchive = (preferredId = '') => {
+        const entries = readArchive().sort((a, b) => a.name.localeCompare(b.name, 'de'));
+        const previous = preferredId || archiveSelect.value;
+        archiveSelect.innerHTML = '<option value="">Gespeicherten Anbieter auswählen</option>';
+        entries.forEach(entry => {
+          const option = document.createElement('option');
+          option.value = entry.id;
+          option.textContent = `${entry.name} · ${entry.category}`;
+          archiveSelect.appendChild(option);
+        });
+        if (entries.some(entry => entry.id === previous)) archiveSelect.value = previous;
+        archiveCount.textContent = `${entries.length} ${entries.length === 1 ? 'Eintrag' : 'Einträge'}`;
+        archiveList.innerHTML = '';
+        if (!entries.length) {
+          archiveList.innerHTML = '<div class="archive-empty">Noch keine Affiliate-Links gespeichert.</div>';
+        } else {
+          entries.forEach(entry => {
+            const item = document.createElement('div');
+            item.className = `archive-item${entry.id === archiveSelect.value ? ' active' : ''}`;
+            const info = document.createElement('div');
+            const title = document.createElement('strong');
+            title.textContent = entry.name;
+            const meta = document.createElement('div');
+            meta.className = 'archive-meta';
+            meta.textContent = `${entry.category} · ${entry.url}${entry.note ? ` · ${entry.note}` : ''}`;
+            info.append(title, meta);
+            const choose = document.createElement('button');
+            choose.className = 'button secondary';
+            choose.type = 'button';
+            choose.textContent = 'Auswählen';
+            choose.addEventListener('click', () => {
+              archiveSelect.value = entry.id;
+              renderArchive(entry.id);
+            });
+            item.append(info, choose);
+            archiveList.appendChild(item);
+          });
+        }
+        renderSelectedEntry();
+      };
+
+      archiveSelect.addEventListener('change', () => renderArchive(archiveSelect.value));
+
+      saveExchangeButton.addEventListener('click', () => {
+        const name = exchangeNameInput.value.trim();
+        const url = validHttpUrl(exchangeUrlInput.value);
+        if (!name || !url) {
+          setStatus(exchangeStatus, 'Bitte den Namen und einen vollständigen Affiliate-Link eintragen.', 'error');
+          showToast('Affiliate-Link konnte nicht gespeichert werden.');
+          return;
+        }
+        const entries = readArchive();
+        const duplicate = entries.find(entry => entry.url === url && entry.id !== editingId);
+        if (duplicate) {
+          setStatus(exchangeStatus, `Dieser Link ist bereits unter „${duplicate.name}“ gespeichert.`, 'error');
+          showToast('Dieser Affiliate-Link ist bereits vorhanden.');
+          return;
+        }
+        const entry = sanitizeEntry({
+          id: editingId || createId(),
+          name,
+          url,
+          category: exchangeCategoryInput.value,
+          note: exchangeNoteInput.value
+        });
+        const index = entries.findIndex(item => item.id === editingId);
+        if (index >= 0) entries[index] = entry; else entries.push(entry);
+        writeArchive(entries);
+        const message = editingId ? 'Affiliate-Eintrag wurde aktualisiert.' : 'Affiliate-Link wurde gespeichert.';
+        const selectedId = entry.id;
+        resetEditor();
+        renderArchive(selectedId);
+        setStatus(exchangeStatus, message, 'ok');
+        showToast(message);
+      });
+
+      editExchangeButton.addEventListener('click', () => {
+        const entry = getSelectedEntry();
+        if (!entry) return;
+        editingId = entry.id;
+        exchangeNameInput.value = entry.name;
+        exchangeCategoryInput.value = entry.category;
+        exchangeUrlInput.value = entry.url;
+        exchangeNoteInput.value = entry.note;
+        saveExchangeButton.textContent = 'Änderung speichern';
+        cancelExchangeEditButton.classList.remove('hidden');
+        exchangeNameInput.scrollIntoView({behavior: 'smooth', block: 'center'});
+        exchangeNameInput.focus({preventScroll: true});
+      });
+
+      cancelExchangeEditButton.addEventListener('click', () => {
+        resetEditor();
+        setStatus(exchangeStatus, 'Die Bearbeitung wurde abgebrochen.');
+      });
+
+      deleteExchangeButton.addEventListener('click', () => {
+        const entry = getSelectedEntry();
+        if (!entry) return;
+        writeArchive(readArchive().filter(item => item.id !== entry.id));
+        resetEditor();
+        renderArchive();
+        setStatus(exchangeStatus, `${entry.name} wurde aus dem Archiv gelöscht.`, 'ok');
+        showToast('Affiliate-Eintrag wurde gelöscht.');
+      });
+
+      copyExchangeButton.addEventListener('click', async () => {
+        const entry = getSelectedEntry();
+        if (!entry) return;
+        try {
+          await copyText(entry.url);
+          setStatus(exchangeStatus, `Der Affiliate-Link zu ${entry.name} wurde kopiert.`, 'ok');
+          showToast('Affiliate-Link wurde kopiert.');
+        } catch {
+          setStatus(exchangeStatus, 'Der Affiliate-Link konnte nicht automatisch kopiert werden.', 'error');
+        }
+      });
+
+      copyExchangeInvitationButton.addEventListener('click', async () => {
+        const entry = getSelectedEntry();
+        if (!entry) return;
+        const invitation = `Link zu ${entry.name}
+
+Hallo,
+
+hier ist der persönliche Link zu dem Anbieter, den wir gerade gemeinsam verwenden:
+
+${entry.name}
+${entry.url}
+
+Bitte öffne diesen Link jetzt auf deinem eigenen Gerät. Wir führen die Registrierung und die nächsten Schritte gemeinsam in unserem laufenden Zoom-Termin durch.
+
+Bitte nimm keine Einzahlung, keinen Kauf und keine Übertragung allein vor. Wir kontrollieren gemeinsam den Anbieter, die Einzahlung, den BNB-Kauf, das richtige Netzwerk, die Tangem-Empfangsadresse und zuerst eine kleine Testtransaktion.`;
+        try {
+          await copyText(invitation);
+          setStatus(exchangeStatus, `Der Begleittext für ${entry.name} wurde kopiert.`, 'ok');
+          showToast('Begleittext mit Link wurde kopiert.');
+        } catch {
+          setStatus(exchangeStatus, 'Der Begleittext konnte nicht automatisch kopiert werden.', 'error');
+        }
+      });
+
+      const downloadFile = (filename, content, type) => {
+        const blob = new Blob([content], {type});
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appe
