@@ -231,6 +231,7 @@
     │   │   │   └── solar-invest.jpg
     │   │   ├── timecells/
     │   │   │   └── onboarding/
+    │   │   ├── 175E6F3F-D0D2-45D6-B667-89D4220E9D30.png
     │   │   ├── FAF21D1C-2DB2-4BA3-A28A-17804F0C9213.png
     │   │   ├── IMG_2976.jpeg
     │   │   ├── IMG_5924.jpeg
@@ -2042,4 +2043,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.08.2026, 22:02)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.08.2026, 00:03)_
