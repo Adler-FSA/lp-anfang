@@ -899,6 +899,7 @@
     │   ├── hoerbuch/
     │   │   └── kapitel-01.html
     │   ├── hoersaal/
+    │   │   ├── hoersaal-build-plan.html
     │   │   ├── webinare-buchen-02-ueberblick.html
     │   │   ├── webinare-buchen-03-webinare.html
     │   │   ├── webinare-buchen-04-themen.html
@@ -1779,7 +1780,13 @@
     │   │   ├── timecells-tools.html
     │   │   └── workshop.html
     │   ├── tln/
-    │   │   └── index.html
+    │   │   ├── community-kompass.html
+    │   │   ├── community.html
+    │   │   ├── index.html
+    │   │   ├── koepfe-unternehmen-geschichte.html
+    │   │   ├── projekt-einstieg.html
+    │   │   ├── telefonleitfaeden.html
+    │   │   └── vow-oekosystem.html
     │   ├── tools/
     │   │   ├── beratermarkt-index-dach-2.html
     │   │   ├── beratermarkt-index-dach.html
@@ -2043,4 +2050,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.08.2026, 00:03)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 04.08.2026, 04:08)_
