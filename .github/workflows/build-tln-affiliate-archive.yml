@@ -1,19 +1,17 @@
-name: Build TLN Affiliate Archive
+name: Cleanup TLN Affiliate Build
 
-# Erstellt die geprüfte Projekt-Einstiegsseite aus den vorbereiteten Bausteinen.
 on:
   push:
     branches:
       - main
     paths:
-      - '.tln-build/**'
       - '.github/workflows/build-tln-affiliate-archive.yml'
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  cleanup:
     runs-on: ubuntu-latest
     steps:
       - name: Repository auschecken
@@ -21,41 +19,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: TLN-Seite zusammensetzen
+      - name: Fertige TLN-Seite prüfen
         shell: bash
         run: |
-          cat .tln-build/chunk-00 \
-              .tln-build/chunk-01 \
-              .tln-build/chunk-02 \
-              .tln-build/chunk-03 \
-              .tln-build/chunk-04 \
-              .tln-build/chunk-05 \
-              .tln-build/chunk-06 \
-              .tln-build/chunk-07 \
-              > pages/tln/projekt-einstieg.html
           test "$(wc -c < pages/tln/projekt-einstieg.html | tr -d ' ')" = "54680"
           echo "a4c88c07ac96c0a23da91736f8f971b0b7e46b36e836b9681ede5b96c9d7c1e1  pages/tln/projekt-einstieg.html" | sha256sum -c -
 
-      - name: JavaScript prüfen
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          source = Path('pages/tln/projekt-einstieg.html').read_text(encoding='utf-8')
-          script = source[source.index('<script>') + len('<script>'):source.index('</script>')]
-          Path('/tmp/tln-affiliate-archive.js').write_text(script, encoding='utf-8')
-          PY
-          node --check /tmp/tln-affiliate-archive.js
-
-      - name: Fertige Seite committen
+      - name: Temporäre Build-Dateien entfernen
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add pages/tln/projekt-einstieg.html
-          if git diff --cached --quiet; then
-            echo "Keine Änderung erforderlich."
-            exit 0
-          fi
-          git commit -m "TLN Affiliate-Archiv ergänzen"
+          git rm -r .tln-build
+          git rm .github/workflows/build-tln-affiliate-archive.yml
+          git commit -m "Temporäre TLN Build-Dateien entfernen"
           git push
