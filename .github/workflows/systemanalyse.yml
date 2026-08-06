@@ -1,0 +1,49 @@
+name: Systemanalyse und Migrationskarte
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: systemanalyse
+  cancel-in-progress: false
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Systemanalyse ausführen
+        run: python .github/scripts/systemanalyse.py
+
+      - name: Berichte als Artefakt sichern
+        uses: actions/upload-artifact@v4
+        with:
+          name: systemanalyse
+          path: docs/systemanalyse/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Analyseberichte aktualisieren
+        run: |
+          git config user.name "Adler-FSA Systemanalyse"
+          git config user.email "actions@github.com"
+          git add docs/systemanalyse/
+          if git diff --cached --quiet; then
+            echo "Keine Änderungen an den Analyseberichten"
+          else
+            git commit -m "Analyse: System- und Migrationskarte aktualisieren"
+            git push
+          fi
