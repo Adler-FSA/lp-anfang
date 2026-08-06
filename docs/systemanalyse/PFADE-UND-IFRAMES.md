@@ -1,0 +1,473 @@
+# Pfade, alte Domain und iFrames
+
+- `grundkurs.html` — lp_anfang_path
+- `grundkurs-pruefung.html` — lp_anfang_path
+- `grundkurs-einkommen.html` — lp_anfang_path
+- `hoersaal.html` — old_domain, lp_anfang_path
+- `index.html` — iframe
+- `grundkurs-sicherheit.html` — lp_anfang_path
+- `test.html` — old_domain, lp_anfang_path, iframe
+- `grundkurs-network.html` — lp_anfang_path
+- `office.html` — lp_anfang_path
+- `campus-test.html` — iframe
+- `campus.html` — iframe
+- `krypto-en.html` — lp_anfang_path
+- `akademie-rundflug.html` — old_domain, lp_anfang_path, iframe
+- `krypto.html` — lp_anfang_path
+- `grundkurs-basis.html` — lp_anfang_path
+- `krypto/krypto-downloads.html` — lp_anfang_path
+- `steps/step1-en.html` — lp_anfang_path
+- `steps/krypto-step1.html` — lp_anfang_path
+- `steps/step3-en.html` — lp_anfang_path
+- `steps/krypto-step3.html` — lp_anfang_path
+- `steps/step2-en.html` — lp_anfang_path
+- `steps/krypto-step2.html` — lp_anfang_path
+- `pages/club-leader-verdienstvorschau-aufbauprogramm.html` — old_domain, lp_anfang_path
+- `pages/modul-3-zeit-leistung.html` — lp_anfang_path
+- `pages/unikat-url.html` — old_domain, lp_anfang_path
+- `pages/club-marktplatz.html` — old_domain, lp_anfang_path
+- `pages/experten-finden.html` — old_domain, lp_anfang_path
+- `pages/modul-4-befaehigung.html` — lp_anfang_path
+- `pages/souveraenitaet.html` — old_domain, lp_anfang_path
+- `pages/modul-2-aktivitaet.html` — lp_anfang_path
+- `pages/leitfaden-05-mitgliedschaft.html` — lp_anfang_path
+- `pages/leitfaden-01-erstkontakt.html` — lp_anfang_path
+- `pages/mentoren.html` — old_domain, lp_anfang_path
+- `pages/angebot-michael-rau.html` — old_domain, lp_anfang_path
+- `pages/profi-nachweis.html` — old_domain, lp_anfang_path
+- `pages/index.html` — lp_anfang_path
+- `pages/karrierebooster-simulator.html` — old_domain, lp_anfang_path
+- `pages/weihnachtsgeschenk-akademie-share-2.html` — old_domain, lp_anfang_path
+- `pages/timecells.html` — iframe
+- `pages/affiliate-magazin.html` — lp_anfang_path
+- `pages/unikat-url-alexander-demo.html` — old_domain, lp_anfang_path
+- `pages/mix-liquiditybooster-songs.html` — old_domain, lp_anfang_path
+- `pages/leitfaden-06-aufbauwege.html` — lp_anfang_path
+- `pages/office-network.html` — lp_anfang_path
+- `pages/office.html` — lp_anfang_path
+- `pages/tragfaehigkeits-simulation-03.html` — old_domain, lp_anfang_path
+- `pages/social.html` — lp_anfang_path
+- `pages/heinz-riedel.html` — old_domain, lp_anfang_path
+- `pages/weihnachtsgeschenk-akademie.html` — old_domain, lp_anfang_path
+- `pages/gut-zu-wissen.html` — old_domain, lp_anfang_path
+- `pages/README-upload.md` — old_domain, lp_anfang_path
+- `pages/datensicherung.html` — lp_anfang_path
+- `pages/modul-1-unternehmerdenken.html` — lp_anfang_path
+- `pages/lernheft.html` — lp_anfang_path
+- `pages/tragfaehigkeits-simulation-02.html` — old_domain, lp_anfang_path
+- `pages/community.html` — lp_anfang_path
+- `pages/leitfaden-04-nachfassen.html` — lp_anfang_path
+- `pages/heinz-riedel-portfolio-rechner-fertig.html` — old_domain, lp_anfang_path
+- `pages/heinz-riedel-portfolio-rechner.html` — old_domain, lp_anfang_path
+- `pages/leitfaden-02-bedarf-interesse.html` — lp_anfang_path
+- `pages/weihnachtsgeschenk-akademie-share-1.html` — old_domain, lp_anfang_path
+- `pages/office-tools.html` — lp_anfang_path
+- `pages/leitfaden-03-clubtreffen-einladung.html` — lp_anfang_path
+- `pages/album-liquiditybooster.html` — old_domain, lp_anfang_path
+- `pages/neutral-zu-100.html` — old_domain, lp_anfang_path
+- `pages/modul-5-bestand-plan.html` — lp_anfang_path
+- `library/js/music-button.js` — lp_anfang_path
+- `library/js/office-menu.js` — lp_anfang_path
+- `library/js/grundkurs-menu.js` — lp_anfang_path
+- `library/js/back-to-home.js` — lp_anfang_path
+- `library/js/menu.js` — lp_anfang_path
+- `library/js/krypto-menu.js` — lp_anfang_path
+- `library/js/campus-menu.js` — lp_anfang_path
+- `library/js/text-campus/campus-community-04.js` — lp_anfang_path
+- `library/js/text-campus/campus-community-02.js` — lp_anfang_path
+- `library/js/text-campus/campus-community-03.js` — lp_anfang_path
+- `library/js/text-campus/campus-community-01.js` — lp_anfang_path
+- `library/js/text-campus/campus-social-04.js` — lp_anfang_path
+- `library/js/text-campus/campus-social-02.js` — lp_anfang_path
+- `library/js/text/block-04-engine.js` — lp_anfang_path
+- `library/js/text/block-05-summary.js` — lp_anfang_path
+- `pages/liquiditybooster/onboarding.html` — old_domain, lp_anfang_path
+- `pages/liquiditybooster/telefon-akquise.html` — old_domain, lp_anfang_path
+- `pages/liquiditybooster/termine.html` — old_domain, lp_anfang_path
+- `pages/ankommen/typische-fehler-neuer-mitglieder.html` — old_domain, lp_anfang_path
+- `pages/ankommen/sehnsucht-aktiv-werden-empfehlung.html` — old_domain, lp_anfang_path
+- `pages/ankommen/club-regelkarte-fuer-mitglieder.html` — old_domain, lp_anfang_path
+- `pages/ankommen/einfache-art-ueber-den-club-zu-sprechen.html` — old_domain, lp_anfang_path
+- `pages/ankommen/mitgliedschaft-empfehlen-bildung-aktivitaet.html` — old_domain, lp_anfang_path
+- `pages/ankommen/erste-schritte-im-club.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-blockchain/modul-4-praxis-finanzwelt.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-blockchain/modul-1-was-ist-blockchain.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-blockchain/modul-3-wozu-nutzen.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-blockchain/index.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-blockchain/modul-2-wie-funktioniert.html` — old_domain, lp_anfang_path
+- `pages/hoersaal/webinare-buchen-04-themen.html` — iframe
+- `pages/hoersaal/webinare-buchen-06-ablauf-regeln.html` — iframe
+- `pages/hoersaal/webinare-buchen-05-rollen-team.html` — iframe
+- `pages/hoersaal/webinare-buchen-02-ueberblick.html` — iframe
+- `pages/hoersaal/webinare-buchen.html` — iframe
+- `pages/hoersaal/webinare-buchen-03-webinare.html` — iframe
+- `pages/hoersaal/webinare-buchen-07.html` — iframe
+- `pages/promotion/club-promotion-businessplan-assistent.html` — old_domain, lp_anfang_path
+- `pages/promotion/club-promotion-gruender-startseite.html` — old_domain, lp_anfang_path
+- `pages/promotion/promotion-basis-schulung.html` — old_domain, lp_anfang_path
+- `pages/promotion/zentrale.html` — old_domain, lp_anfang_path
+- `pages/promotion/club-promotion-aufbauprogramm.html` — old_domain, lp_anfang_path, iframe
+- `pages/promotion/club-promotion-gruendungsassistent.html` — old_domain, lp_anfang_path
+- `pages/promotion/liquiditybooster-online-interessen-umfrage.html` — old_domain, lp_anfang_path
+- `pages/promotion/promotion-existenzaufbau-foerderung.html` — old_domain, lp_anfang_path
+- `pages/promotion/club-promotion-rechnungs-buchhaltungsassistent.html` — old_domain, lp_anfang_path
+- `pages/promotion/liquiditybooster-online-clubleader-aufbauprogramm-interessen-umfrage.html` — old_domain, lp_anfang_path
+- `pages/promotion/club-promotion-materialshop.html` — old_domain, lp_anfang_path
+- `pages/promotion/promotion-aktionstag.html` — old_domain, lp_anfang_path
+- `pages/promotion/liquiditybooster-online-weekend-setup-interessen-umfrage.html` — old_domain, lp_anfang_path
+- `pages/evolution24/hotel-akquise.html` — old_domain, lp_anfang_path
+- `pages/nachlass/modul-1-wie-finde-ich-nach-dem-schock-den-anfang.html` — old_domain, lp_anfang_path
+- `pages/nachlass/modul-1-akutfall-erste-schritte.html` — old_domain, lp_anfang_path
+- `pages/nachlass/nachlass-erbschaft-orientierung.html` — old_domain, lp_anfang_path
+- `pages/nachlass/master-nachlass-kurs-struktur.html` — old_domain, lp_anfang_path
+- `pages/song-banner/die-seele-erwacht-banner.html` — old_domain, lp_anfang_path
+- `pages/song-banner/der-club-marktplatz-banner.html` — old_domain, lp_anfang_path
+- `pages/akquise/jobangebote-qr.html` — old_domain, lp_anfang_path
+- `pages/akquise/qr-code.html` — old_domain, lp_anfang_path
+- `pages/neutral/timecells-mission.html` — lp_anfang_path
+- `pages/krypto-aufklaerung-scam/modul-3-phishing-fake-apps-links.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-scam/modul-6-wenn-etwas-passiert-ruhig-reagieren.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-scam/modul-4-airdrops-claim-wallet-connection.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-scam/modul-5-checkliste-sicher-handeln.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-scam/index.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-scam/modul-1-wie-scams-funktionieren.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-scam/modul-2-fake-support-social-media.html` — old_domain, lp_anfang_path
+- `pages/vertriebshandbuch/index.html` — old_domain, lp_anfang_path
+- `pages/compliance/index.html` — old_domain, lp_anfang_path
+- `pages/compliance/modul-2-club-ethik-umgang.html` — old_domain, lp_anfang_path
+- `pages/compliance/modul-1-bildungsauftrag.html` — old_domain, lp_anfang_path
+- `pages/compliance/modul-3-kommunikation-claims.html` — old_domain, lp_anfang_path
+- `pages/compliance/modul-6-veranstaltungen-verhaltenskodex.html` — old_domain, lp_anfang_path
+- `pages/compliance/modul-5-neutralitaet-integritaet.html` — old_domain, lp_anfang_path
+- `pages/compliance/modul-4-verguetung-transparenz-grenzen.html` — old_domain, lp_anfang_path
+- `pages/krypto/krypto-setup-modul3-en.html` — lp_anfang_path
+- `pages/krypto/krypto-setup-modul6.html` — lp_anfang_path
+- `pages/krypto/krypto-welt-zahlen.html` — old_domain, lp_anfang_path
+- `pages/krypto/krypto-setup-modul1.html` — lp_anfang_path
+- `pages/krypto/krypto-setup-modul4-en.html` — lp_anfang_path
+- `pages/krypto/krypto-glossar.html` — lp_anfang_path
+- `pages/krypto/trading-glossar-en.html` — lp_anfang_path
+- `pages/krypto/krypto-setup-intro-en.html` — lp_anfang_path
+- `pages/krypto/krypto-setup-modul1-en.html` — lp_anfang_path
+- `pages/krypto/krypto-setup-modul5-en.html` — lp_anfang_path
+- `pages/krypto/krypto-setup-modul2.html` — lp_anfang_path
+- `pages/krypto/krypto-setup-modul6-en.html` — lp_anfang_path
+- `pages/krypto/krypto-setup-modul7-en.html` — lp_anfang_path
+- `pages/krypto/krypto-setup-modul7.html` — lp_anfang_path
+- `pages/krypto/krypto-setup-modul4.html` — lp_anfang_path
+- `pages/krypto/krypto-welt-status.html` — lp_anfang_path
+- `pages/krypto/krypto-setup-intro.html` — lp_anfang_path
+- `pages/krypto/krypto-welt-timeline.html` — old_domain, lp_anfang_path
+- `pages/krypto/krypto-setup-modul2-en.html` — lp_anfang_path
+- `pages/krypto/trading-grundkurs.html` — lp_anfang_path
+- `pages/krypto/krypto-welt-unternehmen.html` — old_domain, lp_anfang_path
+- `pages/krypto/trading-glossar.html` — lp_anfang_path
+- `pages/krypto/krypto-glossary.html` — lp_anfang_path
+- `pages/krypto/krypto-setup-modul3.html` — lp_anfang_path
+- `pages/krypto/krypto-setup-modul5.html` — lp_anfang_path
+- `pages/krypto/krypto-welt-index.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-forensik/index.html` — iframe
+- `pages/krypto-steuer-forensik/optimierungs-phase-umsetzung-v1.html` — old_domain, lp_anfang_path
+- `pages/akademie/beta-tester-stellenausschreibung.html` — old_domain, lp_anfang_path
+- `pages/timecells/onboarding.html` — iframe
+- `pages/timecells/index.html` — lp_anfang_path, iframe
+- `pages/timecells/timecells-akquise-en.html` — lp_anfang_path
+- `pages/timecells/timecells-basis.html` — old_domain, lp_anfang_path
+- `pages/mentor/lektion-souveraen.html` — lp_anfang_path
+- `pages/mentor/trustyfy-bewusstsein.html` — old_domain, lp_anfang_path
+- `pages/social-media/whatsup-facebook-email.html` — old_domain, lp_anfang_path
+- `pages/club-promotion/index.html` — lp_anfang_path
+- `pages/club-promotion/gesetz-der-zahl.html` — lp_anfang_path
+- `pages/club-promotion/README-upload.md` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-20-bonus-rechtsrahmen-hinterfragen-schattenzone-der-zustaendigkeiten.html` — old_domain, lp_anfang_path
+- `pages/buch/lesespuren-und-vertiefung.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-13-risiken-und-gegenargumente.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-15-das-finanzielle-fundament.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-10-dezentralitaet-als-anti-willkuer.html` — old_domain, lp_anfang_path
+- `pages/buch/buch-video-intro.html` — old_domain, lp_anfang_path, iframe
+- `pages/buch/kapitel-12-vertrauen-neu-denken.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-01-der-unsichtbare-vertrag.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-07-freiheit-braucht-eigentum.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-21-die-rueckeroberung-der-kontrolle.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-02-abhaengigkeit-als-design.html` — old_domain, lp_anfang_path
+- `pages/buch/index.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-14-das-souveraenitaets-protokoll.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-06-souveraenitaet-ist-nicht-egoismus.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-08-korruption-und-ausbeutung-sind-oft-nebenprodukte-von-monopolen.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-11-peer-to-peer-ist-eine-kultur.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-22-der-unsichtbare-druck-es-allen-recht-machen-wollen.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-19-bonus-unterwanderung-wenn-demokratie-zur-fassade-wird.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-03-fremdbestimmung-die-leise-form-der-kontrolle.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-18-die-zukunft-wird-direkter.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-04-zensur-framing-und-die-schmale-debatte.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-16-digitale-selbstverteidigung.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-17-lokale-resilienz.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-05-die-unsichtbaren-schalter.html` — old_domain, lp_anfang_path
+- `pages/buch/kapitel-09-der-hebel.html` — old_domain, lp_anfang_path
+- `pages/social/share-akademie.html` — old_domain, lp_anfang_path
+- `pages/social/share-netzwerk.html` — old_domain, lp_anfang_path
+- `pages/social/share-adler.html` — old_domain, lp_anfang_path
+- `pages/footer/start-level-2.html` — lp_anfang_path
+- `pages/footer/presse-03.html` — lp_anfang_path
+- `pages/footer/presse-01.html` — lp_anfang_path
+- `pages/footer/presse-02.html` — lp_anfang_path
+- `pages/footer/presse.html` — lp_anfang_path
+- `pages/footer/presse-04.html` — old_domain, lp_anfang_path
+- `pages/footer/presse-05.html` — old_domain, lp_anfang_path
+- `pages/footer/insider.html` — lp_anfang_path
+- `pages/footer/presse-index.html` — lp_anfang_path
+- `pages/footer/philosophie.html` — iframe
+- `pages/wefi/wefi-video.html` — iframe
+- `pages/wefi/wefi-landing.html` — old_domain, lp_anfang_path
+- `pages/wefi/wefi-proof-kurs.html` — old_domain, lp_anfang_path, iframe
+- `pages/mission-dorade-live/index.html` — lp_anfang_path
+- `pages/gut-zu-wissen/mica-strafrecht.html` — old_domain, lp_anfang_path
+- `pages/gut-zu-wissen/beweisrealitaet-statisch.html` — old_domain, lp_anfang_path
+- `pages/gut-zu-wissen/fallmuster-statisch.html` — old_domain, lp_anfang_path
+- `pages/gut-zu-wissen/fallmuster.html` — old_domain, lp_anfang_path
+- `pages/gut-zu-wissen/beweisrealitaet.html` — old_domain, lp_anfang_path
+- `pages/gut-zu-wissen/mica-strafrecht-statisch.html` — old_domain, lp_anfang_path
+- `pages/insider/mentor-sicherheit.html` — lp_anfang_path
+- `pages/insider/akademie-co-pilot-einrichten.html` — old_domain, lp_anfang_path
+- `pages/insider/magazin-basis.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-versicherung/modul-1-grundlagen.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-versicherung/modul-4-empfehlungen-grenzen.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-versicherung/index.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-versicherung/modul-2-versicherbarkeit.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-versicherung/modul-3-risiken-szenarien.html` — old_domain, lp_anfang_path
+- `pages/club-admin/weekend-dokumente.html` — lp_anfang_path
+- `pages/club-admin/produkt-06-krypto-setup-kurs.html` — old_domain, lp_anfang_path
+- `pages/club-marktplatz/tragfaehigkeits-rechner.html` — old_domain, lp_anfang_path
+- `pages/club-marktplatz/tragfaehigkeits-rechner-unternehmer.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-bankblockade/modul-1-ursachen.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-bankblockade/modul-4-plan-abc.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-bankblockade/index.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-bankblockade/modul-3-alternativen.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-bankblockade/modul-2-regeln-rechte.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/index.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/hilfe.html` — old_domain, lp_anfang_path
+- `pages/online-kurse/step1-en.html` — lp_anfang_path
+- `pages/online-kurse/krypto-step1.html` — lp_anfang_path
+- `pages/online-kurse/krypto-welt-zahlen.html` — lp_anfang_path
+- `pages/online-kurse/step3-en.html` — lp_anfang_path
+- `pages/online-kurse/krypto-glossar.html` — old_domain, lp_anfang_path
+- `pages/online-kurse/basis-setup.html` — old_domain, lp_anfang_path
+- `pages/online-kurse/krypto-step3.html` — lp_anfang_path
+- `pages/online-kurse/index.html` — old_domain, lp_anfang_path
+- `pages/online-kurse/step2-en.html` — lp_anfang_path
+- `pages/online-kurse/fsa-office-tools-onofframps.html` — lp_anfang_path
+- `pages/online-kurse/fsa-office-network-struktur.html` — lp_anfang_path
+- `pages/online-kurse/krypto-welt-status.html` — lp_anfang_path
+- `pages/online-kurse/krypto-welt-zeitstrahl.html` — old_domain, lp_anfang_path
+- `pages/online-kurse/krypto-step2.html` — lp_anfang_path
+- `pages/online-kurse/grundkurs-vorschau.html` — old_domain, lp_anfang_path
+- `pages/online-kurse/krypto-welt-timeline.html` — lp_anfang_path
+- `pages/online-kurse/krypto-welt-unternehmen.html` — lp_anfang_path
+- `pages/online-kurse/krypto-glossary.html` — old_domain, lp_anfang_path
+- `pages/unternehmer-lernwerkstatt/modul-3-zeit-leistung.html` — lp_anfang_path
+- `pages/unternehmer-lernwerkstatt/modul-4-befaehigung.html` — lp_anfang_path
+- `pages/unternehmer-lernwerkstatt/modul-2-aktivitaet.html` — lp_anfang_path
+- `pages/unternehmer-lernwerkstatt/modul-6-big-picture.html` — old_domain, lp_anfang_path
+- `pages/unternehmer-lernwerkstatt/index.html` — lp_anfang_path
+- `pages/unternehmer-lernwerkstatt/datensicherung.html` — lp_anfang_path
+- `pages/unternehmer-lernwerkstatt/modul-1-unternehmerdenken.html` — lp_anfang_path
+- `pages/unternehmer-lernwerkstatt/lernheft.html` — lp_anfang_path
+- `pages/unternehmer-lernwerkstatt/modul-5-bestand-plan.html` — lp_anfang_path
+- `pages/krypto-aufklaerung-defi/modul-1-was-ist-defi.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-defi/modul-3-was-kann-defi-anwendungen.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-defi/modul-4-wie-macht-man-defi-sicher.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-defi/index.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-defi/modul-2-wie-funktioniert-defi.html` — old_domain, lp_anfang_path
+- `pages/story/mike-wirbt-mitglieder.html` — old_domain, lp_anfang_path
+- `pages/story/alfred-hamsterrad.html` — old_domain, lp_anfang_path
+- `pages/story/bernd-loyalitaet.html` — old_domain, lp_anfang_path
+- `pages/story/frank-gefaengnis.html` — old_domain, lp_anfang_path
+- `pages/story/herbert-erkenntnis.html` — old_domain, lp_anfang_path
+- `pages/story/anna-aufbruch.html` — old_domain, lp_anfang_path
+- `pages/projekt-analysen/orange-cat-energy-kundenergebnis.html` — old_domain, lp_anfang_path
+- `pages/projekt-analysen/projektpruefung-rechtsrahmen.html` — old_domain, lp_anfang_path
+- `pages/projekt-analysen/orange-cat-energy-eingereichte-angaben.html` — old_domain, lp_anfang_path
+- `pages/projekt-analysen/orange-cat-energy.html` — old_domain, lp_anfang_path
+- `pages/projekt-analysen/rechtsrahmen.html` — old_domain, lp_anfang_path
+- `pages/projekt-analysen/orange-cat-energy-interne-auswertung.html` — old_domain, lp_anfang_path
+- `pages/projekt-analysen/orange-cat-energy-ergebnis.html` — old_domain, lp_anfang_path
+- `pages/ceo/hallo.html` — old_domain, lp_anfang_path
+- `pages/tln/community-kompass.html` — old_domain, lp_anfang_path
+- `pages/tln/community.html` — iframe
+- `pages/faq/einkommen-auszahlung.html` — old_domain, lp_anfang_path
+- `pages/faq/marktplatz.html` — old_domain, lp_anfang_path
+- `pages/faq/marktplatz-statisch.html` — old_domain, lp_anfang_path
+- `pages/faq/index.html` — old_domain, lp_anfang_path
+- `pages/faq/index-statisch.html` — old_domain, lp_anfang_path
+- `pages/liquiditybooster-proshop/README.txt` — old_domain, lp_anfang_path
+- `pages/blog/leitartikel-vom-ich-zum-wir.html` — old_domain, lp_anfang_path
+- `pages/blog/existenzgruendungen-in-deutschland.html` — old_domain, lp_anfang_path
+- `pages/blog/unternehmerschaft.html` — old_domain, lp_anfang_path
+- `pages/blog/heute-am-see.html` — old_domain, lp_anfang_path
+- `pages/blog/wenn-der-minijob-faellt.html` — old_domain, lp_anfang_path
+- `pages/mission-dorade-cockpit/index.html` — old_domain, lp_anfang_path
+- `pages/mission-dorade-cockpit/breakfast-module.js` — lp_anfang_path
+- `pages/mission-dorade-cockpit/external-presentations.js` — old_domain, lp_anfang_path
+- `pages/sehnsucht/aufbruch.html` — old_domain, lp_anfang_path
+- `pages/sehnsucht/aufbruch-vision.html` — old_domain, lp_anfang_path, iframe
+- `pages/unternehmer-kickoff/anna-erklaert-unternehmer-kickoff.html` — old_domain, lp_anfang_path
+- `pages/office/wallets.html` — lp_anfang_path
+- `pages/schnellstart-mission-dorade-neuer-tab/index.html` — old_domain, lp_anfang_path, iframe
+- `pages/schnellstart/index.html` — old_domain, lp_anfang_path
+- `pages/schnellstart/glossar.html` — old_domain, lp_anfang_path
+- `pages/schnellstart/modul-2-wallet.html` — old_domain, lp_anfang_path
+- `pages/schnellstart/modul-4-transfer.html` — old_domain, lp_anfang_path
+- `pages/schnellstart/modul-3-boerse.html` — old_domain, lp_anfang_path
+- `pages/schnellstart/modul-1-sicherheit.html` — old_domain, lp_anfang_path
+- `pages/betrug-aufklaerung/wallet-drailer-link.html` — old_domain, lp_anfang_path
+- `pages/geschenke/kostenloser-grundkurs-sicherheit.html` — lp_anfang_path
+- `pages/geschenke/einladung-weekend-setup.html` — lp_anfang_path
+- `pages/geschenke/kostenloser-grundkurs-network.html` — lp_anfang_path
+- `pages/geschenke/kostenloser-grundkurs-basis.html` — lp_anfang_path
+- `pages/geschenke/kostenloser-grundkurs-abschluss.html` — lp_anfang_path
+- `pages/geschenke/kostenloser-grundkurs-einkommen.html` — lp_anfang_path
+- `pages/jobangebote/social-media-stellenausschreibung.html` — old_domain, lp_anfang_path
+- `pages/jobangebote/quereinsteiger-stellenausschreibung.html` — old_domain, lp_anfang_path
+- `pages/jobangebote/sprecher-experten-stellenausschreibung.html` — old_domain, lp_anfang_path
+- `pages/jobangebote/promotoren-stellenauschreibung.html` — old_domain, lp_anfang_path
+- `pages/tools/hotel-telefonleitfaden-arbeitsseite.html` — old_domain, lp_anfang_path
+- `pages/tools/visitenkarte-weiss-schwarz-tool-4-liquiditybooster.html` — lp_anfang_path
+- `pages/tools/visitenkarte-weiss-schwarz-tool-2-liquiditybooster-duplex.html` — old_domain, lp_anfang_path
+- `pages/tools/visitenkarte-weiss-schwarz-2.html` — lp_anfang_path
+- `pages/tools/quicklinks-hub.html` — lp_anfang_path
+- `pages/tools/visitenkarte-weiss-schwarz-tool-2-liquiditybooster.html` — lp_anfang_path
+- `pages/tools/rollup-generator-liquiditybooster-01-promotor.html` — lp_anfang_path
+- `pages/tools/visitenkarte-weiss-schwarz-tool-3-liquiditybooster.html` — lp_anfang_path
+- `pages/krypto-aufklaerung-steuern/index.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-steuern/modul-5-stop-regeln-ordnung.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-steuern/modul-6-steuerberater-paket-formular.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-steuern/modul-3-tools-listenlogik.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-steuern/modul-4-tools-listenlogik.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-steuern/modul-1-grundlogik-ohne-angst.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-steuern/modul-2-welche-daten-sammeln.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-banken-pruefen/modul-4-vorbeugen-limits-routine.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-banken-pruefen/index.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-banken-pruefen/modul-1-geldwaesche-verstehen.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-banken-pruefen/modul-3-richtig-reagieren.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-banken-pruefen/modul-2-was-banken-pruefen.html` — old_domain, lp_anfang_path
+- `pages/trustyfy/fast-track.html` — lp_anfang_path
+- `pages/taegliche-status-meldungen/patch.js` — lp_anfang_path
+- `pages/taegliche-status-meldungen/index.html` — lp_anfang_path
+- `pages/produkte/produkt-06-krypto-setup-kurs.html` — old_domain, lp_anfang_path
+- `pages/hoerbuch/kapitel-01.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-investieren/modul-6-berater-interessen.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-investieren/modul-2-serioes-pruefen.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-investieren/modul-4-tokenomics-glossar.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-investieren/index.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-investieren/modul-3-warnsignale-stop-regeln.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-investieren/modul-5-limits-vorgehensweise.html` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung-investieren/modul-1-was-ist-ein-krypto-projekt.html` — old_domain, lp_anfang_path
+- `pages/tagesbeginn/index.html` — old_domain, lp_anfang_path
+- `pages/schnellstart-mission-dorade-simulator/index.html` — lp_anfang_path
+- `pages/mission-dorade-live-neuer-tab/index.html` — old_domain, lp_anfang_path, iframe
+- `pages/mein-setup/modul-6.html` — lp_anfang_path
+- `pages/mein-setup/modul-4.html` — lp_anfang_path
+- `pages/mein-setup/modul-5.html` — lp_anfang_path
+- `pages/mein-setup/README.txt` — old_domain, lp_anfang_path
+- `pages/mein-setup/modul-1.html` — lp_anfang_path
+- `pages/mein-setup/modul-3.html` — lp_anfang_path
+- `pages/mein-setup/modul-2.html` — lp_anfang_path
+- `pages/krypto-steuer-assistent-v2/index.html` — iframe
+- `pages/nebenskostenabrechnung/modul-1-einfuehrung-und-ueberblick.html` — old_domain, lp_anfang_path
+- `pages/nebenskostenabrechnung/modul-6-druckfassung-und-ausgabe.html` — old_domain, lp_anfang_path
+- `pages/nebenskostenabrechnung/index.html` — old_domain, lp_anfang_path
+- `pages/nebenskostenabrechnung/modul-2-kostenarten-verstehen.html` — old_domain, lp_anfang_path
+- `pages/nebenskostenabrechnung/erfassung.html` — old_domain, lp_anfang_path
+- `pages/nebenskostenabrechnung/hilfe-und-hinweise.html` — old_domain, lp_anfang_path
+- `pages/nebenskostenabrechnung/modul-4-jahresstand-aufbauen.html` — old_domain, lp_anfang_path
+- `pages/nebenskostenabrechnung/modul-3-unterlagen-und-angaben-ordnen.html` — old_domain, lp_anfang_path
+- `pages/nebenskostenabrechnung/erfassung-vermieter.html` — old_domain, lp_anfang_path
+- `pages/nebenskostenabrechnung/archiv.html` — old_domain, lp_anfang_path
+- `pages/nebenskostenabrechnung/modul-5-besondere-faelle-und-offene-punkte.html` — old_domain, lp_anfang_path
+- `pages/nebenskostenabrechnung/erfassung-eigentuemer.html` — old_domain, lp_anfang_path
+- `pages/nebenskostenabrechnung/kontakte-und-dienstleister.html` — old_domain, lp_anfang_path
+- `pages/photovoltaik-als-kapitalanlage/module-05.html` — old_domain, lp_anfang_path
+- `pages/photovoltaik-als-kapitalanlage/module-12.html` — old_domain, lp_anfang_path
+- `pages/photovoltaik-als-kapitalanlage/module-06.html` — old_domain, lp_anfang_path
+- `pages/photovoltaik-als-kapitalanlage/module-03.html` — old_domain, lp_anfang_path
+- `pages/photovoltaik-als-kapitalanlage/index.html` — old_domain, lp_anfang_path
+- `pages/photovoltaik-als-kapitalanlage/module-10.html` — old_domain, lp_anfang_path
+- `pages/photovoltaik-als-kapitalanlage/module-01.html` — old_domain, lp_anfang_path
+- `pages/photovoltaik-als-kapitalanlage/module-02.html` — old_domain, lp_anfang_path
+- `pages/photovoltaik-als-kapitalanlage/module-07.html` — old_domain, lp_anfang_path
+- `pages/photovoltaik-als-kapitalanlage/module-08.html` — old_domain, lp_anfang_path
+- `pages/photovoltaik-als-kapitalanlage/module-09.html` — old_domain, lp_anfang_path
+- `pages/photovoltaik-als-kapitalanlage/module-11.html` — old_domain, lp_anfang_path
+- `pages/photovoltaik-als-kapitalanlage/module-04.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-akademie/krypto-steuer-assistent-bisheriger-stand.html` — iframe
+- `pages/club/club-sprecher-tragfaehigkeit.html` — lp_anfang_path
+- `pages/club/akquise.html` — old_domain, lp_anfang_path
+- `pages/club/club-promotion-tragfaehigkeit.html` — lp_anfang_path
+- `pages/club/club-sprecher-tragfaehigkeit-02.html` — lp_anfang_path
+- `pages/mission-dorade/projekt-shop-bilder-logos-pdf-final.html` — iframe
+- `pages/mission-dorade/README-UPLOAD.txt` — old_domain, lp_anfang_path
+- `pages/krypto-aufklaerung/steuern/index.html` — old_domain, lp_anfang_path
+- `pages/promotion/club-Promotion/club-promotion-businessplan-assistent.html` — old_domain, lp_anfang_path
+- `pages/promotion/club-Promotion/club-promotion-gruender-absicherung-vorsorge.html` — old_domain, lp_anfang_path
+- `pages/promotion/club-Promotion/einarbeitung.html` — old_domain, lp_anfang_path
+- `pages/promotion/club-Promotion/club-promotion-gruender-kompass.html` — old_domain, lp_anfang_path
+- `pages/promotion/club-Promotion/club-promotion-gruender-arbeitgeber-kompass.html` — old_domain, lp_anfang_path
+- `pages/promotion/club-Promotion/club-promotion-geschaeftsbasis-kompass.html` — old_domain, lp_anfang_path
+- `pages/promotion/club-Promotion/blog/club-promotion-in-einer-neuen-zeit.html` — old_domain, lp_anfang_path
+- `pages/club-promotion/mission-dorade-start/index.html` — lp_anfang_path
+- `pages/club-promotion/mission-dorade-start/README-upload.md` — old_domain, lp_anfang_path
+- `pages/club-promotion/mission-dorade-light/index.html` — old_domain, lp_anfang_path
+- `pages/club-promotion/mission-dorade-fokus-v10/index.html` — lp_anfang_path
+- `pages/club-promotion/mission-dorade-direkt/index.html` — lp_anfang_path
+- `pages/club-promotion/mission-dorade-fokus/indexx.html` — lp_anfang_path
+- `pages/club-promotion/mission-dorade-fokus/index.html` — lp_anfang_path
+- `pages/club-promotion/mission-dorade-fokus/README-upload.md` — old_domain, lp_anfang_path
+- `pages/club-promotion/unternehmer-denkwerkstatt/was-ist-ein-nein-wert.html` — lp_anfang_path
+- `pages/club-promotion/unternehmer-denkwerkstatt/eigene-arbeitszeit.html` — lp_anfang_path
+- `pages/club-promotion/unternehmer-denkwerkstatt/gesetz-der-zahl.html` — lp_anfang_path
+- `pages/club-promotion/unternehmer-denkwerkstatt/drei-ebenen.html` — lp_anfang_path
+- `pages/club-promotion/unternehmer-denkwerkstatt/leistungspool.html` — lp_anfang_path
+- `pages/club-promotion/mission-dorade-fokus-barometer/index.html` — lp_anfang_path
+- `pages/club-promotion/mission-dorade-fokus-barometer/README-upload.md` — old_domain, lp_anfang_path
+- `pages/club-promotion/mission-dorade/leitfaden-05-mitgliedschaft.html` — lp_anfang_path
+- `pages/club-promotion/mission-dorade/leitfaden-01-erstkontakt.html` — lp_anfang_path
+- `pages/club-promotion/mission-dorade/index.html` — old_domain, lp_anfang_path
+- `pages/club-promotion/mission-dorade/leitfaden-06-aufbauwege.html` — lp_anfang_path
+- `pages/club-promotion/mission-dorade/leitfaden-04-nachfassen.html` — lp_anfang_path
+- `pages/club-promotion/mission-dorade/leitfaden-02-bedarf-interesse.html` — lp_anfang_path
+- `pages/club-promotion/mission-dorade/leitfaden-03-clubtreffen-einladung.html` — lp_anfang_path
+- `pages/krypto-steuer-ordnung/module/03-wallets-blockchains-verstehen.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/module/01-fallstart-stammdaten.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/module/06-wertermittlung.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/module/04-datenquellen-unterlagen.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/module/05-transaktionen.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/module/02-wallets-boersen-chains.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/module/07-problemfaelle.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/module/01-einstieg.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/module/08-fragen-steuerberater.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/demo/index.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/auswertung/steuerberater-pruefblatt.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/auswertung/steuer-vorschau.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/export/pdf-druck.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/export/csv-import-export.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/archiv/jahresarchiv.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/explorer/kein-export.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/explorer/wallet-adresse.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/explorer/explorer-grundlagen.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/explorer/ethereum-etherscan.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/explorer/blockchain.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/explorer/bnb-bscscan.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/explorer/solana-solscan.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/explorer/bitcoin-explorer.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/explorer/pdf-fuer-steuerberater.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/explorer/daten-fuer-excel.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/forms/form-eigenuebertrag.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/forms/form-ruecktausch-in-coin.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/forms/form-token-nutzung.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/forms/form-pool-staking-sperrmodell.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/forms/form-sonderfall-unklar.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/forms/form-krypto-zu-fiat.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/forms/form-reward-bonus-ertrag.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/forms/form-fiat-zu-krypto.html` — old_domain, lp_anfang_path
+- `pages/krypto-steuer-ordnung/forms/form-krypto-zu-krypto.html` — old_domain, lp_anfang_path
+- `pages/faq/faq/einkommen-auszahlung.html` — old_domain, lp_anfang_path
