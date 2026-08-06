@@ -7,6 +7,15 @@
     │   ├── music.html
     │   ├── slideshow.html
     │   └── video.html
+    ├── docs/
+    │   └── systemanalyse/
+    │       ├── ANWENDUNGEN.md
+    │       ├── FEHLENDE-ZIELE.md
+    │       ├── MEDIEN.md
+    │       ├── PFADE-UND-IFRAMES.md
+    │       ├── SPEICHER.md
+    │       ├── UEBERSICHT.md
+    │       └── migrationsdaten.json
     ├── hoersal/
     │   └── tln-konzept.html
     ├── js/
@@ -2050,4 +2059,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.08.2026, 11:15)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 06.08.2026, 13:51)_
