@@ -15,91 +15,64 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Remove obsolete ClubMember tier only
+      - name: Final ClubMember FAQ cleanup
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
 
+          dynamic = Path('pages/faq/bestellung-mitgliedschaft.html')
+          static = Path('pages/faq/bestellung-mitgliedschaft-statisch.html')
+
+          # Dynamic page: remove only the extra line break left by deleting the old tier.
+          t = dynamic.read_text(encoding='utf-8')
+          t = t.replace('Es gibt aktuell zwei Mitgliedschaften:<br><br><br><strong>ClubPartner</strong>',
+                        'Es gibt aktuell zwei Mitgliedschaften:<br><br><strong>ClubPartner</strong>')
+          t = t.replace('There are currently two memberships:<br><br><br><strong>ClubPartner</strong>',
+                        'There are currently two memberships:<br><br><strong>ClubPartner</strong>')
+          dynamic.write_text(t, encoding='utf-8')
+
+          # Static page: its old 60-euro tier was written without the ClubMember name.
+          t = static.read_text(encoding='utf-8')
+          de_old = 'Die Mitgliedschaft kostet 5,00 € pro Monat (60,00 Euro (netto) im Jahr). Sie ist der Zugangsschlüssel zum Club und zu den freigeschalteten Inhalten. Die Zahlung erfolgt jährlich im Voraus.'
+          de_new = 'Es gibt aktuell zwei Mitgliedschaften:<br><br><strong>ClubPartner</strong>: 99,00 € jährlich zzgl. MwSt.<br><strong>ClubLeader</strong>: 189,00 € halbjährlich zzgl. MwSt.'
+          en_old = 'Membership costs €5.00 per month (€60.00 net per year). It is the access key to the club and enabled content. Payment is made annually in advance.'
+          en_new = 'There are currently two memberships:<br><br><strong>ClubPartner</strong>: €99.00 yearly plus VAT<br><strong>ClubLeader</strong>: €189.00 every six months plus VAT'
+          t = t.replace(de_old, de_new)
+          t = t.replace(en_old, en_new)
+
+          # Question 8 represented the discontinued non-income membership and is removed as a whole.
+          t = re.sub(r'\n\s*<article class="faqItem">(?:(?!<article class="faqItem">).)*?data-i18n="q8"(?:(?!<article class="faqItem">).)*?</article>\s*', '\n', t, flags=re.S)
+          t = re.sub(r'\n\s*q8:"[^"]*",', '', t)
+          t = re.sub(r'\n\s*a8:"[^"]*",', '', t)
+          static.write_text(t, encoding='utf-8')
+
           files = [
               Path('pages/faq/index.html'),
               Path('pages/faq/index-statisch.html'),
-              Path('pages/faq/bestellung-mitgliedschaft.html'),
-              Path('pages/faq/bestellung-mitgliedschaft-statisch.html'),
+              dynamic,
+              static,
               Path('pages/faq/einkommen-auszahlung.html'),
               Path('pages/faq/einkommen-auszahlung-statisch.html'),
           ]
-
-          common = [
-              ('ClubMember, ClubPartner, ClubLeader', 'ClubPartner, ClubLeader'),
-              ('ClubMember ClubPartner ClubLeader', 'ClubPartner ClubLeader'),
-              ('ClubMember 60,00 € jährlich zzgl. MwSt., ', ''),
-              ('ClubMember €60.00 yearly plus VAT, ', ''),
-              ('Alle drei Mitgliedschaften', 'Beide Mitgliedschaften'),
-              ('All three memberships', 'Both memberships'),
-              ('alle drei Mitgliedschaften', 'beide Mitgliedschaften'),
-              ('all three memberships', 'both memberships'),
-              ('Alle drei Modelle', 'Beide Modelle'),
-              ('All three models', 'Both models'),
-              ('alle drei Modelle', 'beide Modelle'),
-              ('all three models', 'both models'),
-              ('Es gibt aktuell drei Mitgliedschaften:', 'Es gibt aktuell zwei Mitgliedschaften:'),
-              ('There are currently three memberships:', 'There are currently two memberships:'),
-              (' ClubMember enthält dieses Einkommensrecht nicht.', ''),
-              (' ClubMember does not include this income right.', ''),
-              (' <strong>ClubMember</strong> enthält keine Teilnahme am 3-stufigen Belohnungssystem.', ''),
-              (' <strong>ClubMember</strong> does not include participation in the 3-level reward system.', ''),
-          ]
-
-          for path in files:
-              text = path.read_text(encoding='utf-8')
-              original = text
-              for old, new in common:
-                  text = text.replace(old, new)
-
-              # Index: obsolete ClubMember-only income note/list entry.
-              if path.name.startswith('index'):
-                  text = re.sub(r'\n\s*<li data-i18n="c2_i2">[^\n]*ClubMember[^\n]*</li>', '', text)
-                  text = re.sub(r'\n\s*c2_i2:"[^"]*ClubMember[^"]*",', '', text)
-
-              # Ordering/Membership FAQ: question 8 existed only for the discontinued ClubMember tier.
-              if path.name.startswith('bestellung-mitgliedschaft'):
-                  text = re.sub(
-                      r'\n\s*<!-- 8 -->\s*\n\s*<details>.*?data-i18n="q8".*?ClubMember.*?</details>\s*',
-                      '\n', text, flags=re.S
-                  )
-                  text = re.sub(r'\n\s*q8:"[^"]*",', '', text)
-                  text = re.sub(r'\n\s*a8:"[^"]*ClubMember[^"]*",', '', text)
-
-              # Remove any remaining obsolete ClubMember clause without touching other AGB content.
-              text = re.sub(r'\s*<strong>ClubMember</strong>[^.<]*(?:\.[^<]*)?', '', text)
-              text = re.sub(r'\s*ClubMember[^,.<"]*(?:[,.])?', '', text)
-
-              # Clean only artifacts produced by the removals.
-              text = text.replace('  ', ' ') if False else text
-              text = text.replace(',,', ',')
-              text = text.replace(' ,', ',')
-
-              if 'ClubMember' in text or '60,00 € jährlich' in text or '€60.00 yearly' in text:
-                  raise SystemExit(f'Obsolete ClubMember reference remains in {path}')
-
-              if text != original:
-                  path.write_text(text, encoding='utf-8')
-                  print(f'updated {path}')
-              else:
-                  print(f'no change {path}')
+          for p in files:
+              s = p.read_text(encoding='utf-8')
+              if 'ClubMember' in s:
+                  raise SystemExit(f'ClubMember remains in {p}')
+          if '60,00 Euro (netto) im Jahr' in static.read_text(encoding='utf-8') or '€60.00 net per year' in static.read_text(encoding='utf-8'):
+              raise SystemExit('Old 60-euro membership remains in static membership FAQ')
           PY
 
-      - name: Commit FAQ changes
+      - name: Commit final FAQ cleanup
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add pages/faq/index.html pages/faq/index-statisch.html pages/faq/bestellung-mitgliedschaft.html pages/faq/bestellung-mitgliedschaft-statisch.html pages/faq/einkommen-auszahlung.html pages/faq/einkommen-auszahlung-statisch.html
           if git diff --cached --quiet; then
-            echo 'No FAQ changes needed.'
+            echo 'No further FAQ changes needed.'
           else
-            git commit -m 'FAQ: alte ClubMember-Mitgliedschaft entfernen'
+            git commit -m 'FAQ: ClubMember-Bereinigung vervollständigen'
             git push
           fi
