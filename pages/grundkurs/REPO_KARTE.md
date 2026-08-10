@@ -1650,6 +1650,7 @@
     │   │   ├── orange-cat-energy-interne-auswertung.html
     │   │   ├── orange-cat-energy-kundenergebnis.html
     │   │   ├── orange-cat-energy.html
+    │   │   ├── projektanalyse-teil-2-hoersaal.md
     │   │   ├── projektpruefung-rechtsrahmen.html
     │   │   └── rechtsrahmen.html
     │   ├── promotion/
@@ -2059,4 +2060,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.08.2026, 11:02)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 10.08.2026, 12:54)_
