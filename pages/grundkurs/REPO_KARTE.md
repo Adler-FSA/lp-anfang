@@ -1645,6 +1645,7 @@
     │   │   ├── pyramide.html
     │   │   └── treppe.html
     │   ├── projekt-analysen/
+    │   │   ├── hoersaal-buildplan-master.md
     │   │   ├── orange-cat-energy-eingereichte-angaben.html
     │   │   ├── orange-cat-energy-ergebnis.html
     │   │   ├── orange-cat-energy-interne-auswertung.html
@@ -2060,4 +2061,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.08.2026, 15:54)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 12.08.2026, 16:51)_
