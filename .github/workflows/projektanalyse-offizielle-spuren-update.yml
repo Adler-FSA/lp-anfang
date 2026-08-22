@@ -1,0 +1,88 @@
+name: Projektanalyse – Öffentliche & behördliche Spuren aktualisieren
+
+on:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: projektanalyse-offizielle-spuren-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Hilfsbibliotheken installieren
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests beautifulsoup4 lxml
+
+      - name: Offizielle Quellen aktualisieren
+        shell: bash
+        run: |
+          set -u
+          BASE="pages/projekt-analysen/oeffentliche-behoerdliche-spuren"
+          ok=0
+          fail=0
+          scripts=(
+            update_bafin.py
+            update_esma.py
+            update_eba_psd2.py
+            update_eba_cir.py
+            update_cftc_red.py
+          )
+          for f in "${scripts[@]}"; do
+            echo "===== $f ====="
+            if python "$BASE/scripts/$f"; then
+              ok=$((ok+1))
+            else
+              echo "::warning::$f konnte nicht aktualisiert werden; letzter gültiger Datenbestand bleibt erhalten."
+              fail=$((fail+1))
+            fi
+          done
+
+          # FCA ist deutlich größer. Vollabgleich wöchentlich bzw. bei manueller Ausführung.
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ] || [ "$(date -u +%u)" = "7" ]; then
+            echo "===== update_fca.py ====="
+            if python "$BASE/scripts/update_fca.py"; then
+              ok=$((ok+1))
+            else
+              echo "::warning::FCA-Aktualisierung fehlgeschlagen; letzter gültiger Datenbestand bleibt erhalten."
+              fail=$((fail+1))
+            fi
+          fi
+
+          echo "Erfolgreich: $ok · Fehlgeschlagen: $fail"
+          if [ "$ok" -eq 0 ]; then
+            echo "Keine Quelle konnte erfolgreich aktualisiert werden."
+            exit 1
+          fi
+
+      - name: Geänderten Datenstand veröffentlichen
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "FSA Projektanalyse Quellenupdate"
+          git config user.email "actions@github.com"
+          git add pages/projekt-analysen/oeffentliche-behoerdliche-spuren/data/records.json \
+                  pages/projekt-analysen/oeffentliche-behoerdliche-spuren/data/sources.json
+          if git diff --cached --quiet; then
+            echo "Keine Datenänderung"
+            exit 0
+          fi
+          git commit -m "Projektanalyse: offizielle Quellen automatisch aktualisieren"
+          git pull --rebase
+          git push
