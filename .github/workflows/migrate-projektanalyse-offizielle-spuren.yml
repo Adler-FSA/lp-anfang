@@ -1,0 +1,92 @@
+name: Projektanalyse – Öffentliche & behördliche Spuren migrieren
+
+on:
+  push:
+    paths:
+      - '.github/workflows/migrate-projektanalyse-offizielle-spuren.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Aktuellen Quellenmotor aus lb-tools übernehmen
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC_REPO="https://github.com/Adler-FSA/lb-tools.git"
+          SRC_DIR="/tmp/lb-tools"
+          DEST="pages/projekt-analysen/oeffentliche-behoerdliche-spuren"
+
+          rm -rf "$SRC_DIR"
+          git clone --depth 1 "$SRC_REPO" "$SRC_DIR"
+
+          rm -rf "$DEST"
+          mkdir -p "$DEST/data" "$DEST/scripts"
+
+          cp "$SRC_DIR/pages/projekt-fruehwarn-check/index.html" "$DEST/index.html"
+          cp "$SRC_DIR/pages/projekt-fruehwarn-check/layer-results.js" "$DEST/layer-results.js"
+          cp "$SRC_DIR/pages/projekt-fruehwarn-check/dual-input.js" "$DEST/dual-input.js"
+          cp "$SRC_DIR/pages/projekt-fruehwarn-check/brand-resolver.js" "$DEST/brand-resolver.js"
+
+          cp "$SRC_DIR/pages/projekt-fruehwarn-check/data/records.json" "$DEST/data/records.json"
+          cp "$SRC_DIR/pages/projekt-fruehwarn-check/data/sources.json" "$DEST/data/sources.json"
+          cp "$SRC_DIR/pages/projekt-fruehwarn-check/data/public-traces.json" "$DEST/data/public-traces.json"
+
+          for f in update_bafin.py update_esma.py update_eba_psd2.py update_eba_cir.py update_cftc_red.py update_fca.py; do
+            cp "$SRC_DIR/pages/projekt-fruehwarn-check/scripts/$f" "$DEST/scripts/$f"
+          done
+
+          python - <<'PY'
+          from pathlib import Path
+          base=Path('pages/projekt-analysen/oeffentliche-behoerdliche-spuren')
+          replacements={
+              'Projekt Frühwarn-Check':'Projektanalyse Quellen-Check',
+              'Projekt Frühwarn-':'Projektanalyse Quellen-',
+              'Frühwarn-Check':'Quellen-Check',
+              'FRÜHWARN-CHECK':'QUELLEN-CHECK',
+              'FRÜHWARNSYSTEM · OFFIZIELLE SPUREN':'PROJEKTANALYSE · ÖFFENTLICHE & BEHÖRDLICHE SPUREN',
+              'Early Warning Check':'Source Check',
+              'EARLY WARNING CHECK':'SOURCE CHECK',
+              'Akademie-Fruehwarn-Check':'Akademie-Projektanalyse-Quellencheck',
+              'https://tools.liquiditybooster.de/pages/projekt-fruehwarn-check/':'https://adler-fsa.github.io/lp-anfang/pages/projekt-analysen/oeffentliche-behoerdliche-spuren/'
+          }
+          for p in [base/'index.html',base/'layer-results.js',base/'dual-input.js',base/'brand-resolver.js',*list((base/'scripts').glob('*.py'))]:
+              s=p.read_text(encoding='utf-8')
+              for a,b in replacements.items(): s=s.replace(a,b)
+              p.write_text(s,encoding='utf-8')
+
+          idx=base/'index.html'
+          s=idx.read_text(encoding='utf-8')
+          s=s.replace('Ein Name. Drei Ebenen. Offizielle Quellen aus Deutschland, Europa und der Welt – bevor aus Werbung, Empfehlung oder Interesse eine finanzielle Entscheidung wird.',
+                      'Interner Quellenbaustein der großen Projektanalyse: öffentliche und behördliche Spuren aus Deutschland, Europa und der Welt systematisch zusammenführen.')
+          s=s.replace('Unabhängig prüfen. Offizielle Spuren sichtbar machen. Selbst entscheiden.',
+                      'Quellen belegen. Widersprüche sichtbar machen. Projektanalyse vertiefen.')
+          idx.write_text(s,encoding='utf-8')
+
+          readme=base/'README.md'
+          readme.write_text('''# Projektanalyse – Öffentliche & behördliche Spuren\n\nStand: 22.08.2026\n\n## Rolle innerhalb der großen Projektanalyse\n\nDieser Ordner ist **kein eigenständiges Endkunden-Frühwarnsystem**. Er ist ein interner Analysebaustein der großen Projektanalyse der Akademie für finanzielle Souveränität.\n\nEr sammelt und normalisiert öffentlich überprüfbare Spuren zu einem Projekt bzw. Rechtsträger und ergänzt damit die bestehende 16-Fragen-Projektanalyse.\n\n## Automatisch/strukturiert angebundene Quellen\n\n- BaFin-Verbraucherwarnungen und Maßnahmenhinweise\n- ESMA MiCA CASP / Non-Compliant Entities\n- EBA PSD2 / E-Geld- und Zahlungsinstitute\n- EBA Kreditinstitute\n- GLEIF / LEI-Identitätsspur\n- CFTC RED List (USA)\n- FCA-Warnlisten-Importer als Ausbauquelle\n- manuell bestätigte öffentliche Spuren über `public-traces.json`\n\n## Verwendung in der Projektanalyse\n\nDer Baustein liefert Roh- und Quellenfakten für die große Projektanalyse, insbesondere zu:\n\n1. Rechtsträger / Identität\n2. Aufsicht / Zulassung / MiCA\n3. Warn- und Maßnahmenhinweise\n4. öffentlich bestätigte juristische Spuren\n5. wirtschaftliche Statusspuren\n6. öffentlich erkennbare Werbe- und Vertriebsspuren\n\nDie Ergebnisse werden **nicht** als pauschales Urteil „seriös/unseriös“ verstanden. Sie werden innerhalb der Projektanalyse mit Geschäftsmodell, Geldfluss, Token-/Produktlogik, Vertriebsstruktur, Risikoindikatoren und den übrigen 16 Prüffragen zusammengeführt.\n\n## Wichtige Erkenntnis aus dem Frühwarn-Prototyp\n\nBehördenwarnungen sind zeitlich häufig nachgelagert. Die große Projektanalyse muss deshalb zusätzlich die öffentlichen Projekt-, Marketing-, Nutzer- und Geschäftsmodellspuren auswerten. Der vorliegende Quellenmotor ergänzt diese Analyse um die offizielle/behördliche Ebene; er ersetzt sie nicht.\n\n## Herkunft\n\nTechnischer Stand des bisherigen `lb-tools/pages/projekt-fruehwarn-check/`, migriert am 22.08.2026 und als Projektanalyse-Baustein neu eingeordnet. Diagnose- und einmalige Reparaturdateien wurden bewusst nicht übernommen.\n''',encoding='utf-8')
+          PY
+
+          node --check "$DEST/layer-results.js"
+          node --check "$DEST/dual-input.js"
+          node --check "$DEST/brand-resolver.js"
+          python -m py_compile "$DEST"/scripts/*.py
+
+          git config user.name "FSA Projektanalyse"
+          git config user.email "actions@github.com"
+          git add "$DEST"
+          if git diff --cached --quiet; then
+            echo "Keine Änderungen"
+            exit 0
+          fi
+          git commit -m "Projektanalyse: öffentliche und behördliche Spuren übernehmen"
+          git pull --rebase
+          git push
