@@ -1,0 +1,132 @@
+(()=>{
+const $ = s => document.querySelector(s);
+const stripLegalForms = v => String(v||'')
+.toLowerCase()
+.normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+.replace(/\b(gesellschaft mit beschrankter haftung|aktiengesellschaft|societe anonyme|public limited company|private limited company|limited liability company|gmbh|ag|ug|se|kg|ohg|gbr|ltd|limited|llc|inc|corp|corporation|sarl|sa|bv|nv|plc|s\.?\s*r\.?\s*o\.?)\b/g,' ')
+.replace(/[^a-z0-9]+/g,' ')
+.replace(/\s+/g,' ')
+.trim();
+const compact = v => stripLegalForms(String(v||'').replace(/https?:\/\//gi,'').replace(/^www\./i,'')).replace(/[^a-z0-9]/g,'');
+const exactMatch = (rec,q) => {
+const cq = compact(q);
+if(!cq) return false;
+const terms = [rec.name, rec.title, ...(rec.aliases||[]), ...(rec.domains||[]), ...(rec.match_terms||[])].filter(Boolean);
+return terms.some(t => compact(t) === cq);
+};
+let records = [];
+let traces = [];
+let identitySeq = 0;
+const gleifCache = new Map();
+const style = document.createElement('style');
+style.textContent = `.layerStatus{display:block;margin-top:7px;padding:9px 10px;border-radius:10px;font-size:.78rem;line-height:1.45}.layerStatus.hit{background:var(--red-soft);color:#7e2430;border:1px solid #efcbd1}.layerStatus.good{background:var(--green-soft);color:#176f50;border:1px solid #d0e9dc}.layerStatus.partial{background:var(--amber-soft);color:#7c5a18;border:1px solid #eadbb8}.layerStatus.neutral{background:var(--grey-soft);color:#5a6670;border:1px solid var(--line)}.layerStatus a{display:inline-block;margin-top:6px;color:var(--mint-dark);font-weight:900;text-decoration:none}.relationHint{display:block;margin:4px 0 0;font-size:.76rem;font-weight:850;color:#7c5a18}.identityFacts{display:grid;gap:2px;margin-top:5px}.identityFacts b{display:inline!important;margin:0!important;color:inherit!important}.overallBox.caution{border-color:#efdfbd;background:var(--amber-soft)}.overallBox.caution .overallIcon svg{stroke:var(--amber)}`;
+document.head.appendChild(style);
+function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function set(id,cls,html){const e=$(id);if(!e)return;e.className='layerStatus '+cls;e.innerHTML=html;}
+function isOfficialOriginal(rec){return /^(official_|authority_original|official_register)/.test(String(rec&&rec.source_type||''));}
+function link(rec){if(!rec||!rec.source_url)return'';const label=isOfficialOriginal(rec)?'Originalquelle öffnen ↗':'Quelle öffnen ↗';return `<a href="${esc(rec.source_url)}" target="_blank" rel="noopener">${label}</a>`;}
+function sourceLabel(rec){return rec&&rec.authority?rec.authority:'';}
+function closeTechnicalStatus(){document.querySelectorAll('.sourceStatus details').forEach(d=>{d.open=false});}
+function setExtraSectionsVisible(show){document.querySelectorAll('.layers,.sourceStatus').forEach(el=>{el.style.display=show?'':'none';});}
+function searchFinished(){const feedback=$('#searchFeedback');return !!(feedback&&feedback.classList.contains('done'));}
+function sameActiveQuery(q){const shown=$('#queryOut')?.textContent.trim()||'';const current=$('#query')?.value.trim()||'';return !!q&&shown===q&&current===shown&&searchFinished();}
+function ensureGleifSourceUI(){
+const box=$('#sources-GLOBAL');
+const addSource=(id,name,url)=>{if(box&&!box.querySelector(`[data-live-source="${id}"]`)){const a=document.createElement('a');a.className='sourceLink';a.href=url;a.target='_blank';a.rel='noopener';a.dataset.liveSource=id;a.innerHTML=`<div class="sourceName">${name}</div><div class="sourceMode">automatisch geprüft</div>`;box.prepend(a);}};
+addSource('gleif','GLEIF / Global LEI Index','https://search.gleif.org/');
+addSource('cftc-red-list','CFTC RED List (USA)','https://www.cftc.gov/LearnAndProtect/Resources/Check/redlist.htm');
+const rows=$('#statusRows');
+const addRow=(id,name)=>{if(rows&&!rows.querySelector(`[data-live-source="${id}"]`)){const tr=document.createElement('tr');tr.dataset.liveSource=id;tr.innerHTML=`<td>${name}</td><td><span class="badge auto">automatisch geprüft</span></td>`;rows.appendChild(tr);}};
+addRow('gleif','GLEIF / Global LEI Index');
+addRow('cftc-red-list','CFTC RED List (USA)');
+}
+function setGlobalCoverage(kind='checking'){
+const result=document.querySelector('#matches-GLOBAL .regionResult');if(!result)return;if(document.querySelector('#matches-GLOBAL .match'))return;
+result.className='regionResult partial';
+if(kind==='match')result.innerHTML='<strong>Globale Quellen automatisch geprüft</strong>GLEIF hat eine eindeutige Rechtsträger-/Identitätsspur gefunden. Die CFTC RED List (USA) wurde zusätzlich automatisch gegen Firmenname und Domain geprüft.';
+else if(kind==='ambiguous')result.innerHTML='<strong>Globale Quellen automatisch geprüft</strong>GLEIF konnte die Rechtsträger-Identität nicht eindeutig zuordnen. Die CFTC RED List (USA) wurde dennoch automatisch gegen Firmenname und Domain geprüft.';
+else if(kind==='none')result.innerHTML='<strong>Globale Quellen automatisch geprüft</strong>GLEIF: kein eindeutiger LEI-Treffer. Die CFTC RED List (USA) wurde automatisch gegen Firmenname und Domain geprüft.';
+else if(kind==='error')result.innerHTML='<strong>Globale Prüfung durchgeführt</strong>GLEIF war bei dieser Prüfung nicht erreichbar; die lokal gespiegelt vorliegende CFTC RED List (USA) wurde unabhängig davon automatisch geprüft.';
+else result.innerHTML='<strong>Globale Quellen werden automatisch geprüft</strong>GLEIF prüft die Unternehmensidentität; parallel wird die CFTC RED List (USA) gegen Firmenname und Domain abgeglichen.';
+}
+async function load(){try{const [r,t]=await Promise.all([fetch('./data/records.json',{cache:'no-store'}).then(x=>x.json()),fetch('./data/public-traces.json',{cache:'no-store'}).then(x=>x.json())]);records=Array.isArray(r.records)?r.records:[];traces=Array.isArray(t.records)?t.records:[];}catch(e){records=[];traces=[];}ensureGleifSourceUI();updateFromVisibleQuery();}
+function queryTerms(q){const raw=String(q||'').trim();const out=[raw];let domain=raw.toLowerCase().replace(/^https?:\/\//,'').replace(/^www\./,'').split('/')[0];if(domain.includes('.')){const labels=domain.split('.');const first=(labels.length>2?labels[labels.length-2]:labels[0]).replace(/[-_]+/g,' ').trim();if(first&&compact(first)!==compact(raw))out.push(first);}return [...new Set(out.filter(Boolean))];}
+function gleifNameCandidates(item){const a=item?.attributes||{};const e=a.entity||{};const names=[];const legal=e.legalName?.name||'';if(legal)names.push(legal);for(const n of (e.otherNames||[]))if(n?.name)names.push(n.name);for(const n of (e.transliteratedOtherNames||[]))if(n?.name)names.push(n.name);return names;}
+function canonicalLegalName(v){
+let s=String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+s=s.replace(/gesellschaft mit beschrankter haftung/g,' gmbh ')
+.replace(/aktiengesellschaft/g,' ag ')
+.replace(/societe anonyme/g,' sa ')
+.replace(/public limited company/g,' plc ')
+.replace(/private limited company/g,' ltd ')
+.replace(/limited liability company/g,' llc ')
+.replace(/company limited/g,' ltd ')
+.replace(/co\.?\s*,?\s*ltd\.?/g,' ltd ')
+.replace(/s\.?\s*a\.?/g,' sa ')
+.replace(/s\.?\s*r\.?\s*o\.?/g,' sro ')
+.replace(/[^a-z0-9]+/g,' ')
+.replace(/\s+/g,' ')
+.trim();
+return s;
+}
+function rawComparable(v){return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim();}
+function scoreName(candidate,q){const rawA=rawComparable(candidate);const rawB=rawComparable(q);if(rawA&&rawA===rawB)return 120;if(canonicalLegalName(candidate)===canonicalLegalName(q))return 115;const a=stripLegalForms(candidate);const b=stripLegalForms(q);const ca=a.replace(/[^a-z0-9]/g,'');const cb=b.replace(/[^a-z0-9]/g,'');if(!ca||!cb)return 0;if(ca===cb)return 100;const at=a.split(' ').filter(Boolean);const bt=b.split(' ').filter(Boolean);if(cb.length>=7&&(ca.startsWith(cb)||cb.startsWith(ca)))return 88;if(bt.length>=2&&bt.every(x=>at.includes(x)))return 82;return 0;}
+function normalizeGleif(item,matchedTerm){const a=item?.attributes||{};const e=a.entity||{};const r=a.registration||{};const addr=e.legalAddress||e.headquartersAddress||{};return{lei:a.lei||item?.id||'',legalName:e.legalName?.name||gleifNameCandidates(item)[0]||'',status:e.status||'',category:e.category||'',subCategory:e.subCategory||'',jurisdiction:e.jurisdiction||e.legalJurisdiction||addr.country||'',city:addr.city||'',country:addr.country||'',registeredAs:e.registeredAs||r.validatedAs||'',registeredAt:e.registeredAt?.id||r.validatedAt?.id||'',registrationStatus:r.status||'',matchedTerm};}
+async function fetchJson(url){const res=await fetch(url,{headers:{'Accept':'application/vnd.api+json'}});if(!res.ok)throw new Error('HTTP '+res.status);return res.json();}
+async function fullRecordFromCompletion(completion){const rel=completion?.relationships?.['lei-records']||{};const id=rel?.data?.id||'';const related=rel?.links?.related||'';if(related){const json=await fetchJson(related);return json?.data||null;}if(id){const json=await fetchJson('https://api.gleif.org/api/v1/lei-records/'+encodeURIComponent(id));return json?.data||null;}return null;}
+async function fuzzyCandidates(term){const u=new URL('https://api.gleif.org/api/v1/fuzzycompletions');u.searchParams.set('field','entity.legalName');u.searchParams.set('q',term);const json=await fetchJson(u.toString());return Array.isArray(json.data)?json.data:[];}
+async function exactNameCandidates(term){const u=new URL('https://api.gleif.org/api/v1/lei-records');u.searchParams.set('filter[entity.legalName]',term);u.searchParams.set('page[size]','10');const json=await fetchJson(u.toString());return Array.isArray(json.data)?json.data:[];}
+async function lookupGLEIF(q){
+const cacheKey='legalform-v3|'+canonicalLegalName(q);
+if(gleifCache.has(cacheKey))return gleifCache.get(cacheKey);
+const terms=queryTerms(q);
+let reached=false;
+let lastError=null;
+const dedupe=list=>{const out=[];const seen=new Set();for(const c of list){const lei=c?.item?.attributes?.lei||c?.item?.id||'';const key=lei||rawComparable(c?.item?.attributes?.entity?.legalName?.name||'')+'|'+String(c?.item?.attributes?.entity?.jurisdiction||'');if(seen.has(key))continue;seen.add(key);out.push(c);}return out;};
+const exactEquivalent=[];
+for(const term of terms){
+try{
+const rows=await exactNameCandidates(term);
+reached=true;
+for(const item of rows){const legal=item?.attributes?.entity?.legalName?.name||'';if(canonicalLegalName(legal)===canonicalLegalName(term))exactEquivalent.push({item,term,score:130});}
+}catch(e){lastError=e;}
+}
+let exactUnique=dedupe(exactEquivalent);
+if(exactUnique.length===1){const value={status:'match',record:normalizeGleif(exactUnique[0].item,exactUnique[0].term)};gleifCache.set(cacheKey,value);return value;}
+if(exactUnique.length>1){const general=exactUnique.filter(x=>String(x?.item?.attributes?.entity?.category||'').toUpperCase()==='GENERAL');const generalActive=general.filter(x=>String(x?.item?.attributes?.entity?.status||'').toUpperCase()==='ACTIVE'&&String(x?.item?.attributes?.registration?.status||'').toUpperCase()==='ISSUED');if(generalActive.length===1){const value={status:'match',record:normalizeGleif(generalActive[0].item,generalActive[0].term)};gleifCache.set(cacheKey,value);return value;}if(general.length===1){const value={status:'match',record:normalizeGleif(general[0].item,general[0].term)};gleifCache.set(cacheKey,value);return value;}const active=exactUnique.filter(x=>String(x?.item?.attributes?.entity?.status||'').toUpperCase()==='ACTIVE'&&String(x?.item?.attributes?.registration?.status||'').toUpperCase()==='ISSUED');if(active.length===1){const value={status:'match',record:normalizeGleif(active[0].item,active[0].term)};gleifCache.set(cacheKey,value);return value;}const value={status:'ambiguous',candidates:exactUnique.slice(0,5).map(x=>normalizeGleif(x.item,x.term))};gleifCache.set(cacheKey,value);return value;}
+const fuzzyHits=[];
+for(const term of terms){
+try{
+const fuzzy=await fuzzyCandidates(term);
+reached=true;
+for(const completion of fuzzy.slice(0,10)){
+const item=await fullRecordFromCompletion(completion);
+if(!item)continue;
+const legal=item?.attributes?.entity?.legalName?.name||'';
+const equivalent=canonicalLegalName(legal)===canonicalLegalName(term);
+const recordScore=Math.max(0,...gleifNameCandidates(item).map(n=>scoreName(n,term)));
+fuzzyHits.push({item,term,score:equivalent?130:recordScore,equivalent});
+}
+}catch(e){lastError=e;}
+}
+if(!reached&&lastError)throw lastError;
+const unique=dedupe(fuzzyHits).sort((a,b)=>b.score-a.score);
+const equivalents=unique.filter(x=>x.equivalent);
+if(equivalents.length===1){const value={status:'match',record:normalizeGleif(equivalents[0].item,equivalents[0].term)};gleifCache.set(cacheKey,value);return value;}
+if(equivalents.length>1){const general=equivalents.filter(x=>String(x?.item?.attributes?.entity?.category||'').toUpperCase()==='GENERAL');const generalActive=general.filter(x=>String(x?.item?.attributes?.entity?.status||'').toUpperCase()==='ACTIVE'&&String(x?.item?.attributes?.registration?.status||'').toUpperCase()==='ISSUED');if(generalActive.length===1){const value={status:'match',record:normalizeGleif(generalActive[0].item,generalActive[0].term)};gleifCache.set(cacheKey,value);return value;}if(general.length===1){const value={status:'match',record:normalizeGleif(general[0].item,general[0].term)};gleifCache.set(cacheKey,value);return value;}const active=equivalents.filter(x=>String(x?.item?.attributes?.entity?.status||'').toUpperCase()==='ACTIVE'&&String(x?.item?.attributes?.registration?.status||'').toUpperCase()==='ISSUED');if(active.length===1){const value={status:'match',record:normalizeGleif(active[0].item,active[0].term)};gleifCache.set(cacheKey,value);return value;}const value={status:'ambiguous',candidates:equivalents.slice(0,5).map(x=>normalizeGleif(x.item,x.term))};gleifCache.set(cacheKey,value);return value;}
+const ambiguous=unique.filter(x=>x.score>=82).slice(0,5);
+const value=ambiguous.length?{status:'ambiguous',candidates:ambiguous.map(x=>normalizeGleif(x.item,x.term))}:{status:'none'};
+gleifCache.set(cacheKey,value);
+return value;
+}
+function setUnresolvedOverall(q){const b=$('#overallBox');if(!b)return;if(document.querySelector('.match.warning,.match.authorized'))return;b.className='overallBox caution';const title=$('#overallTitle');const text=$('#overallText');if(title)title.textContent='Anbieteridentität nicht eindeutig geklärt';if(text)text.textContent='Zu „'+q+'“ wurden die angeschlossenen Warn- und Registerquellen automatisch geprüft. Der eingegebene Name konnte jedoch keinem eindeutigen Rechtsträger zugeordnet werden. Deshalb ist das Fehlen eines Warnhinweises keine Entwarnung. Vor einer finanziellen Entscheidung muss zunächst geklärt werden, welcher Betreiber bzw. Rechtsträger hinter dem Namen steht.';}
+function renderGleifIdentity(result,q,seq){if(seq!==identitySeq||!sameActiveQuery(q))return;if(result?.status==='match'){const g=result.record||{};const facts=[];if(g.legalName)facts.push(`<span><b>Juristischer Name:</b> ${esc(g.legalName)}</span>`);if(g.lei)facts.push(`<span><b>LEI:</b> ${esc(g.lei)}</span>`);if(g.status||g.registrationStatus)facts.push(`<span><b>Status:</b> ${esc(g.status||g.registrationStatus)}</span>`);if(g.city||g.country)facts.push(`<span><b>Sitz:</b> ${esc([g.city,g.country].filter(Boolean).join(', '))}</span>`);if(g.jurisdiction)facts.push(`<span><b>Jurisdiktion:</b> ${esc(g.jurisdiction)}</span>`);if(g.category)facts.push(`<span><b>Rechtsträger-Kategorie:</b> ${esc(g.category)}</span>`);if(g.registeredAs)facts.push(`<span><b>Registerkennung:</b> ${esc(g.registeredAs)}</span>`);const url=g.lei?`https://search.gleif.org/#/record/${encodeURIComponent(g.lei)}`:'https://search.gleif.org/';set('#layerStatus-identity','good',`<strong>GLEIF/LEI-Identitätsspur gefunden.</strong><br>Der eingegebene Firmenname wurde einem rechtlich gleichwertig bezeichneten LEI-Rechtsträger eindeutig zugeordnet.<span class="identityFacts">${facts.join('')}</span><a href="${url}" target="_blank" rel="noopener">GLEIF-Eintrag öffnen ↗</a><span class="relationHint">Abkürzungen und ausgeschriebene Rechtsformen werden gleichgesetzt (z. B. AG = Aktiengesellschaft), unterschiedliche Rechtsformen dagegen nicht. Ein LEI ist kein Gütesiegel und keine Finanzlizenz.</span>`);setGlobalCoverage('match');}else if(result?.status==='ambiguous'){const candidates=(result.candidates||[]).slice(0,4);const list=candidates.map(g=>`<span><b>${esc(g.legalName||'Rechtsträger')}</b>${g.country||g.jurisdiction?' · '+esc(g.country||g.jurisdiction):''}</span>`).join('');const headline=candidates.length>1?'Mehrere mögliche LEI-Rechtsträger gefunden.':'Möglicher LEI-Rechtsträger gefunden – nicht eindeutig.';set('#layerStatus-identity','partial',`<strong>${headline}</strong><br>Die Eingabe „${esc(q)}“ konnte keinem rechtlich gleichwertig bezeichneten LEI-Rechtsträger eindeutig zugeordnet werden.<span class="identityFacts">${list}</span><span class="relationHint">Eine andere Rechtsform wie SA statt AG wird ausdrücklich nicht als derselbe Rechtsträger behandelt.</span><a href="https://search.gleif.org/" target="_blank" rel="noopener">GLEIF-Suche öffnen ↗</a>`);setGlobalCoverage('ambiguous');setUnresolvedOverall(q);}else{set('#layerStatus-identity','partial',`<strong>Anbieteridentität noch nicht eindeutig geklärt.</strong><br>Die automatische GLEIF-Prüfung konnte „${esc(q)}“ keinem LEI-Rechtsträger eindeutig zuordnen. Der eingegebene Begriff kann ein Firmen-, Projekt- oder Markenname sein. Das Fehlen eines LEI-Treffers bedeutet weder, dass der Anbieter nicht existiert, noch dass er seriös ist.<a href="https://search.gleif.org/" target="_blank" rel="noopener">GLEIF-Suche öffnen ↗</a>`);setGlobalCoverage('none');setUnresolvedOverall(q);}}
+async function updateIdentity(q,identity,seq){if(identity){set('#layerStatus-identity','good',`<strong>Register-/Identitätsspur gefunden.</strong><br>${identity.summary_de||''}${link(identity)}`);setGlobalCoverage('match');return;}set('#layerStatus-identity','neutral','<strong>Unternehmensidentität wird automatisch geprüft …</strong><br>GLEIF/LEI wird nach einem eindeutigen Rechtsträger durchsucht.');setGlobalCoverage('checking');try{const result=await lookupGLEIF(q);renderGleifIdentity(result,q,seq);}catch(e){if(seq!==identitySeq||!sameActiveQuery(q))return;set('#layerStatus-identity','partial','<strong>GLEIF derzeit nicht automatisch erreichbar.</strong><br>Die Identitätsprüfung konnte über diese Quelle nicht abgeschlossen werden. Handels-/Unternehmensregister und BRIS stehen als Direktprüfung bereit.');setGlobalCoverage('error');}}
+function polishVisibleResultCards(q,matchedRecords,matchedTraces){const cq=compact(q);const cards=[...document.querySelectorAll('.match')];cards.forEach(card=>{const text=compact(card.textContent);const rec=matchedRecords.find(r=>{const n=compact(r.name||r.title||'');return n&&text.includes(n);});if(rec&&compact(rec.name||'')!==cq){const title=card.querySelector('.matchTitle');if(title&&/warn|maßnahmen|warning|enforcement/i.test(title.textContent))title.textContent='Verbundene behördliche Spur';const summary=card.querySelector('.matchSummary');if(summary&&!summary.querySelector('.relationHint')){const hint=document.createElement('span');hint.className='relationHint';hint.textContent='Der Behördenfund betrifft ein verbundenes bzw. im Behördenhinweis gemeinsam genanntes Unternehmen. Bitte Originalmeldung lesen.';summary.appendChild(hint);}}});matchedTraces.forEach(trace=>{if(!trace.source_url)return;document.querySelectorAll('.match a').forEach(a=>{if(a.href!==trace.source_url&&a.getAttribute('href')!==trace.source_url)return;a.textContent=isOfficialOriginal(trace)?'Originalquelle öffnen ↗':'Quelle öffnen ↗';const card=a.closest('.match');if(card&&trace.source_type==='verified_secondary_authority_quote'){const meta=card.querySelector('.matchMeta');if(meta)meta.textContent=(trace.authority||'Verifizierte Sekundärquelle')+(trace.date?' · '+trace.date:'');const title=card.querySelector('.matchTitle');if(title)title.textContent='Öffentlich bestätigte juristische Spur';}});});}
+function update(q){if(!q)return;const seq=++identitySeq;const ctx=window.__fruehwarnInputContext||{};const queries=[q,ctx.company,ctx.domain].map(v=>String(v||'').trim()).filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i);const matchedRecords=records.filter(r=>queries.some(v=>exactMatch(r,v)));const matchedTraces=traces.filter(r=>queries.some(v=>exactMatch(r,v)));const finWarn=matchedRecords.find(r=>/bafin-warnings|esma-non-compliant|cftc-red-list/.test(String(r.source_id||''))||/warning|non_compliant|registration_deficient/.test(String(r.status||'')));const finAuth=matchedRecords.find(r=>/esma-casp/.test(String(r.source_id||''))||/authorized|authorised|licensed/.test(String(r.status||'')));const identity=matchedTraces.find(r=>r.category==='identity');const legal=matchedTraces.find(r=>r.category==='legal');const ads=matchedTraces.find(r=>r.category==='ads');const economic=matchedTraces.find(r=>r.category==='economic');updateIdentity(q,identity,seq);if(finWarn){const related=compact(finWarn.name||'')!==compact(q);set('#layerStatus-financial','hit',`<strong>${related?'Verbundene behördliche Spur gefunden.':'Behördenhinweis gefunden.'}</strong><br>${esc(sourceLabel(finWarn)||'Aufsichtsbehörde')}${finWarn.date?' · '+esc(finWarn.date):''}${related?`<span class="relationHint">Betroffener Name im Behördenfund: ${esc(finWarn.name||'verbundenes Unternehmen')}</span>`:''}${link(finWarn)}`);}else if(finAuth){set('#layerStatus-financial','good',`<strong>Offizieller Zulassungs-/Registertreffer gefunden.</strong><br>${esc(sourceLabel(finAuth))}${link(finAuth)}`);}else{set('#layerStatus-financial','partial','<strong>Automatische Aufsichtsquellen geprüft – Rechtsträger noch nicht eindeutig.</strong><br>BaFin-Verbraucherwarnungen, ESMA-MiCA sowie die angebundenen EBA-Register werden automatisch geprüft. Ohne eindeutig identifizierten Betreiber/Rechtsträger kann ein fehlender Zulassungs- oder Warnhinweis jedoch nicht als Entwarnung gewertet werden.');}if(legal){set('#layerStatus-legal','hit',`<strong>Juristische Spur gefunden.</strong><br>${esc(legal.summary_de||'')}<br><small>${esc(sourceLabel(legal))}</small>${link(legal)}`);}else{set('#layerStatus-legal','partial','<strong>Noch nicht flächendeckend automatisch geprüft.</strong><br>Es gibt derzeit keine zentrale öffentliche Datenbank aller Ermittlungsverfahren; nur angeschlossene und öffentlich bestätigte Spuren können angezeigt werden.');}if(economic){set('#layerStatus-economic','partial',`<strong>Wirtschaftliche Spur gefunden.</strong><br>${esc(economic.summary_de||'')}${link(economic)}`);}else{set('#layerStatus-economic','partial','<strong>Noch nicht automatisch vollständig geprüft.</strong><br>Insolvenz- und Unternehmensstatus sind derzeit überwiegend als Direktprüfung angebunden.');}if(ads){set('#layerStatus-ads','partial',`<strong>Öffentliche Werbespur gefunden.</strong><br>${esc(ads.summary_de||'')}<br><small>${esc(sourceLabel(ads))}</small>${link(ads)}`);}else{set('#layerStatus-ads','partial','<strong>Noch nicht automatisch geprüft.</strong><br>Meta Ad Library und TikTok Commercial Content Library sind aktuell als Direktprüfung angebunden.');}setTimeout(()=>polishVisibleResultCards(q,matchedRecords,matchedTraces),100);closeTechnicalStatus();}
+function updateFromVisibleQuery(){const shell=$('#resultShell');const q=$('#queryOut');const query=$('#query');const shown=q?q.textContent.trim():'';const current=query?query.value.trim():'';ensureGleifSourceUI();if(shell&&shell.classList.contains('show')&&shown&&current===shown&&searchFinished()){setExtraSectionsVisible(true);update(shown);}else{setExtraSectionsVisible(false);closeTechnicalStatus();}}
+let updateTimer=null;
+function scheduleVisibleUpdate(){if(updateTimer)clearTimeout(updateTimer);updateTimer=setTimeout(()=>{updateTimer=null;updateFromVisibleQuery();},30);}
+window.addEventListener('fruehwarn:search-finished',scheduleVisibleUpdate);
+window.addEventListener('DOMContentLoaded',()=>{setExtraSectionsVisible(false);closeTechnicalStatus();const query=$('#query');if(query){query.addEventListener('input',()=>{identitySeq++;const shown=$('#queryOut')?.textContent.trim()||'';const current=query.value.trim();if(!shown||current!==shown){setExtraSectionsVisible(false);closeTechnicalStatus();}});}const lang=$('#langBtn');if(lang)lang.addEventListener('click',()=>setTimeout(scheduleVisibleUpdate,0));load();});
+})();
