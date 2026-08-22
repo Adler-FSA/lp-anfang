@@ -1645,6 +1645,14 @@
     │   │   ├── pyramide.html
     │   │   └── treppe.html
     │   ├── projekt-analysen/
+    │   │   ├── oeffentliche-behoerdliche-spuren/
+    │   │   │   ├── data/
+    │   │   │   ├── scripts/
+    │   │   │   ├── README.md
+    │   │   │   ├── brand-resolver.js
+    │   │   │   ├── dual-input.js
+    │   │   │   ├── index.html
+    │   │   │   └── layer-results.js
     │   │   ├── hoersaal-buildplan-master.md
     │   │   ├── orange-cat-energy-eingereichte-angaben.html
     │   │   ├── orange-cat-energy-ergebnis.html
@@ -2061,4 +2069,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.08.2026, 05:21)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.08.2026, 06:29)_
