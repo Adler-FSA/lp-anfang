@@ -1,0 +1,52 @@
+name: Projektanalyse – Quellenbaustein im Leitfaden verankern
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-projektanalyse-quellenbaustein.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Leitfaden ergänzen
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('pages/projekt-analysen/projektpruefung-rechtsrahmen.html')
+          s=p.read_text(encoding='utf-8')
+          marker='    <h2 data-i18n="extraT">4. Verpflichtende Zusatzmodule</h2>\n'
+          block='''    <h2 data-i18n="extraT">4. Verpflichtende Zusatzmodule</h2>\n    <div class="notice" style="margin:0 0 16px">\n      <strong data-i18n="sourceModuleT">Pflichtbaustein: Öffentliche & behördliche Spuren</strong><br>\n      <span data-i18n="sourceModuleP">Vor der fachlichen Gesamtbewertung wird der automatisierte Quellen-Check ausgeführt. Er prüft und normalisiert Rechtsträger-, Aufsichts-, MiCA-, Warn-, Register- und internationale Behördenquellen. Seine Treffer und Nulltreffer werden als Quellenfakten in die 16-Punkte-Prüfung übernommen – niemals als eigenständiges Seriositätsurteil.</span><br>\n      <a href="./oeffentliche-behoerdliche-spuren/index.html" style="display:inline-block;margin-top:10px;font-weight:700;color:#244f7d" data-i18n="sourceModuleLink">Quellen-Check öffnen →</a>\n    </div>\n'''
+          if 'data-i18n="sourceModuleT"' not in s:
+              if marker not in s: raise SystemExit('Zusatzmodule-Marker nicht gefunden')
+              s=s.replace(marker,block,1)
+          de_anchor='extraT:"4. Verpflichtende Zusatzmodule",'
+          de_add='extraT:"4. Verpflichtende Zusatzmodule",sourceModuleT:"Pflichtbaustein: Öffentliche & behördliche Spuren",sourceModuleP:"Vor der fachlichen Gesamtbewertung wird der automatisierte Quellen-Check ausgeführt. Er prüft und normalisiert Rechtsträger-, Aufsichts-, MiCA-, Warn-, Register- und internationale Behördenquellen. Seine Treffer und Nulltreffer werden als Quellenfakten in die 16-Punkte-Prüfung übernommen – niemals als eigenständiges Seriositätsurteil.",sourceModuleLink:"Quellen-Check öffnen →",'
+          en_anchor='extraT:"4. Mandatory additional modules",'
+          en_add='extraT:"4. Mandatory additional modules",sourceModuleT:"Mandatory module: Public & authority traces",sourceModuleP:"Before the overall expert assessment, the automated source check is run. It checks and normalises legal-entity, supervisory, MiCA, warning, register and international authority sources. Matches and no-match results are carried into the 16-point review as source facts – never as a standalone legitimacy verdict.",sourceModuleLink:"Open source check →",'
+          if 'sourceModuleT:' not in s:
+              if de_anchor not in s or en_anchor not in s: raise SystemExit('i18n-Marker nicht gefunden')
+              s=s.replace(de_anchor,de_add,1).replace(en_anchor,en_add,1)
+          s=s.replace('pdf7b:"MiCA, Rechtsträger, Blockchain, Token, Verwahrung, Vertrieb, KI, Steuern, Deutschland/EWR je nach Projekt."',
+                      'pdf7b:"Öffentliche & behördliche Spuren, MiCA, Rechtsträger, Blockchain, Token, Verwahrung, Vertrieb, KI, Steuern, Deutschland/EWR je nach Projekt."')
+          s=s.replace('pdf7b:"MiCA, legal entity, blockchain, token, custody, sales, AI, taxes, Germany/EEA depending on the project."',
+                      'pdf7b:"Public & authority traces, MiCA, legal entity, blockchain, token, custody, sales, AI, taxes, Germany/EEA depending on the project."')
+          p.write_text(s,encoding='utf-8')
+          PY
+          grep -q 'sourceModuleT' pages/projekt-analysen/projektpruefung-rechtsrahmen.html
+          git config user.name "FSA Projektanalyse"
+          git config user.email "actions@github.com"
+          git add pages/projekt-analysen/projektpruefung-rechtsrahmen.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Projektanalyse: Quellen-Check als Pflichtbaustein verankern"
+          git pull --rebase
+          git push
