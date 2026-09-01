@@ -241,6 +241,7 @@
     │   │   ├── timecells/
     │   │   │   └── onboarding/
     │   │   ├── 175E6F3F-D0D2-45D6-B667-89D4220E9D30.png
+    │   │   ├── 285707D8-540E-40CC-AC8A-435D26E1D44D.png
     │   │   ├── FAF21D1C-2DB2-4BA3-A28A-17804F0C9213.png
     │   │   ├── IMG_2976.jpeg
     │   │   ├── IMG_5924.jpeg
@@ -2069,4 +2070,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.09.2026, 01:32)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.09.2026, 07:06)_
