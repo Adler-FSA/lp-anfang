@@ -1983,6 +1983,7 @@
     │   ├── drei-lieder-ein-weg.html
     │   ├── experten-finden.html
     │   ├── gut-zu-wissen.html
+    │   ├── heinz-riedel-portfolio-dashboard-v2.html
     │   ├── heinz-riedel-portfolio-rechner-fertig.html
     │   ├── heinz-riedel-portfolio-rechner.html
     │   ├── heinz-riedel.html
@@ -2081,4 +2082,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.09.2026, 07:38)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 03.09.2026, 12:28)_
