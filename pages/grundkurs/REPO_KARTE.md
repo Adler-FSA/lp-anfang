@@ -242,6 +242,7 @@
     │   │   │   └── onboarding/
     │   │   ├── 175E6F3F-D0D2-45D6-B667-89D4220E9D30.png
     │   │   ├── 285707D8-540E-40CC-AC8A-435D26E1D44D.png
+    │   │   ├── 5AEA8076-9B3B-4BDC-8A62-DBA1E8B3708C.png
     │   │   ├── 60D6130F-79C7-4841-9AEA-AB738A7EB02E.png
     │   │   ├── C09CE8B2-3F07-4CD7-9F89-88C86034CDA4.png
     │   │   ├── FAF21D1C-2DB2-4BA3-A28A-17804F0C9213.png
@@ -2081,4 +2082,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.09.2026, 17:00)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 08.09.2026, 19:48)_
