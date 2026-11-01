@@ -240,6 +240,7 @@
     │   │   │   └── solar-invest.jpg
     │   │   ├── timecells/
     │   │   │   └── onboarding/
+    │   │   ├── 11C9EBB5-256A-4687-BA0F-4FD5DE4CCB2F.png
     │   │   ├── 175E6F3F-D0D2-45D6-B667-89D4220E9D30.png
     │   │   ├── 285707D8-540E-40CC-AC8A-435D26E1D44D.png
     │   │   ├── 5AEA8076-9B3B-4BDC-8A62-DBA1E8B3708C.png
@@ -463,6 +464,7 @@
     │   │   │   ├── track-97.mp3
     │   │   │   ├── track-98.mp3
     │   │   │   └── track-99.mp3
+    │   │   ├── Die Zeit wartet nicht.mp3
     │   │   ├── botschafter-sein.mp3
     │   │   ├── der-club-marktplatz.mp3
     │   │   ├── die-rueckeroberung-der-eigenen-souveraenitaet.mp3
@@ -2082,4 +2084,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.11.2026, 08:34)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 01.11.2026, 15:41)_
