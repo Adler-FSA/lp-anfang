@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Arbeitsblatt Geinsheim – PDF speichern</title>
+<style>
+:root{--navy:#172c36;--mint:#117b68;--line:#d6e2e5;--muted:#61747e}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#edf3f5;font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--navy)}
+body{min-height:100vh;display:grid;place-items:center;padding:16px}.card{width:min(610px,100%);border:1px solid var(--line);border-radius:19px;background:#fff;padding:24px;box-shadow:0 18px 60px #172c3625}
+h1{font-size:clamp(23px,4.6vw,30px);margin:4px 0 18px;line-height:1.15}
+.eyebrow{font-size:12px;letter-spacing:.08em;font-weight:800;color:var(--mint);text-transform:uppercase}
+.file{background:#eff9f6;border:1px solid #c7e3d9;border-left:5px solid var(--mint);padding:15px;border-radius:12px;overflow-wrap:anywhere}
+.file strong{display:block;font-size:16px}.meta{color:var(--muted);font-size:13px;margin-top:6px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:17px 0}
+button{font:inherit;min-height:52px;border:1px solid #1e5352;border-radius:10px;color:#fff;background:var(--navy);cursor:pointer;font-weight:800;padding:12px}
+button.primary{background:var(--mint);border-color:var(--mint)}button:disabled{opacity:.45;cursor:default}
+.status{min-height:24px;font-size:14px;color:#147360}.status.error{color:#a72f39}
+.note{font-size:13px;color:var(--muted)}.back{font-size:15px;font-weight:750;color:var(--mint)}
+@media(max-width:460px){.actions{grid-template-columns:1fr}.card{padding:18px}}
+</style></head>
+<body>
+<main class="card">
+<div class="eyebrow">Vertrauliches Arbeitsblatt · fertige Datei</div>
+<h1>PDF speichern oder teilen</h1>
+<div class="file"><strong id="filename">PDF wird geladen …</strong><div id="meta" class="meta"></div></div>
+<div class="actions"><button type="button" id="save" class="primary" disabled>PDF speichern</button><button type="button" id="share" disabled>PDF teilen</button></div>
+<p id="status" class="status" role="status" aria-live="polite">Die fertig erzeugte PDF wird übernommen.</p>
+<p class="note">Die Datei wurde bereits auf dem Gerät erstellt. „PDF speichern“ öffnet – soweit unterstützt – die Dateifreigabe. Dort „In Dateien sichern“ wählen. Es wird kein Druckdialog benötigt und nichts hochgeladen.</p>
+<a href="./arbeitsblatt-geinsheim.html" class="back">Zurück zum Arbeitsblatt</a>
+</main>
+<script>
+(function(){
+"use strict";
+var DB_NAME="erbstreit-geinsheim-pdf-handoff-v1",STORE="files",file=null;
+var q=new URLSearchParams(location.search),token=q.get("token")||"";
+var $=function(id){return document.getElementById(id);};
+function msg(s,error){$("status").textContent=s;$("status").classList.toggle("error",!!error);}
+function shareSupported(){try{return !!(file&&navigator.share&&navigator.canShare&&navigator.canShare({files:[file]}));}catch(e){return false;}}
+function openDb(){return new Promise(function(resolve,reject){var req=indexedDB.open(DB_NAME,1);req.onupgradeneeded=function(){if(!req.result.objectStoreNames.contains(STORE))req.result.createObjectStore(STORE,{keyPath:"token"});};req.onsuccess=function(){resolve(req.result);};req.onerror=function(){reject(req.error||Error("Speicher nicht verfügbar"));};});}
+async function getRecord(t){var db=await openDb();try{return await new Promise(function(resolve,reject){var tx=db.transaction(STORE,"readonly"),req=tx.objectStore(STORE).get(t);req.onsuccess=function(){resolve(req.result||null);};req.onerror=function(){reject(req.error||Error("Datei nicht gefunden"));};});}finally{db.close();}}
+async function save(){
+ if(!file)return msg("Keine fertige PDF vorhanden.",true);
+ if(typeof window.showSaveFilePicker==="function"){
+  try{
+   var h=await window.showSaveFilePicker({suggestedName:file.name,types:[{description:"PDF",accept:{"application/pdf":[".pdf"]}}]});
+   var stream=await h.createWritable();await stream.write(file);await stream.close();
+   return msg("PDF gespeichert.");
+  }catch(e){if(e&&e.name==="AbortError")return msg("Speichern abgebrochen.");}
+ }
+ if(shareSupported()){
+  try{await navigator.share({files:[file],title:file.name});return msg("Die PDF wurde an die Dateifreigabe übergeben. Bitte dort „In Dateien sichern“ auswählen.");}
+  catch(e){if(e&&e.name==="AbortError")return msg("Speichern abgebrochen.");}
+ }
+ var url=URL.createObjectURL(file),a=document.createElement("a");
+ a.href=url;a.download=file.name;a.hidden=true;document.body.appendChild(a);a.click();a.remove();
+ setTimeout(function(){URL.revokeObjectURL(url);},12000);
+ msg("Browser-Download gestartet. Bitte in „Downloads“ beziehungsweise „Dateien“ überprüfen.");
+}
+async function share(){
+ if(!file)return msg("Keine fertige PDF vorhanden.",true);
+ if(!shareSupported())return msg("Die Dateifreigabe wird von dieser Browseransicht nicht angeboten. Bitte „PDF speichern“ verwenden.",true);
+ try{await navigator.share({files:[file],title:file.name});msg("Dateifreigabe geöffnet.");}
+ catch(e){if(e&&e.name==="AbortError")return msg("Teilen abgebrochen.");msg("Teilen fehlgeschlagen: "+(e?.message||e),true);}
+}
+async function load(){
+ try{
+  if(!token)throw Error("Kein PDF-Auftrag in der Adresse. Bitte das Arbeitsblatt öffnen und erneut die PDF erstellen.");
+  var rec=await getRecord(token);
+  if(!rec||!rec.blob||!rec.filename)throw Error("Keine fertige PDF gefunden. Bitte vom Arbeitsblatt aus neu erstellen.");
+  file=new File([rec.blob],rec.filename,{type:"application/pdf"});
+  $("filename").textContent=file.name;
+  $("meta").textContent=[rec.format,rec.created].filter(Boolean).join(" · ");
+  $("save").disabled=false;$("share").disabled=!shareSupported();
+  msg("Ihre PDF ist fertig. Wählen Sie „PDF speichern“.");
+ }catch(e){msg(e?.message||String(e),true);}
+}
+$("save").addEventListener("click",save);
+$("share").addEventListener("click",share);
+load();
+})();
+</script>
+</body></html>
