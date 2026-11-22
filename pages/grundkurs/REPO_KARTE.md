@@ -1972,6 +1972,9 @@
     │   ├── affiliate-magazin.html
     │   ├── album-liquiditybooster.html
     │   ├── angebot-michael-rau.html
+    │   ├── arbeitsblatt-geinsheim-pdf-speichern.html
+    │   ├── arbeitsblatt-geinsheim.html
+    │   ├── arbeitsmappe-immobilienfinanzierung.html
     │   ├── botschafter-sein.html
     │   ├── business-booster-mitgliedschaften.html
     │   ├── club-leader-verdienstvorschau-aufbauprogramm.html
@@ -2084,4 +2087,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.11.2026, 04:39)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 22.11.2026, 12:59)_
