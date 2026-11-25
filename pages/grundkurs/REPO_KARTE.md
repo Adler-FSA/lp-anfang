@@ -2087,4 +2087,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 24.11.2026, 18:33)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 25.11.2026, 02:54)_
