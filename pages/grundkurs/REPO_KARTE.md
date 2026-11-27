@@ -16,6 +16,73 @@
     │       ├── SPEICHER.md
     │       ├── UEBERSICHT.md
     │       └── migrationsdaten.json
+    ├── ein-souveraenes-geburtsrecht/
+    │   ├── 00-buchkonzept/
+    │   │   ├── index.html
+    │   │   └── kapitelbauplan.html
+    │   ├── 01-autorenhandbuch/
+    │   │   ├── autorenstimme.html
+    │   │   ├── freigabeprozess.html
+    │   │   ├── index.html
+    │   │   ├── recherche-standards.html
+    │   │   └── redaktionelle-grundsaetze.html
+    │   ├── 02-recherche/
+    │   │   ├── gesellschaft-2026.html
+    │   │   ├── historische-grundlagen.html
+    │   │   ├── index.html
+    │   │   ├── kapitel-01-recherche.html
+    │   │   ├── kapitel-recherche.html
+    │   │   ├── quellenregister.html
+    │   │   └── rechtsgrundlagen.html
+    │   ├── 03-buchanfang/
+    │   │   ├── einleitung.html
+    │   │   ├── index.html
+    │   │   └── vorwort.html
+    │   ├── 04-teil-1/
+    │   │   ├── index.html
+    │   │   ├── kapitel-01.html
+    │   │   ├── kapitel-02.html
+    │   │   ├── kapitel-03.html
+    │   │   ├── kapitel-04.html
+    │   │   ├── kapitel-05.html
+    │   │   └── kapitel-06.html
+    │   ├── 05-teil-2/
+    │   │   ├── index.html
+    │   │   ├── kapitel-07.html
+    │   │   ├── kapitel-08.html
+    │   │   ├── kapitel-09.html
+    │   │   ├── kapitel-10.html
+    │   │   ├── kapitel-11.html
+    │   │   ├── kapitel-12.html
+    │   │   └── kapitel-13.html
+    │   ├── 06-teil-3/
+    │   │   ├── index.html
+    │   │   ├── kapitel-14.html
+    │   │   ├── kapitel-15.html
+    │   │   ├── kapitel-16.html
+    │   │   ├── kapitel-17.html
+    │   │   ├── kapitel-18.html
+    │   │   ├── kapitel-19.html
+    │   │   ├── kapitel-20.html
+    │   │   └── kapitel-21.html
+    │   ├── 07-teil-4/
+    │   │   ├── index.html
+    │   │   ├── kapitel-22.html
+    │   │   ├── kapitel-23.html
+    │   │   ├── kapitel-24.html
+    │   │   ├── kapitel-25.html
+    │   │   ├── kapitel-26.html
+    │   │   ├── kapitel-27.html
+    │   │   └── kapitel-28.html
+    │   ├── 08-buchabschluss/
+    │   │   └── index.html
+    │   ├── 09-anhang/
+    │   │   └── index.html
+    │   ├── 10-buchproduktion/
+    │   │   └── index.html
+    │   ├── 11-veroeffentlichung/
+    │   │   └── index.html
+    │   └── index.html
     ├── hoersal/
     │   └── tln-konzept.html
     ├── js/
@@ -2087,4 +2154,4 @@
     ├── test.html
     └── zoom-uebersicht.html
 
-_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.11.2026, 14:35)_
+_(Automatisch aktualisiert über GitHub Actions – letzter Build: 27.11.2026, 23:08)_
